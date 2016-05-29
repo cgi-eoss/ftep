@@ -1,0 +1,60 @@
+[mapPrinter]
+ Title = Prints the input and configuration maps passed to the processor
+ Abstract = see title
+ processVersion = 1
+ storeSupported = true
+ statusSupported = true
+ serviceType = Java
+ serviceProvider = DummyWrapperProcessor
+ <DataInputs>
+  [i1]
+   Title = in1
+   Abstract = The input Open Document Text including all required Styles
+   minOccurs = 1
+   maxOccurs = 1
+   <ComplexData>
+    <Default>
+     mimeType = application/text
+     encoding = UTF-8
+     asReference = true
+    </Default>
+   </ComplexData>
+   [i2]
+   Title = in2
+   Abstract = The input Open Document Text including all required Styles
+   minOccurs = 1
+   maxOccurs = 1
+   <ComplexData>
+    <Default>
+     mimeType = application/text
+     encoding = UTF-8
+     asReference = true
+    </Default>
+   </ComplexData>
+ </DataInputs>
+  <DataOutputs>
+  [Map1]
+   Title = The hello string
+   Abstract = The Hello message string.
+   <LiteralOutput>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralOutput>
+  [Map2]
+   Title = The hello string
+   Abstract = The Hello message string.
+   <LiteralOutput>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralOutput>
+  [MainConf]
+   Title = The hello string
+   Abstract = The Hello message string.
+   <LiteralOutput>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralOutput>
+ </DataOutputs>

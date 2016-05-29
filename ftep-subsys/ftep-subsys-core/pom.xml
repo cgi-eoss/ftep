@@ -11,5 +11,7 @@
   <name>FTEP :: Subsystems :: Core Controller (CEC)</name>
   <modules>
   	<module>ftep-subsys-core-wpswrapper</module>
+  	<module>ftep-subsys-core-demoprocessor</module>
+  	<module>ftep-subsys-core-requesthandler</module>
   </modules>
 </project>

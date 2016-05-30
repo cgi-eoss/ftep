@@ -11,49 +11,62 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
 
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 
 public class DataManager {
+	private static final Logger LOG = Logger.getLogger(DataManager.class);
+	private List<String> inputFiles = new ArrayList<String>();
+
+	public List<String> getInputFileIdentifiers() {
+		return inputFiles;
+	}
 
 	public boolean getData(FtepJob job, HashMap<String, List<String>> inputItems) {
-
 		try {
-			
-			List<String> i1Map = inputItems.get("i1");
-			List<String> i2Map = inputItems.get("i2");
-			
-			// FIXME : get all the urls 
-			URL file1 = new URL(i1Map.get(0));
-			URL file2 = new URL(i2Map.get(0));
 
-			InputStream in1 = file1.openStream();
-			InputStream in2 = file2.openStream();
-			File target = job.getWorkingDir();
-			String i1Path = new File(target, "f1.txt").getAbsolutePath();
-			String i2Path = new File(target, "f2.txt").getAbsolutePath();
+			for (Entry<String, List<String>> entry : inputItems.entrySet()) {
+				List<String> updatedInputPaths = new ArrayList<String>();
+				String inputIdentifier = entry.getKey();
+				List<String> inputValues = entry.getValue();
+				for (String val : inputValues) {
+					if (val.contains("http")) {
+						URL url = new URL(val);
+						InputStream is = url.openStream();
+						String path = url.getPath();
+						String[] parts = path.split("/");
+						String filename = parts[parts.length - 1];
+						File target = job.getWorkingDir();
+						String inputPath = new File(target, filename).getAbsolutePath();
+						Files.copy(is, Paths.get(inputPath), StandardCopyOption.REPLACE_EXISTING);
+						updatedInputPaths.add(inputPath);
+						inputFiles.add(filename);
+					} else
+						break;
+				}
+				if (updatedInputPaths.size() > 0) {
+					inputItems.put(inputIdentifier, updatedInputPaths);
+				}
+			}
 
-			Files.copy(in1, Paths.get(i1Path), StandardCopyOption.REPLACE_EXISTING);
-			Files.copy(in2, Paths.get(i2Path), StandardCopyOption.REPLACE_EXISTING);
-			inputItems.put("i1", string2List(i1Path));
-			inputItems.put("i2", string2List(i2Path));
-
+			LOG.info("Updated input items after fetching data");
+			for (Entry<String, List<String>> e : inputItems.entrySet()) {
+				LOG.info(e.getKey() + " :::: " + e.getValue());
+			}
+			LOG.info("Input File Paths are: " + inputFiles);
 			return true;
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
+			LOG.error(e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			LOG.error(e.getMessage());
 			e.printStackTrace();
 		}
 
 		return false;
-	}
-
-	private List<String> string2List(String item) {
-		List<String> stringList = new ArrayList<String>();
-		stringList.add(item);
-		return stringList;
 	}
 
 }

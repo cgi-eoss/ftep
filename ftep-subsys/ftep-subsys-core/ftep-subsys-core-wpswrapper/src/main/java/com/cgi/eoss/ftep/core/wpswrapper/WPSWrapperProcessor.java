@@ -38,7 +38,7 @@ public class WPSWrapperProcessor {
 
 			// step 2: retrieve input data and place it in job's working
 			// directory
-			requestHandler.fetchInputData(job);
+			List<String> inputFileNames = requestHandler.fetchInputData(job);
 
 			// step 3: get VM worker
 
@@ -46,8 +46,8 @@ public class WPSWrapperProcessor {
 			String dkrImage = "filejoinerimg";
 			String dirToMount = job.getWorkingDir().getAbsolutePath();
 			String mountPoint = "/workDir/" + job.getWorkingDir().getName();
-			String procArg1 = mountPoint + "/f1.txt";
-			String procArg2 = mountPoint + "/f2.txt";
+			String procArg1 = mountPoint + "/" + inputFileNames.get(0);
+			String procArg2 = mountPoint + "/" + inputFileNames.get(1);
 
 			HashMap i3 = (HashMap) (inputs.get("i3"));
 			String outputFileName = i3.get("value").toString();
@@ -59,12 +59,13 @@ public class WPSWrapperProcessor {
 			Volume volume1 = new Volume(mountPoint);
 
 			DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://192.168.3.87:2375").withDockerTlsVerify(false).withApiVersion("1.22")
+					.withDockerHost("tcp://"+ requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(false).withApiVersion("1.22")
 					.build();
 			DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 			CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage).withVolumes(volume1)
 					.withBinds(new Bind(dirToMount, volume1)).withCmd(procArg1, procArg2, procArg3, procArg4).exec();
 
+			LOG.info("Docker  start command arguments: " + procArg1 +" "+ procArg2+" "+ procArg3+" "+ procArg4);
 			dockerClient.startContainerCmd(container.getId()).exec();
 
 			int exitCode = dockerClient.waitContainerCmd(container.getId()).exec(new WaitContainerResultCallback())

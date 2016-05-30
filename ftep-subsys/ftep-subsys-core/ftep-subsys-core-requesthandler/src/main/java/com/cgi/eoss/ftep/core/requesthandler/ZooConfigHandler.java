@@ -10,6 +10,9 @@ public class ZooConfigHandler {
 	private HashMap<String, String> ftepZooConf;
 	private File workingDirParent;
 	private File log4jPropFile;
+	// TODO remove the workerVM property after the implementation of Resource
+	// Provisioner
+	private String workerVM;
 	private static final Logger LOG = Logger.getLogger(ZooConfigHandler.class);
 
 	public ZooConfigHandler(HashMap<String, HashMap<String, String>> zooConf) {
@@ -36,6 +39,16 @@ public class ZooConfigHandler {
 		}
 
 		return log4jPropFile;
+	}
+
+	public String getWorkerVM() {
+		String workerVmIpAddr = ftepZooConf.get(FtepConf.WORKER_VM_IP_ADDRESS);
+		if (null != workerVmIpAddr) {
+			return workerVmIpAddr;
+		} else {
+			LOG.error("Missing property " + FtepConf.WORKER_VM_IP_ADDRESS + " in the F-TEP configuration");
+		}
+		return "localhost:2375";
 	}
 
 }

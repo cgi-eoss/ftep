@@ -100,14 +100,17 @@ public class RequestHandler {
 
 	}
 
-	public void fetchInputData(FtepJob job) {
+	public List<String> fetchInputData(FtepJob job) {
+		List<String> inputFiles = new ArrayList<String>();
 
 		if (dataManager.getData(job, inputItems)) {
-			LOG.info("Data transfer success");
+			LOG.info("Data fetched successfully from web");
+			return dataManager.getInputFileIdentifiers();
 		} else {
 			LOG.info("Data transfer failed");
 		}
 
+		return inputFiles;
 	}
 
 	public void configureLogger() {
@@ -141,6 +144,12 @@ public class RequestHandler {
 
 		}
 		return inputItems;
+
+	}
+
+	public String getWorkVmIpAddr() {
+
+		return zooConfigHandler.getWorkerVM();
 
 	}
 }

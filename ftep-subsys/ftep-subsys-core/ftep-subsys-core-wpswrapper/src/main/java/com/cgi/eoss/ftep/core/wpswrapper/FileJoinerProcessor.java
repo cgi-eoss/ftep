@@ -15,16 +15,23 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class WPSWrapperProcessor {
-	private static final Logger LOG = Logger.getLogger(WPSWrapperProcessor.class);
+public class FileJoinerProcessor extends AbstractWrapperProc {
+
+	public FileJoinerProcessor(String dockerImgName) {
+		super(dockerImgName);
+	}
+
+	private static final Logger LOG = Logger.getLogger(FileJoinerProcessor.class);
+	private static final String DOCKER_IMAGE_NAME = "filejoinerimg";
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static int startDockerContainer(HashMap conf, HashMap inputs, HashMap outputs) {
-		RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
-		HashMap<String, List<String>> inputItems = requestHandler.getInputItems();
+	public static int startFileJoiner(HashMap conf, HashMap inputs, HashMap outputs) {
 
-		int estimatedExecutionCost = estimateExecutionCost();
-		boolean simulateWPS = getInputParameter("simulateWPS");
+		FileJoinerProcessor fileJoinerProcessor = new FileJoinerProcessor(DOCKER_IMAGE_NAME);
+		RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+
+		int estimatedExecutionCost = requestHandler.estimateExecutionCost();
+		boolean simulateWPS = fileJoinerProcessor.getInputParameter("simulateWPS");
 
 		if (simulateWPS) {
 			// write estimatedCost to output
@@ -32,7 +39,7 @@ public class WPSWrapperProcessor {
 		}
 
 		// account balance (TEP coins)
-		if (isSufficientCoinsAvailable()) {
+		if (fileJoinerProcessor.isSufficientCoinsAvailable()) {
 			// step 1: create a Job with unique JobID and working directory
 			FtepJob job = requestHandler.createJob();
 
@@ -43,7 +50,7 @@ public class WPSWrapperProcessor {
 			// step 3: get VM worker
 
 			// step 4: start the docker container
-			String dkrImage = "filejoinerimg";
+			String dkrImage = DOCKER_IMAGE_NAME;
 			String dirToMount = job.getWorkingDir().getAbsolutePath();
 			String mountPoint = "/workDir/" + job.getWorkingDir().getName();
 			String procArg1 = mountPoint + "/" + inputFileNames.get(0);
@@ -59,13 +66,13 @@ public class WPSWrapperProcessor {
 			Volume volume1 = new Volume(mountPoint);
 
 			DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://"+ requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(false).withApiVersion("1.22")
-					.build();
+					.withDockerHost("tcp://" + requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(false)
+					.withApiVersion("1.22").build();
 			DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 			CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage).withVolumes(volume1)
 					.withBinds(new Bind(dirToMount, volume1)).withCmd(procArg1, procArg2, procArg3, procArg4).exec();
 
-			LOG.info("Docker  start command arguments: " + procArg1 +" "+ procArg2+" "+ procArg3+" "+ procArg4);
+			LOG.info("Docker  start command arguments: " + procArg1 + " " + procArg2 + " " + procArg3 + " " + procArg4);
 			dockerClient.startContainerCmd(container.getId()).exec();
 
 			int exitCode = dockerClient.waitContainerCmd(container.getId()).exec(new WaitContainerResultCallback())
@@ -78,26 +85,6 @@ public class WPSWrapperProcessor {
 
 		return 3;
 
-	}
-
-	private static boolean isSufficientCoinsAvailable() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	private static boolean isValidUser() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	private static int estimateExecutionCost() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private static boolean getInputParameter(String string) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

@@ -15,6 +15,8 @@ import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 public class RequestHandler {
 	private static final Logger LOG = Logger.getLogger(RequestHandler.class);
 
+	private static boolean isLoggerConfigured = false;
+
 	private JobManager jobManager;
 	private DataManager dataManager;
 	private ClusterManager clusterManager;
@@ -37,7 +39,10 @@ public class RequestHandler {
 	}
 
 	private void init(HashMap<String, HashMap<String, Object>> inputs, HashMap<String, HashMap<String, String>> conf) {
-		configureLogger();
+		if (!isLoggerConfigured) {
+			configureLogger();
+			isLoggerConfigured = true;
+		}
 		inputItems = getInputs(inputs);
 		jobManager = new JobManager();
 		dataManager = new DataManager();
@@ -148,8 +153,11 @@ public class RequestHandler {
 	}
 
 	public String getWorkVmIpAddr() {
-
 		return zooConfigHandler.getWorkerVM();
+	}
 
+	public int estimateExecutionCost() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

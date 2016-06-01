@@ -16,7 +16,7 @@
 			<scope>runtime</scope>
 			<excludes>
 				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-wpswrapper</exclude>
-<!-- 				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-requesthandler</exclude> -->
+				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-requesthandler</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

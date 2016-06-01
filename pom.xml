@@ -53,6 +53,7 @@
 	<modules>
 		<module>ftep-commons</module>
 		<module>ftep-subsys</module>
+		<module>ftep-config</module>
 	</modules>
 
 </project>

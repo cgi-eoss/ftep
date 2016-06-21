@@ -1,17 +1,27 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.cgi.eoss.f-tep</groupId>
-    <artifactId>ftep-subsys</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-  </parent>
-  <groupId>com.cgi.eoss.f-tep.subsys</groupId>
-  <artifactId>ftep-subsys-core</artifactId>
-  <packaging>pom</packaging>
-  <name>FTEP :: Subsystems :: Core Controller (CEC)</name>
-  <modules>
-  	<module>ftep-subsys-core-wpswrapper</module>
-  	<module>ftep-subsys-core-demoprocessor</module>
-  	<module>ftep-subsys-core-requesthandler</module>
-  </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.cgi.eoss.f-tep</groupId>
+		<artifactId>ftep-subsys</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<groupId>com.cgi.eoss.f-tep.subsys</groupId>
+	<artifactId>ftep-subsys-core</artifactId>
+	<packaging>pom</packaging>
+	<name>FTEP :: Subsystems :: Core Controller (CEC)</name>
+	<modules>
+		<module>ftep-subsys-core-wpswrapper</module>
+		<module>ftep-subsys-core-demoprocessor</module>
+		<module>ftep-subsys-core-requesthandler</module>
+		<module>ftep-subsys-core-utils</module>
+	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.cgi.eoss.f-tep.commons</groupId>
+			<artifactId>ftep-commons-zoo</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

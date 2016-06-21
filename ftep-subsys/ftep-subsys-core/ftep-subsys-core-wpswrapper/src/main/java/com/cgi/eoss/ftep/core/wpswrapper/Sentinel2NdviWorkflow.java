@@ -12,41 +12,40 @@ import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class FileJoinerProcessor extends AbstractWrapperProc {
+public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
-	public FileJoinerProcessor(String dockerImgName) {
+	public Sentinel2NdviWorkflow(String dockerImgName) {
 		super(dockerImgName);
 	}
 
-	private static final Logger LOG = Logger.getLogger(FileJoinerProcessor.class);
-	private static final String DOCKER_IMAGE_NAME = "filejoinerimg";
+	private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
+	private static final String DOCKER_IMAGE_NAME = "s2-ndvi";
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static int startFileJoiner(HashMap conf, HashMap inputs, HashMap outputs) {
+	public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
 
-		FileJoinerProcessor fileJoinerProcessor = new FileJoinerProcessor(DOCKER_IMAGE_NAME);
+		Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
 		RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
-
-		HashMap lEnvMap = (HashMap) (conf.get(ZooConstants.ZOO_LENV_CFG_MAP));
 
 		String userid = requestHandler.getUserId();
 
 		int estimatedExecutionCost = requestHandler.estimateExecutionCost();
 //		boolean simulateWPS = requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE, Boolean.class);
-//
+
 //		if (simulateWPS) {
 //			// write estimatedCost to output
 //			return 3;
 //		}
 
 		// account balance (TEP coins)
-		if (fileJoinerProcessor.isSufficientCoinsAvailable()) {
+		if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
 			// step 1: create a Job with unique JobID and working directory
 			FtepJob job = requestHandler.createJob();
 
@@ -59,34 +58,34 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 			// step 4: start the docker container
 			String dkrImage = DOCKER_IMAGE_NAME;
 			String dirToMount = job.getWorkingDir().getAbsolutePath();
-			String mountPoint = FtepConstants.DOCKER_JOB_DIR_MOUNTPOINT + job.getWorkingDir().getName();
-			String procArg1 = mountPoint + "/" + inputFileNames.get(0);
-			String procArg2 = mountPoint + "/" + inputFileNames.get(1);
+			String mountPoint = "/home/worker/workDir";
 
-			HashMap i3 = (HashMap) (inputs.get("i3"));
-			String outputFileName = i3.get("value").toString();
-			String procArg3 = mountPoint + "/" + outputFileName;
-
-			HashMap i4 = (HashMap) (inputs.get("i4"));
-			String procArg4 = i4.get("value").toString();
 
 			Volume volume1 = new Volume(mountPoint);
 
 			DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
 					.withDockerHost("tcp://" + requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(true)
 					.withDockerCertPath("/home/ftep/.docker/").withApiVersion("1.22").build();
+			
 			DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+			
 			CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage).withVolumes(volume1)
-					.withBinds(new Bind(dirToMount, volume1)).withCmd(procArg1, procArg2, procArg3, procArg4).exec();
+					.withBinds(new Bind(dirToMount, volume1)).exec();
 
-			LOG.info("Docker  start command arguments: " + procArg1 + " " + procArg2 + " " + procArg3 + " " + procArg4);
+			LOG.info("Starting docker ++++" );
+
 			dockerClient.startContainerCmd(container.getId()).exec();
 
+			LOG.info("Waiting ++++" );
+
+			LogContainerCmd logs = dockerClient.logContainerCmd(container.getId()).withStdErr(true).withStdOut(true);
+			
 			int exitCode = dockerClient.waitContainerCmd(container.getId()).exec(new WaitContainerResultCallback())
 					.awaitStatusCode();
 
-			HashMap out1 = (HashMap) (outputs.get("out1"));
-			out1.put("generated_file", "....." + procArg3);
+			LOG.info("Creating Output after exitcode ++++" + exitCode);
+			HashMap out1 = (HashMap) (outputs.get("Result"));
+			out1.put("value", job.getOutputDir());
 
 		}
 

@@ -35,10 +35,10 @@ public abstract class AbstractWrapperProc {
 		return true;
 	}
 
-	boolean getInputParameter(String string) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+//	boolean getInputParameter(String string) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
 
 	public String getDockerImageName() {
 		return dockerImageName;

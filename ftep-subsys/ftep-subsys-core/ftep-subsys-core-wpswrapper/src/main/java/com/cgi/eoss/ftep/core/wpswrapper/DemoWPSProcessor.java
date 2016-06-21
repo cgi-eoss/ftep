@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -40,11 +41,20 @@ public class DemoWPSProcessor {
 		hm1.put("dataType", "string");
 		HashMap tmp = (HashMap) (inputs.get("Mins"));
 		java.lang.String v = tmp.get("value").toString();
-		hm1.put("value", "Processor will sleep for " + v + " Minutes!");
+		HashMap senvMap = (HashMap) (conf.get("senv"));
+
+		String userid = "myString";
+		if (null != senvMap && senvMap.size() != 0) {
+			userid = (String) senvMap.get("userid");
+		} else
+			userid = "Senv is NULL";
+		hm1.put("value", "Processor will sleep for " + v + " Minutes! " + userid);
+
 		outputs.put("Result", hm1);
+
 		System.err.println("Hello from JAVA WOrld !");
 		try {
-			TimeUnit.MINUTES.sleep(Integer.parseInt(v));
+			TimeUnit.SECONDS.sleep(Integer.parseInt(v));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -55,9 +65,21 @@ public class DemoWPSProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static int mapPrinter(HashMap conf, HashMap inputs, HashMap outputs) {
-		
+
 		RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
 		requestHandler.getInputItems();
+
+		HashMap lenvMap = (HashMap) (conf.get("lenv"));
+		long now = new Date().getTime();
+		lenvMap.put("cookie", "MMID=MM"+now+"; path=/");
+
+		HashMap senvMap = (HashMap) (conf.get("senv"));
+		if (null == senvMap)
+			senvMap = new HashMap();
+
+		senvMap.put("MMID", "MM"+now);
+		senvMap.put("userid", "rakesh");
+		conf.put("senv", senvMap);
 
 		HashMap output1 = new HashMap();
 		HashMap output2 = new HashMap();

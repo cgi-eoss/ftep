@@ -11,62 +11,72 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
+import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 
 public class RequestHandler {
 	private static final Logger LOG = Logger.getLogger(RequestHandler.class);
 
 	private static boolean isLoggerConfigured = false;
 
-	private JobManager jobManager;
 	private DataManager dataManager;
 	private ClusterManager clusterManager;
 	private ZooConfigHandler zooConfigHandler;
 	private File log4jPropFile;
-	// private HashMap<String, HashMap<String, Object>> wpsInputs;
-	private HashMap<String, HashMap<String, String>> wpsOutputs;
 	private HashMap<String, List<String>> inputItems = new HashMap<String, List<String>>();
+	private HashMap<String, HashMap<String, String>> zooConfMap;
+	private HashMap<String, HashMap<String, Object>> wpsInputsMap;
+	private HashMap<String, HashMap<String, String>> wpsOutputsMap;
 
 	public HashMap<String, List<String>> getInputItems() {
 		return inputItems;
 	}
 
-	public RequestHandler(HashMap<String, HashMap<String, String>> conf,
-			HashMap<String, HashMap<String, Object>> inputs, HashMap<String, HashMap<String, String>> outputs) {
-		wpsOutputs = outputs;
-		zooConfigHandler = new ZooConfigHandler(conf);
+	public RequestHandler(HashMap<String, HashMap<String, String>> _conf,
+			HashMap<String, HashMap<String, Object>> _inputs, HashMap<String, HashMap<String, String>> _outputs) {
+		wpsOutputsMap = _outputs;
+		zooConfMap = _conf;
+		wpsInputsMap = _inputs;
 
-		init(inputs, conf);
+		init();
 	}
 
-	private void init(HashMap<String, HashMap<String, Object>> inputs, HashMap<String, HashMap<String, String>> conf) {
+	private void init() {
+		zooConfigHandler = new ZooConfigHandler(zooConfMap);
+
 		if (!isLoggerConfigured) {
 			configureLogger();
 			isLoggerConfigured = true;
 		}
-		inputItems = getInputs(inputs);
-		jobManager = new JobManager();
+		inputItems = buildInputsValueMap();
 		dataManager = new DataManager();
 		clusterManager = new ClusterManager();
 	}
 
 	public FtepJob createJob() {
-		FtepJob job = jobManager.createJob();
-		job.setWorkingDir(createWorkingDir(job));
-		return job;
+		FtepJob ftepJob = new FtepJob();
+		ftepJob.setJobID(zooConfigHandler.getJobID());
+		ftepJob.setStatus(JobStatus.CREATED);
+		createWorkingDir(ftepJob);
+		return ftepJob;
 	}
 
-	private File createWorkingDir(FtepJob job) {
+	private void createWorkingDir(FtepJob job) {
 
 		try {
 			String dirName = job.getJobID();
 			File workingDir = zooConfigHandler.getWorkingDirParent();
-			File jobWorkingDir = createDirectory(workingDir.getAbsolutePath(), "Job_" + dirName);
-			return jobWorkingDir;
+			File jobWorkingDir = createDirectory(workingDir.getAbsolutePath(), FtepConstants.JOB_DIR_PREFIX + dirName);
+			File inputDir = createDirectory(jobWorkingDir.getAbsolutePath(), FtepConstants.JOB_INPUT_DIR);
+			File outputDir = createDirectory(jobWorkingDir.getAbsolutePath(), FtepConstants.JOB_OUTPUT_DIR);
+
+			job.setWorkingDir(jobWorkingDir);
+			job.setInputDir(inputDir);
+			job.setOutputDir(outputDir);
 
 		} catch (Exception ex) {
 			LOG.error("Exception in job directory creation", ex);
 		}
-		return null;
 
 	}
 
@@ -82,27 +92,6 @@ public class RequestHandler {
 		}
 
 		return dirInCache;
-	}
-
-	public static void main(String[] args) {
-		System.out.println("Testing Request Handler");
-
-		String log4jPropertyfileStr = "log4j.properties";
-		if (null != log4jPropertyfileStr && !log4jPropertyfileStr.isEmpty()) {
-			File log4jPropertyFile = new File(log4jPropertyfileStr);
-			PropertyConfigurator.configure(log4jPropertyFile.getAbsolutePath());
-		} else {
-			BasicConfigurator.configure();
-		}
-
-		HashMap<String, String> config = new HashMap<String, String>();
-		config.put("workingDirLocation", "E:\\07_StagingArea");
-
-		HashMap<String, HashMap<String, String>> configuration = new HashMap<String, HashMap<String, String>>();
-		configuration.put("ftep", config);
-		RequestHandler handler = new RequestHandler(configuration, null, null);
-		handler.createJob();
-
 	}
 
 	public List<String> fetchInputData(FtepJob job) {
@@ -129,8 +118,8 @@ public class RequestHandler {
 		}
 	}
 
-	private HashMap<String, List<String>> getInputs(HashMap<String, HashMap<String, Object>> wpsInputs) {
-		for (Entry<String, HashMap<String, Object>> entry : wpsInputs.entrySet()) {
+	private HashMap<String, List<String>> buildInputsValueMap() {
+		for (Entry<String, HashMap<String, Object>> entry : wpsInputsMap.entrySet()) {
 			HashMap<String, Object> valueObj = entry.getValue();
 			List<String> value = new ArrayList<String>();
 			boolean isArray = valueObj.containsKey("isArray");
@@ -143,7 +132,7 @@ public class RequestHandler {
 			inputItems.put(entry.getKey(), value);
 		}
 
-		LOG.info("Input Items");
+		LOG.info("WPS Execute Request Input Items");
 		for (Entry<String, List<String>> e : inputItems.entrySet()) {
 			LOG.info(e.getKey() + " :::: " + e.getValue());
 
@@ -160,4 +149,26 @@ public class RequestHandler {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	public String getUserId() {
+
+		return zooConfigHandler.getUserID();
+	}
+
+	public <T> T getInputParamValue(String paramName, Class<T> type) {
+		List<String> values = inputItems.get(paramName);
+		String value = null;
+		if (null != values) {
+			if (values.size() > 1) {
+				value = values.toString();
+			} else {
+				value = values.get(0);
+			}
+			return type.cast(value);
+		}
+
+		return null;
+
+	}
+
 }

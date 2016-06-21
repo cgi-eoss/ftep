@@ -23,7 +23,7 @@ public class FileJoiner {
 			// output, delay in secs
 
 			if (args.length < 4) {
-				System.err.println("ERROR: Minimum 2 arguments are required");
+				System.err.println("ERROR: Minimum 4 arguments are required");
 				return;
 			}
 

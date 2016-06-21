@@ -3,9 +3,11 @@ package com.cgi.eoss.ftep.core.requesthandler;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class DataManager {
 				String inputIdentifier = entry.getKey();
 				List<String> inputValues = entry.getValue();
 				for (String val : inputValues) {
-					if (val.contains("http")) {
+					if (val.startsWith("http://")) {
 						URL url = new URL(val);
 						InputStream is = url.openStream();
 						String path = url.getPath();
@@ -44,6 +46,20 @@ public class DataManager {
 						Files.copy(is, Paths.get(inputPath), StandardCopyOption.REPLACE_EXISTING);
 						updatedInputPaths.add(inputPath);
 						inputFiles.add(filename);
+					} else if (val.startsWith("copy://")) {
+						String inputPath = val.substring(7);
+
+						Path source = Paths.get(inputPath);
+
+						String[] parts = inputPath.split("/");
+						String foldername = parts[parts.length - 1];
+						File target = job.getInputDir();
+						String destination = new File(target, foldername).getAbsolutePath();
+						Files.move(source, Paths.get(destination));
+//						Files.createSymbolicLink(Paths.get(destination),source);
+						updatedInputPaths.add(destination);
+						inputFiles.add(foldername);
+
 					} else
 						break;
 				}

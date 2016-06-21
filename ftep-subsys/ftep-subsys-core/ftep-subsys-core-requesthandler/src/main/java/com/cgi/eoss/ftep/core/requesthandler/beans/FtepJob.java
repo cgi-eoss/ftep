@@ -6,6 +6,8 @@ public class FtepJob {
 
 	private String jobID;
 	private File workingDir;
+	private File inputDir;
+	private File outputDir;
 	private JobStatus status;
 
 	public String getJobID() {
@@ -30,6 +32,22 @@ public class FtepJob {
 
 	public void setStatus(JobStatus status) {
 		this.status = status;
+	}
+
+	public File getInputDir() {
+		return inputDir;
+	}
+
+	public void setInputDir(File inputDir) {
+		this.inputDir = inputDir;
+	}
+
+	public File getOutputDir() {
+		return outputDir;
+	}
+
+	public void setOutputDir(File outputDir) {
+		this.outputDir = outputDir;
 	}
 
 }

@@ -41,7 +41,7 @@ public class DataManager {
 						String path = url.getPath();
 						String[] parts = path.split("/");
 						String filename = parts[parts.length - 1];
-						File target = job.getWorkingDir();
+						File target = job.getInputDir();
 						String inputPath = new File(target, filename).getAbsolutePath();
 						Files.copy(is, Paths.get(inputPath), StandardCopyOption.REPLACE_EXISTING);
 						updatedInputPaths.add(inputPath);

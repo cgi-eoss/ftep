@@ -1,15 +1,35 @@
 [sentinel2ndvi]
- Title = Calculates NDVI using sentinel 2 toolbox 
- Abstract = see above
+ Title = Calculates NDVI using sentinel 2 toolbox
+ Abstract = Formula is ($sourceBand2 - $sourceBand1)/($sourceBand2+$sourceBand1)
  processVersion = 1
  storeSupported = true
  statusSupported = true
  serviceType = Java
- serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/FileJoinerProcessor
+ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/Sentinel2NdviWorkflow
  <DataInputs>
   [inputfile]
    Title = Sentinel 2 L1C data
    Abstract = The input sentinel 2 data in SAFE format
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+  [sourceBand1]
+   Title = Source Band 1. See NDVI forumla above in Abstract
+   Abstract =  see title
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+  [sourceBand2]
+   Title = Source Band 2. See NDVI forumla above in Abstract
+   Abstract = The output text document
    minOccurs = 1
    maxOccurs = 1
    <LiteralData>
@@ -22,10 +42,9 @@
   [Result]
    Title = GeoTiff NDVI image file
    Abstract = see title
-	<ComplexData>
+   <LiteralData>
+    DataType = string
     <Default>
-     mimeType = image/tiff
-     extension = tif
     </Default>
-   </ComplexData>
+   </LiteralData>
 </DataOutputs>

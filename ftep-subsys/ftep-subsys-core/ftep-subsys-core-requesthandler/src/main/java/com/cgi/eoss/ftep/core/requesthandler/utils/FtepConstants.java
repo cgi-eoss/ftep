@@ -13,7 +13,14 @@ public final class FtepConstants {
 
 	public static final String JOB_OUTPUT_DIR = "outDir";
 	
-	public static final String DOCKER_JOB_DIR_MOUNTPOINT = "/ftepWorkDir/";
+	public static final String DOCKER_SENTINEL_WORKFLOWFILE_JOB_MOUNTPOINT = "/home/worker/workDir";
+	
+	public static final String DOCKER_CERT_PATH ="/home/ftep/.docker/";
+	
+	public static final String DOCKER_API_VERISON ="1.22";
+	
+	public static final String WPS_PROP_FILE ="FTEP-WPS-INPUT.properties";
+	
 	
 	
 

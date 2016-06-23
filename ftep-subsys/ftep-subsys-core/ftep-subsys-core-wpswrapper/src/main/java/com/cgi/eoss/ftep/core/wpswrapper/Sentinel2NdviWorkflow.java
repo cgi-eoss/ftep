@@ -21,76 +21,80 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
-	public Sentinel2NdviWorkflow(String dockerImgName) {
-		super(dockerImgName);
-	}
+  public Sentinel2NdviWorkflow(String dockerImgName) {
+    super(dockerImgName);
+  }
 
-	private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
-	private static final String DOCKER_IMAGE_NAME = "s2-ndvi";
+  private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
+  private static final String DOCKER_IMAGE_NAME = "s2-ndvi";
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
 
-		Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
-		RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
+    RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
 
-		String userid = requestHandler.getUserId();
+    String userid = requestHandler.getUserId();
 
-		int estimatedExecutionCost = requestHandler.estimateExecutionCost();
-//		boolean simulateWPS = requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE, Boolean.class);
+    int estimatedExecutionCost = requestHandler.estimateExecutionCost();
+    // boolean simulateWPS =
+    // requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE,
+    // Boolean.class);
 
-//		if (simulateWPS) {
-//			// write estimatedCost to output
-//			return 3;
-//		}
+    // if (simulateWPS) {
+    // // write estimatedCost to output
+    // return 3;
+    // }
 
-		// account balance (TEP coins)
-		if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
-			// step 1: create a Job with unique JobID and working directory
-			FtepJob job = requestHandler.createJob();
+    // account balance (TEP coins)
+    if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
+      // step 1: create a Job with unique JobID and working directory
+      FtepJob job = requestHandler.createJob();
 
-			// step 2: retrieve input data and place it in job's working
-			// directory
-			List<String> inputFileNames = requestHandler.fetchInputData(job);
+      // step 2: retrieve input data and place it in job's working
+      // directory
+      List<String> inputFileNames = requestHandler.fetchInputData(job);
 
-			// step 3: get VM worker
+      // step 3: get VM worker
 
-			// step 4: start the docker container
-			String dkrImage = DOCKER_IMAGE_NAME;
-			String dirToMount = job.getWorkingDir().getAbsolutePath();
-			String mountPoint = "/home/worker/workDir";
+      // step 4: start the docker container
+      String dkrImage = DOCKER_IMAGE_NAME;
+      String dirToMount = job.getWorkingDir().getAbsolutePath();
+      String mountPoint = FtepConstants.DOCKER_SENTINEL_WORKFLOWFILE_JOB_MOUNTPOINT;
+
+      Volume volume1 = new Volume(mountPoint);
+
+      DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
+          .withDockerHost("tcp://" + requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(true)
+          .withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
+          .withApiVersion(FtepConstants.DOCKER_API_VERISON).build();
+
+      DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+
+      CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
+          .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1)).exec();
 
 
-			Volume volume1 = new Volume(mountPoint);
+      dockerClient.startContainerCmd(container.getId()).exec();
 
-			DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-					.withDockerHost("tcp://" + requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(true)
-					.withDockerCertPath("/home/ftep/.docker/").withApiVersion("1.22").build();
-			
-			DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
-			
-			CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage).withVolumes(volume1)
-					.withBinds(new Bind(dirToMount, volume1)).exec();
+      String containerID = container.getId();
+      int exitCode = dockerClient.waitContainerCmd(containerID)
+          .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-			LOG.info("Starting docker ++++" );
+      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:" + exitCode);
 
-			dockerClient.startContainerCmd(container.getId()).exec();
+      HashMap output1 = new HashMap();
+      output1.put("dataType", "string");
+      output1.put("value", job.getOutputDir().list());
 
-			LOG.info("Waiting ++++" );
+      // HashMap out1 = (HashMap) (outputs.get("Result"));
+      outputs.put("Result", output1);
 
-			LogContainerCmd logs = dockerClient.logContainerCmd(container.getId()).withStdErr(true).withStdOut(true);
-			
-			int exitCode = dockerClient.waitContainerCmd(container.getId()).exec(new WaitContainerResultCallback())
-					.awaitStatusCode();
 
-			LOG.info("Creating Output after exitcode ++++" + exitCode);
-			HashMap out1 = (HashMap) (outputs.get("Result"));
-			out1.put("value", job.getOutputDir());
+    }
 
-		}
+    return 3;
 
-		return 3;
-
-	}
+  }
 
 }

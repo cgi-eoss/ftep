@@ -21,6 +21,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<log4j.version>1.2.17</log4j.version>
 		<maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
+		<docker.java.version>3.0.0</docker.java.version>
 	</properties>
 
 	<dependencyManagement>

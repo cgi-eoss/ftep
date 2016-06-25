@@ -201,6 +201,11 @@ public class RequestHandler {
     return zooConfigHandler.getUserID();
   }
 
+  public void setMessage(String message) {
+
+    zooConfigHandler.setMessage(message);
+  }
+
   public <T> T getInputParamValue(String paramName, Class<T> type) {
     List<String> values = inputItems.get(paramName);
     String value = null;

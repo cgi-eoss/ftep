@@ -1,18 +1,17 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.zoo.project.ZooConstants;
 
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
-import com.cgi.eoss.ftep.core.requesthandler.ZooConfigHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -55,6 +54,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       // directory
       List<String> inputFileNames = requestHandler.fetchInputData(job);
 
+
       // step 3: get VM worker
 
       // step 4: start the docker container
@@ -74,21 +74,44 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
           .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1)).exec();
 
-
-      dockerClient.startContainerCmd(container.getId()).exec();
-
       String containerID = container.getId();
+      dockerClient.startContainerCmd(containerID).exec();
+
+      LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
+      dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
+          .withFollowStream(true).withTailAll().exec(loggingCallback);
+
+
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:" + exitCode);
+        LOG.info("Containers Logs +++++: " + loggingCallback);
+        
+        requestHandler.setMessage(loggingCallback.toString());
 
-      HashMap output1 = new HashMap();
-      output1.put("dataType", "string");
-      output1.put("value", job.getOutputDir().list());
 
-      // HashMap out1 = (HashMap) (outputs.get("Result"));
-      outputs.put("Result", output1);
+      File outFile = new File(job.getOutputDir(), "random.tif");
+      try {
+        outFile.createNewFile();
+      } catch (IOException e) {
+        LOG.error(e.getStackTrace());
+      }
+
+
+
+      String outFileName = outFile.getAbsolutePath().replace("/home/ftep/data/cache/", ".....");
+
+      // File target = new File("/tmp/" + outFile.getName());
+      // try {
+      // Files.copy(outFile, target);
+      // } catch (IOException e) {
+      // LOG.error(e.getStackTrace());
+      // }
+      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
+          + exitCode + " outFileName:" + outFileName);
+
+      HashMap out1 = (HashMap) (outputs.get("Result"));
+      out1.put("generated_file", outFileName);
 
 
     }

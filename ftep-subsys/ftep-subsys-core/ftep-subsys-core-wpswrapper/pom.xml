@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>com.github.docker-java</groupId>
 			<artifactId>docker-java</artifactId>
-			<version>3.0.0-RC5</version>
+			<version>${docker.java.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.cgi.eoss.f-tep.subsys.core</groupId>

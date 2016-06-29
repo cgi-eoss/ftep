@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.zoo.project.ZooConstants;
 
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
@@ -85,38 +86,28 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-        LOG.info("Containers Logs +++++: " + loggingCallback);
-        
-        requestHandler.setMessage(loggingCallback.toString());
+      LOG.info("Processor Logs for job : " + job.getJobID());
+      LOG.info(loggingCallback);
 
+      requestHandler.setMessage(loggingCallback.toString());
 
-      File outFile = new File(job.getOutputDir(), "random.tif");
-      try {
-        outFile.createNewFile();
-      } catch (IOException e) {
-        LOG.error(e.getStackTrace());
+      String[] outputFiles = job.getOutputDir().list();
+      String outputFilename = "";
+      if (null != outputFiles && outputFiles.length > 0) {
+        outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
+      } else {
+        LOG.error("No output has been produced. Check processor logs for job " + job.getJobID());
+        return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-
-
-      String outFileName = outFile.getAbsolutePath().replace("/home/ftep/data/cache/", ".....");
-
-      // File target = new File("/tmp/" + outFile.getName());
-      // try {
-      // Files.copy(outFile, target);
-      // } catch (IOException e) {
-      // LOG.error(e.getStackTrace());
-      // }
       LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
-          + exitCode + " outFileName:" + outFileName);
+          + exitCode + " outFileName:" + outputFilename);
 
-      HashMap out1 = (HashMap) (outputs.get("Result"));
-      out1.put("generated_file", outFileName);
-
-
+      HashMap result = (HashMap) (outputs.get("Result"));
+      result.put("generated_file", outputFilename);
     }
 
-    return 3;
+    return ZooConstants.WPS_SERVICE_SUCCEEDED;
 
   }
 

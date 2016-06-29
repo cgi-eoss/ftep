@@ -84,12 +84,13 @@ public class ZooConfigHandler {
   }
 
   public void setMessage(String message) {
-    
-   String messageKey = lEnvZooConf.get(ZooConstants.ZOO_LENV_MESSAGE_PARAM);
-   if(null != messageKey)
-    lEnvZooConf.put(ZooConstants.ZOO_LENV_MESSAGE_PARAM, message);
-   else
-     LOG.error("Lenv messageKey is NULL");
+
+    String messageVal = lEnvZooConf.get(ZooConstants.ZOO_LENV_MESSAGE_PARAM);
+    if (null != messageVal) {
+      LOG.info("setting message in lenv map to :" + messageVal);
+      lEnvZooConf.put(ZooConstants.ZOO_LENV_MESSAGE_PARAM, message);
+    } else
+      LOG.error("Lenv messageKey is NULL");
   }
 
   private String generateUniqueIdentifier() {

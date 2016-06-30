@@ -109,7 +109,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       result.put("generated_file", outputFilename);
     }
 
-    return 3;
+    return ZooConstants.WPS_SERVICE_SUCCEEDED;
 
   }
 

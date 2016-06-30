@@ -22,10 +22,15 @@ import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 public class DataManager {
 	private static final Logger LOG = Logger.getLogger(DataManager.class);
 	private List<String> inputFiles = new ArrayList<String>();
+	private DataManagerResult dataManagerResult = new DataManagerResult();
 
-	public List<String> getInputFileIdentifiers() {
-		return inputFiles;
-	}
+	public DataManagerResult getDataManagerResult() {
+    return dataManagerResult;
+  }
+
+//  public List<String> getInputFileIdentifiers() {
+//		return inputFiles;
+//	}
 
 	public boolean getData(FtepJob job, HashMap<String, List<String>> inputItems) {
 		try {
@@ -68,6 +73,8 @@ public class DataManager {
 				}
 			}
 
+			dataManagerResult.setInputFiles(inputFiles);
+			dataManagerResult.setUpdatedInputItems(inputItems);
 			LOG.info("Updated input items after fetching data");
 			for (Entry<String, List<String>> e : inputItems.entrySet()) {
 				LOG.info(e.getKey() + " :::: " + e.getValue());

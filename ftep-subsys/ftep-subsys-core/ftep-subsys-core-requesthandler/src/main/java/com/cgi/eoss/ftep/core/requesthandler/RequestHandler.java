@@ -125,17 +125,20 @@ public class RequestHandler {
     return dirInCache;
   }
 
-  public List<String> fetchInputData(FtepJob job) {
-    List<String> inputFiles = new ArrayList<String>();
+  public DataManagerResult fetchInputData(FtepJob job) {
 
+    DataManagerResult dataManagerResult = new DataManagerResult();
+    dataManagerResult.setDownloadStatus(DataDownloadStatus.NONE);
     if (dataManager.getData(job, inputItems)) {
       LOG.info("Data fetched successfully from web");
-      return dataManager.getInputFileIdentifiers();
+      dataManagerResult = dataManager.getDataManagerResult();
+      dataManagerResult.setDownloadStatus(DataDownloadStatus.COMPLETE);
+      return dataManagerResult;
     } else {
-      LOG.info("Data transfer failed");
+      LOG.error("Data fetch failed");
     }
 
-    return inputFiles;
+    return dataManagerResult;
   }
 
   public void configureLogger() {

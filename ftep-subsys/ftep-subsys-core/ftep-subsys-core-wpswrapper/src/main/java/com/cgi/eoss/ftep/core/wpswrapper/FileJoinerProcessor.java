@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
+import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
-import com.cgi.eoss.ftep.core.requesthandler.ZooConfigHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
@@ -55,7 +55,14 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
       // step 2: retrieve input data and place it in job's working
       // directory
-      List<String> inputFileNames = requestHandler.fetchInputData(job);
+      DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
+
+      if (dataManagerResult.getDownloadStatus().equals("NONE")) {
+        LOG.error("Unable to fetch input data");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
+      
+      List<String> inputFileNames = dataManagerResult.getInputFiles();
 
       // step 3: get VM worker
 
@@ -92,8 +99,9 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       int exitCode = dockerClient.waitContainerCmd(container.getId())
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
+
       HashMap out1 = (HashMap) (outputs.get("out1"));
-      out1.put("generated_file", "....." + procArg3);
+      out1.put("generated_file", job.getOutputDir().getAbsolutePath() + "/" + outputFileName);
 
     }
 

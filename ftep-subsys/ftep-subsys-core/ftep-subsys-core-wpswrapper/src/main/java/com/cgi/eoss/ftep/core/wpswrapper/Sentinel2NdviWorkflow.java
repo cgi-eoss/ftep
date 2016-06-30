@@ -1,13 +1,12 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
+import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
@@ -53,8 +52,13 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
       // step 2: retrieve input data and place it in job's working
       // directory
-      List<String> inputFileNames = requestHandler.fetchInputData(job);
+      // List<String> inputFileNames = requestHandler.fetchInputData(job);
+      DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
+      if (dataManagerResult.getDownloadStatus().equals("NONE")) {
+        LOG.error("Unable to fetch input data");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
 
       // step 3: get VM worker
 
@@ -86,13 +90,11 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-      LOG.info("Processor Logs for job : " + job.getJobID());
-      LOG.info(loggingCallback);
-
-      requestHandler.setMessage(loggingCallback.toString());
+      LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
 
       String[] outputFiles = job.getOutputDir().list();
       String outputFilename = "";
+
       if (null != outputFiles && outputFiles.length > 0) {
         outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
       } else {
@@ -107,7 +109,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       result.put("generated_file", outputFilename);
     }
 
-    return ZooConstants.WPS_SERVICE_SUCCEEDED;
+    return 3;
 
   }
 

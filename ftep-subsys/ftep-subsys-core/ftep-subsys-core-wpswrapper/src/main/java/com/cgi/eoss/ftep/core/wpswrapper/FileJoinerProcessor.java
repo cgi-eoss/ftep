@@ -61,7 +61,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
-      
+
       List<String> inputFileNames = dataManagerResult.getInputFiles();
 
       // step 3: get VM worker
@@ -83,10 +83,12 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       String procArg4 = i4.get("value").toString();
 
       Volume volume1 = new Volume(mountPoint);
+      String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-          .withDockerHost("tcp://" + requestHandler.getWorkVmIpAddr()).withDockerTlsVerify(true)
-          .withDockerCertPath("/home/ftep/.docker/").withApiVersion("1.22").build();
+          .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
+          .withDockerTlsVerify(true).withDockerCertPath("/home/ftep/.docker/")
+          .withApiVersion("1.22").build();
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
       CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
           .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1))

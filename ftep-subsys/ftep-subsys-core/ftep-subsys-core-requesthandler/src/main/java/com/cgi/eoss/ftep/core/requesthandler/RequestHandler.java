@@ -4,11 +4,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -67,11 +73,11 @@ public class RequestHandler {
     ftepJob.setJobID(zooConfigHandler.getJobID());
     ftepJob.setStatus(JobStatus.CREATED);
     createWorkingDir(ftepJob);
-    createWpsPpropertyFile(ftepJob);
+    createWpsPropertyFile(ftepJob);
     return ftepJob;
   }
 
-  private void createWpsPpropertyFile(FtepJob ftepJob) {
+  private void createWpsPropertyFile(FtepJob ftepJob) {
     try {
       File workingDir = ftepJob.getWorkingDir();
       File wpsPropertyfile = new File(workingDir, FtepConstants.WPS_PROP_FILE);
@@ -223,6 +229,44 @@ public class RequestHandler {
 
     return null;
 
+  }
+
+  // public String findFreePort() {
+  // int[] ports = IntStream
+  // .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
+  //
+  // for (int port : ports) {
+  // try (ServerSocket socket = new ServerSocket(port)) {
+  // int allocatedPort = socket.getLocalPort();
+  // return allocatedPort + "";
+  // } catch (IOException ex) {
+  // continue; // try next port
+  // }
+  // }
+  // // if the program gets here, no port in the range was found
+  // LOG.error("Could not find a free TCP/IP port to start the application");
+  // return "";
+  //
+  // }
+
+  public String findFreePortOn(String workerVmIpAddr) {
+
+    int[] ports = IntStream
+        .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
+    for (int port : ports) {
+      try {
+        Socket s = new Socket(workerVmIpAddr, port);
+        s.close();
+      } catch (ConnectException e) {
+        return port + "";
+      } catch (IOException e) {
+        if (e.getMessage().contains("refused"))
+          return port + "";
+      }
+    }
+    // if the program gets here, no port in the range was found
+    LOG.error("Could not find a free TCP/IP port to start the application");
+    return "";
   }
 
 }

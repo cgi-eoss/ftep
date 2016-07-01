@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -13,24 +15,27 @@ import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
+public class MonteverdiApp extends AbstractWrapperProc {
 
-  public Sentinel2NdviWorkflow(String dockerImgName) {
+  public MonteverdiApp(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
-  private static final String DOCKER_IMAGE_NAME = "s2-ndvi";
+  private static final Logger LOG = Logger.getLogger(MonteverdiApp.class);
+  private static final String DOCKER_IMAGE_NAME = "otb";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int startAppMonteverdi(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
+    MonteverdiApp monteverdiApp = new MonteverdiApp(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
 
     String userid = requestHandler.getUserId();
@@ -46,7 +51,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
     // }
 
     // account balance (TEP coins)
-    if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
+    if (monteverdiApp.isSufficientCoinsAvailable()) {
       // step 1: create a Job with unique JobID and working directory
       FtepJob job = requestHandler.createJob();
 
@@ -68,17 +73,29 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
 
       Volume volume1 = new Volume(mountPoint);
-
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
+
+
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-          .withDockerHost("tcp://"  + workerVmIpAddr  + ":" +FtepConstants.DOCKER_DAEMON_PORT).withDockerTlsVerify(true)
-          .withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
+          .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
+          .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
           .withApiVersion(FtepConstants.DOCKER_API_VERISON).build();
 
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 
+      String resolution = requestHandler.getInputParamValue("resolution", String.class);
+      LOG.info("Application resolution is set to " + resolution);
+
+      String allocatedPort = requestHandler.findFreePortOn(workerVmIpAddr);
+      LOG.info("Monteverdi application will start on port: " + allocatedPort);
+      ExposedPort tcp5900 = ExposedPort.tcp(FtepConstants.VNC_PORT);
+      Ports portBindings = new Ports();
+      Binding binding = new Binding(workerVmIpAddr, allocatedPort);
+      portBindings.bind(tcp5900, binding);
+
       CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
-          .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1)).exec();
+          .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1)).withExposedPorts(tcp5900)
+          .withPortBindings(portBindings).withCmd(resolution).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();
@@ -87,31 +104,18 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
           .withFollowStream(true).withTailAll().exec(loggingCallback);
 
-
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-      LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
-
-      String[] outputFiles = job.getOutputDir().list();
-      String outputFilename = "";
-
-      if (null != outputFiles && outputFiles.length > 0) {
-        outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
-      } else {
-        LOG.error("No output has been produced. Check processor logs for job " + job.getJobID());
-        return ZooConstants.WPS_SERVICE_FAILED;
-      }
-
-      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
-          + exitCode + " outFileName:" + outputFilename);
-
       HashMap result = (HashMap) (outputs.get("Result"));
-      result.put("generated_file", outputFilename);
+      result.put("dataType", "string");
+      result.put("value", containerID);
     }
 
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
 
   }
+
+
 
 }

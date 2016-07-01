@@ -1,0 +1,32 @@
+ <DataInputs>
+  [inputfile]
+   Title = Sentinel 2 L1C data
+   Abstract = The input sentinel 2 data in SAFE format
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+  [resolution]
+   Title = Screen resolution in WxHxD format. e.g. 1280x1024x16
+   Abstract =  see title
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title =  URL to open the application
+   Abstract = see title
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+</DataOutputs>

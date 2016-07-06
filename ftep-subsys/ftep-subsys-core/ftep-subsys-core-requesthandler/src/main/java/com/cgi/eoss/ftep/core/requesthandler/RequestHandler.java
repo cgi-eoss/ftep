@@ -5,15 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Random;
 import java.util.stream.IntStream;
 
 import org.apache.log4j.BasicConfigurator;
@@ -23,6 +20,8 @@ import org.apache.log4j.PropertyConfigurator;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
+import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 
 public class RequestHandler {
@@ -136,10 +135,8 @@ public class RequestHandler {
     DataManagerResult dataManagerResult = new DataManagerResult();
     dataManagerResult.setDownloadStatus(DataDownloadStatus.NONE);
     if (dataManager.getData(job, inputItems)) {
-      LOG.info("Data fetched successfully from web");
-      dataManagerResult = dataManager.getDataManagerResult();
-      dataManagerResult.setDownloadStatus(DataDownloadStatus.COMPLETE);
-      return dataManagerResult;
+      LOG.info("Data fetch is successful");
+      return dataManager.getDataManagerResult();
     } else {
       LOG.error("Data fetch failed");
     }
@@ -269,4 +266,33 @@ public class RequestHandler {
     return "";
   }
 
+  public String getJobId() {
+    return zooConfigHandler.getJobID();
+  }
+
+
+  public boolean updateJob(String inputsAsJson, String outputsAsJson, String guiEndPoint) {
+    TableFtepJob jobRecord = new TableFtepJob();
+    jobRecord.setJobID(getJobId());
+    jobRecord.setInputs(inputsAsJson);
+    jobRecord.setOutputs(outputsAsJson);
+    jobRecord.setGuiEndpoint(guiEndPoint);
+    jobRecord.setUserID(getUserId());
+    return updateJobTable(jobRecord);
+  }
+
+  private boolean updateJobTable(TableFtepJob jobRecord) {
+    DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
+    // if (dataBaseMgr.setHttpClientWithProxy("proxy.logica.com", 80, "http")) {
+    if (dataBaseMgr.setHttpClient()) {
+      dataBaseMgr.insertJobRecord(jobRecord);
+      LOG.debug(jobRecord.getJobID() + " Job is successfully inserted in the database");
+      return true;
+    }
+    LOG.error("Unable to insert Job record in the database");
+    return false;
+  }
+
 }
+
+

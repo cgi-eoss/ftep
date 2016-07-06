@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -9,6 +10,7 @@ import org.zoo.project.ZooConstants;
 import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -17,6 +19,7 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.google.gson.Gson;
 
 public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
@@ -32,8 +35,9 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
     Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    TableFtepJob jobRecord = new TableFtepJob();
+    Gson gson = new Gson();
 
-    String userid = requestHandler.getUserId();
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
@@ -55,6 +59,11 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
+      HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      String inputsAsJson = gson.toJson(processInputs);
+
+      HashMap<String, String> processOutputs = new HashMap<>();
+
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
@@ -71,8 +80,8 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-          .withDockerHost("tcp://"  + workerVmIpAddr  + ":" +FtepConstants.DOCKER_DAEMON_PORT).withDockerTlsVerify(true)
-          .withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
+          .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
+          .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
           .withApiVersion(FtepConstants.DOCKER_API_VERISON).build();
 
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
@@ -87,11 +96,15 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
           .withFollowStream(true).withTailAll().exec(loggingCallback);
 
-
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
       LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
+
+      if (exitCode != 0) {
+        LOG.error("Docker Container Execution did not complete successfully");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
 
       String[] outputFiles = job.getOutputDir().list();
       String outputFilename = "";
@@ -108,10 +121,12 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
       HashMap result = (HashMap) (outputs.get("Result"));
       result.put("generated_file", outputFilename);
+      processOutputs.put("Result", outputFilename);
+      String outputsAsJson = gson.toJson(processOutputs);
+
+      requestHandler.updateJob(inputsAsJson, outputsAsJson, "NA");
     }
-
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
-
   }
 
 }

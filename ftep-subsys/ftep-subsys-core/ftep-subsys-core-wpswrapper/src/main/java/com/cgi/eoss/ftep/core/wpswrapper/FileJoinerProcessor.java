@@ -9,6 +9,7 @@ import org.zoo.project.ZooConstants;
 import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -17,6 +18,7 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.google.gson.Gson;
 
 public class FileJoinerProcessor extends AbstractWrapperProc {
 
@@ -34,10 +36,9 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
     FileJoinerProcessor fileJoinerProcessor = new FileJoinerProcessor(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    TableFtepJob jobRecord = new TableFtepJob();
+    Gson gson = new Gson();
 
-    HashMap lEnvMap = (HashMap) (conf.get(ZooConstants.ZOO_LENV_CFG_MAP));
-
-    String userid = requestHandler.getUserId();
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS = requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE,
@@ -63,6 +64,9 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       }
 
       List<String> inputFileNames = dataManagerResult.getInputFiles();
+      HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      String inputsAsJson = gson.toJson(processInputs);
+      HashMap<String, String> processOutputs = new HashMap<>();
 
       // step 3: get VM worker
 
@@ -101,14 +105,28 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       int exitCode = dockerClient.waitContainerCmd(container.getId())
           .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
+      if (exitCode != 0) {
+        LOG.error("Docker Container Execution did not complete successfully");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
 
+      String outputFile = job.getOutputDir().getAbsolutePath() + "/" + outputFileName;
       HashMap out1 = (HashMap) (outputs.get("out1"));
-      out1.put("generated_file", job.getOutputDir().getAbsolutePath() + "/" + outputFileName);
+      out1.put("generated_file", outputFile);
 
+      processOutputs.put("out1", outputFile);
+      String outputsAsJson = gson.toJson(processOutputs);
+
+      jobRecord.setInputs(inputsAsJson);
+      jobRecord.setOutputs(outputsAsJson);
+      jobRecord.setGuiEndpoint("NA");
+
+      if (!requestHandler.updateJob(inputsAsJson, outputsAsJson, "NA")) {
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
     }
 
-    return 3;
-
+    return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }
 
 }

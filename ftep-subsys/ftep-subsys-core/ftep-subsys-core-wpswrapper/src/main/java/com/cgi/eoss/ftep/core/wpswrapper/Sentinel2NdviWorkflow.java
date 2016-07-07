@@ -19,7 +19,6 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
-import com.google.gson.Gson;
 
 public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
@@ -35,9 +34,6 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
     Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
-    TableFtepJob jobRecord = new TableFtepJob();
-    Gson gson = new Gson();
-
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
@@ -60,8 +56,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
       HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
-      String inputsAsJson = gson.toJson(processInputs);
-
+      String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
 
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
@@ -122,9 +117,9 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       HashMap result = (HashMap) (outputs.get("Result"));
       result.put("generated_file", outputFilename);
       processOutputs.put("Result", outputFilename);
-      String outputsAsJson = gson.toJson(processOutputs);
+      String outputsAsJson = requestHandler.toJson(processOutputs);
 
-      requestHandler.updateJob(inputsAsJson, outputsAsJson, "NA");
+      requestHandler.insertJob(inputsAsJson, outputsAsJson, null);
     }
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }

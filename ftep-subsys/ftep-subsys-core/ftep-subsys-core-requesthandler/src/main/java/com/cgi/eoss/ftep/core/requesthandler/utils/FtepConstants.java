@@ -31,11 +31,15 @@ public final class FtepConstants {
   public static final String DB_API_LOGIN_INT_ENDPOINT = "https://192.168.3.83/api/v1.0/login";
 
   public static final String DB_API_JOBTABLE_INT_ENDPOINT = "https://192.168.3.83/api/v1.0/jobs";
-  
+
   public static final String DB_API_USER = "wps";
 
   public static final String DB_API_PWD = "b8tB8%&3Hq";
 
-  public static final String HTTP_POST_JSON_CONTENT_TYPE = "application/json";
+  public static final String HTTP_JSON_CONTENT_TYPE = "application/json";
+  
+  public static final int HTTP_ERROR_RESPONSE_CODE_RANGE = 399;
+
+  public static final int GUI_APPL_TIMEOUT_MINUTES = 120;
 
 }

@@ -19,10 +19,13 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.beans.InsertResult;
 import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
 import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
+import com.google.gson.Gson;
 
 public class RequestHandler {
   private static final Logger LOG = Logger.getLogger(RequestHandler.class);
@@ -246,7 +249,7 @@ public class RequestHandler {
   //
   // }
 
-  public String findFreePortOn(String workerVmIpAddr) {
+  public int findFreePortOn(String workerVmIpAddr) {
 
     int[] ports = IntStream
         .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
@@ -255,15 +258,15 @@ public class RequestHandler {
         Socket s = new Socket(workerVmIpAddr, port);
         s.close();
       } catch (ConnectException e) {
-        return port + "";
+        return port;
       } catch (IOException e) {
         if (e.getMessage().contains("refused"))
-          return port + "";
+          return port;
       }
     }
     // if the program gets here, no port in the range was found
     LOG.error("Could not find a free TCP/IP port to start the application");
-    return "";
+    return -1;
   }
 
   public String getJobId() {
@@ -271,26 +274,52 @@ public class RequestHandler {
   }
 
 
-  public boolean updateJob(String inputsAsJson, String outputsAsJson, String guiEndPoint) {
-    TableFtepJob jobRecord = new TableFtepJob();
-    jobRecord.setJobID(getJobId());
-    jobRecord.setInputs(inputsAsJson);
-    jobRecord.setOutputs(outputsAsJson);
-    jobRecord.setGuiEndpoint(guiEndPoint);
-    jobRecord.setUserID(getUserId());
-    return updateJobTable(jobRecord);
+  public InsertResult insertJob(String inputsAsJson, String outputsAsJson, String guiEndPoint) {
+    ResourceJob resourceJob = new ResourceJob();
+    resourceJob.setJobId(getJobId());
+    resourceJob.setInputs(inputsAsJson);
+    resourceJob.setOutputs(outputsAsJson);
+    resourceJob.setGuiEndpoint(guiEndPoint);
+    resourceJob.setUserId(getUserId());
+    return insertIntoJobTable(resourceJob);
   }
 
-  private boolean updateJobTable(TableFtepJob jobRecord) {
+  private InsertResult insertIntoJobTable(ResourceJob resourceJob) {
+    DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
+    InsertResult insertResult = new InsertResult();
+    //TODO insert should not also try to login. remove login
+    if (dataBaseMgr.setHttpClient()) {
+      insertResult = dataBaseMgr.insertJobRecord(resourceJob);
+      if (insertResult.isStatus()) {
+        LOG.debug(resourceJob.getJobId() + " Job is successfully inserted in the database");
+        return insertResult;
+      }
+    }
+    LOG.error("Unable to insert Job record in the database");
+    return insertResult;
+  }
+
+
+  private boolean updateJobTable(ResourceJob resourceJob, String resourceEndpoint) {
     DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
     // if (dataBaseMgr.setHttpClientWithProxy("proxy.logica.com", 80, "http")) {
-    if (dataBaseMgr.setHttpClient()) {
-      dataBaseMgr.insertJobRecord(jobRecord);
-      LOG.debug(jobRecord.getJobID() + " Job is successfully inserted in the database");
+    if (dataBaseMgr.updateOutputsInJobRecord(resourceJob, resourceEndpoint)) {
+      LOG.debug(resourceJob.getJobId() + " Job is successfully updated in the database");
       return true;
     }
     LOG.error("Unable to insert Job record in the database");
     return false;
+  }
+
+  public String toJson(Object processInputs) {
+    Gson gson = new Gson();
+    return gson.toJson(processInputs);
+  }
+
+  public void updateJobOutput(String outputsAsJson, String resourceEndpoint) {
+    ResourceJob resourceJob = new ResourceJob();
+    resourceJob.setOutputs(outputsAsJson);
+    updateJobTable(resourceJob, resourceEndpoint);
   }
 
 }

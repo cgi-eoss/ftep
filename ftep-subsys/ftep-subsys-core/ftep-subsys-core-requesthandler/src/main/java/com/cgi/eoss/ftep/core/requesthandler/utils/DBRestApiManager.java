@@ -3,15 +3,11 @@ package com.cgi.eoss.ftep.core.requesthandler.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPatch;
@@ -38,16 +34,17 @@ public enum DBRestApiManager {
 
   private SSLConnectionSocketFactory socketFactory;
 
-  private String sessionId, sessionName, token;
+  private String sessionId;
+
+  private String sessionName;
+
+  private String token;
 
   private CloseableHttpClient httpClient;
-  private static final Logger LOG = Logger.getLogger(DBRestApiManager.class);
+
+  private final Logger LOG = Logger.getLogger(DBRestApiManager.class);
 
   DBRestApiManager() {
-    init();
-  }
-
-  private void init() {
     SSLContext sslcontext;
     try {
       sslcontext = SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
@@ -58,94 +55,55 @@ public enum DBRestApiManager {
 
       socketFactory = new SSLConnectionSocketFactory(sslcontext, new AllowAllHostnameVerifier());
 
-    } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+      if (null != socketFactory) {
+        httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+        authenticate();
+      } else {
+        LOG.error("Unable to create RestAPI Connector");
+      }
+    } catch (Exception e) {
       LOG.error("Cannot create HTTP Socket factory", e);
     }
   }
 
-  private boolean setHttpClient(HttpHost proxy) {
-    if (null != socketFactory) {
-      if (null != proxy) {
-        httpClient =
-            HttpClients.custom().setSSLSocketFactory(socketFactory).setProxy(proxy).build();
-      } else {
-        httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
-      }
-    } else {
-      LOG.error("Unable to create Drupal RestAPI Connector");
+  private boolean authenticate() throws Exception {
+    LOG.debug("API authentication starts");
+    HttpPost httpPostRequest = new HttpPost(FtepConstants.DB_API_LOGIN_INT_ENDPOINT);
+    httpPostRequest.setHeader("Content-type", FtepConstants.HTTP_JSON_CONTENT_TYPE);
+
+    ResourceLogin resourceLogin = new ResourceLogin();
+    resourceLogin.setUser(FtepConstants.DB_API_USER);
+    resourceLogin.setPassword(FtepConstants.DB_API_PWD);
+    ResourceConverter converter = new ResourceConverter(ResourceLogin.class);
+    byte[] bytesToPost = converter.writeObject(resourceLogin);
+    httpPostRequest.setEntity(new ByteArrayEntity(bytesToPost));
+
+    LOG.debug("Submitting HTTP Post to endpoint: " + FtepConstants.DB_API_LOGIN_INT_ENDPOINT);
+    HttpResponse httpResponse = httpClient.execute(httpPostRequest);
+    LOG.debug("Executed HTTP Post request with Json :" + resourceLogin.toString());
+
+    if (httpResponse.getStatusLine()
+        .getStatusCode() > FtepConstants.HTTP_ERROR_RESPONSE_CODE_RANGE) {
+      LOG.error("Failed to authenticate with REST API, HTTP error code : "
+          + httpResponse.getStatusLine().getStatusCode());
       return false;
     }
-    return authenticate();
-  }
 
-  private boolean authenticate() {
-    try {
-      HttpPost httpPostRequest = new HttpPost(FtepConstants.DB_API_LOGIN_INT_ENDPOINT);
-      httpPostRequest.setHeader("Content-type", FtepConstants.HTTP_JSON_CONTENT_TYPE);
+    BufferedReader br =
+        new BufferedReader(new InputStreamReader((httpResponse.getEntity().getContent())));
 
-      ResourceLogin resourceLogin = new ResourceLogin();
-      resourceLogin.setUser(FtepConstants.DB_API_USER);
-      resourceLogin.setPassword(FtepConstants.DB_API_PWD);
-      ResourceConverter converter = new ResourceConverter(ResourceLogin.class);
-      byte[] bytesToPost = converter.writeObject(resourceLogin);
-      httpPostRequest.setEntity(new ByteArrayEntity(bytesToPost));
+    String response = br.readLine();
+    LOG.debug("HTTP Response: " + response);
+    JSONAPIDocument<ResourceLogin> document =
+        converter.readDocument(response.getBytes(), ResourceLogin.class);
 
+    LOG.debug("HTTP Response for REST API authentication");
+    ResourceLogin jsonData = document.get();
+    sessionId = jsonData.getSessionId();
+    sessionName = jsonData.getSessionName();
+    token = jsonData.getToken();
 
-      // String postBodyStr = "{\"user\":\"" + FtepConstants.DB_API_USER + "\",\"password\":\""
-      // + FtepConstants.DB_API_PWD + "\"}";
-      // StringEntity postBody = new StringEntity(postBodyStr);
-      // postBody.setContentType(FtepConstants.HTTP_JSON_CONTENT_TYPE);
-      // httpPostRequest.setEntity(postBody);
-      LOG.debug("Submitting HTTP Post to endpoint: " + FtepConstants.DB_API_LOGIN_INT_ENDPOINT);
-      HttpResponse httpResponse = httpClient.execute(httpPostRequest);
-      LOG.debug("Executed HTTP Post request with Json :" + resourceLogin);
-
-      if (httpResponse.getStatusLine().getStatusCode() > FtepConstants.HTTP_ERROR_RESPONSE_CODE_RANGE) {
-        LOG.error("Failed to authenticate with REST API, HTTP error code : "
-            + httpResponse.getStatusLine().getStatusCode());
-        return false;
-      }
-
-      BufferedReader br =
-          new BufferedReader(new InputStreamReader((httpResponse.getEntity().getContent())));
-
-      String response = br.readLine();
-      LOG.debug("HTTP Response: " + response);
-      JSONAPIDocument<ResourceLogin> document =
-          converter.readDocument(response.getBytes(), ResourceLogin.class);
-
-
-      LOG.debug("HTTP Response for REST API authentication");
-      // JsonObject jsonObject = new JsonParser().parse(br.readLine()).getAsJsonObject();
-      // JsonObject result = jsonObject.get("result").getAsJsonObject();
-      // sessId = result.get("sessid").getAsString();
-      // sessionName = result.get("session_name").getAsString();
-      // token = result.get("token").getAsString();
-
-      ResourceLogin jsonData = document.get();
-      sessionId = jsonData.getSessionId();
-      sessionName = jsonData.getSessionName();
-      token = jsonData.getToken();
-
-      LOG.debug("REST API Session ID: " + sessionId);
-      LOG.debug("REST API Session Name: " + sessionName);
-      LOG.debug("REST API Session token: " + token);
-
-    } catch (IOException | IllegalAccessException e) {
-      LOG.error("Exception in performing REST API authentication: ", e);
-      return false;
-    }
     return true;
-  }
-
-
-  public boolean setHttpClient() {
-    return setHttpClient(null);
-  }
-
-  public boolean setHttpClientWithProxy(String URL, int port, String protocol) {
-    HttpHost proxy = new HttpHost(URL, port, protocol);
-    return setHttpClient(proxy);
   }
 
   public InsertResult insertJobRecord(ResourceJob resourceJob) {
@@ -185,10 +143,8 @@ public enum DBRestApiManager {
       LOG.error("Exception while inserting job record via Database REST API: ", e);
       return insertResult;
     }
-
     return insertResult;
   }
-
 
 
   public boolean updateOutputsInJobRecord(ResourceJob resourceJob, String httpEndpoint) {
@@ -200,13 +156,6 @@ public enum DBRestApiManager {
       byte[] bytesToPost = converter.writeObject(resourceJob);
       httpPatchRequest.setEntity(new ByteArrayEntity(bytesToPost));
 
-
-      // String patchBodyStr = "{\"jid\":\"" + jobRecord.getJobID() + "\",\"inputs\":"
-      // + jobRecord.getInputs() + ",\"outputs\":" + jobRecord.getOutputs() + ",\"guiendpoint\":\""
-      // + jobRecord.getGuiEndpoint() + "\",\"uid\":\"" + jobRecord.getUserID() + "\"}";
-      // StringEntity patchBody = new StringEntity(patchBodyStr);
-      // patchBody.setContentType(FtepConstants.HTTP_JSON_CONTENT_TYPE);
-      // httpPatchRequest.setEntity(patchBody);
       LOG.debug("HTTP Patch request with Json :" + resourceJob);
       LOG.debug("Submitting HTTP Patch to endpoint: " + httpEndpoint);
 
@@ -247,7 +196,6 @@ public enum DBRestApiManager {
     httpRequest.setHeader("X-CSRF-Token", token);
     httpRequest.setHeader("Cookie", sessionName + "=" + sessionId);
     httpRequest.setHeader("Content-type", FtepConstants.HTTP_JSON_CONTENT_TYPE);
-    // httpRequest.setHeader("Referer", "https://192.168.3.83/ftep_testui_jobs");
   }
 
 }

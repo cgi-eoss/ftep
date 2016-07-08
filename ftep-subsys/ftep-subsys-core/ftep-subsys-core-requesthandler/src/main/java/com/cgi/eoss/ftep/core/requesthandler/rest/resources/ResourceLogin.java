@@ -11,6 +11,13 @@ public class ResourceLogin {
 
   // Attributes in HTTP request
   private String user;
+  private String password;
+
+  // Attributes in response
+  private String sessionId;
+  private String sessionName;
+  private String token;
+
 
   public String getUser() {
     return user;
@@ -19,26 +26,6 @@ public class ResourceLogin {
   public void setUser(String user) {
     this.user = user;
   }
-
-  private String password;
-
-
-  // Attributes in response
-  private String sessionId;
-  private String sessionName;
-  private String token;
-
-
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-
 
   public String getToken() {
     return token;
@@ -64,5 +51,18 @@ public class ResourceLogin {
     this.sessionId = sessionId;
   }
 
+  @Override
+  public String toString() {
+    return "Login{" + "id='" + id + '\'' + ", user='" + user + '\'' + ", sessionId=" + sessionId
+        + ", sessionName=" + sessionName + ", token=" + token + '}';
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
 }

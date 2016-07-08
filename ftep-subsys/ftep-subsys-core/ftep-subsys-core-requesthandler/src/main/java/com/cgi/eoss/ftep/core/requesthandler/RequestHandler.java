@@ -21,7 +21,6 @@ import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.beans.InsertResult;
 import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
-import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
@@ -231,25 +230,7 @@ public class RequestHandler {
 
   }
 
-  // public String findFreePort() {
-  // int[] ports = IntStream
-  // .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
-  //
-  // for (int port : ports) {
-  // try (ServerSocket socket = new ServerSocket(port)) {
-  // int allocatedPort = socket.getLocalPort();
-  // return allocatedPort + "";
-  // } catch (IOException ex) {
-  // continue; // try next port
-  // }
-  // }
-  // // if the program gets here, no port in the range was found
-  // LOG.error("Could not find a free TCP/IP port to start the application");
-  // return "";
-  //
-  // }
-
-  public int findFreePortOn(String workerVmIpAddr) {
+   public int findFreePortOn(String workerVmIpAddr) {
 
     int[] ports = IntStream
         .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
@@ -281,19 +262,17 @@ public class RequestHandler {
     resourceJob.setOutputs(outputsAsJson);
     resourceJob.setGuiEndpoint(guiEndPoint);
     resourceJob.setUserId(getUserId());
+    LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }
 
   private InsertResult insertIntoJobTable(ResourceJob resourceJob) {
     DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
     InsertResult insertResult = new InsertResult();
-    //TODO insert should not also try to login. remove login
-    if (dataBaseMgr.setHttpClient()) {
-      insertResult = dataBaseMgr.insertJobRecord(resourceJob);
-      if (insertResult.isStatus()) {
-        LOG.debug(resourceJob.getJobId() + " Job is successfully inserted in the database");
-        return insertResult;
-      }
+    insertResult = dataBaseMgr.insertJobRecord(resourceJob);
+    if (insertResult.isStatus()) {
+      LOG.debug(resourceJob.getJobId() + " Job is successfully inserted in the database");
+      return insertResult;
     }
     LOG.error("Unable to insert Job record in the database");
     return insertResult;
@@ -302,12 +281,11 @@ public class RequestHandler {
 
   private boolean updateJobTable(ResourceJob resourceJob, String resourceEndpoint) {
     DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
-    // if (dataBaseMgr.setHttpClientWithProxy("proxy.logica.com", 80, "http")) {
     if (dataBaseMgr.updateOutputsInJobRecord(resourceJob, resourceEndpoint)) {
       LOG.debug(resourceJob.getJobId() + " Job is successfully updated in the database");
       return true;
     }
-    LOG.error("Unable to insert Job record in the database");
+    LOG.error("Unable to update Job record in the database");
     return false;
   }
 

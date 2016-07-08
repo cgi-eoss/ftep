@@ -76,4 +76,11 @@ public class ResourceJob {
     this.guiEndpoint = guiEndpoint;
   }
 
+  @Override
+  public String toString() {
+    return "Job{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId
+        + ", inputs=" + inputs + ", outputs=" + outputs + ", guiEndpoint=" + guiEndpoint
+        + ", status=" + status + '}';
+  }
+
 }

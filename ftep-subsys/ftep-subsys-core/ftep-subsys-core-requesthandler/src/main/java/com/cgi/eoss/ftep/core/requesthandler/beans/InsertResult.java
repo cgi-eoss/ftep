@@ -2,7 +2,9 @@ package com.cgi.eoss.ftep.core.requesthandler.beans;
 
 public class InsertResult {
   private boolean status = false;
-  private String restResourceId;
+  private String resourceRestEndpoint;
+  private String resourceId;
+
 
   public boolean isStatus() {
     return status;
@@ -12,12 +14,20 @@ public class InsertResult {
     this.status = status;
   }
 
-  public String getRestResourceId() {
-    return restResourceId;
+  public String getResourceId() {
+    return resourceId;
   }
 
-  public void setRestResourceId(String restResourceId) {
-    this.restResourceId = restResourceId;
+  public void setResourceId(String resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public String getResourceRestEndpoint() {
+    return resourceRestEndpoint;
+  }
+
+  public void setResourceRestEndpoint(String resourceRestEndpoint) {
+    this.resourceRestEndpoint = resourceRestEndpoint;
   }
 
 

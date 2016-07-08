@@ -76,6 +76,14 @@ public class ResourceJob {
     this.guiEndpoint = guiEndpoint;
   }
 
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
   @Override
   public String toString() {
     return "Job{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId

@@ -135,9 +135,11 @@ public enum DBRestApiManager {
       LOG.debug("HTTP Response: " + response);
       JSONAPIDocument<ResourceJob> document =
           converter.readDocument(response.getBytes(), ResourceJob.class);
-      String restResourceId = document.getLinks().getSelf().getHref();
+      String resourceRestEndpoint = document.getLinks().getSelf().getHref();
+      String resourceId = document.get().getId();
       insertResult.setStatus(true);
-      insertResult.setRestResourceId(restResourceId);
+      insertResult.setResourceRestEndpoint(resourceRestEndpoint);
+      insertResult.setResourceId(resourceId);
 
     } catch (IOException | IllegalAccessException e) {
       LOG.error("Exception while inserting job record via Database REST API: ", e);

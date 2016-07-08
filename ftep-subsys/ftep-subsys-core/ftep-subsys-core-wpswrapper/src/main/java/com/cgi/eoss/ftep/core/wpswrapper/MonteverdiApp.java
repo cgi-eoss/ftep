@@ -106,7 +106,7 @@ public class MonteverdiApp extends AbstractWrapperProc {
           .withPortBindings(portBindings).withCmd(resolution).exec();
 
       int timeoutInMins = FtepConstants.GUI_APPL_TIMEOUT_MINUTES;
-      String timeout = requestHandler.getInputParamValue("gui-timeout", String.class);
+      String timeout = requestHandler.getInputParamValue("timeout", String.class);
       if (null != timeout) {
         timeoutInMins = Integer.parseInt(timeout);
       }
@@ -138,7 +138,7 @@ public class MonteverdiApp extends AbstractWrapperProc {
       processOutputs.put("Result", jobID);
       String outputsAsJson = requestHandler.toJson(processOutputs);
 
-      requestHandler.updateJobOutput(outputsAsJson, resourceEndpoint.getRestResourceId());
+      requestHandler.updateJobOutput(resourceEndpoint, outputsAsJson);
     }
 
     return ZooConstants.WPS_SERVICE_SUCCEEDED;

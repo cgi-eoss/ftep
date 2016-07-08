@@ -230,7 +230,7 @@ public class RequestHandler {
 
   }
 
-   public int findFreePortOn(String workerVmIpAddr) {
+  public int findFreePortOn(String workerVmIpAddr) {
 
     int[] ports = IntStream
         .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
@@ -278,28 +278,27 @@ public class RequestHandler {
     return insertResult;
   }
 
-
-  private boolean updateJobTable(ResourceJob resourceJob, String resourceEndpoint) {
-    DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
-    if (dataBaseMgr.updateOutputsInJobRecord(resourceJob, resourceEndpoint)) {
-      LOG.debug(resourceJob.getJobId() + " Job is successfully updated in the database");
-      return true;
-    }
-    LOG.error("Unable to update Job record in the database");
-    return false;
-  }
-
   public String toJson(Object processInputs) {
     Gson gson = new Gson();
     return gson.toJson(processInputs);
   }
 
-  public void updateJobOutput(String outputsAsJson, String resourceEndpoint) {
+  public void updateJobOutput(InsertResult resourceEndpoint, String outputsAsJson) {
     ResourceJob resourceJob = new ResourceJob();
     resourceJob.setOutputs(outputsAsJson);
-    updateJobTable(resourceJob, resourceEndpoint);
+    resourceJob.setId(resourceEndpoint.getResourceId());
+    updateJobTable(resourceJob, resourceEndpoint.getResourceRestEndpoint());
   }
 
+  private boolean updateJobTable(ResourceJob resourceJob, String resourceEndpoint) {
+    DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
+    if (dataBaseMgr.updateOutputsInJobRecord(resourceJob, resourceEndpoint)) {
+      LOG.debug(getJobId() + " Job is successfully updated in the database");
+      return true;
+    }
+    LOG.error("Unable to update Job record in the database for " + getJobId());
+    return false;
+  }
 }
 
 

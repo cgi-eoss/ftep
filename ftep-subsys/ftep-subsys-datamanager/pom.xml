@@ -9,4 +9,7 @@
   <artifactId>ftep-subsys-datamanager</artifactId>
   <packaging>pom</packaging>
   <name>FTEP :: Subsystems :: Data Store Manager (DSM)</name>
+  <modules>
+  	<module>ftep-subsys-datamanager-core</module>
+  </modules>
 </project>

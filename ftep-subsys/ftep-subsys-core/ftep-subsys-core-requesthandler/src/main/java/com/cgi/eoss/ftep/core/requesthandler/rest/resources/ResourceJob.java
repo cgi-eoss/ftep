@@ -19,6 +19,7 @@ public class ResourceJob {
   private String inputs;
   private String outputs;
   private String guiEndpoint;
+  private String serviceName;
 
   // Attributes in resp.
   private String status;
@@ -88,7 +89,15 @@ public class ResourceJob {
   public String toString() {
     return "Job{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId
         + ", inputs=" + inputs + ", outputs=" + outputs + ", guiEndpoint=" + guiEndpoint
-        + ", status=" + status + '}';
+        + ", serviceName=" + serviceName + ", status=" + status + '}';
+  }
+
+  public String getServiceName() {
+    return serviceName;
+  }
+
+  public void setServiceName(String serviceName) {
+    this.serviceName = serviceName;
   }
 
 }

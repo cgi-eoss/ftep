@@ -262,6 +262,7 @@ public class RequestHandler {
     resourceJob.setOutputs(outputsAsJson);
     resourceJob.setGuiEndpoint(guiEndPoint);
     resourceJob.setUserId(getUserId());
+    resourceJob.setServiceName(zooConfigHandler.getServiceName());
     LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }

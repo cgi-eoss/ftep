@@ -72,6 +72,16 @@ public class ZooConfigHandler {
     }
     return generateUniqueIdentifier();
   }
+  
+  public String getServiceName() {
+    String serviceName = lEnvZooConf.get(ZooConstants.ZOO_LENV_IDENTIFIER_PARAM);
+    if (null != serviceName) {
+      return serviceName;
+    } else {
+      LOG.error("Cannot find WPS service name.");
+    }
+    return "";
+  } 
 
   public String getUserID() {
     String ssoUserID = rEnvZooConf.get(ZooConstants.ZOO_RENV_SSO_USERID_PARAM);

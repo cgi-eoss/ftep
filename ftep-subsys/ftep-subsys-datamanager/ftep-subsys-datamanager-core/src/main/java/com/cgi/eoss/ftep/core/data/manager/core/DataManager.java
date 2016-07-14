@@ -24,7 +24,6 @@ package com.cgi.eoss.ftep.core.data.manager.core;
  * progress or link it if started/done
  */
 public class DataManager {
-  private static final String DWNL_SCRIPT_PATH = "/home/ivann/rakesh/secp";
   private boolean hasSkippedEntry = false;
   private boolean hasManagedEntry = false;
 
@@ -36,7 +35,7 @@ public class DataManager {
     for (String oneUrlInRow : listOfInputUrlsByRow) {
       String pathToSymlink = null;
       if (!CacheManager.getInstance().checkIfUrlIsInRecentsList(oneUrlInRow)) {
-        pathToSymlink = checkUrlsTypeAndCallTheProperDownloadFn(oneUrlInRow, jobdir);
+        pathToSymlink = checkUrlAndGetCredentials(oneUrlInRow, jobdir);
       } else {
         if (CacheManager.getInstance().alreadyManagedToDownload(oneUrlInRow)) {
           // this is regardless of already removed items!
@@ -54,33 +53,24 @@ public class DataManager {
     return resultSymlinksByRow;
   }
 
-  private String checkUrlsTypeAndCallTheProperDownloadFn(String oneUrlInRow, String jobdir) {
-    System.out.println("fn name: checkUrlsTypeAndCallTheProperDownloadFn(); params: oneUrlInRow '"
-        + oneUrlInRow + "' jobdir '" + jobdir + "'");
-    // singleUrl is type1 then method1 else method2:
-    if (oneUrlInRow.contains("type1")) {
-      return downloadAndAuthType1cert(oneUrlInRow, jobdir);
-    } else if (oneUrlInRow.contains("type2")) {
-      return downloadAndAuthType2userpass(oneUrlInRow, jobdir);
-    } else {
-      downloadAndUnpackZips(oneUrlInRow, null, "tomcat", "tomcat", jobdir);
-    }
-    return null;
-  }
-
-  private String downloadAndAuthType1cert(String oneUrlInRow, String jobdir) {
-    System.out.println("fn name: downloadAndAuthType1cert(); params: oneUrlInRow '" + oneUrlInRow
+  private String checkUrlAndGetCredentials(String oneUrlInRow, String jobdir) {
+    System.out.println("fn name: checkUrlAndGetCredentials(); params: oneUrlInRow '" + oneUrlInRow
         + "' jobdir '" + jobdir + "'");
-    // get cert somehow? then put into temp folder?
-    return downloadAndUnpackZips(oneUrlInRow, "/tmp/certPath", "auth1user_if_any",
-        "auth1pass_if_any", jobdir);
+    String restUrl = "https://192.171.139.83/datasources?searchAuthentication="
+        + oneUrlInRow.split("://")[1].split("/")[0];
+    java.util.HashMap<String, String> credentials = getCredentialsRestCall(restUrl);
+    return downloadAndUnpackZips(oneUrlInRow, credentials.get("certpath"), credentials.get("user"),
+        credentials.get("pass"), jobdir);
   }
 
-  private String downloadAndAuthType2userpass(String oneUrlInRow, String jobdir) {
-    System.out.println("fn name: downloadAndAuthType2userpass(); params: oneUrlInRow '"
-        + oneUrlInRow + "' jobdir '" + jobdir + "'");
-    // find user and pass in database
-    return downloadAndUnpackZips(oneUrlInRow, null, "auth2user", "auth2pass", jobdir);
+  private java.util.HashMap getCredentialsRestCall(String restUrl) {
+    System.out.println("fn name: getCredentialsRestCall(); params: restUrl '" + restUrl + "'");
+    java.util.HashMap<String, String> credentials = new java.util.HashMap<>();
+    // restUrl; DO SOMETHING
+    credentials.put("certpath", null);
+    credentials.put("user", "");
+    credentials.put("pass", "");
+    return credentials;
   }
 
   private String downloadAndUnpackZips(String oneUrlInRow, String certPath, String user,
@@ -90,7 +80,7 @@ public class DataManager {
             + jobdir + "' certPath '" + certPath + "' user '" + user + "' pass '" + pass + "'");
     String symlinkForUrl = null;
     // start authenticated download USING SECP SCRIPT
-    String shellScript = DWNL_SCRIPT_PATH;
+    String shellScript = Variables.DOWNLOAD_SCRIPT_PATH;
     String params1 = " -f -o ";
     String paramsOutDir = jobdir;
     String params2 = " -c -U -r 1 -rt 5 -s ";
@@ -110,16 +100,52 @@ public class DataManager {
     String zipFile = null;
     int exitCode = -1;
     try {
-      Process p = Runtime.getRuntime().exec(command);
-      p.waitFor();
-      exitCode = p.exitValue();
-      zipFile = oneUrlInRow.substring(oneUrlInRow.lastIndexOf('/') + 1, oneUrlInRow.length());
+      // Downloading:
+      Process scriptProcessCall = Runtime.getRuntime().exec(command);
+      // ProcessBuilder scriptProcessCallBuilder = new ProcessBuilder(command);
+      // scriptProcessCallBuilder.redirectErrorStream(true);
+      // Process scriptProcessCall = scriptProcessCallBuilder.start();
+      scriptProcessCall.waitFor();
+      exitCode = scriptProcessCall.exitValue();
+      if (0 != exitCode) { // on fail:
+        // System.out.println("** ** dwnld fail");
+        hasSkippedEntry = true;
+        CacheManager.getInstance().addToRecentlyDownloadedList(oneUrlInRow, false, "");
+      } else { // on success:
+        // System.out.println("** ** dwnld succ");
+        //// String scriptOutput = "";
+        try (java.io.BufferedReader outputReader = new java.io.BufferedReader(
+            new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
+          String outputLine;
+          while ((outputLine = outputReader.readLine()) != null) {
+            System.out.println("** ** line read: '" + outputLine + "'");
+            if (outputLine.contains("downloaded item: '")) {
+              zipFile = outputLine.split("downloaded item: '")[1].split("'")[0];
+              //// System.out.println("** ** miao '" + zipFile + "'");
+            }
+            //// scriptOutput += outputLine;
+          }
+        } catch (final Exception e) {
+          //
+        }
+        // unpack zips, get content's list
+        String mainFolderDownloadLocation = CacheManager.getInstance().unzipFile(zipFile);
+        symlinkForUrl =
+            CacheManager.getInstance().createSymlink(mainFolderDownloadLocation, jobdir);
+        // if managed to download, add to the list!
+        if (null != symlinkForUrl) {
+          hasManagedEntry = true;
+          CacheManager.getInstance().addToRecentlyDownloadedList(oneUrlInRow, true, symlinkForUrl);
+        }
+        System.out.println("** ** managed to dwnld: " + zipFile);
+      }
     } catch (java.io.IOException | InterruptedException e) {
       System.out.println("Could not execute command '" + command + "'");
     }
     /*
-     * ////secp needs a fix: "curl --remote-name -O -J" at 3 places!!!! //+lines from 402 to 420
-     * #Try to download the file target_file=`echo $2 | rev | cut -f1 -d/ | rev` message=
+     * ~~> parse the output for the filename!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! then unzip it ////secp
+     * needs a fix: "curl --remote-name -O -J" at 3 places!!!! //+lines from 402 to 420 #Try to
+     * download the file target_file=`echo $2 | rev | cut -f1 -d/ | rev` message=
      * "`curl --remote-name -O -J $curlopt -o "$2" "$1" 2>&1`" res=$? if [[ "$res" -ne "0" ]]; then
      * if [[ "${message/The requested URL returned error: 403//}" != "$message" ]]; then echo
      * "[ERROR  ][secp] Forbidden. Please check your proxy certificate or your username/password."
@@ -147,19 +173,6 @@ public class DataManager {
      * NOTE: If username/passowrd is specified it has precedence over the certificate/proxy
      * authentication)
      */
-    if (0 != exitCode) { // on fail:
-      hasSkippedEntry = true;
-      CacheManager.getInstance().addToRecentlyDownloadedList(oneUrlInRow, false, "");
-    } else {
-      // unpack zips, get content's list
-      String mainFolderDownloadLocation = CacheManager.getInstance().unzipFile(zipFile);
-      symlinkForUrl = CacheManager.getInstance().createSymlink(mainFolderDownloadLocation, jobdir);
-      // if managed to download, add to the list!
-      if (null != symlinkForUrl) {
-        hasManagedEntry = true;
-        CacheManager.getInstance().addToRecentlyDownloadedList(oneUrlInRow, true, symlinkForUrl);
-      }
-    }
     return symlinkForUrl;
   }
 

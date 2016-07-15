@@ -32,7 +32,7 @@ public final class FtepConstants {
 
   public static final String DB_API_JOBTABLE_INT_ENDPOINT = "https://192.168.3.83/api/v1.0/jobs";
 
-  public static final String DB_API_USER = "wps";
+  public static final String DB_API_USER = "ftepApiUser";
 
   public static final String DB_API_PWD = "b8tB8%&3Hq";
 

@@ -7,10 +7,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
-import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.beans.TableFtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;

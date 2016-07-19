@@ -17,11 +17,5 @@
 		<module>ftep-subsys-core-utils</module>
 	</modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.cgi.eoss.f-tep.commons</groupId>
-			<artifactId>ftep-commons-zoo</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
+
 </project>

@@ -11,6 +11,8 @@ public final class ZooConstants {
   public static final Integer WPS_SERVICE_FAILED = 4;
 
   // ZOO configuration maps
+  public static final String ZOO_MAIN_CFG_MAP = "main";
+  
   public static final String ZOO_ENV_CFG_MAP = "env";
 
   public static final String ZOO_LENV_CFG_MAP = "lenv";
@@ -22,6 +24,8 @@ public final class ZooConstants {
   public static final String ZOO_FTEP_CFG_MAP = "ftep";
 
   // ZOO configuration parameters
+  public static final String ZOO_MAIN_CACHE_DIR_PARAM = "cacheDir";
+  
   public static final String ZOO_LENV_USID_PARAM = "usid";
 
   public static final String ZOO_LENV_UUSID_PARAM = "uusid";
@@ -30,11 +34,13 @@ public final class ZooConstants {
 
   public static final String ZOO_LENV_MESSAGE_PARAM = "message";
 
-  public static final String ZOO_FTEP_WORKDIR_LOCATION_PARAM = "workingDirLocation";
+  public static final String ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM = "dataDownloadDir";
 
   public static final String ZOO_FTEP_LOG4J_FILENAME_PARAM = "log4jPropertyFile";
 
   public static final String ZOO_FTEP_WORKER_VM_IP_ADDR_PARAM = "workerVmIpAddr";
+  
+  public static final String ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM = "dataDownloadTool";
 
   public static final String ZOO_RENV_SSO_USERID_PARAM = "HTTP_EOSSO_PERSON_COMMONNAME";
 

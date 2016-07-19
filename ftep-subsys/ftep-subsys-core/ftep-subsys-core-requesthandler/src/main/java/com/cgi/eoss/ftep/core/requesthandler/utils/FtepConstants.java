@@ -37,9 +37,13 @@ public final class FtepConstants {
   public static final String DB_API_PWD = "b8tB8%&3Hq";
 
   public static final String HTTP_JSON_CONTENT_TYPE = "application/json";
-  
+
   public static final int HTTP_ERROR_RESPONSE_CODE_RANGE = 399;
 
   public static final int GUI_APPL_TIMEOUT_MINUTES = 120;
+
+  public static final String DOWNLOAD_SCRIPT_PATH_PROP = "downloadScriptPath";
+  
+  public static final String CACHE_PATH = "downloadDirPath";
 
 }

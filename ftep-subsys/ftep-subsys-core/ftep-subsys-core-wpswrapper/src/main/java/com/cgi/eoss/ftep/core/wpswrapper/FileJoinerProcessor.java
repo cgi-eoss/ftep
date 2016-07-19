@@ -1,12 +1,14 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
-import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
@@ -53,12 +55,18 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       // directory
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
+
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      List<String> inputFileNames = dataManagerResult.getInputFiles();
+      HashMap<String, List<String>> inputFileNameMap = dataManagerResult.getUpdatedInputItems();
+      List<String> inputFileNames = new ArrayList<>();
+      for (List<String> e : inputFileNameMap.values()) {
+        inputFileNames.addAll(e);
+      }
+
       HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
@@ -69,10 +77,12 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
       String mountPoint = DOCKER_MOUNT_POINT + "/" + job.getWorkingDir().getName();
-      String procArg1 =
-          mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + inputFileNames.get(0);
-      String procArg2 =
-          mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + inputFileNames.get(1);
+      
+      File input1 = new File(inputFileNames.get(0));
+      String procArg1 = mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input1.getName();
+
+      File input2 = new File(inputFileNames.get(1));
+      String procArg2 = mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input2.getName();
 
       HashMap i3 = (HashMap) (inputs.get("i3"));
       String outputFileName = i3.get("value").toString();

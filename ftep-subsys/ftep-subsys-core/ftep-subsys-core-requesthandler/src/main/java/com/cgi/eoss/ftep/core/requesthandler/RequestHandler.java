@@ -16,7 +16,11 @@ import java.util.stream.IntStream;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.zoo.project.ZooConstants;
 
+import com.cgi.eoss.ftep.core.data.manager.core.DataManager;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.beans.InsertResult;
@@ -36,8 +40,10 @@ public class RequestHandler {
   private ZooConfigHandler zooConfigHandler;
   private File log4jPropFile;
   private HashMap<String, List<String>> inputItems = new HashMap<>();
-  private HashMap<String, List<String>> inputFiles = new HashMap<>();
+  private HashMap<String, List<String>> inputFilesMap = new HashMap<>();
   private HashMap<String, List<String>> inputParams = new HashMap<>();
+  private HashMap<String, String> downloadConfMap = new HashMap<>();
+  private List<String> inputFiles = new ArrayList<>();
 
   private HashMap<String, HashMap<String, String>> zooConfMap = new HashMap<>();
   private HashMap<String, HashMap<String, Object>> wpsInputsMap = new HashMap<>();
@@ -59,14 +65,21 @@ public class RequestHandler {
 
   private void init() {
     zooConfigHandler = new ZooConfigHandler(zooConfMap);
-
     if (!isLoggerConfigured) {
       configureLogger();
       isLoggerConfigured = true;
     }
-    buildInputsValueMap();
+    buildDownloadConfigMap();
+    buildWpsInputsMap();
     dataManager = new DataManager();
     clusterManager = new ClusterManager();
+  }
+
+  private void buildDownloadConfigMap() {
+    LOG.debug("Building download configuration parameters map");
+    downloadConfMap.put(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM, zooConfigHandler.getDownloadToolPath());
+    downloadConfMap.put(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM, zooConfigHandler.getDataDownloadDir().getAbsolutePath());
+    downloadConfMap.put(ZooConstants.ZOO_MAIN_CACHE_DIR_PARAM, zooConfigHandler.getCacheDir().getAbsolutePath());
   }
 
   public FtepJob createJob() {
@@ -99,10 +112,10 @@ public class RequestHandler {
   }
 
   private void createWorkingDir(FtepJob job) {
-
+    LOG.debug("Creating directories (inDir, outDir) for job " + job.getJobID());
     try {
       String dirName = job.getJobID();
-      File workingDir = zooConfigHandler.getWorkingDirParent();
+      File workingDir = zooConfigHandler.getDataDownloadDir();
       File jobWorkingDir =
           createDirectory(workingDir.getAbsolutePath(), FtepConstants.JOB_DIR_PREFIX + dirName);
       File inputDir = createDirectory(jobWorkingDir.getAbsolutePath(), FtepConstants.JOB_INPUT_DIR);
@@ -123,7 +136,7 @@ public class RequestHandler {
     File dirInCache = new File(path, dirName);
     if (!dirInCache.exists()) {
       if (dirInCache.mkdir()) {
-        LOG.info("Creating " + dirName + " directory at " + path);
+        LOG.debug("Creating " + dirName + " directory at " + path);
       } else {
         LOG.error(dirName + " directory cannot be created at " + path);
       }
@@ -134,15 +147,16 @@ public class RequestHandler {
 
   public DataManagerResult fetchInputData(FtepJob job) {
 
-    DataManagerResult dataManagerResult = new DataManagerResult();
-    dataManagerResult.setDownloadStatus(DataDownloadStatus.NONE);
-    if (dataManager.getData(job, inputItems)) {
+    DataManagerResult dataManagerResult =
+        dataManager.getData(downloadConfMap, job.getInputDir().getAbsolutePath(), inputFilesMap);
+    DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();
+    if (downloadStatus.equals(DataDownloadStatus.COMPLETE)) {
       LOG.info("Data fetch is successful");
-      return dataManager.getDataManagerResult();
-    } else {
+    } else if (downloadStatus.equals(DataDownloadStatus.PARTIAL)) {
+      LOG.warn("Not all input data can be fetched");
+    } else if (downloadStatus.equals(DataDownloadStatus.NONE)) {
       LOG.error("Data fetch failed");
     }
-
     return dataManagerResult;
   }
 
@@ -157,7 +171,7 @@ public class RequestHandler {
     }
   }
 
-  private void buildInputsValueMap() {
+  private void buildWpsInputsMap() {
     for (Entry<String, HashMap<String, Object>> entry : wpsInputsMap.entrySet()) {
       HashMap<String, Object> valueObj = entry.getValue();
       List<String> value = new ArrayList<String>();
@@ -171,17 +185,18 @@ public class RequestHandler {
       inputItems.put(entry.getKey(), value);
     }
 
-    LOG.info("WPS Execute Request Input Items");
+    LOG.info("Inputs for WPS Execute Request " + getJobId());
     for (Entry<String, List<String>> e : inputItems.entrySet()) {
       String key = e.getKey();
       List<String> valueList = e.getValue();
       String firstValue = valueList.get(0);
       if (isValueRefersFile(firstValue)) {
-        inputFiles.put(key, valueList);
+        inputFilesMap.put(key, valueList);
+        inputFiles.addAll(valueList);
       } else {
         inputParams.put(key, valueList);
       }
-      LOG.info("inputFiles :::: " + inputFiles);
+      LOG.info("inputFiles :::: " + inputFilesMap);
       LOG.info("inputParams :::: " + inputParams);
     }
   }

@@ -2,14 +2,12 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
-import com.cgi.eoss.ftep.core.requesthandler.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.beans.InsertResult;
@@ -59,7 +57,7 @@ public class MonteverdiApp extends AbstractWrapperProc {
       // step 2: retrieve input data and place it in job's working
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
-      DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
+       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
       HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();

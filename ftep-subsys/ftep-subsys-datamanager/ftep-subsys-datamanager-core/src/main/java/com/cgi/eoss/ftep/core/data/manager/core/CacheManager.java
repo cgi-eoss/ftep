@@ -1,23 +1,34 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.zoo.project.ZooConstants;
+
 // Singleton
+@SuppressWarnings("CallToPrintStackTrace")
 public class CacheManager {
   // Singleton instance
   private static final CacheManager cacheManagerInstance = new CacheManager();
+  private static String downloadDir;
+  private static final Logger LOG = Logger.getLogger(CacheManager.class);
+
 
   // Providing the Singleton itself
   private CacheManager() {
-    // System.out.println("fn name: CacheManager();");
-    java.io.File newPathItem = new java.io.File(Variables.CACHE_PATH);
-    if (!newPathItem.exists()) {
-      newPathItem.mkdir();
-    }
-    populateItemsFromDir();
+    // LOG.debug("fn name: CacheManager();");
+    // java.io.File newPathItem = new java.io.File(Variables.CACHE_PATH);
+    // if (!newPathItem.exists()) {
+    // newPathItem.mkdir();
+    // }
+    // populateItemsFromDir();
   }
 
   // To access the Singleton object
-  public static CacheManager getInstance() {
-    // System.out.println("fn name: CacheManager.getInstance(); params: -");
+  public static CacheManager getInstance(Map<String, String> _downloadConfigurationMap) {
+    // LOG.debug("fn name: CacheManager.getInstance(); params: -");
+    downloadDir = _downloadConfigurationMap.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
+
     return cacheManagerInstance;
   }
 
@@ -81,24 +92,24 @@ public class CacheManager {
   // --------------------------------------------------------------------------
 
   public boolean checkIfUrlIsInRecentsList(String singleUrl) {
-    // System.out.println("fn name: CacheManager.checkIfUrlIsInRecentsList(); params: singleUrl '" +
+    // LOG.debug("fn name: CacheManager.checkIfUrlIsInRecentsList(); params: singleUrl '" +
     // singleUrl + "'");
     // Return true if in the list (at least tried)
     return list_recentDownloads.contains(singleUrl);
   }
 
   public boolean alreadyManagedToDownload(String oneUrlItem) {
-    // System.out.println("fn name: CacheManager.alreadyManagedToDownload(); params: oneUrlItem '" +
+    // LOG.debug("fn name: CacheManager.alreadyManagedToDownload(); params: oneUrlItem '" +
     // oneUrlItem + "'");
     // Return true if the status is OK (successfully downloaded)
     return (UrlData.STATUS_OK == list_recentDownloads_DATAMIRROR.get(oneUrlItem).status);
   }
 
   public String getSymlinkForAlreadyExistingUrl(String oneUrlItem, String jobdir) {
-    // System.out.println("fn name: CacheManager.getSymlinkForAlreadyExistingUrl(); params:
+    // LOG.debug("fn name: CacheManager.getSymlinkForAlreadyExistingUrl(); params:
     // oneUrlItem '" + oneUrlItem + "' jobdir '" + jobdir + "'");
     // Return or create and return symlink's path for the item, within the given jobdir
-    // System.out.println("** ** **
+    // LOG.debug("** ** **
     // list_recentDownloads_DATAMIRROR.get(oneUrlItem).mainFolderLocation '" +
     // list_recentDownloads_DATAMIRROR.get(oneUrlItem).mainFolderLocation + "'!");
     return createSymlink(list_recentDownloads_DATAMIRROR.get(oneUrlItem).mainFolderLocation,
@@ -106,15 +117,15 @@ public class CacheManager {
   }
 
   public String createSymlink(String fileNameInCache, String targetJobdirForSymlinks) {
-    System.out.println("fn name: CacheManager.createSymlink(); params: fileNameInCache '"
-        + fileNameInCache + "' targetJobdirForSymlinks '" + targetJobdirForSymlinks + "'");
+    // LOG.debug("fn name: CacheManager.createSymlink(); params: fileNameInCache '" +
+    // fileNameInCache + "' targetJobdirForSymlinks '" + targetJobdirForSymlinks + "'");
     String targetFile = null;
     if (null != fileNameInCache) {
-      String mainFolderDownloadLocation = null;
       // The jobdir is assigned automatically, before this is called but create if not exists
-      // System.out.println("TG root '" + Variables.TARGET_ROOT_PATH + "'!");
-      System.out.println("TG '" + targetJobdirForSymlinks + "'!");
-      System.out.println("TG full path '" + targetJobdirForSymlinks + "'!");
+      // LOG.debug("TG root '" + Variables.TARGET_ROOT_PATH + "'!");
+      // LOG.debug("TG '" + targetJobdirForSymlinks + "'!");
+      // LOG.debug("TG full path '" + Variables.TARGET_ROOT_PATH+targetJobdirForSymlinks +
+      // "'!");
       java.io.File newPathItem = new java.io.File(targetJobdirForSymlinks);
       if (!newPathItem.exists()) {
         newPathItem.mkdirs();
@@ -122,13 +133,12 @@ public class CacheManager {
       // Attachable filename for every path
       String slashFileName = "/" + fileNameInCache;
       // The target for the symlink
-      targetFile =  targetJobdirForSymlinks + slashFileName;
+      targetFile = targetJobdirForSymlinks + slashFileName;
       // The source for the symlink
-      System.out.println("**** fileincache '" + fileNameInCache + "'!");
-      System.out.println("**** slashfileincache '" + slashFileName + "'!");
-      mainFolderDownloadLocation = Variables.CACHE_PATH + slashFileName;
-      System.out.println("**** cacheslashfileincache '" + mainFolderDownloadLocation + "'!");
-
+      // LOG.debug("**** fileincache '" + fileNameInCache + "'!");
+      // LOG.debug("**** slashfileincache '" + slashFileName + "'!");
+      // LOG.debug("**** cacheslashfileincache '" + mainFolderDownloadLocation + "'!");
+      String mainFolderDownloadLocation = downloadDir + slashFileName;
       // Path item to be used as "target" in the link construction call
       java.nio.file.Path linkTarget = new java.io.File(targetFile).toPath();
       // If the link is not there
@@ -139,10 +149,10 @@ public class CacheManager {
           // Try and call the link construction method
           java.nio.file.Files.createSymbolicLink(linkTarget, linkSource);
         } catch (Exception e) {
-          System.out.println("Could not create symlink for '" + mainFolderDownloadLocation + "'!");
+          LOG.debug("Could not create symlink for '" + mainFolderDownloadLocation + "'!");
           // To show there was an error creating the link
           targetFile = null;
-          e.printStackTrace();
+          // TODO -- additional error handling if needed
         }
       }
     }
@@ -151,23 +161,23 @@ public class CacheManager {
   }
 
   public String unzipFile(String zipFile) {
-    // System.out.println("fn name: CacheManager.unzipFile(); params: zipFile '" + zipFile + "'");
+    // LOG.debug("fn name: CacheManager.unzipFile(); params: zipFile '" + zipFile + "'");
     String mainItemLocation = null;
     // Check if ZIP file only then unzip
     if (zipFile.toLowerCase().endsWith(".zip")) {
-      // System.out.println("it is ZIP file " + zipFile + "'");
+      // LOG.debug("it is ZIP file " + zipFile + "'");
       try {
         boolean topLevelDirFound = false;
         byte[] buffer = new byte[1024];
         // Get the ZIP file's content
         try (java.util.zip.ZipInputStream zis =
-            new java.util.zip.ZipInputStream(new java.io.FileInputStream(zipFile))) {
+            new java.util.zip.ZipInputStream(new java.io.FileInputStream(downloadDir + zipFile))) {
           // For each file and folder
           java.util.zip.ZipEntry ze = zis.getNextEntry();
           while (ze != null) {
             // Get the name of the item
             String fileName = ze.getName();
-            java.io.File newPathItem = new java.io.File(Variables.CACHE_PATH + fileName);
+            java.io.File newPathItem = new java.io.File(downloadDir + fileName);
             // The root item is needed, that will be linked
             if (!topLevelDirFound) {
               topLevelDirFound = true;
@@ -178,7 +188,7 @@ public class CacheManager {
             if (ze.isDirectory()) {
               // Create each directory, no need to check for existence
               newPathItem.mkdir();
-              // System.out.println("dir created: " + newPathItem.getAbsolutePath());
+              // LOG.debug("dir created: " + newPathItem.getAbsolutePath());
             } else {
               // If it is a file create it
               try (java.io.FileOutputStream fos = new java.io.FileOutputStream(newPathItem)) {
@@ -186,7 +196,7 @@ public class CacheManager {
                 while ((len = zis.read(buffer)) > 0) {
                   fos.write(buffer, 0, len);
                 }
-                // System.out.println("file unzip: " + newPathItem.getAbsoluteFile());
+                // LOG.debug("file unzip: " + newPathItem.getAbsoluteFile());
               }
             }
             // Take the next entry from the ZIP
@@ -194,22 +204,24 @@ public class CacheManager {
           }
           // Close the stream
           zis.closeEntry();
-          // System.out.println("Done");
+          // LOG.debug("Done");
         }
       } catch (java.io.IOException e) {
-        System.out.println("File I/O error!");
+        LOG.debug("File I/O error! :: *************");
+        e.printStackTrace();
+        LOG.debug(" :: *************");
         // TODO -- add error handling if needed
       }
       // Always delete the ZIP
-      new java.io.File(Variables.CACHE_PATH + zipFile).delete();
+      new java.io.File(downloadDir + zipFile).delete();
     } else {
-      mainItemLocation = (new java.io.File(Variables.CACHE_PATH + zipFile)).getAbsolutePath();
-      // System.out.println("it is NOT a ZIP file '" + mainItemLocation + "'");
+      mainItemLocation = (new java.io.File(downloadDir + zipFile)).getAbsolutePath();
+      // LOG.debug("it is NOT a ZIP file '" + mainItemLocation + "'");
     }
     // If any
     if (null != mainItemLocation) {
       // Return the item's path relative to Variables.CACHE_PATH
-      mainItemLocation = mainItemLocation.split(Variables.CACHE_PATH)[1];
+      mainItemLocation = mainItemLocation.split(downloadDir)[1];
     }
     // The location of either the ZIP file's root item or the item itself (if not ZIP)
     return mainItemLocation;
@@ -217,7 +229,7 @@ public class CacheManager {
 
   public boolean addToRecentlyDownloadedList(String oneUrlInRow, boolean statusOk,
       String itemLocation) {
-    // System.out.println("fn name: CacheManager.addToRecentlyDownloadedList(); params: oneUrlInRow
+    // LOG.debug("fn name: CacheManager.addToRecentlyDownloadedList(); params: oneUrlInRow
     // '" + oneUrlInRow + "' itemLocation '" + itemLocation + "' bool_statusOk '" + statusOk + "'");
     // Never null: DataManager.transformUrlsIntoSymlinks() --> for (String oneUrlInRow:
     // listOfInputUrlsByRow)
@@ -248,7 +260,7 @@ public class CacheManager {
 
   private boolean removeFromDownloadedList(String urlToRemoveFromDownloadedList) {
     // Function not used (yet)
-    // System.out.println("fn name: private CacheManager.removeFromDownloadedList(); params:
+    // LOG.debug("fn name: private CacheManager.removeFromDownloadedList(); params:
     // urlToRemoveFromDownloadedList '" + urlToRemoveFromDownloadedList + "'");
     // Remove the URL from the recently downloaded items' list and details-mirror
     if (list_recentDownloads.remove(urlToRemoveFromDownloadedList)) {
@@ -270,24 +282,24 @@ public class CacheManager {
   // --------------------------------------------------------------------------
 
   private boolean updateCache() {
-    // System.out.println("fn name: private CacheManager.updateCache(); params: -");
+    // LOG.debug("fn name: private CacheManager.updateCache(); params: -");
     ////////////////////////////////////////////////////////////////////////////////
-    // System.out.println("nr of items: '" + new java.io.File(Variables.CACHE_PATH).list().length +
+    // LOG.debug("nr of items: '" + new java.io.File(Variables.CACHE_PATH).list().length +
     // "'");
-    // System.out.println("nr of items in ArrayList: '" + list_recentDownloads.size() + "'");
-    // System.out.println("limit: '" + Variables.DISK_CACHE_NUMBER_LIMIT + "'");
-    // System.out.println("2b removed: '" + Variables.DISK_CACHE_REMOVABLE_COUNT + "'");
-    // System.out.println("****recents: '");
+    // LOG.debug("nr of items in ArrayList: '" + list_recentDownloads.size() + "'");
+    // LOG.debug("limit: '" + Variables.DISK_CACHE_NUMBER_LIMIT + "'");
+    // LOG.debug("2b removed: '" + Variables.DISK_CACHE_REMOVABLE_COUNT + "'");
+    // LOG.debug("****recents: '");
     // for (String s : list_recentDownloads) {
-    // System.out.println(s);
+    // LOG.debug(s);
     // }
-    // System.out.println("****datakeyset: '");
+    // LOG.debug("****datakeyset: '");
     // for (String s : list_recentDownloads_DATAMIRROR.keySet()) {
-    // System.out.println(s);
+    // LOG.debug(s);
     // }
     ////////////////////////////////////////////////////////////////////////////////
     // Check the storage constraints
-    if (new java.io.File(Variables.CACHE_PATH).list().length > Variables.DISK_CACHE_NUMBER_LIMIT
+    if (new java.io.File(downloadDir).list().length > Variables.DISK_CACHE_NUMBER_LIMIT
         - Variables.DISK_CACHE_REMOVABLE_COUNT) {
       // If the given limit is near remove some items -- FIFO
       for (int t_idx = 0; t_idx < Variables.DISK_CACHE_REMOVABLE_COUNT; t_idx++) {

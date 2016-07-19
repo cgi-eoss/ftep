@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -54,7 +55,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
-      HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
 

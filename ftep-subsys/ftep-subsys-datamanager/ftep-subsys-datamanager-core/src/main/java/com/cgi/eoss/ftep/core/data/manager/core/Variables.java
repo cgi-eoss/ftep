@@ -23,10 +23,11 @@ public class Variables {
   // Prefix for the REST call getting the access credentials
   public static String REST_URL = "https://192.171.139.83/datasources?searchAuthentication=";
   // Third-party script
-  public static String DOWNLOAD_SCRIPT_PATH = "/home/ftep/01-Data/cems/secp";
+//  public static String DOWNLOAD_SCRIPT_PATH = "/home/ivann/rakesh/secp";
   // Directories
-  public static String WORKINGDIR_PATH = "/home/ftep/01-Data/cems/temp";
-  public static String CACHE_PATH = "/home/ftep/01-Data/cems/cache/";
+//  public static String WORKINGDIR_PATH = "/tmp/datamanager_wd/";
+//  public static String TARGET_ROOT_PATH = "/tmp/targetlinks/";
+//  public static String CACHE_PATH = "/tmp/cache0/";
   // Cache limits
   public static int DISK_CACHE_NUMBER_LIMIT = 1000;
   public static int DISK_CACHE_REMOVABLE_COUNT = 10;
@@ -34,9 +35,10 @@ public class Variables {
   private static void init() {
     // System.out.println("fn name: Variables.init()");
     REST_URL = "https://192.171.139.83/datasources?searchAuthentication=";
-    DOWNLOAD_SCRIPT_PATH = "/home/ivann/rakesh/secp";
-    WORKINGDIR_PATH = "/tmp/datamanager_wd/";
-    CACHE_PATH = "/tmp/cache0/";
+//    DOWNLOAD_SCRIPT_PATH = "/home/ivann/rakesh/secp";
+//    WORKINGDIR_PATH = "/tmp/datamanager_wd/";
+//    TARGET_ROOT_PATH = "/tmp/targetlinks/";
+//    CACHE_PATH = "/tmp/cache0/";
     DISK_CACHE_NUMBER_LIMIT = 1000;
     DISK_CACHE_REMOVABLE_COUNT = 10;
   }

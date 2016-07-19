@@ -1,23 +1,24 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-// Java bean with getters and setters
+// Java bean with getters and setters -- PARAMETERS RENAMED, otherwise left as it was
 public class DataManagerResult {
   public enum DataDownloadStatus {
     COMPLETE, PARTIAL, NONE
   }
 
-  private HashMap<String, ArrayList<String>> updatedInputItems = new HashMap<>();
+  private Map<String, List<String>> updatedInputItems = new HashMap<>();
   private DataDownloadStatus downloadStatus;
   private String message;
 
-  public HashMap<String, ArrayList<String>> getUpdatedInputItems() {
+  public Map<String, List<String>> getUpdatedInputItems() {
     return updatedInputItems;
   }
 
-  public void setUpdatedInputItems(HashMap<String, ArrayList<String>> pUpdatedInputItems) {
+  public void setUpdatedInputItems(HashMap<String, List<String>> pUpdatedInputItems) {
     updatedInputItems = pUpdatedInputItems;
   }
 

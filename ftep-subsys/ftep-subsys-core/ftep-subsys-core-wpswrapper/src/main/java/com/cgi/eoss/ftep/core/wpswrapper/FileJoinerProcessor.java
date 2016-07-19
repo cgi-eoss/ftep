@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -61,15 +62,15 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      HashMap<String, List<String>> inputFileNameMap = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> inputFileNameMap = dataManagerResult.getUpdatedInputItems();
       List<String> inputFileNames = new ArrayList<>();
       for (List<String> e : inputFileNameMap.values()) {
         inputFileNames.addAll(e);
       }
 
-      HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
-      HashMap<String, String> processOutputs = new HashMap<>();
+      Map<String, String> processOutputs = new HashMap<>();
 
       // step 3: get VM worker
 

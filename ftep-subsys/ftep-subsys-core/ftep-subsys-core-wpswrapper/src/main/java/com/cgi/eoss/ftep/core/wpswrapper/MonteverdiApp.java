@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -58,7 +59,7 @@ public class MonteverdiApp extends AbstractWrapperProc {
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
        DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
-      HashMap<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
 

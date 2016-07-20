@@ -29,7 +29,6 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
   private static final Logger LOG = Logger.getLogger(FileJoinerProcessor.class);
   private static final String DOCKER_IMAGE_NAME = "filejoinerimg";
-  private static final String DOCKER_MOUNT_POINT = "/workDir";
 
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -76,23 +75,23 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
       // step 4: start the docker container
       String dkrImage = DOCKER_IMAGE_NAME;
-      String dirToMount = job.getWorkingDir().getAbsolutePath();
-      String mountPoint = DOCKER_MOUNT_POINT + "/" + job.getWorkingDir().getName();
+      String dirToMount = job.getWorkingDir().getParent();
+      String jobDirName = job.getWorkingDir().getAbsolutePath();;
       
       File input1 = new File(inputFileNames.get(0));
-      String procArg1 = mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input1.getName();
+      String procArg1 = jobDirName + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input1.getName();
 
       File input2 = new File(inputFileNames.get(1));
-      String procArg2 = mountPoint + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input2.getName();
+      String procArg2 = jobDirName + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input2.getName();
 
       HashMap i3 = (HashMap) (inputs.get("i3"));
       String outputFileName = i3.get("value").toString();
-      String procArg3 = mountPoint + "/" + FtepConstants.JOB_OUTPUT_DIR + "/" + outputFileName;
+      String procArg3 = jobDirName + "/" + FtepConstants.JOB_OUTPUT_DIR + "/" + outputFileName;
 
       HashMap i4 = (HashMap) (inputs.get("i4"));
       String procArg4 = i4.get("value").toString();
 
-      Volume volume1 = new Volume(mountPoint);
+      Volume volume1 = new Volume(dirToMount);
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()

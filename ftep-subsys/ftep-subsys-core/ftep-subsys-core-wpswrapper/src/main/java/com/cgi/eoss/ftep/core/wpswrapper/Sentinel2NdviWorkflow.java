@@ -71,7 +71,11 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       String dirToMount = job.getWorkingDir().getAbsolutePath();
       String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
 
+      String dirToMount2 = job.getWorkingDir().getParent();
+
+
       Volume volume1 = new Volume(mountPoint);
+      Volume volume2 = new Volume(dirToMount2);
 
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
@@ -81,8 +85,9 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 
-      CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
-          .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1)).exec();
+      CreateContainerResponse container =
+          dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
+              .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2)).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();

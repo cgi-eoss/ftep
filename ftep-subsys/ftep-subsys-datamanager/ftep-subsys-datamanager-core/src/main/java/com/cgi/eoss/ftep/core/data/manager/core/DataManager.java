@@ -1,5 +1,9 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,8 +106,8 @@ public class DataManager {
       String makeRestCall = Variables.REST_URL + domain;
       // TODO -- makeRestCall; DO SOMETHING to get the credential-content!
       credentialForDomain.put(Variables.KEY_CRED_CERTPATH, null);
-      credentialForDomain.put(Variables.KEY_CRED_USER, "ftpuser");
-      credentialForDomain.put(Variables.KEY_CRED_PASS, "cgistfc");
+      credentialForDomain.put(Variables.KEY_CRED_USER, "rakesh");
+      credentialForDomain.put(Variables.KEY_CRED_PASS, "cems@cgi");
       credentials.put(domain, credentialForDomain);
     }
     // Return the acquired credential-details as key-value pairs
@@ -137,8 +141,8 @@ public class DataManager {
     // http://localhost:8082/thredds/fileServer/testEnhanced/2004050312_eta_211.nc";
     String paramsLinks = " " + oneUrlInRow;
     // Put the Strings together to form the command
-    String command =
-        shellScript + params1 + paramsOutDir + params2 + paramsCredentials + paramsLinks;
+    String command = shellScript + params1 + paramsOutDir + params2 + paramsCredentials
+        + paramsLinks;
     LOG.debug("Command: '" + command + "'");
     String zipFile = null;
     try {
@@ -165,6 +169,15 @@ public class DataManager {
       Process scriptProcessCall = Runtime.getRuntime().exec(command);
       // Wait for until terminates
       scriptProcessCall.waitFor();
+
+//      InputStream errStream = scriptProcessCall.getErrorStream();
+//      LOG.debug("errorStream ------->>> ");
+//      LOG.debug(getStringFromInputStream(errStream));
+
+//      InputStream outStream = scriptProcessCall.getInputStream();
+//      LOG.debug("outStream ------->>> ");
+//      LOG.debug(getStringFromInputStream(outStream));
+
       // When ready check the exit code
       if (0 != scriptProcessCall.exitValue()) {
         // On fail
@@ -172,8 +185,8 @@ public class DataManager {
         hasSkippedEntry = true;
         CacheManager.getInstance(downloadConfigurationMap).addToRecentlyDownloadedList(oneUrlInRow,
             false, "");
-        try (java.io.BufferedReader outputReader = new java.io.BufferedReader(
-            new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
+        try (java.io.BufferedReader outputReader =
+            new java.io.BufferedReader(new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
           String outputLine;
           while ((outputLine = outputReader.readLine()) != null) {
             LOG.debug("** ** line read: '" + outputLine + "'");
@@ -182,6 +195,7 @@ public class DataManager {
             }
           }
         } catch (final Exception e) {
+          LOG.error(e);
         }
       } else {
         // On success
@@ -197,7 +211,7 @@ public class DataManager {
             }
           }
         } catch (final Exception e) {
-          // TODO -- add exception handling if needed
+          LOG.error(e);
         }
         LOG.debug("** ** managed to dwnld? '" + zipFile + "'");
         // Unpack if ZIP, get main item's location
@@ -288,5 +302,34 @@ public class DataManager {
     LOG.debug("----------------------------------");
     ////////////////////////////////////////////////////////////////////////////////
     return dataManagerResult;
+  }
+
+  private static String getStringFromInputStream(InputStream is) {
+
+    BufferedReader br = null;
+    StringBuilder sb = new StringBuilder();
+
+    String line;
+    try {
+
+      br = new BufferedReader(new InputStreamReader(is));
+      while ((line = br.readLine()) != null) {
+        sb.append(line);
+      }
+
+    } catch (IOException e) {
+      LOG.error(e);
+    } finally {
+      if (br != null) {
+        try {
+          br.close();
+        } catch (IOException e) {
+          LOG.error(e);
+        }
+      }
+    }
+
+    return sb.toString();
+
   }
 }

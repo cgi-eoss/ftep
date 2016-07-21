@@ -26,9 +26,9 @@ public class CacheManager {
 
   // To access the Singleton object
   public static CacheManager getInstance(Map<String, String> _downloadConfigurationMap) {
-    // LOG.debug("fn name: CacheManager.getInstance(); params: -");
+    LOG.debug("fn name: CacheManager.getInstance(); params: -");
     downloadDir = _downloadConfigurationMap.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
-
+    downloadDir = downloadDir + "/";
     return cacheManagerInstance;
   }
 
@@ -161,11 +161,11 @@ public class CacheManager {
   }
 
   public String unzipFile(String zipFile) {
-    // LOG.debug("fn name: CacheManager.unzipFile(); params: zipFile '" + zipFile + "'");
+    LOG.debug("fn name: CacheManager.unzipFile(); params: zipFile '" + zipFile + "'");
     String mainItemLocation = null;
     // Check if ZIP file only then unzip
     if (zipFile.toLowerCase().endsWith(".zip")) {
-      // LOG.debug("it is ZIP file " + zipFile + "'");
+      LOG.debug("it is ZIP file " + zipFile + "'");
       try {
         boolean topLevelDirFound = false;
         byte[] buffer = new byte[1024];
@@ -196,7 +196,7 @@ public class CacheManager {
                 while ((len = zis.read(buffer)) > 0) {
                   fos.write(buffer, 0, len);
                 }
-                // LOG.debug("file unzip: " + newPathItem.getAbsoluteFile());
+//                LOG.debug("file unzip: " + newPathItem.getAbsoluteFile());
               }
             }
             // Take the next entry from the ZIP
@@ -208,7 +208,7 @@ public class CacheManager {
         }
       } catch (java.io.IOException e) {
         LOG.debug("File I/O error! :: *************");
-        e.printStackTrace();
+        LOG.error(e);
         LOG.debug(" :: *************");
         // TODO -- add error handling if needed
       }

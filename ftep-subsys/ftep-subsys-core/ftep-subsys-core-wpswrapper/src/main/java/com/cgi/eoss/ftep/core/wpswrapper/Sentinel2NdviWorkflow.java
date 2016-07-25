@@ -27,7 +27,7 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
   }
 
   private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
-  private static final String DOCKER_IMAGE_NAME = "s2-ndvi";
+  private static final String DOCKER_IMAGE_NAME = "ftep-s2_ndvi";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {

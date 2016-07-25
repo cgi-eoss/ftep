@@ -28,7 +28,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
   }
 
   private static final Logger LOG = Logger.getLogger(FileJoinerProcessor.class);
-  private static final String DOCKER_IMAGE_NAME = "filejoinerimg";
+  private static final String DOCKER_IMAGE_NAME = "ftep-file_joiner";
 
 
   @SuppressWarnings({"rawtypes", "unchecked"})

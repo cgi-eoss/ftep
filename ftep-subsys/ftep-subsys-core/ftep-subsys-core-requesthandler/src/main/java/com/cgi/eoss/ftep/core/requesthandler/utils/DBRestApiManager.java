@@ -66,7 +66,7 @@ public enum DBRestApiManager {
     }
   }
 
-  private boolean authenticate() throws Exception {
+  private void authenticate() throws Exception {
     LOG.debug("API authentication starts");
     HttpPost httpPostRequest = new HttpPost(FtepConstants.DB_API_LOGIN_INT_ENDPOINT);
     httpPostRequest.setHeader("Content-type", FtepConstants.HTTP_JSON_CONTENT_TYPE);
@@ -86,32 +86,30 @@ public enum DBRestApiManager {
         .getStatusCode() > FtepConstants.HTTP_ERROR_RESPONSE_CODE_RANGE) {
       LOG.error("Failed to authenticate with REST API, HTTP error code : "
           + httpResponse.getStatusLine().getStatusCode());
-      return false;
     }
 
     BufferedReader br =
         new BufferedReader(new InputStreamReader((httpResponse.getEntity().getContent())));
 
     String response = br.readLine();
+    LOG.debug("HTTP Response for REST API authentication");
     LOG.debug("HTTP Response: " + response);
     JSONAPIDocument<ResourceLogin> document =
         converter.readDocument(response.getBytes(), ResourceLogin.class);
 
-    LOG.debug("HTTP Response for REST API authentication");
     ResourceLogin jsonData = document.get();
     sessionId = jsonData.getSessionId();
     sessionName = jsonData.getSessionName();
     token = jsonData.getToken();
+    LOG.debug("Authentication successful, sessionId= " + sessionId + ", sessionName=" + sessionName
+        + " ,token=" + token);
 
-    return true;
   }
 
   public InsertResult insertJobRecord(ResourceJob resourceJob) {
     InsertResult insertResult = new InsertResult();
-
     try {
       HttpPost httpPostRequest = getHttpPost(FtepConstants.DB_API_JOBTABLE_INT_ENDPOINT);
-
       ResourceConverter converter = new ResourceConverter(ResourceJob.class);
       byte[] bytesToPost = converter.writeObject(resourceJob);
       httpPostRequest.setEntity(new ByteArrayEntity(bytesToPost));

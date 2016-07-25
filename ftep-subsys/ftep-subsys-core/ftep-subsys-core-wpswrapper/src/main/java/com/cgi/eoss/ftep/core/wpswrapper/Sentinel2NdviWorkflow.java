@@ -11,7 +11,7 @@ import org.zoo.project.ZooConstants;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;

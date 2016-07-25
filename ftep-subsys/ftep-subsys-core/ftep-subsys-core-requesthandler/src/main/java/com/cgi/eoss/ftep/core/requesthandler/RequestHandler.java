@@ -23,11 +23,11 @@ import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.beans.InsertResult;
 import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
-import com.cgi.eoss.ftep.core.requesthandler.rest.resources.ResourceJob;
-import com.cgi.eoss.ftep.core.requesthandler.utils.DBRestApiManager;
-import com.cgi.eoss.ftep.core.requesthandler.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.google.gson.Gson;
 
 public class RequestHandler {
@@ -43,7 +43,6 @@ public class RequestHandler {
   private HashMap<String, List<String>> inputFilesMap = new HashMap<>();
   private HashMap<String, List<String>> inputParams = new HashMap<>();
   private HashMap<String, String> downloadConfMap = new HashMap<>();
-  private List<String> inputFiles = new ArrayList<>();
 
   private HashMap<String, HashMap<String, String>> zooConfMap = new HashMap<>();
   private HashMap<String, HashMap<String, Object>> wpsInputsMap = new HashMap<>();
@@ -77,9 +76,12 @@ public class RequestHandler {
 
   private void buildDownloadConfigMap() {
     LOG.debug("Building download configuration parameters map");
-    downloadConfMap.put(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM, zooConfigHandler.getDownloadToolPath());
-    downloadConfMap.put(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM, zooConfigHandler.getDataDownloadDir().getAbsolutePath());
-    downloadConfMap.put(ZooConstants.ZOO_MAIN_CACHE_DIR_PARAM, zooConfigHandler.getCacheDir().getAbsolutePath());
+    downloadConfMap.put(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM,
+        zooConfigHandler.getDownloadToolPath());
+    downloadConfMap.put(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM,
+        zooConfigHandler.getDataDownloadDir().getAbsolutePath());
+    downloadConfMap.put(ZooConstants.ZOO_MAIN_CACHE_DIR_PARAM,
+        zooConfigHandler.getCacheDir().getAbsolutePath());
   }
 
   public FtepJob createJob() {
@@ -147,6 +149,7 @@ public class RequestHandler {
 
   public DataManagerResult fetchInputData(FtepJob job) {
 
+    addEscapeChar(inputFilesMap);
     DataManagerResult dataManagerResult =
         dataManager.getData(downloadConfMap, job.getInputDir().getAbsolutePath(), inputFilesMap);
     DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();
@@ -158,6 +161,20 @@ public class RequestHandler {
       LOG.error("Data fetch failed");
     }
     return dataManagerResult;
+  }
+
+  private void addEscapeChar(HashMap<String, List<String>> _inputFilesMap) {
+    for (Entry<String, List<String>> e : _inputFilesMap.entrySet()) {
+      List<String> urls = e.getValue();
+      List<String> updatedUrls = new ArrayList<>();
+      for (String url : urls) {
+        if (url.contains("$")) {
+          url = url.replace("$", "\\$");
+        }
+        updatedUrls.add(url);
+      }
+      _inputFilesMap.put(e.getKey(), updatedUrls);
+    }
   }
 
   public void configureLogger() {
@@ -192,12 +209,11 @@ public class RequestHandler {
       String firstValue = valueList.get(0);
       if (isValueRefersFile(firstValue)) {
         inputFilesMap.put(key, valueList);
-        inputFiles.addAll(valueList);
       } else {
         inputParams.put(key, valueList);
       }
-      LOG.info("inputFiles :::: " + inputFilesMap);
-      LOG.info("inputParams :::: " + inputParams);
+      LOG.debug("inputFiles :::: " + inputFilesMap);
+      LOG.debug("inputParams :::: " + inputParams);
     }
   }
 

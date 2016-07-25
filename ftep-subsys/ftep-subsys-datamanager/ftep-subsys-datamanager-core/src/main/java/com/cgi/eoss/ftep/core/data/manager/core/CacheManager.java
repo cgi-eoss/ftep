@@ -5,6 +5,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
+
 // Singleton
 @SuppressWarnings("CallToPrintStackTrace")
 public class CacheManager {
@@ -299,10 +301,10 @@ public class CacheManager {
     // }
     ////////////////////////////////////////////////////////////////////////////////
     // Check the storage constraints
-    if (new java.io.File(downloadDir).list().length > Variables.DISK_CACHE_NUMBER_LIMIT
-        - Variables.DISK_CACHE_REMOVABLE_COUNT) {
+    if (new java.io.File(downloadDir).list().length > FtepConstants.DISK_CACHE_NUMBER_LIMIT
+        - FtepConstants.DISK_CACHE_REMOVABLE_COUNT) {
       // If the given limit is near remove some items -- FIFO
-      for (int t_idx = 0; t_idx < Variables.DISK_CACHE_REMOVABLE_COUNT; t_idx++) {
+      for (int t_idx = 0; t_idx < FtepConstants.DISK_CACHE_REMOVABLE_COUNT; t_idx++) {
         // Get the oldest item's name -- remove the entry as well
         String oldestUrl = list_recentDownloads.poll();
         // Delete the oldest item and remove the entry

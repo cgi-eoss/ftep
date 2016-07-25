@@ -18,6 +18,7 @@
 				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-wpswrapper</exclude>
 				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-requesthandler</exclude>
 				<exclude>com.cgi.eoss.f-tep.subsys.datamanager:ftep-subsys-datamanager-core</exclude>
+				<exclude>com.cgi.eoss.f-tep.subsys.core:ftep-subsys-core-utils</exclude>
 <!-- 				<exclude>com.cgi.eoss.f-tep.commons:ftep-commons-zoo</exclude> -->
 			</excludes>
 		</dependencySet>

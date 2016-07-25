@@ -11,6 +11,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
+import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
+
 // Symlinks created by this module are regardless of elements removed
 
 /*
@@ -37,8 +40,7 @@ public class DataManager {
   private boolean hasSkippedEntry = false;
   private boolean hasManagedEntry = false;
   // Domain is paired with access information for the current session
-  private final java.util.HashMap<String, java.util.HashMap<String, String>> credentials =
-      new java.util.HashMap();
+  private final Map<String, Map<String, String>> credentials = new HashMap<>();
   private Map<String, String> downloadConfigurationMap;
 
 
@@ -84,30 +86,31 @@ public class DataManager {
         + "' jobdir '" + jobdir + "'");
     // Create REST call
     String domain = oneUrlInRow.split("://")[1].split("/")[0];
-    java.util.HashMap<String, String> credentialForDomain = getCredentialsRestCall(domain);
+    Map<String, String> credentialForDomain = getCredentialsRestCall(domain);
     // Return the path to the symlink or null
-    return downloadAndUnpackZips(oneUrlInRow, credentialForDomain.get(Variables.KEY_CRED_CERTPATH),
-        credentialForDomain.get(Variables.KEY_CRED_USER),
-        credentialForDomain.get(Variables.KEY_CRED_PASS), jobdir);
+    return downloadAndUnpackZips(oneUrlInRow,
+        credentialForDomain.get(FtepConstants.DATASOURCE_CRED_CERTIFICATE),
+        credentialForDomain.get(FtepConstants.DATASOURCE_CRED_USER),
+        credentialForDomain.get(FtepConstants.DATASOURCE_CRED_PASSWORD), jobdir);
   }
 
-  private java.util.HashMap getCredentialsRestCall(String domain) {
+  private Map<String, String> getCredentialsRestCall(String domain) {
     LOG.debug("fn name: getCredentialsRestCall(); params: restUrl '" + domain + "'");
     // The credentials should have user/password and/or certificate content
-    java.util.HashMap<String, String> credentialForDomain = new java.util.HashMap<>();
+    Map<String, String> credentialForDomain = new HashMap<>();
     if (credentials.keySet().contains(domain)) {
-      credentialForDomain.put(Variables.KEY_CRED_CERTPATH,
-          credentials.get(domain).get(Variables.KEY_CRED_CERTPATH));
-      credentialForDomain.put(Variables.KEY_CRED_USER,
-          credentials.get(domain).get(Variables.KEY_CRED_USER));
-      credentialForDomain.put(Variables.KEY_CRED_PASS,
-          credentials.get(domain).get(Variables.KEY_CRED_PASS));
+      credentialForDomain.put(FtepConstants.DATASOURCE_CRED_CERTIFICATE,
+          credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_CERTIFICATE));
+      credentialForDomain.put(FtepConstants.DATASOURCE_CRED_USER,
+          credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_USER));
+      credentialForDomain.put(FtepConstants.DATASOURCE_CRED_PASSWORD,
+          credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_PASSWORD));
     } else {
-      String makeRestCall = Variables.REST_URL + domain;
-      // TODO -- makeRestCall; DO SOMETHING to get the credential-content!
-      credentialForDomain.put(Variables.KEY_CRED_CERTPATH, null);
-      credentialForDomain.put(Variables.KEY_CRED_USER, "rakesh");
-      credentialForDomain.put(Variables.KEY_CRED_PASS, "cems@cgi");
+      String httpEndpoint = FtepConstants.DATASOURCE_QUERY_ENDPOINT + domain;
+      
+      LOG.debug("Trying to get credentials from endpoint " + httpEndpoint);
+      DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
+      credentialForDomain =dataBaseMgr.getCredentials(httpEndpoint);
       credentials.put(domain, credentialForDomain);
     }
     // Return the acquired credential-details as key-value pairs
@@ -141,8 +144,8 @@ public class DataManager {
     // http://localhost:8082/thredds/fileServer/testEnhanced/2004050312_eta_211.nc";
     String paramsLinks = " " + oneUrlInRow;
     // Put the Strings together to form the command
-    String command = shellScript + params1 + paramsOutDir + params2 + paramsCredentials
-        + paramsLinks;
+    String command =
+        shellScript + params1 + paramsOutDir + params2 + paramsCredentials + paramsLinks;
     LOG.debug("Command: '" + command + "'");
     String zipFile = null;
     try {
@@ -170,13 +173,13 @@ public class DataManager {
       // Wait for until terminates
       scriptProcessCall.waitFor();
 
-//      InputStream errStream = scriptProcessCall.getErrorStream();
-//      LOG.debug("errorStream ------->>> ");
-//      LOG.debug(getStringFromInputStream(errStream));
+      // InputStream errStream = scriptProcessCall.getErrorStream();
+      // LOG.debug("errorStream ------->>> ");
+      // LOG.debug(getStringFromInputStream(errStream));
 
-//      InputStream outStream = scriptProcessCall.getInputStream();
-//      LOG.debug("outStream ------->>> ");
-//      LOG.debug(getStringFromInputStream(outStream));
+      // InputStream outStream = scriptProcessCall.getInputStream();
+      // LOG.debug("outStream ------->>> ");
+      // LOG.debug(getStringFromInputStream(outStream));
 
       // When ready check the exit code
       if (0 != scriptProcessCall.exitValue()) {
@@ -185,8 +188,8 @@ public class DataManager {
         hasSkippedEntry = true;
         CacheManager.getInstance(downloadConfigurationMap).addToRecentlyDownloadedList(oneUrlInRow,
             false, "");
-        try (java.io.BufferedReader outputReader =
-            new java.io.BufferedReader(new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
+        try (java.io.BufferedReader outputReader = new java.io.BufferedReader(
+            new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
           String outputLine;
           while ((outputLine = outputReader.readLine()) != null) {
             LOG.debug("** ** line read: '" + outputLine + "'");

@@ -37,14 +37,36 @@
     <Default>
     </Default>
    </LiteralData>
- </DataInputs>
- <DataOutputs>
-  [Result]
-   Title = GeoTiff NDVI image file
-   Abstract = see title
+  [resolution]
+   Title = Sentinel 2 L1C data resolution in meters
+   Abstract = example 20
+   minOccurs = 0
+   maxOccurs = 1
    <LiteralData>
     DataType = string
     <Default>
     </Default>
    </LiteralData>
+  [zone]
+   Title = Sentinel 2 L1C data zone
+   Abstract = UTM zone
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title = GeoTiff NDVI image file
+   Abstract = see title
+   <ComplexData>
+    <Default>
+     mimeType = image/tiff
+     extension = tif
+     asReference = true
+    </Default>
+   </ComplexData>
 </DataOutputs>

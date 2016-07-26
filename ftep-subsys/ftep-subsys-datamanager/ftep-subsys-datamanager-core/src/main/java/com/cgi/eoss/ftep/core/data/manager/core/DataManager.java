@@ -53,6 +53,12 @@ public class DataManager {
     for (String oneUrlInRow : listOfInputUrlsByRow) {
       // Process each link one by one from the ArrayList
       String pathToSymlink = null;
+      // Replace all dollar sign to %24 value with escaped % sign + Escape all apostrophe
+      oneUrlInRow = oneUrlInRow.replaceAll("\\$", "\\%24").replaceAll("\\'", "\\%27");
+      // Escape all parentheses
+      oneUrlInRow = oneUrlInRow.replaceAll("\\(", "\\%28").replaceAll("\\)", "\\%29");
+      //// oneUrlInRow = oneUrlInRow.replaceAll("\\-", "\\\\%2D");
+
       if (!CacheManager.getInstance(downloadConfigurationMap)
           .checkIfUrlIsInRecentsList(oneUrlInRow)) {
         // New content
@@ -107,10 +113,10 @@ public class DataManager {
           credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_PASSWORD));
     } else {
       String httpEndpoint = FtepConstants.DATASOURCE_QUERY_ENDPOINT + domain;
-      
+
       LOG.debug("Trying to get credentials from endpoint " + httpEndpoint);
       DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
-      credentialForDomain =dataBaseMgr.getCredentials(httpEndpoint);
+      credentialForDomain = dataBaseMgr.getCredentials(httpEndpoint);
       credentials.put(domain, credentialForDomain);
     }
     // Return the acquired credential-details as key-value pairs

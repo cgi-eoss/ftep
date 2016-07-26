@@ -149,7 +149,7 @@ public class RequestHandler {
 
   public DataManagerResult fetchInputData(FtepJob job) {
 
-    addEscapeChar(inputFilesMap);
+//    addEscapeChar(inputFilesMap);
     DataManagerResult dataManagerResult =
         dataManager.getData(downloadConfMap, job.getInputDir().getAbsolutePath(), inputFilesMap);
     DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();

@@ -26,19 +26,19 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class MonteverdiApp extends AbstractWrapperProc {
+public class MonteverdiApp2 extends AbstractWrapperProc {
 
-  public MonteverdiApp(String dockerImgName) {
+  public MonteverdiApp2(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(MonteverdiApp.class);
-  private static final String DOCKER_IMAGE_NAME = "ftep-otb_vnc";
+  private static final Logger LOG = Logger.getLogger(MonteverdiApp2.class);
+  private static final String DOCKER_IMAGE_NAME = "ftep-otb_guac";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int startAppMonteverdi(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int startAppMonteverdi2(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    MonteverdiApp monteverdiApp = new MonteverdiApp(DOCKER_IMAGE_NAME);
+    MonteverdiApp2 monteverdiApp = new MonteverdiApp2(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
@@ -73,18 +73,15 @@ public class MonteverdiApp extends AbstractWrapperProc {
       // step 3: get VM worker
 
       // step 4: start the docker container
-      String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
-      String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
+      String mountPoint = "/nobody/workDir";
       String dirToMount2 = job.getWorkingDir().getParent();
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
-      String resolution = requestHandler.getInputParamValue("resolution", String.class);
-
-      ExposedPort tcp5900 = ExposedPort.tcp(FtepConstants.VNC_PORT);
+      ExposedPort tcp5900 = ExposedPort.tcp(8080);
       Ports portBindings = new Ports();
       Binding binding = new Binding(workerVmIpAddr, null);
       portBindings.bind(tcp5900, binding);
@@ -103,9 +100,9 @@ public class MonteverdiApp extends AbstractWrapperProc {
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 
       CreateContainerResponse container =
-          dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
+          dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)
               .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2))
-              .withExposedPorts(tcp5900).withPortBindings(portBindings).withCmd(resolution).exec();
+              .withExposedPorts(tcp5900).withPortBindings(portBindings).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();

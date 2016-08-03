@@ -18,7 +18,7 @@ public class DataManagerResult {
     return updatedInputItems;
   }
 
-  public void setUpdatedInputItems(HashMap<String, List<String>> pUpdatedInputItems) {
+  public void setUpdatedInputItems(Map<String, List<String>> pUpdatedInputItems) {
     updatedInputItems = pUpdatedInputItems;
   }
 

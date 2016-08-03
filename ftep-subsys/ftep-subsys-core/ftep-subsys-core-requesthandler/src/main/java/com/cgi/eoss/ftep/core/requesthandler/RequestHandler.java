@@ -101,7 +101,7 @@ public class RequestHandler {
       for (Entry<String, List<String>> entry : inputParams.entrySet()) {
         String value = entry.getValue().toString();
         // remove the square brackets '[' and ']' from the value before writing to the property file
-        properties.setProperty(entry.getKey(), value.substring(1, value.length() - 1));
+        properties.setProperty(entry.getKey(), "'"+value.substring(1, value.length() - 1)+"'");
       }
       FileOutputStream fileOut = new FileOutputStream(wpsPropertyfile);
       properties.store(fileOut,
@@ -267,6 +267,7 @@ public class RequestHandler {
         .rangeClosed(FtepConstants.GUI_APP_MIN_PORT, FtepConstants.GUI_APP_MAX_PORT).toArray();
     for (int port : ports) {
       try {
+        LOG.debug(port);
         Socket s = new Socket(workerVmIpAddr, port);
         s.close();
       } catch (ConnectException e) {
@@ -310,9 +311,9 @@ public class RequestHandler {
     return insertResult;
   }
 
-  public String toJson(Object processInputs) {
+  public String toJson(Object data) {
     Gson gson = new Gson();
-    return gson.toJson(processInputs);
+    return gson.toJson(data);
   }
 
   public void updateJobOutput(InsertResult resourceEndpoint, String outputsAsJson) {

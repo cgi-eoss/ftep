@@ -70,14 +70,12 @@ public class Sentinel2LandCover extends AbstractWrapperProc {
       String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
       String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
-
       String dirToMount2 = job.getWorkingDir().getParent();
-
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
-
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
+
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
           .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
           .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)

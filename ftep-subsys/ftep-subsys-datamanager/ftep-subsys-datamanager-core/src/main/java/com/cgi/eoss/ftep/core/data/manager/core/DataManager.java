@@ -1,9 +1,8 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +40,16 @@ public class DataManager {
   private boolean hasManagedEntry = false;
   // Domain is paired with access information for the current session
   private final Map<String, Map<String, String>> credentials = new HashMap<>();
-  private Map<String, String> downloadConfigurationMap;
 
+  private String downloadDir;
 
-  private java.util.List<String> transformUrlsIntoSymlinks(
-      java.util.List<String> listOfInputUrlsByRow, String jobdir) {
-    LOG.debug("fn name: transformUrlsIntoSymlinks(); params: list len '"
-        + listOfInputUrlsByRow.size() + "' jobdir '" + jobdir + "'");
+  private CacheManager cacheManagerIns;
+
+  private String scriptPath;
+
+  private List<String> transformUrlsIntoSymlinks(List<String> listOfInputUrlsByRow, String jobdir) {
     // Take one key's values from the initial HashMap which results in an ArrayList
-    java.util.ArrayList<String> resultSymlinksByRow = new java.util.ArrayList();
+    List<String> resultSymlinksByRow = new ArrayList<>();
     for (String oneUrlInRow : listOfInputUrlsByRow) {
       // Process each link one by one from the ArrayList
       String pathToSymlink = null;
@@ -58,20 +58,14 @@ public class DataManager {
       // Escape all parentheses
       oneUrlInRow = oneUrlInRow.replaceAll("\\(", "\\%28").replaceAll("\\)", "\\%29");
       //// oneUrlInRow = oneUrlInRow.replaceAll("\\-", "\\\\%2D");
-
-      if (!CacheManager.getInstance(downloadConfigurationMap)
-          .checkIfUrlIsInRecentsList(oneUrlInRow)) {
+      if (!cacheManagerIns.checkIfUrlIsInRecentsList(oneUrlInRow)) {
         // New content
         pathToSymlink = checkUrlAndGetCredentials(oneUrlInRow, jobdir);
       } else {
         // Already downloaded content
-        if (CacheManager.getInstance(downloadConfigurationMap)
-            .alreadyManagedToDownload(oneUrlInRow)) {
+        if (cacheManagerIns.alreadyManagedToDownload(oneUrlInRow)) {
           // Successful previous trial -- regardless of already removed items!
-          LOG.debug(
-              "** ** ** getSymlinkForAlreadyExistingUrl for oneUrlInRow '" + oneUrlInRow + "'!");
-          pathToSymlink = CacheManager.getInstance(downloadConfigurationMap)
-              .getSymlinkForAlreadyExistingUrl(oneUrlInRow, jobdir);
+          pathToSymlink = cacheManagerIns.getSymlinkForAlreadyExistingUrl(oneUrlInRow, jobdir);
           hasManagedEntry = true;
         } else {
           // Failed previous trial, probably broken link
@@ -88,8 +82,9 @@ public class DataManager {
   }
 
   private String checkUrlAndGetCredentials(String oneUrlInRow, String jobdir) {
-    LOG.debug("fn name: checkUrlAndGetCredentials(); params: oneUrlInRow '" + oneUrlInRow
-        + "' jobdir '" + jobdir + "'");
+    if (null == oneUrlInRow || oneUrlInRow.length() < 1) {
+      return null;
+    }
     // Create REST call
     String domain = oneUrlInRow.split("://")[1].split("/")[0];
     Map<String, String> credentialForDomain = getCredentialsRestCall(domain);
@@ -125,16 +120,12 @@ public class DataManager {
 
   private String downloadAndUnpackZips(String oneUrlInRow, String certPath, String user,
       String pass, String jobdir) {
-    LOG.debug("fn name: downloadAndUnpackZips(); params: oneUrlInRow '" + oneUrlInRow + "' jobdir '"
-        + jobdir + "' certPath '" + certPath + "' user '" + user + "' pass '" + pass + "'");
     // If the symlink will be returned as null it means the URL was broken
     String symlinkForUrl = null;
     // Start authenticated download using a modified third-party script
-    String shellScript =
-        downloadConfigurationMap.get(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM);
+
     String params1 = " -f -o ";
-    String paramsOutDir =
-        downloadConfigurationMap.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
+    String paramsOutDir = downloadDir;
     String params2 = " -c -U -r 1 -rt 5 -s ";
     String paramsCredUser = user;
     String paramsCredPass = pass;
@@ -143,17 +134,12 @@ public class DataManager {
     if (null != certPath) {
       paramsCredentials = "-C ?:?";
     }
-    // String paramsLinks_2 = "
-    // http://localhost:8082/thredds/fileServer/ziptest/S2A_OPER_PRD_MSIL1C_PDMC_20160624T053223_R103_V20160624T020653_20160624T020653.SAFE.zip
-    // http://localhost:8082/thredds/fileServer/ziptest/S2A_OPER_PRD_MSIL1C_PDMC_20160624T053019_R103_V20160624T020653_20160624T020653.SAFE.zip";
-    // String paramsLinks_1 = "
-    // http://localhost:8082/thredds/fileServer/testEnhanced/2004050312_eta_211.nc";
     String paramsLinks = " " + oneUrlInRow;
-    // Put the Strings together to form the command
-    String command =
-        shellScript + params1 + paramsOutDir + params2 + paramsCredentials + paramsLinks;
+    // Put the Strings together to form the command -- bash -x needed to get the filename
+    String command = "bash -x " + scriptPath + params1 + paramsOutDir + params2 + paramsCredentials
+        + paramsLinks;
     LOG.debug("Command: '" + command + "'");
-    String zipFile = null;
+    String zipFile = "";
     try {
       // Downloading -- calling the third-party script
       /*
@@ -175,77 +161,78 @@ public class DataManager {
        * "[INFO   ][file $filecounter] downloaded item: '$_PRINT_FILENAME'" done
        */
       // Execute the command
-      Process scriptProcessCall = Runtime.getRuntime().exec(command);
-      // Wait for until terminates
+      LOG.debug("Starting SECP script execution at  :" + new Date());
+      Process scriptProcessCall = Runtime.getRuntime().exec(command, null, new File(downloadDir));
+
+      StreamGrabber errorGrabber = new StreamGrabber(scriptProcessCall.getErrorStream());
+      StreamGrabber outputGrabber = new StreamGrabber(scriptProcessCall.getInputStream());
+      errorGrabber.start();
+      outputGrabber.start();
+
+      // Wait for until the script terminates
       scriptProcessCall.waitFor();
+      LOG.debug("Completed SECP script execution at  :" + new Date());
 
-      // InputStream errStream = scriptProcessCall.getErrorStream();
-      // LOG.debug("errorStream ------->>> ");
-      // LOG.debug(getStringFromInputStream(errStream));
+      List<String> errorLogs = errorGrabber.getLines();
+      List<String> outputLogs = outputGrabber.getLines();
 
-      // InputStream outStream = scriptProcessCall.getInputStream();
-      // LOG.debug("outStream ------->>> ");
-      // LOG.debug(getStringFromInputStream(outStream));
+      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
+      LOG.debug("SECP script stderr logs : " + errorLogs);
+      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
+
+      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
+      LOG.debug("SECP script stdout logs : " + outputLogs);
+      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
 
       // When ready check the exit code
-      if (0 != scriptProcessCall.exitValue()) {
+      int exitVal = scriptProcessCall.exitValue();
+      if (0 != exitVal) {
         // On fail
-        LOG.debug("** ** download failed");
+        LOG.error("Data download failed with exit value: " + exitVal + " for " + oneUrlInRow);
         hasSkippedEntry = true;
-        CacheManager.getInstance(downloadConfigurationMap).addToRecentlyDownloadedList(oneUrlInRow,
-            false, "");
-        try (java.io.BufferedReader outputReader = new java.io.BufferedReader(
-            new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
-          String outputLine;
-          while ((outputLine = outputReader.readLine()) != null) {
-            LOG.debug("** ** line read: '" + outputLine + "'");
-            if (outputLine.contains("downloaded item: '")) {
-              LOG.debug("** ** downloaded file's name: '" + zipFile + "'");
-            }
-          }
-        } catch (final Exception e) {
-          LOG.error(e);
-        }
+        cacheManagerIns.addToRecentlyDownloadedList(oneUrlInRow, false, "");
       } else {
         // On success
-        LOG.debug("** ** download succeed");
-        try (java.io.BufferedReader outputReader = new java.io.BufferedReader(
-            new java.io.InputStreamReader(scriptProcessCall.getInputStream()))) {
-          String outputLine;
-          while ((outputLine = outputReader.readLine()) != null) {
-            LOG.debug("** ** line read: '" + outputLine + "'");
-            if (outputLine.contains("downloaded item: '")) {
-              zipFile = outputLine.split("downloaded item: '")[1].split("'")[0];
-              LOG.debug("** ** downloaded file's name: '" + zipFile + "'");
-            }
+        LOG.debug("Data successfully downloaded for " + oneUrlInRow);
+        // while ((outputLine = outputReader.readLine()) != null) {
+        for (String outputLine : outputLogs) {
+          //// Saved to filename
+          //// '\''S2A_OPER_PRD_MSIL1C_PDMC_20160624T033158_R102_V20160624T004855_20160624T004855.zip'\'''
+          // Content-Disposition: inline;filename=".."
+          if (outputLine.contains("Saved to filename")) {
+            LOG.debug(outputLine);
+            // if (outputLine.contains("Content-Disposition: inline;filename")) {
+            zipFile = outputLine.split("Saved to filename '")[1].split("'")[0];
+            // zipFile = outputLine.split("Content-Disposition:
+            // inline;filename=\"\"")[1].split("\"")[0];
+            LOG.debug("Downloaded file's name: '" + zipFile + "'");
+            Process mvProcessCall = Runtime.getRuntime().exec("mv " + zipFile + " " + downloadDir,
+                null, new File(downloadDir));
+            mvProcessCall.waitFor();
+            break;
           }
-        } catch (final Exception e) {
-          LOG.error(e);
         }
-        LOG.debug("** ** managed to dwnld? '" + zipFile + "'");
+
+        LOG.debug("Managed to download '" + zipFile + "'");
         // Unpack if ZIP, get main item's location
-        String mainFolderDownloadLocation =
-            CacheManager.getInstance(downloadConfigurationMap).unzipFile(zipFile);
+        String mainFolderDownloadLocation = cacheManagerIns.unzipFile(zipFile);
         if (null == mainFolderDownloadLocation) {
           hasSkippedEntry = true;
           // When unpack failed in case of ZIP file
-          CacheManager.getInstance(downloadConfigurationMap)
-              .addToRecentlyDownloadedList(oneUrlInRow, false, "");
+          cacheManagerIns.addToRecentlyDownloadedList(oneUrlInRow, false, "");
         } else {
           hasManagedEntry = true;
           // If managed to download (and unpack) the item add to the download-list
-          CacheManager.getInstance(downloadConfigurationMap)
-              .addToRecentlyDownloadedList(oneUrlInRow, true, mainFolderDownloadLocation);
+          cacheManagerIns.addToRecentlyDownloadedList(oneUrlInRow, true,
+              mainFolderDownloadLocation);
         }
         // Create the symlink for the main item in the jobdir and return the symlink's path
-        LOG.debug("** ** ** createSymlink for mainFolderDownloadLocation '"
-            + mainFolderDownloadLocation + "'!");
-        symlinkForUrl = CacheManager.getInstance(downloadConfigurationMap)
-            .createSymlink(mainFolderDownloadLocation, jobdir);
+        LOG.debug("Creating Symlink for '" + mainFolderDownloadLocation + "'!");
+        symlinkForUrl = cacheManagerIns.createSymlink(mainFolderDownloadLocation, jobdir);
       }
-    } catch (java.io.IOException | InterruptedException e) {
-      LOG.debug("Could not execute command '" + command + "'");
-      // TODO -- implement some error handling if needed
+    } catch (Exception e) {
+      LOG.error("Could not execute command '" + command + "'");
+      LOG.error(e);
     }
     // Return the symlink or null
     return symlinkForUrl;
@@ -271,20 +258,25 @@ public class DataManager {
 
   // --------------------------------------------------------------------------
 
-  public DataManagerResult getData(HashMap<String, String> downloadConfMap, String destDir,
-      java.util.HashMap<String, List<String>> inputUrlListsWithJobID) {
-    downloadConfigurationMap = downloadConfMap;
+  public DataManagerResult getData(Map<String, String> downloadConfMap, String destDir,
+      Map<String, List<String>> inputUrlListsWithJobID) {
+    cacheManagerIns = CacheManager.getInstance();
+    downloadDir = downloadConfMap.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
+    downloadDir = downloadDir + "/";
+    cacheManagerIns.setDownloadDir(downloadDir);
+    scriptPath = downloadConfMap.get(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM);
+
     // The inputUrlListsWithJobID has more ID+list pairs look like "key" + "http(s)://urls.zip"
     LOG.debug("fn name: getData(); params: destDir '" + destDir + "' map size '"
         + inputUrlListsWithJobID.size() + "'");
     // Aggregated result to track the whole progress of one job ("inputUrlListsWithJobID")
     DataManagerResult dataManagerResult = new DataManagerResult();
     // UpdatedInputItems for the DataManagerResult object
-    java.util.HashMap<String, java.util.List<String>> symlinksResultMap = new java.util.HashMap();
+    Map<String, List<String>> symlinksResultMap = new HashMap<>();
     // For each key
     for (String jobListRowID : inputUrlListsWithJobID.keySet()) {
       // Get one "row" (key) at a time and process its URLs in the ArrayList (value)
-      java.util.List<String> listOfInputUrlsByRow = inputUrlListsWithJobID.get(jobListRowID);
+      List<String> listOfInputUrlsByRow = inputUrlListsWithJobID.get(jobListRowID);
       // LOG.debug("Sub-List, job <row> ID: " + jobListRowID);
       // For the very same ID (key) put the result ArrayList or symlink locations into the result
       symlinksResultMap.put(jobListRowID, transformUrlsIntoSymlinks(listOfInputUrlsByRow, destDir));
@@ -313,32 +305,4 @@ public class DataManager {
     return dataManagerResult;
   }
 
-  private static String getStringFromInputStream(InputStream is) {
-
-    BufferedReader br = null;
-    StringBuilder sb = new StringBuilder();
-
-    String line;
-    try {
-
-      br = new BufferedReader(new InputStreamReader(is));
-      while ((line = br.readLine()) != null) {
-        sb.append(line);
-      }
-
-    } catch (IOException e) {
-      LOG.error(e);
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          LOG.error(e);
-        }
-      }
-    }
-
-    return sb.toString();
-
-  }
 }

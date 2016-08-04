@@ -81,10 +81,10 @@ public class MonteverdiApp2 extends AbstractWrapperProc {
       Volume volume2 = new Volume(dirToMount2);
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
-      ExposedPort tcp5900 = ExposedPort.tcp(8080);
+      ExposedPort tcp8080 = ExposedPort.tcp(8080);
       Ports portBindings = new Ports();
       Binding binding = new Binding(workerVmIpAddr, null);
-      portBindings.bind(tcp5900, binding);
+      portBindings.bind(tcp8080, binding);
 
       int timeoutInMins = FtepConstants.GUI_APPL_TIMEOUT_MINUTES;
       String timeout = requestHandler.getInputParamValue("timeout", String.class);
@@ -102,15 +102,28 @@ public class MonteverdiApp2 extends AbstractWrapperProc {
       CreateContainerResponse container =
           dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)
               .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2))
-              .withExposedPorts(tcp5900).withPortBindings(portBindings).exec();
+              .withExposedPorts(tcp8080).withPortBindings(portBindings).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();
 
       InspectContainerResponse inspectContainerResponse =
           dockerClient.inspectContainerCmd(container.getId()).exec();
-      Binding portBinding = inspectContainerResponse.getNetworkSettings().getPorts().getBindings()
-          .entrySet().iterator().next().getValue()[0];
+
+      Map<ExposedPort, Binding[]> bindingsMap =
+          inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
+
+      Binding portBinding = null;
+      for (Entry<ExposedPort, Binding[]> e : bindingsMap.entrySet()) {
+        if (null != e.getValue()) {
+          portBinding = e.getValue()[0];
+        }
+      }
+
+      if (null == portBinding) {
+        LOG.error("Cannot find a port to start the Monteverdi application");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
 
       String hostIp = portBinding.getHostIp();
       String hostPort = portBinding.getHostPortSpec();

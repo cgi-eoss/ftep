@@ -5,7 +5,7 @@ import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Links;
 import com.github.jasminb.jsonapi.annotations.Type;
 
-@Type("job")
+@Type("jobs")
 public class ResourceJob {
 
   @Id
@@ -87,7 +87,7 @@ public class ResourceJob {
 
   @Override
   public String toString() {
-    return "Job{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId
+    return "Jobs{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId
         + ", inputs=" + inputs + ", outputs=" + outputs + ", guiEndpoint=" + guiEndpoint
         + ", serviceName=" + serviceName + ", status=" + status + '}';
   }

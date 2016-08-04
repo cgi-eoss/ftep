@@ -29,6 +29,16 @@ public class Sentinel2LandCover extends AbstractWrapperProc {
   private static final Logger LOG = Logger.getLogger(Sentinel2LandCover.class);
   private static final String DOCKER_IMAGE_NAME = "ftep-s2_land_cover";
 
+  // WPS request output variables
+  private static final String INTERIM_OUTPUT_FILE_VAR = "InterimResult";
+  private static final String MODEL_FILE_VAR = "ModelFile";
+  private static final String FINAL_OUTPUT_FILE_VAR = "Result";
+
+  // file patterns
+  public static final String RESULT_GEOTIFF_FILE_PATTERN = "*_2*.tif";
+  public static final String RESULT_MODEL_FILE_PATTERN = "model.txt";
+
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static int s2LandCover(HashMap conf, HashMap inputs, HashMap outputs) {
 
@@ -103,28 +113,36 @@ public class Sentinel2LandCover extends AbstractWrapperProc {
         LOG.error("Docker Container Execution did not complete successfully");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
-
-      String[] outputFiles = job.getOutputDir().list();
-      String outputFilename = "";
-
-      if (null != outputFiles && outputFiles.length > 0) {
-        outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
-      } else {
-        LOG.error("No output has been produced. Check processor logs for job " + job.getJobID());
-        return ZooConstants.WPS_SERVICE_FAILED;
-      }
-
       LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
-          + exitCode + " outFileName:" + outputFilename);
+          + exitCode);
 
-      HashMap result = (HashMap) (outputs.get("Result"));
-      result.put("generated_file", outputFilename);
-      processOutputs.put("Result", outputFilename);
+      File outDir = job.getOutputDir();
+
+      String intermediateOutputFile =
+          requestHandler.getFirstFileMatching(outDir, FtepConstants.INTERIM_GEOTIFF_FILE_PATTERN);
+      HashMap intermediateOutput = (HashMap) (outputs.get(INTERIM_OUTPUT_FILE_VAR));
+      intermediateOutput.put(ZooConstants.ZOO_GENERATED_FILE, intermediateOutputFile);
+      processOutputs.put(INTERIM_OUTPUT_FILE_VAR, intermediateOutputFile);
+      LOG.info("Output-" + INTERIM_OUTPUT_FILE_VAR + " = " + intermediateOutputFile);
+
+      String modelFile = requestHandler.getFirstFileMatching(outDir, RESULT_MODEL_FILE_PATTERN);
+      HashMap model = (HashMap) (outputs.get(MODEL_FILE_VAR));
+      model.put(ZooConstants.ZOO_GENERATED_FILE, modelFile);
+      processOutputs.put(MODEL_FILE_VAR, modelFile);
+      LOG.info("Output-" + MODEL_FILE_VAR + " = " + modelFile);
+
+      String resultFile = requestHandler.getFirstFileMatching(outDir, RESULT_GEOTIFF_FILE_PATTERN);
+      HashMap result = (HashMap) (outputs.get(FINAL_OUTPUT_FILE_VAR));
+      result.put(ZooConstants.ZOO_GENERATED_FILE, resultFile);
+      processOutputs.put(FINAL_OUTPUT_FILE_VAR, resultFile);
+      LOG.info("Output-" + FINAL_OUTPUT_FILE_VAR + " = " + resultFile);
+
       String outputsAsJson = requestHandler.toJson(processOutputs);
-
       requestHandler.insertJob(inputsAsJson, outputsAsJson, null);
     }
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }
+
+
 
 }

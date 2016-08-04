@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -156,7 +155,7 @@ public enum DBRestApiManager {
 
 
   public Map<String, String> getCredentials(String httpEndpoint) {
-    LOG.debug("Fetching credentials.......");
+    LOG.debug("Credentials lookup for endpoint:"+httpEndpoint);
     Map<String, String> credentialForDomain = new HashMap<>();
     HttpGet httpGetRequest = new HttpGet(httpEndpoint);
     String user = null;
@@ -173,7 +172,7 @@ public enum DBRestApiManager {
       LOG.debug("HTTP response status code: " + statusCode);
       if (statusCode > FtepConstants.HTTP_ERROR_RESPONSE_CODE_RANGE) {
         LOG.error("Response Code from HTTP Get request:" + statusCode);
-        LOG.debug("HTTP Response: " + response);
+        LOG.error("HTTP Response: " + response);
         return credentialForDomain;
       }
 

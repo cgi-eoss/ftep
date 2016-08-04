@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.log4j.BasicConfigurator;
@@ -26,6 +27,7 @@ import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
 import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.RegExFileFilter;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
 import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.google.gson.Gson;
@@ -101,7 +103,7 @@ public class RequestHandler {
       for (Entry<String, List<String>> entry : inputParams.entrySet()) {
         String value = entry.getValue().toString();
         // remove the square brackets '[' and ']' from the value before writing to the property file
-        properties.setProperty(entry.getKey(), "'"+value.substring(1, value.length() - 1)+"'");
+        properties.setProperty(entry.getKey(), "'" + value.substring(1, value.length() - 1) + "'");
       }
       FileOutputStream fileOut = new FileOutputStream(wpsPropertyfile);
       properties.store(fileOut,
@@ -149,7 +151,7 @@ public class RequestHandler {
 
   public DataManagerResult fetchInputData(FtepJob job) {
 
-//    addEscapeChar(inputFilesMap);
+    // addEscapeChar(inputFilesMap);
     DataManagerResult dataManagerResult =
         dataManager.getData(downloadConfMap, job.getInputDir().getAbsolutePath(), inputFilesMap);
     DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();
@@ -332,6 +334,32 @@ public class RequestHandler {
     LOG.error("Unable to update Job record in the database for " + getJobId());
     return false;
   }
+
+  public String[] getAllFilesMatching(File directory, String regex) {
+    RegExFileFilter regExFileFilter = new RegExFileFilter(regex);
+    return directory.list(regExFileFilter);
+  }
+
+
+  public String getFirstFileMatching(File directory, String regex) {
+    String[] matchingOutputFiles = getAllFilesMatching(directory, regex);
+    String firstMatchedFile = "";
+    if (null != matchingOutputFiles && matchingOutputFiles.length > 0) {
+      firstMatchedFile = new File(directory, matchingOutputFiles[0]).getAbsolutePath();
+    } else {
+      LOG.error("No output file mactching regEx " + regex + " has been found in directory "
+          + directory + ". Check processor logs for job " + getJobId());
+      return null;
+    }
+    return firstMatchedFile;
+  }
+
+  public void assignOutputToVariable(HashMap<String, String> processOutputs, String outputFileVar,
+      String outputFilePathAbsolute) {
+    // TODO Auto-generated method stub
+
+  }
+
 }
 
 

@@ -109,7 +109,7 @@ public class DataManager {
     } else {
       String httpEndpoint = FtepConstants.DATASOURCE_QUERY_ENDPOINT + domain;
 
-      LOG.debug("Trying to get credentials from endpoint " + httpEndpoint);
+      LOG.debug("Getting credentials from endpoint " + httpEndpoint);
       DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
       credentialForDomain = dataBaseMgr.getCredentials(httpEndpoint);
       credentials.put(domain, credentialForDomain);
@@ -176,12 +176,10 @@ public class DataManager {
       List<String> errorLogs = errorGrabber.getLines();
       List<String> outputLogs = outputGrabber.getLines();
 
-      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
-      LOG.debug("SECP script stderr logs : " + errorLogs);
-      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
-
-      LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
-      LOG.debug("SECP script stdout logs : " + outputLogs);
+      LOG.debug("+++++++++++++++--------- SECP script stderr logs ----------++++++++++++++++++");
+      LOG.debug(errorLogs);
+      LOG.debug("+++++++++++++++--------- SECP script stdout logs ----------++++++++++++++++++");
+      LOG.debug(outputLogs);
       LOG.debug("+++++++++++++++----------------------------------++++++++++++++++++");
 
       // When ready check the exit code

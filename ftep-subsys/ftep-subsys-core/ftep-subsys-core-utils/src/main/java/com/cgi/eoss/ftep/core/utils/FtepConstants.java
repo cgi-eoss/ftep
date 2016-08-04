@@ -55,8 +55,18 @@ public final class FtepConstants {
   public static final int DISK_CACHE_NUMBER_LIMIT = 1000;
 
   public static final int DISK_CACHE_REMOVABLE_COUNT = 10;
-  
-  public static final String DATASOURCE_QUERY_ENDPOINT = "https://192.168.3.83/api/v1.0/datasources/getAuthentication/";
+
+  public static final String DATASOURCE_QUERY_ENDPOINT =
+      "https://192.168.3.83/api/v1.0/datasources/getAuthentication/";
+
+
+  // Output file patterns
+  public static final String GEOTIFF_FILE_PATTERN = "*.tif";
+
+  public static final String INTERIM_GEOTIFF_FILE_PATTERN = "*_intermediate.tif";
+
+  public static final String TEXT_FILE_PATTERN = "*.text";
+
 
 
 }

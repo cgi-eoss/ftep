@@ -14,6 +14,8 @@ import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
+import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -26,20 +28,22 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class MonteverdiApp extends AbstractWrapperProc {
+public class MonteverdiAppRdp extends AbstractWrapperProc {
 
-  public MonteverdiApp(String dockerImgName) {
+  public MonteverdiAppRdp(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(MonteverdiApp.class);
-  private static final String DOCKER_IMAGE_NAME = "ftep-otb_vnc";
+  private static final Logger LOG = Logger.getLogger(MonteverdiAppRdp.class);
+  private static final String DOCKER_IMAGE_NAME = "ftep-otb_guac";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int startAppMonteverdi(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int MonteverdiAppV2(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    MonteverdiApp monteverdiApp = new MonteverdiApp(DOCKER_IMAGE_NAME);
+    MonteverdiAppRdp monteverdiApp = new MonteverdiAppRdp(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    ResourceJob resourceJob = new ResourceJob();
+
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
@@ -56,6 +60,8 @@ public class MonteverdiApp extends AbstractWrapperProc {
       // step 1: create a Job with unique JobID and working directory
       FtepJob job = requestHandler.createJob();
       String jobID = requestHandler.getJobId();
+      resourceJob.setJobId(jobID);
+      InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
       // step 2: retrieve input data and place it in job's working
       // directory
@@ -73,21 +79,18 @@ public class MonteverdiApp extends AbstractWrapperProc {
       // step 3: get VM worker
 
       // step 4: start the docker container
-      String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
-      String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
+      String mountPoint = "/nobody/workDir";
       String dirToMount2 = job.getWorkingDir().getParent();
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
-      String resolution = requestHandler.getInputParamValue("resolution", String.class);
-
-      ExposedPort tcp5900 = ExposedPort.tcp(FtepConstants.VNC_PORT);
+      ExposedPort tcp8080 = ExposedPort.tcp(8080);
       Ports portBindings = new Ports();
       Binding binding = new Binding(workerVmIpAddr, null);
-      portBindings.bind(tcp5900, binding);
+      portBindings.bind(tcp8080, binding);
 
       int timeoutInMins = FtepConstants.GUI_APPL_TIMEOUT_MINUTES;
       String timeout = requestHandler.getInputParamValue("timeout", String.class);
@@ -103,17 +106,30 @@ public class MonteverdiApp extends AbstractWrapperProc {
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 
       CreateContainerResponse container =
-          dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
+          dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)
               .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2))
-              .withExposedPorts(tcp5900).withPortBindings(portBindings).withCmd(resolution).exec();
+              .withExposedPorts(tcp8080).withPortBindings(portBindings).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();
 
       InspectContainerResponse inspectContainerResponse =
           dockerClient.inspectContainerCmd(container.getId()).exec();
-      Binding portBinding = inspectContainerResponse.getNetworkSettings().getPorts().getBindings()
-          .entrySet().iterator().next().getValue()[0];
+
+      Map<ExposedPort, Binding[]> bindingsMap =
+          inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
+
+      Binding portBinding = null;
+      for (Entry<ExposedPort, Binding[]> e : bindingsMap.entrySet()) {
+        if (null != e.getValue()) {
+          portBinding = e.getValue()[0];
+        }
+      }
+
+      if (null == portBinding) {
+        LOG.error("Cannot find a port to start the Monteverdi application");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
 
       String hostIp = portBinding.getHostIp();
       String hostPort = portBinding.getHostPortSpec();
@@ -150,8 +166,8 @@ public class MonteverdiApp extends AbstractWrapperProc {
 
       processOutputs.put("Result", jobID);
       String outputsAsJson = requestHandler.toJson(processOutputs);
-
-      requestHandler.updateJobOutput(resourceEndpoint, outputsAsJson);
+      resourceJob.setOutputs(outputsAsJson);
+      requestHandler.updateJobRecord(resourceEndpoint, resourceJob);
     }
 
     return ZooConstants.WPS_SERVICE_SUCCEEDED;

@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.core.wpswrapper;
+package com.cgi.eoss.ftep.core.wpswrapper.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,5 @@ public class LogContainerResultCallback extends ResultCallbackTemplate<LogContai
     LOGGER.debug(item.toString());
     
   }
-
-
-
-
-
 
 }

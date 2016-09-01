@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.core.wpswrapper;
+package com.cgi.eoss.ftep.core.wpswrapper.utils;
 
 import java.util.ArrayList;
 import java.util.List;

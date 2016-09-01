@@ -288,6 +288,16 @@ public class RequestHandler {
     return zooConfigHandler.getJobID();
   }
 
+  public InsertResult insertJobRecord(ResourceJob resourceJob) {
+    resourceJob.setJobId(getJobId());
+    resourceJob.setUserId(getUserId());
+    resourceJob.setServiceName(zooConfigHandler.getServiceName());
+    resourceJob.setInputs("NA");
+    resourceJob.setOutputs("NA");
+    resourceJob.setGuiEndpoint(null);
+    LOG.debug("Job Resource created for :" + getJobId());
+    return insertIntoJobTable(resourceJob);
+  }
 
   public InsertResult insertJob(String inputsAsJson, String outputsAsJson, String guiEndPoint) {
     ResourceJob resourceJob = new ResourceJob();
@@ -318,22 +328,18 @@ public class RequestHandler {
     return gson.toJson(data);
   }
 
-  public void updateJobOutput(InsertResult resourceEndpoint, String outputsAsJson) {
-    ResourceJob resourceJob = new ResourceJob();
-    resourceJob.setOutputs(outputsAsJson);
+  public boolean updateJobRecord(InsertResult resourceEndpoint, ResourceJob resourceJob) {
     resourceJob.setId(resourceEndpoint.getResourceId());
-    updateJobTable(resourceJob, resourceEndpoint.getResourceRestEndpoint());
-  }
-
-  private boolean updateJobTable(ResourceJob resourceJob, String resourceEndpoint) {
     DBRestApiManager dataBaseMgr = DBRestApiManager.DB_API_CONNECTOR_INSTANCE;
-    if (dataBaseMgr.updateOutputsInJobRecord(resourceJob, resourceEndpoint)) {
+    if (dataBaseMgr.updateOutputsInJobRecord(resourceJob,
+        resourceEndpoint.getResourceRestEndpoint())) {
       LOG.debug(getJobId() + " Job is successfully updated in the database");
       return true;
     }
     LOG.error("Unable to update Job record in the database for " + getJobId());
     return false;
   }
+
 
   public String[] getAllFilesMatching(File directory, String regex) {
     RegExFileFilter regExFileFilter = new RegExFileFilter(regex);
@@ -358,6 +364,15 @@ public class RequestHandler {
       String outputFilePathAbsolute) {
     // TODO Auto-generated method stub
 
+  }
+
+
+  public void sleepForSecs(int time) {
+    try {
+      Thread.sleep(time * 000);
+    } catch (InterruptedException e) {
+      LOG.error(e);
+    }
   }
 
 }

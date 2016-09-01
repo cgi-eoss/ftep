@@ -68,5 +68,13 @@ public final class FtepConstants {
   public static final String TEXT_FILE_PATTERN = "*.text";
 
 
+  // Job Stages
+  public static final String JOB_STAGE_DATA_FETCH = "Step 1 of 3 : Input-Data-Fetch";
+  
+  public static final String JOB_STAGE_PROC = "Step 2 of 3 : Processing";
+  
+  public static final String JOB_STAGE_OUTPUT = "Step 3 of 3 : Output Listing";
+
+
 
 }

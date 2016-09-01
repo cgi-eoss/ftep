@@ -1,9 +1,10 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -12,28 +13,36 @@ import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
+import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
+public class MonteverdiAppVnc extends AbstractWrapperProc {
 
-  public Sentinel2NdviWorkflow(String dockerImgName) {
+  public MonteverdiAppVnc(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(Sentinel2NdviWorkflow.class);
-  private static final String DOCKER_IMAGE_NAME = "ftep-s2_ndvi";
+  private static final Logger LOG = Logger.getLogger(MonteverdiAppVnc.class);
+  private static final String DOCKER_IMAGE_NAME = "ftep-otb_vnc";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int sentinel2ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int MonteverdiAppV1(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    Sentinel2NdviWorkflow ndviWpsProcessor = new Sentinel2NdviWorkflow(DOCKER_IMAGE_NAME);
+    MonteverdiAppVnc monteverdiApp = new MonteverdiAppVnc(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    ResourceJob resourceJob = new ResourceJob();
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
@@ -46,15 +55,16 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
     // }
 
     // account balance (TEP coins)
-    if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
+    if (monteverdiApp.isSufficientCoinsAvailable()) {
       // step 1: create a Job with unique JobID and working directory
       FtepJob job = requestHandler.createJob();
-
+      String jobID = requestHandler.getJobId();
+      resourceJob.setJobId(jobID);
+      InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
       // step 2: retrieve input data and place it in job's working
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
-
       Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
@@ -70,14 +80,25 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
       String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
       String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
-
       String dirToMount2 = job.getWorkingDir().getParent();
-
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
-
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
+
+      String resolution = requestHandler.getInputParamValue("resolution", String.class);
+
+      ExposedPort tcp5900 = ExposedPort.tcp(FtepConstants.VNC_PORT);
+      Ports portBindings = new Ports();
+      Binding binding = new Binding(workerVmIpAddr, null);
+      portBindings.bind(tcp5900, binding);
+
+      int timeoutInMins = FtepConstants.GUI_APPL_TIMEOUT_MINUTES;
+      String timeout = requestHandler.getInputParamValue("timeout", String.class);
+      if (null != timeout) {
+        timeoutInMins = Integer.parseInt(timeout);
+      }
+
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
           .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
           .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
@@ -87,46 +108,61 @@ public class Sentinel2NdviWorkflow extends AbstractWrapperProc {
 
       CreateContainerResponse container =
           dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
-              .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2)).exec();
+              .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2))
+              .withExposedPorts(tcp5900).withPortBindings(portBindings).withCmd(resolution).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();
+
+      InspectContainerResponse inspectContainerResponse =
+          dockerClient.inspectContainerCmd(container.getId()).exec();
+      Binding portBinding = inspectContainerResponse.getNetworkSettings().getPorts().getBindings()
+          .entrySet().iterator().next().getValue()[0];
+
+      String hostIp = portBinding.getHostIp();
+      String hostPort = portBinding.getHostPortSpec();
+
+      if (null != hostPort) {
+        LOG.info("Found a free port. Monteverdi application will start on port: " + hostPort
+            + " for job:" + jobID);
+      } else {
+        LOG.error("Cannot find a port to start the Monteverdi application");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
+
+      LOG.debug("Inserting job record for Monteverdi application job:" + jobID);
+      InsertResult resourceEndpoint =
+          requestHandler.insertJob(inputsAsJson, "", hostIp + ":" + hostPort);
 
       LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
       dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
           .withFollowStream(true).withTailAll().exec(loggingCallback);
 
       int exitCode = dockerClient.waitContainerCmd(containerID)
-          .exec(new WaitContainerResultCallback()).awaitStatusCode();
+          .exec(new WaitContainerResultCallback()).awaitStatusCode(timeoutInMins, TimeUnit.MINUTES);
 
-      LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
+      LOG.info("Application logs for job : " + job.getJobID() + "\n" + loggingCallback);
 
       if (exitCode != 0) {
-        LOG.error("Docker Container Execution did not complete successfully");
+        LOG.error("Docker container return with exit code " + exitCode);
         return ZooConstants.WPS_SERVICE_FAILED;
       }
-
-      String[] outputFiles = job.getOutputDir().list();
-      String outputFilename = "";
-
-      if (null != outputFiles && outputFiles.length > 0) {
-        outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
-      } else {
-        LOG.error("No output has been produced. Check processor logs for job " + job.getJobID());
-        return ZooConstants.WPS_SERVICE_FAILED;
-      }
-
-      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
-          + exitCode + " outFileName:" + outputFilename);
 
       HashMap result = (HashMap) (outputs.get("Result"));
-      result.put("generated_file", outputFilename);
-      processOutputs.put("Result", outputFilename);
-      String outputsAsJson = requestHandler.toJson(processOutputs);
+      result.put("dataType", "string");
+      result.put("value", jobID);
 
-      requestHandler.insertJob(inputsAsJson, outputsAsJson, null);
+      processOutputs.put("Result", jobID);
+      String outputsAsJson = requestHandler.toJson(processOutputs);
+      resourceJob.setOutputs(outputsAsJson);
+      requestHandler.updateJobRecord(resourceEndpoint, resourceJob);
+
     }
+
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
+
   }
+
+
 
 }

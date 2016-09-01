@@ -1,11 +1,11 @@
-[sentinel2ndvi]
+[Sentinel2Ndvi]
  Title = Calculates NDVI using sentinel 2 toolbox
  Abstract = Formula is ($sourceBand2 - $sourceBand1)/($sourceBand2+$sourceBand1)
  processVersion = 1
  storeSupported = true
  statusSupported = true
  serviceType = Java
- serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/Sentinel2NdviWorkflow
+ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/Sentinel2NdviProc
  <DataInputs>
   [inputfile]
    Title = Sentinel 2 L1C data
@@ -18,7 +18,7 @@
     </Default>
    </LiteralData>
   [sourceBand1]
-   Title = Source Band 1. See NDVI forumla above in Abstract
+   Title = Source Band 1. See NDVI forumla above in Abstract 
    Abstract =  see title
    minOccurs = 1
    maxOccurs = 1
@@ -28,7 +28,7 @@
     </Default>
    </LiteralData>
   [sourceBand2]
-   Title = Source Band 2. See NDVI forumla above in Abstract
+   Title = Source Band 2. See NDVI forumla above in Abstract 
    Abstract = The output text document
    minOccurs = 1
    maxOccurs = 1
@@ -39,7 +39,7 @@
    </LiteralData>
   [resolution]
    Title = Sentinel 2 L1C data resolution in meters
-   Abstract = example 20
+   Abstract = example 20 
    minOccurs = 0
    maxOccurs = 1
    <LiteralData>

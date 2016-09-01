@@ -13,6 +13,8 @@ import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
@@ -32,10 +34,11 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int startFileJoiner(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int TextFileJoiner(HashMap conf, HashMap inputs, HashMap outputs) {
 
     FileJoinerProcessor fileJoinerProcessor = new FileJoinerProcessor(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    ResourceJob resourceJob = new ResourceJob();
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS = requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE,
@@ -49,12 +52,18 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
     // account balance (TEP coins)
     if (fileJoinerProcessor.isSufficientCoinsAvailable()) {
       // step 1: create a Job with unique JobID and working directory
-      FtepJob job = requestHandler.createJob();
 
+      FtepJob job = requestHandler.createJob();
+      resourceJob.setJobId(job.getJobID());
+      InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
+
+      resourceJob.setOutputs("DF");
+//      resourceJob.setOutputs(FtepConstants.JOB_STAGE_DATA_FETCH);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
       // step 2: retrieve input data and place it in job's working
       // directory
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
-
+      requestHandler.sleepForSecs(20);
 
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
@@ -72,12 +81,17 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       Map<String, String> processOutputs = new HashMap<>();
 
       // step 3: get VM worker
+      resourceJob.setInputs(inputsAsJson);
+//      resourceJob.setOutputs(FtepConstants.JOB_STAGE_PROC);
+      resourceJob.setOutputs("PROC");
+      requestHandler.updateJobRecord(insertResult, resourceJob);
+      requestHandler.sleepForSecs(30);
 
       // step 4: start the docker container
       String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getParent();
       String jobDirName = job.getWorkingDir().getAbsolutePath();;
-      
+
       File input1 = new File(inputFileNames.get(0));
       String procArg1 = jobDirName + "/" + FtepConstants.JOB_INPUT_DIR + "/" + input1.getName();
 
@@ -122,12 +136,14 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       processOutputs.put("out1", outputFile);
       String outputsAsJson = requestHandler.toJson(processOutputs);
 
-      if (!requestHandler.insertJob(inputsAsJson, outputsAsJson, null).isStatus()) {
+      resourceJob.setOutputs(outputsAsJson);
+      if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
         return ZooConstants.WPS_SERVICE_FAILED;
       }
     }
-
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }
+
+
 
 }

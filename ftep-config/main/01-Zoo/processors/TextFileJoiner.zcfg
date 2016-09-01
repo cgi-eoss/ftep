@@ -1,9 +1,9 @@
-[startFileJoiner]
+[TextFileJoiner]
  Title = Starts the WPS Processor which in turn starts a Docker container
  Abstract = see above
  processVersion = 1
- storeSupported = true
- statusSupported = true
+ storeSupported = false
+ statusSupported = false
  serviceType = Java
  serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/FileJoinerProcessor
  <DataInputs>

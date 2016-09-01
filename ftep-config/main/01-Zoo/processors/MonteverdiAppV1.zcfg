@@ -1,3 +1,11 @@
+[MonteverdiAppV1]
+ Title = Start the Monteverdi Application 
+ Abstract =  Graphical Application
+ processVersion = 1
+ storeSupported = true
+ statusSupported = true
+ serviceType = Java
+ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/MonteverdiAppVnc
  <DataInputs>
   [inputfile]
    Title = Sentinel 2 L1C data
@@ -12,6 +20,16 @@
   [resolution]
    Title = Screen resolution in WxHxD format. e.g. 1280x1024x16
    Abstract =  see title
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+  [gui-timeout]
+   Title = Timeout in minutes before the application automatically shutsdown
+   Abstract = Represents maximum time this application can remain open 
    minOccurs = 1
    maxOccurs = 1
    <LiteralData>

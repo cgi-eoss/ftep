@@ -66,7 +66,7 @@ public class Sentinel2LandCoverProc extends AbstractWrapperProc {
       resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);
       requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 2: retrieve input data and place it in job's working
@@ -84,7 +84,7 @@ public class Sentinel2LandCoverProc extends AbstractWrapperProc {
       HashMap<String, String> processOutputs = new HashMap<>();
 
       resourceJob.setInputs(inputsAsJson);
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      resourceJob.setStep(FtepConstants.JOB_STEP_PROC);
       requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 3: get VM worker
@@ -150,6 +150,7 @@ public class Sentinel2LandCoverProc extends AbstractWrapperProc {
       processOutputs.put(FINAL_OUTPUT_FILE_VAR, resultFile);
       LOG.info("Output-" + FINAL_OUTPUT_FILE_VAR + " = " + resultFile);
 
+      resourceJob.setStep(FtepConstants.JOB_STEP_OUTPUT);
       String outputsAsJson = requestHandler.toJson(processOutputs);
       resourceJob.setOutputs(outputsAsJson);
       if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {

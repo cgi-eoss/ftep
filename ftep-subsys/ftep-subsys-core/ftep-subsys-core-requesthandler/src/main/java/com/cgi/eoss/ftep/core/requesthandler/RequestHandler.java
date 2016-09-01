@@ -294,6 +294,7 @@ public class RequestHandler {
     resourceJob.setInputs("NA");
     resourceJob.setOutputs("NA");
     resourceJob.setGuiEndpoint(null);
+    resourceJob.setStep("NA");    
     LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }

@@ -69,11 +69,11 @@ public final class FtepConstants {
 
 
   // Job Stages
-  public static final String JOB_STEP_DATA_FETCH = "Step 1/3:Data-Fetch";
+  public static final String JOB_STEP_DATA_FETCH = "Step 1of3:Data-Fetch";
   
-  public static final String JOB_STEP_PROC = "Step 2/3:Processing";
+  public static final String JOB_STEP_PROC = "Step 2of3:Processing";
   
-  public static final String JOB_STEP_OUTPUT = "Step 3/3:Output-List";
+  public static final String JOB_STEP_OUTPUT = "Step 3of3:Output-List";
 
 
 

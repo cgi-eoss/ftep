@@ -56,7 +56,7 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);
       requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 2: retrieve input data and place it in job's working
@@ -74,7 +74,7 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       HashMap<String, String> processOutputs = new HashMap<>();
 
       resourceJob.setInputs(inputsAsJson);
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      resourceJob.setStep(FtepConstants.JOB_STEP_PROC);
       requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 3: get VM worker
@@ -137,7 +137,9 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       processOutputs.put("Result", outputFilename);
       String outputsAsJson = requestHandler.toJson(processOutputs);
 
+      resourceJob.setStep(FtepConstants.JOB_STEP_OUTPUT);
       resourceJob.setOutputs(outputsAsJson);
+
       if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
         return ZooConstants.WPS_SERVICE_FAILED;
       }

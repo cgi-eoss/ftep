@@ -20,6 +20,7 @@ public class ResourceJob {
   private String outputs;
   private String guiEndpoint;
   private String serviceName;
+  private String step;
 
   // Attributes in resp.
   private String status;
@@ -89,7 +90,7 @@ public class ResourceJob {
   public String toString() {
     return "Jobs{" + "id='" + id + '\'' + ", jobId='" + jobId + '\'' + ", userId=" + userId
         + ", inputs=" + inputs + ", outputs=" + outputs + ", guiEndpoint=" + guiEndpoint
-        + ", serviceName=" + serviceName + ", status=" + status + '}';
+        + ", serviceName=" + serviceName + ", step=" + step + ", status=" + status + '}';
   }
 
   public String getServiceName() {
@@ -98,6 +99,14 @@ public class ResourceJob {
 
   public void setServiceName(String serviceName) {
     this.serviceName = serviceName;
+  }
+
+  public String getStep() {
+    return step;
+  }
+
+  public void setStep(String step) {
+    this.step = step;
   }
 
 }

@@ -57,11 +57,12 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);
       requestHandler.updateJobRecord(insertResult, resourceJob);
       // step 2: retrieve input data and place it in job's working
       // directory
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
+      requestHandler.sleepForSecs(30);
 
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
@@ -78,7 +79,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       Map<String, String> processOutputs = new HashMap<>();
 
       resourceJob.setInputs(inputsAsJson);
-      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      resourceJob.setStep(FtepConstants.JOB_STEP_PROC);
       requestHandler.updateJobRecord(insertResult, resourceJob);
       requestHandler.sleepForSecs(30);
 
@@ -132,7 +133,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
       processOutputs.put("out1", outputFile);
       String outputsAsJson = requestHandler.toJson(processOutputs);
-
+      resourceJob.setStep(FtepConstants.JOB_STEP_OUTPUT);
       resourceJob.setOutputs(outputsAsJson);
       if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
         return ZooConstants.WPS_SERVICE_FAILED;

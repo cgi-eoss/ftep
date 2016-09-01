@@ -57,35 +57,32 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
-      resourceJob.setOutputs("DF");
-//      resourceJob.setOutputs(FtepConstants.JOB_STAGE_DATA_FETCH);
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
       requestHandler.updateJobRecord(insertResult, resourceJob);
       // step 2: retrieve input data and place it in job's working
       // directory
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
-      requestHandler.sleepForSecs(20);
 
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      Map<String, List<String>> inputFileNameMap = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       List<String> inputFileNames = new ArrayList<>();
-      for (List<String> e : inputFileNameMap.values()) {
+      for (List<String> e : processInputs.values()) {
         inputFileNames.addAll(e);
       }
 
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       Map<String, String> processOutputs = new HashMap<>();
 
-      // step 3: get VM worker
       resourceJob.setInputs(inputsAsJson);
-//      resourceJob.setOutputs(FtepConstants.JOB_STAGE_PROC);
-      resourceJob.setOutputs("PROC");
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
       requestHandler.updateJobRecord(insertResult, resourceJob);
       requestHandler.sleepForSecs(30);
+
+      // step 3: get VM worker
 
       // step 4: start the docker container
       String dkrImage = DOCKER_IMAGE_NAME;

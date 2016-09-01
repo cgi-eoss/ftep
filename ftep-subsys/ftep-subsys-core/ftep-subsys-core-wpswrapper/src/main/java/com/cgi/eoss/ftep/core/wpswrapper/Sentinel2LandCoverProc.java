@@ -66,19 +66,26 @@ public class Sentinel2LandCoverProc extends AbstractWrapperProc {
       resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
+
       // step 2: retrieve input data and place it in job's working
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
-      String inputsAsJson = requestHandler.toJson(processInputs);
-      HashMap<String, String> processOutputs = new HashMap<>();
-
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
+
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      String inputsAsJson = requestHandler.toJson(processInputs);
+      HashMap<String, String> processOutputs = new HashMap<>();
+
+      resourceJob.setInputs(inputsAsJson);
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 3: get VM worker
 
@@ -144,7 +151,10 @@ public class Sentinel2LandCoverProc extends AbstractWrapperProc {
       LOG.info("Output-" + FINAL_OUTPUT_FILE_VAR + " = " + resultFile);
 
       String outputsAsJson = requestHandler.toJson(processOutputs);
-      requestHandler.insertJob(inputsAsJson, outputsAsJson, null);
+      resourceJob.setOutputs(outputsAsJson);
+      if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
     }
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }

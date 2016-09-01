@@ -260,7 +260,6 @@ public class RequestHandler {
     }
 
     return null;
-
   }
 
   public int findFreePortOn(String workerVmIpAddr) {
@@ -295,18 +294,6 @@ public class RequestHandler {
     resourceJob.setInputs("NA");
     resourceJob.setOutputs("NA");
     resourceJob.setGuiEndpoint(null);
-    LOG.debug("Job Resource created for :" + getJobId());
-    return insertIntoJobTable(resourceJob);
-  }
-
-  public InsertResult insertJob(String inputsAsJson, String outputsAsJson, String guiEndPoint) {
-    ResourceJob resourceJob = new ResourceJob();
-    resourceJob.setJobId(getJobId());
-    resourceJob.setInputs(inputsAsJson);
-    resourceJob.setOutputs(outputsAsJson);
-    resourceJob.setGuiEndpoint(guiEndPoint);
-    resourceJob.setUserId(getUserId());
-    resourceJob.setServiceName(zooConfigHandler.getServiceName());
     LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }

@@ -44,7 +44,6 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
     ResourceJob resourceJob = new ResourceJob();
 
-
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
     // requestHandler.getInputParamValue(FtepConstants.WPS_SIMULATE,
@@ -63,18 +62,26 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
       resourceJob.setJobId(jobID);
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
+
       // step 2: retrieve input data and place it in job's working
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
-      String inputsAsJson = requestHandler.toJson(processInputs);
-      HashMap<String, String> processOutputs = new HashMap<>();
 
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
+
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      String inputsAsJson = requestHandler.toJson(processInputs);
+      HashMap<String, String> processOutputs = new HashMap<>();
+
+      resourceJob.setInputs(inputsAsJson);
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 3: get VM worker
 
@@ -142,9 +149,9 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      LOG.debug("Inserting job record for Monteverdi application job:" + jobID);
-      InsertResult resourceEndpoint =
-          requestHandler.insertJob(inputsAsJson, "", hostIp + ":" + hostPort);
+      LOG.debug("Updating GUI endpoint for Monteverdi application job:" + jobID);
+      resourceJob.setGuiEndpoint(hostIp + ":" + hostPort);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
       dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
@@ -167,7 +174,9 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
       processOutputs.put("Result", jobID);
       String outputsAsJson = requestHandler.toJson(processOutputs);
       resourceJob.setOutputs(outputsAsJson);
-      requestHandler.updateJobRecord(resourceEndpoint, resourceJob);
+      if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
     }
 
     return ZooConstants.WPS_SERVICE_SUCCEEDED;

@@ -12,6 +12,8 @@ import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -35,6 +37,7 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
 
     Sentinel2NdviProc ndviWpsProcessor = new Sentinel2NdviProc(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
+    ResourceJob resourceJob = new ResourceJob();
 
     int estimatedExecutionCost = requestHandler.estimateExecutionCost();
     // boolean simulateWPS =
@@ -50,20 +53,29 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
     if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
       // step 1: create a Job with unique JobID and working directory
       FtepJob job = requestHandler.createJob();
+      resourceJob.setJobId(job.getJobID());
+      InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
+
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_DATA_FETCH);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 2: retrieve input data and place it in job's working
       // directory
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
-      String inputsAsJson = requestHandler.toJson(processInputs);
-      HashMap<String, String> processOutputs = new HashMap<>();
-
       if (dataManagerResult.getDownloadStatus().equals("NONE")) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
+
+      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      String inputsAsJson = requestHandler.toJson(processInputs);
+      HashMap<String, String> processOutputs = new HashMap<>();
+
+      resourceJob.setInputs(inputsAsJson);
+      resourceJob.setOutputs(FtepConstants.JOB_STEP_PROC);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       // step 3: get VM worker
 
@@ -125,7 +137,10 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       processOutputs.put("Result", outputFilename);
       String outputsAsJson = requestHandler.toJson(processOutputs);
 
-      requestHandler.insertJob(inputsAsJson, outputsAsJson, null);
+      resourceJob.setOutputs(outputsAsJson);
+      if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
     }
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
   }

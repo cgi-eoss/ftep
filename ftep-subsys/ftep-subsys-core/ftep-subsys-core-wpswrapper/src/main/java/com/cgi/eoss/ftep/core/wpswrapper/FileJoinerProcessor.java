@@ -54,7 +54,6 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       // step 1: create a Job with unique JobID and working directory
 
       FtepJob job = requestHandler.createJob();
-      resourceJob.setJobId(job.getJobID());
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
       resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);

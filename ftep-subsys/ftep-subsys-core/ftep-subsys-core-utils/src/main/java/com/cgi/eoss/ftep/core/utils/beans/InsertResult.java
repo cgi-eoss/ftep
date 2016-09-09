@@ -30,5 +30,11 @@ public class InsertResult {
     this.resourceRestEndpoint = resourceRestEndpoint;
   }
 
+  @Override
+  public String toString() {
+    return "InsertResult{" + "status='" + status + '\'' + ", resourceRestEndpoint='"
+        + resourceRestEndpoint + '\'' + ", resourceId=" + resourceId + '}';
+  }
+
 
 }

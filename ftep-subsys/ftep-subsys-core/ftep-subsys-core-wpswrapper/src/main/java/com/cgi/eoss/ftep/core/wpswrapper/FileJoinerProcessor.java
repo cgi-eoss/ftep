@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
@@ -63,17 +64,18 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
       requestHandler.sleepForSecs(30);
 
-      if (dataManagerResult.getDownloadStatus().equals("NONE")) {
+      if (dataManagerResult.getDownloadStatus().equals(DataDownloadStatus.NONE)) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputFiles = dataManagerResult.getUpdatedInputItems();
       List<String> inputFileNames = new ArrayList<>();
-      for (List<String> e : processInputs.values()) {
+      for (List<String> e : processInputFiles.values()) {
         inputFileNames.addAll(e);
       }
 
+      Map<String, List<String>> processInputs = requestHandler.getInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       Map<String, String> processOutputs = new HashMap<>();
 

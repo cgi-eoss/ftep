@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
@@ -70,12 +71,12 @@ public class MonteverdiAppVnc extends AbstractWrapperProc {
       // List<String> inputFileNames = requestHandler.fetchInputData(job);
       DataManagerResult dataManagerResult = requestHandler.fetchInputData(job);
 
-      if (dataManagerResult.getDownloadStatus().equals("NONE")) {
+      if (dataManagerResult.getDownloadStatus().equals(DataDownloadStatus.NONE)) {
         LOG.error("Unable to fetch input data");
         return ZooConstants.WPS_SERVICE_FAILED;
       }
 
-      Map<String, List<String>> processInputs = dataManagerResult.getUpdatedInputItems();
+      Map<String, List<String>> processInputs = requestHandler.getInputItems();
       String inputsAsJson = requestHandler.toJson(processInputs);
       HashMap<String, String> processOutputs = new HashMap<>();
 
@@ -102,10 +103,10 @@ public class MonteverdiAppVnc extends AbstractWrapperProc {
       Binding binding = new Binding(workerVmIpAddr, null);
       portBindings.bind(tcp5900, binding);
 
-      int timeoutInMins = FtepConstants.GUI_APPL_TIMEOUT_MINUTES;
+      int timeoutInHours = FtepConstants.GUI_APPL_TIMEOUT_HOURS;
       String timeout = requestHandler.getInputParamValue("timeout", String.class);
       if (null != timeout) {
-        timeoutInMins = Integer.parseInt(timeout);
+        timeoutInHours = Integer.parseInt(timeout);
       }
 
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
@@ -148,7 +149,7 @@ public class MonteverdiAppVnc extends AbstractWrapperProc {
           .withFollowStream(true).withTailAll().exec(loggingCallback);
 
       int exitCode = dockerClient.waitContainerCmd(containerID)
-          .exec(new WaitContainerResultCallback()).awaitStatusCode(timeoutInMins, TimeUnit.MINUTES);
+          .exec(new WaitContainerResultCallback()).awaitStatusCode(timeoutInHours, TimeUnit.HOURS);
 
       LOG.info("Application logs for job : " + job.getJobID() + "\n" + loggingCallback);
 

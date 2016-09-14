@@ -1,9 +1,10 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
@@ -18,25 +19,29 @@ import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class Sentinel2NdviProc extends AbstractWrapperProc {
+public class Sentinel2Tbx extends AbstractWrapperProc {
 
-  public Sentinel2NdviProc(String dockerImgName) {
+  public Sentinel2Tbx(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(Sentinel2NdviProc.class);
-  private static final String DOCKER_IMAGE_NAME = "ftep-s2_ndvi";
+  private static final Logger LOG = Logger.getLogger(Sentinel2Tbx.class);
+  private static final String DOCKER_IMAGE_NAME = "ftep-stb_guac";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int Sentinel2Ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int Sentinel2Toolbox(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    Sentinel2NdviProc ndviWpsProcessor = new Sentinel2NdviProc(DOCKER_IMAGE_NAME);
+    Sentinel2Tbx s2App = new Sentinel2Tbx(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
     ResourceJob resourceJob = new ResourceJob();
 
@@ -51,10 +56,11 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
     // }
 
     // account balance (TEP coins)
-    if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
+    if (s2App.isSufficientCoinsAvailable()) {
       // step 1: create a Job with unique JobID and working directory
       FtepJob job = requestHandler.createJob();
-      resourceJob.setJobId(job.getJobID());
+      String jobID = requestHandler.getJobId();
+      resourceJob.setJobId(jobID);
       InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
       resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);
@@ -81,17 +87,25 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       // step 3: get VM worker
 
       // step 4: start the docker container
-      String dkrImage = DOCKER_IMAGE_NAME;
       String dirToMount = job.getWorkingDir().getAbsolutePath();
-      String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
-
+      String mountPoint = "/nobody/workDir";
       String dirToMount2 = job.getWorkingDir().getParent();
-
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
-
       String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
+
+      ExposedPort tcp8080 = ExposedPort.tcp(8080);
+      Ports portBindings = new Ports();
+      Binding binding = new Binding(workerVmIpAddr, null);
+      portBindings.bind(tcp8080, binding);
+
+      int timeoutInHours = FtepConstants.GUI_APPL_TIMEOUT_HOURS;
+      String timeout = requestHandler.getInputParamValue("timeout", String.class);
+      if (null != timeout) {
+        timeoutInHours = Integer.parseInt(timeout);
+      }
+
       DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
           .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
           .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
@@ -100,52 +114,77 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
 
       CreateContainerResponse container =
-          dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
-              .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2)).exec();
+          dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)
+              .withBinds(new Bind(dirToMount, volume1), new Bind(dirToMount2, volume2))
+              .withExposedPorts(tcp8080).withPortBindings(portBindings).exec();
 
       String containerID = container.getId();
       dockerClient.startContainerCmd(containerID).exec();
+
+      InspectContainerResponse inspectContainerResponse =
+          dockerClient.inspectContainerCmd(container.getId()).exec();
+
+      Map<ExposedPort, Binding[]> bindingsMap =
+          inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
+
+      Binding portBinding = null;
+      for (Entry<ExposedPort, Binding[]> e : bindingsMap.entrySet()) {
+        if (null != e.getValue()) {
+          portBinding = e.getValue()[0];
+        }
+      }
+
+      if (null == portBinding) {
+        LOG.error("Cannot find a port to start the SNAP Sentinel-2 Toolbox application");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
+
+      String hostIp = portBinding.getHostIp();
+      String hostPort = portBinding.getHostPortSpec();
+
+      if (null != hostPort) {
+        LOG.info("Found a free port. SNAP Sentinel-2 Toolbox application will start on port: " + hostPort
+            + " for job:" + jobID);
+      } else {
+        LOG.error("Cannot find a port to start the SNAP Sentinel-2 Toolbox application");
+        return ZooConstants.WPS_SERVICE_FAILED;
+      }
+
+      LOG.debug("Updating GUI endpoint for SNAP Sentinel-2 Toolbox application job:" + jobID);
+      resourceJob.setGuiEndpoint(hostIp + ":" + hostPort);
+      requestHandler.updateJobRecord(insertResult, resourceJob);
 
       LogContainerTestCallback loggingCallback = new LogContainerTestCallback(true);
       dockerClient.logContainerCmd(containerID).withStdErr(true).withStdOut(true)
           .withFollowStream(true).withTailAll().exec(loggingCallback);
 
       int exitCode = dockerClient.waitContainerCmd(containerID)
-          .exec(new WaitContainerResultCallback()).awaitStatusCode();
+          .exec(new WaitContainerResultCallback()).awaitStatusCode(timeoutInHours, TimeUnit.HOURS);
 
-      LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
+      LOG.info("Application logs for job : " + job.getJobID() + "\n" + loggingCallback);
 
       if (exitCode != 0) {
-        LOG.error("Docker Container Execution did not complete successfully");
+        LOG.error("Docker container return with exit code " + exitCode);
         return ZooConstants.WPS_SERVICE_FAILED;
       }
-
-      String[] outputFiles = job.getOutputDir().list();
-      String outputFilename = "";
-
-      if (null != outputFiles && outputFiles.length > 0) {
-        outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
-      } else {
-        LOG.error("No output has been produced. Check processor logs for job " + job.getJobID());
-        return ZooConstants.WPS_SERVICE_FAILED;
-      }
-
-      LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
-          + exitCode + " outFileName:" + outputFilename);
 
       HashMap result = (HashMap) (outputs.get("Result"));
-      result.put("generated_file", outputFilename);
-      processOutputs.put("Result", outputFilename);
-      String outputsAsJson = requestHandler.toJson(processOutputs);
+      result.put("dataType", "string");
+      result.put("value", jobID);
 
+      processOutputs.put("Result", jobID);
+      String outputsAsJson = requestHandler.toJson(processOutputs);
       resourceJob.setStep(FtepConstants.JOB_STEP_OUTPUT);
       resourceJob.setOutputs(outputsAsJson);
-
       if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
         return ZooConstants.WPS_SERVICE_FAILED;
       }
     }
+
     return ZooConstants.WPS_SERVICE_SUCCEEDED;
+
   }
+
+
 
 }

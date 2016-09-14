@@ -40,7 +40,7 @@ public final class FtepConstants {
 
   public static final int HTTP_ERROR_RESPONSE_CODE_RANGE = 399;
 
-  public static final int GUI_APPL_TIMEOUT_MINUTES = 180;
+  public static final int GUI_APPL_TIMEOUT_HOURS = 48;
 
   public static final String DOWNLOAD_SCRIPT_PATH_PROP = "downloadScriptPath";
 

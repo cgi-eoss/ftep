@@ -29,19 +29,19 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-public class Sentinel2Tbx extends AbstractWrapperProc {
+public class Sentinel2TbxRdp extends AbstractWrapperProc {
 
-  public Sentinel2Tbx(String dockerImgName) {
+  public Sentinel2TbxRdp(String dockerImgName) {
     super(dockerImgName);
   }
 
-  private static final Logger LOG = Logger.getLogger(Sentinel2Tbx.class);
+  private static final Logger LOG = Logger.getLogger(Sentinel2TbxRdp.class);
   private static final String DOCKER_IMAGE_NAME = "ftep-stb_guac";
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public static int Sentinel2Toolbox(HashMap conf, HashMap inputs, HashMap outputs) {
+  public static int Sentinel2ToolboxV2(HashMap conf, HashMap inputs, HashMap outputs) {
 
-    Sentinel2Tbx s2App = new Sentinel2Tbx(DOCKER_IMAGE_NAME);
+    Sentinel2TbxRdp s2App = new Sentinel2TbxRdp(DOCKER_IMAGE_NAME);
     RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);
     ResourceJob resourceJob = new ResourceJob();
 

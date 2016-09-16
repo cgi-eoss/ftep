@@ -71,7 +71,7 @@ public class RequestHandler {
       isLoggerConfigured = true;
     }
     buildDownloadConfigMap();
-    buildWpsInputsMap();
+    buildInputFilesMap();
     dataManager = new DataManager();
     clusterManager = new ClusterManager();
   }
@@ -190,7 +190,7 @@ public class RequestHandler {
     }
   }
 
-  private void buildWpsInputsMap() {
+  private void buildInputFilesMap() {
     for (Entry<String, HashMap<String, Object>> entry : wpsInputsMap.entrySet()) {
       HashMap<String, Object> valueObj = entry.getValue();
       List<String> value = new ArrayList<String>();
@@ -221,7 +221,7 @@ public class RequestHandler {
 
   private boolean isValueRefersFile(String firstValue) {
     for (FileProtocols val : FileProtocols.values()) {
-      if (firstValue.trim().toUpperCase().startsWith(val.toString())) {
+      if (firstValue.replace("\"", "").trim().toUpperCase().startsWith(val.toString())) {
         return true;
       }
     }

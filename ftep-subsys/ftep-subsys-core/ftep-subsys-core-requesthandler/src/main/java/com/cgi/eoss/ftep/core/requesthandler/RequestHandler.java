@@ -207,7 +207,7 @@ public class RequestHandler {
     LOG.info("Inputs for WPS Execute Request " + getJobId());
     for (Entry<String, List<String>> e : inputItems.entrySet()) {
       String key = e.getKey();
-      List<String> valueList = e.getValue();
+      List<String> valueList = removeQuotes(e.getValue());
       String firstValue = valueList.get(0);
       if (isValueRefersFile(firstValue)) {
         inputFilesMap.put(key, valueList);
@@ -219,9 +219,17 @@ public class RequestHandler {
     }
   }
 
+  private List<String> removeQuotes(List<String> valueList) {
+    List<String> updatedList = new ArrayList<>();
+    for (String entry : valueList) {
+      updatedList.add(entry.replace("\"", "").trim());
+    }
+    return updatedList;
+  }
+
   private boolean isValueRefersFile(String firstValue) {
     for (FileProtocols val : FileProtocols.values()) {
-      if (firstValue.replace("\"", "").trim().toUpperCase().startsWith(val.toString())) {
+      if (firstValue.toUpperCase().startsWith(val.toString())) {
         return true;
       }
     }
@@ -294,7 +302,7 @@ public class RequestHandler {
     resourceJob.setInputs("NA");
     resourceJob.setOutputs("NA");
     resourceJob.setGuiEndpoint(null);
-    resourceJob.setStep("NA");    
+    resourceJob.setStep("NA");
     LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }

@@ -299,10 +299,10 @@ public class RequestHandler {
     resourceJob.setJobId(getJobId());
     resourceJob.setUserId(getUserId());
     resourceJob.setServiceName(zooConfigHandler.getServiceName());
-    resourceJob.setInputs("NA");
-    resourceJob.setOutputs("NA");
+    resourceJob.setInputs("\"{}\"");
+    resourceJob.setOutputs("\"{}\"");
     resourceJob.setGuiEndpoint(null);
-    resourceJob.setStep("NA");
+    resourceJob.setStep("\"{}\"");
     LOG.debug("Job Resource created for :" + getJobId());
     return insertIntoJobTable(resourceJob);
   }

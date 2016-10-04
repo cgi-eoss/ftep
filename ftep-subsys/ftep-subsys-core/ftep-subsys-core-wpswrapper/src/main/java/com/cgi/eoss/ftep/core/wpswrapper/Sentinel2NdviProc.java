@@ -33,6 +33,11 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
   private static final Logger LOG = Logger.getLogger(Sentinel2NdviProc.class);
   private static final String DOCKER_IMAGE_NAME = "ftep-s2_ndvi";
 
+  // WPS request output variables
+  private static final String FINAL_OUTPUT_FILE_VAR = "Result";
+  // file patterns
+  public static final String RESULT_GEOTIFF_FILE_PATTERN = "*.tif";
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static int Sentinel2Ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
 
@@ -133,14 +138,16 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
       LOG.info("Execution of docker container with ID " + containerID + " completed with exit code:"
           + exitCode + " outFileName:" + outputFilename);
 
-      HashMap result = (HashMap) (outputs.get("Result"));
-      result.put("generated_file", outputFilename);
-      processOutputs.put("Result", outputFilename);
-      String outputsAsJson = requestHandler.toJson(processOutputs);
+      File outDir = job.getOutputDir();
+      String resultFile = requestHandler.getFirstFileMatching(outDir, RESULT_GEOTIFF_FILE_PATTERN);
+      HashMap result = (HashMap) (outputs.get(FINAL_OUTPUT_FILE_VAR));
+      result.put(ZooConstants.ZOO_GENERATED_FILE, resultFile);
+      processOutputs.put(FINAL_OUTPUT_FILE_VAR, resultFile);
+      LOG.info("Output-" + FINAL_OUTPUT_FILE_VAR + " = " + resultFile);     
 
       resourceJob.setStep(FtepConstants.JOB_STEP_OUTPUT);
+      String outputsAsJson = requestHandler.toJson(processOutputs);
       resourceJob.setOutputs(outputsAsJson);
-
       if (!requestHandler.updateJobRecord(insertResult, resourceJob)) {
         return ZooConstants.WPS_SERVICE_FAILED;
       }

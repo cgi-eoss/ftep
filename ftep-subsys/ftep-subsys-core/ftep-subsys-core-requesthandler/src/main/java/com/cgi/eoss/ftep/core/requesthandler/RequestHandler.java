@@ -1,5 +1,23 @@
 package com.cgi.eoss.ftep.core.requesthandler;
 
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
+import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
+import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
+import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
+import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
+import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.core.utils.RegExFileFilter;
+import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
+import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
+import com.cgi.eoss.ftep.data.manager.core.DataManager;
+import com.cgi.eoss.ftep.data.manager.core.MultiTenantFileDataManager;
+import com.google.gson.Gson;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.zoo.project.ZooConstants;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,26 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.zoo.project.ZooConstants;
-
-import com.cgi.eoss.ftep.core.data.manager.core.DataManager;
-import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
-import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
-import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
-import com.cgi.eoss.ftep.core.utils.FtepConstants;
-import com.cgi.eoss.ftep.core.utils.RegExFileFilter;
-import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
-import com.google.gson.Gson;
 
 public class RequestHandler {
   private static final Logger LOG = Logger.getLogger(RequestHandler.class);
@@ -72,7 +71,7 @@ public class RequestHandler {
     }
     buildDownloadConfigMap();
     buildInputFilesMap();
-    dataManager = new DataManager();
+    dataManager = new MultiTenantFileDataManager();
     clusterManager = new ClusterManager();
   }
 

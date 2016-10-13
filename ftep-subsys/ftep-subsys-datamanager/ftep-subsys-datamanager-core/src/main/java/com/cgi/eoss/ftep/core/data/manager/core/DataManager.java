@@ -1,17 +1,12 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
+import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import org.apache.log4j.Logger;
 import org.zoo.project.ZooConstants;
 
-import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
-import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import java.io.File;
+import java.util.*;
 
 // Symlinks created by this module are regardless of elements removed
 
@@ -33,7 +28,7 @@ import com.cgi.eoss.ftep.core.utils.FtepConstants;
  */
 
 // Represents one session of downloading a bunch of items
-public class DataManager {
+public class DataManager implements com.cgi.eoss.ftep.data.manager.core.DataManager {
   private static final Logger LOG = Logger.getLogger(DataManager.class);
 
   private boolean hasSkippedEntry = false;
@@ -92,7 +87,8 @@ public class DataManager {
     return downloadAndUnpackZips(oneUrlInRow,
         credentialForDomain.get(FtepConstants.DATASOURCE_CRED_CERTIFICATE),
         credentialForDomain.get(FtepConstants.DATASOURCE_CRED_USER),
-        credentialForDomain.get(FtepConstants.DATASOURCE_CRED_PASSWORD), jobdir);
+        credentialForDomain.get(FtepConstants.DATASOURCE_CRED_PASSWORD),
+        jobdir);
   }
 
   private Map<String, String> getCredentialsRestCall(String domain) {
@@ -256,16 +252,17 @@ public class DataManager {
 
   // --------------------------------------------------------------------------
 
-  public DataManagerResult getData(Map<String, String> downloadConfMap, String destDir,
-      Map<String, List<String>> inputUrlListsWithJobID) {
+  @Override
+  public DataManagerResult getData(Map<String, String> downloadConfiguration, String destination,
+                                   Map<String, List<String>> inputUrlListsWithJobID) {
     cacheManagerIns = CacheManager.getInstance();
-    downloadDir = downloadConfMap.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
-    downloadDir = downloadDir + "/";
+    downloadDir = downloadConfiguration.get(ZooConstants.ZOO_FTEP_DATA_DOWNLOAD_DIR_PARAM);
+    downloadDir = downloadDir + "/"; // /data/cache
     cacheManagerIns.setDownloadDir(downloadDir);
-    scriptPath = downloadConfMap.get(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM);
+    scriptPath = downloadConfiguration.get(ZooConstants.ZOO_FTEP_DOWNLOAD_TOOL_PATH_PARAM);
 
     // The inputUrlListsWithJobID has more ID+list pairs look like "key" + "http(s)://urls.zip"
-    LOG.debug("fn name: getData(); params: destDir '" + destDir + "' map size '"
+    LOG.debug("fn name: getData(); params: destDir '" + destination + "' map size '"
         + inputUrlListsWithJobID.size() + "'");
     // Aggregated result to track the whole progress of one job ("inputUrlListsWithJobID")
     DataManagerResult dataManagerResult = new DataManagerResult();
@@ -277,7 +274,7 @@ public class DataManager {
       List<String> listOfInputUrlsByRow = inputUrlListsWithJobID.get(jobListRowID);
       // LOG.debug("Sub-List, job <row> ID: " + jobListRowID);
       // For the very same ID (key) put the result ArrayList or symlink locations into the result
-      symlinksResultMap.put(jobListRowID, transformUrlsIntoSymlinks(listOfInputUrlsByRow, destDir));
+      symlinksResultMap.put(jobListRowID, transformUrlsIntoSymlinks(listOfInputUrlsByRow, destination));
     }
     // When all keys processed assign the result to the object returned
     dataManagerResult.setUpdatedInputItems(symlinksResultMap);

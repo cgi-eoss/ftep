@@ -36,6 +36,7 @@
 		<guava.version>19.0</guava.version>
 		<junit.version>4.12</junit.version>
 		<log4j.version>1.2.17</log4j.version>
+		<mockito.version>1.10.19</mockito.version>
 		<zip4j.version>1.3.2</zip4j.version>
 
 		<!-- Plugin versions -->
@@ -58,6 +59,9 @@
 		<jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
 		<replacer.version>1.5.3</replacer.version>
 		<wagon-ssh-external.version>2.4</wagon-ssh-external.version>
+		<jimfs.version>1.1</jimfs.version>
+		<slf4j.version>1.7.21</slf4j.version>
+		<logback.version>1.1.7</logback.version>
 	</properties>
 
 	<dependencyManagement>
@@ -78,6 +82,16 @@
 				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>net.lingala.zip4j</groupId>
 				<artifactId>zip4j</artifactId>
 				<version>${zip4j.version}</version>
@@ -90,9 +104,21 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.google.jimfs</groupId>
+				<artifactId>jimfs</artifactId>
+				<version>${jimfs.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${mockito.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
@@ -139,14 +165,6 @@
 							</goals>
 						</execution>
 					</executions>
-					<configuration>
-						<properties>
-							<property>
-								<name>listener</name>
-								<value>org.sonar.java.jacoco.JUnitListener</value>
-							</property>
-						</properties>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -195,14 +213,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${maven-surefire-plugin.version}</version>
-					<configuration>
-						<properties>
-							<property>
-								<name>listener</name>
-								<value>org.sonar.java.jacoco.JUnitListener</value>
-							</property>
-						</properties>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

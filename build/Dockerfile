@@ -1,4 +1,4 @@
-FROM centos:6
+FROM centos:6.8
 
 RUN sed -i 's/enabled=.*$/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 
@@ -14,20 +14,27 @@ RUN yum install -y \
  ruby-devel \
  rubygems \
  tar \
+ unzip \
  wget \
+ zip \
  && yum clean all
 
 # devtoolset-2
-RUN curl -sL http://linuxsoft.cern.ch/cern/devtoolset/slc6-devtoolset.repo > /etc/yum.repos.d/slc6-devtoolset.repo
-RUN rpm --import http://ftp.scientificlinux.org/linux/scientific/5x/x86_64/RPM-GPG-KEYs/RPM-GPG-KEY-cern
+RUN curl -sL http://people.centos.org/tru/devtools-2/devtools-2.repo > /etc/yum.repos.d/devtools-2.repo
 RUN yum install -y \
+ devtoolset-2-binutils \
  devtoolset-2-gcc \
  devtoolset-2-gcc-c++ \
  devtoolset-2-libstdc++-devel \
  devtoolset-2-runtime.noarch \
- devtoolset-2-binutils \
  && yum clean all
 ENV DEVTOOLSET_PATH /opt/rh/devtoolset-2
+
+# Add tools to PATH and set env vars
+ENV PATH=${DEVTOOLSET_PATH}/root/usr/bin:${PATH} \
+ LD_LIBRARY_PATH=${DEVTOOLSET_PATH}/root/usr/lib64:${DEVTOOLSET_PATH}/root/usr/lib \
+ PERL5LIB=${DEVTOOLSET_PATH}/root//usr/lib64/perl5/vendor_perl:${DEVTOOLSET_PATH}/root/usr/lib/perl5:${DEVTOOLSET_PATH}/root//usr/share/perl5/vendor_perl \
+ PYTHONPATH=${DEVTOOLSET_PATH}/root/usr/lib64/python2.6/site-packages:${DEVTOOLSET_PATH}/root/usr/lib/python2.6/site-packages
 
 # JDK
 RUN yum install -y \
@@ -39,7 +46,8 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0
 # Maven
 ENV MAVEN_VERSION 3.3.9
 RUN cd /opt && curl -s -L https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xz
-ENV MAVEN_PATH /opt/apache-maven-${MAVEN_VERSION}
+ENV M2_HOME /opt/apache-maven-${MAVEN_VERSION}
+ENV PATH=${M2_HOME}/bin:${PATH}
 
 # ZOO-Project dependencies (order of installation is important)
 RUN yum install -y \
@@ -65,12 +73,6 @@ RUN yum install -y \
  proj-devel \
  subversion \
  && yum clean all
-
-# Add tools to PATH and set env vars
-ENV PATH=${MAVEN_PATH}/bin:${DEVTOOLSET_PATH}/root/usr/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin \
- LD_LIBRARY_PATH=${DEVTOOLSET_PATH}/root/usr/lib64:${DEVTOOLSET_PATH}/root/usr/lib \
- PERL5LIB=${DEVTOOLSET_PATH}/root//usr/lib64/perl5/vendor_perl:${DEVTOOLSET_PATH}/root/usr/lib/perl5:${DEVTOOLSET_PATH}/root//usr/share/perl5/vendor_perl \
- PYTHONPATH=${DEVTOOLSET_PATH}/root/usr/lib64/python2.6/site-packages:${DEVTOOLSET_PATH}/root/usr/lib/python2.6/site-packages
 
 # FPM
 # Use an older json version for CentOS 6 compatibility

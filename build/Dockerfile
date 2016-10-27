@@ -74,9 +74,13 @@ RUN yum install -y \
  subversion \
  && yum clean all
 
-# FPM
-# Use an older json version for CentOS 6 compatibility
-RUN gem install json -v 1.8.3
-# Use an older fpm version due to https://github.com/jordansissel/fpm/issues/1192
-RUN gem install fpm -v 1.4.0
+# Install puppet for preparing distribution module
+RUN rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm
+RUN yum install -y \
+ puppet-agent \
+ && yum clean all
+ENV PATH=/opt/puppetlabs/bin:${PATH}
+
+# Re-use the puppet-provided ruby for other gems
+RUN /opt/puppetlabs/puppet/bin/gem install -n /usr/local/bin fpm
 

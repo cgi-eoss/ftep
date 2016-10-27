@@ -12,7 +12,9 @@
             buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy build/')
         }
 
-        buildImg.inside {
+        // Expose the docker socket to the container, so it may itself create and use sibling containers
+        def dockerArgs = '-v /var/run/docker.sock:/var/run/docker.sock -e http_proxy -e https_proxy'
+        buildImg.inside(dockerArgs) {
             // Build F-TEP
             stage('Backend') {
                 configFileProvider([configFile(fileId: '2c353f8f-d8c7-41e8-b26f-8f76dfa4a000', variable: 'M2SETTINGS')]) {
@@ -25,8 +27,7 @@
             }
 
             // Build third-party components
-            def zp = load 'build/zoo-project.pipeline.groovy'
-            zp.build()
+            load('build/zoo-project.pipeline.groovy').build()
         }
 
         archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true

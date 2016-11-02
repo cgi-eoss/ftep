@@ -8,7 +8,7 @@ def build() {
     def ws = "${path}/zoo-project-${v}"
     def prep = "${ws}/.prep"
 
-    def outDir = "${env.DISTDIR}/zoo-project"
+    def outDir = env.DISTDIR_OS
 
     stage('ZOO-Project') {
         sh "cd ${path} && tar xf zoo-project-${v}.tar.bz2"

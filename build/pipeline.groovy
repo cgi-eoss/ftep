@@ -15,7 +15,7 @@
         }
 
         // Expose the docker socket to the container, so it may itself create and use sibling containers
-        def dockerArgs = '-v /var/run/docker.sock:/var/run/docker.sock -e http_proxy -e https_proxy'
+        def dockerArgs = "-v /var/run/docker.sock:/var/run/docker.sock -e http_proxy -e https_proxy -e HOME=${WORKSPACE}/.home"
         buildImg.inside(dockerArgs) {
             // Build F-TEP
             stage('Backend') {
@@ -31,8 +31,8 @@
             // Build third-party components
             load('build/zoo-project.pipeline.groovy').build()
 
-            // Create yum repository
-            sh "createrepo ${env.DISTDIR}/repo"
+            // Build full standalone distribution: yum repo, prepare standalone puppet config
+            load('build/standalone-dist.pipeline.groovy').build()
         }
 
         archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true

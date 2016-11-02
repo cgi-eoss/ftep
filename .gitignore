@@ -6,3 +6,5 @@ target
 *.iml
 .idea
 .*.swp
+.dist/
+.repository/

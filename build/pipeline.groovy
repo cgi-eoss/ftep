@@ -3,9 +3,11 @@
         deleteDir()
         unstash 'source'
 
-        // Prep the distribution assembly directory
+        // Prep the distribution assembly directories
         env.DISTDIR = "${WORKSPACE}/.dist"
-        sh "mkdir -p ${env.DISTDIR}"
+        env.DISTDIR_NOARCH = "${env.DISTDIR}/repo/6/local/noarch/RPMS"
+        env.DISTDIR_OS = "${env.DISTDIR}/repo/6/local/x86_64/RPMS"
+        sh "mkdir -p ${env.DISTDIR_NOARCH} ${env.DISTDIR_OS}"
 
         def buildImg
         stage('Bake build container') {
@@ -21,16 +23,18 @@
                     def m2args = "-B -s ${M2SETTINGS} -Dmaven.repo.local=${WORKSPACE}/.repository"
                     sh """
                         mvn ${m2args} clean install
-                        cp ftep-config/target/rpm/f-tep-processors/RPMS/noarch/*.rpm ${env.DISTDIR}/
+                        cp ftep-config/target/rpm/f-tep-processors/RPMS/noarch/*.rpm ${env.DISTDIR_NOARCH}/
                     """
                 }
             }
 
             // Build third-party components
             load('build/zoo-project.pipeline.groovy').build()
+
+            // Create yum repository
+            sh "createrepo ${env.DISTDIR}/repo"
         }
 
         archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true
     }
 }
-

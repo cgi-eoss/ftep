@@ -65,9 +65,6 @@
 							<groupname>root</groupname>
 							<sources>
 								<source>
-									<location>src/main/01-Zoo/main.cfg</location>
-								</source>
-								<source>
 									<location>src/main/01-Zoo/processors</location>
 								</source>
 							</sources>

@@ -31,8 +31,8 @@
             // Build third-party components
             load('build/zoo-project.pipeline.groovy').build()
 
-            // Create yum repository
-            sh "createrepo ${env.DISTDIR}/repo"
+            // Build full standalone distribution: yum repo, prepare standalone puppet config
+            load('build/standalone-distz.pipeline.groovy').build()
         }
 
         archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true

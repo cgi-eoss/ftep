@@ -55,8 +55,6 @@ RUN yum install -y \
  && yum clean all
 RUN yum install -y \
  http://proj.badc.rl.ac.uk/cedaservices/raw-attachment/ticket/670/armadillo-3.800.2-1.el6.x86_64.rpm \
- https://kojipkgs.fedoraproject.org/packages/CharLS/1.0/1.el6/x86_64/CharLS-1.0-1.el6.x86_64.rpm \
- https://kojipkgs.fedoraproject.org/packages/CharLS/1.0/1.el6/x86_64/CharLS-devel-1.0-1.el6.x86_64.rpm \
  && yum clean all
 RUN yum install -y \
  bison \

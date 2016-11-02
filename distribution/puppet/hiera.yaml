@@ -1,0 +1,8 @@
+---
+:backends:
+  - yaml
+:hierarchy:
+  - standalone
+
+:yaml:
+  :datadir: hieradata

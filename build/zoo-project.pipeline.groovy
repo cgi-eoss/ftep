@@ -36,6 +36,10 @@ def build() {
             fpm -t rpm -p ${outDir}/NAME-VERSION-ITERATION.ARCH.rpm -s dir \
              -f -n ${pkg} -v ${v} --iteration ${i} --category Applications/TEP \
              --description "ZOO-Kernel WPS server" --url "http://zoo-project.org/" --license "MIT License" --vendor "F-TEP" \
+             -d "java-1.8.0-openjdk" \
+             -d "gdal" \
+             -d "fcgi" \
+             --after-install ${path}/postinst.sh \
              --verbose \
              -C ${prep} .
         """

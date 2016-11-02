@@ -1,3 +1,4 @@
 *
 !.gitignore
-!(zoo-project-*.tar.bz2)
+!zoo-project-*.tar.bz2
+!postinst.sh

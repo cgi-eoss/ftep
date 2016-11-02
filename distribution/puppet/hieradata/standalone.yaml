@@ -1,0 +1,9 @@
+---
+# Uncomment the F-TEP classes required on this node. See the cgieoss-ftep
+# module for available configuration of these classes.
+classes:
+  - base
+#  - ftep::backend
+#  - ftep::portal
+
+# ftep::repo::location: file:///path/to/repo

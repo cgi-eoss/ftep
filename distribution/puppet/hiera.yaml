@@ -2,7 +2,8 @@
 :backends:
   - yaml
 :hierarchy:
+  - standalone.local
   - standalone
 
 :yaml:
-  :datadir: hieradata
+  :datadir: "hieradata"

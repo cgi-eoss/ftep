@@ -8,3 +8,8 @@ target
 .*.swp
 .dist/
 .repository/
+.home/
+distribution/puppet/hieradata/standalone.local.yaml
+distribution/puppet/modules/
+third-party/cots/puppet-ftep/
+

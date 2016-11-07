@@ -12,9 +12,11 @@ wget -O "${DISTDIR_OS}/armadillo-3.800.2-1.el6.x86_64.rpm" http://proj.badc.rl.a
 # Create yum repository from RPM packages
 createrepo "${DISTDIR}/repo"
 
-# Build F-TEP Puppet module
+# Build F-TEP Puppet module from github revision
+# TODO Use a tag when stable, or install from forge
+PUPPET_FTEP_REV="3ff566134e6d3cc917a7b56e0de513892b9aa956"
 rm -rf "${PUPPET_FTEP}" && mkdir -p "${PUPPET_FTEP}" && cd "${PUPPET_FTEP}" &&\
- curl -sL https://github.com/cgi-eoss/puppet-ftep/archive/master.tar.gz | tar xz --strip-components=1
+ curl -sL https://github.com/cgi-eoss/puppet-ftep/archive/${PUPPET_FTEP_REV}.tar.gz | tar xz --strip-components=1
 puppet module build $PUPPET_FTEP
 
 # Collect required puppet modules

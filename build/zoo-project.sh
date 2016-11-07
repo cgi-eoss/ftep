@@ -8,21 +8,23 @@ I="1"
 ARCH="x86_64"
 
 ZOO="${WORKSPACE}/third-party/cots/zoo-project"
-ZOO_WS="${ZOO}/zoo-project-${V}"
+ZOO_WS="${ZOO}/zoo-project-trunk"
 ZOO_PREP="${ZOO_WS}/.prep"
 
-cd "${ZOO}" && tar xf "zoo-project-${V}.tar.bz2"
+# Build ZOO-Project from trunk revision (using github mirror of svn trunk)
+ZOO_REV="437ba4c4891244b14e89d6346a3fbd8d90830186"
+rm -rf "${ZOO_WS}" && mkdir -p "${ZOO_WS}" && cd "${ZOO_WS}" &&\
+ curl -sL https://github.com/PublicaMundi/zoo-project/archive/${ZOO_REV}.tar.gz | tar xz --strip-components=1
 
 # Build libcgic.a
 cd "${ZOO_WS}/thirds/cgic206"
-make
 make install
 
 # Build zoo-kernel
-mkdir -p "${ZOO_PREP}/usr/lib" "${ZOO_PREP}/usr/lib/cgi-bin" "${ZOO_PREP}/usr/include"
+mkdir -p "${ZOO_PREP}/usr/lib" "${ZOO_PREP}/var/www/cgi-bin" "${ZOO_PREP}/usr/include"
 cd "${ZOO_WS}/zoo-project/zoo-kernel"
 autoconf
-./configure --prefix=/usr --with-java="${JAVA_HOME}" --with-cgi-dir="${ZOO_PREP}/usr/lib/cgi-bin"
+./configure --prefix=/usr --with-java="${JAVA_HOME}" --with-cgi-dir="/var/www/cgi-bin"
 make
 make install DESTDIR="${ZOO_PREP}"
 

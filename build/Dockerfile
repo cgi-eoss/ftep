@@ -73,7 +73,9 @@ RUN yum install -y \
  && yum clean all
 
 # Install puppet for preparing distribution module
-RUN yum install -y https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm
+RUN yum install -y \
+ https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm \
+ && yum clean all
 RUN yum install -y \
  puppet-agent \
  && yum clean all
@@ -82,3 +84,14 @@ ENV PATH=/opt/puppetlabs/bin:${PATH}
 # Re-use the puppet-provided ruby for other gems
 RUN /opt/puppetlabs/puppet/bin/gem install -n /usr/local/bin fpm
 
+# F-TEP Portal dependencies
+RUN yum install -y \
+ https://rpm.nodesource.com/pub_6.x/el/6/x86_64/nodesource-release-el6-1.noarch.rpm \
+ && yum clean all
+RUN yum install -y \
+ nodejs \
+ && yum clean all
+RUN npm install --global \
+ grunt-cli@1.2.0 \
+ bower@1.8.0 \
+ phantomjs-prebuilt@2.1.13

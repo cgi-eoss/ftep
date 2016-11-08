@@ -1,0 +1,33 @@
+<div ng-controller="MapCtrl">
+	<div id="map">
+	    <button type="button" class="btn btn-control open-search" ng-show="!searchMenuVisible" ng-click="showSearchArea()">
+	        <i class="glyphicon glyphicon-menu-hamburger"></i>
+	    </button>
+        <button type="button" class="btn btn-control map-clear" ng-click="clearMap()"
+            uib-tooltip="Remove search polygon" tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+            <i class="glyphicon glyphicon glyphicon-remove"></i>
+        </button>
+        <button type="button" class="btn btn-control open-workspace" ng-show="!workspaceVisible" ng-click="showWorkspaceArea()">
+            <i class="glyphicon glyphicon-chevron-left"></i>
+        </button>
+        <md-menu id="mapMenu">
+	       <md-button ng-click="$mdOpenMenu($event)" class="btn btn-control map-type" aria-label="Menu">
+	           <img src="images/layers.png"/>
+	       </md-button>
+	       <md-menu-content>
+	           <md-menu-item>
+	               <md-button ng-click="setMapType('OSM')">Open Street Map</md-button>
+	           </md-menu-item>
+               <!-- <md-menu-item>
+                   <md-button ng-click="setMapType('SAT')">Satellite Map</md-button>
+               </md-menu-item> -->
+               <md-menu-item>
+                   <md-button ng-click="setMapType('MB')">MapBox Map</md-button>
+               </md-menu-item>
+	       </md-menu-content>
+        </md-menu>
+        <div id="timeSlider-div">
+            <rzslider id="timeSlider" rz-slider-model="timeRangeSlider.minValue" rz-slider-high="timeRangeSlider.maxValue" rz-slider-options="timeRangeSlider.options"></rzslider>
+        </div>
+	</div>
+</div>

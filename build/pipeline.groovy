@@ -5,10 +5,10 @@
 
         def buildImg
         stage('Bake build container') {
-            buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy build/')
+            buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy --build-arg no_proxy build/')
         }
 
-        def dockerArgs = "-e http_proxy -e https_proxy -e HOME=${WORKSPACE}/.home"
+        def dockerArgs = "-e http_proxy -e https_proxy -e no_proxy -e HOME=${WORKSPACE}/.home"
         buildImg.inside(dockerArgs) {
             wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
                 // Build F-TEP

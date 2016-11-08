@@ -1,0 +1,177 @@
+
+#projects.panel-default > .panel-heading {
+    background-color: #fff;
+    text-transform: uppercase;
+    text-shadow: 2px 1px #e1e1e1;
+}
+
+.search-labels {
+	float: left;
+	padding-left: 2px;
+}
+
+.btn-close-search {
+	float: right;
+	background-color: transparent;
+}
+
+.icon-img {
+	height: 20px;
+	width: 20px;
+	float: right;
+	padding: 2px;
+	margin: 4px 1px 3px 1px;
+	border: solid 1px #eee;
+}
+
+.ftep-input{
+	border: none;
+	border-bottom: solid 2px #c1c1c1;
+}
+
+.list {
+	   list-style: none;
+	   padding: 2px;
+	   margin-bottom: 0px;
+       margin-top: 0px;
+}
+
+#jobs-list label {
+	font-size: medium;
+	color: #525252;
+	cursor: pointer;
+}
+
+#jobs-list .list-arrow {
+	float: left;
+	border: none;
+}
+
+.list .list-item {
+	border: solid 1px #eeeeee;
+    border-radius: 4px;
+	margin-bottom: 4px;
+	margin-left: 0px;
+	padding: 3px;
+	background-color: #fff;
+	box-shadow: 0px 1px 1px #888888;
+}
+
+.job-status {
+	border-radius: 0.7em;
+    color: #fff;
+    margin-top: 5px;
+    padding: 2px;
+    width: 80px;
+    height: 1.4em;
+    text-align: center;
+    line-height: 1.2em;
+    font-size: smaller;
+    float: right;
+    cursor: default;
+    background: #727272;
+}
+
+.rating {
+	cursor: default;
+	float: right;
+}
+
+.rating img{
+	height: 12px;
+	width: 12px;
+}
+
+.list-item-button {
+	float: right;
+}
+
+.list-item .description {
+	color: #787878;
+}
+
+.list .glyphicon {
+	float: right;
+	border: solid 1px #e2e2e2;
+	padding: 2px;
+	margin: 1px;
+}
+
+.list .glyphicon .glyphicon-remove :HOVER{
+	color: #f20000;
+}
+
+.list .glyphicon .glyphicon-pencil :HOVER{
+    color: #008800;
+}
+
+.info-hover {
+	cursor: default;
+}
+
+.no-padding {
+	padding-right: 0px !important;
+}
+
+.no-padding + .no-padding {
+    padding-left: 2px !important;
+}
+
+.cancel-edit {
+	float: left !important;
+	color: #000 !important;
+}
+
+#services-accordion .input-group {
+	margin-bottom: 12px;
+}
+
+.services-content {
+    height: 65vh;
+    overflow-y : scroll;
+}
+
+#databaskets-accordion, #services-accordion, #jobs-accordion {
+    background-color: #f1f2ec;
+}
+
+#jobs-accordion {
+    padding: 1px;
+}
+
+.jobs-content {
+	height: 64vh;
+    overflow-y : scroll;
+}
+
+#jobs-list {
+    overflow-x: hidden;
+    background-color: #eaebe2;
+    margin-bottom: 3px;
+}
+
+#jobs-list .glyphicon-remove {
+	color: #be1421;
+	cursor: pointer;
+}
+
+#jobs-list .list-item {
+	border: solid 1px #cfcf9e;
+}
+
+.job-popover-list {
+	list-style: none;
+}
+
+#services-list md-list-item:HOVER {
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.select-button {
+    min-width: 40px;
+    min-height: 20px;
+    line-height: 20px;
+    padding: 2px;
+    margin: 0px;
+}

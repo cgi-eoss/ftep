@@ -56,9 +56,9 @@
 					</requires>
 					<mappings>
 						<mapping>
-							<directory>/usr/lib/cgi-bin</directory>
+							<directory>/var/www/cgi-bin</directory>
 							<directoryIncluded>false</directoryIncluded>
-							<recurseDirectories>false</recurseDirectories>
+							<recurseDirectories>true</recurseDirectories>
 							<configuration>true</configuration>
 							<filemode>644</filemode>
 							<username>root</username>
@@ -70,7 +70,7 @@
 							</sources>
 						</mapping>
 						<mapping>
-							<directory>/usr/lib/cgi-bin/jars</directory>
+							<directory>/var/www/cgi-bin/jars</directory>
 							<directoryIncluded>true</directoryIncluded>
 							<configuration>false</configuration>
 							<filemode>644</filemode>

@@ -1,0 +1,135 @@
+
+#results, #results md-tabs {
+	height: 42vh;
+}
+
+#results md-tab-content {
+	overflow-x: hidden;
+}
+
+#results-header {
+	position: relative;
+	top: -42vh;
+	float: right;
+	background-color: transparent;
+	width: 70%;
+	height: 3.5em;
+	color: #4e4e4e;
+}
+
+.toolbar-clear-button {
+    min-width:45px;
+	padding: 0px;
+}
+
+.clear-button {
+	height: 14px;
+	width: 45px;
+}
+
+#results-header md-button :hover, #results-header .buttons span :hover, a{
+    cursor: pointer;
+}
+
+#results-header .button-section {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+#results-header .button-section .pagination, #results-header .button-section button {
+	float: right;
+}
+
+#results-header .pagination {
+	margin-top: 5px;
+	font-size: 0.6vw;
+}
+
+#results-header .pagination > li > a {
+	padding: 0.4vh 0.3vw;
+}
+
+.controls .glyphicon {
+    top: 10px;
+    margin-right: 8px;
+    font-size: 1.4em;
+}
+
+.metadata-info-button {
+    cursor: pointer;
+    top: auto;
+    right: 3px;
+}
+
+.result-description {
+	color: #4f4f4f;
+}
+
+#job-content {
+	margin: 10px;
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+	background-color: #ccd5aa !important;
+}
+
+#job-content  a {
+	color: #000;
+	background-color: #e9e9e4;
+}
+
+.job-details {
+	border: solid 1px #dbdace;
+	min-height: 295px;
+	overflow-x: auto;
+}
+
+.job-files {
+	list-style: none;
+	line-height: 30px;
+	padding-left: 0px;
+	overflow-x: hidden;
+}
+
+.job-files li{
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.job-files .row {
+	padding-left: 30px;
+}
+
+.geo-item {
+  padding: 3px 0px 3px 3px;
+  margin: 2px 1px 3px 0px;
+  border: 2px solid rgba(227, 227, 227, 1);
+  font-size: 0.8em;
+}
+
+.products-list {
+  list-style: none;
+  margin-top: 3px !important;
+  padding-left: 0px;
+}
+
+.product-description {
+	word-wrap: break-word;
+}
+
+.resultnormal {
+  border: 2px solid #c0c0c0;
+}
+
+.resulthighlight {
+  border: 2px solid #c0c0c0;
+  background-color: #d3d3d3;
+}
+
+#databasket-content .glyphicon-remove {
+	float: right;
+}
+
+#databasket-content h5 {
+	color: #696969;
+}

@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.cgi.eoss</groupId>
+		<artifactId>f-tep</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>com.cgi.eoss.f-tep</groupId>
+	<artifactId>ftep-portal</artifactId>
+	<packaging>rpm</packaging>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>install-bower-deps</id>
+						<phase>process-resources</phase>
+						<goals><goal>run</goal></goals>
+						<configuration>
+							<target>
+								<exec executable="bower" dir="${project.build.outputDirectory}">
+									<arg line="install"/>
+								</exec>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.1.5</version>
+				<extensions>true</extensions>
+				<configuration>
+					<name>f-tep-portal</name>
+					<group>Applications/TEP</group>
+					<targetVendor>F-TEP</targetVendor>
+					<installScriptlet>
+						<script>ln -sf ../bower_components $RPM_BUILD_ROOT/var/www/html/f-tep/app/bower_components</script>
+					</installScriptlet>
+					<mappings>
+						<mapping>
+							<directory>/var/www/html/f-tep</directory>
+							<username>root</username>
+							<groupname>root</groupname>
+							<sources>
+								<source>
+									<location>${project.build.outputDirectory}</location>
+									<includes>
+										<include>app/**</include>
+										<include>bower_components/**</include>
+									</includes>
+								</source>
+							</sources>
+						</mapping>
+					</mappings>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

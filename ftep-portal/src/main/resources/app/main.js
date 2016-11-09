@@ -34,7 +34,8 @@ require.config({
         ol: '../bower_components/openlayers/ol',
         jquery: '../bower_components/jquery/dist/jquery',
         bootstrap: '../bower_components/bootstrap/dist/js/bootstrap',
-        app: 'scripts/app'
+        ftepConfig: 'scripts/ftepConfig',
+        app: 'scripts/app',
     },
 
     // modules and their dependent modules
@@ -128,9 +129,12 @@ require.config({
         clipboard: {
             exports: 'clipboard',
         },
-        //// application
+        //// application,
+        ftepConfig: {
+            exports: 'ftepConfig',
+        },
         app: {
-            deps: ['ol', 'zoo'],
+            deps: ['ol', 'zoo', 'ftepConfig'],
         }
     }
 });

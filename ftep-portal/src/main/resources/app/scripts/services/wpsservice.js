@@ -16,7 +16,7 @@ define(['../ftepmodules', 'module', 'jquery', 'zoo', 'xml2json','ol', 'hgn!zoo-c
           $http.defaults.withCredentials = true;
 
           var zoo = new Zoo({
-              url: 'https://192.171.139.83/wps',
+              url: ftepProperties.ZOO_URL,
               delay: 3000,
           });
 

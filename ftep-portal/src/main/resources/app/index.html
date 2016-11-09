@@ -32,29 +32,29 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-	<!-- Add your site or application content here -->
-	<div  class="main-menu" >
-		<md-toolbar class="ftep-main-toolbar" layout="row">
-		    <md-button aria-label="Explorer" ng-click="goTo('')" >
-		        <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>Explorer
-		    </md-button>
+    <!-- Add your site or application content here -->
+    <div  class="main-menu" >
+        <md-toolbar class="ftep-main-toolbar" layout="row">
+            <md-button aria-label="Explorer" ng-click="goTo('')" >
+                <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>Explorer
+            </md-button>
             <md-button aria-label="Developer" ng-click="goTo('/developer')">
                 <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Developer
             </md-button>
-		    <md-button aria-label="Groups" ng-click="goTo('/community')">
-		        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Groups
-		    </md-button>
+            <md-button aria-label="Groups" ng-click="goTo('/community')">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Groups
+            </md-button>
             <md-button aria-label="Account" ng-click="goTo('/account')">
                 <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>My Account
             </md-button>
             <md-button aria-label="Helpdesk" ng-click="goTo('/helpdesk')">
                 <span class="glyphicon glyphicon-book" aria-hidden="true"></span>Helpdesk
             </md-button>
-		</md-toolbar>
-	</div>
-	<div class="container">
-		<div ng-view=""></div>
-	</div>
+        </md-toolbar>
+    </div>
+    <div class="container">
+        <div ng-view=""></div>
+    </div>
 
     <script data-main="main" src="../bower_components/requirejs/require.js"></script>
 

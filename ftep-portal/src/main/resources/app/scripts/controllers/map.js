@@ -234,8 +234,7 @@ define(['../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules,
         var layerMapBox = new ol.layer.Tile({
             source: new ol.source.XYZ({
                 tileSize: [512, 512],
-                //TODO switch to proper F-TEP access token
-                url: ftepProperties.MAPBOX_TOKEN
+                url: ftepProperties.MAPBOX_URL
             })
         });
 

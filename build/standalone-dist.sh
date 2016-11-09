@@ -14,7 +14,7 @@ createrepo "${DISTDIR}/repo"
 
 # Build F-TEP Puppet module from github revision
 # TODO Use a tag when stable, or install from forge
-PUPPET_FTEP_REV="3ff566134e6d3cc917a7b56e0de513892b9aa956"
+PUPPET_FTEP_REV="540913d98758c60b1f1cdae71801b30e1a01d618"
 rm -rf "${PUPPET_FTEP}" && mkdir -p "${PUPPET_FTEP}" && cd "${PUPPET_FTEP}" &&\
  curl -sL https://github.com/cgi-eoss/puppet-ftep/archive/${PUPPET_FTEP_REV}.tar.gz | tar xz --strip-components=1
 puppet module build $PUPPET_FTEP

@@ -67,28 +67,6 @@ define(['../ftepmodules', 'module', 'jquery', 'zoo', 'xml2json','ol', 'hgn!zoo-c
                           console.log(launched);
 
                           $rootScope.$broadcast('reload.jobs');
-
-                          // Polling status
-                          zoo.watch(launched.sid, {
-                              onPercentCompleted: function(data) {
-                                  console.log("**** PercentCompleted ****");
-                                  console.log(data);
-
-                                  $rootScope.$broadcast('update.job.progress', data.percentCompleted, aProcess);
-                              },
-                              onProcessSucceeded: function(data) {
-                                  console.log("**** ProcessSucceeded ****");
-                                  console.log(data);
-
-                                  $rootScope.$broadcast('update.job.progress', 100, aProcess);
-                                  deferred.resolve(data);
-                              },
-                              onError: function(data) {
-                                  console.log("**** onError ****");
-                                  console.log(data);
-                                  deferred.reject(data);
-                              },
-                         });
                      },
                      error: function(data) {
                          console.log('Execute failed: ', data.ExceptionReport.Exception.ExceptionText);

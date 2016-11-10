@@ -15,16 +15,46 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
           'Karma'
         ];
 
-        $scope.workingList = [];
-
         $scope.selectedService;
-        $scope.myHtml;
+        $scope.serviceDescription;
+        $scope.isWpsLoading = false;
         $scope.info;
-        $scope.progress = {};
+        $scope.outputValues = {};
+        $scope.dropList = { items: []};
+        $scope.inputValues = {};
+        $scope.optionalInputs = {};
+        $scope.dropLists = {};
+
+        $scope.onDrop = function(items, fieldId) {
+            if($scope.dropLists[fieldId] === undefined){
+                $scope.dropLists[fieldId] = [];
+            }
+            var itemsList = items.split(",");
+            for(var i in itemsList){
+                if($scope.dropLists[fieldId].indexOf(itemsList[i]) < 0){
+                    $scope.dropLists[fieldId].push(itemsList[i]);
+                }
+            }
+            $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
+            return true;
+        }
+
+        $scope.removeSelectedItem = function(fieldId, item){
+            var index = $scope.dropLists[fieldId].indexOf(item);
+            $scope.dropLists[fieldId].splice(index, 1);
+            $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
+        }
+
+        $scope.getInputType = function(fieldDesc){
+            if(fieldDesc.LiteralData && fieldDesc.LiteralData.DataType.__text === 'integer'){
+                return 'number';
+            }
+            return (fieldDesc.LiteralData && fieldDesc.LiteralData.DataType) ? fieldDesc.LiteralData.DataType.__text : 'string';
+        }
 
         $scope.$on('update.selectedService', function(event, service) {
             $scope.selectedService = service;
-            $scope.myHtml = 'loading..';
+            $scope.isWpsLoading = true;
             delete $scope.info;
 
             WpsService.getDescription(service.attributes.name).then(function(data){
@@ -37,63 +67,48 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
                     else
                     data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
                 }
-                var details =  tpl_describeProcess(data);
-                $scope.myHtml = $sce.trustAsHtml(details);
+
+                for(var i in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
+                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[i];
+                    if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
+                        $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
+                        console.log($scope.outputValues);
+                    }
+                }
+
+                $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
+                $scope.isWpsLoading = false;
             });
         });
+
 
         $scope.launchProcessing = function() {
             console.log('Process..');
             var aProcess = $scope.selectedService.attributes.name;
             notify('Running '+aProcess+' service..');
             var iparams=[];
-            var id1 = '#wps_' + aProcess;
 
-            $(id1).find("input[type=text],select").each(function(){
-                var lname=$(this).attr("id").replace(/wps_i_/g,"");
-                console.log(lname);
-                if($(this).is(":visible") && lname!=$(this).attr("id")){
+            for(var key in $scope.inputValues){
+                console.log($scope.optionalInputs);
+                console.log(key);
+                console.log($scope.optionalInputs[key]);
+                if($scope.optionalInputs[key] === undefined || ($scope.optionalInputs[key] && $scope.optionalInputs[key] === true)){
                     iparams.push({
-                        identifier: lname,
-                        value: cropQuotes($(this).val()),
+                        identifier: key,
+                        value: $scope.inputValues[key],
                         dataType: "string"
                     });
                 }
-            });
-
-            $(id1).find("input[type=hidden]").each(function(){
-                var lname=$(this).attr("id").replace(/wps_i_/g,"");
-                console.log(lname);
-                if($(this).parent().is(":visible") && lname!=$(this).attr("id")){
-                    if($(this).val()==raster){
-                        iparams.push({
-                            identifier: lname,
-                            href: mapWCSUrl+"?service=WCS&version=2.0.0&request=GetCoverage&CoverageId="+$(this).val(),
-                            mimeType: "image/tiff"
-                        });
-                    }
-                    else{
-                        iparams.push({
-                            identifier: lname,
-                            href: mapWFSUrl+"?service=WFS&version=1.0.0&request=GetFeature&srsName=EPSG:4326&typename="+$(this).val(),
-                            mimeType: "text/xml"
-                        });
-                    }
-                }
-            });
+            }
 
             var oparams=[];
-            $(id1).find("select").each(function(){
-                var lname=$(this).attr("id").replace(/format_wps_o_/g,"");
-                console.log(lname);
-                if($(this).is(":visible") && lname!=$(this).attr("id")){
-                    oparams.push({
-                        identifier: lname,
-                        mimeType: cropQuotes($(this).val()),
-                        asReference: "true"
-                    });
-                }
-            });
+            for(var key in $scope.outputValues){
+                oparams.push({
+                    identifier: key,
+                    mimeType: $scope.outputValues[key],
+                    asReference: "true"
+                });
+            }
 
             console.log("----In ----");
             console.log(iparams);
@@ -107,14 +122,7 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
             });
         }
 
-        function cropQuotes(val){
-            return val.replace(/"/g, "");
-        }
-
-        $scope.isWpsLoaded = function(){
-            return $scope.myHtml && $scope.myHtml != 'loading..';
-        }
-
+        $scope.progress = {};
         $scope.$on('update.job.progress', function(event, percentage, processName) {
             $scope.progress[processName] = percentage;
         });
@@ -122,18 +130,11 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
         function notify(text){
             $scope.info = text;
         }
-        
-        $scope.removeSelectedItem = function (field, item){
-            var index = field.list.indexOf(item);
-            field.list.splice(index, 1);
-        }
 
-        $scope.getNameShort = function(item){
-            var label = item.title ? item.title : item.identifier; //when a geo-result is dropped
-            if(!label){
-                label = item.attributes.fname; //then its an output file
-            }
-            return label.substring(0, 8).concat('..');
+        $scope.getShortName = function(label){
+            var from = (label.length - 8 > 0) ? label.length - 8: 0;
+            var str = label.substr(from);
+            return '..'.concat(str);
         }
 
     }]);

@@ -1,0 +1,10 @@
+TROOT= $(ZOOK_DIR)
+!INCLUDE $(ZOOK_DIR)/nmake.opt
+
+cgi-env/wps_status.zo: service.c
+	$(CPP) /D_CRT_NONSTDC_NO_DEPRECATE -DWIN32 -DZOO_SERVICE $(CFLAGS) /c service.c
+	link /dll /out:cgi-env/wps_status.zo $(FILES) ./service.obj $(LDFLAGS) $(XSLT_DIR)\win32\bin.msvc\libxslt.lib $(ZOOK_DIR)\libzoo_service.lib /FORCE:MULTIPLE
+
+clean:
+	erase cgi-env\*_status.*
+	erase *.obj

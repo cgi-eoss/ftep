@@ -4,19 +4,15 @@
 
 PUPPET_WS="${WORKSPACE}/distribution/puppet"
 MODULE_PATH="${PUPPET_WS}/modules"
-PUPPET_FTEP="${WORKSPACE}/third-party/cots/puppet-ftep"
+ARMADILLO="${WORKSPACE}/third-party/cxx/armadillo"
+PUPPET_FTEP="${WORKSPACE}/third-party/puppet/cgieoss-ftep"
 
-# Download missing third-party packages for our local repo
-wget -O "${DISTDIR_OS}/armadillo-3.800.2-1.el6.x86_64.rpm" http://proj.badc.rl.ac.uk/cedaservices/raw-attachment/ticket/670/armadillo-3.800.2-1.el6.x86_64.rpm
+cp ${ARMADILLO}/*.rpm $DISTDIR_OS
 
 # Create yum repository from RPM packages
 createrepo "${DISTDIR}/repo"
 
-# Build F-TEP Puppet module from github revision
-# TODO Use a tag when stable, or install from forge
-PUPPET_FTEP_REV="38d46c1daf12ce429a97b600d0f621c1b2515a8a"
-rm -rf "${PUPPET_FTEP}" && mkdir -p "${PUPPET_FTEP}" && cd "${PUPPET_FTEP}" &&\
- curl -sL https://github.com/cgi-eoss/puppet-ftep/archive/${PUPPET_FTEP_REV}.tar.gz | tar xz --strip-components=1
+# Build F-TEP Puppet module
 puppet module build $PUPPET_FTEP
 
 # Collect required puppet modules

@@ -1,0 +1,75 @@
+[Union]
+ Title = Compute union. 
+ Abstract = This service shall return a bag of geometry values representing a Point set union of geometry InputEntity1 with geometry InputEntity2.
+ profile = urn:ogc:wps:1.0.0:union
+ processVersion = 2
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = ogr_service.zo
+ serviceType = C
+ <MetaData>
+   title = Demo
+ </MetaData>
+ <DataInputs>
+  [InputEntity1]
+   Title = the first geometry 
+   Abstract = the first geometry to compare against.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     encoding = UTF-8
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Default>
+    <Supported>
+     mimeType = text/xml
+     encoding = base64
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Supported>
+   </ComplexData>
+  [InputEntity2]
+   Title = the other geometry
+   Abstract = the other geometry to compare against.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+     encoding = UTF-8
+    </Default>
+    <Supported>
+     mimeType = text/xml
+     encoding = base64
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Supported>
+   </ComplexData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title = The union of two geometries
+   Abstract = The geometry representing the union of the two geometries.
+   <MetaData>
+    title = Mon test  
+   </MetaData>
+    <ComplexData>
+     <Default>
+      mimeType = text/xml
+      schema = http://fooa/gml/3.1.0/polygon.xsd
+      encoding = UTF-8
+      extension = xml
+     </Default>
+     <Supported>
+      mimeType = application/json
+      encoding = UTF-8
+      extension = js
+     </Supported>
+    </ComplexData>
+ </DataOutputs>  

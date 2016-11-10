@@ -1,0 +1,39 @@
+[HelloPL]
+ Title = Create a welcome message string.
+ Abstract = Create a welcome string.
+ processVersion = 2
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = Hello.pl
+ serviceType = Perl
+ <MetaData>
+   title = Demo
+ </MetaData>
+ <DataInputs>
+  [a]
+   Title = Input string
+   Abstract = The name to display in the welcome message.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = My test
+   </MetaData>
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title = The welcome message
+   Abstract = The welcome message created by service.
+   <MetaData>
+    title = My test
+   </MetaData>
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataOutputs>

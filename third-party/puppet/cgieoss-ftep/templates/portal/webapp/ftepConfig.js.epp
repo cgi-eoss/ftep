@@ -1,0 +1,13 @@
+<%- |
+    String $url_prefix,
+    String $api_url,
+    String $zoo_url,
+    String $mapbox_token,
+| -%>
+// Managed by Puppet
+var ftepConfig = {
+    urlPrefix: "<%= $url_prefix %>",
+    apiUrl: "<%= $api_url %>",
+    zooUrl: "<%= $zoo_url %>",
+    mapboxToken: "<%= $mapbox_token %>"
+};

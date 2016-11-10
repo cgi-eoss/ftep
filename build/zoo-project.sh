@@ -7,14 +7,9 @@ V="1.5.0"
 I="1"
 ARCH="x86_64"
 
-ZOO="${WORKSPACE}/third-party/cots/zoo-project"
-ZOO_WS="${ZOO}/zoo-project-trunk"
+ZOO="${WORKSPACE}/third-party/cxx/zoo-project"
+ZOO_WS="${ZOO}/src"
 ZOO_PREP="${ZOO_WS}/.prep"
-
-# Build ZOO-Project from trunk revision (using github mirror of svn trunk)
-ZOO_REV="437ba4c4891244b14e89d6346a3fbd8d90830186"
-rm -rf "${ZOO_WS}" && mkdir -p "${ZOO_WS}" && cd "${ZOO_WS}" &&\
- curl -sL https://github.com/OSGeo/zoo-project/archive/${ZOO_REV}.tar.gz | tar xz --strip-components=1
 
 # Build libcgic.a
 cd "${ZOO_WS}/thirds/cgic206"

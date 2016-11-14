@@ -7,9 +7,10 @@ class ftep::portal::webapp(
   $zoo_url      = 'http://localhost/wps',
   $mapbox_token = 'pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ',
 ) {
-  ensure_resource(package, 'f-tep-portal', {
-    ensure  => 'latest',
-    name    => 'f-tep-portal',
+  ensure_packages(['f-tep-portal'], {
+    ensure => 'latest',
+    name   => 'f-tep-portal',
+    tag    => 'ftep',
   })
 
   file { "${app_path}/${app_config_file}":
@@ -24,4 +25,11 @@ class ftep::portal::webapp(
     }),
     require => Package['f-tep-portal'],
   }
+
+  ::apache::vhost { 'F-TEP Webapp':
+    port             => '80',
+    servername       => $::fqdn,
+    docroot          => "$app_path",
+  }
+
 }

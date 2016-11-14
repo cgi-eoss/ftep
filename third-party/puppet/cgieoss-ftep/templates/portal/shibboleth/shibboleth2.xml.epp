@@ -1,0 +1,77 @@
+<%- |
+  Integer $clock_skew,
+  String $sp_id,
+  String $home_url,
+  String $app_defaults_signing,
+  String $app_defaults_encryption,
+  String $app_defaults_remote_user,
+  Hash $app_defaults_extra_attrs,
+  Integer $session_lifetime,
+  Integer $session_timeout,
+  String $support_contact,
+  String $idp_id,
+  String $metadata_subdir,
+  String $sp_key,
+  String $sp_cert,
+| -%>
+<?xml version="1.0" encoding="UTF-8"?>
+<SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
+    xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+    clockSkew="<%= $clock_skew %>">
+
+    <ApplicationDefaults entityID="<%= $sp_id %>" homeURL="<%= $home_url %>"
+                         signing="<%= $app_defaults_signing %>" encryption="<%= $app_defaults_encryption %>"
+                         REMOTE_USER="<%= $app_defaults_remote_user %>"
+                         <% $app_defaults_extra_attrs.each | $key, $val | { -%>
+                         <%= $key %>="<%= $val %>"
+                         <% } -%>>
+
+        <Sessions exportLocation="/GetAssertion" lifetime="<%= $session_lifetime %>" timeout="<%= $session_timeout %>"
+                  relayState="ss:mem" checkAddress="false" consistentAddress="true"
+                  handlerSSL="true" cookieProps="https" idpHistory="true" idpHistoryDays="7">
+
+            <SSO entityID="<%= $idp_id %>">
+              SAML2 SAML1
+            </SSO>
+
+            <!-- SAML and local-only logout. -->
+            <Logout>SAML2 Local</Logout>
+
+            <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+            <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
+
+            <!-- Status reporting service. -->
+            <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+
+            <!-- Session diagnostic service. -->
+            <Handler type="Session" Location="/Session" showAttributeValues="false"/>
+
+            <!-- JSON feed of discovery information. -->
+            <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+        </Sessions>
+
+        <Errors supportContact="<%= $support_contact %>"
+            logoLocation="/shibboleth-sp/logo.jpg"
+            styleSheet="/shibboleth-sp/main.css"/>
+
+        <RelyingParty Name="<%= $idp_id %>" keyName="defcreds"/>
+
+        <MetadataProvider type="Folder" path="<%= $metadata_subdir %>"/>
+
+        <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+
+        <AttributeResolver type="Query" subjectMatch="true"/>
+
+        <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+        <CredentialResolver type="File" key="<%= $sp_key %>" certificate="<%= $sp_cert %>"/>
+    </ApplicationDefaults>
+
+    <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+
+    <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+
+</SPConfig>

@@ -8,6 +8,7 @@ RUN yum install -y \
  createrepo \
  epel-release \
  git \
+ openssh-server \
  redhat-rpm-config \
  rpm-build \
  ruby \
@@ -95,3 +96,10 @@ RUN npm install --global \
  grunt-cli@1.2.0 \
  bower@1.8.0 \
  phantomjs-prebuilt@2.1.13
+
+# Set up for interactive usage
+RUN adduser -d /home/ftep -m ftep && echo "ftep" | passwd ftep --stdin
+RUN ssh-keygen -t rsa -b 4096 -P "" -f /etc/ssh/ssh_host_rsa_key
+RUN echo -e "export PATH=$PATH\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nexport PERL5LIB=$PERL5LIB\nexport PYTHONPATH=$PYTHONPATH\nexport M2_HOME=$M2_HOME\nexport JAVA_HOME=$JAVA_HOME" >> /etc/profile.d/dockerenv.sh
+# The script allows the uid of the ftep user to be modified prior to launching sshd
+ADD sshdBootstrap.sh /usr/sbin/sshdBootstrap.sh

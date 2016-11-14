@@ -70,6 +70,7 @@ RUN yum install -y \
  libxslt-devel \
  openssl-devel \
  proj-devel \
+ python-devel \
  subversion \
  && yum clean all
 

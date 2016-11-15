@@ -66,7 +66,7 @@ define(['../ftepmodules', 'module', 'jquery', 'zoo', 'xml2json','ol', 'hgn!zoo-c
                           console.log("**** SUCCESS ****");
                           console.log(launched);
 
-                          $rootScope.$broadcast('reload.jobs');
+                          deferred.resolve(data);
                      },
                      error: function(data) {
                          console.log('Execute failed: ', data.ExceptionReport.Exception.ExceptionText);

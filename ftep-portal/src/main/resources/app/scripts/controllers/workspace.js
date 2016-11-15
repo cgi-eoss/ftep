@@ -8,7 +8,8 @@
 define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], function (ftepmodules, tpl_describeProcess) {
     'use strict';
     
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService',  function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService',
+                                              function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService) {
         this.awesomeThings = [
           'HTML5 Boilerplate',
           'AngularJS',
@@ -55,6 +56,10 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
         $scope.$on('update.selectedService', function(event, service) {
             $scope.selectedService = service;
             $scope.isWpsLoading = true;
+            $scope.outputValues = {};
+            $scope.inputValues = {};
+            $scope.optionalInputs = {};
+            $scope.dropLists = {};
             delete $scope.info;
 
             WpsService.getDescription(service.attributes.name).then(function(data){
@@ -116,16 +121,11 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
             console.log(oparams);
 
             WpsService.execute(aProcess, iparams, oparams).then(function(data){
-                notify(processName, ' service run successfully');
+                JobService.getJobs();
             }, function(error) {
                 notify(error);
             });
         }
-
-        $scope.progress = {};
-        $scope.$on('update.job.progress', function(event, percentage, processName) {
-            $scope.progress[processName] = percentage;
-        });
 
         function notify(text){
             $scope.info = text;

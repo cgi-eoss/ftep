@@ -77,7 +77,6 @@
 
         <md-button class="launch-button" ng-hide="isWpsLoading" ng-click="launchProcessing()">Execute / Launch</md-button>
         <div class="gray" ng-if="info">{{info}}</div>
-        <md-progress-linear ng-show="running == true" md-mode="determinate" value="{{progress[selectedService.attributes.name]}}"></md-progress-linear>
     </div>
     <div class="note" ng-if="!selectedService">
         Please select a service from the service panel first.

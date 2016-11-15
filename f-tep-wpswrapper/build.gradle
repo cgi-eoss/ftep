@@ -1,0 +1,22 @@
+buildscript {
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compileOnly deps.lombok
+
+    compile project(':f-tep-common')
+    compile project(':f-tep-datamanager')
+    compile project(':f-tep-requesthandler')
+
+    compile deps.dockerJava
+    compile deps.slf4j
+}

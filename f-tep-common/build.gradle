@@ -1,0 +1,13 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+dependencies {
+    compileOnly deps.lombok
+
+    compile deps.gson
+    compile deps.httpclient
+    compile deps.jsonapiConverter
+    compile deps.slf4j
+}

@@ -50,6 +50,12 @@ RUN cd /opt && curl -s -L https://archive.apache.org/dist/maven/maven-3/${MAVEN_
 ENV M2_HOME /opt/apache-maven-${MAVEN_VERSION}
 ENV PATH=${M2_HOME}/bin:${PATH}
 
+# Gradle
+ENV GRADLE_VERSION 3.2
+RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
+ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
+
 # ZOO-Project dependencies (order of installation is important)
 RUN yum install -y \
  http://elgis.argeo.org/repos/6/elgis-release-6-6_0.noarch.rpm \
@@ -86,19 +92,7 @@ ENV PATH=/opt/puppetlabs/bin:${PATH}
 # Re-use the puppet-provided ruby for other gems
 RUN /opt/puppetlabs/puppet/bin/gem install -n /usr/local/bin fpm
 
-# F-TEP Portal dependencies
-RUN yum install -y \
- https://rpm.nodesource.com/pub_6.x/el/6/x86_64/nodesource-release-el6-1.noarch.rpm \
- && yum clean all
-RUN yum install -y \
- nodejs \
- && yum clean all
-RUN npm install --global \
- grunt-cli@1.2.0 \
- bower@1.8.0 \
- phantomjs-prebuilt@2.1.13
-
-# Set up for interactive usage
+# Set up user and environment for interactive usage
 RUN adduser -d /home/ftep -m ftep && echo "ftep" | passwd ftep --stdin
 RUN ssh-keygen -t rsa -b 4096 -P "" -f /etc/ssh/ssh_host_rsa_key
 RUN echo -e "export PATH=$PATH\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nexport PERL5LIB=$PERL5LIB\nexport PYTHONPATH=$PYTHONPATH\nexport M2_HOME=$M2_HOME\nexport JAVA_HOME=$JAVA_HOME" >> /etc/profile.d/dockerenv.sh

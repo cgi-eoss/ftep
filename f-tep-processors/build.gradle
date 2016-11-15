@@ -1,0 +1,47 @@
+buildscript {
+    dependencies {
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:4.1.0"
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'nebula.ospackage'
+
+jar {
+    enabled false
+}
+
+ospackage {
+    packageName 'f-tep-processors'
+    version getRpmVersion(project.version).version
+    release getRpmVersion(project.version).release
+    arch NOARCH
+    os LINUX
+
+    into '/var/www/cgi-bin'
+
+    from('src/main/resources') {
+        user 'root'
+        fileType CONFIG | NOREPLACE
+    }
+
+    from(configurations.runtime) {
+        user 'root'
+        into 'jars'
+    }
+}
+
+dependencies {
+    runtime(project(':f-tep-common')) { transitive = false }
+    runtime(project(':f-tep-datamanager')) { transitive = false }
+    runtime(project(':f-tep-requesthandler')) { transitive = false }
+    runtime(project(path: ':f-tep-wpswrapper', configuration: 'shadow')) { transitive = false }
+    runtime(project(path: ':f-tep-demoprocessor', configuration: 'shadow')) { transitive = false }
+}
+
+artifacts {
+    archives buildRpm
+}

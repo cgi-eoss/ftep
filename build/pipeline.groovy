@@ -5,26 +5,28 @@
 
         def buildImg
         stage('Bake build container') {
-            buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy --build-arg no_proxy build/')
+            ansiColor('xterm') {
+                buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy --build-arg no_proxy build/')
+            }
         }
 
         def dockerArgs = "-e http_proxy -e https_proxy -e no_proxy -e HOME=${WORKSPACE}/.home"
         buildImg.inside(dockerArgs) {
-            wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            ansiColor('xterm') {
                 // Build F-TEP
-                stage('Backend') {
-                    configFileProvider([configFile(fileId: '2c353f8f-d8c7-41e8-b26f-8f76dfa4a000', variable: 'M2SETTINGS')]) {
-                        sh "./build/ftep.sh"
+                stage('Build F-TEP') {
+                    configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
+                        sh "env GRADLE_OPTS='-Dorg.gradle.daemon=false' GRADLE_USER_HOME=${WORKSPACE}/.home/.gradle ./build/ftep.sh"
                     }
                 }
 
                 // Build third-party components
-                stage('ZOO-Project') {
+                stage('Build ZOO-Project') {
                     sh "./build/zoo-project.sh"
                 }
 
                 // Build full standalone distribution (and archive the result)
-                stage('Standalone Distribution') {
+                stage('Build Distribution') {
                     sh "./build/standalone-dist.sh"
                     archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true
                 }

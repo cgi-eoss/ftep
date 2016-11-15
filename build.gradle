@@ -1,0 +1,94 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+// This pattern allows us to override the URLs from init.gradle
+ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://repo1.maven.org/maven2'
+ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
+ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url gradlePluginPortalUrl
+            }
+        }
+    }
+
+    buildDir = 'target'
+
+    plugins.withType(JavaPlugin) {
+        sourceCompatibility = 1.8
+        repositories {
+            maven {
+                url mavenCentralUrl
+            }
+        }
+    }
+}
+
+def depVersions = [
+        commonsIo        : '2.5',
+        dockerJava       : '3.0.0',
+        guava            : '20.0',
+        gson             : '2.7',
+        lombok           : '1.16.10',
+        hamcrest         : '2.0.0.0',
+        hibernateJpa21Api: '1.0.0.Final',
+        hibernate        : '5.2.4.Final',
+        hikaricp         : '2.5.1',
+        hsqldb           : '2.3.4',
+        httpclient       : '4.3.1',
+        jsonapiConverter : '0.3',
+        jsr305           : '3.0.1',
+        junit            : '4.12',
+        logback          : '1.1.7',
+        querydsl         : '4.1.4',
+        slf4j            : '1.7.21',
+        springFramework  : '4.3.4.RELEASE',
+        springDataCommons: '1.12.5.RELEASE',
+        springDataJpa    : '1.10.5.RELEASE',
+        springBoot       : '1.4.2.RELEASE',
+]
+
+ext.deps = [
+        commonsIo              : 'commons-io:commons-io:' + depVersions.commonsIo,
+        dockerJava             : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
+        guava                  : 'com.google.guava:guava:' + depVersions.guava,
+        gson                   : 'com.google.code.gson:gson:' + depVersions.gson,
+        hibernateJpa21Api      : 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:' + depVersions.hibernateJpa21Api,
+        jsonapiConverter       : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
+        jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
+        lombok                 : 'org.projectlombok:lombok:' + depVersions.lombok,
+        hibernateCore          : 'org.hibernate:hibernate-core:' + depVersions.hibernate,
+        hibernateEntityManager : 'org.hibernate:hibernate-entitymanager:' + depVersions.hibernate,
+        hikaricp               : 'com.zaxxer:HikariCP:' + depVersions.hikaricp,
+        httpclient             : 'org.apache.httpcomponents:httpclient:' + depVersions.httpclient,
+        logbackClassic         : 'ch.qos.logback:logback-classic:' + depVersions.logback,
+        querydslApt            : [
+                'com.querydsl:querydsl-apt:' + depVersions.querydsl + ':hibernate',
+                'org.hibernate:hibernate-core:' + depVersions.hibernate,
+        ],
+        querydslJpa            : 'com.querydsl:querydsl-jpa:' + depVersions.querydsl,
+        slf4j                  : 'org.slf4j:slf4j-api:' + depVersions.slf4j,
+        springOrm              : 'org.springframework:spring-orm:' + depVersions.springFramework,
+        springTx               : 'org.springframework:spring-tx:' + depVersions.springFramework,
+        springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
+        springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
+        springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
+
+        hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
+        hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
+        junit                  : 'junit:junit:' + depVersions.junit,
+        springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
+]
+
+def getRpmVersion(version) {
+    return [
+            version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
+            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
+    ]
+}

@@ -44,10 +44,13 @@
 	        <div class="dataContainer" min-width="50px">
 				<form name="searchForm">
 					<div class="row">
-						<div class="col-md-4" ng-repeat="datasource in dataSources">
-							<md-checkbox class=" green" ng-model="datasource.value" ng-click="checkSelection(datasource)"/>
-							<label class="menu-font">{{datasource.name}}</label>
-						</div>
+                          <md-radio-group ng-model="selectedSource.value">
+							<div class="col-md-4" ng-repeat='source in dataSources'>
+								<md-radio-button ng-value="source.id" aria-label="{{source.name}}">
+	                                       {{source.name}}
+								 </md-radio-button>
+							</div>
+                           </md-radio-group>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
@@ -100,13 +103,6 @@
 	                           </div>
 	                        </div>
 	                        <p/>
-		                    <div class="row">
-		                       <label class="col-md-8">Minimum cloud coverage %:</label>
-		                       <div class="col-md-4">
-		                          <input class="form-control" type="number" min="0" max="100" ng-model="searchParameters.mission.minCloudCover"/>
-		                       </div>
-		                    </div>
-                            <p/>
 	                        <div class="row">
 	                           <label class="col-md-8">Maximum cloud coverage %:</label>
                                <div class="col-md-4">

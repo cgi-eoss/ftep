@@ -215,6 +215,13 @@ define(['../ftepmodules'], function (ftepmodules) {
                         delete $scope.selectedDatabasket;
                     }
                 });
+
+                $scope.getBasketItem = function(item){
+                    if(item.properties){
+                        return item.properties.details.file.path;
+                    }
+                    return '';
+                }
                 /* End of Selected Databasket */
 
                 /* Selected Job */

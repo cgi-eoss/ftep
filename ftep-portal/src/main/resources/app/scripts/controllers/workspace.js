@@ -30,14 +30,19 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
             if($scope.dropLists[fieldId] === undefined){
                 $scope.dropLists[fieldId] = [];
             }
-            var itemsList = items.split(",");
-            for(var i in itemsList){
-                if($scope.dropLists[fieldId].indexOf(itemsList[i]) < 0){
-                    $scope.dropLists[fieldId].push(itemsList[i]);
+            if(items){
+                var itemsList = items.split(",");
+                for(var i in itemsList){
+                    if($scope.dropLists[fieldId].indexOf(itemsList[i]) < 0){
+                        $scope.dropLists[fieldId].push(itemsList[i]);
+                    }
                 }
+                $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
+                return true;
             }
-            $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
-            return true;
+            else{
+                return false;
+            }
         }
 
         $scope.removeSelectedItem = function(fieldId, item){

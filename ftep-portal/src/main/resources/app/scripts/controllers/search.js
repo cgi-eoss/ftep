@@ -75,6 +75,7 @@ define(['../ftepmodules', 'clipboard'], function (ftepmodules, clipboard) {
     function setup(){
         $scope.searchParameters = GeoService.parameters;
         $scope.dataSources = GeoService.dataSources;
+        $scope.selectedSource = GeoService.selectedSource;
 
         if($scope.searchParameters.startTime == undefined || $scope.searchParameters.endTime == undefined){
             var weekago = new Date();

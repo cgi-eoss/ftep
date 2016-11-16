@@ -51,7 +51,7 @@
 	        <h5>{{selectedDatabasket.attributes.description}}</h5>
 	        <p>
 	            <ul class="products-list">
-	                <li ng-repeat="item in selectedDatabasket.items">{{item.identifier}}{{item.attributes.fname}}{{item.name}}
+	               <li ng-repeat="item in selectedDatabasket.items" dnd-draggable="getBasketItem(item)">{{item.identifier}}{{item.attributes.fname}}{{item.name}}
 	                    <span class="glyphicon glyphicon-remove" ng-click="removeItemFromBasket(item)"></span>
 	                </li>
 	            </ul>

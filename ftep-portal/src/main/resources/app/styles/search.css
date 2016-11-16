@@ -29,6 +29,13 @@
 	border-bottom: solid 2px #c1c1c1;
 }
 
+md-radio-button.md-checked .md-off{
+	border-color: #235c30;
+}
+md-radio-button.md-default-theme .md-on, md-radio-button .md-on{
+    background-color: #235c30;
+}
+
 .list {
 	   list-style: none;
 	   padding: 2px;

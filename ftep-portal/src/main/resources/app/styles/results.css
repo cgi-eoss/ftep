@@ -113,6 +113,10 @@
   padding-left: 0px;
 }
 
+.products-list li{
+	cursor: pointer;
+}
+
 .product-description {
 	word-wrap: break-word;
 }

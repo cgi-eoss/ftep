@@ -49,7 +49,7 @@ define(['../ftepmodules'], function (ftepmodules) {
               ///////////////////////////////
 
               var params = { startDate: start, endDate: end, startPage: this.parameters.pageNumber, maximumRecords: ITEMS_PER_PAGE,
-                      sat: this.dataSources[0].value, tep: this.dataSources[1].value, ref: false}; //TODO ref data
+                      sat: this.dataSources[0].id==this.selectedSource.value, tep: this.dataSources[1].id==this.selectedSource.value, ref: false}; //TODO ref data
 
               if(this.parameters.polygon){
                   var bboxVal = [];
@@ -64,7 +64,6 @@ define(['../ftepmodules'], function (ftepmodules) {
 
                   if(this.parameters.mission.name.indexOf('2') > -1){
                       params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
-                      params.minCloudCoverPercentage = this.parameters.mission.minCloudCover;
                       params.name = this.parameters.mission.text;
                   }
               }
@@ -91,7 +90,8 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           this.parameters = {startTime: undefined, endTime: undefined, polygon: undefined, pageNumber: 1, mission: undefined};
 
-          this.dataSources =  [{name: "Satellite", value: true}, {name: "Product", value: true}, {name: "Reference", value: true}];
+          this.dataSources =  [{name: "Satellite", id: 1}, {name: "Product", id: 2}, {name: "Reference", id: 3}];
+          this.selectedSource = {value: 1};
 
           this.spinner = {loading: false};
 

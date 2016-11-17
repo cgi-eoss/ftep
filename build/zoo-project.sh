@@ -19,7 +19,7 @@ make install
 mkdir -p "${ZOO_PREP}/usr/lib" "${ZOO_PREP}/var/www/cgi-bin" "${ZOO_PREP}/usr/include"
 cd "${ZOO_WS}/zoo-project/zoo-kernel"
 autoconf
-./configure --prefix=/usr --with-java="${JAVA_HOME}" --with-cgi-dir="/var/www/cgi-bin"
+./configure --prefix=/usr --with-db-backend --with-python --with-java="${JAVA_HOME}" --with-cgi-dir="/var/www/cgi-bin"
 make
 make install DESTDIR="${ZOO_PREP}"
 

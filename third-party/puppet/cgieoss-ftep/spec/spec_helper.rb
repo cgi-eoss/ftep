@@ -13,6 +13,9 @@ RSpec.configure do |c|
 
       :concat_basedir => '/tmp/puppet-concat',
 
+      :root_home => '/root',
+      :path => '/usr/local/bin:/usr/bin:/bin',
+
       # Version facts
       :puppetversion  => '4.7.0',
   }

@@ -22,13 +22,13 @@ class ftep::backend::zoo_kernel(
   $provider_name     = 'CGI IT UK Ltd.',
   $provider_site     = 'https://forestry-tep.eo.esa.int/',
 
-  $db_name           = 'ftep',
-  $db_host           = 'localhost',
+  $db_host           = $ftep::globals::ftep_db_host,
+  $db_name           = $ftep::globals::ftep_db_name,
+  $db_user           = $ftep::globals::ftep_db_username,
+  $db_pass           = $ftep::globals::ftep_db_password,
   $db_port           = '5432',
   $db_type           = 'PG',
   $db_schema         = 'public',
-  $db_user           = 'ftep',
-  $db_pass           = 'ftep',
 
   $env_config = { },
   $ftep_config = { },
@@ -44,27 +44,16 @@ class ftep::backend::zoo_kernel(
         default  => $package_ensure,
       }
 
-      # The package F-TEP reference package requires dependencies from the EPEL
-      # and elgis repositories
-      require ::epel
-
-      ensure_resource(yumrepo, 'elgis', {
-        ensure   => 'present',
-        descr    => 'EL GIS 6 - $basearch',
-        baseurl  => 'http://elgis.argeo.org/repos/6/elgis/$basearch',
-        enabled  => 1,
-        gpgcheck => 1,
-        gpgkey   => 'http://elgis.argeo.org/RPM-GPG-KEY-ELGIS',
-      })
-
-      ensure_resource(package, 'zoo-kernel', {
+      ensure_packages(['zoo-kernel'], {
         ensure  => $_package_ensure,
         name    => $package_name,
+        tag     => 'ftep',
       })
     }
 
     file { "${config_path}/${main_config_file}":
       ensure  => 'present',
+      mode    => '0644',
       owner   => 'root',
       group   => 'root',
       content => epp('ftep/backend/zoo_kernel/main.cfg.epp', {

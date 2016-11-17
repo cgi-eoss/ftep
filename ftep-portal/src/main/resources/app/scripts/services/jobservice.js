@@ -14,14 +14,19 @@ define(['../ftepmodules'], function (ftepmodules) {
           $http.defaults.headers.post['Content-Type'] = 'application/json';
           $http.defaults.withCredentials = true;
 
-          var is_polling = false;
+          var isPolling = false;
           var jobListCache;
           var isJobStillRunning = false; //whether a job exists, that is still running
           var connectionError = false, retriesLeft = 3;
+          var waitingForNewJob = false;
 
           /** Return the jobs for the user **/
-          this.getJobs = function(){
-              if(is_polling){
+          this.getJobs = function(newJobPushed){
+              if(newJobPushed){
+                  waitingForNewJob = newJobPushed;
+              }
+
+              if(isPolling){
                   return $q.when(jobListCache);
               }
               else {
@@ -42,6 +47,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                           jobListCache = response.data;
                           $rootScope.$broadcast('refresh.jobs', response.data);
                           findRunningJob();
+                          waitingForNewJob = false;
                       }
                       deferred.resolve(response.data);
                       retriesLeft = 3;
@@ -54,8 +60,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                       deferred.reject();
                   })
                   .finally(function() {
-                      if(isJobStillRunning){
-                          is_polling = true;
+                      if(isJobStillRunning === true || waitingForNewJob === true){
+                          isPolling = true;
                           $timeout(pollJobs, 4*1000);
                       }
                   });

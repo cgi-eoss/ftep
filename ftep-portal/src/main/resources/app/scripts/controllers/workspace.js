@@ -126,7 +126,7 @@ define(['../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], fu
             console.log(oparams);
 
             WpsService.execute(aProcess, iparams, oparams).then(function(data){
-                JobService.getJobs();
+                JobService.getJobs(true);
             }, function(error) {
                 notify(error);
             });

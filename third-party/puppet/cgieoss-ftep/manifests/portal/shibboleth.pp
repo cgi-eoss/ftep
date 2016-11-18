@@ -65,15 +65,14 @@ class ftep::portal::shibboleth(
 
   ensure_packages(['shibboleth'], {
     ensure => latest,
-    before => Class['ftep::portal::apache'],
   })
 
   ensure_resource(service, 'shibd', {
-    ensure => $service_ensure,
-    enable => $service_enable,
+    ensure     => $service_ensure,
+    enable     => $service_enable,
     hasrestart => true,
-    hasstatus => true,
-    require => Package['shibboleth'],
+    hasstatus  => true,
+    require    => Package['shibboleth'],
   })
 
   # Re-use the key/certificate from the shared config
@@ -84,7 +83,7 @@ class ftep::portal::shibboleth(
     group   => 'shibd',
     content => $ftep::portal::tls_cert,
     require => Package['shibboleth'],
-    notify => Service['shibd'],
+    notify  => Service['shibd'],
   }
 
   file { "${config_dir}/sp-key.key":
@@ -94,7 +93,7 @@ class ftep::portal::shibboleth(
     group   => 'shibd',
     content => $ftep::portal::tls_key,
     require => Package['shibboleth'],
-    notify => Service['shibd'],
+    notify  => Service['shibd'],
   }
 
   file { "${config_dir}/shibboleth2.xml":
@@ -119,7 +118,7 @@ class ftep::portal::shibboleth(
       'sp_cert'                  => "${config_dir}/sp-cert.crt",
     }),
     require => Package['shibboleth'],
-    notify => Service['shibd'],
+    notify  => Service['shibd'],
   }
 
   file { "${config_dir}/attribute-policy.xml":
@@ -127,8 +126,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/attribute-policy.xml.epp', {
-    }),
+    content => epp('ftep/portal/shibboleth/attribute-policy.xml.epp', { }),
     require => Package['shibboleth'],
   }
 
@@ -144,10 +142,10 @@ class ftep::portal::shibboleth(
   }
 
   file { "${config_dir}/${metadata_subdir}":
-    ensure => directory,
-    mode   => '0755',
-    owner  => 'root',
-    group  => 'root',
+    ensure  => directory,
+    mode    => '0755',
+    owner   => 'root',
+    group   => 'root',
     require => Package['shibboleth'],
   }
 

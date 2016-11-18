@@ -3,12 +3,20 @@ class ftep::portal::drupal(
   $drupal_version = '7.43',
   $www_path  = '/var/www/html/drupal',
   $www_user = 'apache',
+
+  $db_host           = $ftep::globals::ftep_db_host,
+  $db_name           = $ftep::globals::ftep_db_name,
+  $db_user           = $ftep::globals::ftep_db_username,
+  $db_pass           = $ftep::globals::ftep_db_password,
+  $db_port           = '5432',
+  $db_driver         = 'pgsql',
+  $db_prefix         = 'drupal_',
 ) {
 
   class { '::php':
     ensure         => latest,
     manage_repos   => false,
-    fpm            => false,
+    fpm            => true,
     package_prefix => 'php56w-',
     composer       => true,
     pear           => true,
@@ -17,6 +25,7 @@ class ftep::portal::drupal(
       gd       => { },
       pdo      => { },
       mbstring => { },
+      pgsql    => { },
     },
     settings       => {
       'PHP/max_execution_time'  => '90',
@@ -41,8 +50,8 @@ class ftep::portal::drupal(
   }
 
   ::drupal::site { $drupal_site:
-    core_version => $drupal_version,
-    modules      => {
+    core_version     => $drupal_version,
+    modules          => {
       'ctools'            => '1.9',
       'endpoint'          => '1.4',
       'entity'            => '1.7',
@@ -50,10 +59,21 @@ class ftep::portal::drupal(
       'registry_autoload' => '1.3',
       'shib_auth'         => '4.3',
       'views'             => '3.13',
-    }
+    },
+    settings_content => epp('ftep/portal/drupal/settings.php.epp', {
+      'db' => {
+        'database' => $db_name,
+        'username' => $db_user,
+        'password' => $db_pass,
+        'host'     => $db_host,
+        'port'     => $db_port,
+        'driver'   => $db_driver,
+        'prefix'   => $db_prefix,
+      }
+    }),
   }
 
-  ::apache::vhost { 'F-TEP Drupal':
+  ::apache::vhost { 'ftep-drupal':
     port             => '80',
     servername       => $::fqdn,
     docroot          => "${www_path}/${drupal_site}",

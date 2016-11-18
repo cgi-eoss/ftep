@@ -4,12 +4,20 @@ class ftep::db::postgresql(
   $db_password       = $ftep::globals::ftep_db_password,
 ) {
 
+  $acls = []
+
+  unique([$ftep::globals::ftep_backend_host, $ftep::globals::ftep_portal_host]).each | $host | {
+    concat($acls, "host ${db_name} ${db_username} ${host} md5")
+  }
+
   # We have to control the package version
   class { ::postgresql::globals:
     manage_package_repo => true,
     version             => '9.5',
   }->
-  class { ::postgresql::server: }
+  class { ::postgresql::server:
+    ipv4acls                   => $acls,
+  }
   class { ::postgresql::server::postgis: }
   class { ::postgresql::server::contrib: }
 

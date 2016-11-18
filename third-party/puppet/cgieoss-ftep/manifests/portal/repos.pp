@@ -1,13 +1,14 @@
 class ftep::portal::repos {
 
-  ensure_resource(yumrepo, 'shibboleth', {
-    ensure   => 'present',
-    descr    => 'Shibboleth (CentOS_CentOS-6)',
-    baseurl  => 'http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/',
-    enabled  => 1,
-    gpgcheck => 1,
-    gpgkey   => 'http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/repodata/repomd.xml.key',
-  })
+  # openSuSE's mirroring is flaky; we have added these packages to our local repo
+  # ensure_resource(yumrepo, 'shibboleth', {
+  #   ensure   => 'present',
+  #   descr    => 'Shibboleth (CentOS_CentOS-6)',
+  #   baseurl  => 'http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/',
+  #   enabled  => 1,
+  #   gpgcheck => 1,
+  #   gpgkey   => 'http://download.opensuse.org/repositories/security:/shibboleth/CentOS_CentOS-6/repodata/repomd.xml.key',
+  # })
 
   ensure_resource(yumrepo, 'webtatic', {
     ensure     => 'present',

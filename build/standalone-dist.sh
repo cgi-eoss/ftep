@@ -4,10 +4,11 @@
 
 PUPPET_WS="${WORKSPACE}/distribution/puppet"
 MODULE_PATH="${PUPPET_WS}/modules"
-ARMADILLO="${WORKSPACE}/third-party/cxx/armadillo"
+PKG_PATH="${WORKSPACE}/third-party/pkg"
 PUPPET_FTEP="${WORKSPACE}/third-party/puppet/cgieoss-ftep"
 
-cp ${ARMADILLO}/*.rpm $DISTDIR_OS
+# cp ${PKG_PATH}/*/*.noarch.rpm $DISTDIR_NOARCH # No noarch packages (yet)
+cp ${PKG_PATH}/*/*.x86_64.rpm $DISTDIR_OS
 
 # Create yum repository from RPM packages
 createrepo "${DISTDIR}/repo"

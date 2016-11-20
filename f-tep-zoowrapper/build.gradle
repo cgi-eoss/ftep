@@ -1,0 +1,17 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+dependencies {
+    compileOnly deps.lombok
+
+    compile project(':f-tep-model')
+
+    compile deps.freemarker
+    compile deps.guava
+
+    testCompile deps.hamcrestJunit
+    testCompile deps.jimfs
+    testCompile deps.junit
+}

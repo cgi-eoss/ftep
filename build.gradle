@@ -33,6 +33,7 @@ allprojects {
 def depVersions = [
         commonsIo        : '2.5',
         dockerJava       : '3.0.0',
+        freemarker       : '2.3.25-incubating',
         guava            : '20.0',
         gson             : '2.7',
         lombok           : '1.16.10',
@@ -42,6 +43,7 @@ def depVersions = [
         hikaricp         : '2.5.1',
         hsqldb           : '2.3.4',
         httpclient       : '4.3.1',
+        jimfs            : '1.1',
         jsonapiConverter : '0.3',
         jsr305           : '3.0.1',
         junit            : '4.12',
@@ -57,9 +59,11 @@ def depVersions = [
 ext.deps = [
         commonsIo              : 'commons-io:commons-io:' + depVersions.commonsIo,
         dockerJava             : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
+        freemarker             : 'org.freemarker:freemarker:' + depVersions.freemarker,
         guava                  : 'com.google.guava:guava:' + depVersions.guava,
         gson                   : 'com.google.code.gson:gson:' + depVersions.gson,
         hibernateJpa21Api      : 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:' + depVersions.hibernateJpa21Api,
+        jimfs                  : 'com.google.jimfs:jimfs:' + depVersions.jimfs,
         jsonapiConverter       : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
         jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
         lombok                 : 'org.projectlombok:lombok:' + depVersions.lombok,

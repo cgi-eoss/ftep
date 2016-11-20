@@ -1,0 +1,32 @@
+[TestService1]
+Title = Test Service for ZCFG Generation
+Abstract = This service tests the F-TEP automatic zcfg file generation
+processVersion = 1.0
+storeSupported = false
+statusSupported = false
+serviceType = python
+serviceProvider = ftep_service_wrapper
+
+<DataInputs>
+    [inputfile]
+    Title = Input File 1
+    Abstract = The input data file
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+</DataInputs>
+
+<DataOutputs>
+    [result]
+    Title = URL to service output
+    Abstract = see title
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+</DataOutputs>

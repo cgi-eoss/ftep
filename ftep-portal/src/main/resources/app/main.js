@@ -40,8 +40,12 @@ require.config({
 
     // modules and their dependent modules
     shim: {
+        jquery: {
+            exports: ['$', 'jQuery', 'jquery'],
+        },
         //// angular modules
         angular: {
+            deps: ['jquery'],
             exports: 'angular',
         },
         ngResource: {
@@ -134,7 +138,7 @@ require.config({
             exports: 'ftepConfig',
         },
         app: {
-            deps: ['ol', 'zoo', 'ftepConfig'],
+            deps: ['angular', 'ol', 'zoo', 'ftepConfig'],
         }
     }
 });

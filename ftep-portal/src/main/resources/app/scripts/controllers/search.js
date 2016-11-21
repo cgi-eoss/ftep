@@ -171,6 +171,7 @@ define(['../ftepmodules', 'clipboard'], function (ftepmodules, clipboard) {
 
 	function collectFiles(files){
 	    collectedFiles = {};
+            if (!files) { return; } // shortcut in case no files exist in the databasket
 	    for(var i = 0; i < files.length; i++){
 	        collectedFiles[files[i].id] = files[i];
 	    }

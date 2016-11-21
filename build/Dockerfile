@@ -14,6 +14,7 @@ RUN yum install -y \
  ruby \
  ruby-devel \
  rubygems \
+ sudo \
  tar \
  unzip \
  wget \
@@ -95,6 +96,9 @@ RUN /opt/puppetlabs/puppet/bin/gem install -n /usr/local/bin fpm
 # Set up user and environment for interactive usage
 RUN adduser -d /home/ftep -m ftep && echo "ftep" | passwd ftep --stdin
 RUN ssh-keygen -t rsa -b 4096 -P "" -f /etc/ssh/ssh_host_rsa_key
-RUN echo -e "export PATH=$PATH\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nexport PERL5LIB=$PERL5LIB\nexport PYTHONPATH=$PYTHONPATH\nexport M2_HOME=$M2_HOME\nexport JAVA_HOME=$JAVA_HOME" >> /etc/profile.d/dockerenv.sh
+RUN echo -e "export PATH=$PATH\nexport LD_LIBRARY_PATH=$LD_LIBRARY_PATH\nexport PERL5LIB=$PERL5LIB\nexport PYTHONPATH=$PYTHONPATH\nexport M2_HOME=$M2_HOME\nexport JAVA_HOME=$JAVA_HOME" >>/etc/profile.d/dockerenv.sh
+RUN echo -e "ftep ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers.d/01_ftep
+# Bypass devtoolset-2 sudo
+RUN rm -f /opt/rh/devtoolset-2/root/usr/bin/sudo
 # The script allows the uid of the ftep user to be modified prior to launching sshd
 ADD sshdBootstrap.sh /usr/sbin/sshdBootstrap.sh

@@ -16,6 +16,7 @@ Vagrant.configure('2') do |config|
 
     build.vm.provider 'docker' do |d|
       d.build_dir = './build'
+      d.build_args = ['--build-arg=http_proxy', '--build-arg=https_proxy', '--build-arg=no_proxy']
       # Change the internal 'ftep' uid to the current user's uid, and launch sshd
       d.cmd = ['/usr/sbin/sshdBootstrap.sh', `id -u`.chomp, '/usr/sbin/sshd', '-D', '-e']
       d.has_ssh = true

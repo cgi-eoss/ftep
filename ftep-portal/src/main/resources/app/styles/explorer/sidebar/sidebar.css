@@ -1,0 +1,81 @@
+#sidebar-left {
+  height: 100%;
+  margin-left: 44px;
+  position: absolute;
+  min-width: 380px;
+  max-width: 380px;
+  z-index: 2;
+  /** Slider Styles **/
+}
+#sidebar-left form {
+  padding-bottom: 30px;
+}
+#sidebar-left md-input-container {
+  width: 100%;
+  color: rgba(0, 0, 0, 0.7);
+}
+#sidebar-left md-input-container .hint {
+  font-size: 0.6rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+#sidebar-left .md-subheader {
+  background-color: transparent;
+  color: #ff4081;
+}
+#sidebar-left .md-subheader .md-subheader-inner {
+  padding-right: 0;
+}
+#sidebar-left .md-subheader .md-subheader-inner label {
+  color: rgba(0, 0, 0, 0.7);
+}
+#sidebar-left .md-subheader-title .md-subheader-inner {
+  padding-left: 0;
+}
+#sidebar-left md-toolbar {
+  background-color: transparent;
+}
+#sidebar-left md-toolbar .md-toolbar-tools {
+  background-color: #aed581;
+  color: rgba(0, 0, 0, 0.7);
+}
+#sidebar-left md-toolbar .md-toolbar-tools span {
+  font-size: 1.0rem;
+  text-transform: uppercase;
+}
+#sidebar-left .panel {
+  background-color: transparent;
+  border: none;
+}
+#sidebar-left .panel .panel-body {
+  padding-right: 20px;
+}
+#sidebar-left .scrollme {
+  max-height: 500px;
+}
+#sidebar-left .scrollme .ngsb-scrollbar {
+  margin-top: 12px;
+}
+#sidebar-left .scrollme .ngsb-track {
+  background-color: #ff4081;
+  border-radius: 20px;
+  height: 95%;
+  width: 4px;
+}
+#sidebar-left .scrollme .scrollbar-contents {
+  min-height: 420px;
+}
+#sidebar-left #mCSB_2_container_wrapper,
+#sidebar-left #mCSB_2_container {
+  margin: 0;
+  padding: 0;
+  max-width: 380px;
+}
+#sidebar-left .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #ff80ab;
+}
+.sidebar-container {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.sidebar-container:hover {
+  background-color: #ffffff;
+}

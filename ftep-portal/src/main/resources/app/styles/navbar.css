@@ -1,0 +1,53 @@
+#navbar {
+  background-color: #f8f8f8;
+  margin-bottom: 0;
+  z-index: 50;
+}
+#navbar .navbar-container .navbar-header {
+  padding-right: 1rem;
+}
+#navbar .navbar-container .navbar-header img {
+  height: 50px;
+  padding: 5px;
+}
+#navbar .navbar-container .navbar-contents .nav {
+  height: 100%;
+}
+#navbar .navbar-container .navbar-contents .nav li {
+  height: 50px;
+  padding: 0 20px;
+  border-right: #d2d2d2 solid 1px;
+}
+#navbar .navbar-container .navbar-contents .nav li p {
+  padding-top: 14px;
+  vertical-align: middle;
+}
+#navbar .navbar-container .navbar-contents .nav li p .material-icons {
+  font-size: 1.2rem;
+}
+#navbar .navbar-container .navbar-contents .nav li.active {
+  border-bottom: #558b2f solid 4px;
+}
+#navbar .navbar-container .navbar-contents .nav li.active p {
+  color: #33691e !important;
+}
+@media (max-width: 767px) {
+  #navbar .navbar-container .navbar-contents .nav li.active {
+    background-color: #aed581;
+    border: none;
+  }
+}
+#navbar .navbar-container .navbar-contents .nav li:first-child {
+  border-left: #d2d2d2 solid 1px;
+}
+#navbar .navbar-container .navbar-contents .nav li:hover {
+  background-color: #d2d2d2;
+}
+#navbar .navbar-container .navbar-contents .nav li:hover p {
+  color: #33691e;
+}
+@media (max-width: 800px) {
+  #navbar .navbar-container .navbar-contents .nav li {
+    padding: 0 16px;
+  }
+}

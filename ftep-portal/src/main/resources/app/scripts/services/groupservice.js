@@ -16,11 +16,11 @@ define(['../ftepmodules'], function (ftepmodules) {
         deferred.resolve(response.data.data);
       })
       .catch(function(e){
-          alert('could not get Groups');
+          window.alert('could not get Groups');
           deferred.reject();
       });
       return deferred.promise;
-    }
+    };
 
     //POST Method to create new Groups
     this.createGroup = function(name, desc){
@@ -37,12 +37,12 @@ define(['../ftepmodules'], function (ftepmodules) {
         }).
         catch(function(e) {
           if(e.status == 409){
-            alert('Could not create group: conflicts with an already existing one');
+            window.alert('Could not create group: conflicts with an already existing one');
           }
           reject();
         });
       });
-    }
+    };
     
     //DELETE Method to remove group
     this.removeGroup = function(group){
@@ -58,12 +58,12 @@ define(['../ftepmodules'], function (ftepmodules) {
           resolve(group);
         }).
         catch(function(e) {
-          alert('Failed to remove Group');
+          window.alert('Failed to remove Group');
           console.log(e);
           reject();
         });
       });
-    }
+    };
     
     //PATCH Method to edit an existing group
     this.updateGroup = function(group){
@@ -79,12 +79,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                 resolve(group);
             }).
             catch(function(e) {
-                alert('Failed to update Group');
+                window.alert('Failed to update Group');
                 console.log(e);
                 reject();
             });
         });
-    }
+    };
     
     return this;
   }]);

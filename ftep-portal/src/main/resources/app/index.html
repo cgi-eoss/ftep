@@ -1,75 +1,62 @@
 <!doctype html>
 <html class="ftep">
-  <head>
+
+    <head>
     <meta charset="utf-8">
-    <title></title>
+    <base href="/">
+    <!-- <base href="/ftep-dist/"> -->
+    <title>Forestry TEP</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
     <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.css" />
     <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.min.css" />
     <link rel="stylesheet" href="bower_components/angular-ui-layout/src/ui-layout.css" />
-    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
     <link rel="stylesheet" href="bower_components/angularjs-slider/dist/rzslider.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/ng-scrollbar/dist/ng-scrollbar.css" />
     <!-- endbower -->
     <link rel="stylesheet" href="bower_components/openlayers/ol.css" />
     <!-- endbuild -->
-    <!-- build:css(.tmp) styles/explorer.css -->
-    <link rel="stylesheet" href="styles/index.css">
-    <link rel="stylesheet" href="styles/explorer.css">
-    <link rel="stylesheet" href="styles/map.css">
-    <link rel="stylesheet" href="styles/search.css">
-    <link rel="stylesheet" href="styles/results.css">
-    <link rel="stylesheet" href="styles/workspace.css">
-    <link rel="stylesheet" href="styles/community.css">
-    <link rel="stylesheet" href="styles/account.css">
+    <!-- build:css(app) styles/explorer.css -->
+    <link rel="stylesheet" href="main.css" />
     <!-- endbuild -->
-  </head>
-  <body ng-controller="IndexCtrl" class="ftep ng-cloak" ng-cloak>
-    <!--[if lte IE 8]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+</head>
 
-    <!-- Add your site or application content here -->
-    <div  class="main-menu" >
-        <md-toolbar class="ftep-main-toolbar" layout="row">
-            <md-button aria-label="Explorer" ng-click="goTo('')" >
-                <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>Explorer
-            </md-button>
-            <md-button aria-label="Developer" ng-click="goTo('/developer')">
-                <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Developer
-            </md-button>
-            <md-button aria-label="Groups" ng-click="goTo('/community')">
-                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Groups
-            </md-button>
-            <md-button aria-label="Account" ng-click="goTo('/account')">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>My Account
-            </md-button>
-            <md-button aria-label="Helpdesk" ng-click="goTo('/helpdesk')">
-                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>Helpdesk
-            </md-button>
-        </md-toolbar>
-        <span id="ftep-version">Pre-Release Version</span>
-    </div>
-    <div class="container">
-        <div ng-view=""></div>
-    </div>
+    <body ng-controller="IndexCtrl" class="ftep ng-cloak" ng-cloak>
+        <!--[if lte IE 8]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
 
-    <script data-main="main" src="../bower_components/requirejs/require.js"></script>
+        <div ng-include src="'views/navbar.html'"></div>
 
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
-     <script>
-       !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){
-       (A[l].q=A[l].q||[]).push(arguments)},A[l].l=+new Date,a=n.createElement(g),
-       r=n.getElementsByTagName(g)[0],a.src=u,r.parentNode.insertBefore(a,r)
-       }(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        <div class="container">
+            <div ng-view=""></div>
+        </div>
 
-       ga('create', 'UA-XXXXX-X');
-       ga('send', 'pageview');
-    </script>
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+         <script>
+           !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){
+           (A[l].q=A[l].q||[]).push(arguments)},A[l].l=+new Date,a=n.createElement(g),
+           r=n.getElementsByTagName(g)[0],a.src=u,r.parentNode.insertBefore(a,r)
+           }(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-</body>
+           ga('create', 'UA-XXXXX-X');
+           ga('send', 'pageview');
+        </script>
+
+        <script data-main="main" src="../bower_components/requirejs/require.js"></script>
+        <!--
+        build:js(.) scripts/vendor.js
+        bower:js
+        endbower
+        endbuild
+
+        build:js(.) scripts/explorer.js
+        <script src=".tmp/scripts/explorer.js"></script>
+        endbuild
+         -->
+    </body>
 </html>

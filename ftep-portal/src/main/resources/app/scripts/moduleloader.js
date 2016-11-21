@@ -1,14 +1,21 @@
 define([
     //contollers
-    './controllers/index',
-    './controllers/explorer',
-    './controllers/map',
-    './controllers/results',
-    './controllers/search',
-    './controllers/workspace',
-    './controllers/about',
     './controllers/community',
     './controllers/helpdesk',
+    './controllers/index',
+    './controllers/navbar',
+
+    './controllers/explorer/explorer',
+    './controllers/explorer/map',
+    './controllers/explorer/bottombar/bottombar',
+    './controllers/explorer/bottombar/databasket',
+    './controllers/explorer/bottombar/jobs',
+    './controllers/explorer/bottombar/results',
+    './controllers/explorer/sidebar/project',
+    './controllers/explorer/sidebar/search',
+    './controllers/explorer/sidebar/services',
+    './controllers/explorer/sidebar/sidebar',
+    './controllers/explorer/sidebar/workspace',
 
     //services
     './services/basketservice',

@@ -1,0 +1,51 @@
+<md-tabs md-selected="resultTabs.selected">
+    <md-tab label="Jobs">
+
+        <div class="row job-checkboxes">
+            <div class="col-lg-4 .col-md-12 check-container" ng-click="jobStatus.value = !jobStatus.value" ng-repeat="jobStatus in jobStatuses">
+                <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter" ng-click="filterJobs()" />
+                <span>{{jobStatus.name}}</span>
+            </div>
+        </div>
+
+
+        <div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar">
+
+            <ul id="jobs-list" class="list" ng-repeat="service in jobServices">
+                <div class="row">
+                    <div class="col-md-1">
+                        <span class="glyphicon glyphicon-plus list-arrow" ng-show="groupedJobs[service.id].length > 0 && !isJobGroupOpened(service.id)" ng-click="toggleJobGroup(service.id)"></span>
+                        <span class="glyphicon glyphicon-minus list-arrow" ng-show="groupedJobs[service.id].length > 0 && isJobGroupOpened(service.id)" ng-click="toggleJobGroup(service.id)"></span>
+                    </div>
+                    <div class="col-md-11" ng-click="toggleJobGroup(service.id)">
+                        <label>{{service.attributes.name}}</label>
+                    </div>
+                </div>
+                <li class="list-item" ng-repeat="job in groupedJobs[service.id] | orderBy: 'id'" ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1" ng-click="selectJob(job)">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Job id: {{job.id}}</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="glyphicon glyphicon-remove" ng-click="removeJob($event, job)" uib-tooltip="Delete" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                            <span class="glyphicon glyphicon-info-sign info-hover" uib-popover-html="getJobPopover({{job}})" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"></span>
+                            <a target="_blank" href="{{job.attributes.guiEndpoint}}" ng-show="hasGuiEndPoint(job.attributes.guiEndpoint)">
+                                <img src="images/goto.png" class="icon-img" uib-tooltip="Go to GUI" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div style="color:gray;">{{job.attributes.step}}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="job-status" style="{{getColor(job.attributes.status)}}">{{job.attributes.status}}</div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+
+    </md-tab>
+</md-tabs>

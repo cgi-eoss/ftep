@@ -1,0 +1,36 @@
+@import "variable";
+#search-panel {
+    .datasources {
+        padding-top: 0;
+    }
+    md-datepicker {
+        max-width: 100%;
+    }
+    .md-toolbar-tools {
+        .material-icons {
+            color: @text-light;
+        }
+        .md-button.md-icon-button {
+            background-color: @accent-light;
+            padding: 0;
+            &:hover {
+                background-color: @accent;
+            }
+        }
+        .btn-success:focus {
+            background-color: @ok;
+        }
+        .md-button[disabled] {
+            background-color: @disabled !important;
+        }
+        .btn-success[disabled]:hover {
+            background-color: @error !important;
+        }
+    }
+    md-input-container {
+        margin: 0;
+    }
+    #search-row {
+        margin-top: 10px;
+    }
+}

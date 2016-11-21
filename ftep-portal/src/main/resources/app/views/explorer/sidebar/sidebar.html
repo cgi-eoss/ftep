@@ -1,0 +1,10 @@
+<div>
+    <div ng-controller="ProjectCtrl" ng-include src="'views/explorer/sidebar/project.html'" ng-show="true"></div>
+    <div ng-controller="SearchbarCtrl" ng-include src="'views/explorer/sidebar/search.html'" ng-show="nav_search"></div>
+    <div ng-controller="ServicesCtrl" ng-include src="'views/explorer/sidebar/services.html'" ng-show="nav_services"></div>
+    <div ng-controller="WorkspaceCtrl" ng-include src="'views/explorer/sidebar/workspace.html'" ng-show="nav_workspace"></div>
+
+    <!-- TODO Move to bottombar -->
+    <div ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" id="databasket" ng-show="nav_databaskets"></div>
+    <div ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" ng-show="nav_jobs"></div>
+</div>

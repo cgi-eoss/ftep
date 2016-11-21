@@ -1,0 +1,32 @@
+#bottombar {
+  bottom: 0;
+  height: 35%;
+  padding-left: 44px;
+  position: fixed;
+  z-index: 2;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+#bottombar:hover {
+  background-color: #ffffff;
+}
+#bottombar #results {
+  width: 70%;
+}
+#bottombar #jobs {
+  width: 30%;
+  height: 100%;
+  border-left: #d2d2d2 solid 3px;
+}
+#bottombar .scrollme {
+  max-height: 100%;
+}
+#bottombar .scrollme .ngsb-scrollbar {
+  margin-top: 12px;
+}
+#bottombar .scrollme .ngsb-track {
+  background-color: #ff4081;
+  border-radius: 20px;
+  height: 95%;
+  width: 4px;
+}

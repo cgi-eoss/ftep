@@ -24,6 +24,7 @@
 * This work was supported by a grant from the European Union's 7th Framework Programme (2007-2013)
 * provided for the project PublicaMundi (GA no. 609608).
 */
+'use strict';
 
 requirejs.config({
     baseUrl: 'assets',
@@ -85,7 +86,6 @@ requirejs.config({
     
 });
 
-
 requirejs.config({ 
     config: {
         app: {
@@ -97,6 +97,7 @@ requirejs.config({
 });
 
 require(['domReady', 'app'], function(domReady, app) {
+
     domReady(function() {
         app.initialize();
     });
@@ -104,8 +105,3 @@ require(['domReady', 'app'], function(domReady, app) {
     window.getDescription=app.getDescription;
     window.app=app;
 });
-
-
-
-
-

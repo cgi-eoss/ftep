@@ -20,11 +20,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  alert('Could not get projects');
+                  window.alert('Could not get projects');
                   deferred.reject();
               });
               return deferred.promise;
-          }
+          };
 
           this.createProject = function(name, desc){
               return $q(function(resolve, reject) {
@@ -40,12 +40,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   catch(function(e) {
                       if(e.status == 409){
-                          alert('Could not create project: conflicts with an already existing one');
+                          window.alert('Could not create project: conflicts with an already existing one');
                       }
                       reject();
                   });
               });
-          }
+          };
 
           this.removeProject = function(project){
               return $q(function(resolve, reject) {
@@ -57,12 +57,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(project);
                   }).
                   catch(function(e) {
-                      alert('Failed to remove project');
+                      window.alert('Failed to remove project');
                       console.log(e);
                       reject();
                   });
               });
-          }
+          };
 
           this.updateProject = function(project){
               return $q(function(resolve, reject) {
@@ -75,12 +75,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(response.data.data);
                   }).
                   catch(function(e) {
-                      alert('Failed to update project');
+                      window.alert('Failed to update project');
                       console.log(e);
                       reject();
                   });
               });
-          }
+          };
 
           return this;
       }]);

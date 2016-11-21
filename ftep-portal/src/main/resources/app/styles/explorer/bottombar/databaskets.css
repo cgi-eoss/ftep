@@ -1,0 +1,9 @@
+#databasket .panel-toolbar {
+  background-color: #ebebeb;
+  min-height: 40px;
+  padding: 2px;
+  padding-right: 15px;
+}
+#databasket .panel-toolbar .md-button {
+  float: right;
+}

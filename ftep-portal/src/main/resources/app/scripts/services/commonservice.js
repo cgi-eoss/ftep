@@ -12,7 +12,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
                 this.warn = function(message){
                     $rootScope.$broadcast('show.warning', message);
-                }
+                };
                 this.getColor = function(status){
                     if("Succeeded" === status || "approved" === status){
                         return "background: rgba(5, 137, 23, 0.8)";
@@ -23,7 +23,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                     else if("Running" === status){
                         return "background: rgba(0, 0, 226, 0.8)";
                     }
-                }
+                };
 
                 this.getLink = function(item, results){
                     var link;
@@ -35,18 +35,20 @@ define(['../ftepmodules'], function (ftepmodules) {
                     }
                     else if(item.identifier && results){
                         for(var i = 0; i < results.length; i++){
-                            link = Object.keys(results[i].results.entities).find(key => results[i].results.entities[key] === item);
+                            link = Object.keys(results[i].results.entities).find(function (key) {
+                                return results[i].results.entities[key] === item;
+                            });
                             if(link){
                                 break;
                             }
                         }
                     }
                     return link;
-                }
+                };
 
                 this.getOutputLink = function(link){
                     return  ftepProperties.URL_PREFIX + link;
-                }
+                };
 
                 this.confirm = function(event, message) {
                     var deferred = $q.defer();

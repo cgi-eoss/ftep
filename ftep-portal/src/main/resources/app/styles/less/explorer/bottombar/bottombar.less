@@ -1,0 +1,31 @@
+@import "variable";
+#bottombar {
+    bottom: 0;
+    height: 35%;
+
+    padding-left: 44px;
+    position: fixed;
+    z-index: 2;
+    width: 100%;
+    .bg-trans(@bg-light);
+    #results {
+        width: 70%;
+    }
+    #jobs {
+        width: 30%;
+        height: 100%;
+        .border(border-left, @bg, solid, 3px);
+    }
+    .scrollme {
+        max-height: 100%;
+        .ngsb-scrollbar {
+            margin-top: 12px;
+        }
+        .ngsb-track {
+            background-color: @accent;
+            border-radius: 20px;
+            height: 95%;
+            width: 4px;
+        }
+    }
+}

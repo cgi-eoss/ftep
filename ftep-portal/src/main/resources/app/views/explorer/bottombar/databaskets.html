@@ -1,0 +1,33 @@
+<div class="panel-toolbar">
+    <md-button class="toolbar-button" aria-label="Create New Databasket" uib-tooltip="Create new databasket" tooltip-placement="right-bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="true" ng-click="createDatabasketDialog($event)"><img src="images/new-shopping-cart.png" /></md-button>
+    <paging page="dbPaging.dbCurrentPage" page-size="dbPaging.dbPageSize" total="dbPaging.dbTotal" show-first-last="true" paging-action="fetchDbPage(page)"></paging>
+</div>
+<div class="panel-content">
+    <ul id="databasket-list" class="list">
+        <li class="list-item" ng-repeat="basket in databaskets | orderBy: 'attributes.name'" dnd-draggable="getBasketDragItems(basket)">
+            <div class="row">
+                <div class="col-md-8" ng-click="showDatabasket(basket)" ng-dblclick="cacheBasket(basket);basketEdit = true">
+                    <label class="selectable" ng-show="!basketEdit">{{basket.attributes.name}}</label>
+                    <div class="row no-padding" ng-show="basketEdit">
+                        <div class="col-md-8 no-padding">
+                            <span class="input-group" ng-show="basketEdit">
+                                <input type="text" class="form-control input-sm ftep-input" ng-keyup="basketEdit = updateDatabasket($event.keyCode == 13, basket)" ng-model="basket.attributes.name">
+                            </span>
+                        </div>
+                        <div class="col-md-4 no-padding">
+                            <span class="glyphicon glyphicon-remove cancel-edit" ng-click="basket = getBasketCache(basket);basketEdit = false" uib-tooltip="Cancel" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                        </div>
+                    </div>
+                    <p>Items: {{basket.relationships.files.data.length}}</p>
+                </div>
+                <div class="col-md-4">
+                    <span class="glyphicon glyphicon-pencil" ng-click="cacheBasket(basket);basketEdit = true" uib-tooltip="Edit" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                    <span class="glyphicon glyphicon-remove" ng-click="removeDatabasket($event, basket)" uib-tooltip="Delete" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                    <img src="images/copy.png" class="icon-img" ng-click="cloneDatabasket($event, basket)" uib-tooltip="Clone" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true" />
+                    <span class="glyphicon glyphicon-eye-open" ng-show="dbLoaded.id != basket.id" ng-click="loadBasket(basket)" uib-tooltip="Load" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                    <span class="glyphicon glyphicon-eye-close" ng-show="dbLoaded.id == basket.id" ng-click="unloadBasket(basket)" uib-tooltip="Unload" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true"></span>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

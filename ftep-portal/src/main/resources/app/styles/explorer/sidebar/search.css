@@ -1,0 +1,31 @@
+#search-panel .datasources {
+  padding-top: 0;
+}
+#search-panel md-datepicker {
+  max-width: 100%;
+}
+#search-panel .md-toolbar-tools .material-icons {
+  color: rgba(255, 255, 255, 0.87);
+}
+#search-panel .md-toolbar-tools .md-button.md-icon-button {
+  background-color: #ff80ab;
+  padding: 0;
+}
+#search-panel .md-toolbar-tools .md-button.md-icon-button:hover {
+  background-color: #ff4081;
+}
+#search-panel .md-toolbar-tools .btn-success:focus {
+  background-color: #558b2f;
+}
+#search-panel .md-toolbar-tools .md-button[disabled] {
+  background-color: #BBB !important;
+}
+#search-panel .md-toolbar-tools .btn-success[disabled]:hover {
+  background-color: #d50000 !important;
+}
+#search-panel md-input-container {
+  margin: 0;
+}
+#search-panel #search-row {
+  margin-top: 10px;
+}

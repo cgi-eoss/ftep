@@ -4,6 +4,9 @@ class ftep::db::postgresql(
   $db_password       = $ftep::globals::ftep_db_password,
 ) {
 
+  # EPEL is required for the postgis extensions
+  require ::epel
+
   $acls = []
 
   unique([$ftep::globals::ftep_backend_host, $ftep::globals::ftep_portal_host]).each | $host | {

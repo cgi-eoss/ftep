@@ -1,5 +1,5 @@
 # F-TEP package repository
-class ftep::repo::yum {
+class ftep::repo::ftep {
   ensure_resource(yumrepo, 'ftep', {
     ensure   => 'present',
     descr    => 'F-TEP',

@@ -14,6 +14,6 @@ class ftep::globals(
 ) {
   # Setup of the repo only makes sense globally, so we are doing this here.
   if($manage_package_repo) {
-    class { 'ftep::repo': }
+    require ::ftep::repo
   }
 }

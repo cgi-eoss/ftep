@@ -65,6 +65,7 @@ class ftep::portal::shibboleth(
 
   ensure_packages(['shibboleth'], {
     ensure => latest,
+    tag    => 'ftep',
   })
 
   ensure_resource(service, 'shibd', {

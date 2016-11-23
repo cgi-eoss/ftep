@@ -29,26 +29,8 @@ class ftep::geoserver(
     require    => Group[$group],
   }
 
-  $geoserver_path = '/opt/geoserver-2.10.0'
-
-  # Create empty directories to set up initial permissions
-  file { $geoserver_path:
-    ensure           => directory,
-    mode             => '0755',
-    owner            => $user,
-    require          => User[$user],
-  }
-  file { $geoserver_home:
-    ensure           => link,
-    target           => $geoserver_path,
-    require          => File[$geoserver_path],
-  }
-  file { $geoserver_data_dir:
-    ensure           => directory,
-    mode             => '0755',
-    owner            => $user,
-    require          => User[$user],
-  }
+  # This is created by the ::archive resource
+  $geoserver_path = "${user_home}/geoserver-2.10.0"
 
   # Download and unpack the standalone platform-independent binary distribution
   $archive = "geoserver-${geoserver_version}"
@@ -60,9 +42,21 @@ class ftep::geoserver(
     digest_string    => '86d737c88ac60bc30efd65d3113925ee5c7502db',
     digest_type      => 'sha1',
     user             => $user,
-    target           => '/opt',
+    target           => $user_home,
     src_target       => $user_home,
-    require          => [User[$user], File[$geoserver_path]],
+    require          => [User[$user]],
+  }
+
+  file { $geoserver_home:
+    ensure           => link,
+    target           => $geoserver_path,
+    require          => Archive[$archive],
+  }
+  file { $geoserver_data_dir:
+    ensure           => directory,
+    mode             => '0755',
+    owner            => $user,
+    require          => User[$user],
   }
 
   $config_file_epp = @(END)
@@ -98,6 +92,7 @@ END
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
+    require => [File[$init_script]],
   }
 
 }

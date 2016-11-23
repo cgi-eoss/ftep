@@ -23,9 +23,6 @@
 #search-panel .md-toolbar-tools .btn-success[disabled]:hover {
   background-color: #d50000 !important;
 }
-#search-panel md-input-container {
-  margin: 0;
-}
 #search-panel #search-row {
   margin-top: 10px;
 }

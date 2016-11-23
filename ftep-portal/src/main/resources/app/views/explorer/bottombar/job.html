@@ -1,0 +1,71 @@
+<div id="job-content">
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <h4>Job id: {{selectedJob.id}}</h4>
+        </div>
+        <div class="col-md-6">
+            <div class="job-status" style="{{getColor(selectedJob.attributes.status)}}">
+                {{selectedJob.attributes.status}}
+            </div>
+        </div>
+
+    </div>
+
+    <ul class="nav nav-pills" ng-init="jobTab = 'outputs'">
+        <li role="presentation"
+            ng-class="(jobTab == 'inputs') ? 'active' : ''"
+            ng-click="jobTab = 'inputs'">
+            <a>Inputs</a>
+        </li>
+        <li role="presentation"
+            ng-class="(jobTab == 'outputs') ? 'active' : ''"
+            ng-click="jobTab = 'outputs'">
+            <a>Outputs</a>
+        </li>
+    </ul>
+
+    <div class="job-details" ng-if="jobTab == 'inputs'">
+
+        <ul class="job-files">
+            <li ng-repeat="(key, value) in getJobInputs(selectedJob)" class="resultnormal">
+                <div class="row">
+                    <div class="col-md-2">{{key}}</div>
+                    <div class="col-md-10 break-word">{{value}}</div>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="job-details" ng-if="jobTab == 'outputs'">
+
+        <ul class="job-files">
+            <li ng-repeat="outputFile in jobOutputs"
+                ng-click="selectOutputFile(outputFile)"
+                ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
+                dnd-draggable="getSelectedOutputFiles(outputFile)">
+
+                <div class="row">
+
+                    <div class="col-md-10">{{outputFile.attributes.fname}}</div>
+
+                    <div class="col-md-2">
+                        <a href="{{getOutputLink(outputFile.attributes.link)}}" target="_self">
+                            <span class="glyphicon glyphicon-download-alt"
+                                  uib-tooltip="Download"
+                                  tooltip-trigger="mouseenter"
+                                  tooltip-append-to-body="true">
+                            </span>
+                        </a>
+                    </div>
+
+                </div>
+
+            </li>
+        </ul>
+
+    </div>
+
+</div>

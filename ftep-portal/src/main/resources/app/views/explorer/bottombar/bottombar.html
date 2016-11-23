@@ -1,2 +1,19 @@
-<div id="results" class="left" ng-controller="ResultsCtrl" ng-include src="'views/explorer/bottombar/results.html'"></div>
-<div id="jobs" class="left" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'"></div>
+<div id="bottombar-header" ng-include src="'views/explorer/bottombar/header.html'" />
+
+<md-tabs md-selected="resultTabs.selected">
+
+    <md-tab label="Results">
+        <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
+    </md-tab>
+
+    <md-tab label="Databasket">
+        <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
+        <div id="databasket" ng-include src="'views/explorer/bottombar/databasket.html'" />
+    </md-tab>
+
+    <md-tab label="Job">
+        <div id="jobs" class="left" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
+        <div id="job" ng-include ng-if="selectedJob != undefined" src="'views/explorer/bottombar/job.html'" />
+    </md-tab>
+
+</md-tabs>

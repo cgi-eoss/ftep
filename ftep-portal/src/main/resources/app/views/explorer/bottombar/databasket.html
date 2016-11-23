@@ -1,0 +1,26 @@
+<div id="databasket-right" class="col-xs-8 no-padding">
+
+    <div ng-if="selectedDatabasket == undefined" class="note">Please select or create a databasket first</div>
+
+    <div ng-if="selectedDatabasket != undefined" id="databasket-content">
+
+        <h4>{{selectedDatabasket.attributes.name}}</h4>
+        <h5>{{selectedDatabasket.attributes.description}}</h5>
+
+        <ul class="products-list">
+            <li ng-repeat="item in selectedDatabasket.items" dnd-draggable="getBasketItem(item)">
+                {{item.identifier}}{{item.attributes.fname}}{{item.name}}
+                <span class="glyphicon glyphicon-remove" ng-click="removeItemFromBasket(item)"></span>
+            </li>
+        </ul>
+
+    </div>
+
+    <paging page="dbPaging.dbCurrentPage"
+        page-size="dbPaging.dbPageSize"
+        total="dbPaging.dbTotal"
+        show-first-last="true"
+        paging-action="fetchDbPage(page)">
+    </paging>
+
+</div>

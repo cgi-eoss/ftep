@@ -11,6 +11,7 @@
   padding-bottom: 30px;
 }
 #sidebar-left md-input-container {
+  margin: 0;
   width: 100%;
   color: rgba(0, 0, 0, 0.7);
 }
@@ -28,6 +29,9 @@
 #sidebar-left .md-subheader .md-subheader-inner label {
   color: rgba(0, 0, 0, 0.7);
 }
+#sidebar-left .md-subheader-top .md-subheader-inner {
+  padding-top: 0;
+}
 #sidebar-left .md-subheader-title .md-subheader-inner {
   padding-left: 0;
 }
@@ -41,6 +45,9 @@
 #sidebar-left md-toolbar .md-toolbar-tools span {
   font-size: 1.0rem;
   text-transform: uppercase;
+}
+#sidebar-left .note {
+  margin: 0.8rem;
 }
 #sidebar-left .panel {
   background-color: transparent;

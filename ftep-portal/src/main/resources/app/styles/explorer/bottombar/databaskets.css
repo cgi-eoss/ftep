@@ -1,3 +1,47 @@
+#databasket-panel #databasket-list {
+  padding: 0;
+}
+#databasket-panel #databasket-list .basket-item {
+  border-bottom: #d9d9d9 solid 1px;
+  list-style: none;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item p {
+  padding: 0 0 0 4px;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-name {
+  padding: 0 0 0 4px;
+  line-height: 1.8rem;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-edit {
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
+  display: inline-block;
+  height: 2rem;
+  position: relative;
+  padding: 0 0 0 4px;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools {
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button {
+  line-height: 1.5rem;
+  min-height: 1rem;
+  width: 100%;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button i {
+  font-size: 0.9rem;
+  text-align: center;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
+  color: #ff4081;
+}
+#databasket-panel #databasket-list .basket-item:hover {
+  background-color: #f8f8f8;
+}
 #databasket .panel-toolbar {
   background-color: #ebebeb;
   min-height: 40px;

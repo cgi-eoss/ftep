@@ -99,6 +99,50 @@ input {
   width: 4px;
 }
 
+#databasket-panel #databasket-list {
+  padding: 0;
+}
+#databasket-panel #databasket-list .basket-item {
+  border-bottom: #d9d9d9 solid 1px;
+  list-style: none;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item p {
+  padding: 0 0 0 4px;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-name {
+  padding: 0 0 0 4px;
+  line-height: 1.8rem;
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-edit {
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
+  display: inline-block;
+  height: 2rem;
+  position: relative;
+  padding: 0 0 0 4px;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools {
+  margin: 0;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button {
+  line-height: 1.5rem;
+  min-height: 1rem;
+  width: 100%;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button i {
+  font-size: 0.9rem;
+  text-align: center;
+}
+#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
+  color: #ff4081;
+}
+#databasket-panel #databasket-list .basket-item:hover {
+  background-color: #f8f8f8;
+}
 #databasket .panel-toolbar {
   background-color: #ebebeb;
   min-height: 40px;
@@ -107,6 +151,52 @@ input {
 }
 #databasket .panel-toolbar .md-button {
   float: right;
+}
+
+#bottombar-header {
+  float: right;
+  position: relative;
+  width: 50%;
+}
+#bottombar-header .button-section {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+#bottombar-header .button-section .md-button.md-focused:not([disabled]) {
+  background-color: transparent;
+  outline: none;
+}
+#bottombar-header .button-section button {
+  color: #558b2f;
+  float: right;
+}
+#bottombar-header .button-section button:hover {
+  color: #ff4081;
+}
+#bottombar-header .button-section .pagination {
+  margin: 0.5rem 0;
+}
+#bottombar-header .button-section .pagination li:first-child a {
+  border: none;
+}
+#bottombar-header .button-section .pagination a {
+  background-color: transparent;
+  border: none;
+  color: #558b2f;
+  padding: 2px 0.5rem;
+  border-left: #d2d2d2 solid 1px;
+}
+#bottombar-header .button-section .pagination a:hover {
+  background: #ff80ab;
+  color: #33691e;
+}
+#bottombar-header .button-section .pagination .active a {
+  background-color: #ff4081;
+  border-color: #ff4081;
+  color: rgba(255, 255, 255, 0.87);
+}
+#bottombar-header .row {
+  padding: 0 20px;
 }
 
 #jobs .job-checkboxes {
@@ -172,59 +262,6 @@ input {
   width: 12px;
 }
 
-#results,
-#results md-tabs {
-  height: 42vh;
-}
-#results md-tab-content {
-  overflow-x: hidden;
-}
-#results-header {
-  position: relative;
-  top: -42vh;
-  background-color: transparent;
-  width: 30%;
-  float: right;
-  height: 3.5em;
-  color: #4e4e4e;
-}
-#results-header .row {
-  margin: 0;
-  padding: 0 20px;
-}
-.toolbar-clear-button {
-  min-width: 45px;
-  padding: 0px;
-}
-.clear-button {
-  height: 14px;
-  width: 45px;
-}
-#results-header md-button :hover,
-#results-header .buttons span :hover,
-a {
-  cursor: pointer;
-}
-#results-header .button-section {
-  padding-left: 0px;
-  padding-right: 0px;
-}
-#results-header .button-section .pagination,
-#results-header .button-section button {
-  float: right;
-}
-#results-header .pagination {
-  margin-top: 5px;
-  font-size: 0.6vw;
-}
-#results-header .pagination > li > a {
-  padding: 0.4vh 0.3vw;
-}
-.controls .glyphicon {
-  top: 10px;
-  margin-right: 8px;
-  font-size: 1.4em;
-}
 .metadata-info-button {
   cursor: pointer;
   top: auto;
@@ -668,9 +705,6 @@ ul[dnd-list] > li {
 #search-panel .md-toolbar-tools .btn-success[disabled]:hover {
   background-color: #d50000 !important;
 }
-#search-panel md-input-container {
-  margin: 0;
-}
 #search-panel #search-row {
   margin-top: 10px;
 }
@@ -703,6 +737,7 @@ ul[dnd-list] > li {
   padding-bottom: 30px;
 }
 #sidebar-left md-input-container {
+  margin: 0;
   width: 100%;
   color: rgba(0, 0, 0, 0.7);
 }
@@ -720,6 +755,9 @@ ul[dnd-list] > li {
 #sidebar-left .md-subheader .md-subheader-inner label {
   color: rgba(0, 0, 0, 0.7);
 }
+#sidebar-left .md-subheader-top .md-subheader-inner {
+  padding-top: 0;
+}
 #sidebar-left .md-subheader-title .md-subheader-inner {
   padding-left: 0;
 }
@@ -733,6 +771,9 @@ ul[dnd-list] > li {
 #sidebar-left md-toolbar .md-toolbar-tools span {
   font-size: 1.0rem;
   text-transform: uppercase;
+}
+#sidebar-left .note {
+  margin: 0.8rem;
 }
 #sidebar-left .panel {
   background-color: transparent;
@@ -772,19 +813,8 @@ ul[dnd-list] > li {
   background-color: #ffffff;
 }
 
-.workspace-title {
-  width: 100%;
+#workspace-panel .workspace-header {
   text-align: center;
-  height: 30px;
-  line-height: 30px;
-  background-color: #959595;
-  color: #efefef;
-}
-#service-panel {
-  height: 80vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 10px;
 }
 .service-field {
   margin: 4px 0px 10px 0px;
@@ -840,14 +870,6 @@ ul[dnd-list] > li {
 }
 .launch-button:HOVER:not([disabled]) {
   background-color: #107e3f !important;
-}
-#selected-service {
-  background-color: #f2f2f2;
-  text-align: center;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  height: 40px;
-  line-height: 40px;
 }
 
 #sidenav {

@@ -1,0 +1,29 @@
+---
+id: "TestService1"
+title: "Test Service for ZCFG Generation"
+description: "This service tests the F-TEP automatic zcfg file generation"
+version: "1.0"
+storeSupported: false
+statusSupported: false
+serviceType: "python"
+serviceProvider: "ftep_service_wrapper"
+dataInputs:
+- id: "inputfile"
+  title: "Input File 1"
+  description: "The input data file"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: []
+dataOutputs:
+- id: "result"
+  title: "URL to service output"
+  description: "see title"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: []

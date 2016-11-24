@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.Map;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FtepServiceDescriptor {
 
     private String id;
@@ -37,6 +41,8 @@ public class FtepServiceDescriptor {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Parameter {
 
         public enum DataNodeType {

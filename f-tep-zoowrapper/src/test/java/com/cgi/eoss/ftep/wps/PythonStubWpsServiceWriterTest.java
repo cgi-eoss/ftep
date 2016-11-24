@@ -15,6 +15,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PythonStubWpsServiceWriterTest {
+
     private WpsServiceWriter wpsServiceWriter;
 
     private FileSystem fs;
@@ -22,7 +23,6 @@ public class PythonStubWpsServiceWriterTest {
     @Before
     public void setUp() {
         this.wpsServiceWriter = new PythonStubWpsServiceWriter();
-
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

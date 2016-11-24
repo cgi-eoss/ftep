@@ -23,7 +23,6 @@ public class ZcfgWriterImplTest {
     @Before
     public void setUp() {
         this.zcfgWriter = new ZcfgWriterImpl();
-
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

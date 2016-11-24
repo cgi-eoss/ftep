@@ -10,6 +10,9 @@ dependencies {
 
     compile deps.freemarker
     compile deps.guava
+    compile deps.jacksonDatabind
+    compile deps.jacksonDataformatYaml
+    compile deps.slf4j
 
     testCompile deps.hamcrestJunit
     testCompile deps.jimfs

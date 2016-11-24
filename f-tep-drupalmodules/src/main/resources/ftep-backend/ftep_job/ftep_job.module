@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function ftep_job_entity_info() {
+	$info = array (
+			'ftep_job' => array (
+					'label' => t ( 'Ftep Job' ),
+					'base table' => 'ftep_job',
+					'entity keys' => array (
+							'id' => 'jid',
+							'label' => 'jid' 
+					),
+					'entity class' => 'FtepJobs',  // 'Entity',
+					'controller class' => 'FtepJobsController',
+					'access callback' => 'ftep_jobs_access_callback',
+					'module' => 'ftep_job',
+					'fieldable' => false,
+					'admin ui' => array (
+							'path' => 'admin/ftep/jobs',
+							'file' => 'ftep_job.admin.inc',
+							'controller class' => 'FtepJobUIController'
+					),
+			)
+	) ;
+	return $info;
+}
+
+
+
+/**
+ * Implements hook_menu().
+ */
+// function ftep_job_menu() {
+// 	$items = array ();
+	
+// 	$items ['jobs'] = array (
+// 			'title' => 'Jobs',
+// 			'page callback' => 'ftep_job_jobs',
+// 			'access arguments' => array (
+// 					'administer ftep_job entities' 
+// 			) 
+// 	)
+// 	// 'file' => 'ftep_job.admin.inc',
+// 	// 'type' => MENU_LOCAL_ACTION,
+// 	// 'tab_parent' => 'job2',
+// 	// 'tab_root' => 'job2',
+// 	;
+	
+// 	return $items;
+// }
+/*
+function ftep_job_jobs() {
+	$projects = entity_load ( 'ftep_job', array (
+			1,
+			2,
+			3 
+	) );
+	// Listing entities
+	$list = entity_view ( 'ftep_job', $projects );
+	$output = array ();
+	if (! array_key_exists ( "ftep_job", $list )) {
+		return $output;
+	}
+	foreach ( $list ['ftep_job'] as $project ) {
+		$output [] = drupal_render ( $project );
+	}
+	
+	return implode ( $output );
+}
+*/
+/**
+ * Ftep Jobs access callback.
+ */
+function ftep_jobs_access_callback() {
+	if (user_is_anonymous () && ! user_access ( 'administer ftep_jobs entities' )) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
+}
+function ftep_job_permission() {
+    return array(
+            'administer ftep_job entities' => array('title'=> t("Administer Ftep Jobs"), "description" => t("Administer Ftep Jobs") ),
+            'create ftep_job entities' => array('title'=> t("Create Ftep Jobs entities"), "description" => t("Create Ftep Jobs") ),
+            'edit any ftep_job entity' => array('title'=> t("Edit any Ftep Jobs"), "description" => t("Edit any Ftep Jobs") ),
+            'edit own ftep_job entities' => array('title'=> t("Edit own Ftep Jobs"), "description" => t("Edit own Ftep Jobs") ),
+            'view any ftep_job entity' => array('title'=> t("View any Ftep Jobs"), "description" => t("View any Ftep Jobs") ),
+            'view own ftep_job entities' => array('title'=> t("View own Ftep Jobs"), "description" => t("View own Ftep Jobs") ),
+    );
+}
+
+/**
+ * Lawmakers custom entity class.
+ */
+class FtepJobs extends Entity {
+	/**
+	 * Override defaultUri().
+	 */
+	protected function defaultUri() {
+		return array (
+				'path' => 'jobs/' . $this->identifier ()
+		);
+	}
+}

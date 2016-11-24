@@ -1,0 +1,6 @@
+name = Ftep UI
+description = Defines menu items common to the various Drupal Ftep UI modules.
+core = 7.x
+package = Ftep
+dependencies[] = ftep
+

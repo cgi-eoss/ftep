@@ -1,0 +1,7 @@
+{
+    "require": {
+        "php-curl-class/php-curl-class": "^7.0",
+        "pastuhov/php-exec-command": "^1.1",
+        "monolog/monolog": "^1.21"
+    }
+}

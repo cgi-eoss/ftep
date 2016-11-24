@@ -1,0 +1,1299 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: Forestry TEP 
+  description: Forestry TEP API description
+  version: "1.0.0"
+
+# the domain of the service
+host: 192.171.139.83
+
+# array of all schemes that your API supports
+schemes:
+  - https
+
+# will be prefixed to all paths
+basePath: /secure/api/v1.0
+
+produces:
+  - application/json
+
+paths:
+  /login:
+    post:
+      tags:
+        - Login
+      summary: Log into the system
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Log into the system authenticating as one of the Drupal users.
+      parameters:
+        - name: 
+          in: body
+          description: aaa
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      responses:
+        200:
+          description: Login successfully created
+          schema:
+            $ref: '#/definitions/LoginResponse'
+        204:
+          description: User already logged in
+
+    
+  /search:
+    get:
+      summary: Submit an OGC query to the registered (and active) datasources
+      tags:
+        - Search
+      responses:
+        "200":
+          description: An array of jobs
+          schema:
+              $ref: '#/definitions/SearchResult'
+
+  /groups:
+    get:
+      summary: List of groups
+      tags:
+        - Groups
+      responses:
+        200:
+          description: An array of groups
+    post:
+      summary: Create a group
+      tags:
+        - Groups
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new group
+      parameters:
+        - name: 
+          in: body
+          description: Group definition
+          required: true
+          schema:
+            $ref: '#/definitions/NewGroup'
+      responses:
+        201:
+          description: Group successfully created
+          schema:
+            $ref: '#/definitions/GroupList'
+        409:
+          description: Group already exists.
+
+  /groups/{id}:
+    get:
+      summary: Get the details of a Group
+      description: |
+        This method returns the detail of a Group identified by its id 
+      tags:
+        - Groups
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the Group as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: A group item
+          schema:
+            $ref: '#/definitions/GroupList'
+    delete:
+      summary: Delete a group
+      description: |
+        This api deletes the group specified in the {id}
+      tags:
+        - Groups
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the group to be deleted 
+          required: true
+          type: integer
+      responses:
+        "204":
+            description: |
+                No content
+    patch:
+      summary: Update a group
+      description: | 
+        This call allows you to update the name, or the description of the group specified 
+      tags:
+        - Groups
+      parameters:
+        - name: id
+          in: path
+          description: Identifier of the group as returned during the creation
+          required: true
+          type: integer
+        - name: 
+          in: body
+          schema: 
+            $ref: "#/definitions/UpdateGroup"
+      responses:
+        200:
+          description : | 
+            Update successfully
+        204:
+          description : | 
+            Request didn't update anything
+        403:
+          description : | 
+            Request forbidden
+
+
+  /users:
+    get:
+      summary: List of users
+      tags:
+        - Users
+      responses:
+        200:
+          description: An array of users
+    post:
+      summary: Create a user
+      tags:
+        - Users
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new user
+      parameters:
+        - name: 
+          in: body
+          description: User definition
+          required: true
+          schema:
+            $ref: '#/definitions/NewUser'
+      responses:
+        201:
+          description: User successfully created
+          schema:
+            $ref: '#/definitions/UserList'
+        409:
+          description: User already exists
+
+  /users/{id}:
+    get:
+      summary: Get the details of a User
+      description: |
+        This method returns the detail of a User identified by its id 
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the User as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: A user item
+          schema:
+            $ref: '#/definitions/UserList'
+
+  /projects:
+    get:
+      summary: List of projects
+      tags:
+        - Projects
+      responses:
+        200:
+          description: An array of projects
+    post:
+      summary: Create a project
+      tags:
+        - Projects
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new project
+      parameters:
+        - name: 
+          in: body
+          description: Project definition
+          required: true
+          schema:
+            $ref: '#/definitions/NewProject'
+      responses:
+        201:
+          description: Group successfully created
+          schema:
+            $ref: '#/definitions/ProjectList'
+        409:
+          description: Project already exists
+
+  /projects/{id}:
+    get:
+      summary: Get the details of a Project
+      description: |
+        This method returns the detail of a Project identified by its id 
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the project as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: A job item
+          schema:
+            $ref: '#/definitions/ProjectList'
+    delete:
+      summary: Delete a project
+      description: |
+        This call deletes the project specified in the {id}
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the project to be deleted 
+          required: true
+          type: integer
+      responses:
+        "204":
+            description: |
+                No content
+    patch:
+      summary: Update a project
+      description: | 
+        This call allows you to update the name, or the description of the proejct specified 
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          description: Identifier of the project as returned during the creation
+          required: true
+          type: integer
+      responses:
+        200:
+          description : | 
+            Update successfully
+        204:
+          description : | 
+            Request didn't update anything
+        403:
+          description : | 
+            Request forbidden
+
+  /jobs:
+    get:
+      summary: List Jobs
+      description: |
+        The Jobs endpoint produces the list of the jobs for the  user currently logged in
+      tags:
+        - Jobs
+      responses:
+        "200":
+          description: An array of jobs
+          schema:
+              $ref: '#/definitions/JobList'
+    post:
+      tags:
+        - Jobs
+      summary: Create a job
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new job
+      parameters:
+        - name: 
+          in: body
+          description: aaa
+          required: true
+          schema:
+            $ref: '#/definitions/NewJob'
+      responses:
+        201:
+          description: Job successfully created
+          schema:
+            $ref: '#/definitions/JobList'
+        409:
+          description: Job already exists
+
+  /jobs/{id}:
+    get:
+      summary: Get the details of a Job
+      description: |
+        This method returns the detail of a Job identified by its id 
+      tags:
+        - Jobs
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the job as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: A job item
+          schema:
+            $ref: '#/definitions/JobList'
+    delete:
+      summary: Delete a job
+      description: | 
+        This call deletes the job specified in the {id}
+      tags: 
+        - Jobs
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the job to be deleted
+          required: true
+          type: integer
+      responses:
+        204:
+          description: | 
+            No content
+    patch:
+      summary: Update a job
+      description: | 
+        This call allows to update the paramters of the job specified in {id}
+      tags:
+        - Jobs
+      parameters:
+        - name: id
+          in: path
+          description: Identifier of the job
+          required: true
+          type: integer
+        - name: 
+          in: body
+          schema: 
+            $ref: "#/definitions/UpdateJob"  
+      responses:
+        200:
+          description: | 
+           Update successfully
+        204:
+          description: | 
+           Request didn't update anything
+        403:
+          description: | 
+           Request forbidden
+
+  /databaskets:
+    get:
+      summary: List of Databaskets
+      description: |
+        This endpoint returns the list of databaskets of the current user
+      tags:
+        - Databasket
+      produces: 
+        - application/json
+      
+      responses:
+        "200":
+          description: |
+            An array of databaskets
+          schema:
+            $ref: '#/definitions/DatabasketList'
+    post:
+      tags:
+        - Databasket
+      summary: Create a databasket
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new databasket
+      parameters:
+        - name: 
+          in: body
+          description: aaa
+          required: true
+          schema:
+            $ref: '#/definitions/NewDatabasket'
+      responses:
+        201:
+          description: Databasket successfully created
+          schema:
+              $ref: '#/definitions/DatabasketList'
+        409:
+          description: Databasket already exists
+
+
+  /databaskets/{id}:
+    get:
+      summary: List of Databaskets
+      description: |
+        The Jobs endpoint returns information about the jobs of the current users.
+      tags:
+        - Databasket
+      parameters:
+        - name: id
+          in:  path
+          description: Identifier of the databasket
+          required: true
+          type: integer
+
+      produces: 
+        - application/json
+      
+      responses:
+        "200":
+          description: |
+            An array of databaskets.
+          schema:
+            $ref: '#/definitions/DatabasketList'
+    delete:
+      summary: Delete a databasket
+      description: |
+        This call deletes the databasket specified in the {id}
+      tags:
+        - Databasket
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the databasket to be deleted 
+          required: true
+          type: integer
+      responses:
+        "204":
+            description: |
+                No content
+
+
+  /services:
+    get:
+      summary: List of Services
+      description: |
+        The Services endpoint returns information about the jobs of the current users
+      tags:
+        - Services
+      produces: 
+        - application/json
+      responses:
+        "200":
+          description: |
+            An array of jobs.
+          schema:
+            $ref: '#/definitions/ServiceList'
+    post:
+      summary: Create a service
+      tags:
+        - Services
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new service
+      parameters:
+        - name: 
+          in: body
+          description: Service definition
+          required: true
+          schema:
+            $ref: '#/definitions/NewService'
+      responses:
+        201:
+          description: Service successfully created
+          schema:
+            $ref: '#/definitions/ServiceList'
+        409:
+          description: Service already exists.
+    patch:
+      summary: Update a service
+      description: | 
+        This call allows you to update the name, or the description of the proejct specified 
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: path
+          description: Identifier of the service as returned during the creation
+          required: true
+          type: integer
+      responses:
+        200:
+          description : | 
+            Update successfully
+        204:
+          description : | 
+            Request didn't update anything
+        403:
+          description : | 
+            Request forbidden
+  /services/{id}:
+    get:
+      summary: Get the details of a Service
+      description: |
+        This method returns the detail of a Service identified by its id 
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the service as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: A service item
+          schema:
+            $ref: '#/definitions/ServiceList'
+
+  /datasources:
+    get:
+      summary: List of Datasources
+      description: |
+        The Jobs endpoint returns information about the jobs of the current users..
+      tags:
+        - Datasource
+      produces: 
+        - application/json
+      responses:
+        "200":
+          description: |
+            An array of datasources.
+          schema:
+            $ref: '#/definitions/DatasourceList'
+    post:
+      tags:
+        - Datasource
+      summary: Create a datasource
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      description: |
+        Creates a new datasource
+      parameters:
+        - name: datasource
+          in: body
+          description: datasource item
+          required: true
+          schema:
+            $ref: '#/definitions/DatasourceInput'
+      responses:
+        201:
+          description: OK
+
+  /datasources/{id}:
+    get:
+      summary: Get a specific datasource
+      description: |
+        Retrieve information about a specific datasource identified by 'id'
+      tags:
+        - Datasource
+      produces: 
+        - "application/json"
+      parameters:
+        - name: id
+          in:   path
+          description: Identifier of the datasource as returned during the creation
+          required: true
+          type: integer
+
+      responses:
+        "200":
+          description: |
+            A datasource
+          schema:
+            $ref: '#/definitions/DatasourceList'
+
+definitions:
+  NewUser:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewUserAttributes"
+
+  NewUserAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: user
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/User"
+  User:
+    type: object
+    required:
+      - userid
+      - mail
+    properties:
+      userid:
+        type: string
+        description: this is the sso userid
+      mail:
+        type: string
+        description: this is the email used in the sso 
+
+  UserList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/UserLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/UserItem'
+      meta:
+          $ref: '#/definitions/meta'
+
+  UserItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/User"
+
+  
+  UpdateGroup:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/GroupAttributes"
+
+  NewGroup:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewGroupAttributes"
+
+  GroupAttributes:
+    required:
+      - type
+      - id
+    properties:
+      type:
+        type: string
+        default: groups
+        readOnly: true
+      id:
+        type: integer
+        description: Id of the group being modified. Warning this must be the same passed in the path.
+      attributes:
+        $ref: "#/definitions/Group"
+
+  NewGroupAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: groups
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Group"
+  Group:
+    type: object
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+        description: name of the grup. This is a unique value for each user.
+      description:
+        type: string
+        description: Description of the group
+
+  GroupList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/GroupLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/GroupItem'
+      meta:
+          $ref: '#/definitions/meta'
+
+  GroupItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Group"
+
+
+  NewProject:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewProjectAttributes"
+
+  NewProjectAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: project
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Project"
+  Project:
+    type: object
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+  ProjectList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/ProjectLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/ProjectItem'
+      meta:
+          $ref: '#/definitions/meta'
+  ProjectItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Project"
+
+  UpdateJob:
+    type: object
+    required:
+      - data
+    properties:
+      data: 
+        $ref: "#/definitions/JobAttributes"
+  NewJob:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewJobAttributes"
+  JobAttributes:
+    required: 
+      - type 
+      - id
+    properties:
+      type:
+        type: string
+        default: jobs
+        readOnly: true
+      id:
+        type: integer
+        description: Id of the job being modified. Warning this must be the same as the one passed in the path.
+      attributes:
+        $ref: "#/definitions/Job"
+  NewJobAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: jobs
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Job"
+  Job:
+    type: object
+    required:
+      - inputs
+      - outputs
+      - status
+    properties:
+      jobId:
+        type: string
+        description: This is the identifier of the Job as created by WPS Server (Zoo-Project) | 
+            This identifier *must* exits into the database.
+      inputs:
+        type: string
+      outputs:
+        type: string
+      status:
+        type: string          
+        readOnly: true
+        enum: 
+            - Running
+            - Failed
+            - Succeeded
+      step:
+        type: string          
+      guiEndpoint:
+        type: string
+      userId:
+        type: string
+        description: This is the userid of the user submitting the WPS request as returned from EO-SSO. |
+            Note this user *must* exists in the system.
+      serviceName:
+        type: string
+        description: This is the name of the serivce the job is running. |
+            Note this service *must* exists in the system and the service *must* be in status='approved' (i.e. available to the public) |
+            See /services for a list of the available services.
+
+
+  GroupLink:
+    properties:
+      self:
+        readOnly: true
+        type: string
+
+  JobLink:
+    properties:
+      self:
+        readOnly: true
+        type: string
+
+  JobList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/JobLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/JobItem'
+      meta:
+          $ref: '#/definitions/meta'
+  meta:
+    properties:
+      total: 
+        type: integer
+        readOnly: true
+
+  JobItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Job"
+
+  NewDatabasket:
+      type: object
+      required: 
+          - data
+      properties:
+          data:
+            $ref: "#/definitions/NewDatabasketAttributes"
+
+  NewDatabasketAttributes:
+      required: 
+       - type
+      properties:
+        type:
+          type: string
+          default: databaskets
+          readOnly: true
+        attributes:
+          $ref: "#/definitions/Databasket"
+
+  DatabasketList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/DatabasketLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/DatabasketItem'
+      meta:
+          $ref: '#/definitions/meta'
+
+  DatabasketLink:
+    properties:
+      self:
+        readOnly: true
+        type: string
+
+  DatabasketItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: string
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Databasket"
+
+  DatabasketInput:
+    properties:
+      data:
+        "$ref": "#/definitions/DatabasketInputAttributes"
+
+  DatabasketNewAttributes:
+    properties:
+      type:
+        type: string
+      data:
+        "$ref": "#/defintions/Databasket"
+
+  DatabasketInputAttributes:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+      data:
+        "$ref": "#/defintions/Databasket"
+
+  Databasket:
+    type: object
+    required: 
+      - name
+      - description
+    properties:
+      name:
+        type: string
+        description: Databasket name. Name is unique per user.
+      description:
+        type: string
+        description: databasket description
+      databaskettype:
+        type: string
+        description: databasket type
+      accessLevel:
+        type: string
+        description: databasket access level
+
+  databasket_attributes:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        databaskettype:
+          type: string        
+        accessLevel:
+          type: string          
+          enum: 
+            - public
+            - private
+          default: public
+        accesstype:
+          type: string    
+
+  DatasourceList:
+    properties:
+      links:
+        type: string
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/Datasource'
+          
+  Datasource:
+    properties:
+      data:
+        "$ref": "#/definitions/datasource_attributes"
+
+  DatasourceInput:
+    properties:
+      data:
+        "$ref": "#/definitions/DatasourceInputAttributes"
+
+  datasource_attributes:
+    properties:
+      name:
+        type: string
+        description: A name for the datasource
+      description:
+        type: string
+        description: A description for the datasource
+      endpoint:
+        type: string
+        description: This is the endpoint where the queries will be submitted
+      template:
+        type: string
+        description: Template to be used when composing a query
+      parser:
+        type: string
+        description: Name of the class used to parse the results
+      enabled:
+        type: boolean
+        default: false
+        description: Boolean flag. If set to _false_ this datasource is not used for searching
+
+  NewService:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewServiceAttributes"
+
+  NewServiceAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: service
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Service"
+
+  ServiceList:
+    properties:
+      links:
+        type: string
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/Service'
+          
+  Service:
+    type: object
+    required:
+      - name
+      - description
+      - kind
+      - mode
+    properties:
+      name:
+        type: string
+        description: name of the grup. This is a unique value for each user.
+      description:
+        type: string
+        description: Description of the group
+      kind:
+        type: string
+        enum: 
+            - processor
+            - application
+      mode:
+        type: string
+        enum: 
+            - sscale
+            - bulk
+      rating:
+        type: integer
+      accessLevel:
+        type: string
+      cpu:
+        type: string
+      ram:
+        type: string
+      cost:
+        type: string
+      license:
+        type: string
+      status:
+        type: string
+        enum: 
+            - submitted
+            - approved
+
+  ServiceList:
+    required:
+      - links
+      - data
+      - meta
+    properties:
+      links:
+        readOnly: true
+        $ref: '#/definitions/ServiceLink'
+      data: 
+        type: array
+        items: 
+          $ref: '#/definitions/ServiceItem'
+      meta:
+          $ref: '#/definitions/meta'
+
+  ServiceItem:
+    properties:
+      type:
+        type: string
+      id:
+        type: integer
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/Service"
+
+
+  SearchResult:
+    required: 
+      - data
+    properties:
+      data:
+        type: array
+        items: 
+          $ref: '#/definitions/DataSourceResult'
+
+  DataSourceResult:
+    required:
+      - datasource
+      - results
+    properties:
+        datasource:
+          type: string
+          description: Name of the datasource. See /datasources.
+        results:
+          $ref: '#/definitions/DataSourceResultItem'
+  DataSourceResultItem:
+      required:
+        - totalResults
+        - startIndex
+        - itemsPerPage
+        - entities
+      properties:
+        totalResults:
+          type: integer
+          description: total number of items returned by the query
+        startIndex:
+          type: integer
+          description: the first item in the result set shown in the result
+        itemsPerPage:
+          type: integer
+          description: Number of items in each page
+        entities:
+          $ref: '#/definitions/DataSourceResultItemEntity'
+
+  DataSourceResultItemEntity:
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        size:
+          type: integer
+        geo:
+          type: string
+  Login:
+    type: object
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/NewLoginAttributes"
+
+  NewLoginAttributes:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        default: login
+        readOnly: true
+      attributes:
+        $ref: "#/definitions/LoginAttributes"
+  LoginAttributes:
+    type: object
+    required:
+      - user
+      - password
+    properties:
+      user:
+        type: string
+        description: This is a user as defined inthe Drupal system
+      password:
+        type: string
+
+  LoginResponse:
+    type: object
+    required:
+      - sessionId
+      - sessionName
+      - token
+    properties:
+      sessionId:
+        type: string
+      sessionName:
+        type: string
+      token:
+        type: string
+
+  Error:
+    required:
+      - errors
+    properties:
+      errors:
+        type: array
+        items: 
+          $ref: '#/definitions/ErrorObject'
+
+  ErrorObject:
+    properties:
+      id:
+        type: string
+      links:
+        type: string
+      status:
+        type: integer
+        description: HTTP Status code
+      code:
+        type: string
+        description: Application specific code
+      title:
+        type: string
+        description: short human readable summary specific of the occurence of the errro
+      detail:
+        type: string

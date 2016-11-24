@@ -1,0 +1,11 @@
+name = Ftep API
+description = The REST Easy API
+core = 7.x
+package = Ftep
+
+#dependencies[] = ftep_databasket
+#dependencies[] = ftep_datasource
+dependencies[] = ftep_job
+
+
+include[]=api.php

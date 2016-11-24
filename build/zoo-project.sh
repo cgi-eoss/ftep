@@ -23,6 +23,11 @@ autoconf
 make
 make install DESTDIR="${ZOO_PREP}"
 
+# Build libZOO.so for JNI, and add to the cgi-bin path
+cd "${ZOO_WS}/zoo-project/zoo-api/java"
+env LIBRARY_PATH="${ZOO_PREP}/usr/lib:${LIBRARY_PATH}" make
+cp "${ZOO_WS}/zoo-project/zoo-api/java/libZOO.so" "${ZOO_PREP}/var/www/cgi-bin/"
+
 # Package zoo-kernel RPM
 fpm -t rpm -p "${DISTDIR_OS}/NAME-VERSION-ITERATION.ARCH.rpm" -s dir \
  -f -n "${PKG}" -v "${V}" --iteration "${I}" --category Applications/TEP \

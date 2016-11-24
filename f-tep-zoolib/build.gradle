@@ -1,0 +1,7 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+dependencies {
+}

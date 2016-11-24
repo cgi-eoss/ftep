@@ -16,3 +16,6 @@ src/zoo-project/zoo-kernel/service_conf.tab.c
 src/zoo-project/zoo-kernel/service_conf.tab.h
 src/zoo-project/zoo-kernel/version.h
 src/zoo-project/zoo-kernel/zoo_loader.cgi
+src/zoo-project/zoo-api/java/libZOO.so
+src/zoo-project/zoo-api/java/org/zoo_project/ZOO.class
+src/zoo-project/zoo-api/java/org_zoo_project_ZOO.h

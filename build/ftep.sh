@@ -11,3 +11,4 @@ fi
 gradle $GRADLE_ARGS build --parallel --configure-on-demand
 cp f-tep-processors/target/distributions/*.rpm "${DISTDIR_NOARCH}"
 cp f-tep-portal/target/distributions/*.rpm "${DISTDIR_NOARCH}"
+cp f-tep-drupalmodules/target/distributions/*.rpm "${DISTDIR_NOARCH}"

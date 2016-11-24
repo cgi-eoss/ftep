@@ -1,0 +1,34 @@
+buildscript {
+    dependencies {
+        classpath "com.netflix.nebula:gradle-ospackage-plugin:4.1.0"
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'nebula.ospackage'
+
+jar {
+    enabled false
+}
+
+ospackage {
+    packageName 'f-tep-drupalmodules'
+    version getRpmVersion(project.version).version
+    release getRpmVersion(project.version).release
+    arch NOARCH
+    os LINUX
+
+    into '/var/www/html/drupal/forestry-tep.eo.esa.int/sites/default/modules'
+
+    from('src/main/resources') {
+        user 'root'
+    }
+
+}
+
+artifacts {
+    archives buildRpm
+}

@@ -1,19 +1,38 @@
 <div id="bottombar-header" ng-include src="'views/explorer/bottombar/header.html'" />
 
-<md-tabs md-selected="resultTabs.selected">
+<div id="bottombar-contents" class="row">
 
-    <md-tab label="Results">
-        <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
-    </md-tab>
+    <div id="bottombar-left" class="col-xs-4">
 
-    <md-tab label="Databasket">
-        <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
-        <div id="databasket" ng-include src="'views/explorer/bottombar/databasket.html'" />
-    </md-tab>
+        <md-tabs md-selected="resultTabs.selected">
 
-    <md-tab label="Job">
-        <div id="jobs" class="left" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
-        <div id="job" ng-include ng-if="selectedJob != undefined" src="'views/explorer/bottombar/job.html'" />
-    </md-tab>
+            <md-tab label="Results">
+                <md-content flex>
+                    <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
+                </md-content>
+            </md-tab>
 
-</md-tabs>
+            <md-tab label="Databasket">
+                <md-content flex>
+                    <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
+                </md-content>
+            </md-tab>
+
+            <md-tab label="Job">
+                <md-content flex>
+                    <div id="jobs" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
+                </md-content>
+            </md-tab>
+
+        </md-tabs>
+
+    </div>
+
+    <div id="bottombar-right" class="col-xs-8">
+
+        <div id="databasket" ng-include src="'views/explorer/bottombar/databasket.html'" ng-show="resultTabs.selected == 1" />
+        <div id="job" ng-include ng-if="selectedJob != undefined" src="'views/explorer/bottombar/job.html'" ng-show="resultTabs.selected == 2" />
+
+    </div>
+
+</div>

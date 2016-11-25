@@ -10,13 +10,16 @@
 #bottombar:hover {
   background-color: #ffffff;
 }
-#bottombar #results {
-  width: 70%;
-}
-#bottombar #jobs {
-  width: 30%;
+#bottombar #bottombar-contents,
+#bottombar #bottombar-left,
+#bottombar #bottombar-right {
   height: 100%;
-  border-left: #d2d2d2 solid 3px;
+}
+#bottombar md-content {
+  background-color: transparent;
+}
+#bottombar md-tabs {
+  height: 100%;
 }
 #bottombar .scrollme {
   max-height: 100%;

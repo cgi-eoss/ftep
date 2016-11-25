@@ -12,13 +12,14 @@
   outline: none;
 }
 #bottombar-header .button-section button {
-  color: #558b2f;
+  color: rgba(0, 0, 0, 0.87);
   float: right;
 }
 #bottombar-header .button-section button:hover {
   color: #ff4081;
 }
 #bottombar-header .button-section .pagination {
+  float: right;
   margin: 0.5rem 0;
 }
 #bottombar-header .button-section .pagination li:first-child a {

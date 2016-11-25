@@ -1,17 +1,19 @@
-#jobs .job-checkboxes {
-  margin: 10px;
+#jobs-panel .job-checkboxes {
+  margin: 0;
+  padding: 10px;
+  width: 100%;
 }
-#jobs .job-checkboxes div:focus {
+#jobs-panel .job-checkboxes div:focus {
   outline: none;
   border: 0;
 }
-#jobs .job-checkboxes md-checkbox {
+#jobs-panel .job-checkboxes md-checkbox {
   margin: 0;
 }
-#jobs md-tabs {
+#jobs-panel md-tabs {
   height: 100%;
 }
-#jobs .check-container {
+#jobs-panel .check-container {
   padding: 4px 0;
 }
 #jobs-list label {

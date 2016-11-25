@@ -2,19 +2,19 @@
 #bottombar {
     bottom: 0;
     height: 35%;
-
     padding-left: 44px;
     position: fixed;
     z-index: 2;
     width: 100%;
     .bg-trans(@bg-light);
-    #results {
-        width: 70%;
-    }
-    #jobs {
-        width: 30%;
+    #bottombar-contents, #bottombar-left, #bottombar-right {
         height: 100%;
-        .border(border-left, @bg, solid, 3px);
+    }
+    md-content {
+        background-color: transparent;
+    }
+    md-tabs {
+        height: 100%;
     }
     .scrollme {
         max-height: 100%;

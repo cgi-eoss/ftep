@@ -78,13 +78,16 @@ input {
 #bottombar:hover {
   background-color: #ffffff;
 }
-#bottombar #results {
-  width: 70%;
-}
-#bottombar #jobs {
-  width: 30%;
+#bottombar #bottombar-contents,
+#bottombar #bottombar-left,
+#bottombar #bottombar-right {
   height: 100%;
-  border-left: #d2d2d2 solid 3px;
+}
+#bottombar md-content {
+  background-color: transparent;
+}
+#bottombar md-tabs {
+  height: 100%;
 }
 #bottombar .scrollme {
   max-height: 100%;
@@ -99,58 +102,50 @@ input {
   width: 4px;
 }
 
-#databasket-panel #databasket-list {
+
+#databaskets-panel #databasket-list {
   padding: 0;
 }
-#databasket-panel #databasket-list .basket-item {
+#databaskets-panel #databasket-list .basket-item {
   border-bottom: #d9d9d9 solid 1px;
   list-style: none;
   margin: 0;
 }
-#databasket-panel #databasket-list .basket-item p {
+#databaskets-panel #databasket-list .basket-item p {
   padding: 0 0 0 4px;
   margin: 0;
 }
-#databasket-panel #databasket-list .basket-item .basket-name {
+#databaskets-panel #databasket-list .basket-item .basket-name {
   padding: 0 0 0 4px;
   line-height: 1.8rem;
   margin: 0;
 }
-#databasket-panel #databasket-list .basket-item .basket-edit {
+#databaskets-panel #databasket-list .basket-item .basket-edit {
   margin: 0;
 }
-#databasket-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
+#databaskets-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
   display: inline-block;
   height: 2rem;
   position: relative;
   padding: 0 0 0 4px;
 }
-#databasket-panel #databasket-list .basket-item .basket-item-tools {
+#databaskets-panel #databasket-list .basket-item .basket-item-tools {
   margin: 0;
 }
-#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button {
+#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button {
   line-height: 1.5rem;
   min-height: 1rem;
   width: 100%;
 }
-#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button i {
+#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button i {
   font-size: 0.9rem;
   text-align: center;
 }
-#databasket-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
+#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
   color: #ff4081;
 }
-#databasket-panel #databasket-list .basket-item:hover {
-  background-color: #f8f8f8;
-}
-#databasket .panel-toolbar {
-  background-color: #ebebeb;
-  min-height: 40px;
-  padding: 2px;
-  padding-right: 15px;
-}
-#databasket .panel-toolbar .md-button {
-  float: right;
+#databaskets-panel #databasket-list .basket-item:hover {
+  background-color: #aed581;
 }
 
 #bottombar-header {
@@ -167,13 +162,14 @@ input {
   outline: none;
 }
 #bottombar-header .button-section button {
-  color: #558b2f;
+  color: rgba(0, 0, 0, 0.87);
   float: right;
 }
 #bottombar-header .button-section button:hover {
   color: #ff4081;
 }
 #bottombar-header .button-section .pagination {
+  float: right;
   margin: 0.5rem 0;
 }
 #bottombar-header .button-section .pagination li:first-child a {
@@ -199,20 +195,22 @@ input {
   padding: 0 20px;
 }
 
-#jobs .job-checkboxes {
-  margin: 10px;
+#jobs-panel .job-checkboxes {
+  margin: 0;
+  padding: 10px;
+  width: 100%;
 }
-#jobs .job-checkboxes div:focus {
+#jobs-panel .job-checkboxes div:focus {
   outline: none;
   border: 0;
 }
-#jobs .job-checkboxes md-checkbox {
+#jobs-panel .job-checkboxes md-checkbox {
   margin: 0;
 }
-#jobs md-tabs {
+#jobs-panel md-tabs {
   height: 100%;
 }
-#jobs .check-container {
+#jobs-panel .check-container {
   padding: 4px 0;
 }
 #jobs-list label {

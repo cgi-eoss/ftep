@@ -1,12 +1,11 @@
-<div class="row job-checkboxes">
-    <div class="col-lg-4 .col-md-12 check-container" ng-click="jobStatus.value = !jobStatus.value" ng-repeat="jobStatus in jobStatuses">
-        <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter" ng-click="filterJobs()" />
-        <span>{{jobStatus.name}}</span>
+<div id="jobs-panel">
+
+    <div class="row job-checkboxes">
+        <div class="col-lg-4 col-md-12 check-container" ng-click="jobStatus.value = !jobStatus.value" ng-repeat="jobStatus in jobStatuses">
+            <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter" ng-click="filterJobs()" />
+            <span>{{jobStatus.name}}</span>
+        </div>
     </div>
-</div>
-
-
-<div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar">
 
     <ul id="jobs-list" class="list" ng-repeat="service in jobServices">
 

@@ -41,7 +41,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                   connectionError = false;
               } else {
                   var deferred = $q.defer();
-                  $http.get(ftepProperties.URL + '/jobs?include=service&fields[service]=name').then(function (response) {
+                  /*$http.get(ftepProperties.URL + '/jobs?include=service&fields[service]=name').then(function (response) {
                           if (angular.equals(jobListCache, response.data) == false) {
                               jobListCache = response.data;
                               $rootScope.$broadcast('refresh.jobs', response.data);
@@ -63,7 +63,14 @@ define(['../ftepmodules'], function (ftepmodules) {
                               isPolling = true;
                               $timeout(pollJobs, 4 * 1000);
                           }
-                      });
+                      });*/
+
+
+                  // TODO Remove static test data.
+                   var data = {"links":{"self":"https:\/\/192.168.3.83\/api\/v1.0\/jobs"},"data":[{"type":"jobs","id":"707","attributes":{"inputs":{"inputfile":["ftp:\/\/ftp.ceda.ac.uk\/neodc\/sentinel1a\/data\/EW\/L1_GRD\/m\/IPF_v2\/2015\/11\/18\/S1A_EW_GRDM_1SSH_20151118T001148_20151118T001252_008651_00C4B8_36CE.zip"],"gui-timeout":["1"]},"outputs":"{}","status":"Running","step":"Step 2of3:Processing","guiEndpoint":"http:\/\/192.171.139.88:32781"},"relationships":{"service":{"data":[{"type":"services","id":"19"}]}}}],"included":[{"type":"services","id":"19","attributes":{"name":"MonteverdiAppV2"}}],"meta":{"total":1}};
+
+
+                  deferred.resolve(data);
                   return deferred.promise;
               }
           };
@@ -102,14 +109,17 @@ define(['../ftepmodules'], function (ftepmodules) {
           /** Gets job output files info **/
           this.getOutputs = function(jobId){
               var deferred = $q.defer();
-              $http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
+
+              http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
                   window.alert('Could not get job outputs');
                   deferred.reject();
               });
+
               return deferred.promise;
+
           };
 
           return this;

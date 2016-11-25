@@ -130,22 +130,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var popover = {};
 
             $scope.getJobPopover = function (job) {
-                var html = '<div class="row">' +
-                    '<div class="col-sm-4">Status:</div>' +
-                    '<div class="col-sm-8">' + job.attributes.status + '</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-sm-12">Inputs:</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<ul class="job-popover-list">' + getLiItems(job.attributes.inputs) + '</ul>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-sm-4">Outputs:</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<ul class="job-popover-list">' + getLiItems(job.attributes.outputs) + '</ul>' +
-                    '</div>';
+
+                var html = '<b>Status:</b>' +
+                           '<p>job.attributes.status</p>' +
+                           '<b>Inputs:</b>' +
+                           '<ul class="job-popover-list">' + getLiItems(job.attributes.inputs) + '</ul>' +
+                           '<b>Outputs:</b>' +
+                           '<ul class="job-popover-list">' + getLiItems(job.attributes.outputs) + '</ul>';
+
                 return popover[html] || (popover[html] = $sce.trustAsHtml(html));
             };
 

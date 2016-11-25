@@ -3,16 +3,16 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.Worker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
@@ -86,8 +86,8 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
 
             // step 4: start the docker container
             String dkrImage = DOCKER_IMAGE_NAME;
-            String dirToMount = job.getWorkingDir().getParent();
-            String jobDirName = job.getWorkingDir().getAbsolutePath();
+            String dirToMount = job.getWorkingDir().getParent().toString();
+            String jobDirName = job.getWorkingDir().toAbsolutePath().toString();
             ;
 
             File input1 = new File(inputFileNames.get(0));
@@ -106,11 +106,9 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
             Volume volume1 = new Volume(dirToMount);
             String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
-            DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-                    .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
-                    .withDockerTlsVerify(true).withDockerCertPath("/home/ftep/.docker/")
-                    .withApiVersion("1.22").build();
-            DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+            Worker worker = new ManualWorkerService().getWorker(workerVmIpAddr);
+            DockerClient dockerClient = worker.getDockerClient();
+
             CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
                     .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1))
                     .withCmd(procArg1, procArg2, procArg3, procArg4).exec();
@@ -126,7 +124,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
                 return ZooConstants.WPS_SERVICE_FAILED;
             }
 
-            String outputFile = job.getOutputDir().getAbsolutePath() + "/" + outputFileName;
+            String outputFile = job.getOutputDir().toAbsolutePath().toString() + "/" + outputFileName;
             HashMap out1 = (HashMap) (outputs.get("out1"));
             out1.put("generated_file", outputFile);
 

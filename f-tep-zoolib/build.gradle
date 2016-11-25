@@ -4,4 +4,17 @@ version '0.2.0-SNAPSHOT'
 apply plugin: 'java'
 
 dependencies {
+    compileOnly deps.lombok
+
+    compile project(':f-tep-rpc')
+    compile project(':f-tep-orchestrator')
+
+    compile deps.slf4j
+    compile deps.logbackClassic
+    compile deps.slf4jJulBridge
+
+    testCompile deps.hamcrestJunit
+    testCompile deps.jimfs
+    testCompile deps.junit
+    testCompile deps.mockito
 }

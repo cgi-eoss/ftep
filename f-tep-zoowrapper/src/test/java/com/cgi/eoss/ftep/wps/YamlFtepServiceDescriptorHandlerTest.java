@@ -16,15 +16,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 
-public class FtepServiceDescriptorYamlHandlerTest {
+public class YamlFtepServiceDescriptorHandlerTest {
 
-    private FtepServiceDescriptorYamlHandler handler;
+    private YamlFtepServiceDescriptorHandler handler;
 
     private FileSystem fs;
 
     @Before
     public void setUp() {
-        this.handler = new FtepServiceDescriptorYamlHandler();
+        this.handler = new YamlFtepServiceDescriptorHandler();
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

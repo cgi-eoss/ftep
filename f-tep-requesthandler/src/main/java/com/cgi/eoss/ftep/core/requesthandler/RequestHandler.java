@@ -4,13 +4,13 @@ import com.cgi.eoss.ftep.core.data.manager.core.DataManager;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.beans.FileProtocols;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
 import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.RegExFileFilter;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.JobStatus;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
@@ -77,7 +77,7 @@ public class RequestHandler {
 
     public FtepJob createJob() {
         FtepJob ftepJob = new FtepJob();
-        ftepJob.setJobID(zooConfigHandler.getJobID());
+        ftepJob.setJobId(zooConfigHandler.getJobID());
         ftepJob.setStatus(JobStatus.CREATED);
         createWorkingDir(ftepJob);
         createWpsPropertyFile(ftepJob);
@@ -86,7 +86,7 @@ public class RequestHandler {
 
     private void createWpsPropertyFile(FtepJob ftepJob) {
         try {
-            File workingDir = ftepJob.getWorkingDir();
+            File workingDir = ftepJob.getWorkingDir().toFile();
             File wpsPropertyfile = new File(workingDir, FtepConstants.WPS_PROP_FILE);
             Properties properties = new Properties();
             for (Entry<String, List<String>> entry : inputParams.entrySet()) {
@@ -96,16 +96,16 @@ public class RequestHandler {
             }
             FileOutputStream fileOut = new FileOutputStream(wpsPropertyfile);
             properties.store(fileOut,
-                    "Properties created from WPS Execute Request for Job: " + ftepJob.getJobID());
+                    "Properties created from WPS Execute Request for Job: " + ftepJob.getJobId());
         } catch (IOException e) {
             LOG.error("", e);
         }
     }
 
     private void createWorkingDir(FtepJob job) {
-        LOG.debug("Creating directories (inDir, outDir) for job {}", job.getJobID());
+        LOG.debug("Creating directories (inDir, outDir) for job {}", job.getJobId());
         try {
-            String dirName = job.getJobID();
+            String dirName = job.getJobId();
             File workingDir = zooConfigHandler.getDataDownloadDir();
             File jobWorkingDir =
                     createDirectory(workingDir.getAbsolutePath(), FtepConstants.JOB_DIR_PREFIX + dirName);
@@ -113,9 +113,9 @@ public class RequestHandler {
             File outputDir =
                     createDirectory(jobWorkingDir.getAbsolutePath(), FtepConstants.JOB_OUTPUT_DIR);
 
-            job.setWorkingDir(jobWorkingDir);
-            job.setInputDir(inputDir);
-            job.setOutputDir(outputDir);
+            job.setWorkingDir(jobWorkingDir.toPath());
+            job.setInputDir(inputDir.toPath());
+            job.setOutputDir(outputDir.toPath());
 
         } catch (Exception ex) {
             LOG.error("Exception in job directory creation", ex);
@@ -140,7 +140,7 @@ public class RequestHandler {
 
         // addEscapeChar(inputFilesMap);
         DataManagerResult dataManagerResult =
-                dataManager.getData(downloadConfMap, job.getInputDir().getAbsolutePath(), inputFilesMap);
+                dataManager.getData(downloadConfMap, job.getInputDir().toAbsolutePath().toString(), inputFilesMap);
         DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();
         if (downloadStatus.equals(DataDownloadStatus.COMPLETE)) {
             LOG.info("Data fetch is successful");
@@ -285,9 +285,8 @@ public class RequestHandler {
 
     private InsertResult insertIntoJobTable(ResourceJob resourceJob) {
         DBRestApiManager dataBaseMgr = DBRestApiManager.getInstance();
-        InsertResult insertResult = new InsertResult();
-        insertResult = dataBaseMgr.insertJobRecord(resourceJob);
-        if (insertResult.isStatus()) {
+        InsertResult insertResult = dataBaseMgr.insertJobRecord(resourceJob);
+        if (insertResult.isSuccess()) {
             LOG.debug("Job {} is successfully inserted in the database", resourceJob.getJobId());
             return insertResult;
         }

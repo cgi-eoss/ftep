@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.core.utils.rest.resources;
+package com.cgi.eoss.ftep.model.rest;
 
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Type;

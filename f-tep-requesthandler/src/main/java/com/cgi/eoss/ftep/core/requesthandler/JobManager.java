@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.core.requesthandler;
 
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
-import com.cgi.eoss.ftep.core.requesthandler.beans.JobStatus;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.JobStatus;
 
 import java.util.UUID;
 
@@ -20,7 +20,7 @@ public class JobManager {
 
     public FtepJob createJob() {
         FtepJob ftepJob = new FtepJob();
-        ftepJob.setJobID(generateUniqueIdentifier());
+        ftepJob.setJobId(generateUniqueIdentifier());
         ftepJob.setStatus(JobStatus.CREATED);
         return ftepJob;
     }

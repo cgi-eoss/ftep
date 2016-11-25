@@ -3,25 +3,30 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.Worker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 public class Sentinel2NdviProc extends AbstractWrapperProc {
@@ -58,7 +63,7 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
         if (ndviWpsProcessor.isSufficientCoinsAvailable()) {
             // step 1: create a Job with unique JobID and working directory
             FtepJob job = requestHandler.createJob();
-            resourceJob.setJobId(job.getJobID());
+            resourceJob.setJobId(job.getJobId());
             InsertResult insertResult = requestHandler.insertJobRecord(resourceJob);
 
             resourceJob.setStep(FtepConstants.JOB_STEP_DATA_FETCH);
@@ -86,22 +91,19 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
 
             // step 4: start the docker container
             String dkrImage = DOCKER_IMAGE_NAME;
-            String dirToMount = job.getWorkingDir().getAbsolutePath();
+            String dirToMount = job.getWorkingDir().toAbsolutePath().toString();
             String mountPoint = FtepConstants.DOCKER_JOB_MOUNTPOINT;
 
-            String dirToMount2 = job.getWorkingDir().getParent();
+            String dirToMount2 = job.getWorkingDir().getParent().toString();
 
 
             Volume volume1 = new Volume(mountPoint);
             Volume volume2 = new Volume(dirToMount2);
 
             String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
-            DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-                    .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
-                    .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
-                    .withApiVersion(FtepConstants.DOCKER_API_VERISON).build();
 
-            DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+            Worker worker = new ManualWorkerService().getWorker(workerVmIpAddr);
+            DockerClient dockerClient = worker.getDockerClient();
 
             CreateContainerResponse container =
                     dockerClient.createContainerCmd(dkrImage).withVolumes(volume1, volume2)
@@ -117,27 +119,32 @@ public class Sentinel2NdviProc extends AbstractWrapperProc {
             int exitCode = dockerClient.waitContainerCmd(containerID)
                     .exec(new WaitContainerResultCallback()).awaitStatusCode();
 
-            LOG.info("Processor Logs for job : " + job.getJobID() + "\n" + loggingCallback);
+            LOG.info("Processor Logs for job : " + job.getJobId() + "\n" + loggingCallback);
 
             if (exitCode != 0) {
                 LOG.error("Docker Container Execution did not complete successfully");
                 return ZooConstants.WPS_SERVICE_FAILED;
             }
 
-            String[] outputFiles = job.getOutputDir().list();
-            String outputFilename = "";
+            Optional<Path> firstOutputFile = null;
+            try (Stream<Path> files = Files.list(job.getOutputDir())) {
+                firstOutputFile = files.findFirst();
+            } catch (IOException e) {
+                LOG.error("Failed to list contents of output directory", e);
+            }
 
-            if (null != outputFiles && outputFiles.length > 0) {
-                outputFilename = new File(job.getOutputDir(), outputFiles[0]).getAbsolutePath();
+            String outputFilename;
+            if (firstOutputFile != null && firstOutputFile.isPresent()) {
+                outputFilename = firstOutputFile.get().toAbsolutePath().toString();
             } else {
-                LOG.error("No output has been produced. Check processor logs for job {}", job.getJobID());
+                LOG.error("No output has been produced. Check processor logs for job {}", job.getJobId());
                 return ZooConstants.WPS_SERVICE_FAILED;
             }
 
             LOG.info("Execution of docker container with ID {} completed with exit code: {} and outFileName: {}",
                     containerID, exitCode, outputFilename);
 
-            File outDir = job.getOutputDir();
+            File outDir = job.getOutputDir().toFile();
             String resultFile = requestHandler.getFirstFileMatching(outDir, RESULT_GEOTIFF_FILE_PATTERN);
             HashMap result = (HashMap) (outputs.get(FINAL_OUTPUT_FILE_VAR));
             result.put(ZooConstants.ZOO_GENERATED_FILE, resultFile);

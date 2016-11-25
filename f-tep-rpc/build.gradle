@@ -1,0 +1,46 @@
+buildscript {
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+
+sourceSets {
+    main {
+        java {
+            srcDirs += 'target/generated/source/proto/main/grpc'
+            srcDirs += 'target/generated/source/proto/main/java'
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = deps.protoc
+    }
+    plugins {
+        grpc {
+            artifact = deps.protocGenGrpcJava
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {
+                // To generate deprecated interfaces and static bindService method,
+                // turn the enable_deprecated option to true below:
+                option 'enable_deprecated=false'
+            }
+        }
+    }
+}
+
+dependencies {
+    compile deps.grpcNetty
+    compile deps.grpcProtobuf
+    compile deps.grpcStub
+}

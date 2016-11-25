@@ -12,11 +12,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
-public class FtepServiceDescriptorYamlHandler implements FtepServiceDescriptorReader, FtepServiceDescriptorWriter {
+public class YamlFtepServiceDescriptorHandler implements FtepServiceDescriptorReader, FtepServiceDescriptorWriter {
 
     private final ObjectMapper mapper;
 
-    public FtepServiceDescriptorYamlHandler() {
+    public YamlFtepServiceDescriptorHandler() {
         this.mapper = new ObjectMapper(new YAMLFactory());
     }
 

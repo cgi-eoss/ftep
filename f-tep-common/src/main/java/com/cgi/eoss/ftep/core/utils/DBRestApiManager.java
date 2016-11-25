@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.core.utils;
 
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceLogin;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.model.rest.ResourceLogin;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.google.gson.JsonArray;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-public final class DBRestApiManager {
+public class DBRestApiManager {
 
     private static final DBRestApiManager INSTANCE = new DBRestApiManager();
 
@@ -142,7 +142,7 @@ public final class DBRestApiManager {
                     converter.readDocument(response.getBytes(), ResourceJob.class);
             String resourceRestEndpoint = document.getLinks().getSelf().getHref();
             String resourceId = document.get().getId();
-            insertResult.setStatus(true);
+            insertResult.setSuccess(true);
             insertResult.setResourceRestEndpoint(resourceRestEndpoint);
             insertResult.setResourceId(resourceId);
 

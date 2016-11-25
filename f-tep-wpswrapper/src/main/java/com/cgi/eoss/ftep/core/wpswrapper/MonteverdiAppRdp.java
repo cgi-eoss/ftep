@@ -3,11 +3,13 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult;
 import com.cgi.eoss.ftep.core.data.manager.core.DataManagerResult.DataDownloadStatus;
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
-import com.cgi.eoss.ftep.core.requesthandler.beans.FtepJob;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.core.utils.rest.resources.ResourceJob;
 import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.Worker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -16,8 +18,6 @@ import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
@@ -86,9 +86,9 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
       // step 3: get VM worker
 
       // step 4: start the docker container
-      String dirToMount = job.getWorkingDir().getAbsolutePath();
+      String dirToMount = job.getWorkingDir().toAbsolutePath().toString();
       String mountPoint = "/nobody/workDir";
-      String dirToMount2 = job.getWorkingDir().getParent();
+      String dirToMount2 = job.getWorkingDir().getParent().toString();
 
       Volume volume1 = new Volume(mountPoint);
       Volume volume2 = new Volume(dirToMount2);
@@ -105,12 +105,8 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
         timeoutInHours = Integer.parseInt(timeout);
       }
 
-      DockerClientConfig config = DockerClientConfig.createDefaultConfigBuilder()
-          .withDockerHost("tcp://" + workerVmIpAddr + ":" + FtepConstants.DOCKER_DAEMON_PORT)
-          .withDockerTlsVerify(true).withDockerCertPath(FtepConstants.DOCKER_CERT_PATH)
-          .withApiVersion(FtepConstants.DOCKER_API_VERISON).build();
-
-      DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
+      Worker worker = new ManualWorkerService().getWorker(workerVmIpAddr);
+      DockerClient dockerClient = worker.getDockerClient();
 
       CreateContainerResponse container =
           dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)
@@ -159,7 +155,7 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
       int exitCode = dockerClient.waitContainerCmd(containerID)
           .exec(new WaitContainerResultCallback()).awaitStatusCode(timeoutInHours, TimeUnit.HOURS);
 
-      LOG.info("Application logs for job : " + job.getJobID() + "\n" + loggingCallback);
+      LOG.info("Application logs for job : " + job.getJobId() + "\n" + loggingCallback);
 
       if (exitCode != 0) {
         LOG.error("Docker container return with exit code {}", exitCode);

@@ -8,6 +8,7 @@ dependencies {
 
     compile project(':f-tep-common')
     compile project(':f-tep-datamanager')
+    compile project(':f-tep-model')
 
     compile deps.slf4j
 }

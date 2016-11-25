@@ -47,6 +47,7 @@ public class JavaWpsServiceWriterTest {
         Class<?> svcClass = Class.forName(svc.getId(), true, classLoader);
         Object instance = svcClass.newInstance();
 
+        // This is what zoo_loader.cgi does...
         Method serviceMethod = svcClass.getDeclaredMethod(svc.getId(), HashMap.class, HashMap.class, HashMap.class);
 
         // We expect a failure in invocation when the ZOO JNI library cannot be loaded

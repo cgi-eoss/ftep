@@ -22,4 +22,5 @@ dependencies {
 
     compile deps.guava
     compile deps.hibernateJpa21Api
+    compile deps.jsonapiConverter
 }

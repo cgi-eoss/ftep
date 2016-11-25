@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.core.requesthandler.beans;
+package com.cgi.eoss.ftep.model;
 
 public enum JobStatus {
 

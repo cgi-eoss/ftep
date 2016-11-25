@@ -6,6 +6,8 @@ apply plugin: 'java'
 dependencies {
     compileOnly deps.lombok
 
+    compile project(':f-tep-model')
+
     compile deps.gson
     compile deps.httpclient
     compile deps.jsonapiConverter

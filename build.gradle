@@ -32,6 +32,7 @@ allprojects {
 
 def depVersions = [
         commonsIo        : '2.5',
+        cucumber         : '1.2.5',
         dockerJava       : '3.0.0',
         freemarker       : '2.3.25-incubating',
         guava            : '20.0',
@@ -59,6 +60,8 @@ def depVersions = [
 
 ext.deps = [
         commonsIo              : 'commons-io:commons-io:' + depVersions.commonsIo,
+        cucumberJava8          : 'info.cukes:cucumber-java8:' + depVersions.cucumber,
+        cucumberJunit          : 'info.cukes:cucumber-junit:' + depVersions.cucumber,
         dockerJava             : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
         freemarker             : 'org.freemarker:freemarker:' + depVersions.freemarker,
         guava                  : 'com.google.guava:guava:' + depVersions.guava,

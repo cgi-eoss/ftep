@@ -235,6 +235,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                     jobSelectedOutputs = [];
                     JobService.getOutputs(job.id).then(function(data){
                         $scope.jobOutputs = data;
+                        $rootScope.$broadcast('show.products', job.id, data);
                     });
                 });
 
@@ -245,6 +246,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                                 $scope.selectedJob = result.data[i];
                                 JobService.getOutputs($scope.selectedJob.id).then(function(data){
                                     $scope.jobOutputs = data;
+                                    $rootScope.$broadcast('show.products', $scope.selectedJob.id, data);
                                 });
                             }
                         }

@@ -628,5 +628,37 @@ define(['../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules,
             $scope.map.updateSize();
         });
 
+        //WMS layer to show products on map
+        var productLayers = [];
+        $scope.$on('show.products', function(event, jobId, products) {
+            for(var i = 0; i < productLayers.length; i++){
+                $scope.map.removeLayer(productLayers[i]);
+            }
+            productLayers = [];
+            for(var i = 0; i < products.length; i++){
+                if(products[i].attributes.fname){
+                    var name = products[i].attributes.fname;
+                    if(name.indexOf('.') > -1){
+                        name = name.substring(0, name.indexOf('.'));
+                    }
+                    var source = new ol.source.ImageWMS({
+                        url: ftepProperties.WMS_URL + '/' + jobId + '/wms',
+                        params: {
+                            layers: jobId + ':' + name,
+                            service: 'WMS',
+                            VERSION: '1.1.0',
+                            FORMAT: 'image/png'
+                        },
+                        projection: 'EPSG:4326'
+                    });
+                    var productLayer = new ol.layer.Image({
+                        source: source
+                    });
+                    productLayers.push(productLayer);
+                    $scope.map.addLayer(productLayer);
+                }
+            }
+        });
+
     }]);
 });

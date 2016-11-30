@@ -36,6 +36,7 @@ define([
         "URL_PREFIX": ftepConfig.urlPrefix,
         "URL": ftepConfig.apiUrl,
         "ZOO_URL": ftepConfig.zooUrl,
+        "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
 

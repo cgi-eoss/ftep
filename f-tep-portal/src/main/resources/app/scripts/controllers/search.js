@@ -17,7 +17,7 @@ define(['../ftepmodules', 'clipboard'], function (ftepmodules, clipboard) {
         ];
 
     /** PROJECTS **/
-    $scope.projects = [{"type":"project","id":"0","attributes":{"name":"DEFAULT_PROJECT","description":"Default project"}}];
+    $scope.projects = [{"type":"project","id":"0","attributes":{"name":"Default project","description":"Default project"}}];
     $scope.activeProject = $scope.projects[0];
 
     $scope.setActiveProject = function(project){

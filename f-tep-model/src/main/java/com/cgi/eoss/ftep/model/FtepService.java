@@ -1,20 +1,30 @@
 package com.cgi.eoss.ftep.model;
 
-import com.google.common.collect.ComparisonChain;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import com.cgi.eoss.ftep.model.enums.AccessLevel;
+import com.cgi.eoss.ftep.model.enums.ModeType;
+import com.cgi.eoss.ftep.model.enums.ServiceLicence;
+import com.cgi.eoss.ftep.model.enums.ServiceStatus;
+import com.cgi.eoss.ftep.model.enums.ServiceType;
+import com.google.common.collect.ComparisonChain;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>F-TEP service definition for a defined processing workflow or GUI application. This should correspond to a service
@@ -24,8 +34,8 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_services", indexes = {
         @Index(name = "idxName", columnList = "name"),
-        @Index(name = "idxOwner", columnList = "owner"),
-}, uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "owner"})})
+        @Index(name = "idxOwner", columnList = "user_id"),
+}, uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "user_id"})})
 @NoArgsConstructor
 @Entity
 public class FtepService implements FtepEntity<FtepService>, Searchable {
@@ -34,7 +44,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "sid")
     private Long id;
 
     /**
@@ -57,28 +67,43 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
     private ServiceType kind = ServiceType.PROCESSOR;
 
     /**
+     * <p>The mode of the service, e.g. 'sscale' or 'bulk'.</p>
+     */
+    @Column(name="mode", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ModeType mode = ModeType.SSCALE;
+
+    /**
      * <p>Overall rating of the service given by users.</p>
      */
     @Column(name = "rating", nullable = false)
     private short rating = 0;
 
     /**
-     * <p>The ID of the user owning the service, typically the service creator.</p>
+     * <p>The user owning the service, typically the service creator.</p>
      */
-    @Column(name = "owner", nullable = false)
-    private String owner;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id")
+    private FtepUser owner;
+
+    /**
+     * <p> Access level of the service </p>
+     */
+    @Column(name = "access_level", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AccessLevel accessLevel = AccessLevel.PUBLIC;
 
     /**
      * <p>CPU requirements of the service.</p>
      */
-    @Column(name = "cpu")
-    private String cpu;
+    @Column(name = "cpu", nullable = false)
+    private String cpu = "";
 
     /**
      * <p>RAM requirements of the service.</p>
      */
-    @Column(name = "ram")
-    private String ram;
+    @Column(name = "ram", nullable = false)
+    private String ram = "";
 
     /**
      * <p>Cost multiplier of the service in F-TEP coins.</p>
@@ -104,15 +129,16 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
      * <p>Create a new FtepService instance with the minimum required parameters.</p>
      *
      * @param name Name of the service.
-     * @param owner ID of the user owning the service.
+     * @param owner The user owning the service.
      */
-    public FtepService(String name, String owner) {
+    public FtepService(String name, FtepUser owner) {
         this.name = name;
         this.owner = owner;
     }
 
     @Override
     public int compareTo(FtepService o) {
-        return ComparisonChain.start().compare(name, o.name).result();
+        return ComparisonChain.start().compare(name, o.name).compare(owner.getId(), o.owner.getId()).result();
     }
+
 }

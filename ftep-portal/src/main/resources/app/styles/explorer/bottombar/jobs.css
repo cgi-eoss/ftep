@@ -17,33 +17,53 @@
   padding: 0;
 }
 #jobs-panel #jobs-list .list-group {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   border-bottom: #d2d2d2 solid 1px;
 }
+#jobs-panel #jobs-list .list-group .expander,
+#jobs-panel #jobs-list .list-group label {
+  margin: 0;
+  padding: 0.25rem 0;
+}
+#jobs-panel #jobs-list .list-group:hover {
+  background-color: lightgray;
+}
 #jobs-panel #jobs-list .list-item {
-  line-height: 1.5rem;
+  font-size: 0.6rem;
+  line-height: 0.9rem;
   list-style: none;
+  padding: 0.25rem;
   border-bottom: #d2d2d2 solid 1px;
 }
 #jobs-panel #jobs-list .list-item .job-status {
   border-radius: 1.5rem;
   color: rgba(255, 255, 255, 0.87);
-  margin-bottom: 0.5rem;
-  height: 1.5rem;
+  cursor: default;
+  font-size: smaller;
+  height: 1rem;
   text-align: center;
   padding: 0 15px;
-  font-size: smaller;
-  cursor: default;
 }
 #jobs-panel #jobs-list .list-item .job-tools {
+  height: 0.9rem;
   min-width: 100px;
 }
 #jobs-panel #jobs-list .list-item .job-tools i {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
+}
+#jobs-panel #jobs-list .list-item .job-tools a,
+#jobs-panel #jobs-list .list-item .job-tools i,
+#jobs-panel #jobs-list .list-item .job-tools button {
+  height: 100%;
+}
+#jobs-panel #jobs-list .list-item .job-tools a:hover,
+#jobs-panel #jobs-list .list-item .job-tools i:hover,
+#jobs-panel #jobs-list .list-item .job-tools button:hover {
+  color: #ff4081;
 }
 #jobs-panel #jobs-list .list-item label {
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.6rem;
 }
 #jobs-panel #jobs-list .list-item:hover {
   background-color: #aed581;

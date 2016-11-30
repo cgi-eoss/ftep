@@ -1,0 +1,33 @@
+#job-content .job-files {
+  list-style: none;
+  line-height: 1.2rem;
+}
+#job-content .job-status {
+  border-radius: 1.5rem;
+  color: rgba(255, 255, 255, 0.87);
+  cursor: default;
+  font-size: smaller;
+  height: 100%;
+  line-height: 1.2rem;
+  text-align: center;
+  width: 60%;
+}
+#job-content .job-title {
+  padding: 0.5rem;
+}
+#job-content .job-title h4 {
+  margin: 0;
+}
+#job-content .nav-pills li a {
+  background-color: transparent;
+  border-radius: 0;
+  color: rgba(0, 0, 0, 0.54);
+}
+#job-content .nav-pills li:hover {
+  cursor: pointer;
+}
+#job-content .nav-pills li.active a {
+  background-color: transparent;
+  border-bottom: 2px solid #ff4081;
+  color: #558b2f;
+}

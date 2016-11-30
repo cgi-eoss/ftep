@@ -2,10 +2,11 @@
 
     <div class="row">
 
-        <div class="col-md-6">
-            <h4>Job id: {{selectedJob.id}}</h4>
+        <div class="col-xs-6 job-title">
+            <h4>Job ID: {{selectedJob.id}}</h4>
         </div>
-        <div class="col-md-6">
+
+        <div class="col-xs-6 job-title">
             <div class="job-status" style="{{getColor(selectedJob.attributes.status)}}">
                 {{selectedJob.attributes.status}}
             </div>
@@ -13,33 +14,39 @@
 
     </div>
 
-    <ul class="nav nav-pills" ng-init="jobTab = 'outputs'">
+    <ul class="nav nav-pills" ng-init="jobTab = 'OUTPUTS'">
         <li role="presentation"
-            ng-class="(jobTab == 'inputs') ? 'active' : ''"
-            ng-click="jobTab = 'inputs'">
-            <a>Inputs</a>
+            ng-class="(jobTab == 'INPUTS') ? 'active' : ''"
+            ng-click="jobTab = 'INPUTS'">
+            <a>INPUTS</a>
         </li>
         <li role="presentation"
-            ng-class="(jobTab == 'outputs') ? 'active' : ''"
-            ng-click="jobTab = 'outputs'">
-            <a>Outputs</a>
+            ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''"
+            ng-click="jobTab = 'OUTPUTS'">
+            <a>OUTPUTS</a>
         </li>
     </ul>
 
-    <div class="job-details" ng-if="jobTab == 'inputs'">
+    <div class="job-details" ng-if="jobTab == 'INPUTS'">
 
         <ul class="job-files">
             <li ng-repeat="(key, value) in getJobInputs(selectedJob)" class="resultnormal">
                 <div class="row">
                     <div class="col-md-2">{{key}}</div>
-                    <div class="col-md-10 break-word">{{value}}</div>
+                    <div ng-repeat="link in value">
+                        <div class="col-md-2" ng-show="$index > 0"></div>
+                        <div class="col-md-10 break-word">
+                            <a ng-if="link.includes('ftp')" href="{{link}}">{{link}}</a>
+                        </div>
+                        <div class="col-md-10 break-word" ng-if="!link.includes('ftp')">{{link}}</div>
+                    </div>
                 </div>
             </li>
         </ul>
 
     </div>
 
-    <div class="job-details" ng-if="jobTab == 'outputs'">
+    <div class="job-details" ng-if="jobTab == 'OUTPUTS'">
 
         <ul class="job-files">
             <li ng-repeat="outputFile in jobOutputs"

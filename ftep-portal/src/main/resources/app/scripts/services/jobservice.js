@@ -67,7 +67,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
 
                   // TODO Remove static test data.
-                   var data = {"links":{"self":"https:\/\/192.168.3.83\/api\/v1.0\/jobs"},"data":[{"type":"jobs","id":"707","attributes":{"inputs":{"inputfile":["ftp:\/\/ftp.ceda.ac.uk\/neodc\/sentinel1a\/data\/EW\/L1_GRD\/m\/IPF_v2\/2015\/11\/18\/S1A_EW_GRDM_1SSH_20151118T001148_20151118T001252_008651_00C4B8_36CE.zip"],"gui-timeout":["1"]},"outputs":"{}","status":"Running","step":"Step 2of3:Processing","guiEndpoint":"http:\/\/192.171.139.88:32781"},"relationships":{"service":{"data":[{"type":"services","id":"19"}]}}}],"included":[{"type":"services","id":"19","attributes":{"name":"MonteverdiAppV2"}}],"meta":{"total":1}};
+                   var data = {"links":{"self":"https:\/\/192.168.3.83\/api\/v1.0\/jobs"},"data":[{"type":"jobs","id":"707","attributes":{"inputs":{"inputfile":["ftp:\/\/ftp.ceda.ac.uk\/neodc\/sentinel1a\/data\/EW\/L1_GRD\/m\/IPF_v2\/2015\/11\/18\/S1A_EW_GRDM_1SSH_20151118T001148_20151118T001252_008651_00C4B8_36CE.zip", "ftp:\/\/ftp.ceda.ac.uk\/neodc\/sentinel1a\/data\/EW\/L1_GRD\/mn\/IPF_v2\/2015\/11\/18\/S1A_EW_GRDM_1SSH_20151118T001148_20151118T001252_008651_00C4B8_36CE.zip"],"gui-timeout":["1"]},"outputs":"{}","status":"Running","step":"Step 2of3:Processing","guiEndpoint":"http:\/\/192.171.139.88:32781"},"relationships":{"service":{"data":[{"type":"services","id":"19"}]}}}],"included":[{"type":"services","id":"19","attributes":{"name":"MonteverdiAppV2"}}],"meta":{"total":1}};
 
 
                   deferred.resolve(data);

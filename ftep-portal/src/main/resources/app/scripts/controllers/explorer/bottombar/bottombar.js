@@ -254,7 +254,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 });
 
                 $scope.getJobInputs = function(job){
-                    if(job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0){
+                    if (job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0) {
                         return job.attributes.inputs;
                     }
                     else{

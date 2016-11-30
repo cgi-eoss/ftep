@@ -18,32 +18,47 @@
     #jobs-list {
         padding: 0;
         .list-group {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            .expander, label {
+                margin: 0;
+                padding: 0.25rem 0;
+            }
             .border(border-bottom, @bg);
+            &:hover {
+                background-color: @light-gray;
+            }
         }
         .list-item {
-            line-height: 1.5rem;
+            font-size: 0.6rem;
+            line-height: 0.9rem;
             list-style: none;
+            padding: 0.25rem;
             .border(border-bottom, @bg);
             .job-status {
                 border-radius: 1.5rem;
                 color: @text-light;
-                margin-bottom: 0.5rem;
-                height: 1.5rem;
+                cursor: default;
+                font-size: smaller;
+                height: 1rem;
                 text-align: center;
                 padding: 0 15px;
-                font-size: smaller;
-                cursor: default;
             }
             .job-tools {
-                i {
-                    font-size: 1.2rem;
-                }
+                height: 0.9rem;
                 min-width: 100px;
+                i {
+                    font-size: 0.9rem;
+                }
+                a, i, button {
+                    height: 100%;
+                    &:hover {
+                        color: @accent;
+                    }
+                }
             }
             label {
                 cursor: pointer;
-                font-size: 0.8rem;
+                font-size: 0.6rem;
             }
             &:hover {
                 background-color: @brand-light;

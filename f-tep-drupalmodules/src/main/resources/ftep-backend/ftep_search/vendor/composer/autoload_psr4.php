@@ -7,5 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Tobscure\\JsonApi\\' => array($vendorDir . '/tobscure/json-api/src'),
-    'JsonSchema\\' => array($vendorDir . '/justinrainbow/json-schema/src/JsonSchema'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+    'Curl\\' => array($vendorDir . '/php-curl-class/php-curl-class/src/Curl'),
 );

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns:ns3="http://www.w3.org/2005/Atom" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+    <Document>
+        <LookAt>
+            <longitude>-92.01966371341103</longitude>
+            <latitude>16.6877464949242</latitude>
+            <altitude>526456.3280765808</altitude>
+            <heading>0.0</heading>
+            <tilt>0.0</tilt>
+            <range>425404.32659963204</range>
+            <altitudeMode>clampToGround</altitudeMode>
+        </LookAt>
+        <Folder>
+            <name>bafa7b1a-897a-11e6-bf68-005056011b7b:FTEP_S2_NDVI_B4_B8_20161003_150752Z</name>
+            <LookAt>
+                <longitude>60.00000000039384</longitude>
+                <latitude>-73.89788624795838</latitude>
+                <altitude>6828081.315893586</altitude>
+                <heading>0.0</heading>
+                <tilt>0.0</tilt>
+                <range>5517447.847512073</range>
+                <altitudeMode>clampToGround</altitudeMode>
+            </LookAt>
+            <GroundOverlay>
+                <name>bafa7b1a-897a-11e6-bf68-005056011b7b:FTEP_S2_NDVI_B4_B8_20161003_150752Z</name>
+                <drawOrder>0</drawOrder>
+                <Icon>
+                    <href>http://192.171.139.85:8080/geoserver/bafa7b1a-897a-11e6-bf68-005056011b7b/wms?service=wms&amp;request=GetMap&amp;version=1.1.1&amp;format=image%2Fpng&amp;layers=bafa7b1a-897a-11e6-bf68-005056011b7b%3AFTEP_S2_NDVI_B4_B8_20161003_150752Z&amp;styles=raster&amp;height=330&amp;width=768&amp;transparent=true&amp;bbox=-93.94072530212989%2C16.172691673840482%2C-90.08840182091753%2C17.18499108962852&amp;srs=EPSG%3A4326</href>
+                    <refreshInterval>0.0</refreshInterval>
+                    <viewRefreshMode>never</viewRefreshMode>
+                    <viewRefreshTime>0.0</viewRefreshTime>
+                    <viewBoundScale>0.75</viewBoundScale>
+                </Icon>
+                <altitude>0.0</altitude>
+                <LatLonBox>
+                    <north>17.18499108962852</north>
+                    <south>16.172691673840482</south>
+                    <east>-93.94072530212989</east>
+                    <west>-90.08840182091753</west>
+                    <rotation>0.0</rotation>
+                </LatLonBox>
+            </GroundOverlay>
+        </Folder>
+    </Document>
+</kml>
+

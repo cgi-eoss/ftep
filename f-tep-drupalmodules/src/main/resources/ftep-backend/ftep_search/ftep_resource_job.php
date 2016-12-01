@@ -13,8 +13,6 @@ use Tobscure\JsonApi\Parameters;
 require dirname(__FILE__).'/vendor/autoload.php';
 require dirname(__FILE__).'/serializers/JobSerializer.php';
 require dirname(__FILE__).'/serializers/JobOutputSerializer.php';
-require dirname(__FILE__).'/ftep_collection.php';
-
 
 
 class FtepResourceJob extends FtepResource {

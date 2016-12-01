@@ -26,69 +26,6 @@ function getRamFile(){
     return $logfh;
 }
 
-function  geoserverIngestion( $file , $user ){
-    $service = "http://192.168.3.85:8080/geoserver/"; // replace with your URL
-    $request = "rest/workspaces"; // to add a new workspace
-
-    $fname = array_pop(explode(".",array_pop(explode("/",$file))));
-
-
-    $url = $service . $request . "/".$user."/coveragestores/".$fname."/external.geotiff";
-    $url="http://192.168.3.85:8080/geoserver/rest/workspaces/antonio/coveragestores/FTEP_S2_NDVI_B4_B8_20160929_152102Z/external.geotiff";
-    file_put_contents('/tmp/log.txt', "===> ".var_export(array($file,$user,explode("/",$file), array_pop(explode("/",$file)),$url),true), FILE_APPEND);
-
-    $headers=array('Content-Type'=>'text/plain');
-
-    // Initiate cURL session
-    $ch = curl_init($url);
-
-    $logfh = fopen("/tmp/geoserverphp.log", 'w');
-    // Optional settings for debugging
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); //option to return string
-    curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-    curl_setopt($ch, CURLOPT_VERBOSE, true);
-    curl_setopt($ch, CURLOPT_STDERR, $logfh); // logs curl messages
-
-    // Using a PUT method i.e. -XPUT
-    curl_setopt($ch, CURLOPT_PUT,  True);
-    $passwordStr = "admin:geoserver";
-    curl_setopt($ch, CURLOPT_USERPWD, $passwordStr);
-    // Binary transfer i.e. --data-BINARY
-    // curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-    $putString = "file:///data/cache/Job_ded9fec8-8657-11e6-b994-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20160929_152102Z.tif";
-
-    $headers['Content-Length']=strlen($putString);
-    //POST data
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-    // Instead of POST fields use these settings
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $putString);
-    //curl_setopt($ch, CURLOPT_INFILE , $putString);
-    // curl_setopt($ch, CURLOPT_INFILESIZE , strlen($putString));
-
-    //POST return code
-    $successCode = 201;
-
-    $buffer = curl_exec($ch); // Execute the curl request
-
-    // Check for errors and process results
-    $info = curl_getinfo($ch);
-    if ($info['http_code'] != $successCode) {
-        $msgStr = "# Unsuccessful cURL request to ";
-        $msgStr .= $url." [". $info['http_code']. "]\n";
-        file_put_contents('/tmp/log.txt', $msgStr."\n",FILE_APPEND);
-    } else {
-        $msgStr = "# Successful cURL request to ".$url."\n";
-        file_put_contents('/tmp/log.txt', $msgStr."\n",FILE_APPEND);
-    }
-    file_put_contents('/tmp/log.txt', $buffer."\n",FILE_APPEND);
-    curl_close($ch); // free resources if curl handle will not be reused
-}
-
 function createWorkspace($workspaceName){
     $log = getLogger();
     $log->debug(__METHOD__." - ".__LINE__. " - Creating workspace $workspaceName" );
@@ -366,7 +303,6 @@ function ftep_queue_cron() {
 
     while($item = $queue->claimItem(30)) {
         // file_put_contents('/tmp/log.txt', "1) Item  ===> :".var_export($item,true)."\n", FILE_APPEND);
-        file_put_contents('/tmp/item.ser', serialize($item));
         $payload = $item->data;
         $log->debug(__METHOD__." - ".__LINE__. " - Processing item payload : ".var_export($payload,true) );
         $ok = true;
@@ -404,16 +340,8 @@ function ftep_queue_cron() {
                 $log->error(__METHOD__." - ".__LINE__." - $error");
                 $ok=false;
             }
-        }else {
-                $log->error(__METHOD__." - ".__LINE__." - cannot find outputs in payload");
-                $ok=false;
-        }
-
-        // populate resto
-        if($ok){
-            // file_put_contents("/tmp/items.txt",var_export($item,true),FILE_APPEND);
-         //   $queue->deleteItem($item);
         } else {
+            $log->error(__METHOD__." - ".__LINE__." - cannot find outputs in payload");
             $msg = sprintf("Cannot process item xxxx. Moving to dead-letter queue");
             $log->warning(__METHOD__." - ".__LINE__. " - Putting item in the deadletter queeue : ".var_export($item,true) );
             $dead_letter_queue = DrupalQueue::get('jobs_queue_dead_letter');
@@ -422,30 +350,8 @@ function ftep_queue_cron() {
                 $item->error=$error;
             }
             $dead_letter_queue->createItem($item);
-         //`   $queue->deleteItem($item);
-            // watchdog("ftep_queue_cron", $msg );
         }
         $queue->deleteItem($item);
     }
-/*
-
-    // Now go for resto
-    $catalogue_queue = DrupalQueue::get('jobs_catalogue_queue');
-    $catalogue_queue->createQueue();
-    $count = $catalogue_queue->numberOfItems();
-
-    watchdog('cron', 'FTEP queue processor. Starting with '.$count.' items in the catalogue.');
-    $MAX_BATCH=2;
-    $processed=0;
-    while($item = $catalogue_queue->claimItem()) {
-        // 1) Get the GeoRSS
-        // http://192.171.139.85:8080/geoserver/bafa7b1a-897a-11e6-bf68-005056011b7b/wms?service=WMS&version=1.1.0&request=GetMap&layers=bafa7b1a-897a-11e6-bf68-005056011b7b:FTEP_S2_NDVI_B4_B8_20161003_150752Z&styles=&bbox=399960.0,1790220.0,809760.0,1900020.0&width=768&height=330&srs=EPSG:32615&format=application%2Frss%2Bxml 
- //       $url="http://192.171.139.85:8080/geoserver/ftep/wms?service=WMS&version=1.1.0&request=GetMap&layers=ftep
-        //
-        // 2) transform to GeoJSON
-        // /opt/resto_files/node_modules/.bin/georsstogeojson
-        // ingest into the catalogue
-    }
-*/
 }
 

@@ -84,6 +84,31 @@ class ftep::portal::drupal(
         'url'  => "fcgi://127.0.0.1:9000${www_path}/${drupal_site}/\$1"
       }
     ],
+    rewrites => [
+      {
+        rewrite_rule => ['^/api/(.*) /api.php?q=api/$1 [P,L]']
+      }
+    ],
+    aliases => [
+      {
+        alias => '/app',
+        path => "${www_path}/../f-tep/app"
+      },{
+        alias => '/bower_components',
+        path => "${www_path}/../f-tep/bower_components"
+      }
+    ]
+  }
+
+  file { "${www_path}/${drupal_site}/api.php":
+    ensure  => link,
+    target  => "${www_path}/${drupal_site}/sites/default/modules/ftep-backend/ftep_search/api.php"
+    require => Apache::Vhost['ftep-drupal'],
+  }
+
+  package { f-tep-drupalmodules:
+    ensure => latest
   }
 
 }
+

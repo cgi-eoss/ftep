@@ -26,10 +26,10 @@ class ftep::portal::webapp(
     require => Package['f-tep-portal'],
   }
 
-  ::apache::vhost { 'ftep-webapp':
-    port             => '80',
-    servername       => $::fqdn,
-    docroot          => "$app_path",
-  }
+#  ::apache::vhost { 'ftep-webapp':
+#    port             => '80',
+#    servername       => $::fqdn,
+#    docroot          => "$app_path",
+#  }
 
 }

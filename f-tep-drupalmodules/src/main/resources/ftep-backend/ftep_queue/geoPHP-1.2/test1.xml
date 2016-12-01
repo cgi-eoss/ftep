@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:georss="http://www.georss.org/georss" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>ftep:FTEP_S2_NDVI_B4_B8_20160725_143007Z</title><description>null</description><link><![CDATA[http://192.171.139.85:8080/geoserver/ftep/wms?service=wms&request=GetMap&version=1.1.1&format=application%2Frss%2Bxml&layers=ftep%3AFTEP_S2_NDVI_B4_B8_20160725_143007Z&styles=raster&height=768&width=768&transparent=false&bbox=499980.0%2C890200.0%2C609780.0%2C1000000.0&srs=EPSG%3A32755]]></link><atom:link href="http://192.171.139.85:8080/geoserver/ftep/wms?service=wms&amp;request=GetMap&amp;version=1.1.1&amp;format=application%2Frss%2Bxml&amp;layers=ftep%3AFTEP_S2_NDVI_B4_B8_20160725_143007Z&amp;styles=raster&amp;height=768&amp;width=768&amp;transparent=false&amp;bbox=499980.0%2C890200.0%2C609780.0%2C1000000.0&amp;srs=EPSG%3A32755" rel="self"/><item><title>fid--587da904_1577ab7a9dc_-7ec2</title><link><![CDATA[http://192.171.139.85:8080/geoserver/ftep/wms/reflect?format=application%2Fatom%2Bxml&layers=null%3AGridCoverage&featureid=fid--587da904_1577ab7a9dc_-7ec2]]></link><guid><![CDATA[http://192.171.139.85:8080/geoserver/ftep/wms/reflect?format=application%2Fatom%2Bxml&layers=null%3AGridCoverage&featureid=fid--587da904_1577ab7a9dc_-7ec2]]></guid><description><![CDATA[<h4>GridCoverage</h4>
+
+<ul class="textattributes">
+  
+  <li><strong><span class="atr-name">grid</span>:</strong> <span class="atr-value">org.geoserver.catalog.CoverageDimensionCustomizerReader@3f72d3a0</span></li>
+  <li><strong><span class="atr-name">params</span>:</strong> <span class="atr-value">[Lorg.opengis.parameter.GeneralParameterValue;@3c3ca64f</span></li>
+</ul>
+]]></description><georss:polygon>-82.04453226427263 146.9987056393766 -81.9843779763665 154.0690062872322 -81.00739156076311 153.30315700703724 -81.06088097318272 146.99884707636338 -82.04453226427263 146.9987056393766</georss:polygon></item></channel></rss>
+

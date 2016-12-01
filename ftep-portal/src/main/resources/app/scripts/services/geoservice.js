@@ -68,9 +68,9 @@ define(['../ftepmodules'], function (ftepmodules) {
 
             //TODO: Needs to work for multiple missions.
             if (this.parameters.mission) {
-                var allValid = true;
+            /*  var allValid = true;
                 params.platform = this.parameters.mission[0].name; // Temp fix!
-                /*params.platform = this.parameters.mission.name;
+                params.platform = this.parameters.mission.name;
 
                 for (var mission in this.parameters.mission) {
                     //console.log(this.parameters.mission[mission].name);
@@ -83,11 +83,13 @@ define(['../ftepmodules'], function (ftepmodules) {
                     params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
                     params.minCloudCoverPercentage = this.parameters.mission.minCloudCover;
                     params.name = this.parameters.mission.text;
-                }*/
+                } */
+
+                params.platform = this.parameters.mission.name;
 
                 if (this.parameters.mission.name.indexOf('2') > -1) {
-                    params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
                     params.minCloudCoverPercentage = this.parameters.mission.minCloudCover;
+                    params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
                     params.name = this.parameters.mission.text;
                 }
 

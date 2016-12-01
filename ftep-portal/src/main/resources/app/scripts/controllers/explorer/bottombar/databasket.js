@@ -19,19 +19,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.databaskets = [];
 
-            // TODO Remove static test data
-            $scope.databaskets = [
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}},
-                {"type": "databaskets", "id": "265", "attributes": {"name": "test","description": ""},"relationships": {"files": {"data": []}}}
-            ];
             var collectedFiles = {};
 
             $scope.fetchDbPage = function (page) {

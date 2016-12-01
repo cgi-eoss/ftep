@@ -15,4 +15,4 @@ fi
 
 mvn $M2_ARGS clean install
 cp ftep-config/target/rpm/f-tep-processors/RPMS/noarch/*.rpm "${DISTDIR_NOARCH}"
-cp ftep-portal/target/rpm/f-tep-portal/RPMS/noarch/*.rpm "${DISTDIR_NOARCH}"
+cp f-tep-portal/target/rpm/f-tep-portal/RPMS/noarch/*.rpm "${DISTDIR_NOARCH}"

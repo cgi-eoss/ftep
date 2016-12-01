@@ -9,7 +9,7 @@
 	</parent>
 
 	<groupId>com.cgi.eoss.f-tep</groupId>
-	<artifactId>ftep-portal</artifactId>
+	<artifactId>f-tep-portal</artifactId>
 	<packaging>rpm</packaging>
 
 	<dependencies>

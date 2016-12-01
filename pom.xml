@@ -56,7 +56,7 @@
 		<module>ftep-commons</module>
 		<module>ftep-subsys</module>
 		<module>ftep-config</module>
-		<module>ftep-portal</module>
+		<module>f-tep-portal</module>
 	</modules>
 
 

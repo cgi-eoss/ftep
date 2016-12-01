@@ -1,6 +1,9 @@
+'use strict';
+
 require.config({
 
     // aliases and paths of modules
+
     paths: {
         angular: '../bower_components/angular/angular',
         ngResource: '../bower_components/angular-resource/angular-resource',
@@ -18,6 +21,9 @@ require.config({
         dndLists: '../bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists',
         ngPaging: '../bower_components/angular-paging/paging',
         clipboard: '../bower_components/clipboard-js/clipboard',
+        moment: '../bower_components/moment/min/moment-with-locales',
+        angularMoment: '../bower_components/angular-moment/angular-moment',
+        ngScrollbar: '../bower_components/ng-scrollbar/ng-scrollbar',
 
         hogan: 'zoo-client/lib/hogan/hogan-3.0.2',
         xml2json: 'zoo-client/lib/xml2json/xml2json.min',
@@ -35,110 +41,121 @@ require.config({
         jquery: '../bower_components/jquery/jquery',
         bootstrap: '../bower_components/bootstrap/js/bootstrap',
         ftepConfig: 'scripts/ftepConfig',
-        app: 'scripts/app',
+        app: 'scripts/app'
     },
 
     // modules and their dependent modules
     shim: {
         jquery: {
-            exports: ['$', 'jQuery', 'jquery'],
+            exports: [ '$', 'jQuery', 'jquery' ]
         },
-        //// angular modules
         angular: {
             deps: ['jquery'],
-            exports: 'angular',
+            exports: 'angular'
         },
         ngResource: {
             deps: ['angular'],
-            exports: 'ngResource',
+            exports: 'ngResource'
         },
         ngCookies: {
             deps: ['angular'],
-            exports: 'ngCookies',
+            exports: 'ngCookies'
         },
         ngRoute: {
             deps: ['angular'],
-            exports: 'ngRoute',
+            exports: 'ngRoute'
         },
         ngMaterial: {
             deps: ['angular'],
-            exports: 'ngMaterial',
+            exports: 'ngMaterial'
         },
         ngTouch: {
-            deps: ['angular'],
+            deps: ['angular']
         },
         ngAnimate: {
             deps: ['angular'],
-            exports: 'ngAnimate',
+            exports: 'ngAnimate'
         },
         ngAria: {
             deps: ['angular'],
-            exports: 'ngAria',
+            exports: 'ngAria'
         },
         dndLists: {
             deps: ['angular'],
-            exports: 'dndLists',
+            exports: 'dndLists'
         },
         ngPaging: {
             deps: ['angular'],
-            exports: 'ngPaging',
+            exports: 'ngPaging'
         },
         rzModule: {
             deps: ['angular'],
-            exports: 'rzModule',
+            exports: 'rzModule'
         },
         ngSanitize: {
             deps: ['angular'],
-            exports: 'ngSanitize',
+            exports: 'ngSanitize'
         },
         ngBootstrap: {
             deps: ['angular'],
-            exports: 'ngBootstrap',
+            exports: 'ngBootstrap'
         },
         ngOpenlayers: {
             deps: ['angular'],
-            exports: 'ngOpenlayers',
+            exports: 'ngOpenlayers'
         },
-        //// openlayers3
         ol: {
-            exports: 'ol',
+            exports: 'ol'
         },
-        //// zoo-client
         bootstrap: {
-            deps: ['jquery'],
+            deps: ['jquery']
         },
         notify: {
-            deps: ['jquery'],
+            deps: ['jquery']
         },
         wpsPayloads: {
-            deps: ['hogan'],
+            deps: ['hogan']
         },
         wpsPayload: {
             deps: ['wpsPayloads'],
-            exports: 'wpsPayload',
+            exports: 'wpsPayload'
         },
         hogan: {
-            exports: 'Hogan',
+            exports: 'Hogan'
         },
         xml2json: {
-          exports: "X2JS",
+          exports: 'X2JS'
         },
         queryString: {
-            exports: 'queryString',
+            exports: 'queryString'
         },
         zoo: {
             deps: ['queryString', 'xml2json', 'utils']
         },
-        ////
         clipboard: {
-            exports: 'clipboard',
+            exports: 'clipboard'
         },
-        //// application,
+        moment: {
+            exports: 'moment'
+        },
+        angularMoment: {
+            deps: ['angular', 'moment'],
+            exports: 'angularMoment'
+        },
+        ngScrollbar: {
+            deps: ['angular'],
+            exports: 'ngScrollbar'
+        },
         ftepConfig: {
             exports: 'ftepConfig',
         },
         app: {
-            deps: ['angular', 'ol', 'zoo', 'ftepConfig'],
+            deps: ['jquery', 'angular', 'ol', 'zoo', 'ftepConfig']
+        }
+    },
+    config: {
+        moment: {
+            noGlobal: true
         }
     }
 });

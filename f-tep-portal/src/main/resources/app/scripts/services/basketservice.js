@@ -21,55 +21,59 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           /** GET DATABASKETS & POLL **/
           this.getDatabaskets = function(pageNumber, pageSize){
-             if(is_polling && pNumber === pageNumber){
-                 return $q.when(basketListCache);
-             }
-             else {
-                 pNumber = pageNumber;
-                 pSize = pageSize;
-                 return pollDatabaskets(pageNumber, pageSize);
-             }
-          }
+            if(is_polling && pNumber === pageNumber){
+                return $q.when(basketListCache);
+            } else {
+                pNumber = pageNumber;
+                pSize = pageSize;
+                return pollDatabaskets(pageNumber, pageSize);
+            }
+          };
 
-          var pollDatabaskets = function(pageNumber, pageSize){
-              if(connectionError && retriesLeft === 0){
+          var pollDatabaskets = function (pageNumber, pageSize) {
+              if (connectionError && retriesLeft === 0) {
                   retriesLeft = 3;
                   connectionError = false;
-              }
-              else{
-                  if(pNumber === pageNumber && pSize === pageSize){
+              } else {
+                  if (pNumber === pageNumber && pSize === pageSize) {
 
                       var deferred = $q.defer();
-                      var parameters = {'page[size]': pageSize, 'page[number]': pageNumber, include: 'files'};
-                      $http({
-                          method: 'GET',
-                          url: ftepProperties.URL + '/databaskets',
-                          params: parameters,
-                      })
-                      .then(function(response) {
-                          if(angular.equals(basketListCache, response.data) == false){
-                              basketListCache = response.data;
-                              $rootScope.$broadcast('refresh.databaskets', response.data);
-                          }
-                          deferred.resolve(response.data);
-                          retriesLeft = 3;
-                          connectionError = false;
-                      })
-                      .catch(function(e){
-                          connectionError = true;
-                          alert('Could not get databaskets. Retries left: ' + retriesLeft );
-                          retriesLeft--;
-                          deferred.reject();
-                      })
-                      .finally(function() {
-                          is_polling = true;
-                          $timeout(function() {pollDatabaskets(pageNumber, pageSize)}, 20*1000);
-                      });
+                      var parameters = {
+                          'page[size]': pageSize,
+                          'page[number]': pageNumber,
+                          include: 'files'
+                      };
 
+                      $http({
+                              method: 'GET',
+                              url: ftepProperties.URL + '/databaskets',
+                              params: parameters,
+                          })
+                          .then(function (response) {
+                              if (angular.equals(basketListCache, response.data) == false) {
+                                  basketListCache = response.data;
+                                  $rootScope.$broadcast('refresh.databaskets', response.data);
+                              }
+                              deferred.resolve(response.data);
+                              retriesLeft = 3;
+                              connectionError = false;
+                          })
+                          .catch(function (e) {
+                              connectionError = true;
+                              window.alert('Could not get databaskets. Retries left: ' + retriesLeft);
+                              retriesLeft--;
+                              deferred.reject();
+                          })
+                          .finally(function () {
+                              is_polling = true;
+                              $timeout(function () {
+                                  pollDatabaskets(pageNumber, pageSize);
+                              }, 20 * 1000);
+                          });
                       return deferred.promise;
                   }
               }
-          }
+          };
           /** END OF GET DATABASKETS & POLL **/
 
           /** GET DATABASKET ITEMS **/
@@ -83,16 +87,16 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data);
               })
               .catch(function(e){
-                  alert('could not get databasket items');
+                  window.alert('could not get databasket items');
                   deferred.reject();
               });
               return deferred.promise;
-          }
+          };
 
           /** END OF GET DATABASKET ITEMS **/
 
           /** POST DATABASKET AND/OR RELATED PRODUCTS **/
-          this.createDatabasket = function(name, desc, items){
+          this.createDatabasket = function(name, desc, items) {
               return $q(function(resolve, reject) {
                   var basket = {type: 'databaskets', attributes:{name: name, description: (desc ? desc : ''), databaskettype:'', accesslevel:''}};
                   $http({
@@ -108,12 +112,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   catch(function(e) {
                       if(e.status == 409){
-                          alert('Could not create databasket: conflicts with an already existing one');
+                          window.alert('Could not create databasket: conflicts with an already existing one');
                       }
                       reject();
                   });
               });
-          }
+          };
 
           function addItems(databasket, items){
               var itemsList = [];
@@ -135,7 +139,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           this.addBasketItems = function(basket, items){
               addItems(basket, items);
-          }
+          };
 
           /** END OF POST DATABASKET AND/OR RELATED PRODUCTS **/
 
@@ -158,18 +162,18 @@ define(['../ftepmodules'], function (ftepmodules) {
                           resolve(basket);
                       }).
                       catch(function(e) {
-                          alert('Failed to remove databasket');
+                          window.alert('Failed to remove databasket');
                           console.log(e);
                           reject();
                       });
                   }).
                   catch(function(e) {
-                      alert('Failed to remove databasket relationships');
+                      window.alert('Failed to remove databasket relationships');
                       console.log(e);
                       reject();
                   });
               });
-          }
+          };
           /** END OF DELETE DATABASKET **/
 
           /** REMOVE A SINGLE FILE **/
@@ -186,12 +190,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(file);
                   }).
                   catch(function(e) {
-                      alert('Failed to remove relationship');
+                      window.alert('Failed to remove relationship');
                       console.log(e);
                       reject();
                   });
               });
-          }
+          };
 
           /** END OF REMOVE A SINGLE FILE **/
 
@@ -209,12 +213,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(basket);
                   }).
                   catch(function(e) {
-                      alert('Failed to update databasket');
+                      window.alert('Failed to update databasket');
                       console.log(e);
                       reject();
                   });
               });
-          }
+          };
           /** END OF UPDATE DATABASKET **/
 
           return this;

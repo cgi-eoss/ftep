@@ -1,0 +1,92 @@
+@import "variable";
+#sidebar-left {
+    height: 100%;
+    margin-left: 44px;
+    position: absolute;
+    min-width: 380px;
+    max-width: 380px;
+    z-index: 2;
+    form {
+        padding-bottom: 30px;
+    }
+    md-input-container {
+        margin: 0;
+        width: 100%;
+        .text-sec();
+        .hint {
+            font-size: 0.6rem;
+            .text-hint();
+        }
+    }
+    .md-subheader {
+        background-color: transparent;
+        color: @accent;
+        .md-subheader-inner {
+            padding-right: 0;
+            label {
+                .text-sec();
+            }
+        }
+    }
+    .md-subheader-top {
+        .md-subheader-inner {
+             padding-top: 0;
+        }
+    }
+    .md-subheader-title {
+        .md-subheader-inner {
+            padding-left: 0;
+        }
+    }
+    md-toolbar {
+        background-color: transparent;
+        .md-toolbar-tools {
+            background-color: @brand-light;
+            .text-sec();
+            span {
+                font-size: 1.0rem;
+                text-transform: uppercase;
+            }
+        }
+    }
+    .note {
+        margin: 0.8rem;
+    }
+    .panel {
+        background-color: transparent;
+        border: none;
+        .panel-body {
+            padding-right: 20px;
+        }
+    }
+    .scrollme {
+      max-height: 500px;
+        .ngsb-scrollbar {
+            margin-top: 12px;
+        }
+        .ngsb-track {
+            background-color: @accent;
+            border-radius: 20px;
+            height: 95%;
+            width: 4px;
+        }
+        .scrollbar-contents {
+            min-height: 420px;
+        }
+    }
+
+    /** Slider Styles **/
+    #mCSB_2_container_wrapper,
+    #mCSB_2_container {
+        margin: 0;
+        padding: 0;
+        max-width: 380px;
+    }
+    .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+        background-color: @accent-light;
+    }
+}
+
+.sidebar-container {
+   .bg-trans(@bg-light);
+}

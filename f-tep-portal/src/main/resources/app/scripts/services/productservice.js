@@ -20,11 +20,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  alert('Could not get services');
+                  window.alert('Could not get services');
                   deferred.reject();
               });
               return deferred.promise;
-          }
+          };
 
           return this;
       }]);

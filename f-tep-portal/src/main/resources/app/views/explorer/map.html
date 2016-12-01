@@ -1,0 +1,46 @@
+<div ng-controller="MapCtrl">
+    <div id="map">
+
+        <button type="button"
+                class="btn btn-control map-clear"
+                ng-click="clearMap()"
+                aria-label="Remove Polygon"
+                uib-tooltip="Remove search polygon"
+                tooltip-placement="left"
+                tooltip-trigger="mouseenter"
+                tooltip-append-to-body="true">
+
+            <i class="material-icons">clear</i>
+
+        </button>
+
+        <md-menu id="mapMenu">
+
+            <button type="button"
+                       class="btn btn-control map-type"
+                       ng-click="$mdOpenMenu($event)"
+                       aria-label="Menu"
+                       uib-tooltip="Map Type"
+                       tooltip-placement="left"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+
+                <i class="material-icons">layers</i>
+
+            </button>
+
+            <md-menu-content>
+                <md-menu-item>
+                    <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
+                </md-menu-item>
+                <!--<md-menu-item>
+                   <md-button ng-click="setMapType('SAT')" aria-label="Satellite Map">Satellite Map</md-button>
+               </md-menu-item> -->
+                <md-menu-item>
+                    <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+
+    </div>
+</div>

@@ -1,0 +1,50 @@
+@import "variable";
+#bottombar-header {
+    float: right;
+    position: relative;
+    width: 50%;
+    .button-section {
+        padding-left: 0px;
+        padding-right: 0px;
+        .md-button.md-focused:not([disabled]) {
+            background-color: transparent;
+            outline: none;
+        }
+        button {
+            color: @brand-dark;
+            float: right;
+            &:hover {
+                color: @accent;
+            }
+        }
+        .pagination {
+            float:right;
+            margin: 0.5rem 0;
+            li:first-child a {
+                border: none;
+            }
+            a {
+                background-color: transparent;
+                border: none;
+                color: @brand;
+                padding: 2px 0.5rem;
+                .border(border-left, @bg);
+                &:first-child {}
+                &:hover {
+                    background: @accent-light;
+                    color: @brand-dark;
+                }
+            }
+            .active {
+                a {
+                    background-color: @accent;
+                    border-color: @accent;
+                    color: @text-light;
+                }
+            }
+        }
+    }
+    .row {
+        padding: 0 20px;
+    }
+}

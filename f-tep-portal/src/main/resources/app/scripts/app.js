@@ -25,36 +25,36 @@ define([
     'dndLists',
     'ngOpenlayers',
     'ngBootstrap',
-    'scripts/moduleloader',
-    'ngPaging'
+    'ngPaging',
+    'moment',
+    'angularMoment',
+    'ngScrollbar',
+    'scripts/moduleloader'
 ], function () {
     'use strict';
 
-    var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging']);
+    var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'ngScrollbar']);
 
-    app.constant("ftepProperties", {
+    /* jshint -W117  */
+    app.constant('ftepProperties', {
         "URL_PREFIX": ftepConfig.urlPrefix,
         "URL": ftepConfig.apiUrl,
         "ZOO_URL": ftepConfig.zooUrl,
         "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
+    /* jshint +W117 */
 
     app.init = function () {
         angular.bootstrap(document, ['ftepApp']);
     };
 
-    app.config(['$routeProvider', function ($routeProvider) {
+    app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
         $routeProvider
             .when('/', {
-                templateUrl: 'views/explorer.html',
+                templateUrl: 'views/explorer/explorer.html',
                 controller: 'ExplorerCtrl',
                 controllerAs: 'main'
-            })
-            .when('/about', {
-                templateUrl: 'views/about.html',
-                controller: 'AboutCtrl',
-                controllerAs: 'about'
             })
             .when('/developer', {
                 templateUrl: 'views/developer.html'
@@ -74,44 +74,47 @@ define([
             .otherwise({
                 redirectTo: '/'
             });
-    }]);
+        $locationProvider.html5Mode(true);
+      }]);
 
     /* Custom angular-material color theme */
     app.config(['$mdThemingProvider', function ($mdThemingProvider) {
-        $mdThemingProvider.definePalette('ftepColorSchema', {
-            '50': 'abf6b7',
-            '100': 'abf6b7',
-            '200': '345a3d',
-            '300': '345a3d',
-            '400': 'ef5350',
-            '500': '345a3d',
-            '600': 'e53935',
-            '700': 'd32f2f',
-            '800': 'c62828',
-            '900': 'b71c1c',
-            'A100': '4da762',
-            'A200': '208e3a',
-            'A400': '1a742f',
-            'A700': 'd50000',
-            'contrastDefaultColor': 'light',
-            'contrastDarkColors': [
-                //hues which contrast should be 'dark' by default
-                '50', '100', '200', '300', '400', 'A100'
-            ],
-            'contrastLightColors': undefined
-        });
-        $mdThemingProvider.theme('default').primaryPalette('ftepColorSchema');
+        $mdThemingProvider.theme('default')
+            .primaryPalette('light-green', {
+                'default': '800',
+                'hue-1': '300',
+                'hue-2': '900'
+            })
+            .accentPalette('pink', {
+                'default': 'A200',
+                'hue-1': 'A100',
+                'hue-2': 'A700'
+            })
+            .warnPalette('red')
+            .backgroundPalette('grey');
+    }]);
+
+    /* Set time & date format */
+    app.config(['$mdDateLocaleProvider', 'moment', function ($mdDateLocaleProvider, moment) {
+
+        $mdDateLocaleProvider.formatDate = function (date) {
+            return date ? moment(date).format('DD-MM-YYYY') : '';
+        };
+
+        $mdDateLocaleProvider.parseDate = function (dateString) {
+            var m = moment(dateString, 'DD-MM-YYYY', true);
+            return m.isValid() ? m.toDate() : new Date(NaN);
+        };
     }]);
 
     app.filter('bytesToGB', function () {
         return function (bytes) {
             if (isNaN(bytes) || bytes < 1) {
                 return bytes;
-            }
-            else {
+            } else {
                 return (bytes / 1073741824).toFixed(2) + ' GB';
             }
-        }
+        };
     });
 
     return app;

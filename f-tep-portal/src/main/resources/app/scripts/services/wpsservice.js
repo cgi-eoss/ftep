@@ -44,14 +44,13 @@ define(['../ftepmodules', 'module', 'jquery', 'zoo', 'xml2json','ol', 'hgn!zoo-c
                       console.log("-------------------- PROCESS ---------------------------");
                       console.log( data );
                       deferred.resolve(data);
-                  }
-                  , error: function(data) {
+                  }, error: function(data) {
                       console.log( data );
                       deferred.reject(data);
                   }
               });
               return deferred.promise;
-          }
+          };
 
           this.execute = function(aProcess, iparams, oparams){
               var deferred = $q.defer();
@@ -74,7 +73,7 @@ define(['../ftepmodules', 'module', 'jquery', 'zoo', 'xml2json','ol', 'hgn!zoo-c
                      }
                 });
               return deferred.promise;
-          }
+          };
 
           return this;
       }]);

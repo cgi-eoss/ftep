@@ -6,6 +6,14 @@ distribution/puppet/hieradata/standalone.local.yaml
 distribution/puppet/modules/
 init.gradle
 
+ftep-portal/src/main/resources/.tmp
+ftep-portal/src/main/resources/bower_components
+ftep-portal/src/main/resources/dist
+ftep-portal/src/main/resources/node_modules
+ftep-portal/src/main/resources/app/styles/**.css
+ftep-portal/src/main/resources/.bowerrc
+ftep-portal/src/main/resources/.sass-cache
+
 ########
 
 # Created by https://www.gitignore.io/api/gradle,intellij,maven,eclipse,vagrant,vim

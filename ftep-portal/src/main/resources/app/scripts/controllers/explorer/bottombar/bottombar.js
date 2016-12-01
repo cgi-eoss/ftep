@@ -253,7 +253,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     }
                 });
 
-                $scope.getJobInputs = function(job){
+                $scope.getJobInputs = function(job) {
+                    $scope.$broadcast('rebuild:scrollbar');
                     if (job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0) {
                         return job.attributes.inputs;
                     }

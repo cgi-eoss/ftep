@@ -129,6 +129,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             // Set initial selected missions to none
             $scope.selected = [];
             $scope.searchParameters.mission = $scope.selected;
+            $scope.default_mission = "Sentinel-1A";
 
             // Set for displaying error message when no missions are selected
             $scope.missionNotSelected = true;

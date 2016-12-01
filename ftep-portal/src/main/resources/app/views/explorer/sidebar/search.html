@@ -12,7 +12,7 @@
                            ng-show="!showDataSources"
                            type="submit"
                            form="searchForm"
-                           ng-disabled="searchForm.$invalid || missionNotSelected"
+                           ng-disabled="searchForm.$invalid"
                            aria-label="Search">
                     <i class="material-icons">search</i>
                 </md-button>
@@ -107,7 +107,8 @@
                     <div class="col-xs-1" />
                 </div>
 
-                <div class="row">
+            <!-- TODO: Uncomment to replace radio buttons for checkboxes to allow multiple mission searches -->
+            <!--<div class="row">
                     <div class="col-xs-6">
                         <md-subheader class="md-accent md-subheader-title">Select a mission</md-subheader>
                     </div>
@@ -135,7 +136,26 @@
                            {{mission.name}}
                         </md-checkbox>
                     </div>
+                </div> -->
+
+                <!-- TODO: Remove when ready to replace radio buttons with checkboxes -->
+                <div class="row">
+                    <div class="col-xs-6">
+                        <md-subheader class="md-accent md-subheader-title">Select a mission</md-subheader>
+                    </div>
                 </div>
+
+                <md-radio-group ng-model="default_mission">
+                    <div class="col-xs-6" ng-repeat="mission in missions">
+                        <md-radio-button ng-required="missionValidator()"
+                                         ng-click="updateMissionParameters()"
+                                         ng-value="mission.name"
+                                         aria-label="{{mission.name}}">
+                            {{mission.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+                <!-- End remove  -->
 
                 <div class="polarisation-container" ng-show="showPolar">
 

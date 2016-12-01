@@ -1,6 +1,6 @@
 <div id="job-content">
 
-    <div class="row">
+    <div class="row no-margin">
 
         <div class="col-xs-6 job-title">
             <h4>Job ID: {{selectedJob.id}}</h4>
@@ -27,11 +27,11 @@
         </li>
     </ul>
 
-    <div class="job-details" ng-if="jobTab == 'INPUTS'">
+    <div class="job-details scrollme" ng-if="jobTab == 'INPUTS'" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
         <ul class="job-files">
             <li ng-repeat="(key, value) in getJobInputs(selectedJob)" class="resultnormal">
-                <div class="row">
+                <div class="row no-margin">
                     <div class="col-md-2">{{key}}</div>
                     <div ng-repeat="link in value">
                         <div class="col-md-2" ng-show="$index > 0"></div>
@@ -46,7 +46,7 @@
 
     </div>
 
-    <div class="job-details" ng-if="jobTab == 'OUTPUTS'">
+    <div class="job-details scrollme" ng-if="jobTab == 'OUTPUTS'" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
         <ul class="job-files">
             <li ng-repeat="outputFile in jobOutputs"
@@ -54,7 +54,7 @@
                 ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
                 dnd-draggable="getSelectedOutputFiles(outputFile)">
 
-                <div class="row">
+                <div class="row no-margin">
 
                     <div class="col-md-10">{{outputFile.attributes.fname}}</div>
 

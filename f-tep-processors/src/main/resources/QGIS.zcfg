@@ -1,0 +1,42 @@
+[QGIS]
+Title = Start the QGIS Desktop Application
+Abstract = Graphical Application
+processVersion = 1.0
+storeSupported = true
+statusSupported = true
+serviceType = Java
+serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/QgisRdp
+
+<DataInputs>
+    [inputfile]
+    Title = Input data
+    Abstract = The input data file
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [gui-timeout]
+    Title = Timeout in hours before the application automatically shuts down
+    Abstract = The maximum time this application can remain open
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+</DataInputs>
+
+<DataOutputs>
+    [Result]
+    Title = URL to open the application
+    Abstract = Persistent URL to access the web-hosted desktop application
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+</DataOutputs>

@@ -11,7 +11,7 @@ The latest and greatest F-TEP source code can be found on [GitHub][GitHub].
 ## Building
 
 F-TEP may be built and packaged using the shell scripts in the `build/`
-subdirectory. The main part of the project may be built simply via Maven.
+subdirectory. The main part of the project may be built simply via Gradle.
 
 To simplify the use of third-party dependencies in the full packaging pipeline,
 we offer a Dockerfile defining the full build environment, suitable for use in
@@ -28,25 +28,35 @@ Note that some additional paths or environment variables may be required for
 each build task.
 
 The standalone-dist.sh script produces a portable [Puppet][Puppet] environment,
-using the [cgieoss-ftep][cgieoss-ftep] Puppet module.
+using the [cgieoss-ftep][cgieoss-ftep] Puppet module (which is locally imported
+to the `third-party/puppet` directory).
+
+Vagrant may be used to manage the Docker build container:
+
+    vagrant up build
+    vagrant ssh build
 
 ## Test environment
 
 We offer a [Vagrant][Vagrant] configuration environment which can
-be used for testing the distribution locally. First create your test
-environment configuration in `distribution/puppet/hieradata/standalone.local.yaml`,
+be used for testing the distribution locally. This requires the full build
+results from running the scripts described above: `build/ftep.sh`,
+`build/zoo-project.sh` and `build/standalone-dist.sh`.
+
+Once the distribution has been prepared, create your test environment
+configuration in `distribution/puppet/hieradata/standalone.local.yaml`,
 for example:
 
     ---
     classes:
       - ftep::backend
-      - ftep::portal
+      - ftep::db
     ftep::repo::location: 'file:///vagrant/.dist/repo'
 
 Then install the required vagrant plugins, and bring the machine up:
 
     vagrant plugin install vagrant-vbguest vagrant-puppet-install
-    vagrant up
+    vagrant up ftep
 
 Vagrant will fully provision a VM from the Puppet modules and specified local
 configuration. The VM's web server should be available locally on port 8080.

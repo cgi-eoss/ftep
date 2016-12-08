@@ -5,6 +5,7 @@ class ftep::portal::webapp(
   $url_prefix   = 'http://localhost',
   $api_url      = 'http://localhost/secure/api/v1.0',
   $zoo_url      = 'http://localhost/wps',
+  $wms_url      = 'http://localhost:8080/geoserver',
   $mapbox_token = 'pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ',
 ) {
   ensure_packages(['f-tep-portal'], {
@@ -21,6 +22,7 @@ class ftep::portal::webapp(
       'url_prefix'   => $url_prefix,
       'api_url'      => $api_url,
       'zoo_url'      => $zoo_url,
+      'wms_url'      => $wms_url,
       'mapbox_token' => $mapbox_token,
     }),
     require => Package['f-tep-portal'],

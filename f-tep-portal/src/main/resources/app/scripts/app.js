@@ -29,8 +29,8 @@ define([
     'moment',
     'angularMoment',
     'ngScrollbar',
-    'scripts/moduleloader'
-], function () {
+    'moduleloader'
+], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'ngScrollbar']);

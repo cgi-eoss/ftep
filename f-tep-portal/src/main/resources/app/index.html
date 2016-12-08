@@ -4,24 +4,19 @@
     <head>
     <meta charset="utf-8">
     <base href="/">
-    <!-- <base href="/ftep-dist/"> -->
     <title>Forestry TEP</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
-    <!-- build:css(.) styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.css" />
-    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
-    <link rel="stylesheet" href="bower_components/angular-ui-layout/src/ui-layout.css" />
-    <link rel="stylesheet" href="bower_components/angularjs-slider/rzslider.css" />
-    <link rel="stylesheet" href="bower_components/ng-scrollbar/ng-scrollbar.css" />
-    <!-- endbower -->
-    <link rel="stylesheet" href="bower_components/openlayers/ol.css" />
-    <!-- endbuild -->
-    <!-- build:css(app) styles/explorer.css -->
+
+    <link rel="stylesheet" href="scripts/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-ui-grid/ui-grid.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-material/angular-material.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-ui-layout/src/ui-layout.css" />
+    <link rel="stylesheet" href="scripts/vendor/angularjs-slider/rzslider.css" />
+    <link rel="stylesheet" href="scripts/vendor/ng-scrollbar/ng-scrollbar.css" />
+    <link rel="stylesheet" href="scripts/vendor/openlayers/ol.css" />
+
     <link rel="stylesheet" href="main.css" />
-    <!-- endbuild -->
 </head>
 
     <body ng-controller="IndexCtrl" class="ftep ng-cloak" ng-cloak>
@@ -46,16 +41,12 @@
            ga('send', 'pageview');
         </script>
 
-        <script data-main="main" src="../bower_components/requirejs/require.js"></script>
-        <!--
-        build:js(.) scripts/vendor.js
-        bower:js
-        endbower
-        endbuild
-
-        build:js(.) scripts/explorer.js
-        <script src=".tmp/scripts/explorer.js"></script>
-        endbuild
-         -->
+        <script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>
+        <script src="scripts/ftepConfig.js"></script>
+        <script type="text/javascript">
+          require(['app'], function (app) {
+              app.init();
+          });
+        </script>
     </body>
 </html>

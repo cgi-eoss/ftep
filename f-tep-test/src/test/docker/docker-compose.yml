@@ -1,0 +1,23 @@
+---
+version: '2'
+services:
+  portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        no_proxy:
+        puppetconf: portal.yaml
+        pkgconf: portalpkg
+    environment:
+      http_proxy:
+      https_proxy:
+      no_proxy:
+  backend:
+    extends: portal
+    build:
+      args:
+        pkgconf: backendpkg
+        puppetconf: backend.yaml

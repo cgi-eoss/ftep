@@ -61,6 +61,7 @@ def depVersions = [
         springDataCommons: '1.12.5.RELEASE',
         springDataJpa    : '1.10.5.RELEASE',
         springBoot       : '1.4.2.RELEASE',
+        testContainers   : '1.1.7'
 ]
 
 ext.deps = [
@@ -110,9 +111,10 @@ ext.deps = [
         mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,
         junit                  : 'junit:junit:' + depVersions.junit,
         springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
+        testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers
 ]
 
-def getRpmVersion(version) {
+static def getRpmVersion(version) {
     return [
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
             release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'

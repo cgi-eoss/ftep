@@ -1,6 +1,8 @@
 #sidebar-left {
+  background-color: transparent;
   height: 100%;
-  margin-left: 44px;
+  padding-left: 44px;
+  padding-top: 50px;
   position: absolute;
   min-width: 380px;
   max-width: 380px;
@@ -37,6 +39,7 @@
 }
 #sidebar-left md-toolbar {
   background-color: transparent;
+  height: 0;
 }
 #sidebar-left md-toolbar .md-toolbar-tools {
   background-color: #aed581;
@@ -52,12 +55,15 @@
 #sidebar-left .panel {
   background-color: transparent;
   border: none;
+  box-shadow: none;
 }
 #sidebar-left .panel .panel-body {
   padding-right: 20px;
 }
 #sidebar-left .scrollme {
-  max-height: 500px;
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
 }
 #sidebar-left .scrollme .ngsb-scrollbar {
   margin-top: 12px;
@@ -68,8 +74,29 @@
   height: 95%;
   width: 4px;
 }
-#sidebar-left .scrollme .scrollbar-contents {
-  min-height: 420px;
+#sidebar-left .sidebar-container {
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+#sidebar-left .sidebar-container:hover {
+  background-color: #ffffff;
+}
+#sidebar-left .sidebar-container .sidebar-header {
+  flex: 0 1 auto;
+}
+#sidebar-left .sidebar-container .sidebar-subheader {
+  flex: 0 1 auto;
+}
+#sidebar-left .sidebar-container .sidebar-item {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+#sidebar-left .sidebar-container > div:nth-child(1) {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
 }
 #sidebar-left #mCSB_2_container_wrapper,
 #sidebar-left #mCSB_2_container {
@@ -79,10 +106,4 @@
 }
 #sidebar-left .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
   background-color: #ff80ab;
-}
-.sidebar-container {
-  background-color: rgba(255, 255, 255, 0.7);
-}
-.sidebar-container:hover {
-  background-color: #ffffff;
 }

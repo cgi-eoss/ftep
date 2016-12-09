@@ -1,19 +1,18 @@
 .ftep {
   height: 100vh;
+  overflow-x: hidden;
   margin: 0px;
-  overflow-y: hidden;
 }
-.ftep .container {
-  margin: 0px;
-  padding: 0px;
+.ftep #portal-container {
+  height: 100%;
+  position: absolute;
+  top: 0;
   width: 100%;
 }
-.ftep .container #explorer-container {
-  overflow: hidden;
+.ftep #portal-container #explorer-container {
+  height: 100%;
   transition: all 0.5s ease;
-}
-.ftep .container #explorer-container #explorer-content {
-  width: 100vw;
+  width: 100%;
 }
 .ftep .icon-disabled {
   color: #BBB;

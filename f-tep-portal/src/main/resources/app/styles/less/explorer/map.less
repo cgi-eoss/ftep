@@ -2,75 +2,79 @@
 @mapbutton-hover: rgba(50, 50, 50, 0.8);
 @coords: rgba(50, 50, 50, 0.8);
 
-#map {
-    position: relative;
-	top: -55px;
-	height: 100vh;
-    z-index: 0;
-    .map-type, .ol-zoom, .box-selection, .polygon-selection, .map-clear, .ol-mouse-position {
-        z-index: 10;
-        position: absolute;
-        left: auto;
-        right: 10px;
-        height: 1.6rem;
-        width: 1.6rem;
-        padding: 0;
-        background-color: none;
-        color: rgba(255,255,255,.8);
-        border-radius: 5px;
-        img {
-            width: 1rem;
-            height: 1rem;
-        }
-        button {
-            &:hover {
-               background-color: @mapbutton-hover;
-            }
-            background-color: @mapbutton;
-            color: rgba(255,255,255,.8);
+#map-container {
+    height: 100%;
+    width: 100%;
+    #map {
+        height: 100%;
+        position: relative;
+        width: 100%;
+        z-index: 0;
+        .map-type, .ol-zoom, .box-selection, .polygon-selection, .map-clear, .ol-mouse-position {
+            z-index: 10;
+            position: absolute;
+            left: auto;
+            right: 10px;
             height: 1.6rem;
             width: 1.6rem;
-            border: none;
+            padding: 0;
+            background-color: none;
+            color: rgba(255,255,255,.8);
             border-radius: 5px;
-            font-size: 1rem;
+            img {
+                width: 1rem;
+                height: 1rem;
+            }
+            button {
+                &:hover {
+                   background-color: @mapbutton-hover;
+                }
+                background-color: @mapbutton;
+                color: rgba(255,255,255,.8);
+                height: 1.6rem;
+                width: 1.6rem;
+                border: none;
+                border-radius: 5px;
+                font-size: 1rem;
+            }
         }
-    }
-    .map-type {
-        top: 70px;
-        background-color: @mapbutton;
-        &:hover {
-            background-color: @mapbutton-hover;
+        .map-type {
+            top: 70px;
+            background-color: @mapbutton;
+            &:hover {
+                background-color: @mapbutton-hover;
+            }
         }
-    }
-    .ol-zoom {
-        top: 110px;
-        button {
-            margin: 4px 0;
+        .ol-zoom {
+            top: 110px;
+            button {
+                margin: 4px 0;
+            }
         }
-    }
-    .box-selection {
-         top: 202px;
-    }
-    .polygon-selection {
-        top: 242px;
-    }
-    .map-clear {
-        top: 286px;
-        background-color: @mapbutton;
-        &:hover {
-            background-color: @mapbutton-hover;
+        .box-selection {
+             top: 202px;
         }
-    }
-    .ol-control {
-        background-color: transparent;
-    }
-    .ol-mouse-position {
-        color: @coords;
-        right: 40px;
-        top: 60px;
-        width: 140px;
-    }
-    .map-control {
-	    height: 1.6rem;
+        .polygon-selection {
+            top: 242px;
+        }
+        .map-clear {
+            top: 286px;
+            background-color: @mapbutton;
+            &:hover {
+                background-color: @mapbutton-hover;
+            }
+        }
+        .ol-control {
+            background-color: transparent;
+        }
+        .ol-mouse-position {
+            color: @coords;
+            right: 40px;
+            top: 60px;
+            width: 140px;
+        }
+        .map-control {
+            height: 1.6rem;
+        }
     }
 }

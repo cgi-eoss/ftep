@@ -1,10 +1,12 @@
 @import "variable";
 #sidebar-left {
+    background-color: transparent;
     height: 100%;
-    margin-left: 44px;
+    padding-left: @sidenav-width;
+    padding-top: @navbar-height;
     position: absolute;
-    min-width: 380px;
-    max-width: 380px;
+    min-width: @sidebar-width;
+    max-width: @sidebar-width;
     z-index: 2;
     form {
         padding-bottom: 30px;
@@ -40,6 +42,7 @@
     }
     md-toolbar {
         background-color: transparent;
+        height: 0;
         .md-toolbar-tools {
             background-color: @brand-light;
             .text-sec();
@@ -55,12 +58,16 @@
     .panel {
         background-color: transparent;
         border: none;
+        box-shadow: none;
         .panel-body {
             padding-right: 20px;
         }
     }
     .scrollme {
-      max-height: 500px;
+        display: flex;
+        flex-flow: column;
+        flex: 1 1 auto;
+
         .ngsb-scrollbar {
             margin-top: 12px;
         }
@@ -70,9 +77,27 @@
             height: 95%;
             width: 4px;
         }
-        .scrollbar-contents {
-            min-height: 420px;
+    }
+    .sidebar-container {
+        height: 100%;
+        .bg-trans(@bg-light);
+        .sidebar-header {
+            flex: 0 1 auto;
         }
+        .sidebar-subheader {
+            flex: 0 1 auto;
+        }
+        .sidebar-item {
+            display: flex;
+            flex-flow: column;
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+    }
+    .sidebar-container > div:nth-child(1) {
+        display: flex;
+        flex-flow: column;
+        height: 100%;
     }
 
     /** Slider Styles **/
@@ -80,13 +105,11 @@
     #mCSB_2_container {
         margin: 0;
         padding: 0;
-        max-width: 380px;
+        max-width: @sidebar-width;
     }
     .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
         background-color: @accent-light;
     }
 }
 
-.sidebar-container {
-   .bg-trans(@bg-light);
-}
+

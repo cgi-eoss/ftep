@@ -15,14 +15,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.resultsPageSize = 0;
                 $scope.resultsTotal = 0;
                 $scope.spinner = GeoService.spinner;
+                $scope.bottombarTab = 'RESULTS';
 
-                $scope.resultTabs = {selected: 0};
                 var selectedResultItems = [];
 
                 $scope.$on('update.geoResults', function(event, results) {
                     $scope.spinner.loading = false;
                     setResults(results);
-                    $scope.resultTabs = {selected: 0};
+                    $scope.bottombarTab = 'RESULTS';
                     selectedResultItems = [];
                 });
 
@@ -143,7 +143,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.selectedDatabasket = undefined;
 
                 $scope.$on('update.databasket', function(event, basket, items) {
-                    $scope.resultTabs.selected = 1;
+                    $scope.bottombarTab = 'DATABASKET';
                     $scope.selectedDatabasket = basket;
                     $scope.selectedDatabasket.items= items;
                 });
@@ -174,7 +174,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             $scope.selectedDatabasket.items.push(jobSelectedOutputs[i]);
                         }
                     }
-                    //$scope.resultTabs.selected = 1;
+                    $scope.bottombarTab = 'DATABASKET';
                 };
 
                 $scope.clearDatabasket = function() {
@@ -198,15 +198,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
 
                 $scope.createNewBasket = function($event){
-                    switch($scope.resultTabs.selected) {
-                        case 0:
+                    switch($scope.bottombarTab) {
+                        case 'RESULTS':
                             $scope.createDatabasketDialog($event, selectedResultItems);
                             break;
-                        case 1:
+                        case 'DATABASKET':
                             var itemsList = $scope.selectedDatabasket ? $scope.selectedDatabasket.items : [];
                             $scope.createDatabasketDialog($event, itemsList);
                             break;
-                        case 2:
+                        case 'JOB':
                             $scope.createDatabasketDialog($event, jobSelectedOutputs);
                             break;
                     }
@@ -233,7 +233,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.$on('select.job', function(event, job) {
                     $scope.selectedJob = job;
-                    $scope.resultTabs.selected = 2;
+                    $scope.bottombarTab = 'JOB';
                     jobSelectedOutputs = [];
                     JobService.getOutputs(job.id).then(function(data){
                         $scope.jobOutputs = data;

@@ -129,7 +129,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             // Set initial selected missions to none
             $scope.selected = [];
             $scope.searchParameters.mission = $scope.selected;
-            $scope.default_mission = "Sentinel-1A";
 
             // Set for displaying error message when no missions are selected
             $scope.missionNotSelected = true;
@@ -205,6 +204,46 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.$broadcast('rebuild:scrollbar');
             };
+
+            /* --- TODO: Remove once radio buttons are replaced with checkboxes --- */
+            $scope.searchform = {};
+            $scope.searchform.selected_mission = "Sentinel-1A";
+            $scope.searchParameters.mission.name = $scope.searchform.selected_mission;
+            $scope.showPolar = true;
+
+            // Display additional parameters based on mission selection
+            $scope.updateMission = function (mission, selected) {
+
+                $scope.searchform.selected_mission = mission.name;
+                $scope.searchParameters.mission.name = mission.name;
+
+                // Set for when to display further parameters
+                var polarValid = true;
+                var coverageValid = true;
+
+                // If no missions are selected display error
+                $scope.missionNotSelected = false;
+
+                // Detect if all missions contain a 1 or 2
+                if ($scope.searchParameters.mission.name.indexOf('1') === -1) {
+                    polarValid = false;
+                } else if ($scope.searchParameters.mission.name.indexOf('2') === -1) {
+                    coverageValid = false;
+                }
+
+                // Display polorisation or coverage parameters based on selection
+                if (polarValid) {
+                    $scope.showPolar = true;
+                    $scope.showCoverage = false;
+                } else if (coverageValid) {
+                    $scope.showCoverage = true;
+                    $scope.showPolar = false;
+                    $scope.refreshSlider();
+                }
+
+                $scope.$broadcast('rebuild:scrollbar');
+            };
+            /* ------------------------- End remove ------------------------------- */
 
             /** ----- COVERAGE ----- **/
 

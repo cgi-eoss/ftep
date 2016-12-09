@@ -1,13 +1,15 @@
 @import "variable";
 #navbar {
     background-color: @bg;
+    height: @navbar-height;
     margin-bottom: 0;
     z-index: 50;
     .navbar-container {
+        height: @navbar-height;
         .navbar-header {
             padding-right: 1rem;
             img {
-                height: 50px;
+                height: @navbar-height;
                 padding: 5px;
             }
         }
@@ -15,7 +17,7 @@
             .nav {
                 height: 100%;
                 li {
-                    height: 50px;
+                    height: @navbar-height;
                     padding: 0 20px;
                     .border(border-right, @bg);
                     p {
@@ -51,4 +53,32 @@
             }
         }
     }
+}
+
+
+/** TODO: Remove after pre-realease **/
+.ribbon-wrapper {
+    height: 88px;
+    overflow: hidden;
+    position: absolute;
+    right: -3px;
+    top: -3px;
+    width: 85px;
+    z-index: 90;
+}
+
+.ribbon {
+    background-color: @accent;
+    background-image: linear-gradient(top, @accent, @accent-dark);
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.3);
+    color: @text-light;
+    font: bold 1rem;
+    left: -5px;
+    padding: 7px 0;
+    position: relative;
+    text-align: center;
+    text-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px;
+    top: 15px;
+    transform: rotate(45deg);
+    width: 120px;
 }

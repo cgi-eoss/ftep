@@ -1,18 +1,17 @@
 @import "variable";
 .ftep {
     height: 100vh;
+    overflow-x: hidden;
     margin: 0px;
-    overflow-y: hidden;
-    .container {
-        margin: 0px;
-        padding: 0px;
+    #portal-container {
+        height: 100%;
+        position: absolute;
+        top: 0;
         width: 100%;
         #explorer-container {
-            overflow: hidden;
+            height: 100%;
             transition: all 0.5s ease;
-            #explorer-content {
-                width: 100vw;
-            }
+            width: 100%;
         }
     }
     .icon-disabled {

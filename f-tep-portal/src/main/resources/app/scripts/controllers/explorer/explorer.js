@@ -9,7 +9,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
   'use strict';
 
   ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog) {
-
     /** BOTTOM BAR **/
 
     $scope.resultsMenuVisible = false;

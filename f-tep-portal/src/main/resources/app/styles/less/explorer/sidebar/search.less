@@ -1,5 +1,9 @@
 @import "variable";
 #search-panel {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    margin: 0;
     .datasources {
         padding-top: 0;
     }
@@ -7,16 +11,26 @@
         max-width: 100%;
     }
     .md-toolbar-tools {
-        .material-icons {
-            color: @text-light;
-        }
-        .md-button.md-icon-button {
+        height: 2.5rem;
+        #searchButton {
             background-color: @accent-light;
+            height: 2rem;
+            margin: 0;
+            min-height: 0;
             padding: 0;
+            width: 2rem;
+            .material-icons {
+                color: @text-light;
+                font-size: 1.5rem;
+                height: 100%;
+                line-height: 2rem;
+                width: 100%;
+            }
             &:hover {
                 background-color: @accent;
             }
         }
+
         .btn-success:focus {
             background-color: @ok;
         }
@@ -26,8 +40,5 @@
         .btn-success[disabled]:hover {
             background-color: @error !important;
         }
-    }
-    #search-row {
-        margin-top: 10px;
     }
 }

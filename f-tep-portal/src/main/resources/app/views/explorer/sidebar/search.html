@@ -13,7 +13,8 @@
                            type="submit"
                            form="searchForm"
                            ng-disabled="searchForm.$invalid"
-                           aria-label="Search">
+                           aria-label="Search"
+                           ng-click="openResultsMenu(); toggleSidebar('services')">
                     <i class="material-icons">search</i>
                 </md-button>
             </div>

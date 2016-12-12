@@ -40,7 +40,7 @@
                         <li class="list-item"
                             ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
                             ng-if="filteredServiceTypes.indexOf(service.attributes.kind) > -1"
-                            ng-click="selectService(service)">
+                            ng-click="selectService(service); toggleSidebar('workspace')">
 
                             <div class="row">
                                 <div class="col-md-8">

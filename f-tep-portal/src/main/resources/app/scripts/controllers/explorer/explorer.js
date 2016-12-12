@@ -13,6 +13,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     $scope.resultsMenuVisible = false;
 
+    $scope.openResultsMenu = function(){
+        $scope.resultsMenuVisible = true;
+        $scope.$broadcast('rebuild:scrollbar');
+    };
+
     $scope.toggleResultsMenu = function(){
         $scope.resultsMenuVisible = !$scope.resultsMenuVisible;
         $scope.$broadcast('rebuild:scrollbar');

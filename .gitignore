@@ -6,7 +6,7 @@ distribution/puppet/hieradata/standalone.local.yaml
 distribution/puppet/modules/
 init.gradle
 
-f-tep-portal/src/assets/vendor/
+f-tep-portal/src/main/resources/app/scripts/vendor/
 f-tep-portal/src/main/resources/bower_components
 f-tep-portal/src/main/resources/node_modules
 f-tep-portal/src/main/resources/.tmp

@@ -824,6 +824,7 @@ ul[dnd-list] > li {
       flex-flow: column;
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
+  padding-top: 0.5rem;
 }
 #sidebar-left .scrollme .ngsb-scrollbar {
   margin-top: 12px;
@@ -958,6 +959,7 @@ ul[dnd-list] > li {
   padding: 0;
 }
 #sidenav #explorer-nav-wrapper .explorer-nav li {
+  cursor: pointer;
   display: block;
   font-size: 1rem;
   padding: 10px;
@@ -1233,6 +1235,7 @@ pre {
   height: 100%;
 }
 #navbar .navbar-container .navbar-contents .nav li {
+  cursor: pointer;
   height: 50px;
   padding: 0 20px;
   border-right: #d2d2d2 solid 1px;

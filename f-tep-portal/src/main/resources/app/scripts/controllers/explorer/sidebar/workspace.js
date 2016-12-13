@@ -129,11 +129,6 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             $scope.info = text;
         }
 
-        $scope.removeSelectedItem = function (field, item){
-            var index = field.list.indexOf(item);
-            field.list.splice(index, 1);
-        };
-
         $scope.getShortName = function(label){
             var from = (label.length - 8 > 0) ? label.length - 8: 0;
             var str = label.substr(from);

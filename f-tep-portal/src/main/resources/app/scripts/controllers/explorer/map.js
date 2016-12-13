@@ -413,33 +413,35 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.$on('update.geoResults', function(event, results) {
             $scope.map.removeLayer(resultsLayer);
             var featureItems = [];
-            for(var folderNr = 0; folderNr < results.length; folderNr++){
-                var isLONLAT = true;
-                if(results[folderNr].datasource == 'CEDA2'){
-                    isLONLAT = false;
-                }
-                if(results[folderNr].results && results[folderNr].results.entities){
-                    for(var i = 0; i < results[folderNr].results.entities.length; i++){
-                        var item = results[folderNr].results.entities[i];
-                        console.log('Geometry type: ', item.geo.type);
-                        var lonlatPoints = [];
-                        for(var k = 0; k < item.geo.coordinates.length; k++){
-                            for(var m = 0; m < item.geo.coordinates[k].length; m++){
-                                var p = item.geo.coordinates[k][m];
-                                if(isLONLAT === false){
-                                    p = p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
+            if(results){
+                for(var folderNr = 0; folderNr < results.length; folderNr++){
+                    var isLONLAT = true;
+                    if(results[folderNr].datasource == 'CEDA2'){
+                        isLONLAT = false;
+                    }
+                    if(results[folderNr].results && results[folderNr].results.entities){
+                        for(var i = 0; i < results[folderNr].results.entities.length; i++){
+                            var item = results[folderNr].results.entities[i];
+                            console.log('Geometry type: ', item.geo.type);
+                            var lonlatPoints = [];
+                            for(var k = 0; k < item.geo.coordinates.length; k++){
+                                for(var m = 0; m < item.geo.coordinates[k].length; m++){
+                                    var p = item.geo.coordinates[k][m];
+                                    if(isLONLAT === false){
+                                        p = p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
+                                    }
+                                    lonlatPoints.push(p);
                                 }
-                                lonlatPoints.push(p);
                             }
+                            var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform('EPSG:4326', 'EPSG:3857');
+
+                            var resultItem =  new ol.Feature({
+                                geometry: pol,
+                                data: item
+                            });
+
+                            featureItems.push(resultItem);
                         }
-                        var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform('EPSG:4326', 'EPSG:3857');
-
-                        var resultItem =  new ol.Feature({
-                            geometry: pol,
-                            data: item
-                        });
-
-                        featureItems.push(resultItem);
                     }
                 }
             }

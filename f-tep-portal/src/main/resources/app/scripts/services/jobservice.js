@@ -104,7 +104,7 @@ define(['../ftepmodules'], function (ftepmodules) {
           this.getOutputs = function(jobId){
               var deferred = $q.defer();
 
-              http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
+              $http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){

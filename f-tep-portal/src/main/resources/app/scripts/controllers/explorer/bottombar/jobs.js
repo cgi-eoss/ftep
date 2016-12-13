@@ -13,7 +13,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.jobStatuses = [
                 {
-                    name: "Complete",
+                    name: "Succeeded",
                     value: true
                 }, {
                     name: "Failed",

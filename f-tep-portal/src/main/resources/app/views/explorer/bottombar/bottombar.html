@@ -25,11 +25,11 @@
     <section ng-if="bottombarTab == 'RESULTS'">
 
         <div class="col-xs-4 button-section">
-                <paging page="resultsCurrentPage"
-                        page-size="resultsPageSize"
-                        total="resultsTotal"
-                        show-first-last="true"
-                        paging-action="fetchResultsPage(page)">
+                <paging page="resultPaging.currentPage"
+                    page-size="resultPaging.pageSize"
+                    total="resultPaging.total"
+                    show-first-last="true"
+                    paging-action="fetchResultsPage(page)">
                 </paging>
         </div>
 

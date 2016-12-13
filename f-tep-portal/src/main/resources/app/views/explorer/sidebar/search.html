@@ -93,38 +93,6 @@
                 <div class="col-xs-1" />
             </div>
 
-        <!-- TODO: Uncomment to replace radio buttons for checkboxes to allow multiple mission searches -->
-        <!--<div class="row">
-                <div class="col-xs-6">
-                    <md-subheader class="md-accent md-subheader-title">Select a mission</md-subheader>
-                </div>
-                <div class="col-xs-6"  ng-show="missionNotSelected">
-                    <md-subheader class="error-text">No mission selected!</md-subheader>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <md-checkbox aria-label="Select All"
-                                 ng-checked="isChecked()"
-                                 md-indeterminate="isIndeterminate()"
-                                 ng-click="toggleAll(); updateMissionParameters()">
-                        <span ng-if="isChecked()">Des</span><span ng-if="!isChecked()">S</span>elect All
-                    </md-checkbox>
-                </div>
-            </div>
-
-            <div class="row">
-               <div class="col-xs-6" ng-repeat="mission in missions" ng-required="true">
-                    <md-checkbox ng-checked="exists(mission, selected)"
-                                 ng-click="toggle(mission, selected); updateMissionParameters()"
-                                 ng-required="missionValidator()">
-                       {{mission.name}}
-                    </md-checkbox>
-                </div>
-            </div> -->
-
-            <!-- TODO: Remove when ready to replace radio buttons with checkboxes -->
             <div class="row">
                 <div class="col-xs-6">
                     <md-subheader class="md-accent md-subheader-title">Select a mission</md-subheader>
@@ -132,12 +100,11 @@
             </div>
 
             <div class="row">
-                <md-radio-group ng-model="searchform.selected_mission">
+                <md-radio-group ng-model="searchParameters.mission">
                     <div class="col-xs-6" ng-repeat="mission in missions">
                         <md-radio-button ng-required="missionValidator()"
-                                         ng-click="updateMission(mission, selected)"
-                                         ng-model="mission.name"
-                                         value="{{mission.name}}"
+                                         ng-click="updateMissionParameters(mission)"
+                                         ng-value="mission"
                                          aria-label="{{mission.name}}">
                             {{mission.name}}
                         </md-radio-button>
@@ -146,7 +113,7 @@
             </div>
             <!-- End remove  -->
 
-            <div class="polarisation-container" ng-show="showPolar">
+            <div class="polarisation-container" ng-show="missionDetails.showPolar">
 
                 <div class="row">
                     <md-subheader class="md-accent">Polarisation</md-subheader>
@@ -162,7 +129,7 @@
 
             </div>
 
-            <div class="coverage-container" ng-show="showCoverage">
+            <div class="coverage-container" ng-show="missionDetails.showCoverage">
 
                 <div class="row">
                     <md-subheader class="md-accent">Datasource</md-subheader>

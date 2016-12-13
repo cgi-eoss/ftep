@@ -125,125 +125,43 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
 
             /** ----- MISSIONS ----- **/
-
-            // Set initial selected missions to none
-            $scope.selected = [];
-            $scope.searchParameters.mission = $scope.selected;
-
-            // Set for displaying error message when no missions are selected
-            $scope.missionNotSelected = true;
-
-            // Toggle checkbox when selected
-            $scope.toggle = function (item, list) {
-                var idx = list.indexOf(item);
-                if (idx > -1) {
-                    list.splice(idx, 1);
-                } else {
-                    list.push(item);
-                }
-            };
-
-            // Sets the check attribute
-            $scope.exists = function (item, list) {
-                return list.indexOf(item) > -1;
-            };
-
-            // Toggle all checkboxes when selected
-            $scope.toggleAll = function () {
-                if ($scope.selected.length === $scope.missions.length) {
-                    $scope.selected = [];
-                } else {
-                    $scope.selected = $scope.missions.slice(0);
-                }
-                $scope.searchParameters.mission = $scope.selected;
-            };
-
-            // Set select all value when not all or none
-            $scope.isIndeterminate = function () {
-                return ($scope.selected.length !== 0 && $scope.selected.length !== $scope.missions.length);
-            };
-
-            // Detect if all are selected to display correct message
-            $scope.isChecked = function () {
-                return $scope.selected.length === $scope.missions.length;
-            };
+            // Set the first mission as default
+            $scope.searchParameters.mission = $scope.missions[0];
 
             // Display additional parameters based on mission selection
-            $scope.updateMissionParameters = function () {
+            $scope.missionDetails = {showPolar: isSentinel1($scope.searchParameters.mission),
+                        showCoverage: isSentinel2($scope.searchParameters.mission)};
 
-                // Set for when to display further parameters
-                var polarValid = true;
-                var coverageValid = true;
-
-                // If no missions are selected display error
-                if ($scope.selected.length > 0) {
-                    $scope.missionNotSelected = false;
-                } else {
-                    $scope.missionNotSelected = true;
-                }
-
-                // Detect if all missions contain a 1 or 2
-                $scope.searchParameters.mission.forEach(function (mission) {
-                    if (mission.name.indexOf('1') === -1) {
-                        polarValid = false;
-                    } else if (mission.name.indexOf('2') === -1) {
-                        coverageValid = false;
-                    }
-                });
-
+            $scope.updateMissionParameters = function (mission) {
                 // Display polorisation or coverage parameters based on selection
-                if (polarValid && $scope.searchParameters.mission.length > 0) {
-                    $scope.showPolar = true;
-                } else if (coverageValid && $scope.searchParameters.mission.length > 0) {
-                    $scope.showCoverage = true;
-                    $scope.refreshSlider();
+                if (isSentinel1(mission)) {
+                    $scope.missionDetails.showPolar = true;
+                    $scope.missionDetails.showCoverage = false;
                 } else {
-                    $scope.showPolar = false;
-                    $scope.showCoverage = false;
+                    $scope.missionDetails.showPolar = false;
+                    $scope.missionDetails.showCoverage = true;
+                    $scope.refreshSlider();
                 }
-
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
-            /* --- TODO: Remove once radio buttons are replaced with checkboxes --- */
-            $scope.searchform = {};
-            $scope.searchform.selected_mission = "Sentinel-1A";
-            $scope.searchParameters.mission.name = $scope.searchform.selected_mission;
-            $scope.showPolar = true;
-
-            // Display additional parameters based on mission selection
-            $scope.updateMission = function (mission, selected) {
-
-                $scope.searchform.selected_mission = mission.name;
-                $scope.searchParameters.mission.name = mission.name;
-
-                // Set for when to display further parameters
-                var polarValid = true;
-                var coverageValid = true;
-
-                // If no missions are selected display error
-                $scope.missionNotSelected = false;
-
-                // Detect if all missions contain a 1 or 2
-                if ($scope.searchParameters.mission.name.indexOf('1') === -1) {
-                    polarValid = false;
-                } else if ($scope.searchParameters.mission.name.indexOf('2') === -1) {
-                    coverageValid = false;
+            function isSentinel1(mission){
+                if(mission && mission.name){
+                    return mission.name.indexOf('1') > -1 ? true : false;
                 }
-
-                // Display polorisation or coverage parameters based on selection
-                if (polarValid) {
-                    $scope.showPolar = true;
-                    $scope.showCoverage = false;
-                } else if (coverageValid) {
-                    $scope.showCoverage = true;
-                    $scope.showPolar = false;
-                    $scope.refreshSlider();
+                else {
+                    return false;
                 }
+            }
 
-                $scope.$broadcast('rebuild:scrollbar');
-            };
-            /* ------------------------- End remove ------------------------------- */
+            function isSentinel2(mission){
+                if(mission && mission.name){
+                    return mission.name.indexOf('2') > -1 ? true : false;
+                }
+                else{
+                    return false;
+                }
+            }
 
             /** ----- COVERAGE ----- **/
 

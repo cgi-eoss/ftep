@@ -2,23 +2,9 @@
 
     <md-toolbar md-scroll-shrink class="sidebar-subheader">
         <div class="md-toolbar-tools">
-
-            <div class="col-xs-10 no-padding">
+            <div class="col-xs-12 no-padding">
                 <span>Search</span>
             </div>
-            <div class="col-xs-2 no-padding">
-                <md-button id="searchButton"
-                           class="md-icon-button md-fab md-mini btn-success"
-                           ng-show="!showDataSources"
-                           type="submit"
-                           form="searchForm"
-                           ng-disabled="searchForm.$invalid"
-                           aria-label="Search"
-                           ng-click="openResultsMenu(); toggleSidebar('services')">
-                    <i class="material-icons">search</i>
-                </md-button>
-            </div>
-
         </div>
     </md-toolbar>
 
@@ -209,6 +195,17 @@
             </div>
 
         </form>
+
+        <md-button id="searchButton"
+                           class="md-icon-button md-fab md-mini btn-success"
+                           ng-show="!showDataSources"
+                           type="submit"
+                           form="searchForm"
+                           ng-disabled="searchForm.$invalid"
+                           aria-label="Search"
+                           ng-click="openResultsMenu(); toggleSidebar('services')">
+                    <i class="material-icons">search</i>
+        </md-button>
 
     </div>
 

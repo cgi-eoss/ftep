@@ -46,6 +46,8 @@ dependencies {
     testCompile deps.googleHttpClient
     testCompile deps.junit
     testCompile deps.testContainers
+    testCompile deps.testContainersSelenium
+    testCompile deps.selenium
 
     testRuntime deps.logbackClassic
 }

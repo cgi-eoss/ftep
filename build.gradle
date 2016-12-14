@@ -56,6 +56,7 @@ def depVersions = [
         mockito          : '2.2.26',
         protoc           : '3.1.0-build2',
         querydsl         : '4.1.4',
+        selenium         : '2.53.1',
         slf4j            : '1.7.21',
         springFramework  : '4.3.4.RELEASE',
         springDataCommons: '1.12.5.RELEASE',
@@ -110,8 +111,10 @@ ext.deps = [
         hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
         mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,
         junit                  : 'junit:junit:' + depVersions.junit,
+        selenium               : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
         springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
-        testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers
+        testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers,
+        testContainersSelenium : 'org.testcontainers:selenium:' + depVersions.testContainers
 ]
 
 static def getRpmVersion(version) {

@@ -5,6 +5,8 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import cucumber.api.java8.En;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.shaded.com.google.common.io.ByteStreams;
 
@@ -20,7 +22,10 @@ import static org.junit.Assert.assertThat;
 /**
  */
 public class WpsStepdefs implements En {
+
     private DockerComposeContainer environment;
+
+    private BrowserWebDriverContainer browser;
 
     private final HttpRequestFactory httpRequestFactory = new NetHttpTransport().createRequestFactory();
 
@@ -31,6 +36,8 @@ public class WpsStepdefs implements En {
             environment = new DockerComposeContainer(Paths.get(System.getProperty("HARNESS_DIR"), "docker-compose.yml").toFile())
                     .withExposedService("backend_1", 80);
             environment.starting(null);
+
+            browser = new BrowserWebDriverContainer().withDesiredCapabilities(DesiredCapabilities.chrome());
         });
 
         When("^a user requests GetCapabilities from WPS$", () -> {
@@ -48,7 +55,7 @@ public class WpsStepdefs implements En {
     }
 
     private String getResponseContent(HttpResponse response) {
-        try(InputStream is = response.getContent()) {
+        try (InputStream is = response.getContent()) {
             return new String(ByteStreams.toByteArray(is));
         } catch (Exception e) {
             throw new RuntimeException(e);

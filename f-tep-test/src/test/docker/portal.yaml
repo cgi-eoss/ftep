@@ -2,4 +2,3 @@
 ---
 classes:
   - ftep::db
-  - ftep::portal

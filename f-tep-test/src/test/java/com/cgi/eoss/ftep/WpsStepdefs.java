@@ -35,6 +35,7 @@ public class WpsStepdefs implements En {
         Given("^the F-TEP backend$", () -> {
             environment = new DockerComposeContainer(Paths.get(System.getProperty("HARNESS_DIR"), "docker-compose.yml").toFile())
                     .withExposedService("backend_1", 80);
+            propagateEnvironment(environment, "http_proxy", "https_proxy", "no_proxy");
             environment.starting(null);
 
             browser = new BrowserWebDriverContainer().withDesiredCapabilities(DesiredCapabilities.chrome());
@@ -52,6 +53,14 @@ public class WpsStepdefs implements En {
                     containsString("<ows:Identifier>QGIS</ows:Identifier>")
             ));
         });
+    }
+
+    private void propagateEnvironment(DockerComposeContainer container, String... environmentVariables) {
+        for (String var : environmentVariables) {
+            if (System.getenv().containsKey(var)) {
+                container.withEnv(var, System.getenv(var));
+            }
+        }
     }
 
     private String getResponseContent(HttpResponse response) {

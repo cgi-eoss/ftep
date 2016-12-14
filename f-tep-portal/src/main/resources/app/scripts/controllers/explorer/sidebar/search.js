@@ -15,7 +15,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             /** ----- DATA ----- **/
 
             $scope.dataSources = GeoService.dataSources;
-            $scope.selectedSource = GeoService.selectedSource;
+            $scope.selectedValues = GeoService.selectedValues;
             $scope.missions = GeoService.missions;
             $scope.polarisations = GeoService.polarisations;
 
@@ -30,7 +30,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             // Hide datasources and show search form.
             $scope.selectDataSource = function (dataSource) {
                 $scope.showDataSources = false;
-                $scope.selectedSource = dataSource;
+                $scope.selectedValues.datasource = dataSource;
                 $scope.$broadcast('rebuild:scrollbar');
             };
 

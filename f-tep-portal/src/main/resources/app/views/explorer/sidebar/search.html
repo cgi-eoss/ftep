@@ -17,8 +17,7 @@
         <md-list id="datasource-list" class="datasources" ng-show="showDataSources">
             <md-list-item class="md-2-line"
                           ng-repeat="datasource in dataSources"
-                          ng-click="selectDataSource(datasource); refreshSlider()"
-                          ng-value="datasource.id">
+                          ng-click="selectDataSource(datasource); refreshSlider()">
                 <md-icon class="material-icons md-24">{{datasource.icon}}</md-icon>
                 <div class="md-list-item-text">
                     <h3>{{datasource.name}}</h3>
@@ -29,11 +28,11 @@
         </md-list>
 
         <md-list id="active-datasource" class="datasources" ng-show="!showDataSources">
-            <md-list-item class="md-2-line" ng-click="null" ng-value="{{selectedSource.id}}">
-                <md-icon class="material-icons md-24">{{selectedSource.icon}}</md-icon>
+            <md-list-item class="md-2-line" ng-click="null" ng-value="{{selectedValues.datasource.id}}">
+                <md-icon class="material-icons md-24">{{selectedValues.datasource.icon}}</md-icon>
                 <div class="md-list-item-text">
-                    <h3>{{selectedSource.name}}</h3>
-                    <p>{{selectedSource.description}}</p>
+                    <h3>{{selectedValues.datasource.name}}</h3>
+                    <p>{{selectedValues.datasource.description}}</p>
                 </div>
                 <md-button class="md-icon-button" ng-click="closeDataSource()">
                     <md-icon class="md-default-theme material-icons" >close</md-icon>

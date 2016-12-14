@@ -234,6 +234,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     jobSelectedOutputs = [];
                     JobService.getOutputs(job.id).then(function(data){
                         $scope.jobOutputs = data;
+                        $rootScope.$broadcast('show.products', job.id, data);
                     });
 
                     $scope.$broadcast('rebuild:scrollbar');

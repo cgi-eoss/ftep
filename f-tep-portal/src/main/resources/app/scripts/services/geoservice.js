@@ -53,8 +53,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                     endDate: end,
                     startPage: this.parameters.pageNumber,
                     maximumRecords: ITEMS_PER_PAGE,
-                    sat: this.dataSources[0].id === this.selectedSource.value,
-                    tep: this.dataSources[1].id === this.selectedSource.value,
+                    sat: this.dataSources[0].id === this.selectedValues.datasource.id,
+                    tep: this.dataSources[1].id === this.selectedValues.datasource.id,
                     ref: false
             }; //TODO ref data
 
@@ -119,8 +119,8 @@ define(['../ftepmodules'], function (ftepmodules) {
             }
         ];
 
-        this.selectedSource = {
-            value: 1
+        this.selectedValues = {
+            datasource: {id: 1}
         };
 
         this.missions = [

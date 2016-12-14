@@ -43,7 +43,7 @@ public class VegetationIndices extends AbstractWrapperProc {
     public static final String RESULT_GEOTIFF_FILE_PATTERN = "*.tif";
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static int Sentinel2Ndvi(HashMap conf, HashMap inputs, HashMap outputs) {
+    public static int VegetationIndices(HashMap conf, HashMap inputs, HashMap outputs) {
 
         VegetationIndices processor = new VegetationIndices(DOCKER_IMAGE_NAME);
         RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);

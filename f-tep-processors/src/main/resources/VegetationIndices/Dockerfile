@@ -4,6 +4,7 @@ MAINTAINER Forestry TEP
 
 # Dependencies
 RUN apt-get update && apt-get install -y\
+ bc\
  curl\
  libfreetype6\
  python\

@@ -19,26 +19,10 @@
             <bandNamePattern/>
         </parameters>
     </node>
-    <node id="Resample">
-        <operator>Resample</operator>
-        <sources>
-            <sourceProduct refid="BandSelect"/>
-        </sources>
-        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <referenceBand/>
-            <targetWidth/>
-            <targetHeight/>
-            <targetResolution>$targetResolution</targetResolution>
-            <upsampling>Nearest</upsampling>
-            <downsampling>First</downsampling>
-            <flagDownsampling>First</flagDownsampling>
-            <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
-        </parameters>
-    </node>
     <node id="Subset">
         <operator>Subset</operator>
         <sources>
-            <sourceProduct refid="Resample"/>
+            <sourceProduct refid="BandSelect"/>
         </sources>
         <parameters
                 class="com.bc.ceres.binding.dom.XppDomElement">

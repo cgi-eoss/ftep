@@ -80,7 +80,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.filteredJobStatuses = [];
             $scope.filterJobs = function () {
-                //TODO another query?
                 $scope.filteredJobStatuses = [];
                 for (var i = 0; i < $scope.jobStatuses.length; i++) {
                     if ($scope.jobStatuses[i].value === true) {

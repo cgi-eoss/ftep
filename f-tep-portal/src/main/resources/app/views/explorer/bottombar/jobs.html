@@ -34,7 +34,7 @@
 
             </div>
 
-            <div class="row job-checkboxes" ng-show="displayFilters">
+            <div class="row filter-checkboxes" ng-show="displayFilters">
                 <div class="col-lg-4 col-md-12 check-container" ng-click="filterJobs()" ng-repeat="jobStatus in jobStatuses">
                     <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter"/>
                     <span ng-click="jobStatus.value = !jobStatus.value">{{jobStatus.name}}</span>
@@ -44,7 +44,7 @@
         </ul>
     </section>
 
-    <section class="jobs-list">
+    <section class="item-list">
         <ul class="list" ng-repeat="service in jobServices">
 
             <div class="row no-margin list-group">

@@ -42,6 +42,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.services = data;
             });
 
+            $scope.toggleFilters = function () {
+                $scope.displayFilters = !$scope.displayFilters;
+                $scope.$broadcast('rebuild:scrollbar');
+            };
 
             $scope.filteredServiceTypes = [];
             $scope.filterServices = function () {
@@ -58,6 +62,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.serviceSearch = {
                 searchText: ''
             };
+
             $scope.serviceQuickSearch = function (item) {
                 if (item.attributes.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1 || item.attributes.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1) {
                     return true;
@@ -70,8 +75,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.getShortDesc = function (desc) {
-                if (desc && desc.length > 41) {
-                    return desc.substring(0, 41).concat('..');
+                if (desc && desc.length > 60) {
+                    return desc.substring(0, 60).concat('..');
                 }
                 return desc;
             };
@@ -80,23 +85,28 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.getServicePopover = function (service) {
 
-                var html = '<p class="raiting">' + $scope.getRating(service.attributes.rating) + '</p>' +
-                    '<div class="metadata"><div class="row">' +
-                    '<div class="col-sm-4">Name:</div>' +
-                    '<div class="col-sm-8">' + service.attributes.name + '</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-sm-4">Description:</div>' +
-                    '<div class="col-sm-8">' + service.attributes.description + '</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-sm-4">Type:</div>' +
-                    '<div class="col-sm-8">' + service.attributes.kind + '</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                    '<div class="col-sm-4">License:</div>' +
-                    '<div class="col-sm-8">' + service.attributes.license + '</div>' +
-                    '</div>' +
+                var html =
+                    '<div class="metadata">' +
+                        '<div class="row">' +
+                            '<div class="col-sm-4">Rating:</div>' +
+                            '<div class="col-sm-8">' + $scope.getRating(service.attributes.rating) + '</div>' +
+                        '</div>' +
+                        '<div class="row">' +
+                            '<div class="col-sm-4">Name:</div>' +
+                            '<div class="col-sm-8">' + service.attributes.name + '</div>' +
+                        '</div>' +
+                        '<div class="row">' +
+                            '<div class="col-sm-4">Description:</div>' +
+                            '<div class="col-sm-8">' + service.attributes.description + '</div>' +
+                        '</div>' +
+                        '<div class="row">' +
+                            '<div class="col-sm-4">Type:</div>' +
+                            '<div class="col-sm-8">' + service.attributes.kind + '</div>' +
+                        '</div>' +
+                        '<div class="row">' +
+                            '<div class="col-sm-4">License:</div>' +
+                            '<div class="col-sm-8">' + service.attributes.license + '</div>' +
+                        '</div>' +
                     '</div>';
                 return popover[html] || (popover[html] = $sce.trustAsHtml(html));
             };
@@ -105,9 +115,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 var stars = '';
                 for (var i = 0; i < 5; i++) {
                     if (rating > i) {
-                        stars = stars + '<img src="images/star_filled.png" class="raiting-star"/>';
+                        stars = stars + '<i class="material-icons star-full">star</i>';
                     } else {
-                        stars = stars + '<img src="images/star_lined.png" class="raiting-star"/>';
+                        stars = stars + '<i class="material-icons star-empty">star_border</i>';
                     }
                 }
                 return stars;

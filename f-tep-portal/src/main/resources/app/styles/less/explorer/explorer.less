@@ -19,6 +19,7 @@
         cursor: default;
         filter: opacity(20%);
     }
+    .md-errors-spacer:empty { display: none; }
     .note {
         background-color: lighten(@error, 30%);
         border: solid 1px @error;
@@ -64,5 +65,59 @@
         padding: 6px;
         position: absolute;
         width: 100%;
+    }
+    .filter-list {
+        .filter-list-title {
+            color: @accent;
+        }
+        .filter-checkboxes {
+            margin: 0;
+            padding: 10px;
+            width: 100%;
+            .check-container {
+                padding: 4px 0;
+            }
+            div:focus {
+                outline: none;
+                border: 0;
+            }
+            md-checkbox {
+                margin: 0;
+            }
+        }
+    }
+    .item-list {
+        md-list-item {
+            .md-avatar {
+                .material-icons {
+                    text-align: center;
+                    width: 100%;
+                }
+            }
+            .toolbar-button {
+                padding: 0 0.25rem;
+            }
+            &:hover {
+                .toolbar-button {
+                    color: @accent;
+                }
+            }
+        }
+    }
+    .list {
+        margin: 0;
+        padding: 0;
+        .list-group {
+            font-size: 0.8rem;
+            cursor: pointer;
+            .border(border-bottom, @bg);
+            .expander, label {
+                margin: 0;
+                padding: 0.25rem 0;
+            }
+            &:hover {
+                background-color: @light-gray;
+            }
+        }
     }
 }

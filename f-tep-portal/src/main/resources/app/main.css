@@ -256,51 +256,6 @@ input {
       flex: 1 1 auto;
   height: 100%;
 }
-#jobs .filter-list .filter-list-title {
-  color: #ff4081;
-}
-#jobs .filter-list .job-checkboxes {
-  margin: 0;
-  padding: 10px;
-  width: 100%;
-}
-#jobs .filter-list .job-checkboxes .check-container {
-  padding: 4px 0;
-}
-#jobs .filter-list .job-checkboxes div:focus {
-  outline: none;
-  border: 0;
-}
-#jobs .filter-list .job-checkboxes md-checkbox {
-  margin: 0;
-}
-#jobs .jobs-list md-list-item .md-avatar .material-icons {
-  text-align: center;
-  width: 100%;
-}
-#jobs .jobs-list md-list-item .toolbar-button {
-  padding: 0 0.25rem;
-}
-#jobs .jobs-list md-list-item:hover .toolbar-button {
-  color: #ff4081;
-}
-#jobs .list {
-  margin: 0;
-  padding: 0;
-}
-#jobs .list .list-group {
-  font-size: 0.8rem;
-  cursor: pointer;
-  border-bottom: #d2d2d2 solid 1px;
-}
-#jobs .list .list-group .expander,
-#jobs .list .list-group label {
-  margin: 0;
-  padding: 0.25rem 0;
-}
-#jobs .list .list-group:hover {
-  background-color: lightgray;
-}
 
 .metadata-info-button {
   cursor: pointer;
@@ -437,6 +392,9 @@ ul[dnd-list] > li {
   cursor: default;
   filter: opacity(20%);
 }
+.ftep .md-errors-spacer:empty {
+  display: none;
+}
 .ftep .note {
   background-color: #ffffff;
   border: solid 1px #f2dede;
@@ -483,6 +441,51 @@ ul[dnd-list] > li {
 }
 .ftep .warnings:hover {
   background-color: #ffffff;
+}
+.ftep .filter-list .filter-list-title {
+  color: #ff4081;
+}
+.ftep .filter-list .filter-checkboxes {
+  margin: 0;
+  padding: 10px;
+  width: 100%;
+}
+.ftep .filter-list .filter-checkboxes .check-container {
+  padding: 4px 0;
+}
+.ftep .filter-list .filter-checkboxes div:focus {
+  outline: none;
+  border: 0;
+}
+.ftep .filter-list .filter-checkboxes md-checkbox {
+  margin: 0;
+}
+.ftep .item-list md-list-item .md-avatar .material-icons {
+  text-align: center;
+  width: 100%;
+}
+.ftep .item-list md-list-item .toolbar-button {
+  padding: 0 0.25rem;
+}
+.ftep .item-list md-list-item:hover .toolbar-button {
+  color: #ff4081;
+}
+.ftep .list {
+  margin: 0;
+  padding: 0;
+}
+.ftep .list .list-group {
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: #d2d2d2 solid 1px;
+}
+.ftep .list .list-group .expander,
+.ftep .list .list-group label {
+  margin: 0;
+  padding: 0.25rem 0;
+}
+.ftep .list .list-group:hover {
+  background-color: lightgray;
 }
 
 #map-container {
@@ -745,27 +748,20 @@ ul[dnd-list] > li {
   color: #a94442 !important;
 }
 
-#services-accordion .input-group {
-  margin-bottom: 12px;
+#services .item-list h3 {
+  font-size: 0.8rem;
 }
-.services-content {
-  height: 65vh;
-  overflow-y: scroll;
+#services .item-list p {
+  font-size: 0.5rem;
 }
-#services-list md-list-item:HOVER {
-  cursor: pointer;
-  background-color: #f0f0f0;
+#services .item-list .toolbar-button .material-icons {
+  font-size: 1rem;
 }
-.product-item {
-  word-wrap: break-word;
+#services .item-list .material-icons {
+  font-size: 0.8rem;
 }
-.rating {
-  cursor: default;
-  float: right;
-}
-.rating img {
-  height: 12px;
-  width: 12px;
+.star-full {
+  color: #ffd600;
 }
 
 #sidebar-left {

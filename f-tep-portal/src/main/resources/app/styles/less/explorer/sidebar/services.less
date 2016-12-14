@@ -1,28 +1,25 @@
-#services-accordion .input-group {
-	margin-bottom: 12px;
+@import "variable";
+
+#services {
+    .item-list {
+        h3 {
+            font-size: 0.8rem;
+        }
+        p {
+            font-size: 0.5rem;
+        }
+        .toolbar-button {
+            .material-icons {
+                font-size: 1rem;
+            }
+        }
+        .material-icons {
+            font-size: 0.8rem;
+        }
+
+    }
+
 }
-
-.services-content {
-    height: 65vh;
-    overflow-y : scroll;
-}
-
-#services-list md-list-item:HOVER {
-    cursor: pointer;
-    background-color: #f0f0f0;
-}
-
-.product-item {
-    word-wrap: break-word;
-}
-
-
-.rating {
-    cursor: default;
-    float: right;
-}
-
-.rating img {
-    height: 12px;
-    width: 12px;
+.star-full {
+        color: @star-color;
 }

@@ -2,6 +2,7 @@ group 'com.cgi.eoss.f-tep'
 version '0.2.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 dependencies {
     compileOnly deps.lombok
@@ -17,4 +18,10 @@ dependencies {
     testCompile deps.jimfs
     testCompile deps.junit
     testCompile deps.mockito
+}
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "src/main/java/org/zoo_project/ZOO.java"
+    }
 }

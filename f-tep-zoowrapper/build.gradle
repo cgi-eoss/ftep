@@ -2,6 +2,7 @@ group 'com.cgi.eoss.f-tep'
 version '0.2.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 dependencies {
     compileOnly deps.lombok

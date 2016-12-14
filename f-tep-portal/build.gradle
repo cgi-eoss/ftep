@@ -164,3 +164,9 @@ ospackage {
 artifacts {
     archives buildRpm
 }
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*,src/main/resources/app/scripts/zoo-client/**/*"
+    }
+}

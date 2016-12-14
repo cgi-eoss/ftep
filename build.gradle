@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 group 'com.cgi.eoss.f-tep'
 version '0.2.0-SNAPSHOT'
 
-// This pattern allows us to override the URLs from init.gradle
+// This pattern allows us to override the URLs from init.gradle or gradle.properties
 ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://repo1.maven.org/maven2'
 ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
 ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
@@ -27,6 +27,17 @@ allprojects {
                 url mavenCentralUrl
             }
         }
+    }
+}
+
+buildscript {
+    repositories {
+        maven {
+            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+        }
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
     }
 }
 
@@ -124,4 +135,12 @@ static def getRpmVersion(version) {
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
             release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
     ]
+}
+
+apply plugin: "org.sonarqube"
+
+sonarqube {
+    properties {
+        property "sonar.jacoco.reportMissing.force.zero", true
+    }
 }

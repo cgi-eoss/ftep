@@ -44,3 +44,9 @@ dependencies {
     compile deps.grpcProtobuf
     compile deps.grpcStub
 }
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "target/generated/**/*"
+    }
+}

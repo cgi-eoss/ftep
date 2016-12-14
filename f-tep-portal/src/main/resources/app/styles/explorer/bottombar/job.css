@@ -1,12 +1,15 @@
-#job-content {
+#job {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
   height: 100%;
 }
-#job-content .job-files {
+#job .job-files {
   list-style: none;
   line-height: 1.2rem;
   padding: 0.5rem;
 }
-#job-content .job-status {
+#job .job-status {
   border-radius: 1.5rem;
   color: rgba(255, 255, 255, 0.87);
   cursor: default;
@@ -16,12 +19,12 @@
   text-align: center;
   width: 60%;
 }
-#job-content .job-title {
+#job .job-title {
   padding: 0.5rem;
 }
-#job-content .job-title h4 {
+#job .job-title h4 {
   margin: 0;
 }
-#job-content .resultnormal {
+#job .resultnormal {
   border-bottom: #d2d2d2 solid 1px;
 }

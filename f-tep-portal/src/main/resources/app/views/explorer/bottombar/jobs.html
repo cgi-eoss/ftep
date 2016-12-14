@@ -1,102 +1,125 @@
-<div id="jobs-panel">
+<div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-    <div class="row job-checkboxes">
-        <div class="col-lg-4 col-md-12 check-container" ng-click="filterJobs()" ng-repeat="jobStatus in jobStatuses">
-            <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter"/>
-            <span ng-click="jobStatus.value = !jobStatus.value">{{jobStatus.name}}</span>
-        </div>
-    </div>
+   <section class="filter-list">
+        <ul class="list">
 
-    <ul id="jobs-list" class="list" ng-repeat="service in jobServices">
+            <div class="row no-margin list-group filter-list-title">
 
-        <div class="row no-margin list-group">
-
-            <div class="col-md-11" ng-click="toggleJobGroup(service.id)">
-                <label>{{service.attributes.name}}</label>
-            </div>
-
-            <div class="col-md-1 no-padding expander">
-                <i class="material-icons"
-                   ng-show="groupedJobs[service.id].length > 0 && !isJobGroupOpened(service.id)"
-                   ng-click="toggleJobGroup(service.id)">
-                    expand_less
-                </i>
-                <i class="material-icons"
-                   ng-show="groupedJobs[service.id].length > 0 && isJobGroupOpened(service.id)"
-                   ng-click="toggleJobGroup(service.id)">
-                    expand_more
-                </i>
-            </div>
-
-        </div>
-
-        <li class="list-item"
-            ng-repeat="job in groupedJobs[service.id] | orderBy: 'id'"
-            ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1"
-            ng-click="selectJob(job)">
-
-            <div class="row no-margin">
-
-                <div class="col-xs-8">
-                    <label>Job ID: {{job.id}}</label>
+                <div class="col-md-11" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
                 </div>
 
-                <div class="col-xs-4">
-                   <div class="job-tools">
-
-                       <md-button class="toolbar-button"
-                                   ng-show="hasGuiEndPoint(job.attributes.guiEndpoint)"
-                                   href="{{job.attributes.guiEndpoint}}"
-                                   aria-label="Go to GUI"
-                                   uib-tooltip="Go to GUI"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">exit_to_app</i>
-                        </md-button>
-
-                        <md-button class="toolbar-button"
-                                   aria-label="Job Info"
-                                   uib-tooltip="Info"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true"
-                                   uib-popover-html="getJobPopover({{job}})"
-                                   popover-placement="right"
-                                   popover-trigger="mouseenter"
-                                   popover-append-to-body="true">
-                            <i class="material-icons">info_outline</i>
-                        </md-button>
-
-                        <md-button class="toolbar-button"
-                                   ng-click="removeJob($event, job)"
-                                   aria-label="Delete"
-                                   uib-tooltip="Delete"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">delete</i>
-                        </md-button>
-                    </div>
-
+                <div class="col-md-1 no-padding expander">
+                    <i class="material-icons"
+                       ng-show="!displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
                 </div>
 
             </div>
 
-            <div class="row no-margin">
+            <div class="row job-checkboxes" ng-show="displayFilters">
+                <div class="col-lg-4 col-md-12 check-container" ng-click="filterJobs()" ng-repeat="jobStatus in jobStatuses">
+                    <md-checkbox ng-model="jobStatus.value" aria-label="Job Filter"/>
+                    <span ng-click="jobStatus.value = !jobStatus.value">{{jobStatus.name}}</span>
+                </div>
+            </div>
 
-                <div class="col-md-8">
-                    <div>{{job.attributes.step}}</div>
+        </ul>
+    </section>
+
+    <section class="jobs-list">
+        <ul class="list" ng-repeat="service in jobServices">
+
+            <div class="row no-margin list-group">
+
+                <div class="col-md-11" ng-click="toggleJobGroup(service.id)">
+                    <label>{{service.attributes.name}}</label>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="job-status" style="{{getColor(job.attributes.status)}}">{{job.attributes.status}}</div>
+                <div class="col-md-1 no-padding expander">
+                    <i class="material-icons"
+                       ng-show="!isJobGroupOpened(service.id)"
+                       ng-click="toggleJobGroup(service.id)"
+                       aria-label="Show Job Details"
+                       uib-tooltip="Show Job Details"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="isJobGroupOpened(service.id)"
+                       ng-click="toggleJobGroup(service.id)"
+                       aria-label="Hide Job Details"
+                       uib-tooltip="Hide Job Details"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
                 </div>
 
             </div>
 
-        </li>
+            <md-list-item class="md-3-line"
+                          ng-repeat="job in groupedJobs[service.id] | orderBy: 'id'"
+                          ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1"
+                          ng-click="selectJob(job)">
 
-    </ul>
+                <div class="md-avatar" alt="{{job.attributes.step}}" style="{{getColor(job.attributes.status)}}">
+                    <i class="material-icons" ng-if="job.attributes.status === 'Succeeded'">done</i>
+                    <i class="material-icons" ng-if="job.attributes.status === 'Failed'">error</i>
+                    <i class="material-icons" ng-if="job.attributes.status === 'Running'">hourglass_empty</i>
+                </div>
+
+                <div class="md-list-item-text" layout="column">
+                    <h3>Job ID: {{job.id}}</h3>
+                    <h4>{{job.attributes.step}}</h4>
+                    <p>{{job.attributes.status}}</p>
+                </div>
+
+                <md-button class="toolbar-button md-secondary"
+                           ng-show="hasGuiEndPoint(job.attributes.guiEndpoint)"
+                           href="{{job.attributes.guiEndpoint}}"
+                           target="_blank"
+                           aria-label="Go to GUI"
+                           uib-tooltip="Go to GUI"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">exit_to_app</i>
+                </md-button>
+
+                <md-button class="toolbar-button md-secondary"
+                           ng-click="removeJob($event, job)"
+                           aria-label="Delete"
+                           uib-tooltip="Delete"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">delete</i>
+                </md-button>
+
+            </md-list-item>
+
+        </ul>
+    </section>
 
 </div>

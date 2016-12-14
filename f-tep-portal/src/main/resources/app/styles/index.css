@@ -123,34 +123,34 @@ pre {
   cursor: pointer;
 }
 .error {
-  background-color: #d50000 !important;
+  background-color: #f2dede !important;
 }
 .error-text {
-  color: #d50000 !important;
+  color: #a94442 !important;
 }
 .warning {
-  background-color: orange !important;
+  background-color: #fcf8e3 !important;
 }
 .warning-text {
-  color: orange !important;
+  color: #8a6d3b !important;
 }
-.ok {
-  background-color: #558b2f !important;
+.alert {
+  color: #d9edf7;
 }
-.ok-text {
-  color: #558b2f !important;
+.alert-text {
+  color: #31708f;
+}
+.success {
+  background-color: #dff0d8 !important;
+}
+.success-text {
+  color: #3c763d !important;
 }
 .paused {
   background-color: #999 !important;
 }
 .paused-text {
   color: #999 !important;
-}
-.stopped {
-  background-color: steelblue !important;
-}
-.stopped-text {
-  color: steelblue !important;
 }
 .disabled {
   background-color: #BBB !important;

@@ -23,6 +23,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     value: true
                 }
             ];
+
             $scope.jobGroup = {};
 
             $scope.getColor = function (status) {
@@ -76,9 +77,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.toggleJobGroup = function (serviceId) {
                 $scope.jobGroup[serviceId].opened = !$scope.jobGroup[serviceId].opened;
+                $scope.$broadcast('rebuild:scrollbar');
+            };
+
+            $scope.displayFilters = true;
+
+            $scope.toggleFilters = function () {
+                $scope.displayFilters = !$scope.displayFilters;
+                $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.filteredJobStatuses = [];
+
             $scope.filterJobs = function () {
                 $scope.filteredJobStatuses = [];
                 for (var i = 0; i < $scope.jobStatuses.length; i++) {
@@ -124,20 +134,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     return true;
                 }
                 return false;
-            };
-
-            var popover = {};
-
-            $scope.getJobPopover = function (job) {
-
-                var html = '<b>Status:</b>' +
-                           '<p>job.attributes.status</p>' +
-                           '<b>Inputs:</b>' +
-                           '<ul class="job-popover-list">' + getLiItems(job.attributes.inputs) + '</ul>' +
-                           '<b>Outputs:</b>' +
-                           '<ul class="job-popover-list">' + getLiItems(job.attributes.outputs) + '</ul>';
-
-                return popover[html] || (popover[html] = $sce.trustAsHtml(html));
             };
 
             function getLiItems(object) {

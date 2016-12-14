@@ -12,15 +12,6 @@
     }
     .md-toolbar-tools {
         height: 2.5rem;
-        .btn-success:focus {
-            background-color: @ok;
-        }
-        .md-button[disabled] {
-            background-color: @disabled !important;
-        }
-        .btn-success[disabled]:hover {
-            background-color: @error !important;
-        }
     }
     #searchForm {
         padding-bottom: 3rem;
@@ -45,6 +36,15 @@
         }
         &:hover {
             background-color: @accent;
+        }
+    }
+    .md-button[disabled] {
+        background-color: @disabled !important;
+    }
+    .btn-success[disabled]:hover {
+        background-color: @error !important;
+        .material-icons {
+            color: @error-text !important;
         }
     }
 }

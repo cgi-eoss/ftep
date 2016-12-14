@@ -49,8 +49,8 @@ input {
 
 #bottombar {
   bottom: 0;
-  left: 44px;
   height: 35%;
+  left: 44px;
   min-height: 300px;
   position: fixed;
   transition: all 0.4s ease-out;
@@ -61,13 +61,14 @@ input {
 #bottombar:hover {
   background-color: #ffffff;
 }
+#bottombar #bottombar-header {
+  -ms-flex: 0 1 auto;
+      flex: 0 1 auto;
+  height: 42px;
+}
 #bottombar #bottombar-header .button-section {
   padding-left: 0px;
   padding-right: 1rem;
-}
-#bottombar #bottombar-header .button-section .md-button.md-focused:not([disabled]) {
-  background-color: transparent;
-  outline: none;
 }
 #bottombar #bottombar-header .button-section button {
   color: #33691e;
@@ -76,12 +77,13 @@ input {
 #bottombar #bottombar-header .button-section button:hover {
   color: #ff4081;
 }
+#bottombar #bottombar-header .button-section .md-button.md-focused:not([disabled]) {
+  background-color: transparent;
+  outline: none;
+}
 #bottombar #bottombar-header .button-section .pagination {
   float: right;
   margin: 0.5rem 0;
-}
-#bottombar #bottombar-header .button-section .pagination li:first-child a {
-  border: none;
 }
 #bottombar #bottombar-header .button-section .pagination a {
   background-color: transparent;
@@ -99,14 +101,24 @@ input {
   border-color: #ff4081;
   color: rgba(255, 255, 255, 0.87);
 }
+#bottombar #bottombar-header .button-section .pagination li:first-child a {
+  border: none;
+}
 #bottombar #bottombar-header .row {
   padding: 0 20px;
 }
-#bottombar #bottombar-contents,
-#bottombar .bottombar-left,
-#bottombar .bottombar-right {
-  height: 100%;
+#bottombar #bottombar-contents {
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: calc(100% - 42px);
   margin: 0;
+}
+#bottombar #bottombar-contents .bottombar-pane {
+  height: 100%;
+}
+#bottombar #bottombar-contents .bottombar-pane .bottombar-left,
+#bottombar #bottombar-contents .bottombar-pane .bottombar-right {
+  height: 100%;
 }
 #bottombar md-content {
   background-color: transparent;
@@ -138,11 +150,13 @@ input {
   color: #558b2f;
 }
 #bottombar .scrollme {
-  height: 100%;
-  max-height: 150px;
-}
-#bottombar .scrollme .ngsb-scrollbar {
-  margin-top: 12px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  overflow-y: auto;
 }
 #bottombar .scrollme .ngsb-track {
   background-color: #ff4081;
@@ -199,15 +213,21 @@ input {
 }
 
 
-#job-content {
+#job {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
   height: 100%;
 }
-#job-content .job-files {
+#job .job-files {
   list-style: none;
   line-height: 1.2rem;
   padding: 0.5rem;
 }
-#job-content .job-status {
+#job .job-status {
   border-radius: 1.5rem;
   color: rgba(255, 255, 255, 0.87);
   cursor: default;
@@ -217,98 +237,69 @@ input {
   text-align: center;
   width: 60%;
 }
-#job-content .job-title {
+#job .job-title {
   padding: 0.5rem;
 }
-#job-content .job-title h4 {
+#job .job-title h4 {
   margin: 0;
 }
-#job-content .resultnormal {
+#job .resultnormal {
   border-bottom: #d2d2d2 solid 1px;
 }
 
-#jobs-panel .job-checkboxes {
+#jobs {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: 100%;
+}
+#jobs .filter-list .filter-list-title {
+  color: #ff4081;
+}
+#jobs .filter-list .job-checkboxes {
   margin: 0;
   padding: 10px;
   width: 100%;
 }
-#jobs-panel .job-checkboxes .check-container {
+#jobs .filter-list .job-checkboxes .check-container {
   padding: 4px 0;
 }
-#jobs-panel .job-checkboxes div:focus {
+#jobs .filter-list .job-checkboxes div:focus {
   outline: none;
   border: 0;
 }
-#jobs-panel .job-checkboxes md-checkbox {
+#jobs .filter-list .job-checkboxes md-checkbox {
   margin: 0;
 }
-#jobs-panel #jobs-list {
-  padding: 0;
-}
-#jobs-panel #jobs-list .list-group {
-  font-size: 0.8rem;
-  border-bottom: #d2d2d2 solid 1px;
-}
-#jobs-panel #jobs-list .list-group .expander,
-#jobs-panel #jobs-list .list-group label {
-  margin: 0;
-  padding: 0.25rem 0;
-}
-#jobs-panel #jobs-list .list-group:hover {
-  background-color: lightgray;
-}
-#jobs-panel #jobs-list .md-avatar .material-icons {
-  color: rgba(255, 255, 255, 0.87);
+#jobs .jobs-list md-list-item .md-avatar .material-icons {
   text-align: center;
   width: 100%;
 }
-#jobs-panel #jobs-list .list-item {
-  font-size: 0.6rem;
-  line-height: 0.9rem;
-  list-style: none;
-  padding: 0.25rem;
-  border-bottom: #d2d2d2 solid 1px;
+#jobs .jobs-list md-list-item .toolbar-button {
+  padding: 0 0.25rem;
 }
-#jobs-panel #jobs-list .list-item .job-status {
-  border-radius: 1.5rem;
-  color: rgba(255, 255, 255, 0.87);
-  cursor: default;
-  font-size: smaller;
-  height: 1rem;
-  text-align: center;
-  padding: 0 15px;
-}
-#jobs-panel #jobs-list .list-item .job-tools {
-  height: 0.9rem;
-  min-width: 100px;
-}
-#jobs-panel #jobs-list .list-item .job-tools i {
-  font-size: 0.9rem;
-}
-#jobs-panel #jobs-list .list-item .job-tools a,
-#jobs-panel #jobs-list .list-item .job-tools i,
-#jobs-panel #jobs-list .list-item .job-tools button {
-  height: 100%;
-}
-#jobs-panel #jobs-list .list-item .job-tools a:hover,
-#jobs-panel #jobs-list .list-item .job-tools i:hover,
-#jobs-panel #jobs-list .list-item .job-tools button:hover {
+#jobs .jobs-list md-list-item:hover .toolbar-button {
   color: #ff4081;
 }
-#jobs-panel #jobs-list .list-item label {
+#jobs .list {
+  margin: 0;
+  padding: 0;
+}
+#jobs .list .list-group {
+  font-size: 0.8rem;
   cursor: pointer;
-  font-size: 0.6rem;
+  border-bottom: #d2d2d2 solid 1px;
 }
-#jobs-panel #jobs-list .list-item:hover {
-  background-color: #aed581;
+#jobs .list .list-group .expander,
+#jobs .list .list-group label {
+  margin: 0;
+  padding: 0.25rem 0;
 }
-.popover {
-  max-width: 100%;
-  overflow: scroll;
-  width: 60%;
-}
-.popover .job-popover-list {
-  list-style: none;
+#jobs .list .list-group:hover {
+  background-color: lightgray;
 }
 
 .metadata-info-button {
@@ -447,8 +438,8 @@ ul[dnd-list] > li {
   filter: opacity(20%);
 }
 .ftep .note {
-  background-color: #ff6f6f;
-  border: solid 1px #d50000;
+  background-color: #ffffff;
+  border: solid 1px #f2dede;
   padding: 4px;
 }
 .ftep .rzslider .rz-bubble {
@@ -719,15 +710,6 @@ ul[dnd-list] > li {
 #search-panel .md-toolbar-tools {
   height: 2.5rem;
 }
-#search-panel .md-toolbar-tools .btn-success:focus {
-  background-color: #558b2f;
-}
-#search-panel .md-toolbar-tools .md-button[disabled] {
-  background-color: #BBB !important;
-}
-#search-panel .md-toolbar-tools .btn-success[disabled]:hover {
-  background-color: #d50000 !important;
-}
 #search-panel #searchForm {
   padding-bottom: 3rem;
 }
@@ -752,6 +734,15 @@ ul[dnd-list] > li {
 }
 #search-panel #searchButton:hover {
   background-color: #ff4081;
+}
+#search-panel .md-button[disabled] {
+  background-color: #BBB !important;
+}
+#search-panel .btn-success[disabled]:hover {
+  background-color: #f2dede !important;
+}
+#search-panel .btn-success[disabled]:hover .material-icons {
+  color: #a94442 !important;
 }
 
 #services-accordion .input-group {
@@ -846,6 +837,7 @@ ul[dnd-list] > li {
       flex-flow: column;
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
+  overflow-y: auto;
   padding-top: 0.5rem;
 }
 #sidebar-left .scrollme .ngsb-container {
@@ -866,14 +858,6 @@ ul[dnd-list] > li {
 }
 #sidebar-left .sidebar-container:hover {
   background-color: #ffffff;
-}
-#sidebar-left .sidebar-container .sidebar-header {
-  -ms-flex: 0 1 auto;
-      flex: 0 1 auto;
-}
-#sidebar-left .sidebar-container .sidebar-subheader {
-  -ms-flex: 0 1 auto;
-      flex: 0 1 auto;
 }
 #sidebar-left .sidebar-container .sidebar-item {
   display: -ms-flexbox;
@@ -1203,34 +1187,34 @@ pre {
   cursor: pointer;
 }
 .error {
-  background-color: #d50000 !important;
+  background-color: #f2dede !important;
 }
 .error-text {
-  color: #d50000 !important;
+  color: #a94442 !important;
 }
 .warning {
-  background-color: orange !important;
+  background-color: #fcf8e3 !important;
 }
 .warning-text {
-  color: orange !important;
+  color: #8a6d3b !important;
 }
-.ok {
-  background-color: #558b2f !important;
+.alert {
+  color: #d9edf7;
 }
-.ok-text {
-  color: #558b2f !important;
+.alert-text {
+  color: #31708f;
+}
+.success {
+  background-color: #dff0d8 !important;
+}
+.success-text {
+  color: #3c763d !important;
 }
 .paused {
   background-color: #999 !important;
 }
 .paused-text {
   color: #999 !important;
-}
-.stopped {
-  background-color: steelblue !important;
-}
-.stopped-text {
-  color: steelblue !important;
 }
 .disabled {
   background-color: #BBB !important;

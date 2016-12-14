@@ -63,7 +63,7 @@ pre {
 }
 
 .error-text {
-    color: @error !important;
+    color: @error-text !important;
 }
 
 .warning {
@@ -71,15 +71,23 @@ pre {
 }
 
 .warning-text {
-    color: @warning !important;
+    color: @warning-text !important;
 }
 
-.ok {
-    background-color: @ok !important;
+.alert {
+    color: @alert;
 }
 
-.ok-text {
-    color: @ok !important;
+.alert-text {
+    color: @alert-text;
+}
+
+.success {
+    background-color: @success !important;
+}
+
+.success-text {
+    color: @success-text !important;
 }
 
 .paused {
@@ -88,14 +96,6 @@ pre {
 
 .paused-text {
     color: @paused !important;
-}
-
-.stopped {
-    background-color: @stopped !important;
-}
-
-.stopped-text {
-    color: @stopped !important;
 }
 
 .disabled {

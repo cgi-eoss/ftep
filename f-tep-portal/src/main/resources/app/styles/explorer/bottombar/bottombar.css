@@ -1,7 +1,7 @@
 #bottombar {
   bottom: 0;
-  left: 44px;
   height: 35%;
+  left: 44px;
   min-height: 300px;
   position: fixed;
   transition: all 0.4s ease-out;
@@ -12,13 +12,13 @@
 #bottombar:hover {
   background-color: #ffffff;
 }
+#bottombar #bottombar-header {
+  flex: 0 1 auto;
+  height: 42px;
+}
 #bottombar #bottombar-header .button-section {
   padding-left: 0px;
   padding-right: 1rem;
-}
-#bottombar #bottombar-header .button-section .md-button.md-focused:not([disabled]) {
-  background-color: transparent;
-  outline: none;
 }
 #bottombar #bottombar-header .button-section button {
   color: #33691e;
@@ -27,12 +27,13 @@
 #bottombar #bottombar-header .button-section button:hover {
   color: #ff4081;
 }
+#bottombar #bottombar-header .button-section .md-button.md-focused:not([disabled]) {
+  background-color: transparent;
+  outline: none;
+}
 #bottombar #bottombar-header .button-section .pagination {
   float: right;
   margin: 0.5rem 0;
-}
-#bottombar #bottombar-header .button-section .pagination li:first-child a {
-  border: none;
 }
 #bottombar #bottombar-header .button-section .pagination a {
   background-color: transparent;
@@ -50,17 +51,36 @@
   border-color: #ff4081;
   color: rgba(255, 255, 255, 0.87);
 }
+#bottombar #bottombar-header .button-section .pagination li:first-child a {
+  border: none;
+}
 #bottombar #bottombar-header .row {
   padding: 0 20px;
 }
-#bottombar #bottombar-contents,
-#bottombar .bottombar-left,
-#bottombar .bottombar-right {
-  height: 100%;
+#bottombar #bottombar-contents {
+  flex: 1 1 auto;
+  height: calc(100% - 42px);
   margin: 0;
+}
+#bottombar #bottombar-contents .bottombar-pane {
+  height: 100%;
+}
+#bottombar #bottombar-contents .bottombar-pane .bottombar-left,
+#bottombar #bottombar-contents .bottombar-pane .bottombar-right {
+  height: 100%;
 }
 #bottombar md-content {
   background-color: transparent;
+}
+#bottombar .md-subheader {
+  background-color: transparent;
+  color: #ff4081;
+}
+#bottombar .md-subheader .md-subheader-inner {
+  padding-right: 0;
+}
+#bottombar .md-subheader .md-subheader-inner label {
+  color: rgba(0, 0, 0, 0.7);
 }
 #bottombar md-tabs {
   height: 100%;
@@ -79,11 +99,10 @@
   color: #558b2f;
 }
 #bottombar .scrollme {
-  height: 100%;
-  max-height: 150px;
-}
-#bottombar .scrollme .ngsb-scrollbar {
-  margin-top: 12px;
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
 }
 #bottombar .scrollme .ngsb-track {
   background-color: #ff4081;

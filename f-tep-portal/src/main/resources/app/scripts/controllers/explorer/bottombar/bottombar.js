@@ -235,6 +235,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     JobService.getOutputs(job.id).then(function(data){
                         $scope.jobOutputs = data;
                     });
+
+                    $scope.$broadcast('rebuild:scrollbar');
                 });
 
                 $scope.$on('refresh.jobs', function(event, result) {
@@ -248,14 +250,17 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             }
                         }
                     }
+                    $scope.$broadcast('rebuild:scrollbar');
                 });
 
                 $scope.getJobInputs = function(job) {
+
                     $scope.$broadcast('rebuild:scrollbar');
+
                     if (job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0) {
                         return job.attributes.inputs;
                     }
-                    else{
+                    else {
                         return undefined;
                     }
                 };
@@ -265,6 +270,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 };
 
                 $scope.getSelectedOutputFiles = function(file) {
+
                     if (jobSelectedOutputs.indexOf(file) < 0) {
                         jobSelectedOutputs.push(file);
                     }
@@ -272,6 +278,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     for(var i=1; i < jobSelectedOutputs.length; i++){
                         links = links.concat(",", CommonService.getOutputLink(jobSelectedOutputs[i].attributes.link));
                     }
+
+                    $scope.$broadcast('rebuild:scrollbar');
 
                     return links;
                 };
@@ -313,6 +321,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     if(angular.equals(job, $scope.selectedJob)){
                         delete $scope.selectedJob;
                     }
+                    $scope.$broadcast('rebuild:scrollbar');
                 });
 
                 /* End of Selected Job */

@@ -169,11 +169,11 @@
 
 <section id="bottombar-contents" class="row">
 
-    <section class="results" ng-if="bottombarTab == 'RESULTS'">
+    <section class="bottombar-pane" ng-if="bottombarTab == 'RESULTS'">
         <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
     </section>
 
-    <section class="databaskets row" ng-if="bottombarTab == 'DATABASKET'">
+    <section class="row bottombar-pane" ng-if="bottombarTab == 'DATABASKET'">
         <div class="col-xs-4 bottombar-left">
             <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
         </div>
@@ -182,7 +182,7 @@
         </div>
     </section>
 
-    <section class="databaskets row" ng-if="bottombarTab == 'JOB'">
+    <section class="row bottombar-pane" ng-if="bottombarTab == 'JOB'">
         <div class="col-xs-4 bottombar-left">
             <div id="jobs" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
         </div>

@@ -13,15 +13,16 @@ define(['../ftepmodules'], function (ftepmodules) {
                 this.warn = function(message){
                     $rootScope.$broadcast('show.warning', message);
                 };
+
                 this.getColor = function(status){
                     if("Succeeded" === status || "approved" === status){
-                        return "background: rgba(5, 137, 23, 0.8)";
+                        return "background: #dff0d8; border: 2px solid #d0e9c6; color: #3c763d";
                     }
                     else if("Failed" === status){
-                        return "background: rgba(198, 11, 11, 0.8)";
+                        return "background: #f2dede; border: 2px solid #ebcccc; color: #a94442";
                     }
                     else if("Running" === status){
-                        return "background: rgba(0, 0, 226, 0.8)";
+                        return "background: #d9edf7; border: 2px solid #bcdff1; color: #31708f";
                     }
                 };
 

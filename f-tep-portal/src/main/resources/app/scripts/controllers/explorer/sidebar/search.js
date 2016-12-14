@@ -125,14 +125,33 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
 
             /** ----- MISSIONS ----- **/
+
             // Set the first mission as default
             $scope.searchParameters.mission = $scope.missions[0];
 
+            function isSentinel1(mission){
+                if(mission && mission.name){
+                    return mission.name.indexOf('1') > -1 ? true : false;
+                } else {
+                    return false;
+                }
+            }
+            function isSentinel2(mission){
+                if(mission && mission.name){
+                    return mission.name.indexOf('2') > -1 ? true : false;
+                } else {
+                    return false;
+                }
+            }
+
             // Display additional parameters based on mission selection
-            $scope.missionDetails = {showPolar: isSentinel1($scope.searchParameters.mission),
-                        showCoverage: isSentinel2($scope.searchParameters.mission)};
+            $scope.missionDetails = {
+                showPolar: isSentinel1($scope.searchParameters.mission),
+                showCoverage: isSentinel2($scope.searchParameters.mission)
+            };
 
             $scope.updateMissionParameters = function (mission) {
+
                 // Display polorisation or coverage parameters based on selection
                 if (isSentinel1(mission)) {
                     $scope.missionDetails.showPolar = true;
@@ -142,26 +161,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.missionDetails.showCoverage = true;
                     $scope.refreshSlider();
                 }
+
                 $scope.$broadcast('rebuild:scrollbar');
             };
-
-            function isSentinel1(mission){
-                if(mission && mission.name){
-                    return mission.name.indexOf('1') > -1 ? true : false;
-                }
-                else {
-                    return false;
-                }
-            }
-
-            function isSentinel2(mission){
-                if(mission && mission.name){
-                    return mission.name.indexOf('2') > -1 ? true : false;
-                }
-                else{
-                    return false;
-                }
-            }
 
             /** ----- POLYGON SELECTION ----- **/
 

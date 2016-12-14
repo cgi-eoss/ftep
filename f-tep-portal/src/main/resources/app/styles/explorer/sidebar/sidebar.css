@@ -58,12 +58,17 @@
   box-shadow: none;
 }
 #sidebar-left .panel .panel-body {
-  padding-right: 20px;
+  padding-right: 0;
 }
 #sidebar-left .scrollme {
   display: flex;
   flex-flow: column;
   flex: 1 1 auto;
+  overflow-y: auto;
+  padding-top: 0.5rem;
+}
+#sidebar-left .scrollme .ngsb-container {
+  padding-right: 15px;
 }
 #sidebar-left .scrollme .ngsb-scrollbar {
   margin-top: 12px;
@@ -80,12 +85,6 @@
 }
 #sidebar-left .sidebar-container:hover {
   background-color: #ffffff;
-}
-#sidebar-left .sidebar-container .sidebar-header {
-  flex: 0 1 auto;
-}
-#sidebar-left .sidebar-container .sidebar-subheader {
-  flex: 0 1 auto;
 }
 #sidebar-left .sidebar-container .sidebar-item {
   display: flex;

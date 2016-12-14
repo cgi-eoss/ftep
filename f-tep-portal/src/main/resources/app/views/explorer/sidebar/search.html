@@ -8,7 +8,7 @@
         </div>
     </md-toolbar>
 
-    <div class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar">
+    <div class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
         <div class="row">
             <md-subheader class="md-accent md-subheader-top" ng-show="showDataSources">Select a data source:</md-subheader>
@@ -111,7 +111,6 @@
                     </div>
                 </md-radio-group>
             </div>
-            <!-- End remove  -->
 
             <div class="polarisation-container" ng-show="missionDetails.showPolar">
 

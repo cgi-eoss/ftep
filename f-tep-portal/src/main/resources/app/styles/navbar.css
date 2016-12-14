@@ -18,6 +18,7 @@
   height: 100%;
 }
 #navbar .navbar-container .navbar-contents .nav li {
+  cursor: pointer;
   height: 50px;
   padding: 0 20px;
   border-right: #d2d2d2 solid 1px;

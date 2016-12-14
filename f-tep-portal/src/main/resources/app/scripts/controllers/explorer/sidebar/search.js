@@ -163,37 +163,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             }
 
-            /** ----- COVERAGE ----- **/
-
-            // Set initial cloud range
-            $scope.searchParameters.mission.minCloudCover = 0;
-            $scope.searchParameters.mission.maxCloudCover = 100;
-
-            // Initialise cloud slider
-            $scope.cloudRangeSlider = {
-                options: {
-                    floor: 0,
-                    ceil: 100,
-                    hideLimitLabels: true,
-                    translate: function (value) {
-                        return value + '%';
-                    },
-                    getSelectionBarColor: function () {
-                        return '#ff80ab';
-                    },
-                    getTickColor: function () {
-                        return '#ff80ab';
-                    },
-                    getPointerColor: function () {
-                        return '#ff80ab';
-                    },
-                    onChange: onSliderChange,
-                    showTicks: false
-                },
-                minValue: $scope.searchParameters.mission.minCloudCover,
-                maxValue: $scope.searchParameters.mission.maxCloudCover
-            };
-
             /** ----- POLYGON SELECTION ----- **/
 
             //TODO: Move polygon.drawn event here from map

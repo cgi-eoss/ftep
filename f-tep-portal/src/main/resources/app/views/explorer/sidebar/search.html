@@ -149,14 +149,10 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xs-1" />
-                    <div class="col-xs-10">
-                           <rzslider id="cloudSlider"
-                                     rz-slider-model="cloudRangeSlider.minValue"
-                                     rz-slider-high="cloudRangeSlider.maxValue"
-                                     rz-slider-options="cloudRangeSlider.options" />
+                    <label class="col-md-6">Maximum in %:</label>
+                    <div class="col-md-6">
+                        <input class="form-control" type="number" min="0" max="100" ng-model="searchParameters.mission.maxCloudCover"/>
                     </div>
-                    <div class="col-xs-1" />
                 </div>
 
             </div>

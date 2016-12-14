@@ -14,10 +14,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
+import static org.awaitility.Awaitility.with;
+import static org.awaitility.Duration.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Duration.TWO_MINUTES;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  */
@@ -37,6 +42,19 @@ public class WpsStepdefs implements En {
                     .withExposedService("backend_1", 80);
             propagateEnvironment(environment, "http_proxy", "https_proxy", "no_proxy");
             environment.starting(null);
+
+            // Puppet can take some time to process and start the services, so just wait until we get any response on backend:80
+            with().pollInterval(ONE_HUNDRED_MILLISECONDS)
+                    .and().atMost(TWO_MINUTES)
+                    .await("Test environment starting")
+                    .until(() -> {
+                        try {
+                            HttpResponse response = httpRequestFactory.buildGetRequest(getBackendUrl("/")).setConnectTimeout(10).execute();
+                            assertThat(response, is(notNullValue()));
+                        } catch (Exception e) {
+                            fail();
+                        }
+                    });
 
             browser = new BrowserWebDriverContainer().withDesiredCapabilities(DesiredCapabilities.chrome());
         });
@@ -73,12 +91,16 @@ public class WpsStepdefs implements En {
 
     private HttpResponse getBackendHttpResponse(String path) {
         try {
-            return httpRequestFactory.buildGetRequest(new GenericUrl("http://" +
-                    environment.getServiceHost("backend_1", 80) + ":" +
-                    environment.getServicePort("backend_1", 80) +
-                    path)).execute();
+            return httpRequestFactory.buildGetRequest(getBackendUrl(path)).execute();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private GenericUrl getBackendUrl(String path) {
+        return new GenericUrl("http://" +
+                environment.getServiceHost("backend_1", 80) + ":" +
+                environment.getServicePort("backend_1", 80) +
+                path);
     }
 }

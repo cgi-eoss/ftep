@@ -31,6 +31,7 @@ allprojects {
 }
 
 def depVersions = [
+        awaitility       : '2.0.0',
         commonsIo        : '2.5',
         commonsNet       : '3.5',
         cucumber         : '1.2.5',
@@ -107,6 +108,7 @@ ext.deps = [
         springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
         springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
 
+        awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
         hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
         hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
         mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,

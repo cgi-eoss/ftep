@@ -148,9 +148,17 @@
                 </div>
 
                 <div class="row">
-                    <label class="col-md-6">Maximum in %:</label>
-                    <div class="col-md-6">
-                        <input class="form-control" type="number" min="0" max="100" ng-model="searchParameters.mission.maxCloudCover"/>
+                   <div class="col-md-12">
+                        <md-input-container class="md-block" md-no-float>
+                            <input class="form-control"
+                                   ng-model="searchParameters.mission.maxCloudCover"
+                                   placeholder="100 (optional)"
+                                   type="number"
+                                   min="0"
+                                   max="100"
+                                   aria-label="Maximum percentage cloud coverage"/>
+                            <div class="hint" ng-show="true">Maximum (%)</div>
+                        </md-input-container>
                     </div>
                 </div>
 

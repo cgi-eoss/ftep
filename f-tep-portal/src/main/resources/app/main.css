@@ -257,6 +257,15 @@ input {
   height: 100%;
 }
 
+#results {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: 100%;
+}
 .metadata-info-button {
   cursor: pointer;
   top: auto;

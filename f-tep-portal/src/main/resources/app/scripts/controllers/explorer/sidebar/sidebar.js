@@ -21,6 +21,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $mdSidenav('left').open();
             $("#bottombar").css("left", sidebarWidth + 44);
             $("#bottombar").css({ 'width': 'calc(100% - ' + (sidebarWidth + 44) + 'px)'});
+            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.hideSearchArea = function ($event) {
@@ -28,6 +29,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $mdSidenav('left').close();
             $("#bottombar").css("left", sidenavWidth + 44);
             $("#bottombar").css({ 'width': 'calc(100% - ' + 44 + 'px)' });
+            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.toggleSidebar = function (section) {

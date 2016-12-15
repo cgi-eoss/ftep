@@ -8,9 +8,10 @@ import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.RegExFileFilter;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
-import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.JobStatus;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
+import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
@@ -186,7 +187,12 @@ public class RequestHandler {
             List<String> valueList = removeQuotes(e.getValue());
             String firstValue = valueList.get(0);
             if (isValueRefersFile(firstValue)) {
-                inputFilesMap.put(key, valueList);
+                // Split a list of comma-separated file URLs
+                if (valueList.size() == 1 && firstValue.contains(",")) {
+                    inputFilesMap.put(key, Lists.newArrayList(firstValue.split(",")));
+                } else {
+                    inputFilesMap.put(key, valueList);
+                }
             } else {
                 inputParams.put(key, valueList);
             }

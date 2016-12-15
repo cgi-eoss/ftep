@@ -34,7 +34,7 @@
                 if (!eossCI.isTriggeredByGerrit()) {
                     stage('SonarQube Analysis') {
                         configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
-                            eossCI.sonarqubeGradle("", "gradle --no-daemon -i ${GRADLEINIT}")
+                            eossCI.sonarqubeGradle("", "gradle --no-daemon -I ${GRADLEINIT}")
                         }
                     }
                 }

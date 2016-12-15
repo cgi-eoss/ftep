@@ -78,7 +78,7 @@
                        ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
                        ng-click="addToDatabasket()"
                        aria-label="Add to Databasket"
-                       uib-tooltip="Add to databasket"
+                       uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true">
                 <i class="material-icons">shopping_basket</i>
@@ -96,7 +96,10 @@
                        ng-disabled="selectedDatabasket == undefined"
                        ng-class="selectedDatabasket == undefined ? 'icon-disabled' : ''"
                        ng-click="clearDatabasket()"
-                       aria-label="Clear Databasket">
+                       aria-label="Clear Databasket"
+                       uib-tooltip="Clear databasket"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
                 <i class="material-icons">remove_shopping_cart</i>
             </md-button>
 
@@ -153,7 +156,7 @@
 
             <md-button class="toolbar-button"
                        aria-label="Add to Cart"
-                       uib-tooltip="Add to databasket"
+                       uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true"
                        ng-disabled="selectedDatabasket == undefined"

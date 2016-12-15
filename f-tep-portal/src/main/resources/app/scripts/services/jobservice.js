@@ -14,6 +14,7 @@ define(['../ftepmodules'], function (ftepmodules) {
           $http.defaults.headers.post['Content-Type'] = 'application/json';
           $http.defaults.withCredentials = true;
 
+          var POLLING_FREQUENCY = 4 * 1000;
           var isPolling = false;
           var jobListCache;
           var isJobStillRunning = false; //whether a job exists, that is still running
@@ -21,9 +22,9 @@ define(['../ftepmodules'], function (ftepmodules) {
           var waitingForNewJob = false;
 
           /** Return the jobs for the user **/
-          this.getJobs = function(newJobPushed) {
-              if(newJobPushed){
-                  waitingForNewJob = newJobPushed;
+          this.getJobs = function(newJobWasPushed) {
+              if(newJobWasPushed){
+                  waitingForNewJob = newJobWasPushed;
               }
 
               if(isPolling){
@@ -43,10 +44,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                   var deferred = $q.defer();
                   $http.get(ftepProperties.URL + '/jobs?include=service&fields[service]=name').then(function (response) {
                           if (angular.equals(jobListCache, response.data) == false) {
+                              waitingForNewJob = ((jobListCache != undefined) && (jobListCache.meta.total <= response.data.meta.total));
                               jobListCache = response.data;
                               $rootScope.$broadcast('refresh.jobs', response.data);
                               findRunningJob();
-                              waitingForNewJob = false;
                           }
                           deferred.resolve(response.data);
                           retriesLeft = 3;
@@ -61,7 +62,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                       .finally(function () {
                           if (isJobStillRunning === true || waitingForNewJob === true) {
                               isPolling = true;
-                              $timeout(pollJobs, 4 * 1000);
+                              $timeout(pollJobs, POLLING_FREQUENCY);
+                          }
+                          else {
+                              isPolling = false;
                           }
                       });
 

@@ -1247,8 +1247,10 @@ pre {
 }
 #navbar .navbar-container .navbar-contents .nav {
   height: 100%;
+  margin: 0;
 }
 #navbar .navbar-container .navbar-contents .nav li {
+  background-color: #f8f8f8;
   cursor: pointer;
   height: 50px;
   padding: 0 20px;
@@ -1288,27 +1290,19 @@ pre {
   }
 }
 /** TODO: Remove after pre-realease **/
-.ribbon-wrapper {
-  height: 88px;
-  overflow: hidden;
-  position: absolute;
-  right: -3px;
-  top: -3px;
-  width: 85px;
-  z-index: 90;
-}
 .ribbon {
+  position: fixed;
+  right: -30px;
+  top: 12px;
+  z-index: 51;
   background-color: #ff4081;
   background-image: linear-gradient(top, #ff4081, #c51162);
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.3);
   color: rgba(255, 255, 255, 0.87);
   font: bold 1rem;
-  left: -5px;
   padding: 7px 0;
-  position: relative;
   text-align: center;
   text-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px;
-  top: 15px;
   transform: rotate(45deg);
   width: 120px;
 }

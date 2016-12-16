@@ -26,9 +26,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
-- id: "utmZone"
-  title: "UTM zone"
-  description: "Sentinel-2 L1C data zone. Must be covered by the input data. Example: '31N'"
+- id: "epsg"
+  title: "Target EPSG CRS identifier"
+  description: "EPSG coordinate reference system identifier of the target product, e.g. '32635'"
   minOccurs: 1
   maxOccurs: 1
   data: "LITERAL"

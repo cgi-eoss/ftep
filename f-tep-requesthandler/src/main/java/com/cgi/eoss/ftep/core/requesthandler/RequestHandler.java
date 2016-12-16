@@ -140,8 +140,8 @@ public class RequestHandler {
     public DataManagerResult fetchInputData(FtepJob job) {
 
         // addEscapeChar(inputFilesMap);
-        DataManagerResult dataManagerResult =
-                dataManager.getData(downloadConfMap, job.getInputDir().toAbsolutePath().toString(), inputFilesMap);
+        DataManagerResult dataManagerResult = dataManager.getData(
+                downloadConfMap, job.getInputDir().toAbsolutePath().toString(), inputFilesMap);
         DataDownloadStatus downloadStatus = dataManagerResult.getDownloadStatus();
         if (downloadStatus.equals(DataDownloadStatus.COMPLETE)) {
             LOG.info("Data fetch is successful");
@@ -193,9 +193,11 @@ public class RequestHandler {
                 } else {
                     inputFilesMap.put(key, valueList);
                 }
-            } else {
-                inputParams.put(key, valueList);
             }
+
+            // Make all inputs visible in the job .properties file
+            inputParams.put(key, valueList);
+
             LOG.debug("inputFiles :::: {}", inputFilesMap);
             LOG.debug("inputParams :::: {}", inputParams);
         }

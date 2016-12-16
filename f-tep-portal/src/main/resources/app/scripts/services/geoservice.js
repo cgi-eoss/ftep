@@ -95,6 +95,10 @@ define(['../ftepmodules'], function (ftepmodules) {
             return resultCache;
         };
 
+        this.getItemsPerPage = function(){
+            return ITEMS_PER_PAGE;
+        }
+
         this.parameters = {startTime: undefined, endTime: undefined, polygon: undefined, pageNumber: 1, mission: undefined};
 
         this.dataSources = [

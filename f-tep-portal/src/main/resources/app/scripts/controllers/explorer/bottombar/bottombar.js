@@ -10,7 +10,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', 'CommonService', 'JobService', 'GeoService','BasketService', function($scope, $rootScope, CommonService, JobService, GeoService, BasketService) {
 
-                $scope.resultPaging = {currentPage: 1, pageSize: 0, total: 0};
+                $scope.resultPaging = {currentPage: 1, pageSize: GeoService.getItemsPerPage(), total: 0};
                 $scope.spinner = GeoService.spinner;
                 $scope.bottombarTab = 'RESULTS';
                 var selectedResultItems = [];
@@ -31,12 +31,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             delete $scope.geoResults;
                         }
                         $scope.resultPaging.total = results[0].results.totalResults;
-                        $scope.resultPaging.pageSize = results[0].results.itemsPerPage;
                         $scope.resultPaging.currentPage = GeoService.parameters.pageNumber;
                     }
                     else{
                         delete $scope.geoResults;
-                        $scope.resultPaging = {currentPage: 1, pageSize: 0, total: 0};
+                        $scope.resultPaging.currentPage = 1;
+                        $scope.resultPaging.total = 0;
                     }
                 }
                 setResults(GeoService.getResultCache());

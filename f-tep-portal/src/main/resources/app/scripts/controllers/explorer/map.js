@@ -213,7 +213,10 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                   collapsible: false
                 })
             }).extend([
-                new $scope.draw(SHAPE.POLYGON), new $scope.draw(SHAPE.BOX), mousePositionControl
+                new $scope.draw(SHAPE.POLYGON),
+                new $scope.draw(SHAPE.BOX),
+                new ol.control.ScaleLine(),
+                mousePositionControl
             ]),
             target: 'map',
             layers: layers,

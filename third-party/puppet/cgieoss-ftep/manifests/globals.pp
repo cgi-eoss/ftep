@@ -2,16 +2,28 @@
 class ftep::globals(
   $manage_package_repo = true,
 
-  $ftep_backend_host = 'localhost',
+  # Base URL (i.e. servername) for ftep::proxy (and ftep::drupal's base_url config)
+  $base_url = $facts['fqdn'],
 
-  $ftep_portal_host = 'localhost',
+  # Hostnames and IPs for components
+  $db_hostname = 'ftep-db',
+  $drupal_hostname = 'ftep-drupal',
+  $geoserver_hostname = 'ftep-geoserver',
+  $proxy_hostname = 'ftep-proxy',
+  $webapp_hostname = 'ftep-webapp',
+  $wps_hostname = 'ftep-wps',
+
+  $hosts_override = {},
 
   # All classes should share this database config, or override it if necessary
-  $ftep_db_host = 'localhost',
   $ftep_db_name = 'ftep',
   $ftep_db_username = 'ftep-user',
   $ftep_db_password = 'ftep-pass',
 ) {
+
+  # Alias reverse-proxy hosts via hosts file
+  ensure_resources(host, $hosts_override)
+
   # Setup of the repo only makes sense globally, so we are doing this here.
   if($manage_package_repo) {
     require ::ftep::repo

@@ -1,5 +1,5 @@
-class ftep::portal::webapp(
-  $app_path  = '/var/www/html/f-tep/app',
+class ftep::webapp(
+  $app_path  = '/var/www/html/f-tep',
   $app_config_file  = 'scripts/ftepConfig.js',
 
   $url_prefix   = 'http://localhost',
@@ -8,6 +8,11 @@ class ftep::portal::webapp(
   $wms_url      = 'http://localhost:8080/geoserver',
   $mapbox_token = 'pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ',
 ) {
+
+  require ::ftep::globals
+
+  contain ::ftep::common::apache
+
   ensure_packages(['f-tep-portal'], {
     ensure => 'latest',
     name   => 'f-tep-portal',
@@ -18,7 +23,7 @@ class ftep::portal::webapp(
     ensure  => 'present',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/webapp/ftepConfig.js.epp', {
+    content => epp('ftep/webapp/ftepConfig.js.epp', {
       'url_prefix'   => $url_prefix,
       'api_url'      => $api_url,
       'zoo_url'      => $zoo_url,
@@ -28,10 +33,10 @@ class ftep::portal::webapp(
     require => Package['f-tep-portal'],
   }
 
-#  ::apache::vhost { 'ftep-webapp':
-#    port             => '80',
-#    servername       => $::fqdn,
-#    docroot          => "$app_path",
-#  }
+ ::apache::vhost { 'ftep-webapp':
+   port             => '80',
+   servername       => 'ftep-webapp',
+   docroot          => "$app_path",
+ }
 
 }

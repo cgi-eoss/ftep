@@ -9,8 +9,8 @@ class ftep::db::postgresql(
 
   $acls = []
 
-  unique([$ftep::globals::ftep_backend_host, $ftep::globals::ftep_portal_host]).each | $host | {
-    concat($acls, "host ${db_name} ${db_username} ${host} md5")
+  unique([$ftep::globals::wps_hostname, $ftep::globals::drupal_hostname]).each | $host | {
+    concat($acls, "host ${db_name} ${db_username} ${host}/32 md5")
   }
 
   # We have to control the package version

@@ -21,7 +21,7 @@ ospackage {
     arch NOARCH
     os LINUX
 
-    into '/var/www/html/drupal/forestry-tep.eo.esa.int/sites/default/modules'
+    into '/opt/f-tep-drupalmodules'
 
     from('src/main/resources') {
         user 'root'

@@ -1,4 +1,4 @@
-FROM centos:6.8
+FROM centos:6
 
 RUN sed -i 's/enabled=.*$/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 

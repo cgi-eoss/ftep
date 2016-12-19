@@ -3,7 +3,25 @@
 # module for available configuration of these classes.
 classes:
   - base
-#  - ftep::backend
-#  - ftep::portal
+#  - ftep::db
+#  - ftep::drupal
+#  - ftep::geoserver
+#  - ftep::proxy
+#  - ftep::webapp
+#  - ftep::wps
 
-# ftep::repo::location: file:///path/to/repo
+#ftep::repo::location: file:///path/to/repo
+
+#ftep::globals::hosts_override:
+#  ftep-db:
+#    ip: 127.0.0.1
+#  ftep-drupal:
+#    ip: 127.0.0.1
+#  ftep-geoserver:
+#    ip: 127.0.0.1
+#  ftep-proxy:
+#    ip: 127.0.0.1
+#  ftep-webapp:
+#    ip: 127.0.0.1
+#  ftep-wps:
+#    ip: 127.0.0.1

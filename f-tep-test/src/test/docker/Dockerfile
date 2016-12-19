@@ -1,4 +1,4 @@
-FROM centos:6.8
+FROM centos:6
 
 RUN sed -i 's/enabled=.*$/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf
 
@@ -8,6 +8,7 @@ RUN yum install -y \
  http://elgis.argeo.org/repos/6/elgis-release-6-6_0.noarch.rpm \
  https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-3.noarch.rpm \
  https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm \
+ https://mirror.webtatic.com/yum/el6/latest.rpm \
  && mv /etc/yum.repos.d/pgdg-95-centos.repo /etc/yum.repos.d/yum.postgresql.org.repo \
  && yum clean all
 

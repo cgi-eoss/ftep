@@ -16,7 +16,8 @@
     { "name": "mayflower-php", "version_requirement": ">= 3.4.2 < 4.0.0" },
     { "name": "tohuwabohu-drupal", "version_requirement": ">= 3.0.0 < 4.0.0" },
     { "name": "puppetlabs-postgresql", "version_requirement": ">= 4.8.0 < 5.0.0" },
-    { "name": "camptocamp-archive", "version_requirement": ">= 0.9.0 < 1.0.0" }
+    { "name": "camptocamp-archive", "version_requirement": ">= 0.9.0 < 1.0.0" },
+    { "name": "puppet-selinux", "version_requirement": ">= 0.5.0 < 1.0.0" }
   ],
   "data_provider": null,
   "operatingsystem_support": [

@@ -1,5 +1,6 @@
 <%- |
     Hash $db,
+    String $ftep_proxy
 | -%>
 <?php
 
@@ -280,6 +281,11 @@ $drupal_hash_salt = '';
  */
 # $base_url = 'http://www.example.com';  // NO trailing slash!
 
+# Work around Drupal's inability to detect when it's behind a reverse-proxy
+if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+};
+
 /**
  * PHP settings:
  *
@@ -399,13 +405,13 @@ ini_set('session.cookie_lifetime', 2000000);
  * Be aware, however, that it is likely that this would allow IP
  * address spoofing unless more advanced precautions are taken.
  */
-# $conf['reverse_proxy'] = TRUE;
+$conf['reverse_proxy'] = TRUE;
 
 /**
  * Specify every reverse proxy IP address in your environment.
  * This setting is required if $conf['reverse_proxy'] is TRUE.
  */
-# $conf['reverse_proxy_addresses'] = array('a.b.c.d', ...);
+$conf['reverse_proxy_addresses'] = array('<%= $ftep_proxy %>');
 
 /**
  * Set this value if your proxy server sends the client IP in a header

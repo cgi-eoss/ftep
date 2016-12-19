@@ -1,4 +1,4 @@
-class ftep::portal::shibboleth(
+class ftep::proxy::shibboleth(
   $service_ensure = 'running',
   $service_enable = true,
 
@@ -63,6 +63,13 @@ class ftep::portal::shibboleth(
   ],
 ) {
 
+  # mod_shib with the upstream shibboleth package must use a custom path
+  ::apache::mod { 'shib2':
+    id      => 'mod_shib',
+    path    => '/usr/lib64/shibboleth/mod_shib_22.so',
+    require => Package['shibboleth'],
+  }
+
   ensure_packages(['shibboleth'], {
     ensure => latest,
     tag    => 'ftep',
@@ -82,7 +89,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'shibd',
     group   => 'shibd',
-    content => $ftep::portal::tls_cert,
+    content => $ftep::proxy::tls_cert,
     require => Package['shibboleth'],
     notify  => Service['shibd'],
   }
@@ -92,7 +99,7 @@ class ftep::portal::shibboleth(
     mode    => '0600',
     owner   => 'shibd',
     group   => 'shibd',
-    content => $ftep::portal::tls_key,
+    content => $ftep::proxy::tls_key,
     require => Package['shibboleth'],
     notify  => Service['shibd'],
   }
@@ -102,7 +109,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/shibboleth2.xml.epp', {
+    content => epp('ftep/proxy/shibboleth/shibboleth2.xml.epp', {
       'clock_skew'               => $clock_skew,
       'sp_id'                    => $sp_id,
       'home_url'                 => $home_url,
@@ -127,7 +134,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/attribute-policy.xml.epp', { }),
+    content => epp('ftep/proxy/shibboleth/attribute-policy.xml.epp', { }),
     require => Package['shibboleth'],
   }
 
@@ -136,7 +143,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/attribute-map.xml.epp', {
+    content => epp('ftep/proxy/shibboleth/attribute-map.xml.epp', {
       'attributes' => $attribute_map,
     }),
     require => Package['shibboleth'],
@@ -155,9 +162,9 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/sp-metadata.xml.epp', {
+    content => epp('ftep/proxy/shibboleth/sp-metadata.xml.epp', {
       'sp_id'                            => $sp_id,
-      'sp_cert'                          => $ftep::portal::tls_cert,
+      'sp_cert'                          => $ftep::proxy::tls_cert,
       'assertion_consumer_services'      => $sp_assertion_consumer_services,
       'slo_service'                      => $sp_slo_service,
       'name_id_formats'                  => $sp_name_id_formats,
@@ -173,7 +180,7 @@ class ftep::portal::shibboleth(
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    content => epp('ftep/portal/shibboleth/idp-metadata.xml.epp', {
+    content => epp('ftep/proxy/shibboleth/idp-metadata.xml.epp', {
       'idp_id'                           => $idp_id,
       'idp_scope'                        => $idp_scope,
       'idp_cert'                         => $idp_cert,

@@ -21,9 +21,11 @@
     }
     .md-errors-spacer:empty { display: none; }
     .note {
-        background-color: lighten(@error, 30%);
-        border: solid 1px @error;
-        padding: 4px;
+        background-color: @error;
+        border: solid 1px @error-border;
+        color: @error-text;
+        padding: 0.25rem;
+        width: 100%;
     }
     .rzslider {
         .rz-bubble{
@@ -96,6 +98,9 @@
             }
             .toolbar-button {
                 padding: 0 0.25rem;
+                i {
+                    font-size: 1rem;
+                }
             }
             &:hover {
                 .toolbar-button {

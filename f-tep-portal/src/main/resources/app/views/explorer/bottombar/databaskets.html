@@ -1,110 +1,100 @@
-<div id="databaskets-panel">
-    <ul id="databasket-list" class="list">
+<section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-        <li class="list-item basket-item row no-padding"
-            ng-repeat="basket in databaskets | orderBy: 'attributes.name'"
-            dnd-draggable="getBasketDragItems(basket)">
+    <div class="item-list list">
+        <md-list-item class="md-2-line"
+                      ng-repeat="basket in databaskets | orderBy: 'attributes.name'"
+                      ng-click="showDatabasket(basket)"
+                      ng-dblclick="cacheBasket(basket);basketEdit = true">
 
-            <div class="col-xs-9 no-padding"
-                 ng-click="showDatabasket(basket)"
-                 ng-dblclick="cacheBasket(basket);basketEdit = true">
+            <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketDragItems(basket)">
+                <i class="material-icons"
+                   uib-tooltip="Drag Databasket"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">drag_handle</i>
+            </div>
 
-                <label class="selectable basket-name" ng-show="!basketEdit">{{basket.attributes.name}}</label>
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable basket-name" ng-show="!basketEdit">{{basket.attributes.name}}</h3>
 
-                <div class="row basket-edit" ng-show="basketEdit">
-
-                    <div class="col-xs-8 no-padding">
-                        <div class="input-group" ng-show="basketEdit">
-                            <input type="text"
-                                   class="form-control basket-rename"
-                                   ng-keyup="basketEdit = updateDatabasket($event.keyCode == 13, basket)"
-                                   ng-model="basket.attributes.name">
-                        </div>
-                    </div>
-
-                    <div class="col-xs-2 no-padding">
-                        <md-button class="toolbar-button"
-                                   ng-click="basket = getBasketCache(basket);basketEdit = false"
-                                   uib-tooltip="Cancel"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                           <i class="material-icons">close</i>
-                        </md-button>
-                    </div>
-
-                </div>
+                <input type="text"
+                       class="form-control basket-rename"
+                       ng-show="basketEdit"
+                       ng-keyup="basketEdit = updateDatabasket($event.keyCode == 13, basket)"
+                       ng-model="basket.attributes.name">
 
                 <p>Items: {{basket.relationships.files.data.length}}</p>
-
             </div>
 
-            <div class="col-xs-3 no-padding">
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="basketEdit"
+                       ng-click="basket = getBasketCache(basket); basketEdit = false"
+                       uib-tooltip="Cancel"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+               <i class="material-icons">close</i>
+            </md-button>
 
-                <div class="row no-padding basket-item-tools">
+            <md-button class="toolbar-button md-secondary"
+                   ng-show="basketEdit"
+                   ng-click="updateDatabasket($event.keyCode == 13, basket); basketEdit = false"
+                   uib-tooltip="Accept"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                <i class="material-icons">done</i>
+            </md-button>
 
-                    <div class="col-xs-6 no-padding">
-                        <md-button class="toolbar-button"
-                                   ng-click="cacheBasket(basket);basketEdit = true"
-                                   uib-tooltip="Edit"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">create</i>
-                        </md-button>
-                    </div>
-                    <div class="col-xs-6 no-padding">
-                        <md-button class="toolbar-button"
-                                   ng-click="removeDatabasket($event, basket)"
-                                   uib-tooltip="Delete"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">clear</i>
-                        </md-button>
-                    </div>
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="!basketEdit"
+                       ng-click="cacheBasket(basket);basketEdit = true"
+                       uib-tooltip="Rename"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">create</i>
+            </md-button>
 
-                </div>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeDatabasket($event, basket)"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
 
-                <div class="row no-padding basket-item-tools">
+            <md-button class="toolbar-button md-secondary"
+                        ng-click="cloneDatabasket($event, basket)"
+                        uib-tooltip="Clone"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                <i class="material-icons">content_copy</i>
+            </md-button>
 
-                    <div class="col-xs-6 no-padding">
-                        <md-button class="toolbar-button"
-                                    ng-click="cloneDatabasket($event, basket)"
-                                    uib-tooltip="Clone"
-                                    tooltip-placement="top"
-                                    tooltip-trigger="mouseenter"
-                                    tooltip-append-to-body="true">
-                            <i class="material-icons">content_copy</i>
-                        </md-button>
-                    </div>
-                    <div class="col-xs-6 no-padding">
-                        <md-button class="toolbar-button"
-                                   ng-show="dbLoaded.id != basket.id"
-                                   ng-click="loadBasket(basket)"
-                                   uib-tooltip="Load"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons"> visibility</i>
-                        </md-button>
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="dbLoaded.id != basket.id"
+                       ng-click="loadBasket(basket)"
+                       uib-tooltip="Load"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons"> visibility</i>
+            </md-button>
 
-                        <md-button class="toolbar-button"
-                                   ng-show="dbLoaded.id == basket.id"
-                                   ng-click="unloadBasket(basket)"
-                                   uib-tooltip="Unload"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                           <i class="material-icons"> visibility_off</i>
-                        </md-button>
-                    </div>
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="dbLoaded.id == basket.id"
+                       ng-click="unloadBasket(basket)"
+                       uib-tooltip="Unload"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+               <i class="material-icons"> visibility_off</i>
+            </md-button>
 
-                </div>
+        </md-list-item>
+    </div>
 
-            </div>
-
-        </li>
-
-    </ul>
-</div>
+</section>

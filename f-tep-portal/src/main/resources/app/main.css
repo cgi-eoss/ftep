@@ -115,6 +115,7 @@ input {
 }
 #bottombar #bottombar-contents .bottombar-pane {
   height: 100%;
+  width: 100%;
 }
 #bottombar #bottombar-contents .bottombar-pane .bottombar-left,
 #bottombar #bottombar-contents .bottombar-pane .bottombar-right {
@@ -165,51 +166,36 @@ input {
   width: 4px;
 }
 
+#databasket {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: 100%;
+}
 
-#databaskets-panel #databasket-list {
-  padding: 0;
+#databaskets {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: 100%;
 }
-#databaskets-panel #databasket-list .basket-item {
-  list-style: none;
-  margin: 0;
-  padding-left: 0.5rem;
-  border-bottom: #d9d9d9 solid 1px;
+#databaskets input {
+  height: 1.4rem;
+  padding-left: 4px;
+  padding-right: 4px;
+  z-index: 10;
 }
-#databaskets-panel #databasket-list .basket-item p {
-  padding: 0 0 0 4px;
-  margin: 0;
+#databaskets .md-avatar {
+  z-index: 1;
 }
-#databaskets-panel #databasket-list .basket-item .basket-name {
-  padding: 0 0 0 4px;
-  line-height: 1.8rem;
-  margin: 0;
-}
-#databaskets-panel #databasket-list .basket-item .basket-edit {
-  margin: 0;
-}
-#databaskets-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
-  display: inline-block;
-  height: 2rem;
-  position: relative;
-  padding: 0 0 0 4px;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools {
-  margin: 0;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button {
-  line-height: 1.5rem;
-  min-height: 1rem;
-  width: 100%;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button i {
-  font-size: 0.9rem;
-  text-align: center;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
-  color: #ff4081;
-}
-#databaskets-panel #databasket-list .basket-item:hover {
-  background-color: #aed581;
+#databaskets .ng-hide.ng-hide-animate {
+  display: none;
 }
 
 
@@ -406,9 +392,11 @@ ul[dnd-list] > li {
   display: none;
 }
 .ftep .note {
-  background-color: #ffffff;
-  border: solid 1px #f2dede;
-  padding: 4px;
+  background-color: #f2dede;
+  border: solid 1px #ebcccc;
+  color: #a94442;
+  padding: 0.25rem;
+  width: 100%;
 }
 .ftep .rzslider .rz-bubble {
   color: rgba(0, 0, 0, 0.7);
@@ -476,6 +464,9 @@ ul[dnd-list] > li {
 }
 .ftep .item-list md-list-item .toolbar-button {
   padding: 0 0.25rem;
+}
+.ftep .item-list md-list-item .toolbar-button i {
+  font-size: 1rem;
 }
 .ftep .item-list md-list-item:hover .toolbar-button {
   color: #ff4081;
@@ -843,9 +834,6 @@ ul[dnd-list] > li {
 #sidebar-left md-toolbar .md-toolbar-tools span {
   font-size: 1.0rem;
   text-transform: uppercase;
-}
-#sidebar-left .note {
-  margin: 0.8rem;
 }
 #sidebar-left .panel {
   background-color: transparent;

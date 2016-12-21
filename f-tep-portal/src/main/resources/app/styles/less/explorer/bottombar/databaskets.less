@@ -1,50 +1,19 @@
 @import "variable";
-#databaskets-panel {
-    #databasket-list {
-        padding: 0;
-        .basket-item {
-            list-style: none;
-            margin: 0;
-            padding-left: 0.5rem;
-            .border(border-bottom, @bg-light);
-            p {
-                padding: 0 0 0 4px;
-                margin: 0;
-            }
-            .basket-name {
-                padding: 0 0 0 4px;
-                line-height: 1.8rem;
-                margin: 0;
-            }
-            .basket-edit {
-                margin: 0;
-                .input-group {
-                    .basket-rename {
-                        display: inline-block;
-                        height: 2rem;
-                        position: relative;
-                        padding: 0 0 0 4px;
-                    }
-                }
-            }
-            .basket-item-tools {
-                margin: 0;
-                .md-button {
-                    line-height: 1.5rem;
-                    min-height: 1rem;
-                    width: 100%;
-                    i {
-                        font-size: 0.9rem;
-                        text-align: center;
-                    }
-                    &:hover {
-                        color: @accent;
-                    }
-                }
-            }
-            &:hover {
-                background-color: @brand-light;
-            }
-        }
+#databaskets {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
+    height: 100%;
+    input {
+        height: 1.4rem;
+        padding-left: 4px;
+        padding-right: 4px;
+        z-index: 10;
+    }
+    .md-avatar {
+        z-index: 1;
+    }
+    .ng-hide.ng-hide-animate{
+         display: none;
     }
 }

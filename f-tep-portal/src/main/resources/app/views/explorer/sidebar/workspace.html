@@ -1,6 +1,6 @@
 <div id="workspace-panel" class="panel panel-default">
 
-    <md-toolbar md-scroll-shrink>
+    <md-toolbar md-scroll-shrink class="sidebar-subheader">
         <div class="md-toolbar-tools">
             <div class="col-xs-12">
                 <span>Workspace</span>
@@ -8,106 +8,132 @@
         </div>
     </md-toolbar>
 
-    <div ng-if="!selectedService">
-        <h4 class="workspace-header" ng-hide="isWpsLoading">No selected service</h4>
-        <div class="note">Please select a service from the service panel first.</div>
-    </div>
+    <div class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-    <h4 class="workspace-header" ng-if="selectedService">{{selectedService.attributes.name}}</h4>
+        <section ng-if="!selectedService">
+            <div class="row service-header">
+                <md-subheader class="md-accent md-subheader-top service-title" ng-hide="isWpsLoading">
+                     No Selected Service
+                </md-subheader>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="note">Please select a service from the service panel first.</div>
+                </div>
+            </div>
+        </section>
 
-    <div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar">
-        <div class="scrollbar-contents panel-body">
+        <div ng-show="isWpsLoading">Loading...</div>
 
-            <div ng-show="isWpsLoading">loading...</div>
+        <div id="wps_{{serviceDescription.Identifier1}}" ng-if="selectedService" ng-hide="isWpsLoading">
 
-            <div ng-if="selectedService" ng-hide="isWpsLoading">
+            <section class="workspace-header">
 
-                <div id="wps_{{serviceDescription.Identifier1}}">
+                <div class="row service-header" ng-if="selectedService">
+                    <md-subheader class="md-accent md-subheader-top service-title">
+                        {{selectedService.attributes.name}}
+                    </md-subheader>
+                </div>
 
-                    <div class="row">
+                <div class="row service-description-title">
+                    <div class="col-md-12">
+                        <h4 ng-bind="serviceDescription.Title"></h4>
+                    </div>
+                </div>
+
+                <div class="row service-description">
+                    <div class="col-md-12">
+                        <h5 ng-bind="serviceDescription.Abstract"></h5>
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="workspace-content">
+
+                <div class="service-field" ng-repeat="fieldDesc in serviceDescription.DataInputs.Input">
+
+                    <div class="row checkbox-container" ng-show="fieldDesc.optional">
                         <div class="col-md-12">
-                            <h4 ng-bind="serviceDescription.Title"></h4>
+                            <md-checkbox ng-model="optionalInputs[fieldDesc.Identifier.__text]" aria-label="Service Option"/>
+                            <span ng-click="serviceTypes.value = !serviceTypes.value">
+                                {{fieldDesc.Identifier.__text}}
+                                <i class="material-icons"
+                                   uib-tooltip="{{fieldDesc.Abstract.__text}}"
+                                   tooltip-placement="right"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                                    info
+                                </i>
+                            </span>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label class="service-desc" ng-bind="serviceDescription.Abstract"></label>
+                    <div class="input-container"
+                         ng-show="fieldDesc.optional == false || optionalInputs[fieldDesc.Identifier.__text] == true">
+
+                        <div class="row input-header" ng-hide="fieldDesc.optional">
+                            <md-subheader class="md-accent">
+                                {{fieldDesc.Identifier.__text}} - {{fieldDesc.Title.__text}}
+                            </md-subheader>
                         </div>
-                    </div>
 
-                    <div class="service-sub-section">
+                        <div class="row input-item">
+                           <div class="col-md-12">
+                                <md-input-container md-no-float>
+                                    <input ng-model="inputValues[fieldDesc.Identifier.__text]"
+                                           type="{{getInputType(fieldDesc)}}"
+                                           dnd-list="dropLists[fieldDesc.Identifier.__text]"
+                                           dnd-drop="onDrop(item, fieldDesc.Identifier.__text)">
+                                    <div class="hint" ng-show="true">{{fieldDesc.Abstract.__text}}</div>
+                                </md-input-container>
+                           </div>
+                       </div>
 
-                        <div class="service-field" ng-repeat="fieldDesc in serviceDescription.DataInputs.Input">
+                        <div class="row drop-items">
+                            <div class="col-md-12">
 
-                            <div class="row" ng-show="fieldDesc.optional">
-                                <div class="col-md-12">
-                                    {{fieldDesc.Identifier.__text}}
-                                    <input class="optional-checkbox" type="checkbox" ng-model="optionalInputs[fieldDesc.Identifier.__text]" />
-                                    <span class="glyphicon glyphicon-info-sign info-hover"
-                                          uib-tooltip="{{fieldDesc.Abstract.__text}}"
-                                          tooltip-placement="right"
-                                          tooltip-trigger="mouseenter"
-                                          tooltip-append-to-body="true">
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div ng-show="fieldDesc.optional == false || optionalInputs[fieldDesc.Identifier.__text] == true">
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span ng-hide="fieldDesc.optional">{{fieldDesc.Identifier.__text}} - </span>{{fieldDesc.Title.__text}}
-                                        <span class="glyphicon glyphicon-info-sign info-hover"
-                                          uib-tooltip="{{fieldDesc.Abstract.__text}}"
-                                          tooltip-placement="right"
-                                          tooltip-trigger="mouseenter"
-                                          tooltip-append-to-body="true">
-                                    </span>
+                                <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
+                                         uib-tooltip="{{item}}"
+                                         tooltip-placement="top"
+                                         tooltip-trigger="mouseenter"
+                                         tooltip-append-to-body="true">
+                                    <div class="md-chip-content">
+                                        {{getShortName(item)}}
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <input class="form-control" type="{{getInputType(fieldDesc)}}" ng-model="inputValues[fieldDesc.Identifier.__text]" dnd-list="dropLists[fieldDesc.Identifier.__text]" dnd-drop="onDrop(item, fieldDesc.Identifier.__text)" />
+                                    <div class="md-chip-close">
+                                        <i class="material-icons"
+                                           ng-click="removeSelectedItem(fieldDesc.Identifier.__text, item)">
+                                            close
+                                        </i>
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <ul class="dropzone-list">
-                                        <li class="drop-list-item"
-                                            ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
-                                            uib-tooltip="{{item}}"
-                                            tooltip-placement="top"
-                                            tooltip-trigger="mouseenter"
-                                            tooltip-append-to-body="true">
-                                            {{getShortName(item)}}
-                                            <span class="glyphicon glyphicon-remove drop-item-delete"
-                                                  ng-click="removeSelectedItem(fieldDesc.Identifier.__text, item)">
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
+                                </md-chip>
 
                             </div>
-
                         </div>
 
                     </div>
 
                 </div>
 
-                <md-button class="launch-button"
+                <md-button id="launch-button"
+                           class="md-icon-button md-fab md-mini btn-success"
                            ng-hide="isWpsLoading"
-                           ng-click="launchProcessing(); displayTab('JOB')">
-                    Execute / Launch
+                           aria-label="Launch"
+                           ng-click="displayTab('JOB'); launchProcessing()"
+                           uib-tooltip="Launch"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">play_arrow</i>
                 </md-button>
 
-                <div class="gray" ng-if="info">{{info}}</div>
+                <div class="info" ng-if="info">{{info}}</div>
 
-            </div>
+            </section>
 
         </div>
+
     </div>
 
 </div>

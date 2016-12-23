@@ -1,75 +1,79 @@
 @import "variable";
 #workspace-panel {
-    .workspace-header {
+    .info {
+        color: @accent;
+    }
+    .service-header {
         text-align: center;
+        .service-title {
+            font-size: 1.2rem;
+            margin-bottom: 0;
+        }
+    }
+    .workspace-content {
+        font-size: 0.8rem;
+        line-height: 1rem;
+        i {
+            font-size: 0.9rem;
+        }
+    }
+    #launch-button {
+        background-color: @accent-light;
+        bottom: 20px;
+        float: right;
+        height: 40px;
+        margin: 0;
+        min-height: 0;
+        padding: 0;
+        position: fixed;
+        right: 40px;
+        width: 40px;
+        .material-icons {
+            color: @text-light;
+            font-size: 30px;
+            height: 100%;
+            line-height: 40px;
+            width: 100%;
+        }
+        &:hover {
+            background-color: @accent;
+        }
     }
 }
 
-.service-field{
-    margin: 4px 0px 10px 0px;
-}
-
-.optional-checkbox{
-    margin-left: 6px!important;
-}
-
-.btn-close-workspace {
+md-chip {
+    background-color: @light-gray;
+    border-radius: 16px;
+    color: @dark-gray;
+    display: block;
     float: left;
-    background-color: transparent;
-    padding-left: 0.2em;
-    padding-top: 3px;
-}
-
-.dropzone {
-    height: 130px;
-    border: solid 1px #e8e8e8;
-    margin: 12px 2px 2px 2px;
-    padding: 3px;
-}
-
-.dropzone-list {
-    list-style-type: none;
-    padding-left: 2px;
-    margin-left: 20px;
-}
-
-.dropzone-list li{
-    display: inline-block;
-    width: 100px;
-    height: 30px;
-    background-color: #f4f4f4;
-    border-radius: 5px;
-    border: solid 1px #c0c0c0;
-    padding: 2px;
+    font-size: 12px;
+    height: 32px;
+    line-height: 32px;
     margin: 2px;
+    max-width: 110px;
+    padding-left: 12px;
+    .md-chip-content {
+        float: left;
+        height: 32px;
+        max-width: 50px;
+        overflow: hidden;
+        padding-right: 4px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .md-chip-close {
+        float: right;
+        line-height: 22px;
+        padding-right: 12px;
+        padding-top: 4px;
+        i {
+            cursor: pointer;
+            font-size: 12px;
+        }
+    }
+    &:hover {
+        background-color: @alert-text;
+        color: @text-light;
+    }
 }
-
-.drop-item-delete{
-    position: relative;
-    float: right;
-}
-
-.itemCounter {
-   padding: 1px 5px;
-   float: right;
-   background: #e6e6e6;
-   -moz-border-radius: 50%;
-   -webkit-border-radius: 50%;
-   border-radius: 50%;
-}
-
-.launch-button {
-    margin-left: 10px;
-    background-color: #345A3D;
-    color: #fff;
-}
-
-.launch-button[disabled] {
-    background-color: #c0c0c0;
-    color: #fff !important;
-}
-
-.launch-button:HOVER:not([disabled]){
-    background-color: #107e3f !important;
-}
-

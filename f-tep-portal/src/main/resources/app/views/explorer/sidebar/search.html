@@ -2,7 +2,7 @@
 
     <md-toolbar md-scroll-shrink class="sidebar-subheader">
         <div class="md-toolbar-tools">
-            <div class="col-xs-12 no-padding">
+            <div class="col-xs-12">
                 <span>Search</span>
             </div>
         </div>
@@ -166,14 +166,14 @@
         </form>
 
         <md-button id="searchButton"
-                           class="md-icon-button md-fab md-mini btn-success"
-                           ng-show="!showDataSources"
-                           type="submit"
-                           form="searchForm"
-                           ng-disabled="searchForm.$invalid"
-                           aria-label="Search"
-                           ng-click="displayTab('RESULTS')">
-                    <i class="material-icons">search</i>
+                   class="md-icon-button md-fab md-mini btn-success"
+                   ng-show="!showDataSources"
+                   type="submit"
+                   form="searchForm"
+                   ng-disabled="searchForm.$invalid"
+                   aria-label="Search"
+                   ng-click="displayTab('RESULTS')">
+            <i class="material-icons">search</i>
         </md-button>
 
     </div>

@@ -18,7 +18,7 @@ Vagrant.configure('2') do |config|
       d.build_dir = './build'
       d.build_args = ['--build-arg=http_proxy', '--build-arg=https_proxy', '--build-arg=no_proxy']
       # Change the internal 'ftep' uid to the current user's uid, and launch sshd
-      d.cmd = ['/usr/sbin/sshdBootstrap.sh', `id -u`.chomp, '/usr/sbin/sshd', '-D', '-e']
+      d.cmd = ['/usr/sbin/sshdBootstrap.sh', `id -u`.chomp, `id -g`.chomp, '/usr/sbin/sshd', '-D', '-e']
       d.has_ssh = true
     end
   end
@@ -60,7 +60,7 @@ Vagrant.configure('2') do |config|
     #   - ftep::backend
     # ftep::repo::location: 'file:///vagrant/.dist/repo'
     #
-    config.puppet_install.puppet_version = '4.8.0'
+    config.puppet_install.puppet_version = '4.8.1'
     ftep.vm.provision 'puppet' do |puppet|
       puppet.environment_path = 'distribution'
       puppet.environment = 'puppet'

@@ -7,6 +7,7 @@
 # arguments are invoked as-is, allowing e.g. sshd to be started.
 
 /usr/sbin/usermod -u $1 ftep
-shift
+/usr/sbin/groupmod -g $2 ftep
+shift 2
 
 $@

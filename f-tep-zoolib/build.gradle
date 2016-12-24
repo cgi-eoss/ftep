@@ -10,8 +10,9 @@ dependencies {
     compile project(':f-tep-rpc')
     compile project(':f-tep-orchestrator')
 
-    compile deps.slf4j
+    compile deps.guava
     compile deps.logbackClassic
+    compile deps.slf4j
     compile deps.slf4jJulBridge
 
     testCompile deps.hamcrestJunit

@@ -1,18 +1,23 @@
 package com.cgi.eoss.ftep.wps;
 
+import com.cgi.eoss.ftep.rpc.ApplicationLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.ApplicationParams;
+import com.cgi.eoss.ftep.rpc.ApplicationResponse;
+import com.cgi.eoss.ftep.rpc.Param;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PreDestroy;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WpsServicesClient {
 
     private final ManagedChannel channel;
-    private final ApplicationLauncherGrpc.ApplicationLauncherBlockingStub blockingStub;
-    private final ApplicationLauncherGrpc.ApplicationLauncherStub asyncStub;
+    private final ApplicationLauncherGrpc.ApplicationLauncherBlockingStub applicationLauncherBlockingStub;
+    private final ApplicationLauncherGrpc.ApplicationLauncherStub applicationLauncherStub;
 
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
@@ -28,8 +33,8 @@ public class WpsServicesClient {
      */
     public WpsServicesClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
-        blockingStub = ApplicationLauncherGrpc.newBlockingStub(channel);
-        asyncStub = ApplicationLauncherGrpc.newStub(channel);
+        applicationLauncherBlockingStub = ApplicationLauncherGrpc.newBlockingStub(channel);
+        applicationLauncherStub = ApplicationLauncherGrpc.newStub(channel);
     }
 
     /**
@@ -45,25 +50,25 @@ public class WpsServicesClient {
     /**
      * <p>Launch a WPS Application with a blocking call, and stream the response messages (i.e. lines from the
      * application stdout/stderr) as they arrive.</p>
-     * @param jobId
+     *
+     * @param jobId The job ID as set by the WPS server.
      * @param appName The application name. This is used to determine the docker container to launch.
-     * @param userId
-     * @param serviceId
-     * @param input The WPS parameter input. Expected to be the URL to an input file.
-     * @param output The WPS parameter output. Expected to be the URL to an output file.
-     * @param timeout
+     * @param userId The ID of the user launching the service.
+     * @param serviceId The ID of the service being launched. Used to determine the application container to use.
+     * @param inputs The WPS parameter input. Expected to be a list of URLs to the input files.
+     * @param timeout The maximum running time of the application in hours. The application will be terminated after
+     * this.
      */
-    public String launchApplication(String jobId, String appName, String userId, String serviceId, String input, String output, String timeout) {
+    public String launchApplication(String jobId, String appName, String userId, String serviceId, List<String> inputs, int timeout) {
         ApplicationParams request = ApplicationParams.newBuilder()
                 .setJobId(jobId)
                 .setAppName(appName)
                 .setUserId(userId)
                 .setServiceId(serviceId)
-                .setInput(input)
-                .setOutput(output)
-                .setTimeout(Integer.parseInt(timeout))
+                .addInputs(Param.newBuilder().setParamName("inputs").addAllParamValue(inputs).build())
+                .setTimeout(timeout)
                 .build();
-        ApplicationResponse applicationResponse = blockingStub.launchApplication(request);
+        ApplicationResponse applicationResponse = applicationLauncherBlockingStub.launchApplication(request);
         return applicationResponse.getOutputUrl();
     }
 

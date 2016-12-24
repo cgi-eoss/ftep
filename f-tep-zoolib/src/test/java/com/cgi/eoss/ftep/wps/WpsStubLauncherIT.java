@@ -3,13 +3,13 @@ package com.cgi.eoss.ftep.wps;
 import com.cgi.eoss.ftep.StandaloneWpsStub;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.orchestrator.DownloadManager;
 import com.cgi.eoss.ftep.orchestrator.FtepJsonApi;
 import com.cgi.eoss.ftep.orchestrator.JobEnvironmentService;
 import com.cgi.eoss.ftep.orchestrator.JobStatusService;
 import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.orchestrator.Worker;
-import com.cgi.eoss.ftep.orchestrator.WpsServicesServer;
+import com.cgi.eoss.ftep.orchestrator.ApplicationLauncher;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -40,7 +40,7 @@ public class WpsStubLauncherIT {
     private FtepJsonApi api;
 
     @Mock
-    private DownloadManager downloadManager;
+    private ServiceInputOutputManager inputOutputManager;
 
     @Spy
     @InjectMocks
@@ -54,21 +54,21 @@ public class WpsStubLauncherIT {
     @InjectMocks
     private JobEnvironmentService jobEnvironmentService;
 
-    private WpsServicesServer wpsServicesServer;
+    private ApplicationLauncher applicationLauncher;
 
     private FileSystem fs;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.wpsServicesServer = new WpsServicesServer(downloadManager, workerService, jobStatusService, jobEnvironmentService);
+        this.applicationLauncher = new ApplicationLauncher(workerService, jobStatusService, jobEnvironmentService);
 
         this.fs = Jimfs.newFileSystem(Configuration.unix());
 
         when(jobEnvironmentService.getBasedir()).thenReturn(fs.getPath("/"));
 
         when(workerService.getWorker()).thenReturn(worker);
-        StandaloneOrchestrator.resetServices(ImmutableSet.of(wpsServicesServer));
+        StandaloneOrchestrator.resetServices(ImmutableSet.of(applicationLauncher));
     }
 
     @Test

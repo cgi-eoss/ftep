@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep;
 
 import com.cgi.eoss.ftep.wps.StandaloneOrchestrator;
 import com.cgi.eoss.ftep.wps.WpsServicesClient;
+import com.google.common.collect.ImmutableList;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,13 @@ public final class StandaloneWpsStub {
 
             LOG.info("Calling service StandaloneWpsStub");
 
-            String outputUrl = client.launchApplication("testJob", "testApp", "testUser", "testService", "INPUT_FILE", "OUTPUT_FILE", "1");
+            String outputUrl = client.launchApplication(
+                    "testJob",
+                    "testApp",
+                    "testUser",
+                    "testService",
+                    ImmutableList.of("ftep://INPUT_FILE"),
+                    1);
 
             return 3;
         } catch (Exception e) {

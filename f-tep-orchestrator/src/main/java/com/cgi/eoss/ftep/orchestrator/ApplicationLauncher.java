@@ -1,14 +1,13 @@
 package com.cgi.eoss.ftep.orchestrator;
 
-import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.JobStep;
+import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.wps.ApplicationLauncherGrpc;
-import com.cgi.eoss.ftep.wps.ApplicationParams;
-import com.cgi.eoss.ftep.wps.ApplicationResponse;
+import com.cgi.eoss.ftep.rpc.*;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,19 +17,16 @@ import java.io.IOException;
  * <p>Server endpoint for the ApplicationLauncher RPC service.</p>
  */
 @Slf4j
-public class WpsServicesServer extends ApplicationLauncherGrpc.ApplicationLauncherImplBase {
+public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLauncherImplBase {
 
-    private final DownloadManager downloadManager;
     private final WorkerService workerService;
     private final JobStatusService jobStatusService;
     private final JobEnvironmentService jobEnvironmentService;
 
-    public WpsServicesServer(DownloadManager downloadManager,
-                             WorkerService workerService,
-                             JobStatusService jobStatusService,
-                             JobEnvironmentService jobEnvironmentService) {
+    public ApplicationLauncher(WorkerService workerService,
+                               JobStatusService jobStatusService,
+                               JobEnvironmentService jobEnvironmentService) {
         // TODO Distribute by configuring and connecting to these services via RPC
-        this.downloadManager = downloadManager;
         this.workerService = workerService;
         this.jobStatusService = jobStatusService;
         this.jobEnvironmentService = jobEnvironmentService;
@@ -62,19 +58,22 @@ public class WpsServicesServer extends ApplicationLauncherGrpc.ApplicationLaunch
         try {
             ApiEntity<ResourceJob> apiJob = jobStatusService.create(job.getJobId(), job.getUserId(), job.getServiceId());
 
+            // Get a worker
+            Worker worker = workerService.getWorker();
+
             // Set up input data
             LOG.info("Downloading input data for {}", job.getJobId());
             apiJob.getResource().setStep(JobStep.DATA_FETCH.getText());
             jobStatusService.update(apiJob);
-            downloadInputs(job, request.getInput());
+
+            Multimap<String, String> inputs = com.cgi.eoss.ftep.rpc.GrpcUtil.getInputsAsMap(request);
+            worker.prepareInputs(inputs, job.getInputDir());
 
             // Start the application
             apiJob.getResource().setStep(JobStep.PROCESSING.getText());
             jobStatusService.update(apiJob);
             String dockerImageTag = new FtepWpsServices().getImageFor(job.getServiceId());
             LOG.info("Launching docker image {} for {}", dockerImageTag, job.getJobId());
-
-            Worker worker = workerService.getWorker();
 
             String guacamolePort = "8080/tcp";
             String containerId = worker.launchDockerContainer(DockerLaunchConfig.builder()
@@ -117,10 +116,6 @@ public class WpsServicesServer extends ApplicationLauncherGrpc.ApplicationLaunch
             LOG.error("Failed to launch application; notifying gRPC client", e);
             responseObserver.onError(e);
         }
-    }
-
-    private void downloadInputs(FtepJob job, String inputUrl) {
-        // TODO
     }
 
 }

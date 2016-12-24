@@ -74,7 +74,8 @@ def depVersions = [
         springDataCommons: '1.12.5.RELEASE',
         springDataJpa    : '1.10.5.RELEASE',
         springBoot       : '1.4.2.RELEASE',
-        testContainers   : '1.1.7'
+        testContainers   : '1.1.7',
+        wget             : '1.4.3'
 ]
 
 ext.deps = [
@@ -118,6 +119,7 @@ ext.deps = [
         springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
         springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
         springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
+        wget                   : 'com.github.axet:wget:' + depVersions.wget,
 
         awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
         hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,

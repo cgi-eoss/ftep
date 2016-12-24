@@ -15,8 +15,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
  * the docker-java API.</p>
  */
 @Data
+@Slf4j
 public class Worker {
 
     private static final String DEFAULT_DOCKER_HOST = "localhost";
@@ -35,21 +38,15 @@ public class Worker {
     private static final RemoteApiVersion DEFAULT_DOCKER_API_VERSION = RemoteApiVersion.VERSION_1_22;
     private static final String DEFAULT_DOCKER_CERT_PATH = System.getProperty("user.home") + File.separator + ".docker";
 
-    private String dockerHost;
-    private String dockerPort;
-    private String dockerCertPath;
-    private String dockerApiVersion;
-
-    private DockerClient dockerClient;
+    private final DockerClient dockerClient;
+    private final ServiceInputOutputManager inputOutputManager;
 
     @Builder
-    private Worker(String dockerHost, String dockerPort, String dockerCertPath, String dockerApiVersion) {
-        this.dockerHost = dockerHost;
-        this.dockerPort = dockerPort;
-        this.dockerCertPath = dockerCertPath;
-        this.dockerApiVersion = dockerApiVersion;
-
-        this.dockerClient = buildDockerClient();
+    private Worker(ServiceInputOutputManager inputOutputManager, String dockerHost, String dockerPort, String dockerCertPath, String dockerApiVersion, DockerClient dockerClient) {
+        this.inputOutputManager = inputOutputManager;
+        this.dockerClient = dockerClient == null
+                ? buildDockerClient(dockerHost, dockerPort, dockerCertPath, dockerApiVersion)
+                : dockerClient;
     }
 
     /**
@@ -125,23 +122,46 @@ public class Worker {
     }
 
     /**
+     * @param dockerHost
+     * @param dockerPort
+     * @param dockerCertPath
+     * @param dockerApiVersion
      * @return A configured {@link DockerClient} appropriate for this Worker, including remote docker-engine access and
      * authentication if necessary.
      */
-    private DockerClient buildDockerClient() {
+    private DockerClient buildDockerClient(String dockerHost, String dockerPort, String dockerCertPath, String dockerApiVersion) {
         DockerClientConfig.DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(dockerApiVersion);
 
+        String hostUrl;
         if (!dockerHost.equals(DEFAULT_DOCKER_HOST)) {
-            configBuilder.withDockerHost("tcp://" + dockerHost + ":" + dockerPort)
-                    .withDockerTlsVerify(true)
-                    .withDockerCertPath(dockerCertPath);
+            // Use TLS-secured remote docker host
+            hostUrl = "tcp://" + dockerHost + ":" + dockerPort;
+            configBuilder.withDockerTlsVerify(true).withDockerCertPath(dockerCertPath);
         } else {
             // Use the default unix socket rather than TCP to localhost
-            configBuilder.withDockerHost("unix:///var/run/docker.sock");
+            hostUrl = "unix:///var/run/docker.sock";
+            configBuilder.withDockerHost(hostUrl);
         }
+        configBuilder.withDockerHost(hostUrl);
+        LOG.info("Worker connecting to docker: {}", hostUrl);
 
         return DockerClientBuilder.getInstance(configBuilder.build()).build();
+    }
+
+    /**
+     * <p>Ensure the map of input files is prepared in the given location. This may involve downloading products from
+     * external hosts, or copying/symlinking existing files.</p>
+     *
+     * @param inputs Collection of inputs to be prepared. The multi-map key specifies the subdir name within
+     * <code>inputDir</code> while the multi-map values specify the URLs to be prepared in the subdir.
+     * @param inputDir
+     */
+    public void prepareInputs(Multimap<String, String> inputs, Path inputDir) {
+        inputs.keys().forEach(subdir -> {
+            Path subdirPath = inputDir.resolve(subdir);
+            inputOutputManager.prepareInput(subdirPath, inputs.get(subdir));
+        });
     }
 
     // Prepare default parameters for the builder.

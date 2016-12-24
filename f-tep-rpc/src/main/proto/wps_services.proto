@@ -1,11 +1,16 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "com.cgi.eoss.ftep.wps";
+option java_package = "com.cgi.eoss.ftep.rpc";
 option java_outer_classname = "WpsServices";
 
 service ApplicationLauncher {
     rpc LaunchApplication (ApplicationParams) returns (ApplicationResponse) {
+    }
+}
+
+service ProcessorLauncher {
+    rpc LaunchProcessor (ProcessorParams) returns (ProcessorResponse) {
     }
 }
 
@@ -14,11 +19,28 @@ message ApplicationParams {
     string userId = 2;
     string serviceId = 3;
     string appName = 4;
-    string input = 5;
+    repeated Param inputs = 5;
     string output = 6;
     int32 timeout = 7;
 }
 
 message ApplicationResponse {
     string outputUrl = 1;
+}
+
+message ProcessorParams {
+    string jobId = 1;
+    string userId = 2;
+    string serviceId = 3;
+    repeated Param inputs = 4;
+    repeated Param outputs = 5;
+}
+
+message ProcessorResponse {
+
+}
+
+message Param {
+    string paramName = 1;
+    repeated string paramValue = 2;
 }

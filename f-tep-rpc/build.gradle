@@ -40,6 +40,8 @@ protobuf {
 }
 
 dependencies {
+    compileOnly deps.lombok
+
     compile deps.grpcNetty
     compile deps.grpcProtobuf
     compile deps.grpcStub

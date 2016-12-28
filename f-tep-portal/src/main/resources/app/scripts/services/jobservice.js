@@ -95,6 +95,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   then(function(response) {
                       resolve(job);
+                      if(jobListCache != undefined){
+                          var i = jobListCache.data.indexOf(job);
+                          jobListCache.data.splice(i, 1);
+                          jobListCache.meta.total = (jobListCache.meta.total - 1);
+                      }
                   }).
                   catch(function(e) {
                       window.alert('Failed to remove job');

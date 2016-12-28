@@ -5,59 +5,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                  function ($scope, $rootScope, ProductService, $sce) {
 
 
-            // Set initial selected missions to none
+            // Service types which services are grouped by
              $scope.serviceTypes = [
                  {
                     type: "processor",
-                    label: "Processors",
-                    value: true
+                    label: "Processors"
                 }, {
                     type: 'application',
-                    label: "GUI Applications",
-                    value: true
+                    label: "GUI Applications"
                 }
             ];
-
-            var temp = JSON.parse(JSON.stringify($scope.serviceTypes));
-
-            $scope.selected = temp;
-
-            // Toggle checkbox when selected
-            $scope.toggle = function (item, list) {
-                var idx = list.indexOf(item);
-                if (idx > -1) {
-                    list.splice(idx, 1);
-                } else {
-                    list.push(item);
-                }
-            };
-
-            // Sets the check attribute
-            $scope.exists = function (item, list) {
-                return list.indexOf(item) > -1;
-            };
 
             $scope.services = [];
             ProductService.getServices().then(function (data) {
                 $scope.services = data;
             });
-
-            $scope.toggleFilters = function () {
-                $scope.displayFilters = !$scope.displayFilters;
-                $scope.$broadcast('rebuild:scrollbar');
-            };
-
-            $scope.filteredServiceTypes = [];
-            $scope.filterServices = function () {
-                //TODO another query?
-                $scope.filteredServiceTypes = [];
-                for (var i = 0; i < $scope.serviceTypes.length; i++) {
-                    if ($scope.serviceTypes[i].value === true) {
-                        $scope.filteredServiceTypes.push($scope.serviceTypes[i].type);
-                    }
-                }
-            };
-            $scope.filterServices();
 
             $scope.serviceSearch = {
                 searchText: ''

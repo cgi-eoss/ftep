@@ -9,30 +9,41 @@
     </md-toolbar>
 
     <section class="filter-list">
-        <ul class="list">
+       <div class="row">
+            <div class="col-md-12">
+                <md-input-container md-no-float>
+                    <input ng-model="serviceSearch.searchText" type="text" placeholder="Search Services">
+                </md-input-container>
+            </div>
+       </div>
+    </section>
 
-            <div class="row no-margin list-group filter-list-title">
+    <section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-                <div class="col-md-11" ng-click="toggleFilters()">
-                    <label class="md-accent">Filters</label>
+        <ul class="list" ng-repeat="serviceType in serviceTypes" ng-init="isServiceTypeOpened = true">
+
+            <div class="row no-margin list-group">
+
+                <div class="col-md-11" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
+                    <label>{{serviceType.label}}</label>
                 </div>
 
                 <div class="col-md-1 no-padding expander">
                     <i class="material-icons"
-                       ng-show="!displayFilters"
-                       ng-click="toggleFilters()"
-                       aria-label="Show Filters"
-                       uib-tooltip="Show Filters"
+                       ng-show="!isServiceTypeOpened"
+                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
+                       aria-label="Show {{serviceType.label}}"
+                       uib-tooltip="Show {{serviceType.label}}"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true">
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="displayFilters"
-                       ng-click="toggleFilters()"
-                       aria-label="Hide Filters"
-                       uib-tooltip="Hide Filters"
+                       ng-show="isServiceTypeOpened"
+                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
+                       aria-label="Hide {{serviceType.label}}"
+                       uib-tooltip="Hide {{serviceType.label}}"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true">
@@ -42,32 +53,11 @@
 
             </div>
 
-            <div class="row" ng-show="displayFilters">
-                <div class="col-md-12">
-                    <md-input-container md-no-float>
-                        <input ng-model="serviceSearch.searchText" type="text" placeholder="Search Services">
-                    </md-input-container>
-                </div>
-            </div>
-
-            <div class="row filter-checkboxes" ng-show="displayFilters">
-                <div class="col-md-12 check-container"
-                     ng-click="filterServices()"
-                     ng-repeat="serviceType in serviceTypes">
-                    <md-checkbox ng-model="serviceType.value" aria-label="Service Filter"/>
-                    <span ng-click="serviceTypes.value = !serviceTypes.value">{{serviceType.label}}</span>
-                </div>
-            </div>
-
-        </ul>
-    </section>
-
-    <section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
-
         <div class="item-list list">
+
             <md-list-item class="md-2-line"
                           ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
-                          ng-if="filteredServiceTypes.indexOf(service.attributes.kind) > -1"
+                          ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
                           ng-click="selectService(service); toggleSidebar('workspace')">
 
                 <div class="md-list-item-text" layout="column">
@@ -88,6 +78,7 @@
 
             </md-list-item>
         </div>
+        </ul>
 
     </section>
 

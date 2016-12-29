@@ -3,8 +3,7 @@
     <div class="item-list list">
         <md-list-item class="md-2-line"
                       ng-repeat="basket in databaskets | orderBy: 'attributes.name'"
-                      ng-click="showDatabasket(basket)"
-                      ng-dblclick="cacheBasket(basket);basketEdit = true">
+                      ng-click="showDatabasket(basket)">
 
             <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketDragItems(basket)">
                 <i class="material-icons"
@@ -15,41 +14,14 @@
             </div>
 
             <div class="md-list-item-text" layout="column">
-                <h3 class="selectable basket-name" ng-show="!basketEdit">{{basket.attributes.name}}</h3>
-
-                <input type="text"
-                       class="form-control basket-rename"
-                       ng-show="basketEdit"
-                       ng-keyup="basketEdit = updateDatabasket($event.keyCode == 13, basket)"
-                       ng-model="basket.attributes.name">
+                <h3 class="selectable basket-name">{{basket.attributes.name}}</h3>
 
                 <p>Items: {{basket.relationships.files.data.length}}</p>
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="basketEdit"
-                       ng-click="basket = getBasketCache(basket); basketEdit = false"
-                       uib-tooltip="Cancel"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-               <i class="material-icons">close</i>
-            </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                   ng-show="basketEdit"
-                   ng-click="updateDatabasket($event.keyCode == 13, basket); basketEdit = false"
-                   uib-tooltip="Accept"
-                   tooltip-placement="top"
-                   tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">
-                <i class="material-icons">done</i>
-            </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                       ng-show="!basketEdit"
-                       ng-click="cacheBasket(basket);basketEdit = true"
-                       uib-tooltip="Rename"
+                       ng-click="editDatabasketDialog($event, basket)"
+                       uib-tooltip="Edit"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true">

@@ -9,7 +9,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
     ftepmodules.controller('ResultsCtrl',
-            [ '$scope', '$rootScope', 'CommonService', 'JobService', 'GeoService','BasketService', function($scope, $rootScope, CommonService, JobService, GeoService, BasketService) {
+            [ '$scope', '$rootScope', 'CommonService', 'JobService', 'GeoService', function($scope, $rootScope, CommonService, JobService, GeoService) {
 
                 $scope.pageNumber = 1;
                 $scope.resultsCurrentPage = 1;
@@ -139,93 +139,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         return object[key] === value;
                     });
                   }
-
-                /* Selected Databasket */
-                $scope.selectedDatabasket = undefined;
-
-                $scope.$on('update.databasket', function(event, basket, items) {
-                    $scope.resultTabs.selected = 1;
-                    $scope.selectedDatabasket = basket;
-                    $scope.selectedDatabasket.items= items;
-                });
-
-                $scope.addToDatabasket = function() {
-                    for (var i = 0; i < selectedResultItems.length; i++) {
-                        var found = false;
-                        for(var k = 0; k < $scope.selectedDatabasket.items.length; k++){
-                            if(angular.equals(selectedResultItems[i], $scope.selectedDatabasket.items[k])){
-                                found = true;
-                                break;
-                            }
-                            else if($scope.selectedDatabasket.items[k].name && $scope.selectedDatabasket.items[k].name == selectedResultItems[i].identifier){
-                                found = true;
-                                break;
-                            }
-                        }
-                        if(!found){
-                            $scope.selectedDatabasket.items.push(selectedResultItems[i]);
-                        }
-                    }
-                    BasketService.addBasketItems($scope.selectedDatabasket, $scope.selectedDatabasket.items);
-                };
-
-                $scope.addOutputsToDatabasket = function() {
-                    for (var i = 0; i < jobSelectedOutputs.length; i++) {
-                        if($scope.selectedDatabasket.items.indexOf(jobSelectedOutputs[i]) < 0){
-                            $scope.selectedDatabasket.items.push(jobSelectedOutputs[i]);
-                        }
-                    }
-                    //$scope.resultTabs.selected = 1;
-                };
-
-                $scope.clearDatabasket = function() {
-                    $scope.selectedDatabasket.items = [];
-                };
-
-                $scope.removeItemFromBasket = function(item) {
-                    if(item.name){
-                        BasketService.removeRelation($scope.selectedDatabasket, item).then(function() {
-                            removeFromBasket(item);
-                        });
-                    }
-                    else{
-                        removeFromBasket(item);
-                    }
-                };
-
-                function removeFromBasket(item){
-                    var i = $scope.selectedDatabasket.items.indexOf(item);
-                    $scope.selectedDatabasket.items.splice(i, 1);
-                }
-
-                $scope.createNewBasket = function($event){
-                    switch($scope.resultTabs.selected) {
-                        case 0:
-                            $scope.createDatabasketDialog($event, selectedResultItems);
-                            break;
-                        case 1:
-                            var itemsList = $scope.selectedDatabasket ? $scope.selectedDatabasket.items : [];
-                            $scope.createDatabasketDialog($event, itemsList);
-                            break;
-                        case 2:
-                            $scope.createDatabasketDialog($event, jobSelectedOutputs);
-                            break;
-                    }
-                };
-
-                $scope.$on('delete.databasket', function(event, basket) {
-                    if(angular.equals(basket, $scope.selectedDatabasket)){
-                        delete $scope.selectedDatabasket;
-                    }
-                });
-
-                $scope.getBasketItem = function(item){
-                    if(item.properties){
-                        return item.properties.details.file.path;
-                    }
-                    return '';
-                };
-                /* End of Selected Databasket */
 
                 /* Selected Job */
                 $scope.selectedJob = undefined;

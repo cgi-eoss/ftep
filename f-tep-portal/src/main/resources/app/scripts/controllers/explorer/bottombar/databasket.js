@@ -8,8 +8,8 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', 'CommonService', 'BasketService',
-                                 function ($scope, $rootScope, CommonService, BasketService) {
+    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService',
+                                 function ($scope, $rootScope, $mdDialog, CommonService, BasketService) {
 
             $scope.dbPaging = {
                 dbCurrentPage: 1,
@@ -92,30 +92,46 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.dbLoaded.id = undefined;
             };
 
-            $scope.updateDatabasket = function (enterClicked, basket) {
-                if (enterClicked) {
-                    console.log('Update basket: ', basket);
-                    BasketService.updateBasket(basket).then(function () {
-                        basketCache[basket.id] = undefined;
-                    });
-                }
-                return !enterClicked;
-            };
-
-            var basketCache = {};
-            $scope.cacheBasket = function (basket) {
-                if (basketCache[basket.id] === undefined) {
-                    basketCache[basket.id] = angular.copy(basket);
-                }
-            };
-
-            $scope.getBasketCache = function (basket) {
-                var result;
-                if (basketCache[basket.id] !== undefined) {
-                    result = angular.copy(basketCache[basket.id]);
-                    basketCache[basket.id] = undefined;
-                }
-                return result;
+            /* Edit existing databasket's name and description */
+            $scope.editDatabasketDialog = function($event, selectedBasket) {
+                var parentEl = angular.element(document.body);
+                $mdDialog.show({
+                  parent: parentEl,
+                  targetEvent: $event,
+                  template:
+                    '<md-dialog id="databasket-dialog" aria-label="Edit databasket dialog">' +
+                    '    <h4>Edit Databasket</h4>' +
+                    '  <md-dialog-content>' +
+                    '    <div class="dialog-content-area">' +
+                    '        <md-input-container class="md-block" flex-gt-sm>' +
+                    '           <label>Name</label>' +
+                    '           <input ng-model="editableBasket.attributes.name" type="text"></input>' +
+                    '       </md-input-container>' +
+                    '       <md-input-container class="md-block" flex-gt-sm>' +
+                    '           <label>Description</label>' +
+                    '           <textarea ng-model="editableBasket.attributes.description"></textarea>' +
+                    '       </md-input-container>' +
+                    '    </div>' +
+                    '  </md-dialog-content>' +
+                    '  <md-dialog-actions>' +
+                    '    <md-button ng-click="updateDatabasket(editableBasket)" ng-disabled="!editableBasket.attributes.name" class="md-primary">Save</md-button>' +
+                    '    <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>' +
+                    '  </md-dialog-actions>' +
+                    '</md-dialog>',
+                  controller: EditController
+               });
+               function EditController($scope, $mdDialog, BasketService) {
+                   $scope.editableBasket = angular.copy(selectedBasket);
+                   $scope.closeDialog = function() {
+                       $mdDialog.hide();
+                   };
+                   $scope.updateDatabasket = function (basket) {
+                       BasketService.updateBasket(basket).then(function () {
+                           $scope.fetchDbPage($scope.dbPaging.dbCurrentPage);
+                       });
+                       $mdDialog.hide();
+                   };
+               }
             };
 
             $scope.cloneDatabasket = function (event, basket) {

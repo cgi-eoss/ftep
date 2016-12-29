@@ -41,7 +41,12 @@
             </md-list-item>
         </md-list>
 
-        <form id="searchForm" name="searchForm" ng-show="!showDataSources" ng-submit="search()">
+        <div ng-show="!showDataSources && selectedValues.datasource.id == 2">
+            To limit the returned results an area of interest can be selected on the map.
+        </div>
+
+        <form id="searchForm" name="searchForm" ng-show="!showDataSources && selectedValues.datasource.id != 2"
+                ng-submit="search()">
 
             <div class="row">
                 <md-subheader class="md-accent">Select a date range</md-subheader>

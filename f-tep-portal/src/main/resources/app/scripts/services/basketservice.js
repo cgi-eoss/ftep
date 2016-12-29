@@ -17,18 +17,44 @@ define(['../ftepmodules'], function (ftepmodules) {
           var pNumber, pSize;
           var basketListCache;
           var is_polling = false;
+          var POLLING_FREQUENCY = 20 * 1000;
           var connectionError = false, retriesLeft = 3;
 
           /** GET DATABASKETS & POLL **/
-          this.getDatabaskets = function(pageNumber, pageSize){
-            if(is_polling && pNumber === pageNumber){
+          this.getDatabaskets = function(pageNumber, pageSize, noCache){
+            if(noCache && noCache === true){
+                return retrieveDatabaskets(pageNumber, pageSize);
+            }
+            else if(is_polling && pNumber === pageNumber){
                 return $q.when(basketListCache);
-            } else {
+            }
+            else {
                 pNumber = pageNumber;
                 pSize = pageSize;
                 return pollDatabaskets(pageNumber, pageSize);
             }
           };
+
+          // fetch the databaskets once
+          function retrieveDatabaskets(pageNumber, pageSize){
+              var deferred = $q.defer();
+              var parameters = {
+                  'page[size]': pageSize,
+                  'page[number]': pageNumber,
+                  include: 'files'
+              };
+
+              $http({
+                      method: 'GET',
+                      url: ftepProperties.URL + '/databaskets',
+                      params: parameters,
+                  })
+                  .then(function (response) {
+                      basketListCache = response.data;
+                      deferred.resolve(response.data);
+                  });
+              return deferred.promise;
+          }
 
           var pollDatabaskets = function (pageNumber, pageSize) {
               if (connectionError && retriesLeft === 0) {
@@ -68,7 +94,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                               is_polling = true;
                               $timeout(function () {
                                   pollDatabaskets(pageNumber, pageSize);
-                              }, 20 * 1000);
+                              }, POLLING_FREQUENCY);
                           });
                       return deferred.promise;
                   }

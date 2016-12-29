@@ -21,9 +21,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             var collectedFiles = {};
 
-            $scope.fetchDbPage = function (page) {
+            $scope.fetchDbPage = function (page, noCache) {
                 $scope.dbPaging.dbCurrentPage = page;
-                BasketService.getDatabaskets(page, $scope.dbPaging.dbPageSize).then(function (result) {
+                BasketService.getDatabaskets(page, $scope.dbPaging.dbPageSize, noCache).then(function (result) {
                     $scope.databaskets = result.data;
                     $scope.dbPaging.dbTotal = result.meta.total[0];
                     collectFiles(result.included);
@@ -39,7 +39,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
 
             $scope.$on('add.basket', function (event, basket) {
-                $scope.fetchDbPage($scope.dbPaging.dbCurrentPage);
+                $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
             });
 
             $scope.$on('refresh.databaskets', function (event, result) {
@@ -57,7 +57,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         if ($scope.databaskets.length === 0) {
                             $scope.dbPaging.dbCurrentPage = $scope.dbPaging.dbCurrentPage - 1;
                         }
-                        $scope.fetchDbPage(pgNr);
+                        $scope.fetchDbPage(pgNr, true);
                     });
                 });
             };
@@ -127,7 +127,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                    };
                    $scope.updateDatabasket = function (basket) {
                        BasketService.updateBasket(basket).then(function () {
-                           $scope.fetchDbPage($scope.dbPaging.dbCurrentPage);
+                           $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
                        });
                        $mdDialog.hide();
                    };

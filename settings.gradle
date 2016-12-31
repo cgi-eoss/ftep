@@ -16,3 +16,5 @@ include 'f-tep-test'
 include 'f-tep-rpc'
 include 'f-tep-orchestrator'
 
+include 'third-party/puppet'
+

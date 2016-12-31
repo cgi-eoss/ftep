@@ -12,3 +12,6 @@ gradle $GRADLE_ARGS build --parallel --stacktrace
 cp f-tep-processors/target/distributions/*.rpm "${DISTDIR_NOARCH}"
 cp f-tep-portal/target/distributions/*.rpm "${DISTDIR_NOARCH}"
 cp f-tep-drupalmodules/target/distributions/*.rpm "${DISTDIR_NOARCH}"
+
+mkdir -p distribution/puppet/modules
+cp -r third-party/puppet/target/modules/* distribution/puppet/modules/

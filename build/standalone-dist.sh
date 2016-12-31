@@ -13,9 +13,5 @@ cp ${PKG_PATH}/*/*.x86_64.rpm $DISTDIR_OS
 # Create yum repository from RPM packages
 createrepo "${DISTDIR}/repo"
 
-# Build F-TEP Puppet module
-puppet module build $PUPPET_FTEP
-
-# Collect required puppet modules
-puppet module install --modulepath="${MODULE_PATH}" ${PUPPET_FTEP}/pkg/cgieoss-ftep-*.tar.gz
+# Package puppet modules + config
 cd "${PUPPET_WS}" && tar cfz "${DISTDIR}/puppet.tar.gz" .

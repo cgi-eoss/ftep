@@ -50,19 +50,19 @@ error_reporting( E_ALL );
 */
 
 define('DRUPAL_ROOT', getcwd());
-require_once DRUPAL_ROOT . '/sites/default/modules/endpoint/includes/router.inc';
+require_once DRUPAL_ROOT . '/sites/all/modules/endpoint/includes/router.inc';
 
 
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_search.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_downloadmanager.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_identitymanager.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_job.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_datasource.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_databasket.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_service.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_group.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_project.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/ftep-backend/ftep_search/ftep_resource_user.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_search.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_downloadmanager.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_identitymanager.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_job.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_datasource.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_databasket.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_service.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_group.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_project.php';
+require_once DRUPAL_ROOT . '/sites/all/modules/ftep-backend/ftep_search/ftep_resource_user.php';
 
 
 $search=new FtepResourceSearch();

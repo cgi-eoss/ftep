@@ -16,7 +16,7 @@ use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
 require dirname(__FILE__).'/vendor/autoload.php';
 require dirname(__FILE__).'/serializers/LoginSerializer.php';
-require_once DRUPAL_ROOT . '/sites/default/modules/shib_auth/shib_auth.module';
+require_once DRUPAL_ROOT . '/sites/all/modules/shib_auth/shib_auth.module';
 
 class FtepResourceIdentityManager extends FtepResource {
 

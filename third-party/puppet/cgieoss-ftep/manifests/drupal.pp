@@ -1,19 +1,21 @@
-class ftep::drupal(
-  $drupal_site = 'forestry-tep.eo.esa.int',
-  $drupal_version = '7.43',
-  $www_path  = '/var/www/html/drupal',
-  $www_user = 'apache',
+class ftep::drupal (
+  $drupal_site      = 'forestry-tep.eo.esa.int',
+  $drupal_version   = '7.43',
+  $www_path         = '/var/www/html/drupal',
+  $www_user         = 'apache',
 
-  $db_host           = undef,
-  $db_name           = undef,
-  $db_user           = undef,
-  $db_pass           = undef,
-  $db_port           = '5432',
-  $db_driver         = 'pgsql',
-  $db_prefix         = 'drupal_',
+  $db_host          = undef,
+  $db_name          = undef,
+  $db_user          = undef,
+  $db_pass          = undef,
+  $db_port          = '5432',
+  $db_driver        = 'pgsql',
+  $db_prefix        = 'drupal_',
 
-  $init_db           = true,
-  $enable_cron       = true,
+  $ftep_module_name = 'ftep-backend',
+
+  $init_db          = true,
+  $enable_cron      = true,
 ) {
 
   require ::ftep::globals
@@ -74,7 +76,8 @@ class ftep::drupal(
   }
 
   package { 'f-tep-drupalmodules':
-    ensure  => latest,
+    ensure => latest,
+    notify => Drupal::Site[$drupal_site],
   }
 
   class { ::drupal:
@@ -93,13 +96,13 @@ class ftep::drupal(
       'registry_autoload' => '1.3',
       'shib_auth'         => '4.3',
       'views'             => '3.13',
-      'ftep'              => { 'download' => {
+      $ftep_module_name   => { 'download' => {
         'type' => 'copy',
         'url'  => 'file:///opt/f-tep-drupalmodules/ftep-backend/',
       } }
     },
     settings_content => epp('ftep/drupal/settings.php.epp', {
-      'db'            => {
+      'db'         => {
         'host'     => $real_db_host,
         'database' => $real_db_name,
         'username' => $real_db_user,
@@ -108,7 +111,7 @@ class ftep::drupal(
         'driver'   => $db_driver,
         'prefix'   => $db_prefix,
       },
-      'ftep_proxy'    => $::ftep::globals::proxy_hostname,
+      'ftep_proxy' => $::ftep::globals::proxy_hostname,
     }),
     cron_file_ensure => $enable_cron ? {
       true    => 'present',
@@ -140,7 +143,7 @@ class ftep::drupal(
 
   file { "${site_path}/api.php":
     ensure  => link,
-    target  => "${site_path}/sites/all/modules/ftep/ftep_search/api.php",
+    target  => "${site_path}/sites/all/modules/${ftep_module_name}/ftep_search/api.php",
     require => [Drupal::Site[$drupal_site]],
   }
 

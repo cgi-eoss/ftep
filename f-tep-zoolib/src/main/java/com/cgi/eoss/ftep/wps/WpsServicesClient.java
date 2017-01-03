@@ -3,7 +3,12 @@ package com.cgi.eoss.ftep.wps;
 import com.cgi.eoss.ftep.rpc.ApplicationLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.ApplicationParams;
 import com.cgi.eoss.ftep.rpc.ApplicationResponse;
+import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Param;
+import com.cgi.eoss.ftep.rpc.ProcessorLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.ProcessorParams;
+import com.cgi.eoss.ftep.rpc.ProcessorResponse;
+import com.google.common.collect.Multimap;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +17,18 @@ import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>Client for F-TEP gRPC services. Encapsulates the usage of the RPC interface so that WPS service implementations
+ * may access the F-TEP orchestration environment more easily.</p>
+ */
 @Slf4j
 public class WpsServicesClient {
 
     private final ManagedChannel channel;
     private final ApplicationLauncherGrpc.ApplicationLauncherBlockingStub applicationLauncherBlockingStub;
     private final ApplicationLauncherGrpc.ApplicationLauncherStub applicationLauncherStub;
+    private final ProcessorLauncherGrpc.ProcessorLauncherBlockingStub processorLauncherBlockingStub;
+    private final ProcessorLauncherGrpc.ProcessorLauncherStub processorLauncherStub;
 
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
@@ -35,6 +46,8 @@ public class WpsServicesClient {
         channel = channelBuilder.build();
         applicationLauncherBlockingStub = ApplicationLauncherGrpc.newBlockingStub(channel);
         applicationLauncherStub = ApplicationLauncherGrpc.newStub(channel);
+        processorLauncherBlockingStub = ProcessorLauncherGrpc.newBlockingStub(channel);
+        processorLauncherStub = ProcessorLauncherGrpc.newStub(channel);
     }
 
     /**
@@ -48,8 +61,7 @@ public class WpsServicesClient {
     }
 
     /**
-     * <p>Launch a WPS Application with a blocking call, and stream the response messages (i.e. lines from the
-     * application stdout/stderr) as they arrive.</p>
+     * <p>Launch a WPS Application with a blocking call.</p>
      *
      * @param jobId The job ID as set by the WPS server.
      * @param appName The application name. This is used to determine the docker container to launch.
@@ -70,6 +82,25 @@ public class WpsServicesClient {
                 .build();
         ApplicationResponse applicationResponse = applicationLauncherBlockingStub.launchApplication(request);
         return applicationResponse.getOutputUrl();
+    }
+
+    /**
+     * <p>Launch a WPS Processor service with a blocking call.</p>
+     *
+     * @param jobId The job ID as set by the WPS server.
+     * @param userId The ID of the user launching the service.
+     * @param serviceId The ID of the service being launched. Used to determine the application container to use.
+     * @param inputs The WPS parameter inputs. Expected to be a keyed list of strings.
+     */
+    public Multimap<String, String> launchProcessor(String jobId, String userId, String serviceId, Multimap<String, String> inputs) {
+        ProcessorParams request = ProcessorParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(userId)
+                .setServiceId(serviceId)
+                .addAllInputs(GrpcUtil.mapToParams(inputs))
+                .build();
+        ProcessorResponse processorResponse = processorLauncherBlockingStub.launchProcessor(request);
+        return GrpcUtil.paramsListToMap(processorResponse.getOutputsList());
     }
 
 }

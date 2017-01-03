@@ -1,9 +1,10 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.api.client.repackaged.com.google.common.base.Strings;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class JobStatusService {
                 .outputs("\"{}\"")
                 .guiEndpoint(null)
                 .step("\"{}\"")
+                .status(JobStatus.CREATED.name())
                 .build();
 
         ApiEntity<ResourceJob> apiEntity = api.insert(job);

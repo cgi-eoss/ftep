@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.orchestrator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,8 +21,11 @@ public class ManualWorkerServiceTest {
     private WorkerService workerService;
 
     @Before
-    public void beforeMethod() {
-        assumeTrue(Files.isReadable(Paths.get("/var/run/docker.sock")));
+    public void setUp() {
+        // Shortcut if docker socket is not accessible to the current user
+        assumeTrue(Files.isWritable(Paths.get("/var/run/docker.sock")));
+
+        MockitoAnnotations.initMocks(this);
 
         workerService = new ManualWorkerService(serviceInputOutputManager);
     }

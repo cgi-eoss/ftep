@@ -20,7 +20,6 @@ message ApplicationParams {
     string serviceId = 3;
     string appName = 4;
     repeated Param inputs = 5;
-    string output = 6;
     int32 timeout = 7;
 }
 
@@ -33,11 +32,10 @@ message ProcessorParams {
     string userId = 2;
     string serviceId = 3;
     repeated Param inputs = 4;
-    repeated Param outputs = 5;
 }
 
 message ProcessorResponse {
-
+    repeated Param outputs = 1;
 }
 
 message Param {

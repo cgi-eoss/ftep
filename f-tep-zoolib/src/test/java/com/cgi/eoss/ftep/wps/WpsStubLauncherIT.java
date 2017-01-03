@@ -3,13 +3,14 @@ package com.cgi.eoss.ftep.wps;
 import com.cgi.eoss.ftep.StandaloneWpsStub;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.ApplicationLauncher;
 import com.cgi.eoss.ftep.orchestrator.FtepJsonApi;
 import com.cgi.eoss.ftep.orchestrator.JobEnvironmentService;
 import com.cgi.eoss.ftep.orchestrator.JobStatusService;
 import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.ServiceDataService;
 import com.cgi.eoss.ftep.orchestrator.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.orchestrator.Worker;
-import com.cgi.eoss.ftep.orchestrator.ApplicationLauncher;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -52,6 +53,10 @@ public class WpsStubLauncherIT {
 
     @Spy
     @InjectMocks
+    private ServiceDataService serviceDataService;
+
+    @Spy
+    @InjectMocks
     private JobEnvironmentService jobEnvironmentService;
 
     private ApplicationLauncher applicationLauncher;
@@ -61,7 +66,8 @@ public class WpsStubLauncherIT {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.applicationLauncher = new ApplicationLauncher(workerService, jobStatusService, jobEnvironmentService);
+
+        this.applicationLauncher = new ApplicationLauncher(workerService, jobStatusService, serviceDataService, jobEnvironmentService);
 
         this.fs = Jimfs.newFileSystem(Configuration.unix());
 

@@ -5,9 +5,14 @@ import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.rpc.*;
+import com.cgi.eoss.ftep.rpc.ApplicationLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.ApplicationParams;
+import com.cgi.eoss.ftep.rpc.ApplicationResponse;
+import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,19 +27,24 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
     private final WorkerService workerService;
     private final JobStatusService jobStatusService;
     private final JobEnvironmentService jobEnvironmentService;
+    private final ServiceDataService serviceDataService;
 
     public ApplicationLauncher(WorkerService workerService,
                                JobStatusService jobStatusService,
+                               ServiceDataService serviceDataService,
                                JobEnvironmentService jobEnvironmentService) {
         // TODO Distribute by configuring and connecting to these services via RPC
         this.workerService = workerService;
         this.jobStatusService = jobStatusService;
+        this.serviceDataService = serviceDataService;
         this.jobEnvironmentService = jobEnvironmentService;
     }
 
     // TODO Extract common functionality between GUI Applications and Processing Services
     @Override
     public void launchApplication(ApplicationParams request, StreamObserver<ApplicationResponse> responseObserver) {
+        Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
+
         // TODO Check coins and estimated cost
 
         JobEnvironment jobEnvironment;
@@ -42,7 +52,7 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
             jobEnvironment = jobEnvironmentService.createEnvironment(request.getJobId());
         } catch (IOException e) {
             LOG.error("Failed to create working environment for job {}", request.getJobId());
-            throw new RuntimeException(e);
+            throw new ServiceExecutionException(e);
         }
 
         FtepJob job = FtepJob.builder()
@@ -55,8 +65,10 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
                 .outputDir(jobEnvironment.getOutputDir())
                 .build();
 
+        ApiEntity<ResourceJob> apiJob = null;
+
         try {
-            ApiEntity<ResourceJob> apiJob = jobStatusService.create(job.getJobId(), job.getUserId(), job.getServiceId());
+            apiJob = jobStatusService.create(job.getJobId(), job.getUserId(), job.getServiceId());
 
             // Get a worker
             Worker worker = workerService.getWorker();
@@ -66,17 +78,18 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
             apiJob.getResource().setStep(JobStep.DATA_FETCH.getText());
             jobStatusService.update(apiJob);
 
-            Multimap<String, String> inputs = com.cgi.eoss.ftep.rpc.GrpcUtil.getInputsAsMap(request);
             worker.prepareInputs(inputs, job.getInputDir());
 
             // Start the application
             apiJob.getResource().setStep(JobStep.PROCESSING.getText());
+            apiJob.getResource().setStatus(JobStatus.RUNNING.name());
             jobStatusService.update(apiJob);
-            String dockerImageTag = new FtepWpsServices().getImageFor(job.getServiceId());
+            String dockerImageTag = serviceDataService.getImageFor(job.getServiceId());
             LOG.info("Launching docker image {} for {}", dockerImageTag, job.getJobId());
 
             String guacamolePort = "8080/tcp";
             String containerId = worker.launchDockerContainer(DockerLaunchConfig.builder()
+                    .image(dockerImageTag)
                     .volume("/nobody/workDir")
                     .volume(job.getWorkingDir().getParent().toString())
                     .bind(job.getWorkingDir().toAbsolutePath().toString() + ":" + "/nobody/workDir")
@@ -104,17 +117,32 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
             int exitCode = worker.waitForContainerExit(containerId, request.getTimeout());
 
             if (exitCode != 0) {
-                throw new RuntimeException("Docker container returned with exit code " + exitCode);
+                throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
             }
 
+            apiJob.getResource().setStep(JobStep.OUTPUT_LIST.getText());
+            jobStatusService.update(apiJob);
             LOG.info("Application terminated, collecting outputs from {}", job.getOutputDir());
-            // TODO Collect outputs
+            // TODO Collect outputs for indexing in user's workspace
 
             responseObserver.onNext(ApplicationResponse.newBuilder().setOutputUrl("").build());
             responseObserver.onCompleted();
         } catch (Exception e) {
+            if (apiJob != null) {
+                setJobInError(apiJob);
+            }
+
             LOG.error("Failed to launch application; notifying gRPC client", e);
-            responseObserver.onError(e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    private void setJobInError(ApiEntity<ResourceJob> apiJob) {
+        try {
+            jobStatusService.update(apiJob);
+            apiJob.getResource().setStatus(JobStatus.ERROR.name());
+        } catch (Exception e) {
+            LOG.error("Unable to set job to ERROR state (swallowing exception)", e);
         }
     }
 

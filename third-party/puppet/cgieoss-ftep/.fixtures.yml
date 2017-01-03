@@ -47,3 +47,9 @@ fixtures:
     postgresql:
       repo: "puppetlabs-postgresql"
       ref: "4.8.0"
+    selinux:
+      repo: "puppet-selinux"
+      ref: "0.5.0"
+    docker:
+      repo: "garethr-docker"
+      ref: "5.3.0"

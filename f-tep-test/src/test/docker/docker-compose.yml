@@ -37,6 +37,8 @@ services:
         puppetconf: wps.yaml
     links:
       - ftep-db
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:rw'
   ftep-proxy:
     extends: ftep-db
     build:

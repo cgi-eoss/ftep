@@ -12,6 +12,7 @@ def puppetModules = [
         'darin-zypprepo', // (v1.0.2)
         'example42-yum', // (v2.1.28)
         'example42-puppi', // (v2.2.1)
+        'garethr-docker', // (v5.3.0)
         'puppetlabs-apt', // (v2.3.0)
         'puppetlabs-inifile', // (v1.6.0)
         'puppet-selinux', // (v0.7.1)

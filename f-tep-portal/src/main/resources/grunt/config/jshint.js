@@ -8,7 +8,9 @@ module.exports = {
     },
     all: {
         src: [
-          '<%= ftep.app %>/scripts/{,*/}*.js'
+            '<%= ftep.app %>/{,*/}*.js',
+            '<%= ftep.app %>/scripts/controllers/**/*.js',
+            '<%= ftep.app %>/scripts/services/**/*.js'
         ]
     },
     test: {

@@ -97,7 +97,11 @@
 
                 </div>
 
-                <md-button class="launch-button" ng-hide="isWpsLoading" ng-click="launchProcessing()">Execute / Launch</md-button>
+                <md-button class="launch-button"
+                           ng-hide="isWpsLoading"
+                           ng-click="launchProcessing(); displayTab('JOB')">
+                    Execute / Launch
+                </md-button>
 
                 <div class="gray" ng-if="info">{{info}}</div>
 

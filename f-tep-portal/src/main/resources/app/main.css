@@ -265,6 +265,7 @@ input {
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
   height: 100%;
+  width: 100%;
 }
 .metadata-info-button {
   cursor: pointer;

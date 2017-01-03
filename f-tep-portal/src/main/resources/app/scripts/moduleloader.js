@@ -21,9 +21,10 @@ define([
     './services/basketservice',
     './services/commonservice',
     './services/geoservice',
+    './services/groupservice',
     './services/jobservice',
     './services/projectservice',
     './services/productservice',
-    './services/groupservice',
+    './services/tabservice',
     './services/wpsservice'
 ], function () {});

@@ -8,13 +8,16 @@
 define(['../../ftepmodules'], function (ftepmodules) {
   'use strict';
 
-  ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog) {
+  ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog, TabService) {
+
     /** BOTTOM BAR **/
 
     $scope.resultsMenuVisible = false;
 
-    $scope.openResultsMenu = function(){
+    $scope.displayTab = function(tab){
         $scope.resultsMenuVisible = true;
+        var activeTab = TabService.setActiveTab("bottom", tab);
+        $rootScope.$broadcast('update.tab', activeTab);
         $scope.$broadcast('rebuild:scrollbar');
     };
 

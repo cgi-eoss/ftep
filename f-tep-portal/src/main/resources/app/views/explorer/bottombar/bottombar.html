@@ -4,25 +4,25 @@
 
          <ul class="nav nav-pills" >
             <li role="presentation"
-                ng-class="(bottombarTab == 'RESULTS') ? 'active' : ''"
-                ng-click="bottombarTab = 'RESULTS'">
+                ng-class="{'active': tab.active == 'RESULTS'}"
+                ng-click="tab.active = 'RESULTS'">
                 <a>RESULTS</a>
             </li>
             <li role="presentation"
-                ng-class="(bottombarTab == 'DATABASKET') ? 'active' : ''"
-                ng-click="bottombarTab = 'DATABASKET'">
+                ng-class="{'active': tab.active == 'DATABASKET'}"
+                ng-click="tab.active = 'DATABASKET'">
                 <a>DATABASKET</a>
             </li>
             <li role="presentation"
-                ng-class="(bottombarTab == 'JOB') ? 'active' : ''"
-                ng-click="bottombarTab = 'JOB'">
+                ng-class="{'active': tab.active == 'JOB'}"
+                ng-click="tab.active = 'JOB'">
                 <a>JOB</a>
             </li>
         </ul>
 
     </section>
 
-    <section ng-if="bottombarTab == 'RESULTS'">
+    <section ng-if="tab.active == 'RESULTS'">
 
         <div class="col-xs-4 button-section">
                 <paging page="resultPaging.currentPage"
@@ -87,7 +87,7 @@
 
     </section>
 
-    <section ng-if="bottombarTab == 'DATABASKET'">
+    <section ng-if="tab.active == 'DATABASKET'">
 
         <div class="col-xs-4 button-section"></div>
 
@@ -115,7 +115,7 @@
 
     </section>
 
-    <section ng-if="bottombarTab == 'JOB'">
+    <section ng-if="tab.active == 'JOB'">
 
         <div class="col-xs-4 button-section"></div>
 
@@ -172,11 +172,11 @@
 
 <section id="bottombar-contents" class="row">
 
-    <section class="bottombar-pane" ng-if="bottombarTab == 'RESULTS'">
+    <section class="bottombar-pane" ng-if="tab.active == 'RESULTS'">
         <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
     </section>
 
-    <section class="row bottombar-pane" ng-if="bottombarTab == 'DATABASKET'">
+    <section class="row bottombar-pane" ng-if="tab.active == 'DATABASKET'">
         <div class="col-xs-4 bottombar-left">
             <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
         </div>
@@ -185,7 +185,7 @@
         </div>
     </section>
 
-    <section class="row bottombar-pane" ng-if="bottombarTab == 'JOB'">
+    <section class="row bottombar-pane" ng-if="tab.active == 'JOB'">
         <div class="col-xs-4 bottombar-left">
             <div id="jobs" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
         </div>

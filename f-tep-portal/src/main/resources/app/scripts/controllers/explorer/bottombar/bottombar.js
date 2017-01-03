@@ -8,17 +8,24 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', 'CommonService', 'JobService', 'GeoService','BasketService', function($scope, $rootScope, CommonService, JobService, GeoService, BasketService) {
+    ftepmodules.controller('BottombarCtrl',
+        [ '$scope', '$rootScope', 'CommonService', 'TabService', 'JobService', 'GeoService','BasketService',
+        function($scope, $rootScope, CommonService, TabService, JobService, GeoService, BasketService) {
 
                 $scope.resultPaging = {currentPage: 1, pageSize: GeoService.getItemsPerPage(), total: 0};
                 $scope.spinner = GeoService.spinner;
-                $scope.bottombarTab = 'RESULTS';
+                $scope.tab = {};
+                $scope.tab.active = "RESULTS";
                 var selectedResultItems = [];
+
+                $scope.$on('update.tab', function(event, activeTab) {
+                    $scope.tab.active = activeTab;
+                });
 
                 $scope.$on('update.geoResults', function(event, results) {
                     $scope.spinner.loading = false;
                     setResults(results);
-                    $scope.bottombarTab = 'RESULTS';
+                    $scope.tab.active = TabService.setActiveTab("bottom", "RESULTS");
                     selectedResultItems = [];
                 });
 
@@ -140,7 +147,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.selectedDatabasket = undefined;
 
                 $scope.$on('update.databasket', function(event, basket, items) {
-                    $scope.bottombarTab = 'DATABASKET';
+                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKET");
                     $scope.selectedDatabasket = basket;
                     $scope.selectedDatabasket.items= items;
                 });
@@ -171,7 +178,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             $scope.selectedDatabasket.items.push(jobSelectedOutputs[i]);
                         }
                     }
-                    $scope.bottombarTab = 'DATABASKET';
+                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKET");
                 };
 
                 $scope.clearDatabasket = function() {
@@ -195,7 +202,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
 
                 $scope.createNewBasket = function($event){
-                    switch($scope.bottombarTab) {
+                    switch($scope.tab.active) {
                         case 'RESULTS':
                             $scope.createDatabasketDialog($event, selectedResultItems);
                             break;
@@ -230,7 +237,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.$on('select.job', function(event, job) {
                     $scope.selectedJob = job;
-                    $scope.bottombarTab = 'JOB';
                     jobSelectedOutputs = [];
                     JobService.getOutputs(job.id).then(function(data){
                         $scope.jobOutputs = data;

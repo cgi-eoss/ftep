@@ -1,3 +1,4 @@
+'use strict';
 define('ftepConfig', [], function () {
   return {
     urlPrefix: "http://localhost",
@@ -5,5 +6,5 @@ define('ftepConfig', [], function () {
     zooUrl: "http://localhost/wps",
     wmsUrl: "http://localhost:8080/geoserver",
     mapboxToken: "pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ"
-  }
+  };
 });

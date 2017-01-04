@@ -1,3 +1,4 @@
+@import "variable";
 @mapbutton: rgba(50, 50, 50, 0.3);
 @mapbutton-hover: rgba(50, 50, 50, 0.8);
 @coords: rgba(50, 50, 50, 0.8);
@@ -90,6 +91,15 @@
         }
         .map-control {
             height: 1.6rem;
+        }
+    }
+}
+#map-layer {
+    md-menu-item.active {
+        background-color: @brand-light;
+        color: @text-light;
+        .md-button {
+            cursor: default !important;
         }
     }
 }

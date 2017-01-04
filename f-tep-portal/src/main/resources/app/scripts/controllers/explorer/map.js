@@ -188,13 +188,19 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             })
         });
 
+        // Update map layer & tooltip
+        $scope.maplayer = {};
+        $scope.maplayer.active = "Open Street";
+
         $scope.setMapType = function(newType) {
-            if(newType == 'OSM') {
+            if(newType === 'OSM') {
                 $scope.map.removeLayer(layerMapBox);
                 $scope.map.addLayer(layerOSM);
-            } else if (newType == 'MB') {
+                $scope.maplayer.active = "Open Street";
+            } else if (newType === 'MB') {
                 $scope.map.removeLayer(layerOSM);
                 $scope.map.addLayer(layerMapBox);
+                $scope.maplayer.active = "MapBox";
             }
         };
 

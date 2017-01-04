@@ -19,7 +19,7 @@
                    class="btn btn-control map-type"
                    ng-click="$mdOpenMenu($event)"
                    aria-label="Menu"
-                   uib-tooltip="Map Type"
+                   uib-tooltip="{{maplayer.active}} (Map Layer)"
                    tooltip-placement="left"
                    tooltip-trigger="mouseenter"
                    tooltip-append-to-body="true">
@@ -28,14 +28,11 @@
 
         </button>
 
-        <md-menu-content>
-            <md-menu-item>
+        <md-menu-content id="map-layer">
+            <md-menu-item ng-class="{'active': maplayer.active == 'Open Street'}">
                 <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
             </md-menu-item>
-            <!--<md-menu-item>
-               <md-button ng-click="setMapType('SAT')" aria-label="Satellite Map">Satellite Map</md-button>
-           </md-menu-item> -->
-            <md-menu-item>
+            <md-menu-item ng-class="{'active': maplayer.active == 'MapBox'}">
                 <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
             </md-menu-item>
         </md-menu-content>

@@ -338,70 +338,33 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
        var resultStyle = new ol.style.Style({
            fill: new ol.style.Fill({
-               color: 'rgba(255, 255, 255, 0.4)'
+               color: 'rgba(255, 255, 255, 0.15)'
            }),
            stroke: new ol.style.Stroke({
                color: '#ffcc33',
-               width: 1
+               width: 2
            })
        });
 
-       var selectedStyles = {
-               'Point': new ol.style.Style({
-                 image: new ol.style.Circle({
-                   fill: new ol.style.Fill({
-                     color: 'rgba(255,255,0,0.2)'
-                   }),
-                   radius: 5,
-                   stroke: new ol.style.Stroke({
-                     color: '#ffcc33',
-                     width: 1
-                   })
-                 })
-               }),
-               'LineString': new ol.style.Style({
-                 stroke: new ol.style.Stroke({
-                   color: '#E54127',
-                   width: 3
-                 })
-               }),
-               'Polygon': new ol.style.Style({
+       var selectedStyle = new ol.style.Style({
                  fill: new ol.style.Fill({
-                   color: 'rgba(0,255,255,0.5)'
+                   color: 'rgba(0,255,255,0.8)'
                  }),
                  stroke: new ol.style.Stroke({
-                   color: '#EEFF49',
-                   width: 1
-                 })
-               }),
-               'MultiPoint': new ol.style.Style({
-                 image: new ol.style.Circle({
-                   fill: new ol.style.Fill({
-                     color: 'rgba(255,0,255,0.5)'
-                   }),
-                   radius: 5,
-                   stroke: new ol.style.Stroke({
-                     color: '#EEFF49',
-                     width: 1
-                   })
-                 })
-               }),
-               'MultiLineString': new ol.style.Style({
-                 stroke: new ol.style.Stroke({
-                   color: '#0f0',
+                   color: 'rgba(255,75,255,0.8)',
                    width: 3
-                 })
-               }),
-               'MultiPolygon': new ol.style.Style({
-                 fill: new ol.style.Fill({
-                   color: 'rgba(0,0,255,0.5)'
                  }),
-                 stroke: new ol.style.Stroke({
-                   color: '#EEFF49',
-                   width: 1
-                 })
-               })
-       };
+                 image: new ol.style.Circle({
+                     fill: new ol.style.Fill({
+                       color: 'rgba(255,255,0,0.2)'
+                     }),
+                     radius: 5,
+                     stroke: new ol.style.Stroke({
+                       color: 'rgba(255,75,255,0.8)',
+                       width: 3
+                     })
+                   })
+               });
 
         /* Display results on map */
        var resultsLayer;
@@ -518,8 +481,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         var selectClick = new ol.interaction.Select({
             condition: ol.events.condition.click,
             toggleCondition: ol.events.condition.shiftKeyOnly,
-            style: selectedStyles['Polygon']
+            style: selectedStyle
         });
+
         $scope.map.addInteraction(selectClick);
 
         selectClick.on('select', function(evt) {
@@ -538,17 +502,21 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         function selectItem(item, selected){
             var style;
             if(selected){
-                style = selectedStyles[item.geo.type];
+                style = selectedStyle;
             }
             else {
                 style = resultStyle;
             }
+
             var features = resultsLayer.getSource().getFeatures();
             for(var i = 0; i < features.length; i++){
                 if((item.identifier && item.identifier == features[i].get('data').identifier)){
                     features[i].setStyle(style);
                     if(selected){
-                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize());
+                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
+                        if($scope.map.getView().getZoom() > 3){
+                            $scope.map.getView().setZoom($scope.map.getView().getZoom()-2); //zoom out a bit, to show the location better
+                        }
                     }
                     break;
                 }
@@ -563,7 +531,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             var features = resultsLayer.getSource().getFeatures();
             for(var i = 0; i < features.length; i++){
                 if(selected){
-                    features[i].setStyle(selectedStyles[features[i].getGeometry().getType()]);
+                    features[i].setStyle(selectedStyle);
                 }
                 else{
                     features[i].setStyle(resultStyle);

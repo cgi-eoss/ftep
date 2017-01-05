@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import io.grpc.inprocess.InProcessChannelBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * <p>Integration test for launching WPS services.</p>
- * <p><strong>This uses a real Docker engine to build, run and delete a container!</strong></p>
+ * <p><strong>This uses a real Docker engine to build and run a container!</strong></p>
  */
 public class WpsServicesClientIT {
     private static final String RPC_SERVER_NAME = WpsServicesClientIT.class.getName();
@@ -66,25 +65,19 @@ public class WpsServicesClientIT {
     @InjectMocks
     private JobEnvironmentService jobEnvironmentService;
 
-    private ProcessorLauncher processorLauncher;
-
     private FileSystem fs;
-
-    private StandaloneOrchestrator orchestrator;
-
-    private InProcessChannelBuilder channelBuilder;
 
     private WpsServicesClient wpsServicesClient;
 
     @Before
     public void setUp() throws Exception {
         // Shortcut if docker socket is not accessible to the current user
-        assumeTrue(Files.isWritable(Paths.get("/var/run/docker.sock")));
+        assumeTrue("Unable to write to Docker socket; disabling docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
         // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
 
         MockitoAnnotations.initMocks(this);
 
-        this.processorLauncher = new ProcessorLauncher(workerService, jobStatusService, serviceDataService, jobEnvironmentService);
+        ProcessorLauncher processorLauncher = new ProcessorLauncher(workerService, jobStatusService, serviceDataService, jobEnvironmentService);
 
         this.fs = Jimfs.newFileSystem(Configuration.unix());
 
@@ -92,11 +85,10 @@ public class WpsServicesClientIT {
         Files.createDirectories(fs.getPath("/tmp/ftep_data"));
 
         StandaloneOrchestrator.resetServices(ImmutableSet.of(processorLauncher));
-        serviceDataService.registerImageForService("serviceId", TEST_CONTAINER_IMAGE);
+        StandaloneOrchestrator orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
+        wpsServicesClient = new WpsServicesClient(orchestrator.getChannelBuilder());
 
-        orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
-        channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
-        wpsServicesClient = new WpsServicesClient(channelBuilder);
+        serviceDataService.registerImageForService("serviceId", TEST_CONTAINER_IMAGE);
 
         // Ensure the test image is available before testing
         workerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();

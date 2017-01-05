@@ -81,7 +81,7 @@ RUN yum install -y \
  subversion \
  && yum clean all
 
-# Install puppet for preparing distribution module
+# Install puppet for testing distribution module
 RUN yum install -y \
  https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm \
  && yum clean all
@@ -102,4 +102,3 @@ RUN echo -e "ftep ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers.d/01_ftep
 RUN rm -f /opt/rh/devtoolset-2/root/usr/bin/sudo
 # The script allows the uid of the ftep user to be modified prior to launching sshd
 ADD sshdBootstrap.sh /usr/sbin/sshdBootstrap.sh
-

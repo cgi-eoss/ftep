@@ -41,6 +41,8 @@ buildscript {
     }
 }
 
+apply plugin: "org.sonarqube"
+
 def depVersions = [
         awaitility       : '2.0.0',
         commonsIo        : '2.5',
@@ -137,12 +139,4 @@ static def getRpmVersion(version) {
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
             release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
     ]
-}
-
-apply plugin: "org.sonarqube"
-
-sonarqube {
-    properties {
-        property "sonar.jacoco.reportMissing.force.zero", true
-    }
 }

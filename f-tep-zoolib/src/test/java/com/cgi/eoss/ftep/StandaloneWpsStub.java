@@ -3,7 +3,6 @@ package com.cgi.eoss.ftep;
 import com.cgi.eoss.ftep.wps.StandaloneOrchestrator;
 import com.cgi.eoss.ftep.wps.WpsServicesClient;
 import com.google.common.collect.ImmutableList;
-import io.grpc.inprocess.InProcessChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +17,7 @@ public final class StandaloneWpsStub {
 
     public static int StandaloneWpsStub(HashMap conf, HashMap inputs, HashMap outputs) {
         try (StandaloneOrchestrator inProcessRpc = new StandaloneOrchestrator(SERVER_NAME)) {
-            InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(SERVER_NAME).directExecutor();
-            WpsServicesClient client = new WpsServicesClient(channelBuilder);
+            WpsServicesClient client = new WpsServicesClient(inProcessRpc.getChannelBuilder());
 
             LOG.info("Calling service StandaloneWpsStub");
 

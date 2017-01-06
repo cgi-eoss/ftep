@@ -57,13 +57,18 @@
                 <div class="col-md-10">{{outputFile.attributes.fname}}</div>
 
                 <div class="col-md-2">
-                    <a href="{{getOutputLink(outputFile.attributes.link)}}" target="_self">
-                        <span class="glyphicon glyphicon-download-alt"
-                              uib-tooltip="Download"
-                              tooltip-trigger="mouseenter"
-                              tooltip-append-to-body="true">
-                        </span>
-                    </a>
+
+                    <md-button class="toolbar-button md-secondary"
+                               href="{{getOutputLink(outputFile.attributes.link)}}"
+                               target="_self"
+                               aria-label="Download"
+                               uib-tooltip="Download"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">file_download</i>
+                    </md-button>
+
                 </div>
 
             </div>

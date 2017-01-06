@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.rest.ResourceJob;
 import com.cgi.eoss.ftep.model.rest.ResourceLogin;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -179,6 +180,10 @@ public class DBRestApiManager {
             JsonParser jsonParser = new JsonParser();
             JsonElement jsonElement = jsonParser.parse(response);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
+            if (jsonObject.get("data").isJsonPrimitive()) {
+                // Shortcut if no credentials were found for the current domain
+                return ImmutableMap.of();
+            }
             jsonObject = jsonObject.getAsJsonObject("data");
             JsonArray jarray = jsonObject.getAsJsonArray("data");
             jsonObject = jarray.get(0).getAsJsonObject();

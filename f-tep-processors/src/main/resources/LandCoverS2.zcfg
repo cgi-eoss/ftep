@@ -28,6 +28,16 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS2
             dataType = string
         </Default>
     </LiteralData>
+    [shapefileAttribute]
+    Title = String identifying the field in the shapefile to be used for training the model
+    Abstract = E.g. 'Class'
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
     [crs]
     Title = Target CRS identifier
     Abstract = EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'

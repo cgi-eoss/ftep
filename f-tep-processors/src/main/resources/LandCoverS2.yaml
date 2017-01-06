@@ -26,6 +26,15 @@ dataInputs:
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
+  - id: "shapefileAttribute"
+    title: "String identifying the field in the shapefile to be used for training the model"
+    description: "E.g. 'Class'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
   - id: "crs"
     title: "Target CRS identifier"
     description: "EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'"

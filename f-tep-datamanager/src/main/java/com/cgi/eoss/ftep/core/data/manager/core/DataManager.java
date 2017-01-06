@@ -97,24 +97,15 @@ public class DataManager {
     private Map<String, String> getCredentialsRestCall(String domain) {
         LOG.debug("fn name: getCredentialsRestCall(); params: restUrl '{}'", domain);
         // The credentials should have user/password and/or certificate content
-        Map<String, String> credentialForDomain = new HashMap<>();
-        if (credentials.keySet().contains(domain)) {
-            credentialForDomain.put(FtepConstants.DATASOURCE_CRED_CERTIFICATE,
-                    credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_CERTIFICATE));
-            credentialForDomain.put(FtepConstants.DATASOURCE_CRED_USER,
-                    credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_USER));
-            credentialForDomain.put(FtepConstants.DATASOURCE_CRED_PASSWORD,
-                    credentials.get(domain).get(FtepConstants.DATASOURCE_CRED_PASSWORD));
-        } else {
+        if (!credentials.containsKey(domain)) {
             String httpEndpoint = FtepConstants.DATASOURCE_QUERY_ENDPOINT + domain;
 
             LOG.debug("Getting credentials from endpoint {}", httpEndpoint);
             DBRestApiManager dataBaseMgr = DBRestApiManager.getInstance();
-            credentialForDomain = dataBaseMgr.getCredentials(httpEndpoint);
-            credentials.put(domain, credentialForDomain);
+            credentials.put(domain, dataBaseMgr.getCredentials(httpEndpoint));
         }
         // Return the acquired credential-details as key-value pairs
-        return credentialForDomain;
+        return credentials.get(domain);
     }
 
     private String downloadAndUnpackZips(String oneUrlInRow, String certPath, String user,
@@ -126,8 +117,8 @@ public class DataManager {
         String params1 = " -f -o ";
         String paramsOutDir = downloadDir;
         String params2 = " -c -U -r 1 -rt 5 -s ";
-        String paramsCredUser = user;
-        String paramsCredPass = pass;
+        String paramsCredUser = user != null ? user : "?";
+        String paramsCredPass = pass != null ? pass : "?";
         String paramsCredentials = "-C " + paramsCredUser + ":" + paramsCredPass;
         // TODO -- the parameters should be customized for certificate-based downloads!
         if (null != certPath) {

@@ -9,6 +9,7 @@ import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
 import com.cgi.eoss.ftep.orchestrator.ProcessorLauncher;
 import com.cgi.eoss.ftep.orchestrator.ServiceDataService;
 import com.cgi.eoss.ftep.orchestrator.ServiceInputOutputManager;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
  */
 public class WpsServicesClientIT {
     private static final String RPC_SERVER_NAME = WpsServicesClientIT.class.getName();
+    public static final String TEST_CONTAINER_IMAGE = "hello-world:latest";
 
     @Mock
     private FtepJsonApi api;
@@ -90,10 +92,14 @@ public class WpsServicesClientIT {
         Files.createDirectories(fs.getPath("/tmp/ftep_data"));
 
         StandaloneOrchestrator.resetServices(ImmutableSet.of(processorLauncher));
+        serviceDataService.registerImageForService("serviceId", TEST_CONTAINER_IMAGE);
 
         orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
         channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
         wpsServicesClient = new WpsServicesClient(channelBuilder);
+
+        // Ensure the test image is available before testing
+        workerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
     }
 
     @Test
@@ -111,8 +117,6 @@ public class WpsServicesClientIT {
                 .put("inputKey1", "inputVal1")
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
                 .build();
-
-        serviceDataService.registerImageForService("serviceId", "hello-world");
 
         Multimap<String, String> outputs = wpsServicesClient.launchProcessor(jobId, userId, serviceId, inputs);
         assertThat(outputs, is(notNullValue()));

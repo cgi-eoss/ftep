@@ -10,7 +10,10 @@
             }
         }
 
-        def dockerArgs = "-e http_proxy -e https_proxy -e no_proxy -e HOME=${WORKSPACE}/.home"
+        def gid = sh script: 'stat -c %g /var/run/docker.sock', returnStdout: true
+        def dockerInDockerArgs = "-v /var/run/docker.sock:/var/run/docker.sock:rw --group-add=${gid}"
+
+        def dockerArgs = "${dockerInDockerArgs} -e http_proxy -e https_proxy -e no_proxy -e HOME=${WORKSPACE}/.home"
         buildImg.inside(dockerArgs) {
             ansiColor('xterm') {
                 // Build F-TEP

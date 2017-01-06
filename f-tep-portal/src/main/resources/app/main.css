@@ -175,6 +175,20 @@ input {
       flex: 1 1 auto;
   height: 100%;
 }
+#databasket h3 {
+  margin-top: 0;
+}
+#databasket .md-avatar {
+  cursor: move;
+  height: auto;
+  margin: 0;
+}
+#databasket md-list-item:hover {
+  background-color: lightgray;
+}
+#databasket md-list-item:hover .material-icons {
+  color: #ff4081;
+}
 
 #databaskets {
   display: -ms-flexbox;
@@ -192,6 +206,7 @@ input {
   z-index: 10;
 }
 #databaskets .md-avatar {
+  cursor: move;
   z-index: 1;
 }
 #databaskets .ng-hide.ng-hide-animate {

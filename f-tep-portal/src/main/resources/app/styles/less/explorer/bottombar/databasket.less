@@ -4,4 +4,20 @@
     flex-flow: column;
     flex: 1 1 auto;
     height: 100%;
+    h3 {
+        margin-top: 0;
+    }
+    .md-avatar {
+        cursor: move;
+        height: auto;
+        margin: 0;
+    }
+    md-list-item {
+        &:hover {
+            background-color: @light-gray;
+            .material-icons {
+                color: @accent;
+            }
+        }
+    }
 }

@@ -1,46 +1,33 @@
-<div ng-if="selectedDatabasket == undefined" class="note">Please select or create a databasket first</div>
+<section ng-if="selectedDatabasket == undefined" class="note">Please select or create a databasket first</section>
 
-<div ng-if="selectedDatabasket != undefined" id="databasket-content">
+<section ng-if="selectedDatabasket != undefined" class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
     <h3>{{selectedDatabasket.attributes.name}}</h3>
     <h4>{{selectedDatabasket.attributes.description}}</h4>
 
-    <section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+    <md-list-item class="md-1-line" ng-repeat="item in selectedDatabasket.items">
 
-        <md-list-item class="md-1-line" ng-repeat="item in selectedDatabasket.items">
+        <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
+            <i class="material-icons"
+               uib-tooltip="Drag Databasket"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">drag_handle</i>
+        </div>
 
-            <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
-                <i class="material-icons"
-                   uib-tooltip="Drag Databasket"
+        <div class="md-list-item-text" layout="column">
+            {{item.identifier}}{{item.attributes.fname}}{{item.name}}
+        </div>
+
+        <md-button class="toolbar-button md-secondary"
+                   ng-click="removeItemFromBasket(item)"
+                   uib-tooltip="Remove"
                    tooltip-placement="top"
                    tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">drag_handle</i>
-            </div>
+                   tooltip-append-to-body="true">
+            <i class="material-icons">close</i>
+        </md-button>
 
-            <div class="md-list-item-text" layout="column">
-                <p>{{item.identifier}}</p>
-                <p>{{item.attributes.fname}}</p>
-                <p>{{item.name}}</p>
-            </div>
+    </md-list-item>
 
-            <md-button class="toolbar-button md-secondary"
-                       ng-click="removeItemFromBasket(item)"
-                       uib-tooltip="Remove"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">close</i>
-            </md-button>
-
-        </md-list-item>
-
-    </section>
-
-</div>
-
-<paging page="dbPaging.dbCurrentPage"
-    page-size="dbPaging.dbPageSize"
-    total="dbPaging.dbTotal"
-    show-first-last="true"
-    paging-action="fetchDbPage(page)">
-</paging>
+</section>

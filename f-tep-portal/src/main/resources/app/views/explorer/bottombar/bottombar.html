@@ -89,7 +89,14 @@
 
     <section ng-if="tab.active == 'DATABASKET'">
 
-        <div class="col-xs-4 button-section"></div>
+        <div class="col-xs-4 button-section" ng-controller="DatabasketCtrl">
+            <paging page="dbPaging.dbCurrentPage"
+                page-size="dbPaging.dbPageSize"
+                total="dbPaging.dbTotal"
+                show-first-last="true"
+                paging-action="fetchDbPage(page)">
+            </paging>
+        </div>
 
         <div class="col-xs-2 button-section">
             <md-button class="toolbar-button"

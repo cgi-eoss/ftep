@@ -8,7 +8,7 @@
 define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
-    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', 'ftepProperties', function($scope, $rootScope, ftepProperties) {
+    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', function($scope, $rootScope, $mdDialog, ftepProperties) {
 
         var SHAPE = {
                 NONE: {},
@@ -21,6 +21,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         var draw; // global so we can remove it later
         var features = new ol.Collection();
 
+        $scope.searchPolygon = { selectedArea: undefined, wkt: undefined };
         function addInteraction() {
             if(searchAreaLayer){
                 searchAreaLayer.getSource().clear();
@@ -54,11 +55,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 draw.on('drawend', function (event) {
                     $scope.drawType = SHAPE.NONE;
                     $scope.map.removeInteraction(draw);
-
-                    var extent = event.feature.getGeometry().getExtent();
-                    var polygonWSEN = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:3857", "EPSG:4326"));
-                    $rootScope.$broadcast('polygon.drawn', polygonWSEN);
-                    clipboard.copy(polygonWSEN.toString());
+                    $scope.searchPolygon.selectedArea = event.feature.getGeometry().clone();
                 });
 
                 $scope.map.addInteraction(draw);
@@ -551,10 +548,81 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             if(droppedFileLayer){
                 $scope.map.removeLayer(droppedFileLayer);
             }
+            $scope.searchPolygon = { selectedArea: undefined, wkt: undefined };
             $scope.drawType = SHAPE.NONE;
             $scope.map.removeInteraction(draw);
             addInteraction();
             $rootScope.$broadcast('polygon.drawn', undefined);
+        };
+
+        // Copy the coordinates to clipboard which can be then pasted to service input fields
+        $scope.copyPolygon = function(){
+            if($scope.searchPolygon.selectedArea){
+                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry($scope.searchPolygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                clipboard.copy($scope.searchPolygon.wkt);
+            }
+        }
+
+        $scope.editPolygonDialog = function($event, polygon) {
+            $event.stopPropagation();
+            $event.preventDefault();
+            var parentEl = angular.element(document.body);
+            $mdDialog.show({
+              parent: parentEl,
+              targetEvent: $event,
+              template:
+                '<md-dialog id="polygon-editor" aria-label="Edit polygon">' +
+                '  <md-dialog-content>' +
+                '    <div class="dialog-content-area">' +
+                '    <h4>Edit the polygon:</h4>' +
+                '        <md-input-container class="md-block" flex-gt-sm>' +
+                '           <textarea ng-model="polygon.wkt" rows="10" ng-change="validateWkt(polygon.wkt)" md-select-on-focus></textarea>' +
+                '       </md-input-container>' +
+                '    </div>' +
+                '  </md-dialog-content>' +
+                '  <md-dialog-actions>' +
+                '    <md-button ng-click="updatePolygon(polygon.wkt)" ng-disabled="polygon.valid == false" class="md-primary">Update</md-button>' +
+                '    <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>' +
+                '  </md-dialog-actions>' +
+                '</md-dialog>',
+              controller: DialogController
+           });
+           function DialogController($scope, $mdDialog, ProjectService) {
+             $scope.polygon = { wkt: '', valid: false};
+             if(polygon.selectedArea) {
+                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(polygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                 $scope.polygon.valid = true;
+             }
+             $scope.closeDialog = function() {
+                 $mdDialog.hide();
+             };
+             $scope.updatePolygon = function(searchPolygonWkt){
+                 if(searchAreaLayer){
+                     searchAreaLayer.getSource().clear();
+                 }
+                 if(searchPolygonWkt && searchPolygonWkt != ''){
+                     var newPol = new ol.format.WKT().readFeature(searchPolygonWkt, {
+                         dataProjection: 'EPSG:4326',
+                         featureProjection: 'EPSG:3857'
+                     });
+                     searchAreaLayer.getSource().addFeature(newPol);
+                 }
+                 $mdDialog.hide();
+             };
+             $scope.validateWkt = function(wkt){
+                 try{
+                     new ol.format.WKT().readFeature(wkt, {
+                         dataProjection: 'EPSG:4326',
+                         featureProjection: 'EPSG:3857'
+                       });
+                     $scope.polygon.valid = true;
+                 }
+                 catch(error){
+                     console.log('error: ', error);
+                     $scope.polygon.valid = false;
+                 }
+             };
+           }
         };
 
         // WMS layer to show products on map

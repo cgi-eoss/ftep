@@ -11,7 +11,7 @@
         position: relative;
         width: 100%;
         z-index: 0;
-        .map-type, .ol-zoom, .box-selection, .polygon-selection, .map-clear, .ol-mouse-position, .ol-scale-line {
+        .map-type, .ol-zoom, .box-selection, .polygon-selection, .map-clear, .polygon-copy, .polygon-edit, .ol-mouse-position, .ol-scale-line {
             z-index: 10;
             position: absolute;
             left: auto;
@@ -58,12 +58,20 @@
         .polygon-selection {
             top: 242px;
         }
-        .map-clear {
-            top: 286px;
+        .map-clear, .polygon-copy, .polygon-edit {
             background-color: @mapbutton;
             &:hover {
                 background-color: @mapbutton-hover;
             }
+        }
+        .map-clear {
+            top: 286px;
+        }
+        .polygon-copy {
+            top: 326px;
+        }
+        .polygon-edit {
+            top: 366px;
         }
         .ol-control {
             background-color: transparent;
@@ -102,4 +110,8 @@
             cursor: default !important;
         }
     }
+}
+#polygon-editor {
+    height: 500px;
+    width: 600px;
 }

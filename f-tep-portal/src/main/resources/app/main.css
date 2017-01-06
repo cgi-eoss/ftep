@@ -526,6 +526,8 @@ ul[dnd-list] > li {
 #map-container #map .box-selection,
 #map-container #map .polygon-selection,
 #map-container #map .map-clear,
+#map-container #map .polygon-copy,
+#map-container #map .polygon-edit,
 #map-container #map .ol-mouse-position,
 #map-container #map .ol-scale-line {
   z-index: 10;
@@ -544,6 +546,8 @@ ul[dnd-list] > li {
 #map-container #map .box-selection img,
 #map-container #map .polygon-selection img,
 #map-container #map .map-clear img,
+#map-container #map .polygon-copy img,
+#map-container #map .polygon-edit img,
 #map-container #map .ol-mouse-position img,
 #map-container #map .ol-scale-line img {
   width: 1rem;
@@ -554,6 +558,8 @@ ul[dnd-list] > li {
 #map-container #map .box-selection button,
 #map-container #map .polygon-selection button,
 #map-container #map .map-clear button,
+#map-container #map .polygon-copy button,
+#map-container #map .polygon-edit button,
 #map-container #map .ol-mouse-position button,
 #map-container #map .ol-scale-line button {
   background-color: rgba(50, 50, 50, 0.3);
@@ -569,6 +575,8 @@ ul[dnd-list] > li {
 #map-container #map .box-selection button:hover,
 #map-container #map .polygon-selection button:hover,
 #map-container #map .map-clear button:hover,
+#map-container #map .polygon-copy button:hover,
+#map-container #map .polygon-edit button:hover,
 #map-container #map .ol-mouse-position button:hover,
 #map-container #map .ol-scale-line button:hover {
   background-color: rgba(50, 50, 50, 0.8);
@@ -592,12 +600,24 @@ ul[dnd-list] > li {
 #map-container #map .polygon-selection {
   top: 242px;
 }
-#map-container #map .map-clear {
-  top: 286px;
+#map-container #map .map-clear,
+#map-container #map .polygon-copy,
+#map-container #map .polygon-edit {
   background-color: rgba(50, 50, 50, 0.3);
 }
-#map-container #map .map-clear:hover {
+#map-container #map .map-clear:hover,
+#map-container #map .polygon-copy:hover,
+#map-container #map .polygon-edit:hover {
   background-color: rgba(50, 50, 50, 0.8);
+}
+#map-container #map .map-clear {
+  top: 286px;
+}
+#map-container #map .polygon-copy {
+  top: 326px;
+}
+#map-container #map .polygon-edit {
+  top: 366px;
 }
 #map-container #map .ol-control {
   background-color: transparent;
@@ -632,6 +652,10 @@ ul[dnd-list] > li {
 }
 #map-layer md-menu-item.active .md-button {
   cursor: default !important;
+}
+#polygon-editor {
+  height: 500px;
+  width: 600px;
 }
 
 .panel-group {

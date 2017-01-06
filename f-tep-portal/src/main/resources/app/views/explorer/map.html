@@ -13,6 +13,32 @@
 
     </button>
 
+    <button type="button"
+            class="btn btn-control polygon-copy"
+            ng-click="copyPolygon()"
+            aria-label="Copy Polygon to Clipboard"
+            uib-tooltip="Copy polygon to clipboard"
+            tooltip-placement="left"
+            tooltip-trigger="mouseenter"
+            tooltip-append-to-body="true">
+
+        <i class="material-icons">input</i>
+
+    </button>
+
+    <button type="button"
+            class="btn btn-control polygon-edit"
+            ng-click="editPolygonDialog($event, searchPolygon)"
+            aria-label="Edit Polygon"
+            uib-tooltip="Edit polygon"
+            tooltip-placement="left"
+            tooltip-trigger="mouseenter"
+            tooltip-append-to-body="true">
+
+        <i class="material-icons">edit</i>
+
+    </button>
+
     <md-menu id="mapMenu">
 
         <button type="button"

@@ -44,4 +44,14 @@ public class JobStatusService {
         api.update(apiJob);
     }
 
+
+    public void setJobInError(ApiEntity<ResourceJob> apiJob) {
+        try {
+            apiJob.getResource().setStatus(JobStatus.ERROR.name());
+            update(apiJob);
+        } catch (Exception e) {
+            LOG.error("Unable to set job to ERROR state (swallowing exception)", e);
+        }
+    }
+
 }

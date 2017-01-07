@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.wps;
 
+import com.cgi.eoss.ftep.model.enums.ServiceType;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
 import com.cgi.eoss.ftep.orchestrator.FtepJsonApi;
@@ -50,6 +51,9 @@ public class WpsServicesClientIT {
     private ServiceInputOutputManager inputOutputManager;
 
     @Spy
+    private JobEnvironmentService jobEnvironmentService;
+
+    @Spy
     @InjectMocks
     private ManualWorkerService workerService;
 
@@ -60,10 +64,6 @@ public class WpsServicesClientIT {
     @Spy
     @InjectMocks
     private ServiceDataService serviceDataService;
-
-    @Spy
-    @InjectMocks
-    private JobEnvironmentService jobEnvironmentService;
 
     private FileSystem fs;
 
@@ -77,7 +77,7 @@ public class WpsServicesClientIT {
 
         MockitoAnnotations.initMocks(this);
 
-        ProcessorLauncher processorLauncher = new ProcessorLauncher(workerService, jobStatusService, serviceDataService, jobEnvironmentService);
+        ProcessorLauncher processorLauncher = new ProcessorLauncher(workerService, jobStatusService, serviceDataService);
 
         this.fs = Jimfs.newFileSystem(Configuration.unix());
 
@@ -88,7 +88,7 @@ public class WpsServicesClientIT {
         StandaloneOrchestrator orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
         wpsServicesClient = new WpsServicesClient(orchestrator.getChannelBuilder());
 
-        serviceDataService.registerImageForService("serviceId", TEST_CONTAINER_IMAGE);
+        serviceDataService.registerService("serviceId", TEST_CONTAINER_IMAGE, ServiceType.PROCESSOR);
 
         // Ensure the test image is available before testing
         workerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();

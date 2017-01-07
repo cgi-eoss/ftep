@@ -6,9 +6,6 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.collect.HashMultimap;
@@ -17,7 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,23 +27,27 @@ import java.util.stream.Collectors;
  * the docker-java API.</p>
  */
 @Data
+@Builder
 @Slf4j
 public class Worker {
 
-    private static final String DEFAULT_DOCKER_HOST = "localhost";
-    private static final String DEFAULT_DOCKER_PORT = "2376";
-    private static final RemoteApiVersion DEFAULT_DOCKER_API_VERSION = RemoteApiVersion.VERSION_1_22;
-    private static final String DEFAULT_DOCKER_CERT_PATH = System.getProperty("user.home") + File.separator + ".docker";
-
     private final DockerClient dockerClient;
+    private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
 
-    @Builder
-    private Worker(ServiceInputOutputManager inputOutputManager, String dockerHost, String dockerPort, String dockerCertPath, String dockerApiVersion, DockerClient dockerClient) {
-        this.inputOutputManager = inputOutputManager;
-        this.dockerClient = dockerClient == null
-                ? buildDockerClient(dockerHost, dockerPort, dockerCertPath, dockerApiVersion)
-                : dockerClient;
+    /**
+     * <p>Ensure the map of input files is prepared in the given location. This may involve downloading products from
+     * external hosts, or copying/symlinking existing files.</p>
+     *
+     * @param inputs Collection of inputs to be prepared. The multi-map key specifies the subdir name within
+     * <code>inputDir</code> while the multi-map values specify the URLs to be prepared in the subdir.
+     * @param inputDir
+     */
+    public void prepareInputs(Multimap<String, String> inputs, Path inputDir) {
+        inputs.keys().forEach(subdir -> {
+            Path subdirPath = inputDir.resolve(subdir);
+            inputOutputManager.prepareInput(subdirPath, inputs.get(subdir));
+        });
     }
 
     /**
@@ -122,54 +123,14 @@ public class Worker {
     }
 
     /**
-     * @param dockerHost
-     * @param dockerPort
-     * @param dockerCertPath
-     * @param dockerApiVersion
-     * @return A configured {@link DockerClient} appropriate for this Worker, including remote docker-engine access and
-     * authentication if necessary.
-     */
-    private DockerClient buildDockerClient(String dockerHost, String dockerPort, String dockerCertPath, String dockerApiVersion) {
-        DockerClientConfig.DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder()
-                .withApiVersion(dockerApiVersion);
-
-        String hostUrl;
-        if (!dockerHost.equals(DEFAULT_DOCKER_HOST)) {
-            // Use TLS-secured remote docker host
-            hostUrl = "tcp://" + dockerHost + ":" + dockerPort;
-            configBuilder.withDockerTlsVerify(true).withDockerCertPath(dockerCertPath);
-        } else {
-            // Use the default unix socket rather than TCP to localhost
-            hostUrl = "unix:///var/run/docker.sock";
-            configBuilder.withDockerHost(hostUrl);
-        }
-        configBuilder.withDockerHost(hostUrl);
-        LOG.info("Worker connecting to docker: {}", hostUrl);
-
-        return DockerClientBuilder.getInstance(configBuilder.build()).build();
-    }
-
-    /**
-     * <p>Ensure the map of input files is prepared in the given location. This may involve downloading products from
-     * external hosts, or copying/symlinking existing files.</p>
+     * <p>Create a new job environment with job parameters file.</p>
      *
-     * @param inputs Collection of inputs to be prepared. The multi-map key specifies the subdir name within
-     * <code>inputDir</code> while the multi-map values specify the URLs to be prepared in the subdir.
-     * @param inputDir
+     * @param jobId The jobId for the environment.
+     * @param jobConfig The job configuration parameters.
+     * @return The created environment.
+     * @throws IOException If any problem occurred in creating the job workspace or config file.
      */
-    public void prepareInputs(Multimap<String, String> inputs, Path inputDir) {
-        inputs.keys().forEach(subdir -> {
-            Path subdirPath = inputDir.resolve(subdir);
-            inputOutputManager.prepareInput(subdirPath, inputs.get(subdir));
-        });
+    public JobEnvironment createJobEnvironment(String jobId, Multimap<String, String> jobConfig) throws IOException {
+        return jobEnvironmentService.createEnvironment(jobId, jobConfig);
     }
-
-    // Prepare default parameters for the builder.
-    public static class WorkerBuilder {
-        private String dockerHost = DEFAULT_DOCKER_HOST;
-        private String dockerPort = DEFAULT_DOCKER_PORT;
-        private String dockerCertPath = DEFAULT_DOCKER_CERT_PATH;
-        private String dockerApiVersion = DEFAULT_DOCKER_API_VERSION.getVersion();
-    }
-
 }

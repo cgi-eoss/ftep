@@ -52,7 +52,7 @@ ENV M2_HOME /opt/apache-maven-${MAVEN_VERSION}
 ENV PATH=${M2_HOME}/bin:${PATH}
 
 # Gradle
-ENV GRADLE_VERSION 3.2.1
+ENV GRADLE_VERSION 3.3
 RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
 ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
 ENV PATH=${GRADLE_HOME}/bin:${PATH}

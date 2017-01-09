@@ -11,22 +11,27 @@ import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Slf4j
 public class RequestHandler {
@@ -88,16 +93,15 @@ public class RequestHandler {
     private void createWpsPropertyFile(FtepJob ftepJob) {
         try {
             File workingDir = ftepJob.getWorkingDir().toFile();
-            File wpsPropertyfile = new File(workingDir, FtepConstants.WPS_PROP_FILE);
-            Properties properties = new Properties();
-            for (Entry<String, List<String>> entry : inputParams.entrySet()) {
-                String value = entry.getValue().toString();
-                // remove the square brackets '[' and ']' from the value before writing to the property file
-                properties.setProperty(entry.getKey(), "'" + value.substring(1, value.length() - 1) + "'");
-            }
-            FileOutputStream fileOut = new FileOutputStream(wpsPropertyfile);
-            properties.store(fileOut,
-                    "Properties created from WPS Execute Request for Job: " + ftepJob.getJobId());
+            Path wpsPropertyfile = workingDir.toPath().resolve(FtepConstants.WPS_PROP_FILE);
+
+            Multimap<String, String> jobConfig = HashMultimap.create();
+            inputParams.entrySet().forEach(e -> jobConfig.putAll(e.getKey(), e.getValue()));
+
+            List<String> configFileLines = jobConfig.keySet().stream()
+                    .map(key -> key + "=\"" + String.join(",", jobConfig.get(key)) + "\"")
+                    .collect(Collectors.toList());
+            Files.write(wpsPropertyfile, configFileLines, CREATE_NEW);
         } catch (IOException e) {
             LOG.error("", e);
         }

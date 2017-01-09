@@ -5,11 +5,11 @@
 
             <div class="row no-margin list-group filter-list-title">
 
-                <div class="col-md-11" ng-click="toggleFilters()">
+                <div class="col-xs-11" ng-click="toggleFilters()">
                     <label class="md-accent">Filters</label>
                 </div>
 
-                <div class="col-md-1 no-padding expander">
+                <div class="col-xs-1 no-padding expander">
                     <i class="material-icons"
                        ng-show="!displayFilters"
                        ng-click="toggleFilters()"
@@ -49,11 +49,11 @@
 
             <div class="row no-margin list-group">
 
-                <div class="col-md-11" ng-click="toggleJobGroup(service.id)">
+                <div class="col-xs-11" ng-click="toggleJobGroup(service.id)">
                     <label>{{service.attributes.name}}</label>
                 </div>
 
-                <div class="col-md-1 no-padding expander">
+                <div class="col-xs-1 no-padding expander">
                     <i class="material-icons"
                        ng-show="!isJobGroupOpened(service.id)"
                        ng-click="toggleJobGroup(service.id)"

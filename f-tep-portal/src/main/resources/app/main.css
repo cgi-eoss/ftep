@@ -52,6 +52,7 @@ input {
   height: 35%;
   left: 44px;
   min-height: 300px;
+  overflow-x: auto;
   position: fixed;
   transition: all 0.4s ease-out;
   width: calc(100% - 44px);
@@ -65,6 +66,8 @@ input {
   -ms-flex: 0 1 auto;
       flex: 0 1 auto;
   height: 42px;
+  min-width: 900px;
+  width: 100%;
 }
 #bottombar #bottombar-header .button-section {
   padding-left: 0px;
@@ -112,14 +115,19 @@ input {
       flex: 1 1 auto;
   height: calc(100% - 42px);
   margin: 0;
+  min-width: 900px;
 }
 #bottombar #bottombar-contents .bottombar-pane {
   height: 100%;
   width: 100%;
 }
-#bottombar #bottombar-contents .bottombar-pane .bottombar-left,
+#bottombar #bottombar-contents .bottombar-pane .bottombar-left {
+  height: 100%;
+  width: 30%;
+}
 #bottombar #bottombar-contents .bottombar-pane .bottombar-right {
   height: 100%;
+  width: 70%;
 }
 #bottombar md-content {
   background-color: transparent;
@@ -169,14 +177,20 @@ input {
 #databasket {
   display: -ms-flexbox;
   display: flex;
+  font-size: 0.6rem;
   -ms-flex-flow: column;
       flex-flow: column;
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
   height: 100%;
+  width: 100%;
 }
 #databasket h3 {
+  font-size: 1.2rem;
   margin-top: 0;
+}
+#databasket h4 {
+  font-size: 0.8rem;
 }
 #databasket .md-avatar {
   cursor: move;
@@ -479,6 +493,10 @@ ul[dnd-list] > li {
 }
 .ftep .filter-list .filter-checkboxes md-checkbox {
   margin: 0;
+}
+.ftep .item-list md-list-item {
+  min-width: 0;
+  width: 100%;
 }
 .ftep .item-list md-list-item .md-avatar .material-icons {
   text-align: center;
@@ -1308,6 +1326,7 @@ pre {
 
 #navbar {
   background-color: #f8f8f8;
+  border: none;
   height: 50px;
   margin-bottom: 0;
   z-index: 50;

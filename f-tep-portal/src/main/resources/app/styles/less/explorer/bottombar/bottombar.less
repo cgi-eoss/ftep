@@ -4,6 +4,7 @@
     height: 35%;
     left: @sidenav-width;
     min-height: 300px;
+    overflow-x: auto;
     position: fixed;
     transition: all 0.4s ease-out;
     width: calc(100% ~"-" @sidenav-width);
@@ -12,6 +13,8 @@
     #bottombar-header {
         flex: 0 1 auto;
         height: 42px;
+        min-width: 900px;
+        width: 100%;
         .button-section {
             padding-left: 0px;
             padding-right: 1rem;
@@ -61,11 +64,17 @@
         flex: 1 1 auto;
         height: calc(100% ~"-" 42px);
         margin: 0;
+        min-width: 900px;
         .bottombar-pane {
             height: 100%;
             width: 100%;
-            .bottombar-left, .bottombar-right {
+            .bottombar-left {
                 height:100%;
+                width: 30%;
+            }
+            .bottombar-right {
+                height:100%;
+                width: 70%;
             }
         }
     }

@@ -22,9 +22,9 @@
 
     </section>
 
-    <section ng-if="tab.active == 'RESULTS'">
+    <section ng-if="tab.active == 'RESULTS'" class="col-xs-6">
 
-        <div class="col-xs-4 button-section">
+        <div class="col-xs-8 button-section">
                 <paging page="resultPaging.currentPage"
                     page-size="resultPaging.pageSize"
                     total="resultPaging.total"
@@ -33,7 +33,7 @@
                 </paging>
         </div>
 
-        <div class="col-xs-2 button-section">
+        <div class="col-xs-4 button-section">
             <md-button class="toolbar-button"
                        ng-disabled="geoResults == undefined"
                        ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
@@ -87,9 +87,9 @@
 
     </section>
 
-    <section ng-if="tab.active == 'DATABASKET'">
+    <section ng-if="tab.active == 'DATABASKET'" class="col-xs-6">
 
-        <div class="col-xs-4 button-section" ng-controller="DatabasketCtrl">
+        <div class="col-xs-8 button-section" ng-controller="DatabasketCtrl">
             <paging page="dbPaging.dbCurrentPage"
                 page-size="dbPaging.dbPageSize"
                 total="dbPaging.dbTotal"
@@ -98,7 +98,7 @@
             </paging>
         </div>
 
-        <div class="col-xs-2 button-section">
+        <div class="col-xs-4 button-section">
             <md-button class="toolbar-button"
                        ng-disabled="selectedDatabasket == undefined"
                        ng-class="selectedDatabasket == undefined ? 'icon-disabled' : ''"
@@ -122,11 +122,11 @@
 
     </section>
 
-    <section ng-if="tab.active == 'JOB'">
+    <section ng-if="tab.active == 'JOB'" class="col-xs-6">
 
-        <div class="col-xs-4 button-section"></div>
+        <div class="col-xs-8 button-section"></div>
 
-        <div class="col-xs-2 button-section">
+        <div class="col-xs-4 button-section">
 
             <md-button class="toolbar-button"
                        uib-tooltip="Select all"

@@ -10,6 +10,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
     ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', function($scope, $rootScope, $mdDialog, ftepProperties) {
 
+        var EPSG_3857 = "EPSG:3857", //Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
+            EPSG_4326 = "EPSG:4326"; //Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
+
         var SHAPE = {
                 NONE: {},
                 POLYGON : {type: 'Polygon', img: 'images/polygon.png', location: 'polygon-selection'},
@@ -56,6 +59,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     $scope.drawType = SHAPE.NONE;
                     $scope.map.removeInteraction(draw);
                     $scope.searchPolygon.selectedArea = event.feature.getGeometry().clone();
+                    updateSearchPolygon($scope.searchPolygon.selectedArea);
                 });
 
                 $scope.map.addInteraction(draw);
@@ -63,6 +67,14 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         }
 
         addInteraction();
+
+        function updateSearchPolygon(geom, refit){
+            var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
+            $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+            if(refit && refit === true){
+                $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+            }
+        }
 
         $scope.draw = function(shape, opt_options) {
 
@@ -273,7 +285,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
               console.log(kmlJson.kml.Document.GroundOverlay.LatLonBox);
               var latlonbox = kmlJson.kml.Document.GroundOverlay.LatLonBox;
               var polygonWSEN = [parseFloat(latlonbox.west), parseFloat(latlonbox.south), parseFloat(latlonbox.east), parseFloat(latlonbox.north)];
-              var polyExtent = ol.proj.transformExtent(polygonWSEN, "EPSG:4326", "EPSG:3857");
+              var polyExtent = ol.proj.transformExtent(polygonWSEN, EPSG_4326, EPSG_3857);
               var pol =  ol.geom.Polygon.fromExtent(polyExtent);
 
               var kmlVector = new ol.source.Vector({
@@ -328,7 +340,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 $scope.map.addLayer(droppedFileLayer);
                 console.log(vectorSource.getExtent());
                 $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
-                var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform("EPSG:3857", "EPSG:4326"));
+                var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
                 $rootScope.$broadcast('polygon.drawn', polygonWSEN);
             }
         });
@@ -606,6 +618,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                          featureProjection: 'EPSG:3857'
                      });
                      searchAreaLayer.getSource().addFeature(newPol);
+
+                     updateSearchPolygon(newPol.getGeometry(), true);
                  }
                  $mdDialog.hide();
              };

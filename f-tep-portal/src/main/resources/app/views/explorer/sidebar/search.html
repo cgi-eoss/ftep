@@ -42,7 +42,18 @@
         </md-list>
 
         <div ng-show="!showDataSources && selectedValues.datasource.id == 2">
-            To limit the returned results an area of interest can be selected on the map.
+             <div class="row">
+                    <md-subheader class="md-accent">Datasource</md-subheader>
+                </div>
+
+               <div class="row">
+                   <div class="col-md-12">
+                        <md-input-container md-no-float>
+                            <input ng-model="searchParameters.mission.text" type="text" placeholder="FTEP (optional)">
+                            <div class="hint" ng-show="true">Name of a datasource</div>
+                        </md-input-container>
+                   </div>
+               </div>
         </div>
 
         <form id="searchForm" name="searchForm" ng-show="!showDataSources && selectedValues.datasource.id != 2"

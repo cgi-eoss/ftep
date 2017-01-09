@@ -124,33 +124,25 @@ public class CacheManager {
                 jobdir);
     }
 
-    public String createSymlink(String fileNameInCache, String targetJobdirForSymlinks) {
+    public String createSymlink(String downloadDirPathToTarget, String targetJobdirForSymlinks) {
         // LOG.debug("fn name: CacheManager.createSymlink(); params: fileNameInCache '" +
         // fileNameInCache + "' targetJobdirForSymlinks '" + targetJobdirForSymlinks + "'");
         String targetFile = null;
-        if (null != fileNameInCache) {
+        if (null != downloadDirPathToTarget) {
             // The jobdir is assigned automatically, before this is called but create if not exists
             File newPathItem = new File(targetJobdirForSymlinks);
             if (!newPathItem.exists()) {
                 newPathItem.mkdirs();
             }
-            // Attachable filename for every path
-            String slashFileName = "/" + fileNameInCache;
-            // The target for the symlink
-            targetFile = targetJobdirForSymlinks + slashFileName;
-            // The source for the symlink
-            String mainFolderDownloadLocation = downloadDir + slashFileName;
-            // Path item to be used as "target" in the link construction call
-            Path linkTarget = new File(targetFile).toPath();
-            // If the link is not there
-            if (!Files.isSymbolicLink(linkTarget)) {
-                // Path item to be used as "source" in the link construction call
-                Path linkSource = new File(mainFolderDownloadLocation).toPath();
+
+            Path target = Paths.get(downloadDir).resolve(downloadDirPathToTarget);
+            Path link = Paths.get(targetJobdirForSymlinks, target.getFileName().toString());
+            if (!Files.isSymbolicLink(link)) {
                 try {
                     // Try and call the link construction method
-                    Files.createSymbolicLink(linkTarget, linkSource);
+                    Files.createSymbolicLink(link, target);
                 } catch (Exception e) {
-                    LOG.error("Could not create symlink for '{}'!", mainFolderDownloadLocation, e);
+                    LOG.error("Could not create symlink for '{}'!", target, e);
                     // To show there was an error creating the link
                     targetFile = null;
                 }
@@ -179,6 +171,7 @@ public class CacheManager {
                 } else {
                     mainItemLocation = targetDir.toAbsolutePath().toString();
                 }
+                LOG.info("Link target for zip: {}", mainItemLocation);
 
                 // Always delete the ZIP
                 Files.delete(zip);

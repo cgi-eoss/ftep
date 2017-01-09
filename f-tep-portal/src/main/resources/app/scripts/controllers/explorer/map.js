@@ -392,6 +392,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         }
 
         $scope.$on('update.geoResults', function(event, results) {
+            selectAll(false);
             $scope.map.removeLayer(resultsLayer);
             var featureItems = [];
             if(results){
@@ -403,7 +404,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     if(results[folderNr].results && results[folderNr].results.entities){
                         for(var i = 0; i < results[folderNr].results.entities.length; i++){
                             var item = results[folderNr].results.entities[i];
-                            console.log('Geometry type: ', item.geo.type);
                             var lonlatPoints = [];
                             for(var k = 0; k < item.geo.coordinates.length; k++){
                                 for(var m = 0; m < item.geo.coordinates[k].length; m++){
@@ -537,13 +537,15 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         });
 
         function selectAll(selected){
-            var features = resultsLayer.getSource().getFeatures();
-            for(var i = 0; i < features.length; i++){
-                if(selected){
-                    features[i].setStyle(selectedStyle);
-                }
-                else{
-                    features[i].setStyle(resultStyle);
+            if(resultsLayer){
+                var features = resultsLayer.getSource().getFeatures();
+                for(var i = 0; i < features.length; i++){
+                    if(selected){
+                        features[i].setStyle(selectedStyle);
+                    }
+                    else{
+                        features[i].setStyle(resultStyle);
+                    }
                 }
             }
         }

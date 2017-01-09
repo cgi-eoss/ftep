@@ -1,20 +1,21 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
+import com.cgi.eoss.ftep.orchestrator.io.ZipHandler;
+import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.stream.Collectors;
 
 // Singleton
 // @SuppressWarnings("CallToPrintStackTrace")
@@ -164,51 +165,26 @@ public class CacheManager {
         String mainItemLocation = null;
         // Check if ZIP file only then unzip
         if (zipFile.toLowerCase().endsWith(".zip")) {
-            try {
-                boolean topLevelDirFound = false;
-                byte[] buffer = new byte[1024];
-                // Get the ZIP file's content
-                try (ZipInputStream zis = new ZipInputStream(new FileInputStream(downloadDir + zipFile))) {
-                    // For each file and folder
-                    ZipEntry ze = zis.getNextEntry();
-                    while (ze != null) {
-                        // Get the name of the item
-                        String fileName = ze.getName();
-                        File newPathItem = new File(downloadDir + fileName);
-                        // The root item is needed, that will be linked
-                        if (!topLevelDirFound) {
-                            topLevelDirFound = true;
-                            // The full path of the root item (preferably folder, rarely file)
-                            mainItemLocation = newPathItem.getAbsolutePath();
-                        }
-                        // Can be either directory or file, each comes once
-                        if (ze.isDirectory()) {
-                            // Create each directory, no need to check for existence
-                            newPathItem.mkdir();
-                            LOG.debug("dir created: {}", newPathItem.getAbsolutePath());
-                        } else {
-                            // If it is a file create it
-                            try (FileOutputStream fos = new FileOutputStream(newPathItem)) {
-                                int len;
-                                while ((len = zis.read(buffer)) > 0) {
-                                    fos.write(buffer, 0, len);
-                                }
-                                // LOG.debug("file unzip: " + newPathItem.getAbsoluteFile());
-                            }
-                        }
-                        // Take the next entry from the ZIP
-                        ze = zis.getNextEntry();
+            Path zip = Paths.get(downloadDir, zipFile);
+            Path targetDir = Paths.get(downloadDir, zipFile.replaceAll("\\.zip$", ""));
 
-                    }
-                    // Close the stream
-                    zis.closeEntry();
-                    // LOG.debug("Done");
+            try {
+                Files.createDirectories(targetDir);
+                ZipHandler.unzip(zip, targetDir);
+
+                // If the zip contained a single directory, link to that, otherwise link to the created directory
+                Set<Path> targetDirContents = Files.list(targetDir).collect(Collectors.toSet());
+                if (targetDirContents.size() == 1 && Files.isDirectory(Iterables.getOnlyElement(targetDirContents))) {
+                    mainItemLocation = Iterables.getOnlyElement(targetDirContents).toAbsolutePath().toString();
+                } else {
+                    mainItemLocation = targetDir.toAbsolutePath().toString();
                 }
+
+                // Always delete the ZIP
+                Files.delete(zip);
             } catch (IOException e) {
                 LOG.error("File I/O error! while performing file unzip for: {}", zipFile, e);
             }
-            // Always delete the ZIP
-            new File(downloadDir + zipFile).delete();
         } else {
             mainItemLocation = (new File(downloadDir + zipFile)).getAbsolutePath();
             // LOG.debug("it is NOT a ZIP file '" + mainItemLocation + "'");

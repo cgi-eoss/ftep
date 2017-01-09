@@ -7,6 +7,7 @@ dependencies {
     compileOnly deps.lombok
 
     compile project(':f-tep-common')
+    compile project(':f-tep-orchestrator')
 
     compile deps.slf4j
 }

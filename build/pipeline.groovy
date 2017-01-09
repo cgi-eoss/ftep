@@ -18,8 +18,12 @@
             ansiColor('xterm') {
                 // Build F-TEP
                 stage('Build F-TEP') {
-                    configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
-                        sh "env GRADLE_OPTS='-Dorg.gradle.daemon=false' GRADLE_USER_HOME=${WORKSPACE}/.home/.gradle ./build/ftep.sh"
+                    try {
+                        configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
+                            sh "env GRADLE_OPTS='-Dorg.gradle.daemon=false' GRADLE_USER_HOME=${WORKSPACE}/.home/.gradle ./build/ftep.sh"
+                        }
+                    } finally {
+                        junit allowEmptyResults: true, testResults: '**/target/test-results/test/TEST-*.xml'
                     }
                 }
 

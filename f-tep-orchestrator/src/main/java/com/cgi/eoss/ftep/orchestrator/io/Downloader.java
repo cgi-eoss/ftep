@@ -11,10 +11,11 @@ import java.nio.file.Path;
 @FunctionalInterface
 public interface Downloader {
     /**
-     * <p>Download the given URI and output the result to the given target.</p>
+     * <p>Download the given URI and output the result in the given target directory.</p>
      *
-     * @param target The destination to which the content of the resource at the URI should be written.
+     * @param targetDir The directory in which the content of the resource at the URI should be written.
      * @param uri The URI to be retrieved.
+     * @return The path to the downloaded file.
      */
-    void download(Path target, URI uri) throws IOException;
+    Path download(Path targetDir, URI uri) throws IOException;
 }

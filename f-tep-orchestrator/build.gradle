@@ -9,15 +9,19 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-rpc')
 
+    compile deps.awaitility
+    compile deps.commonsNet
     compile deps.dockerJava
     compile deps.googleHttpClient
     compile deps.googleHttpClientJackson
+    compile deps.okHttp
     compile deps.slf4j
-    compile deps.wget
 
     testCompile deps.hamcrestJunit
     testCompile deps.jimfs
     testCompile deps.junit
+    testCompile deps.mockFtpServer
+    testCompile deps.mockWebServer
     testCompile deps.mockito
 
     testRuntime deps.logbackClassic

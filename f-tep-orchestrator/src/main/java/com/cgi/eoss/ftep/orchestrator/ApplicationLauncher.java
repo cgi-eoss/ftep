@@ -5,6 +5,8 @@ import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.data.JobStatusService;
+import com.cgi.eoss.ftep.orchestrator.data.ServiceDataService;
 import com.cgi.eoss.ftep.rpc.ApplicationLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.ApplicationParams;
 import com.cgi.eoss.ftep.rpc.ApplicationResponse;

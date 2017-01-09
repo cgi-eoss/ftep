@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.data;
 
 import com.cgi.eoss.ftep.model.enums.ServiceType;
 import com.google.common.collect.Maps;

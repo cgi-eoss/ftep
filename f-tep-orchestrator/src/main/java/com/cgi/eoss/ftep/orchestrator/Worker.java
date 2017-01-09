@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -15,6 +16,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
@@ -43,11 +45,13 @@ public class Worker {
      * <code>inputDir</code> while the multi-map values specify the URLs to be prepared in the subdir.
      * @param inputDir
      */
-    public void prepareInputs(Multimap<String, String> inputs, Path inputDir) {
-        inputs.keys().forEach(subdir -> {
-            Path subdirPath = inputDir.resolve(subdir);
-            inputOutputManager.prepareInput(subdirPath, inputs.get(subdir));
-        });
+    public void prepareInputs(Multimap<String, String> inputs, Path inputDir) throws IOException {
+        for (Map.Entry<String, String> e : inputs.entries()) {
+            if (isValidUri(e.getValue())) {
+                Path subdirPath = inputDir.resolve(e.getKey());
+                inputOutputManager.prepareInput(subdirPath, URI.create(e.getValue()));
+            }
+        }
     }
 
     /**
@@ -133,4 +137,14 @@ public class Worker {
     public JobEnvironment createJobEnvironment(String jobId, Multimap<String, String> jobConfig) throws IOException {
         return jobEnvironmentService.createEnvironment(jobId, jobConfig);
     }
+
+    private static boolean isValidUri(String uri) {
+        try {
+            URI.create(uri);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

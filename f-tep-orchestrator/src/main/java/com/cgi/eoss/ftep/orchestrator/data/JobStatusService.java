@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.data;
 
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;

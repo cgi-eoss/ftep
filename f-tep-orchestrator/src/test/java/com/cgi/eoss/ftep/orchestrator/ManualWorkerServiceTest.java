@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

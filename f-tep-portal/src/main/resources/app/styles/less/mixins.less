@@ -1,0 +1,53 @@
+@import "variable";
+
+.bg-trans (@inputcolor) {
+    background-color: fade(@inputcolor, @transparent-percentage);
+    &:hover {
+         background-color: @inputcolor;
+    }
+}
+
+.bg-trans-dark (@inputcolor) {
+    background-color: fade(@inputcolor, @transparent-dark-percentage);
+    &:hover {
+         background-color: @inputcolor;
+    }
+}
+
+.bg-trans-semi (@inputcolor) {
+    background-color: fade(@inputcolor, @semi-transparent-percentage);
+    &:hover {
+         background-color: @inputcolor;
+    }
+}
+
+.bg-trans-semi-dark (@inputcolor) {
+    background-color: fade(@inputcolor, @semi-transparent-dark-percentage);
+    &:hover {
+         background-color: @inputcolor;
+    }
+}
+
+.border (@attribute; @inputcolor; @solid:solid; @thickness:1px) {
+    @{attribute}: darken(@inputcolor, @border-darken-percentage) @solid @thickness;
+}
+
+.border-dark (@attribute; @inputcolor; @solid:solid; @thickness:1px) {
+     @{attribute}: lighten(@inputcolor, @border-lighten-percentage) @solid @thickness;
+}
+
+.text-sec (@inputcolor:@text) {
+    color: fade(@inputcolor, 70%);
+}
+
+.text-sec-light (@inputcolor:@text-light) {
+    color: fade(@inputcolor, 70%);
+}
+
+.text-hint (@inputcolor:@text) {
+    color: fade(@inputcolor, 40%);
+}
+
+.text-hint-light (@inputcolor:@text-light) {
+    color: fade(@inputcolor, 40%);
+}

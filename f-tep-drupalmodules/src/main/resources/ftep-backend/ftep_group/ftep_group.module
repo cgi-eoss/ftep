@@ -1,0 +1,96 @@
+<?php
+
+/**
+ * Implements hook_entity_info().
+ */
+function ftep_group_entity_info() {
+    $info = array (
+        'ftep_group' => array (
+            'label' => t ( 'Ftep Group' ),
+            'base table' => 'ftep_group',
+            'entity keys' => array (
+                'id' => 'gid',
+                'label' => 'name' 
+            ),
+            'entity class' => 'FtepGroups',  // 'Entity',
+            'controller class' => 'FtepGroupsController',
+            'access callback' => 'ftep_groups_access_callback',
+            'module' => 'ftep_group',
+            'fieldable' => false,
+            'admin ui' => array (
+                'path' => 'admin/ftep/groups',
+                'file' => 'ftep_group.admin.inc',
+                'type' => MENU_NORMAL_ITEM,
+                'controller class' => 'FtepGroupUIController'
+            ),
+        )
+    ) ;
+    return $info;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function ftep_group_menu() {
+    $items = array ();
+
+    $items ['groups'] = array (
+            'title' => 'Groups',
+            'page callback' => 'ftep_group_groups',
+            'access arguments' => array (
+                    'administer ftep_group entities'
+            )
+    );
+    return $items;
+}
+function ftep_group_groups() {
+    $groups = entity_load ( 'ftep_group', array ( 1, 2, 3) );
+    // Listing entities
+    $list = entity_view ( 'ftep_group', $groups );
+
+    $output = array ();
+    if (! array_key_exists ( "ftep_group", $list )) {
+        return $output;
+    }
+    foreach ( $list ['ftep_group'] as $group ) {
+        $output [] = drupal_render ( $group );
+    }
+    return implode ( $output );
+}
+/**
+ * Ftep Groups access callback.
+ */
+function ftep_groups_access_callback() {
+	if (user_is_anonymous () && ! user_access ( 'administer ftep_groups entities' )) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
+}
+
+
+function ftep_group_permission() {
+    return array(
+            'administer ftep_group entities' => array('title'=> t("Administer Ftep Groups"), "description" => t("Administer Ftep Groups") ),
+            'create ftep_group entities' => array('title'=> t("Create Ftep Groups entities"), "description" => t("Create Ftep Groups") ),
+            'edit any ftep_group entity' => array('title'=> t("Edit any Ftep Groups"), "description" => t("Edit any Ftep Groups") ),
+            'edit own ftep_group entities' => array('title'=> t("Edit own Ftep Groups"), "description" => t("Edit own Ftep Groups") ),
+            'view any ftep_group entity' => array('title'=> t("View any Ftep Groups"), "description" => t("View any Ftep Groups") ),
+            'view own ftep_group entities' => array('title'=> t("View own Ftep Groups"), "description" => t("View own Ftep Groups") ),
+    );
+}
+
+
+/**
+ * FtepGroups  custom entity class.
+ */
+class FtepGroups extends Entity {
+	/**
+	 * Override defaultUri().
+	 */
+	protected function defaultUri() {
+		return array (
+				'path' => 'groups/' . $this->identifier ()
+		);
+	}
+}

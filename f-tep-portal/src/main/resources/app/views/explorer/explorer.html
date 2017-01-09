@@ -1,0 +1,28 @@
+<div id="explorer-container" layout="row">
+
+    <div id="sidebar-container" ng-controller="SidebarCtrl">
+
+        <div id="sidenav" ng-show="true">
+             <div ng-include src="'views/explorer/sidenav.html'"></div>
+        </div>
+
+        <md-sidenav id="sidebar-left"
+                    class="md-sidenav-left md-whiteframe-4dp"
+                    md-component-id="left"
+                    md-disable-backdrop
+                    md-whiteframe="4"
+                    ng-show="searchMenuVisible">
+             <div class="sidebar-container" ng-include src="'views/explorer/sidebar/sidebar.html'"></div>
+        </md-sidenav>
+
+    </div>
+
+    <div id="map-container" ng-include src="'views/explorer/map.html'"></div>
+
+    <div id="bottombar" class="explorer-content" ng-controller="BottombarCtrl" ng-include src="'views/explorer/bottombar/bottombar.html'" ng-show="resultsMenuVisible"></div>
+
+</div>
+
+<div class="warnings error-text" ng-show="warning.isVisible">
+    {{warning.message}}
+</div>

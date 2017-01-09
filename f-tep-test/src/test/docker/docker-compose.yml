@@ -1,0 +1,51 @@
+---
+version: '2'
+services:
+  ftep-db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        no_proxy:
+        pkgconf: db.pkg
+        puppetconf: db.yaml
+    environment:
+      http_proxy:
+      https_proxy:
+      no_proxy:
+  ftep-drupal:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: drupal.pkg
+        puppetconf: drupal.yaml
+    links:
+      - ftep-db
+  ftep-webapp:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: webapp.pkg
+        puppetconf: webapp.yaml
+  ftep-wps:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: wps.pkg
+        puppetconf: wps.yaml
+    links:
+      - ftep-db
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:rw'
+  ftep-proxy:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: proxy.pkg
+        puppetconf: proxy.yaml
+    links:
+      - ftep-drupal
+      - ftep-webapp
+      - ftep-wps

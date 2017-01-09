@@ -1,0 +1,12 @@
+TROOT= ../
+!INCLUDE ../../zoo-kernel/nmake.opt
+
+#CFLAGS=-I$(GEODIR)/include -I$(TOOLS)/include -I../../zoo-kernel/ -I./ -DLINUX_FREE_ISSUE -DDEBUG -DWIN32
+#CPP=cl /TP 
+
+cgi-env/test_service.zo: test_service.c
+	$(CPP) -DWIN32 -DZOO_SERVICE -DNEED_STRCASESTR $(CFLAGS) /c test_service.c
+	link /dll /out:cgi-env/test_service.zo ../../zoo-kernel/service_internal.obj ../../zoo-kernel/ulinet.obj ../../zoo-kernel/service_internal_ms.obj ../../zoo-kernel/service_internal_js.obj ./test_service.obj $(LDFLAGS)
+
+clean:
+	erase cgi-env\demo_service.*

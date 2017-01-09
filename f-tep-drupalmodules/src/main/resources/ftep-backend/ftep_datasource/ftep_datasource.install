@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function ftep_datasource_install() {
+	watchdog ( "Ftep - DataSource", "Install module" );
+}
+/**
+ * Implements hook_uninstall().
+ */
+function ftep_datasource_uninstall() {
+	watchdog ( "Ftep - DataSource", "Uninstalling module and deleting fields" );
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ftep_datasource_schema() {
+	$schema = array ();
+	
+	$schema ['ftep_datasource'] = array (
+			'description' => 'The base table for datasources',
+			'fields' => array (
+					'id' => array (
+							'description' => 'The primary identifier for the table.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE 
+					),
+					'name' => array (
+							'description' => 'The name of this datasource.',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => '' 
+					),
+					'description' => array (
+							'description' => 'The description of the datasource.',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => '' 
+					),
+					'endpoint' => array (
+							'description' => 'The endpoint of the service.',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => '' 
+					),
+					'template' => array (
+							'description' => 'The template of the datasource.',
+							'type' => 'text',
+							'size' => 'big',
+							'not null' => TRUE,
+					),
+					'parser' => array (
+							'description' => 'The class used to parse the response of the datasource.',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => '' 
+					),
+					'policy' => array (
+							'description' => 'A reference to the access policy of the datasource',
+							'type' => 'varchar',
+							'length' => 20,
+					), 
+					'enabled' => array (
+                            'description' => 'Flag to enable/disable the datasource',
+                            'pgsql_type' => 'boolean',
+                            'type' => 'int',
+                            'size' => 'tiny',
+							'not null' => TRUE 
+					), 
+					'download_domain' => array (
+							'description' => 'This is the domain managed by this datasource.',
+							'type' => 'varchar',
+							'length' => 100,
+							'not null' => True,
+					),
+					'credentials_data' => array (
+							'description' => 'Credentials data.',
+							'type' => 'text',
+							'size' => 'big',
+							'not null' => True,
+					),
+			)
+			,
+			'primary key' => array (
+					'id' 
+			),
+            'unique keys' => array(
+                    'name_uniq' => array('name'),
+             ),
+	);
+	
+	return $schema;
+}
+

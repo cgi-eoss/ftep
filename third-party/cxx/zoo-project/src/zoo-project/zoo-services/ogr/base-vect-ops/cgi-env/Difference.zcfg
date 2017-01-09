@@ -1,0 +1,75 @@
+[Difference]
+ Title = Compute difference. 
+ Abstract = This function shall return a bag of geometry values representing the closure of the set difference between the two geometries InputEntity1 and InputEntity2. The difference is the set of all points which lie on InputEntity1 but not on InputEntity2.
+ Profile = urn:ogc:wps:1.0.0:difference
+ processVersion = 2
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = ogr_service.zo
+ serviceType = C
+ <MetaData>
+   title = Demo
+ </MetaData>
+ <DataInputs>
+  [InputEntity1]
+   Title = the first geometry 
+   Abstract = the first geometry to compare against.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     encoding = UTF-8
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Default>
+    <Supported>
+     mimeType = text/xml
+     encoding = base64
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Supported>
+   </ComplexData>
+  [InputEntity2]
+   Title = the other geometry
+   Abstract = the other geometry to compare against.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     encoding = UTF-8
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Default>
+    <Supported>
+     mimeType = text/xml
+     encoding = base64
+     schema = http://fooa/gml/3.1.0/polygon.xsd
+    </Supported>
+   </ComplexData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title = The difference between two geometries
+   Abstract = The difference between the two geometries.
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+    <ComplexData>
+     <Default>
+      mimeType = text/xml
+      encoding = UTF-8
+      schema = http://fooa/gml/3.1.0/polygon.xsd
+      extension = xml
+     </Default>
+     <Supported>
+      mimeType = application/json
+      encoding = UTF-8
+      extension = js
+     </Supported>
+    </ComplexData>
+ </DataOutputs>  

@@ -1,0 +1,9 @@
+usr/lib/cgi-bin/cgal	usr/lib/cgi-bin/
+usr/lib/cgi-bin/gdal	usr/lib/cgi-bin/
+usr/lib/cgi-bin/ogr	usr/lib/cgi-bin/
+usr/lib/cgi-bin/demo.zcfg	usr/lib/cgi-bin/
+usr/lib/cgi-bin/GetStatus.zcfg	usr/lib/cgi-bin/
+usr/lib/cgi-bin/longProcess.zcfg	usr/lib/cgi-bin/
+usr/lib/cgi-bin/service.py	usr/lib/cgi-bin/
+usr/lib/cgi-bin/updateStatus.xsl	usr/lib/cgi-bin/
+usr/lib/cgi-bin/wps_status.zo	usr/lib/cgi-bin/

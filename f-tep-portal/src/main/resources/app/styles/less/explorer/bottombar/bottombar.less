@@ -1,0 +1,128 @@
+@import "variable";
+#bottombar {
+    bottom: 0;
+    height: 35%;
+    left: @sidenav-width;
+    min-height: 300px;
+    overflow-x: auto;
+    position: fixed;
+    transition: all 0.4s ease-out;
+    width: calc(100% ~"-" @sidenav-width);
+    z-index: 2;
+    .bg-trans(@bg-light);
+    #bottombar-header {
+        flex: 0 1 auto;
+        height: 42px;
+        min-width: 900px;
+        width: 100%;
+        .button-section {
+            padding-left: 0px;
+            padding-right: 1rem;
+            button {
+                color: @brand-dark;
+                float: right;
+                &:hover {
+                    color: @accent;
+                }
+            }
+            .md-button.md-focused:not([disabled]) {
+                background-color: transparent;
+                outline: none;
+            }
+            .pagination {
+                float:right;
+                margin: 0.5rem 0;
+                a {
+                    background-color: transparent;
+                    border: none;
+                    color: @brand;
+                    padding: 2px 0.5rem;
+                    .border(border-left, @bg);
+                    &:first-child {}
+                    &:hover {
+                        background: @accent-light;
+                        color: @brand-dark;
+                    }
+                }
+                .active {
+                    a {
+                        background-color: @accent;
+                        border-color: @accent;
+                        color: @text-light;
+                    }
+                }
+                li:first-child a {
+                    border: none;
+                }
+            }
+        }
+        .row {
+            padding: 0 20px;
+        }
+    }
+    #bottombar-contents {
+        flex: 1 1 auto;
+        height: calc(100% ~"-" 42px);
+        margin: 0;
+        min-width: 900px;
+        .bottombar-pane {
+            height: 100%;
+            width: 100%;
+            .bottombar-left {
+                height:100%;
+                width: 30%;
+            }
+            .bottombar-right {
+                height:100%;
+                width: 70%;
+            }
+        }
+    }
+    md-content {
+        background-color: transparent;
+    }
+    .md-subheader {
+        background-color: transparent;
+        color: @accent;
+        .md-subheader-inner {
+            padding-right: 0;
+            label {
+                .text-sec();
+            }
+        }
+    }
+    md-tabs {
+        height: 100%;
+    }
+    .nav-pills {
+        li {
+            a {
+                background-color: transparent;
+                border-radius: 0;
+                color: @dark-gray;
+            }
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        li.active {
+            a {
+                background-color: transparent;
+                border-bottom: 2px solid @accent;
+                color: @brand;
+            }
+        }
+    }
+    .scrollme {
+        display: flex;
+        flex-flow: column;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        .ngsb-track {
+            background-color: @accent;
+            border-radius: 20px;
+            height: 95%;
+            width: 4px;
+        }
+    }
+}

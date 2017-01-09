@@ -1,0 +1,96 @@
+[
+  {
+    "type": "group",
+    "id": "18",
+    "attributes": {
+      "name": "Group 18",
+      "description": "This is Hari's group"
+    },
+    "relationships": {
+      "user": {
+        "data": [{
+          "type": "user",
+          "id": "4"
+        }, {
+          "type": "user",
+          "id": "10"
+        }, {
+          "type": "user",
+          "id": "5"
+        }, {
+          "type": "user",
+          "id": "5"
+        }, {
+          "type": "user",
+          "id": "6"
+        }]
+      }
+    }
+  },
+  {
+    "type": "group",
+    "id": "12",
+    "attributes": {
+      "name": "Group 12",
+      "description": "This is Alex's group"
+    },
+    "relationships": {
+      "user": {
+        "data": [{
+          "type": "user",
+          "id": "4"
+        }, {
+          "type": "user",
+          "id": "5"
+        }, {
+          "type": "user",
+          "id": "6"
+        }]
+      }
+    }
+  },
+  {
+    "type": "group",
+    "id": "10",
+    "attributes": {
+      "name": "Group 10",
+      "description": "This is Ram's group"
+    },
+    "relationships": {
+      "user": {
+        "data": [{
+          "type": "user",
+          "id": "4"
+        }, {
+          "type": "user",
+          "id": "5"
+        }, {
+          "type": "user",
+          "id": "6"
+        }]
+      }
+    }
+  },
+  {
+    "type": "group",
+    "id": "1",
+    "attributes": {
+      "name": "Group 1",
+      "description": "This is common group"
+    },
+    "relationships": {
+      "user": {
+        "data": [{
+          "type": "user",
+          "id": "4"
+        }, {
+          "type": "user",
+          "id": "5"
+        }, {
+          "type": "user",
+          "id": "6"
+        }]
+      }
+    }
+  }
+]

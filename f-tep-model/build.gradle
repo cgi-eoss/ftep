@@ -1,0 +1,26 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0'
+
+apply plugin: 'java'
+
+compileJava {
+    options.compilerArgs << "-s"
+    options.compilerArgs << "$buildDir/generated-sources"
+
+    doFirst {
+        file(new File(buildDir, "/generated-sources")).mkdirs()
+    }
+}
+
+clean.doLast {
+    file(new File(buildDir, "/generated-sources")).deleteDir()
+}
+
+dependencies {
+    compileOnly deps.lombok
+    compileOnly deps.querydslApt
+
+    compile deps.guava
+    compile deps.hibernateJpa21Api
+    compile deps.jsonapiConverter
+}

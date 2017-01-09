@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function ftep_service_install() {
+	watchdog ( "Ftep - Service  ", "Install module" );
+}
+/**
+ * Implements hook_uninstall().
+ */
+function ftep_service_uninstall() {
+	watchdog ( "Ftep - Service  ", "Uninstalling module and deleting fields" );
+}
+
+/**
+ * Implements hook_schema().
+ */
+function ftep_service_schema() {
+	$schema = array ();
+	$schema ['ftep_service'] = array (
+			'description' => 'The base table for ftep services',
+			'fields' => array (
+					'sid' => array (
+							'description' => 'The primary identifier for the service table',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE
+					),
+					'name' => array (
+							'description' => 'This is a name assigned by the user/owner to the service',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE
+					),
+					'description' => array (
+							'description' => 'Description of the service',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => ''
+                    ),
+					'kind' => array (
+							'description' => 'Type of service. can be "processor" or "application" ',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'processor'
+					),
+					'mode' => array (
+							'description' => 'Mode of service, can be "sscale" or "bulk" ',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'sscale'
+					),
+					'rating' => array (
+							'description' => 'Rating of the service.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'user_id' => array (
+							'description' => 'ID of Drupal user creator.',
+							'type' => 'int',
+							'not null' => TRUE
+					),
+					'access_level' => array (
+							'description' => 'Access level of the service',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => ''
+					),
+					'cpu' => array (
+							'description' => 'CPU requirements of the service ',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => ''
+					),
+					'ram' => array (
+							'description' => 'RAM requirements of the service',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'open'
+					),
+					'cost' => array (
+							'description' => 'Cost of the serivce',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'open'
+					),
+					'license' => array (
+							'description' => 'License the serivce, can be "open" or "restricted" ',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'open'
+					),
+					'status' => array (
+							'description' => 'Service. Values(Submitted,Approved).',
+							'type' => 'varchar',
+							'length' => 255,
+							'not null' => TRUE,
+							'default' => 'submitted'
+					),
+        ),
+        'unique keys' => array( 
+            'userid_name' => array( 'user_id', 'name' ),
+        ),
+        'primary key' => array ('sid'),
+	);
+	return $schema;
+}

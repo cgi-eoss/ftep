@@ -1,0 +1,85 @@
+<div id="services" class="panel panel-default">
+
+    <md-toolbar md-scroll-shrink>
+        <div class="md-toolbar-tools">
+            <div class="col-xs-12">
+                <span>Services</span>
+            </div>
+        </div>
+    </md-toolbar>
+
+    <section class="filter-list">
+       <div class="row">
+            <div class="col-md-12">
+                <md-input-container md-no-float>
+                    <input ng-model="serviceSearch.searchText" type="text" placeholder="Search Services">
+                </md-input-container>
+            </div>
+       </div>
+    </section>
+
+    <section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+
+        <ul class="list" ng-repeat="serviceType in serviceTypes" ng-init="isServiceTypeOpened = true">
+
+            <div class="row no-margin list-group">
+
+                <div class="col-md-11" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
+                    <label>{{serviceType.label}}</label>
+                </div>
+
+                <div class="col-md-1 no-padding expander">
+                    <i class="material-icons"
+                       ng-show="!isServiceTypeOpened"
+                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
+                       aria-label="Show {{serviceType.label}}"
+                       uib-tooltip="Show {{serviceType.label}}"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="isServiceTypeOpened"
+                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
+                       aria-label="Hide {{serviceType.label}}"
+                       uib-tooltip="Hide {{serviceType.label}}"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+        <div class="item-list list">
+
+            <md-list-item class="md-2-line"
+                          ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
+                          ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
+                          ng-click="selectService(service); toggleSidebar('workspace')">
+
+                <div class="md-list-item-text" layout="column">
+                    <h3>{{service.attributes.name}}</h3>
+                    <p>{{getShortDesc(service.attributes.description)}}</p>
+                </div>
+
+                <md-button class="toolbar-button md-secondary"
+                            aria-label="Service Info"
+                            uib-popover-html="getServicePopover({{service}})"
+                            popover-placement="right"
+                            popover-trigger="mouseenter"
+                            popover-append-to-body="true">
+                    <i class="material-icons">info_outline</i>
+                </md-button>
+
+                <span class="rating md-secondary" ng-bind-html="getRating(service.attributes.rating)"></span>
+
+            </md-list-item>
+        </div>
+        </ul>
+
+    </section>
+
+</div>

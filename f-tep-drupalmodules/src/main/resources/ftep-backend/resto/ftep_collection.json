@@ -1,0 +1,44 @@
+{
+    "name": "ftep",
+    "model": "RestoModel_FTEP",
+    "status": "public",
+    "licenseId": "unlicensed",
+    "rights":{
+        "download":1,
+        "visualize":1
+    },
+    "osDescription": {
+        "en": {
+            "ShortName": "ftep collection",
+            "LongName": "A test ftep collection example",
+            "Description": "A test ftep collection example",
+            "Tags": "ftep example",
+            "Developer": "AA",
+            "Contact": "user@mail.com",
+            "Query": "FTEP",
+            "Attribution": "AAA"
+        }
+    },
+    "propertiesMapping":{
+        "organisationName": "FTEP",
+        "quicklook" : "http://spirit.cnes.fr/landsat/ql/{:productIdentifier:}.png",
+        "thumbnail" : "http://spirit.cnes.fr/landsat/ql/{:productIdentifier:}_thumb.png",
+        "metadata" : "http://spirit.cnes.fr/landsat/md/{:productIdentifier:}.xml",
+        "resourceMimeType": "image/tif",
+        "wms" : "http://spirit.cnes.fr/cgi-bin/mapserv?map=/mount/landsat/wms/map.map&file={:productIdentifier:}&LAYERS=landsat&FORMAT=image%2Fpng&TRANSITIONEFFECT=resize&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&SRS=EPSG%3A3857&BBOX={:bbox3857:}&WIDTH=256&HEIGHT=256"
+    },
+
+    "searchFiltersDescription": {
+        "ftep:jobid": {
+            "key": "jobid",
+            "osKey": "jobid",
+            "type": "numeric",
+            "operation": "interval",
+            "keyword": {
+                "value": "jobid={a:1}",
+                "type": "other"
+            }
+        }
+    }
+}
+

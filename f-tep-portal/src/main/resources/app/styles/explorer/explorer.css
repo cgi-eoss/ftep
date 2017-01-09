@@ -1,0 +1,68 @@
+.ftep {
+  height: 100vh;
+  overflow-x: hidden;
+  margin: 0px;
+}
+.ftep #portal-container {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.ftep #portal-container #explorer-container {
+  height: 100%;
+  transition: all 0.5s ease;
+  width: 100%;
+}
+.ftep .icon-disabled {
+  color: #BBB;
+  cursor: default;
+  filter: opacity(20%);
+}
+.ftep .note {
+  background-color: #ffffff;
+  border: solid 1px #f2dede;
+  padding: 4px;
+}
+.ftep .rzslider .rz-bubble {
+  color: rgba(0, 0, 0, 0.7);
+}
+.ftep .rzslider .rz-pointer {
+  width: 16px;
+  height: 16px;
+  border-radius: 25px;
+  top: -6px;
+}
+.ftep .rzslider .rz-pointer .rz-active::after {
+  background-color: transparent;
+}
+.ftep .rzslider .rz-pointer:hover {
+  width: 24px;
+  height: 24px;
+  top: -10px;
+}
+.ftep .rzslider .rz-pointer:after {
+  background-color: transparent;
+}
+.ftep .selectable {
+  cursor: pointer;
+}
+.ftep .toolbar-button {
+  margin: 0px;
+  min-width: 1rem;
+  padding: 0px;
+}
+.ftep .toolbar-button:hover {
+  background-color: transparent;
+}
+.ftep .warnings {
+  background-color: rgba(255, 255, 255, 0.7);
+  bottom: 20px;
+  height: 50px;
+  padding: 6px;
+  position: absolute;
+  width: 100%;
+}
+.ftep .warnings:hover {
+  background-color: #ffffff;
+}

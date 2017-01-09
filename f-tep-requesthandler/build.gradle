@@ -1,0 +1,14 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0'
+
+apply plugin: 'java'
+
+dependencies {
+    compileOnly deps.lombok
+
+    compile project(':f-tep-common')
+    compile project(':f-tep-datamanager')
+    compile project(':f-tep-model')
+
+    compile deps.slf4j
+}

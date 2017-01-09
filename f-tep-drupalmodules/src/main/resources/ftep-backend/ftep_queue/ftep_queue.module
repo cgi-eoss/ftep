@@ -1,0 +1,357 @@
+<?php
+define('GEOSERVER_URL',"http://192.168.3.85:8080/geoserver/");
+define('GEOSERVER_CREDENTIALS',"admin:geoserver");
+
+// require_once 'Monolog/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use \Curl\Curl;
+use pastuhov\Command\Command;
+
+define('ENCODE_SECRET','enigma');
+define('DOWNLOAD_LOCATION','files2');
+
+function getLogger()  { 
+    // create a log channel
+    $log = new Logger( basename(__FILE__) );
+    $log->pushHandler(new StreamHandler('/var/log/ftep.log', Logger::DEBUG));
+    return $log;
+}
+function getRamFile(){
+    $logfh = fopen("php://memory", "rw");
+    fwrite($logfh, $putData);
+    rewind($logfh);
+    return $logfh;
+}
+
+function createWorkspace($workspaceName){
+    $log = getLogger();
+    $log->debug(__METHOD__." - ".__LINE__. " - Creating workspace $workspaceName" );
+
+    $logfh = getRamFile();
+
+    // Initiate cURL session
+    // $service = "http://192.168.3.85:8080/geoserver/";
+    $service = GEOSERVER_URL;
+    $request = "rest/workspaces"; // to add a new workspace
+    $url = $service . $request;
+    $ch = curl_init($url);
+
+    $log->debug(__METHOD__." - ".__LINE__. " - Calling $url" );
+
+    // Optional settings for debugging
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); //option to return string
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    curl_setopt($ch, CURLOPT_STDERR, $logfh); // logs curl messages
+
+    //Required POST request settings
+    curl_setopt($ch, CURLOPT_POST, True);
+    curl_setopt($ch, CURLOPT_USERPWD, GEOSERVER_CREDENTIALS);
+
+    //POST data
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/xml"));
+
+    $xmlStr = sprintf("<workspace><name>%s</name></workspace>",$workspaceName);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlStr);
+    $log->debug(__METHOD__." - ".__LINE__. " - Calling $url payload: $xmlStr" );
+
+    //POST return code
+    $successCode = 201;
+
+    $buffer = curl_exec($ch); // Execute the curl request
+
+    // Check for errors and process results
+    $info = curl_getinfo($ch);
+    if ($info['http_code'] != $successCode) {
+        $msgStr = "# Unsuccessful cURL request to ";
+        $msgStr .= $url." [". $info['http_code']. "]\n";
+        $log->warning(__METHOD__." - ".__LINE__. " - ".$msgStr. " - ".var_export($info,true) );
+        fwrite($logfh, $msgStr);
+    } else {
+        $msgStr = "# Successful cURL request to ".$url."\n";
+        $log->debug(__METHOD__." - ".__LINE__. " - ".$msgStr);
+        fwrite($logfh, $msgStr);
+    }
+    fwrite($logfh, $buffer."\n");
+
+    curl_close($ch); // free resources if curl handle will not be reused
+    fclose($logfh);  // close logfile
+
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$buffer);
+}
+
+
+function createCoverage($workspaceName,$username, &$filename){
+    $log = getLogger();
+    $filename=stripslashes($filename);
+    $fname=array_shift( explode(".", array_pop( explode("/", $filename) ) ));
+    // Open log file
+    $logfh = fopen("/tmp/GeoserverPHP.log", 'wa') or die("can't open log file");
+
+    // Initiate cURL session
+    // $service = "http://192.168.3.85:8080/geoserver/";
+    $service = GEOSERVER_URL;
+    $request = "rest/workspaces"; // to add a new workspace
+    $url = $service . $request."/".$workspaceName."/coveragestores/".$fname."/external.geotiff";
+    $ch = curl_init($url);
+
+    // Optional settings for debugging
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); //option to return string
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    curl_setopt($ch, CURLOPT_STDERR, $logfh); // logs curl messages
+    curl_setopt($ch, CURLOPT_USERPWD, GEOSERVER_CREDENTIALS);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: text/plain"));
+
+    // Using a PUT method i.e. -XPUT
+    curl_setopt($ch, CURLOPT_PUT, true);
+    // $putData = "file:///data/cache/Job_ded9fec8-8657-11e6-b994-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20160929_152102Z.tif";
+    $putData = "file://".$filename;
+    $fh = fopen("php://memory", "rw");
+    fwrite($fh, $putData);
+    rewind($fh);
+
+    // fseek($fh,0);
+    // die("<pre>".var_export(array($workspaceName,$username, $filename, $url,$fname,$putData),true));
+
+    // Instead of POST fields use these settings
+    curl_setopt($ch, CURLOPT_INFILE, $fh);
+    curl_setopt($ch, CURLOPT_INFILESIZE, strlen($putData));
+
+    //POST return code
+    $successCode = 201;
+
+    $buffer = curl_exec($ch); // Execute the curl request
+
+    // Check for errors and process results
+    $info = curl_getinfo($ch);
+    if ($info['http_code'] != $successCode) {
+        $msgStr = "# Unsuccessful cURL request to ";
+        $msgStr .= $url." [". $info['http_code']. "]\n";
+        $log->warning(__METHOD__." - ".__LINE__. " - ".$msgStr);
+        // fwrite($logfh, $msgStr);
+    } else {
+        $msgStr = "# Successful cURL request to ".$url."\n";
+        $log->info(__METHOD__." - ".__LINE__. " - ".$msgStr);
+        //fwrite($logfh, $msgStr);
+    }
+    //fwrite($logfh, $buffer."\n");
+
+    curl_close($ch); // free resources if curl handle will not be reused
+    fclose($logfh);  // close logfile
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$buffer);
+}
+
+function encode($jid, $fname ){
+    $log = getLogger();
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$jid." - ".$fname);
+    $path_url = $jid."/".$fname;
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$path_url);
+    $path = $path_url."/".ENCODE_SECRET;
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$path);
+    $b64 = base64_encode(md5($path,true) ); // $mysecretkey.$path.$expiry,true));
+    $b64u = rtrim(str_replace(array('+','/'),array('-','_'),$b64),'=');
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$b64u);
+  
+    //$url =  sprintf("https://localhost/files2/%s/%s", $b64u, $path_url);
+    $url =  sprintf("/".DOWNLOAD_LOCATION."/%s/%s", $b64u, $path_url);
+    $log->debug(__METHOD__." - ".__LINE__. " - ".$url);
+    return $url;
+}
+
+function catalogueIngest($jobid,$id,$filename){
+    $log = getLogger();
+    $image=array_shift( explode(".", array_pop( explode("/", $filename) ) ));
+    $log->info(__METHOD__." - ".__LINE__. " - FTEP queue processor. Ingesting '$image' for jobid '$jobid' ");
+
+    //  curl -k "https://localhost/geoserver/34556f6a-9790-11e6-a108-005056011b7b/wms?service=WMS&version=1.1.0&request=GetMap&layers=34556f6a-9790-11e6-a108-005056011b7b:FTEP_S2_NDVI_B4_B8_20161021_131424Z&styles=&bbox=-180,-90,90,180&width=640&height=480&format=application%2Fatom%20xml" | xmllint --format - >
+    //
+    // $jobid="34556f6a-9790-11e6-a108-005056011b7b";
+    // $image="FTEP_S2_NDVI_B4_B8_20161021_131424Z";
+    $RESTO_USER="admin";
+    $RESTO_PWD="77137394cabe5c2d09c6f2eabd8f9136";
+    $RESTO_COLLECTION="ftep";
+    $RESTO_ENDPOINT="https://192.168.3.83/resto/collections";
+
+    $curl = new Curl();
+    $url_params=array();
+    $url_params['service']='WMS';
+    $url_params['version']='1.1.0';
+    $url_params['request']='GetMap';
+    //$url_params['layers']=sprintf("%s:%s", $jobid,$image);
+    $url_params['layers']=sprintf("%s:%s", $id,$image);
+    $url_params['bbox']='-180,-90,90,180';
+    $url_params['width']=640;
+    $url_params['height']=480;
+    $url_params['format']='application/atom xml';
+
+    $query_string = http_build_query($url_params);
+    //$url=sprintf("https://localhost/geoserver/%s/wms?%s", $jobid, $query_string);
+    $url=sprintf("https://localhost/geoserver/%s/wms?%s", $id, $query_string);
+
+    $curl = new Curl();
+    $curl->setOpt(CURLOPT_SSL_VERIFYHOST, false);
+    $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+
+    $curl->get($url);
+    if ($curl->error) {
+        $msg= 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage;
+        $log->error(__METHOD__." - ".__LINE__. ' - '.$msg." - ".$url);
+        throw new Exception($msg);
+    } 
+    $log->debug(__METHOD__." - ".__LINE__. ' - '.var_export($curl->response,true));
+    // echo 'Response:' . "\n"; var_dump($curl->response);
+    // echo 'Response:' . "\n". $curl->response->asXML();
+
+    $tmpfile = tempnam(sys_get_temp_dir(), $jobid );
+
+    // echo $tmpfile;
+    $handle = fopen($tmpfile, "w");
+    fwrite($handle, $curl->response->saveXML());
+    fclose($handle);
+
+    $geojson =  sprintf("%s.json",$tmpfile);
+
+    try{
+        $output = Command::exec(
+            'ogr2ogr -f GeoJSON {output} {input} ',
+            [
+                'output' => $geojson,
+                'input' => $tmpfile
+            ]
+        );
+
+        $log->debug(__METHOD__." - ".__LINE__. " - Running ogr2ogr -f GeoJSON $geojson $tmpfile");
+        $result = json_decode(file_get_contents($geojson));
+        $feature = $result->features[0];
+        $feature->properties->id=$image;
+        $feature->id=$image;
+
+        $fname_parts=explode("_",$image);
+
+        switch($fname_parts[2]){
+        case 'S2': {
+            $satellite = "SENTINEL-2";
+            break;
+        }
+        default: {
+            $satellite = "UNKOWN";
+        }
+        }
+
+        // These params are defined in the FTEP_MODEL class
+        $feature->properties->satellite = $satellite;
+        $feature->properties->productId = $image;
+     //   $feature->properties->imageUrl  = "https://192.171.139.83/secure/api/v1.0/download?j=$id&f=$image.tif";
+        // $feature->properties->title = "FTEP Product";
+        $feature->properties->title = $image;
+        $feature->properties->author_name = "FTEP";
+   //     $feature->properties->link_href = "https://192.171.139.83/secure/api/v1.0/download?j=$jid&f=$id.tif";
+        $feature->properties->content = "XXX";
+        $feature->properties->content_type = "image/tiff";
+
+        $feature->properties->satellite ="satellite";
+        $feature->properties->sensorMode = "sensorMode";
+        $feature->properties->quicklook ="quicklook";
+        $feature->properties->wms ="wms";
+  //      $feature->properties->resource =  "https://192.171.139.83/secure/api/v1.0/download?j=$jid&f=$id.tif";
+  //      $feature->properties->resourceMimeType = "image/tiff";
+        $feature->properties->resource =  "https://192.171.139.83/".encode($jobid, $filename );
+        $feature->properties->resourceSize = "333";
+        //$feature->properties->jobid = $jobid;
+        $feature->properties->jobid = $id;
+
+
+        # curl -i  -k -X POST  -d @resource_FTEP_S2_NDVI_B4_B8_20160630_101018Z.json  https://admin@192.168.3.83/resto/collections/ftep -u admin:77137394cabe5c2d09c6f2eabd8f9136
+        $payload = json_encode($feature);
+        $curl = new Curl();
+        $curl->setOpt(CURLOPT_SSL_VERIFYHOST, false);
+        $curl->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+        $curl->setHeader('Content-Type', 'application/json');
+        $url=$RESTO_ENDPOINT."/".$RESTO_COLLECTION;
+        //file_put_contents('/tmp/payload.json',$payload);
+        $credentials=array("username"=> $RESTO_USER, "password"=> $RESTO_PWD);
+
+        // $curl->buildPostData($payload);
+        $curl->setBasicAuthentication($RESTO_USER, $RESTO_PWD);
+        //   $curl->verbose();
+        $response = $curl->post($url, $payload );
+        if ($curl->error) {
+            $msg= 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage;
+            $log->error(__METHOD__." - ".__LINE__. " -  Error invooking $url with payload ".var_export($payload,true)." : ".var_export($response,true));
+            throw new Exception($msg);
+        } else {
+            $log->debug(__METHOD__." - ".__LINE__. " -  Successfully called $url with payload ".var_export($payload,true)." : ".var_export($response,true));
+        }
+    }  finally {
+        unlink($tmpfile);
+    }
+}
+/**
+ * Implements hook_cron()
+ */
+function ftep_queue_cron() {
+    global $log;
+    $queue = DrupalQueue::get('jobs_queue');
+    $queue->createQueue();
+    $count = $queue->numberOfItems();
+
+    // watchdog('cron', 'FTEP queue processor. Starting with '.$count.' items in the queue.');
+    $log = getLogger();
+    $log->info(__METHOD__." - ".__LINE__. ' - FTEP queue processor. Starting with '.$count.' items in the queue.');
+
+    while($item = $queue->claimItem(30)) {
+        // file_put_contents('/tmp/log.txt', "1) Item  ===> :".var_export($item,true)."\n", FILE_APPEND);
+        $payload = $item->data;
+        $log->debug(__METHOD__." - ".__LINE__. " - Processing item payload : ".var_export($payload,true) );
+        $ok = true;
+        $error=null;
+        if(array_key_exists('outputs', $payload) ){
+                    $log->error(__METHOD__." - ".__LINE__." - AAA".trim($payload['outputs'],'"'));
+            $outputs = @json_decode( trim($payload['outputs'],'"') );
+                    $log->error(__METHOD__." - ".__LINE__." - BBB");
+            try{
+                if(!$outputs || empty($outputs) ){ 
+                    $log->error(__METHOD__." - ".__LINE__." - Cannot decode outputs =".var_export($outputs,true));
+                    continue; 
+                }
+                $log->debug(__METHOD__." - ".__LINE__." - Working on ".var_export($outputs,true));
+                // populate geoserver 
+                //
+                //if(! is_array($outputs->Result) ){ $outputs->Result=array( $outputs->Result ); };
+                //foreach($outputs->Result as $k=>$f)
+                //    file_put_contents('/tmp/log.txt', "5) Ingesting : ->".var_export($outputs,true)."<-".var_export($payload,true), FILE_APPEND);
+                if( property_exists($outputs,'Result') ){
+                    $log->debug(__METHOD__." - ".__LINE__. " - Got some outputs to be processed ");
+
+                    $filename=stripslashes($outputs->Result);
+                    $imagename=array_shift( explode(".", array_pop( explode("/", $filename) ) ));
+
+                    createWorkspace( $payload['id'] );
+                    createCoverage(  $payload['id'], $payload['user'], $outputs->Result );
+                    //catalogueIngest( $payload['id'], $payload['id'], $imagename);
+                    catalogueIngest( $payload['jid'], $payload['id'], array_pop( explode("/", $filename) ) );
+                } else {
+                    $log->debug(__METHOD__." - ".__LINE__." - Cannot find Result in outputs =".var_export($outputs,true));
+                }
+            } catch(Exception $e){ 
+                $error=$e->getMessage();
+                $log->error(__METHOD__." - ".__LINE__." - $error");
+                $ok=false;
+            }
+        } else {
+            $log->error(__METHOD__." - ".__LINE__." - cannot find outputs in payload");
+            $msg = sprintf("Cannot process item xxxx. Moving to dead-letter queue");
+            $log->warning(__METHOD__." - ".__LINE__. " - Putting item in the deadletter queeue : ".var_export($item,true) );
+            $dead_letter_queue = DrupalQueue::get('jobs_queue_dead_letter');
+            $dead_letter_queue->createQueue();
+            if(!is_null($error)){
+                $item->error=$error;
+            }
+            $dead_letter_queue->createItem($item);
+        }
+        $queue->deleteItem($item);
+    }
+}
+

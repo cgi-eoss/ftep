@@ -1,0 +1,35 @@
+GEODIR=\MMBK\SRCS\fcgi-2.4.1-SNAP-0311112127\ 
+DESTDIR=..
+CFLAGS=-g -Wall
+CC=cl /TP
+LIBS=$(GEODIR)/libfcgi/Release/libfcgi.lib /nologo
+LIBS1=./libcgic.lib
+
+CFLAGS=/EHa /nologo /DCRT_SECURE_NO_WARNING /MD /W2 /O2 /D "WIN32" \
+	-I $(GEODIR)\include 
+
+all: libcgic.lib #cgictest.exe capture.exe 
+
+install: libcgic.lib
+	copy libcgic.lib  $(DESTDIR)\lib
+	copy cgic.h  $(DESTDIR)\include
+	@echo libcgic.lib is now installed in  $(DESTDIR)\lib and cgic.h is in  $(DESTDIR)\include.
+
+libcgic.lib: cgic.obj cgic.h
+	if exist cgic.lib del cgic.lib
+	lib /out:libcgic.lib cgic.obj $(LIBS)
+
+cgictest.obj: cgictest.c libcgic.lib
+	$(CC) $(CFLAGS) -c cgictest.c
+
+cgictest.exe: cgictest.obj 
+	link cgictest.obj $(LIBS) /out:cgictest.exe
+
+cgic.obj: 
+	$(CC) $(CFLAGS) -c cgic.c 
+
+capture.exe: capture.obj libcgic.lib
+	$(CC) $(CFLAGS) capture.c $(LIBS)
+
+clean:
+	erase *.obj *.lib *.exe *.manifest

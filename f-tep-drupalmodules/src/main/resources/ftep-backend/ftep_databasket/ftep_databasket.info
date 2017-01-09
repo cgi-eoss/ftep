@@ -1,0 +1,7 @@
+name = Ftep Databasket
+description = Ftep Databasket
+core = 7.x
+version = 7.x-1.0
+package = Ftep
+dependencies[] = entity
+files[] = ftep_databasket.controller.inc

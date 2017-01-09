@@ -1,0 +1,43 @@
+[OdtConverter]
+ Title = Converts Open Documents. 
+ Abstract = Converts open documents.
+ processVersion = 1
+ storeSupported = true
+ statusSupported = true
+ serviceType = Python
+ serviceProvider = Exporter
+ <MetaData>
+   title = My Demo
+ </MetaData>
+ <DataInputs>
+  [InputDoc]
+   Title = The input data source name
+   Abstract = The input data source name
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>	
+   </LiteralData>
+  [OutputDoc]
+   Title = The output data source name
+   Abstract = The output data source name to use as source.
+   minOccurs = 1
+   maxOccurs = 1
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>	
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [OutputedDoc]
+   Title = The resulting converted file
+   Abstract = The file name resulting of the convertion
+   <LiteralData>
+    DataType = string
+    <Default>
+    </Default>	
+   </LiteralData>
+ </DataOutputs>  

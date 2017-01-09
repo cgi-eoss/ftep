@@ -1,0 +1,50 @@
+<!doctype html>
+<html class="ftep">
+
+    <head>
+    <meta charset="utf-8">
+    <base href="/app/">
+    <title>F-TEP Portal - ALPHA</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="scripts/vendor/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-ui-grid/ui-grid.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-material/angular-material.css" />
+    <link rel="stylesheet" href="scripts/vendor/angular-ui-layout/src/ui-layout.css" />
+    <link rel="stylesheet" href="scripts/vendor/angularjs-slider/rzslider.css" />
+    <link rel="stylesheet" href="scripts/vendor/ng-scrollbar/ng-scrollbar.css" />
+    <link rel="stylesheet" href="scripts/vendor/openlayers/ol.css" />
+
+    <link rel="stylesheet" href="main.css" />
+</head>
+
+    <body ng-controller="IndexCtrl" class="ftep ng-cloak" ng-cloak>
+        <!--[if lte IE 8]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="navbar-container" ng-include src="'views/navbar.html'"></div>
+
+        <div id="portal-container" ng-view=""></div>
+
+        <!-- Google Analytics -->
+         <script>
+           !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){
+           (A[l].q=A[l].q||[]).push(arguments)},A[l].l=+new Date,a=n.createElement(g),
+           r=n.getElementsByTagName(g)[0],a.src=u,r.parentNode.insertBefore(a,r)
+           }(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+           ga('create', 'UA-74983224-1');
+           ga('send', 'pageview');
+        </script>
+
+        <script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>
+        <script src="scripts/ftepConfig.js"></script>
+        <script type="text/javascript">
+          require(['app'], function (app) {
+              app.init();
+          });
+        </script>
+    </body>
+</html>

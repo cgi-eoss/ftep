@@ -1,0 +1,148 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+group 'com.cgi.eoss.f-tep'
+version '0.2.0'
+
+// This pattern allows us to override the URLs from init.gradle or gradle.properties
+ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://repo1.maven.org/maven2'
+ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
+ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url gradlePluginPortalUrl
+            }
+        }
+    }
+
+    buildDir = 'target'
+
+    plugins.withType(JavaPlugin) {
+        sourceCompatibility = 1.8
+        repositories {
+            maven {
+                url mavenCentralUrl
+            }
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        maven {
+            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+        }
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
+    }
+}
+
+def depVersions = [
+        awaitility       : '2.0.0',
+        commonsIo        : '2.5',
+        commonsNet       : '3.5',
+        cucumber         : '1.2.5',
+        dockerJava       : '3.0.0',
+        freemarker       : '2.3.25-incubating',
+        googleHttpClient : '1.22.0',
+        grpc             : '1.0.1',
+        gson             : '2.7',
+        guava            : '20.0',
+        hamcrest         : '2.0.0.0',
+        hibernateJpa21Api: '1.0.0.Final',
+        hibernate        : '5.2.4.Final',
+        hikaricp         : '2.5.1',
+        hsqldb           : '2.3.4',
+        httpclient       : '4.3.1',
+        jackson          : '2.8.5',
+        jimfs            : '1.1',
+        jsonapiConverter : '0.3',
+        jsr305           : '3.0.1',
+        junit            : '4.12',
+        logback          : '1.1.7',
+        lombok           : '1.16.10',
+        mockito          : '2.2.26',
+        protoc           : '3.1.0-build2',
+        querydsl         : '4.1.4',
+        selenium         : '2.53.1',
+        slf4j            : '1.7.21',
+        springFramework  : '4.3.4.RELEASE',
+        springDataCommons: '1.12.5.RELEASE',
+        springDataJpa    : '1.10.5.RELEASE',
+        springBoot       : '1.4.2.RELEASE',
+        testContainers   : '1.1.7',
+        wget             : '1.4.3'
+]
+
+ext.deps = [
+        commonsIo              : 'commons-io:commons-io:' + depVersions.commonsIo,
+        commonsNet             : 'commons-net:commons-net:' + depVersions.commonsNet,
+        cucumberJava8          : 'info.cukes:cucumber-java8:' + depVersions.cucumber,
+        cucumberJunit          : 'info.cukes:cucumber-junit:' + depVersions.cucumber,
+        dockerJava             : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
+        freemarker             : 'org.freemarker:freemarker:' + depVersions.freemarker,
+        googleHttpClient       : 'com.google.http-client:google-http-client:' + depVersions.googleHttpClient,
+        googleHttpClientJackson: 'com.google.http-client:google-http-client-jackson2:' + depVersions.googleHttpClient,
+        grpcNetty              : 'io.grpc:grpc-netty:' + depVersions.grpc,
+        grpcProtobuf           : 'io.grpc:grpc-protobuf:' + depVersions.grpc,
+        grpcStub               : 'io.grpc:grpc-stub:' + depVersions.grpc,
+        gson                   : 'com.google.code.gson:gson:' + depVersions.gson,
+        guava                  : 'com.google.guava:guava:' + depVersions.guava,
+        hibernateCore          : 'org.hibernate:hibernate-core:' + depVersions.hibernate,
+        hibernateEntityManager : 'org.hibernate:hibernate-entitymanager:' + depVersions.hibernate,
+        hibernateJpa21Api      : 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:' + depVersions.hibernateJpa21Api,
+        hikaricp               : 'com.zaxxer:HikariCP:' + depVersions.hikaricp,
+        httpclient             : 'org.apache.httpcomponents:httpclient:' + depVersions.httpclient,
+        jacksonDatabind        : 'com.fasterxml.jackson.core:jackson-databind:' + depVersions.jackson,
+        jacksonDataformatYaml  : 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:' + depVersions.jackson,
+        jimfs                  : 'com.google.jimfs:jimfs:' + depVersions.jimfs,
+        jsonapiConverter       : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
+        jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
+        logbackClassic         : 'ch.qos.logback:logback-classic:' + depVersions.logback,
+        lombok                 : 'org.projectlombok:lombok:' + depVersions.lombok,
+        protoc                 : 'com.google.protobuf:protoc:' + depVersions.protoc,
+        protocGenGrpcJava      : 'io.grpc:protoc-gen-grpc-java:' + depVersions.grpc,
+        querydslApt            : [
+                'com.querydsl:querydsl-apt:' + depVersions.querydsl + ':hibernate',
+                'org.hibernate:hibernate-core:' + depVersions.hibernate,
+        ],
+        querydslJpa            : 'com.querydsl:querydsl-jpa:' + depVersions.querydsl,
+        slf4j                  : 'org.slf4j:slf4j-api:' + depVersions.slf4j,
+        slf4jJclBridge         : 'org.slf4j:jcl-over-slf4j:' + depVersions.slf4j,
+        slf4jJulBridge         : 'org.slf4j:jul-to-slf4j:' + depVersions.slf4j,
+        springOrm              : 'org.springframework:spring-orm:' + depVersions.springFramework,
+        springTx               : 'org.springframework:spring-tx:' + depVersions.springFramework,
+        springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
+        springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
+        springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
+        wget                   : 'com.github.axet:wget:' + depVersions.wget,
+
+        awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
+        hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
+        hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
+        mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,
+        junit                  : 'junit:junit:' + depVersions.junit,
+        selenium               : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
+        springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
+        testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers,
+        testContainersSelenium : 'org.testcontainers:selenium:' + depVersions.testContainers
+]
+
+static def getRpmVersion(version) {
+    return [
+            version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
+            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
+    ]
+}
+
+apply plugin: "org.sonarqube"
+
+sonarqube {
+    properties {
+        property "sonar.jacoco.reportMissing.force.zero", true
+    }
+}

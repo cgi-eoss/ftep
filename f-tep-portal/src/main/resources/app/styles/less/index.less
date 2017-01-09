@@ -1,0 +1,107 @@
+@import "variable";
+@import "fonts";
+html {
+    font-size: 16px;
+    @media screen and (min-width: 900px) {
+        font-size: 18px;
+    }
+    @media screen and (min-width: 1200px) {
+        font-size: 20px;
+    }
+}
+
+.ftep {
+    font-family: Roboto-Regular;
+}
+
+body {
+    color: @text;
+}
+
+h2 {
+    font-size: 2em;
+}
+
+h3 {
+    font-size: 1.6em;
+}
+
+pre {
+    font-size: 0.8em;
+}
+
+.break-word {
+    word-wrap: break-word;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+.clear {
+    float: none;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.error {
+    background-color: @error !important;
+}
+
+.error-text {
+    color: @error-text !important;
+}
+
+.warning {
+    background-color: @warning !important;
+}
+
+.warning-text {
+    color: @warning-text !important;
+}
+
+.alert {
+    color: @alert;
+}
+
+.alert-text {
+    color: @alert-text;
+}
+
+.success {
+    background-color: @success !important;
+}
+
+.success-text {
+    color: @success-text !important;
+}
+
+.paused {
+    background-color: @paused !important;
+}
+
+.paused-text {
+    color: @paused !important;
+}
+
+.disabled {
+    background-color: @disabled !important;
+}
+
+.disabled-text {
+    color: @disabled !important;
+}

@@ -1,0 +1,41 @@
+#sidenav {
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(50, 50, 50, 0.7);
+}
+#sidenav:hover {
+  background-color: rgba(50, 50, 50, 0.9);
+}
+#sidenav:hover {
+  background-color: rgba(50, 50, 50, 0.9);
+}
+#sidenav:hover #explorer-nav-wrapper .explorer-nav li {
+  color: rgba(255, 255, 255, 0.87);
+}
+#sidenav #explorer-nav-wrapper {
+  padding-top: 5rem;
+}
+#sidenav #explorer-nav-wrapper .explorer-nav {
+  padding: 0;
+}
+#sidenav #explorer-nav-wrapper .explorer-nav li {
+  cursor: pointer;
+  display: block;
+  font-size: 1rem;
+  padding: 10px;
+  text-decoration: none;
+  border-bottom: rgba(228, 228, 228, 0.9) solid 1px;
+  color: rgba(255, 255, 255, 0.7);
+}
+#sidenav #explorer-nav-wrapper .explorer-nav li:first-child {
+  border-top: rgba(228, 228, 228, 0.9) solid 1px;
+}
+#sidenav #explorer-nav-wrapper .explorer-nav li:hover {
+  background-color: rgba(50, 50, 50, 0.5);
+}
+#sidenav #explorer-nav-wrapper .explorer-nav li:hover:hover {
+  background-color: rgba(50, 50, 50, 0.9);
+}

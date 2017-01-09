@@ -1,0 +1,6 @@
+---
+classes:
+  - ftep::drupal
+
+ftep::drupal::init_db: false
+ftep::drupal::enable_cron: false

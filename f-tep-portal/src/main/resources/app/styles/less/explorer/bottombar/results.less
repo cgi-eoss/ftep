@@ -1,0 +1,151 @@
+@import "variable";
+#results {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
+    height: 100%;
+    width: 100%;
+}
+
+.metadata-info-button {
+    cursor: pointer;
+    top: auto;
+    right: 3px;
+}
+
+.result-description {
+	color: #4f4f4f;
+}
+
+
+.geo-item {
+  padding: 3px 0px 3px 3px;
+  margin: 2px 1px 3px 0px;
+  border: 2px solid rgba(227, 227, 227, 1);
+  font-size: 0.8em;
+}
+
+.products-list {
+  list-style: none;
+  margin-top: 3px !important;
+  padding-left: 0px;
+}
+
+.products-list li {
+	cursor: pointer;
+}
+
+.product-description {
+	word-wrap: break-word;
+}
+
+.resultnormal {
+  border-bottom: 1px solid #c0c0c0;
+}
+
+.resulthighlight {
+  border: 2px solid #c0c0c0;
+  background-color: #d3d3d3;
+}
+
+#databasket-content .glyphicon-remove {
+	float: right;
+}
+
+#databasket-content h5 {
+	color: #696969;
+}
+
+.result-info {
+    padding: 8px;
+    color: @paused;
+}
+
+.toolbar-button img {
+    height: 1rem;
+    width: 1rem;
+    padding: 0px;
+}
+
+.item-download {
+    width: 30px;
+    font-size: 26px;
+    right: 30px;
+}
+
+
+.md-dialog-container {
+    width: 100%;
+    height: 100%;
+}
+
+#databasket-dialog,
+#project-dialog {
+    width: 700px;
+    height: 400px;
+}
+
+#metadata-dialog {
+    width: 70vw;
+    height: 70vh;
+    background-color: #e8e8e8;
+}
+
+#databasket-dialog h4,
+#project-dialog h4,
+#metadata-dialog h4 {
+    background-color: #e0e0e0;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 20px;
+    margin-top: 0px;
+}
+
+.dialog-content-area {
+    padding: 10px 40px;
+}
+
+.dialog-list {
+    list-style: none;
+    margin: 5px 30px 5px 5px;
+}
+
+.dialog-list > li {
+    padding: 5px 0px;
+    border-bottom: 1px solid #000;
+}
+
+
+/** SPINNER **/
+
+.spinner {
+    border: 12px solid #f3f3f3;
+    border-top: 12px solid #54ace0;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+    position: fixed;
+    top: 70vh;
+    left: 48vw;
+    z-index: 10;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* END OF SPINNER */
+
+/* Drag-and-Drop lists */
+
+ul[dnd-list],
+ul[dnd-list] > li {
+    position: relative;
+}

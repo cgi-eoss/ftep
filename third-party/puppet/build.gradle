@@ -1,0 +1,104 @@
+group 'com.cgi.eoss.f-tep'
+version '0.1.0'
+
+apply plugin: 'base'
+
+// Puppet modules to stage into ${buildDir}/modules and package into ${buildDir}/distributions
+def puppetModules = [
+        'cgieoss-ftep',
+        // transitive deps
+        'Aethylred-shibboleth', // (v0.1.4)
+        'mayflower-php', // (v3,4,2)
+        'darin-zypprepo', // (v1.0.2)
+        'example42-yum', // (v2.1.28)
+        'example42-puppi', // (v2.2.1)
+        'garethr-docker', // (v5.3.0)
+        'puppetlabs-apt', // (v2.3.0)
+        'puppetlabs-inifile', // (v1.6.0)
+        'puppet-selinux', // (v0.7.1)
+        'puppetlabs-apache', // (v1.11.0)
+        'puppetlabs-concat', // (v2.2.0)
+        'puppetlabs-java', // (v1.6.0)
+        'puppetlabs-postgresql', // (v4.8.0)
+        'puppetlabs-stdlib', // (v4.14.0)
+        'stahnma-epel', // (v1.2.2)
+        'tohuwabohu-drupal', // (v3.0.0)
+        'camptocamp-archive', // (v0.9.0)
+]
+
+tasks.addRule("Pattern: collectSources_<ID>") { String taskName ->
+    if (taskName.startsWith("collectSources_")) {
+        task(taskName, type: Copy) {
+            def module = (taskName - 'collectSources_')
+
+            def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
+            def moduleShortName = ((String)moduleMetadata.name).split('[-/]')[1]
+            def targetDir = "${buildDir}/modules/${moduleShortName}"
+
+            def srcs = fileTree(module) {
+                include '**/*'
+                exclude '.*'
+            }
+
+            def checksumsFile = file("${projectDir}/${module}/checksums.json")
+            if (!srcs.contains(checksumsFile)) {
+                checksumsFile = file("${temporaryDir}/checksums.json")
+                dependsOn genChecksumsTask(module, checksumsFile, srcs)
+            }
+
+            // Configure the copy task
+            from srcs
+            from checksumsFile
+            into targetDir
+        }
+    }
+}
+
+tasks.addRule("Pattern: buildModule_<ID>") { String taskName ->
+    if (taskName.startsWith("buildModule_")) {
+        task(taskName, type: Tar) {
+            def module = (taskName - 'buildModule_')
+
+            def srcTask = tasks["collectSources_${module}"]
+            dependsOn srcTask
+
+            def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
+
+            // Configure the tar task
+            baseName = moduleMetadata.name
+            version = moduleMetadata.version
+            compression = Compression.GZIP
+            extension = 'tar.gz'
+            from srcTask
+            into "${moduleMetadata.name}-${version}"
+        }
+    }
+}
+
+def genChecksumsTask(String module, File checksumsFile, FileTree srcs) {
+    return tasks.create("genChecksums_${module}") {
+        TreeMap checksums = [:]
+        srcs.visit { e ->
+            if (!e.isDirectory) {
+                def hash = java.security.MessageDigest.getInstance('MD5').with {
+                    e.file.eachByte(8192) { byte[] bfr, int len ->
+                        update bfr, 0, len
+                    }
+                    it.digest()
+                }
+                checksums.put(e.relativePath.toString(), new BigInteger(1, hash).toString(16).padLeft(32, '0'))
+            }
+        }
+        checksums.sort
+        checksumsFile.write(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(checksums)))
+    }
+}
+
+puppetModules.each { module ->
+    def mod = tasks["buildModule_${module}"]
+    build.dependsOn mod
+}
+
+sonarqube {
+    skipProject = true
+}

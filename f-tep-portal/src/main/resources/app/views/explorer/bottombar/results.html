@@ -1,0 +1,69 @@
+<div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+
+    <div class="spinner" ng-show="spinner.loading"></div>
+
+    <div ng-if="geoResults == undefined" class="result-info">No results to display</div>
+
+    <div ng-if="geoResults != undefined">
+
+        <ul class="products-list product-list-in-box">
+
+            <div ng-repeat="result in geoResults">
+
+                <li class="geo-item"
+                    ng-repeat="item in result.results.entities"
+                    ng-click="toggleSelection(item)"
+                    ng-class="isSelected(item) ? 'resulthighlight' : 'resultnormal'"
+                    ng-mouseover="updateMetadata(item)"
+                    dnd-draggable="getSelectedItemsLinks(item)">
+
+                    <div class="row">
+
+                        <div class="col-md-12">
+
+                            <span class="pull-right controls">
+                                <a uib-tooltip="Download"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true"
+                                   href="{{getLink(item)}}"
+                                   target="_self">
+                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                </a>
+                                <a ng-click="showMetadata($event, item)">
+                                    <span class="glyphicon glyphicon-info-sign metadata-info-button"></span>
+                                </a>
+                            </span>
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {{item.identifier}}
+                                </div>
+                            </div>
+
+                            <div class="row result-description">
+                                <div class="col-md-4">
+                                    <div class="product-title">
+                                        Start: {{item.start}}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    End: {{item.stop}}
+                                </div>
+                                <div class="col-md-4">
+                                    Size: {{item.size | bytesToGB}}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </li>
+
+            </div>
+
+        </ul>
+
+    </div>
+
+</div>

@@ -1,0 +1,10 @@
+---
+:backends:
+  - yaml
+:hierarchy:
+  - "%{fqdn}"
+  - standalone.local
+  - standalone
+
+:yaml:
+  :datadir: "hieradata"

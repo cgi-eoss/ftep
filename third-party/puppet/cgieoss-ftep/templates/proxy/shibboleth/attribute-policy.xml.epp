@@ -1,0 +1,19 @@
+<%- |
+| -%>
+<afp:AttributeFilterPolicyGroup
+    xmlns="urn:mace:shibboleth:2.0:afp:mf:basic"
+    xmlns:basic="urn:mace:shibboleth:2.0:afp:mf:basic"
+    xmlns:afp="urn:mace:shibboleth:2.0:afp"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <afp:AttributeFilterPolicy>
+
+        <afp:PolicyRequirementRule xsi:type="ANY"/>
+
+        <afp:AttributeRule attributeID="*">
+            <afp:PermitValueRule xsi:type="ANY"/>
+        </afp:AttributeRule>
+
+    </afp:AttributeFilterPolicy>
+
+</afp:AttributeFilterPolicyGroup>

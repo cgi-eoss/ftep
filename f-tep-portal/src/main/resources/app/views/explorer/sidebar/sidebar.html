@@ -1,0 +1,27 @@
+<div>
+
+    <div ng-controller="ProjectCtrl"
+         ng-include src="'views/explorer/sidebar/project.html'"
+         ng-show="true"
+         class="sidebar-header">
+    </div>
+
+    <div ng-controller="SearchbarCtrl"
+         ng-include src="'views/explorer/sidebar/search.html'"
+         ng-show="nav_search"
+         class="sidebar-item">
+    </div>
+
+    <div ng-controller="ServicesCtrl"
+         ng-include src="'views/explorer/sidebar/services.html'"
+         ng-show="nav_services"
+         class="sidebar-item">
+    </div>
+
+    <div ng-controller="WorkspaceCtrl"
+         ng-include src="'views/explorer/sidebar/workspace.html'"
+         ng-show="nav_workspace"
+         class="sidebar-item">
+    </div>
+
+</div>

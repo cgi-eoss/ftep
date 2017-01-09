@@ -1,0 +1,56 @@
+[BoundaryPy]
+ Title = Computes boundary.
+ Abstract = A new geometry object is created and returned containing the boundary of the geometry on which the method is invoked. 
+ processVersion = 1
+ storeSupported = true
+ statusSupported = true
+ serviceProvider = ogr_sp
+ serviceType = Python
+ <MetaData>
+   title = Demo
+ </MetaData>
+ <DataInputs>
+  [InputPolygon]
+   Title = Polygon to conpute boundary
+   Abstract = URI to a set of GML that describes the polygon.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     encoding = UTF-8
+     schema = http://schemas.opengis.net/gml/3.1.0/base/feature.xsd
+    </Default>
+    <Supported>
+     mimeType = application/json
+     encoding = UTF-8
+    </Supported>
+   </ComplexData>
+ </DataInputs>
+ <DataOutputs>
+  [Result]
+   Title = The geometry created
+   Abstract = The geometry containing the boundary of the geometry on which the method is invoked.
+   <MetaData>
+    title = Mon test  
+   </MetaData>   
+   <ComplexData>
+    <Default>
+     mimeType = text/xml
+     encoding = UTF-8
+     schema = http://schemas.opengis.net/gml/3.1.0/base/feature.xsd
+    </Default>
+    <Supported>
+     mimeType = application/json
+     encoding = UTF-8
+    </Supported>
+    <Supported>
+     mimeType = text/xml
+     encoding = base64
+     schema = http://schemas.opengis.net/gml/3.1.0/base/feature.xsd
+    </Supported>
+   </ComplexData>
+ </DataOutputs>  

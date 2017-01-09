@@ -1,0 +1,47 @@
+@import "variable";
+#search-panel {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    margin: 0;
+    .datasources {
+        padding-top: 0;
+    }
+    md-datepicker {
+        max-width: 100%;
+    }
+    #searchForm {
+        padding-bottom: 3rem;
+    }
+    #searchButton {
+        background-color: @accent-light;
+        bottom: 20px;
+        float: right;
+        height: 40px;
+        margin: 0;
+        min-height: 0;
+        padding: 0;
+        position: fixed;
+        right: 40px;
+        width: 40px;
+        .material-icons {
+            color: @text-light;
+            font-size: 30px;
+            height: 100%;
+            line-height: 40px;
+            width: 100%;
+        }
+        &:hover {
+            background-color: @accent;
+        }
+    }
+    .md-button[disabled] {
+        background-color: @disabled !important;
+    }
+    .btn-success[disabled]:hover {
+        background-color: @error !important;
+        .material-icons {
+            color: @error-text !important;
+        }
+    }
+}

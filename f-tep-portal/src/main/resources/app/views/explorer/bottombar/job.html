@@ -1,0 +1,79 @@
+<div class="row no-margin">
+
+    <div class="col-xs-6 job-title">
+        <h4>Job ID: {{selectedJob.id}}</h4>
+    </div>
+
+    <div class="col-xs-6 job-title">
+        <div class="job-status" style="{{getColor(selectedJob.attributes.status)}}">
+            {{selectedJob.attributes.status}}
+        </div>
+    </div>
+
+</div>
+
+<ul class="nav nav-pills" ng-init="jobTab = 'OUTPUTS'">
+    <li role="presentation"
+        ng-class="(jobTab == 'INPUTS') ? 'active' : ''"
+        ng-click="jobTab = 'INPUTS'">
+        <a>INPUTS</a>
+    </li>
+    <li role="presentation"
+        ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''"
+        ng-click="jobTab = 'OUTPUTS'">
+        <a>OUTPUTS</a>
+    </li>
+</ul>
+
+<div class="job-details scrollme" ng-if="jobTab == 'INPUTS'" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+
+    <ul class="job-files">
+        <li ng-repeat="(key, value) in getJobInputs(selectedJob)" class="resultnormal">
+            <div class="row no-margin">
+                <div class="col-md-2">{{key}}</div>
+                <div ng-repeat="link in value">
+                    <div class="col-md-2" ng-show="$index > 0"></div>
+                    <div class="col-md-10 break-word">
+                        <a ng-if="link.includes('ftp')" href="{{link}}">{{link}}</a>
+                    </div>
+                    <div class="col-md-10 break-word" ng-if="!link.includes('ftp')">{{link}}</div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</div>
+
+<div class="job-details scrollme" ng-if="jobTab == 'OUTPUTS'" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+
+    <ul class="job-files">
+        <li ng-repeat="outputFile in jobOutputs"
+            ng-click="selectOutputFile(outputFile)"
+            ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
+            dnd-draggable="getSelectedOutputFiles(outputFile)">
+
+            <div class="row no-margin">
+
+                <div class="col-md-10">{{outputFile.attributes.fname}}</div>
+
+                <div class="col-md-2">
+
+                    <md-button class="toolbar-button md-secondary"
+                               href="{{getOutputLink(outputFile.attributes.link)}}"
+                               target="_self"
+                               aria-label="Download"
+                               uib-tooltip="Download"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">file_download</i>
+                    </md-button>
+
+                </div>
+
+            </div>
+
+        </li>
+    </ul>
+
+</div>

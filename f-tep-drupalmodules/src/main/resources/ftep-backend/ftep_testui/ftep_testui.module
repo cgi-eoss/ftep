@@ -1,0 +1,56 @@
+<?php 
+
+/**
+ * Implements hook_menu()
+ */
+function ftep_testui_menu(){
+	$items['ftep_testui_jobs'] = array(
+			'title' => 'All Ftep Jobs',
+			'page callback' => 'all_ftep_jobs_page_view',
+			#'access arguments' => array('access content'), // also for anonymous
+			'access arguments' => array('view any ftep_job entity'), // also for anonymous
+        );
+    #$items['ftep_testui_wps'] = array(
+	#		'title' => 'All Ftep Jobs2',
+	#		'page callback' => 'all_ftep_jobs_page_view2',
+	#		'access arguments' => array('access content'), // also for anonymous
+    #);
+	return $items;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function ftep_testui_theme(){
+	$themes=array();
+	$themes['jobs']=array(
+		'template'=>'theme/jobs',
+		'parameter'=>array(),
+	);
+    $themes['wps']=array(
+        'template' => 'theme/wps',
+        'parameter' => array(),
+    );
+	return $themes;
+}
+
+/**
+ * all_ftep_jobs callback
+ * @return string
+ */
+function all_ftep_jobs_page_view(){
+	drupal_add_library('angularjs','angularjs');
+	$path = drupal_get_path('module','ftep_testui');
+	drupal_add_js($path."/js/jobs.gen.js");
+	return theme('jobs');
+}
+
+function all_ftep_jobs_page_view2(){
+   // dpm($vars['view']->name, 'view name');
+	$path = drupal_get_path('module','ftep_testui');
+	drupal_add_js($path."/js/wps-js/wps-js.0.1.2-SNAPSHOT.js");
+	drupal_add_js($path."/js/wps-js/OpenLayers-closure.js");
+	drupal_add_js($path."/css/wps-js.css");
+	return theme('wps');
+}
+

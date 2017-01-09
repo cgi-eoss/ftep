@@ -1,0 +1,113 @@
+@import "variable";
+#sidebar-left {
+    background-color: transparent;
+    height: 100%;
+    padding-left: @sidenav-width;
+    padding-top: @navbar-height;
+    position: absolute;
+    min-width: @sidebar-width;
+    max-width: @sidebar-width;
+    z-index: 2;
+    form {
+        padding-bottom: 30px;
+    }
+    md-input-container {
+        margin: 0;
+        width: 100%;
+        .text-sec();
+        .hint {
+            font-size: 0.6rem;
+            .text-hint();
+        }
+    }
+    .md-subheader {
+        background-color: transparent;
+        color: @accent;
+        .md-subheader-inner {
+            padding-right: 0;
+            label {
+                .text-sec();
+            }
+        }
+    }
+    .md-subheader-top {
+        .md-subheader-inner {
+             padding-top: 0;
+        }
+    }
+    .md-subheader-title {
+        .md-subheader-inner {
+            padding-left: 0;
+        }
+    }
+    md-toolbar {
+        background-color: transparent;
+        height: 2.5rem;
+        min-height: 2rem;
+        .md-toolbar-tools {
+            background-color: @brand-light;
+
+            padding: 0;
+            .text-sec();
+            span {
+                font-size: 1.0rem;
+                text-transform: uppercase;
+            }
+        }
+    }
+    .panel {
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        .panel-body {
+            padding-right: 0;
+        }
+    }
+    .scrollme {
+        display: flex;
+        flex-flow: column;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding-top: 0.5rem;
+        .ngsb-container {
+            padding-right: 15px;
+        }
+        .ngsb-scrollbar {
+            margin-top: 12px;
+        }
+        .ngsb-track {
+            background-color: @accent;
+            border-radius: 20px;
+            height: 95%;
+            width: 4px;
+        }
+    }
+    .sidebar-container {
+        height: 100%;
+        .bg-trans(@bg-light);
+        .sidebar-item {
+            display: flex;
+            flex-flow: column;
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+    }
+    .sidebar-container > div:nth-child(1) {
+        display: flex;
+        flex-flow: column;
+        height: 100%;
+    }
+
+    /** Slider Styles **/
+    #mCSB_2_container_wrapper,
+    #mCSB_2_container {
+        margin: 0;
+        padding: 0;
+        max-width: @sidebar-width;
+    }
+    .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+        background-color: @accent-light;
+    }
+}
+
+

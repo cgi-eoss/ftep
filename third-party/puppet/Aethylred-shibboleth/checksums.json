@@ -1,0 +1,21 @@
+{
+  "Gemfile": "d6bb3e1f6aa77b3f4f52d1c2b36b7041",
+  "LICENSE": "7382c7227b65ac5b8e8045753147a191",
+  "README.md": "8351743637eefe5ded6fea209c429435",
+  "Rakefile": "a478e0e530ebee63880726eb669be2a6",
+  "manifests/attribute_map.pp": "af125384300858b7aa042b30a694af28",
+  "manifests/backend_cert.pp": "9c9f77ca3b91195ca652d3ba9577a917",
+  "manifests/init.pp": "40f9729afce749624fbfd85af6611890",
+  "manifests/metadata.pp": "48c63f81c792a4c3a6c3e98e0f593e52",
+  "manifests/params.pp": "be9acedd6f026e1d53b9b806dbe53f4e",
+  "manifests/sso.pp": "7a6130daaa2d31eb4fc87005838a19e9",
+  "metadata.json": "a55fbe587d8c98de0135117059cd4ef5",
+  "spec/classes/backend_cert_spec.rb": "163facc28836b2ddf9bb60a4617615ff",
+  "spec/classes/init_spec.rb": "4fe50adfe0f339bd6a98a8d142254029",
+  "spec/defines/attribute_map_spec.rb": "28066872dfb9661d89a5506d842803b5",
+  "spec/defines/metadata_spec.rb": "2114bdef53a7506f46d34bee7019d75d",
+  "spec/defines/sso_spec.rb": "b89c8a1fb2f313ea4a116e5c052354ca",
+  "spec/spec.opts": "c638974ad694a4066436ba3076b63c6d",
+  "spec/spec_helper.rb": "b65def53ef57cf837fa336fb6c40d3ab",
+  "tests/init.pp": "b906366ce610c53fdc06b39cb2570231"
+}

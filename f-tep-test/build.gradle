@@ -1,0 +1,53 @@
+group 'com.cgi.eoss.f-tep'
+version '0.2.0'
+
+apply plugin: 'java'
+
+String harnessDir = "${buildDir}/harness"
+
+// !! WARNING !!
+//
+// This module is testing the end result of the full distribution build and
+// should not be run until after the .dist directory is fully populated.
+//
+// The acceptance tests may be enabled by passing the property on the command
+// line, e.g. "gradle -PacceptanceTests check".
+test {
+    onlyIf {
+        project.hasProperty("acceptanceTests")
+    }
+
+    systemProperties['HARNESS_DIR'] = harnessDir
+}
+
+if (project.hasProperty("acceptanceTests")) {
+    test.dependsOn 'copyDocker', 'copyPuppet', 'copyRepo'
+}
+
+task copyDocker(type: Copy) {
+    from "${projectDir}/src/test/docker"
+    into harnessDir
+}
+
+task copyPuppet(type: Copy) {
+    from tarTree(resources.gzip("${projectDir}/../.dist/puppet.tar.gz"))
+    into "${harnessDir}/puppet"
+}
+
+task copyRepo(type: Copy) {
+    from "${projectDir}/../.dist/repo"
+    into "${harnessDir}/repo"
+}
+
+dependencies {
+    testCompile deps.awaitility
+    testCompile deps.cucumberJava8
+    testCompile deps.cucumberJunit
+    testCompile deps.googleHttpClient
+    testCompile deps.junit
+    testCompile deps.testContainers
+    testCompile deps.testContainersSelenium
+    testCompile deps.selenium
+
+    testRuntime deps.logbackClassic
+}

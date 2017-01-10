@@ -25,12 +25,13 @@ public class ZipHandler {
      * @param targetDir The directory to be used for extraction.
      */
     public static void unzip(Path file, Path targetDir) throws IOException {
+        LOG.debug("Unzipping file {} to {}", file, targetDir);
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(file))) {
             ZipEntry ze = zis.getNextEntry();
 
             while (ze != null) {
                 Path toCopy = targetDir.resolve(ze.getName());
-                LOG.debug("Extracting from zip: {}", toCopy);
+                LOG.trace("Extracting from zip: {}", toCopy);
 
                 if (ze.isDirectory()) {
                     Files.createDirectories(toCopy);

@@ -147,7 +147,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.selectedDatabasket = undefined;
 
                 $scope.$on('update.databasket', function(event, basket, items) {
-                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKET");
+                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKETS");
                     $scope.selectedDatabasket = basket;
                     $scope.selectedDatabasket.items= items;
                 });
@@ -178,7 +178,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             $scope.selectedDatabasket.items.push(jobSelectedOutputs[i]);
                         }
                     }
-                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKET");
+                    $scope.tab.active = TabService.setActiveTab("bottom", "DATABASKETS");
                 };
 
                 $scope.clearDatabasket = function() {
@@ -206,11 +206,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         case 'RESULTS':
                             $scope.createDatabasketDialog($event, selectedResultItems);
                             break;
-                        case 'DATABASKET':
+                        case 'DATABASKETS':
                             var itemsList = $scope.selectedDatabasket ? $scope.selectedDatabasket.items : [];
                             $scope.createDatabasketDialog($event, itemsList);
                             break;
-                        case 'JOB':
+                        case 'JOBS':
                             $scope.createDatabasketDialog($event, jobSelectedOutputs);
                             break;
                     }

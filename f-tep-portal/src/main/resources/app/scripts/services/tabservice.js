@@ -34,11 +34,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                 active: true
             },
             {
-                name: "DATABASKET",
+                name: "DATABASKETS",
                 active: false
             },
             {
-                name: "JOB",
+                name: "JOBS",
                 active: false
             }
         ];

@@ -25,7 +25,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.dbPaging.dbCurrentPage = page;
                 BasketService.getDatabaskets(page, $scope.dbPaging.dbPageSize, noCache).then(function (result) {
                     $scope.databaskets = result.data;
-                    $scope.dbPaging.dbTotal = result.meta.total[0];
+                    $scope.dbPaging.dbTotal = result.meta.total;
                     collectFiles(result.included);
                 });
             };

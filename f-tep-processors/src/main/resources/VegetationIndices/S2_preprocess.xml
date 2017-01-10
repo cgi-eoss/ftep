@@ -26,12 +26,28 @@
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <sourceBands/>
-            <geoRegion/>
+            <geoRegion>${aoi}</geoRegion>
             <subSamplingX>1</subSamplingX>
             <subSamplingY>1</subSamplingY>
             <fullSwath>false</fullSwath>
             <tiePointGridNames/>
             <copyMetadata>true</copyMetadata>
+        </parameters>
+    </node>
+    <node id="Resample">
+        <operator>Resample</operator>
+        <sources>
+            <sourceProduct refid="Subset"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <referenceBand/>
+            <targetWidth/>
+            <targetHeight/>
+            <targetResolution>$targetResolution</targetResolution>
+            <upsampling>Nearest</upsampling>
+            <downsampling>First</downsampling>
+            <flagDownsampling>First</flagDownsampling>
+            <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
         </parameters>
     </node>
     <node id="Write">
@@ -41,7 +57,7 @@
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>$ofile</file>
-            <formatName>GeoTIFF</formatName>
+            <formatName>GeoTIFF-BigTIFF</formatName>
         </parameters>
     </node>
 </graph>

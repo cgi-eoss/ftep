@@ -20,7 +20,7 @@ source ${WPS_PROPS}
 EPSG="${crs}"
 AOI="${aoi}"
 DEM="${dem}"
-TRAINING_SHAPEFILE=$(ls -1 ${IN_DIR}/refDataShapefile/*.shp | head -1)
+TRAINING_SHAPEFILE=$(find ${IN_DIR} -name *.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 TARGET_RESOLUTION="${targetResolution}"
 
@@ -32,7 +32,7 @@ SCALING_FACTOR=$(echo "scale=2;${TARGET_RESOLUTION}/10" | bc)
 # Internal params
 S2_PREPROCESS="${WORKFLOW}/S2_preprocess.xml"
 S2_MOSAIC="${WORKFLOW}/S2_mosaic.xml"
-PREPROCESSED_OUTPUT="${PROC_DIR}/preprocessed.tif"
+PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
 MOSAIC_OUTPUT="${PROC_DIR}/mosaic.tif"
 TRAINING_INPUT="${PROC_DIR}/training_input.tif"
 TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}_training_model.txt"
@@ -40,27 +40,35 @@ TRAINING_OUTPUT_CONFUSION_MATRIX_CSV="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}_c
 OUTPUT_FILE="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}.tif"
 
 # Bounds of given AOI
-AOI_EXTENTS=($(${POLYGON2NSEW} "${AOI}"))
-NORTH_BOUND=${AOI_EXTENTS[0]}
-SOUTH_BOUND=${AOI_EXTENTS[1]}
-EAST_BOUND=${AOI_EXTENTS[2]}
-WEST_BOUND=${AOI_EXTENTS[3]}
+if [ "" != "${AOI}" ]; then
+    AOI_EXTENTS=($(${POLYGON2NSEW} "${AOI}"))
+    NORTH_BOUND=${AOI_EXTENTS[0]}
+    SOUTH_BOUND=${AOI_EXTENTS[1]}
+    EAST_BOUND=${AOI_EXTENTS[2]}
+    WEST_BOUND=${AOI_EXTENTS[3]}
+fi
 
-# Convert the S2 input product name to the XML metadata filename
-INPUT_ABS=$(ls -d ${IN_DIR}/S2*.SAFE | head -1)
-INPUT=${INPUT_ABS#${IN_DIR}/}
-IN_PROD=${INPUT/_MSIL1C_/_SAFL1C_}
-IN_PROD=${IN_PROD/_PRD_/_MTD_}
-IN_PROD=${IN_PROD/.SAFE/.xml}
-INPUT_FILE="${IN_DIR}/${INPUT}/${IN_PROD}"
+# Convert an S2 input product name to its XML metadata filename
+safe2xml() {
+    INPUT=$1
+    IN_PROD=${INPUT/_MSIL1C_/_SAFL1C_}
+    IN_PROD=${IN_PROD/_PRD_/_MTD_}
+    IN_PROD=${IN_PROD/.SAFE/.xml}
+    echo ${IN_PROD}
+}
 
 # Preprocess S2 input(s): extract correct bands and resample
-# TODO Loop over IN_DIR contents
-gpt ${S2_PREPROCESS} -Pifile="${INPUT_FILE}" -PformatName="${FORMAT_NAME}" -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_OUTPUT}"
+I=0
+for IN in $(find ${IN_DIR} -type d -name 'S2*.SAFE'); do
+    I=$((I+1))
+    XML=$(safe2xml ${IN#${IN_DIR}/})
+    INPUT_FILE="${IN}/${XML}"
+    gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"
+done
 
 # Preprocess S2 input(s): mosaic multiple inputs
 AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_OUTPUT}
+gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
 gpt BandSelect -t ${TRAINING_INPUT} -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
 
 # OTB training with "random forest" model + reference data

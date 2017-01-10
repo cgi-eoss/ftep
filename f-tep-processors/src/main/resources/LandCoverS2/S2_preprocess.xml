@@ -57,7 +57,7 @@
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>$ofile</file>
-            <formatName>GeoTIFF</formatName>
+            <formatName>GeoTIFF-BigTIFF</formatName>
         </parameters>
     </node>
 </graph>

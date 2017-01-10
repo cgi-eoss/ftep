@@ -19,7 +19,10 @@ class ftep::drupal (
 ) {
 
   require ::ftep::globals
+  require ::epel
+
   contain ::ftep::common::apache
+
   include ::apache::mod::proxy_http
   include ::apache::mod::rewrite
 

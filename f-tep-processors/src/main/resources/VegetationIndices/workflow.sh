@@ -17,7 +17,7 @@ mkdir -p ${PROC_DIR}
 
 # Input params
 source ${WPS_PROPS}
-EPSG="${epsg}"
+EPSG="${crs}"
 AOI="${aoi}"
 TARGET_RESOLUTION="${targetResolution:-10}"
 VEG_INDEX="${vegIndex}"

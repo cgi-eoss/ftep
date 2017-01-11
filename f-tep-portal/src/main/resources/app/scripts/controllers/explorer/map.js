@@ -572,7 +572,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
             if($scope.searchPolygon.selectedArea){
-                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry($scope.searchPolygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                var area = angular.copy($scope.searchPolygon.selectedArea);
+                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry(area.transform('EPSG:3857', 'EPSG:4326'));
                 clipboard.copy($scope.searchPolygon.wkt);
             }
         }
@@ -604,7 +605,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
            function DialogController($scope, $mdDialog, ProjectService) {
              $scope.polygon = { wkt: '', valid: false};
              if(polygon.selectedArea) {
-                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(polygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                 var area = angular.copy(polygon.selectedArea);
+                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(area.transform('EPSG:3857', 'EPSG:4326'));
                  $scope.polygon.valid = true;
              }
              $scope.closeDialog = function() {

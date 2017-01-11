@@ -29,7 +29,7 @@
     </KeyDescriptor>
 
 <% $artifact_resolution_services.each | $idx, $ars | { %>
-    <AssertionConsumerService index="<%= $idx %>"
+    <ArtifactResolutionService index="<%= $idx %>"
       Binding="<%= $ars['binding'] %>"
       Location="<%= $ars['location'] %>"/>
 <% } -%>

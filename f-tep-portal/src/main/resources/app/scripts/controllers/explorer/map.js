@@ -211,9 +211,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 $scope.map.addLayer(layerMapBox);
                 $scope.maplayer.active = "MapBox";
             }
-        };
 
-        var layers = [layerMapBox];
+            $scope.map.addLayer(searchAreaLayer);
+        };
 
         var mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
@@ -234,7 +234,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 mousePositionControl
             ]),
             target: 'map',
-            layers: layers,
+            layers: [layerMapBox],
             view: new ol.View({
               center: ol.proj.fromLonLat([0, 51.28]),
               zoom: 4
@@ -636,7 +636,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                      $scope.polygon.valid = true;
                  }
                  catch(error){
-                     console.log('error: ', error);
                      $scope.polygon.valid = false;
                  }
              };

@@ -53,7 +53,7 @@
     <node id="Write">
         <operator>Write</operator>
         <sources>
-            <sourceProduct refid="Subset"/>
+            <sourceProduct refid="Resample"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>$ofile</file>

@@ -60,6 +60,10 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     $scope.map.removeInteraction(draw);
                     $scope.searchPolygon.selectedArea = event.feature.getGeometry().clone();
                     updateSearchPolygon($scope.searchPolygon.selectedArea);
+
+                    var area = angular.copy($scope.searchPolygon.selectedArea);
+                    var wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
+                    $rootScope.$broadcast('update.searchPolygonWkt', wkt);
                 });
 
                 $scope.map.addInteraction(draw);
@@ -567,6 +571,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             $scope.map.removeInteraction(draw);
             addInteraction();
             $rootScope.$broadcast('polygon.drawn', undefined);
+            $rootScope.$broadcast('update.searchPolygonWkt', undefined);
         };
 
         // Copy the coordinates to clipboard which can be then pasted to service input fields

@@ -53,8 +53,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                     endDate: end,
                     startPage: this.parameters.pageNumber,
                     maximumRecords: ITEMS_PER_PAGE,
-                    sat: this.dataSources[0].id === this.selectedValues.datasource.id,
-                    tep: this.dataSources[1].id === this.selectedValues.datasource.id,
+                    sat: this.dataSources[0].id === this.parameters.selectedDatasource.id,
+                    tep: this.dataSources[1].id === this.parameters.selectedDatasource.id,
                     ref: false
             }; //TODO ref data
 
@@ -69,17 +69,16 @@ define(['../ftepmodules'], function (ftepmodules) {
             if (this.parameters.mission) {
                 params.platform = this.parameters.mission.name;
 
-                if (this.parameters.mission.name.indexOf('2') > -1) {
-                    params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
-                    if(this.parameters.mission.text != ''){
-                        params.name = this.parameters.mission.text;
-                    }
+                if (this.parameters.mission.name.indexOf('1') > -1 && this.parameters.polarisation) {
+                    params.polarisation = this.parameters.polarisation.label;
                 }
+                else if (this.parameters.mission.name.indexOf('2') > -1) {
+                    params.maxCloudCoverPercentage = this.parameters.maxCloudCover;
+                }
+            }
 
-                if(params.tep && params.tep === true && this.parameters.mission.text
-                        && this.parameters.mission.text != ''){
-                    params.name = this.parameters.mission.text;
-                }
+            if(this.parameters.text &&  this.parameters.text != ''){
+                params.name = this.parameters.text;
             }
 
             $http({
@@ -106,7 +105,20 @@ define(['../ftepmodules'], function (ftepmodules) {
             return ITEMS_PER_PAGE;
         }
 
-        this.parameters = {startTime: undefined, endTime: undefined, polygon: undefined, pageNumber: 1, mission: undefined};
+        // Default search time is a year until now
+        var defaultStartTime = new Date();
+        defaultStartTime.setMonth(defaultStartTime.getMonth() - 12);
+
+        this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: undefined, 
+                text: undefined, pageNumber: 1, mission: undefined, polarisation: undefined, maxCloudCover: undefined};
+
+        this.resetSearchParameters = function(){
+            var pageCopy = this.parameters.pageNumber;
+            var polygonCopy = this.parameters.polygon;
+            this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: polygonCopy, 
+                    text: undefined, pageNumber: pageCopy, mission: undefined, polarisation: undefined, maxCloudCover: undefined};
+            return this.parameters;
+        }
 
         this.dataSources = [
             {
@@ -114,25 +126,21 @@ define(['../ftepmodules'], function (ftepmodules) {
                 name: "Satellite",
                 icon: "satellite",
                 description: "All Satellite data",
-                value: false
+                fields: {date: true, mission: true}
             }, {
                 id: 2,
                 name: "Product",
                 icon: "local_library",
                 description: "All preprocessed data",
-                value: false
+                fields: {name: true}
             }, {
                 id: 3,
                 name: "Reference",
                 icon: "streetview",
                 description: "All user uploaded data",
-                value: false
+                fields: {date: true, name: true}
             }
         ];
-
-        this.selectedValues = {
-            datasource: {id: 1}
-        };
 
         this.missions = [
             {

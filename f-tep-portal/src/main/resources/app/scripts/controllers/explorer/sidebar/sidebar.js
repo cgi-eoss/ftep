@@ -22,6 +22,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $("#bottombar").css("left", sidebarWidth + 44);
             $("#bottombar").css({ 'width': 'calc(100% - ' + (sidebarWidth + 44) + 'px)'});
             $scope.$broadcast('rebuild:scrollbar');
+            $timeout(function () {
+                $scope.$broadcast('rzSliderForceRender');
+            }, 300);
         };
 
         $scope.hideSearchArea = function ($event) {

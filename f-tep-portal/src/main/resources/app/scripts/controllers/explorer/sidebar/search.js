@@ -15,7 +15,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             /** ----- DATA ----- **/
 
             $scope.dataSources = GeoService.dataSources;
-            $scope.selectedValues = GeoService.selectedValues;
             $scope.missions = GeoService.missions;
             $scope.polarisations = GeoService.polarisations;
 
@@ -24,18 +23,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             /** ----- DATASOURCES ----- **/
 
-            // Set default display value to true
-            $scope.showDataSources = true;
-
             // Hide datasources and show search form.
             $scope.selectDataSource = function (dataSource) {
-                $scope.showDataSources = false;
-                $scope.selectedValues.datasource = dataSource;
+                $scope.searchParameters.selectedDatasource = dataSource;
+                if(dataSource.fields.mission){
+                    // Set the first mission as default
+                    $scope.searchParameters.mission = $scope.missions[0];
+                }
+                $scope.updateMissionParameters($scope.searchParameters.mission);
+                $scope.updateSlider();
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.closeDataSource = function () {
-                $scope.showDataSources = true;
+                $scope.searchParameters = GeoService.resetSearchParameters();
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
@@ -49,16 +50,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             searchPeriod.setFullYear(searchPeriod.getFullYear() - 10);
             $scope.minDate = searchPeriod;
             $scope.maxDate = new Date();
-
-            // Set default search period range for slider
-            var defaultSearchPeriod = new Date();
-            defaultSearchPeriod.setMonth(defaultSearchPeriod.getMonth() - 12);
-            $scope.startDate = defaultSearchPeriod;
-            $scope.endDate = new Date();
-
-            // Set default search period range for inputs
-            $scope.searchParameters.startTime = defaultSearchPeriod;
-            $scope.searchParameters.endTime = new Date();
 
             // Initialise time slider
             $scope.timeRangeSlider = {
@@ -90,44 +81,22 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.refreshSlider = function () {
                 $timeout(function () {
                     $scope.$broadcast('rzSliderForceRender');
-                });
+                }, 50);
             };
 
             // Update input values on slider change
             function onSliderChange() { // jshint ignore:line
-                $rootScope.$broadcast('update.timeRange', {
-                    start: $scope.timeRangeSlider.minValue,
-                    end: $scope.timeRangeSlider.maxValue
-                });
-            }
-
-            $scope.$on('update.timeRange', function (event, range) {
-                if (range.start > range.end) {
-                    var end = range.start;
-                    range.start = range.end;
-                    range.end = end;
-                }
-                $scope.searchParameters.startTime = new Date(range.start);
-                $scope.searchParameters.endTime = new Date(range.end);
-            });
+                $scope.searchParameters.startTime = new Date($scope.timeRangeSlider.minValue);
+                $scope.searchParameters.endTime = new Date($scope.timeRangeSlider.maxValue);
+            };
 
             // Update slider values on input change
             $scope.updateSlider = function () {
-                $rootScope.$broadcast('update.timeslider', {
-                    start: $scope.searchParameters.startTime,
-                    end: $scope.searchParameters.endTime
-                });
+                $scope.timeRangeSlider.minValue = $scope.searchParameters.startTime.getTime();
+                $scope.timeRangeSlider.maxValue = $scope.searchParameters.endTime.getTime();
             };
 
-            $scope.$on('update.timeslider', function (event, time) {
-                $scope.timeRangeSlider.minValue = time.start.getTime();
-                $scope.timeRangeSlider.maxValue = time.end.getTime();
-            });
-
             /** ----- MISSIONS ----- **/
-
-            // Set the first mission as default
-            $scope.searchParameters.mission = $scope.missions[0];
 
             function isSentinel1(mission){
                 if(mission && mission.name){
@@ -135,14 +104,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 } else {
                     return false;
                 }
-            }
+            };
+
             function isSentinel2(mission){
                 if(mission && mission.name){
                     return mission.name.indexOf('2') > -1 ? true : false;
                 } else {
                     return false;
                 }
-            }
+            };
 
             // Display additional parameters based on mission selection
             $scope.missionDetails = {
@@ -151,23 +121,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.updateMissionParameters = function (mission) {
-
                 // Display polorisation or coverage parameters based on selection
-                if (isSentinel1(mission)) {
-                    $scope.missionDetails.showPolar = true;
-                    $scope.missionDetails.showCoverage = false;
-                } else {
-                    $scope.missionDetails.showPolar = false;
-                    $scope.missionDetails.showCoverage = true;
-                    $scope.refreshSlider();
-                }
-
+                $scope.missionDetails.showPolar = isSentinel1(mission);
+                $scope.missionDetails.showCoverage = isSentinel2(mission);
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
             /** ----- POLYGON SELECTION ----- **/
-
-            //TODO: Move polygon.drawn event here from map
 
             // Set search area to match polygon selection when drawn
             $scope.$on('polygon.drawn', function (event, polygon) {

@@ -1,5 +1,10 @@
 package com.cgi.eoss.ftep.model;
 
+import com.google.common.collect.ComparisonChain;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,19 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.google.common.collect.ComparisonChain;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
 /**
  * F-TEP job representing the inputs and outputs of a service user has run.
  */
 @Data
-@EqualsAndHashCode(exclude = { "id" })
-@Table(name = "ftep_job", indexes = { @Index(name = "idxJobId", columnList = "jid"), }, uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "jid" }) })
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "ftep_job", indexes = {@Index(name = "idxJobId", columnList = "jid"),}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"jid"})})
 @NoArgsConstructor
 @Entity
 public class FtepJob implements FtepEntity<FtepJob> {
@@ -41,7 +40,7 @@ public class FtepJob implements FtepEntity<FtepJob> {
      * This is the job ID as assigned by the WPS server
      */
     @Column(name = "jid", nullable = false)
-    private Long jobId;
+    private String jobId;
 
     /**
      * Input data
@@ -83,17 +82,13 @@ public class FtepJob implements FtepEntity<FtepJob> {
 
     /**
      * Create a new FtepJob instance with the minimum required parameters
-     * 
-     * @param jobId
-     *            The job ID as assigned by the WPS server
-     * @param owner
-     *            The user who owns the job
-     * @param service
-     *            The service this job is running on
-     * @param step
-     *            Short description of current activity of the job
+     *
+     * @param jobId The job ID as assigned by the WPS server
+     * @param owner The user who owns the job
+     * @param service The service this job is running on
+     * @param step Short description of current activity of the job
      */
-    public FtepJob(Long jobId, FtepUser owner, FtepService service, String step) {
+    public FtepJob(String jobId, FtepUser owner, FtepService service, String step) {
         this.jobId = jobId;
         this.owner = owner;
         this.service = service;

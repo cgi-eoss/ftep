@@ -31,8 +31,7 @@ public interface DataService<T, I> {
      * Returns a persistent instance of the supplied object; either saving it in the database or retrieving the
      * already-stored instance.
      *
-     * @param obj
-     *         The object to be persisted (if necessary) and returned.
+     * @param obj The object to be persisted (if necessary) and returned.
      * @return A persistent instance of the requested object.
      */
     T save(T obj);

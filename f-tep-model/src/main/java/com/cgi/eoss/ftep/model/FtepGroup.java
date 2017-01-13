@@ -1,6 +1,10 @@
 package com.cgi.eoss.ftep.model;
 
-import java.util.Set;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Sets;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,24 +19,19 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import com.google.common.collect.ComparisonChain;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import java.util.Set;
 
 /**
  * F-TEP group to share products and services between users.
  */
 @Data
-@EqualsAndHashCode(exclude = { "id" })
-@Table(name = "ftep_group", indexes = { @Index(name = "idxName", columnList = "name"),
-        @Index(name = "idxOwner", columnList = "uid"), }, uniqueConstraints = {
-                @UniqueConstraint(columnNames = { "name", "uid" }) })
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "ftep_group", indexes = {@Index(name = "idxName", columnList = "name"),
+        @Index(name = "idxOwner", columnList = "uid"),}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "uid"})})
 @NoArgsConstructor
 @Entity
-public class FtepGroup implements FtepEntity<FtepGroup> {
+public class FtepGroup implements FtepEntity<FtepGroup>, Searchable {
 
     /**
      * Unique identifier of the group
@@ -64,24 +63,22 @@ public class FtepGroup implements FtepEntity<FtepGroup> {
     /**
      * Databaskets that belong to this group
      */
-    @ManyToMany(mappedBy = "groups")
-    private Set<FtepDatabasket> databaskets;
+    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
+    private Set<FtepDatabasket> databaskets = Sets.newHashSet();
 
     /**
      * List of members of this group
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ftep_group_member", joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "gid"),
-        inverseJoinColumns = @JoinColumn(name = "userid", referencedColumnName = "uid"))
-    private Set<FtepUser> members;
+            inverseJoinColumns = @JoinColumn(name = "userid", referencedColumnName = "uid"))
+    private Set<FtepUser> members = Sets.newHashSet();
 
     /**
      * Create a new FtepGroup instance with the minimum required parameters
-     * 
-     * @param name
-     *            Name of the group
-     * @param owner
-     *            User who created the group
+     *
+     * @param name Name of the group
+     * @param owner User who created the group
      */
     public FtepGroup(String name, FtepUser owner) {
         this.name = name;

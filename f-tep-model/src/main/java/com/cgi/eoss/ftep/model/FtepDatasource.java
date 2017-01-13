@@ -19,13 +19,13 @@ import javax.persistence.UniqueConstraint;
  * F-TEP datasource to search from.
  */
 @Data
-@EqualsAndHashCode(exclude = { "id" })
-@Table(name = "ftep_datasource", indexes = { @Index(name = "idxName", columnList = "name"), }, uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "name" }) })
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "ftep_datasource", indexes = {@Index(name = "idxName", columnList = "name"),}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})})
 @NoArgsConstructor
 @Entity
 @Type("datasource")
-public class FtepDatasource implements FtepEntity<FtepDatasource> {
+public class FtepDatasource implements FtepEntity<FtepDatasource>, Searchable {
 
     /**
      * Unique identifier of the datasource
@@ -91,15 +91,11 @@ public class FtepDatasource implements FtepEntity<FtepDatasource> {
 
     /**
      * Create a new FtepDatasource instance with the minimum required parameters
-     * 
-     * @param name
-     *            Name of the datasource
-     * @param template
-     *            Template of the datasource
-     * @param dowloadDomain
-     *            Domain managed by this datasource
-     * @param credentialsData
-     *            Credentials data
+     *
+     * @param name Name of the datasource
+     * @param template Template of the datasource
+     * @param dowloadDomain Domain managed by this datasource
+     * @param credentialsData Credentials data
      */
     public FtepDatasource(String name, String template, String dowloadDomain, String credentialsData) {
         this.name = name;

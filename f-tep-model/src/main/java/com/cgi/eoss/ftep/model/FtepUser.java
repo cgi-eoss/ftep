@@ -1,25 +1,25 @@
 package com.cgi.eoss.ftep.model;
 
+import com.google.common.collect.ComparisonChain;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
-
-import com.google.common.collect.ComparisonChain;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * F-TEP user in Drupal.
  */
 @Data
-@Table(name = "user")
+@Table(name = "user", indexes = {@Index(name = "idxName", columnList = "name")})
 @NoArgsConstructor
 @Entity
-public class FtepUser implements FtepEntity<FtepUser> {
+public class FtepUser implements FtepEntity<FtepUser>, Searchable {
 
     /**
      * Unique identifier of the user as returned from SP
@@ -43,9 +43,8 @@ public class FtepUser implements FtepEntity<FtepUser> {
 
     /**
      * Create a new FtepUser instance with the minimum required parameters
-     * 
-     * @param username
-     * @param email
+     *
+     * @param name Account name of the user, as returned from the SSO SP.
      */
     public FtepUser(String name) {
         this.name = name;

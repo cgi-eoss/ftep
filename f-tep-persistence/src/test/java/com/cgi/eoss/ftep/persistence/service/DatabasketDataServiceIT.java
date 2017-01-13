@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepDatabasket;
 import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
@@ -20,9 +20,9 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(classes = {PersistenceConfig.class})
 @TestPropertySource("classpath:test-persistence.properties")
 @Transactional
-public class ServiceDataServiceIT {
+public class DatabasketDataServiceIT {
     @Autowired
-    private ServiceDataService dataService;
+    private DatabasketDataService dataService;
     @Autowired
     private UserDataService userService;
 
@@ -32,20 +32,20 @@ public class ServiceDataServiceIT {
         FtepUser owner2 = new FtepUser("owner-uid2");
         userService.save(ImmutableSet.of(owner, owner2));
 
-        FtepService svc = new FtepService();
-        svc.setName("Test Service");
-        svc.setOwner(owner);
-        dataService.save(svc);
+        FtepDatabasket databasket = new FtepDatabasket();
+        databasket.setName("Test Databasket");
+        databasket.setOwner(owner);
+        dataService.save(databasket);
 
-        assertThat(dataService.getAll(), is(ImmutableList.of(svc)));
-        assertThat(dataService.getById(svc.getId()), is(svc));
-        assertThat(dataService.getByIds(ImmutableSet.of(svc.getId())), is(ImmutableList.of(svc)));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service", owner)), is(false));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service2", owner)), is(true));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service", owner2)), is(true));
+        assertThat(dataService.getAll(), is(ImmutableList.of(databasket)));
+        assertThat(dataService.getById(databasket.getId()), is(databasket));
+        assertThat(dataService.getByIds(ImmutableSet.of(databasket.getId())), is(ImmutableList.of(databasket)));
+        assertThat(dataService.isUniqueAndValid(new FtepDatabasket("Test Databasket", owner)), is(false));
+        assertThat(dataService.isUniqueAndValid(new FtepDatabasket("Test Databasket2", owner)), is(true));
+        assertThat(dataService.isUniqueAndValid(new FtepDatabasket("Test Databasket", owner2)), is(true));
 
-        assertThat(dataService.search("serv"), is(ImmutableList.of(svc)));
-        assertThat(dataService.findByOwner(owner), is(ImmutableList.of(svc)));
+        assertThat(dataService.search("datab"), is(ImmutableList.of(databasket)));
+        assertThat(dataService.findByOwner(owner), is(ImmutableList.of(databasket)));
         assertThat(dataService.findByOwner(owner2), is(ImmutableList.of()));
     }
 

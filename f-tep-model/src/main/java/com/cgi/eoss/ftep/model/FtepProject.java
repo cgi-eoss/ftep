@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -24,13 +25,13 @@ import java.util.Set;
  * F-TEP project to organize products and services.
  */
 @Data
-@EqualsAndHashCode(exclude = { "id" })
-@Table(name = "ftep_project", indexes = { @Index(name = "idxName", columnList = "name"),
-        @Index(name = "idxOwner", columnList = "uid"), }, uniqueConstraints = {
-                @UniqueConstraint(columnNames = { "name", "uid" }) })
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "ftep_project", indexes = {@Index(name = "idxName", columnList = "name"),
+        @Index(name = "idxOwner", columnList = "uid"),}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "uid"})})
 @NoArgsConstructor
 @Entity
-public class FtepProject implements FtepEntity<FtepProject> {
+public class FtepProject implements FtepEntity<FtepProject>, Searchable {
 
     /**
      * Unique identifier of the project
@@ -63,17 +64,15 @@ public class FtepProject implements FtepEntity<FtepProject> {
      * Set of jobs related to the project
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "ftep_project_x_job", joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "pid"), 
-        inverseJoinColumns = @JoinColumn(name = "job_id", referencedColumnName = "jid"))
-    private Set<FtepJob> jobs;
+    @JoinTable(name = "ftep_project_x_job", joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "pid"),
+            inverseJoinColumns = @JoinColumn(name = "job_id", referencedColumnName = "jid"))
+    private Set<FtepJob> jobs = Sets.newHashSet();
 
     /**
      * Create a new FtepProject instance with the minimum required parameters
-     * 
-     * @param name
-     *            Name of the project
-     * @param owner
-     *            The ID of the user owning the project
+     *
+     * @param name Name of the project
+     * @param owner The ID of the user owning the project
      */
     public FtepProject(String name, FtepUser owner) {
         this.name = name;

@@ -39,13 +39,9 @@
                 }
 
                 if (!eossCI.isTriggeredByGerrit()) {
-                    configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
-                        stage('SonarQube Analysis') {
+                    stage('SonarQube Analysis') {
+                        configFileProvider([configFile(fileId: '54dc7a4d-fa38-433c-954a-ced9a332f7c9', variable: 'GRADLEINIT')]) {
                             eossCI.sonarqubeGradle("", "gradle --no-daemon -I ${GRADLEINIT}")
-                        }
-
-                        stage('Acceptance Test') {
-                            sh "gradle --no-daemon -I ${GRADLEINIT} "
                         }
                     }
                 }

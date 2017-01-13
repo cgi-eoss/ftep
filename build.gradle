@@ -12,21 +12,18 @@ ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradl
 allprojects {
     buildscript {
         repositories {
-            maven {
-                url gradlePluginPortalUrl
-            }
+            maven { url gradlePluginPortalUrl }
         }
+    }
+
+    repositories {
+        maven { url mavenCentralUrl }
     }
 
     buildDir = 'target'
 
     plugins.withType(JavaPlugin) {
         sourceCompatibility = 1.8
-        repositories {
-            maven {
-                url mavenCentralUrl
-            }
-        }
     }
 }
 
@@ -38,11 +35,12 @@ buildscript {
     }
     dependencies {
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
     }
 }
 
 apply plugin: "org.sonarqube"
-
+apply plugin: "com.github.ben-manes.versions"
 
 def depVersions = [
         awaitility       : '2.0.0',
@@ -52,33 +50,33 @@ def depVersions = [
         dockerJava       : '3.0.0',
         freemarker       : '2.3.25-incubating',
         googleHttpClient : '1.22.0',
-        grpc             : '1.0.1',
+        grpc             : '1.0.3',
         gson             : '2.7',
         guava            : '20.0',
         hamcrest         : '2.0.0.0',
         hibernateJpa21Api: '1.0.0.Final',
-        hibernate        : '5.2.4.Final',
+        hibernate        : '5.2.6.Final',
         hikaricp         : '2.5.1',
         hsqldb           : '2.3.4',
         httpclient       : '4.3.1',
-        jackson          : '2.8.5',
+        jackson          : '2.8.6',
         jimfs            : '1.1',
         jsonapiConverter : '0.3',
         jsr305           : '3.0.1',
         junit            : '4.12',
-        logback          : '1.1.7',
-        lombok           : '1.16.10',
+        logback          : '1.1.8',
+        lombok           : '1.16.12',
         mockFtpServer    : '2.7.1',
         mockito          : '2.2.26',
         okHttp           : '3.5.0',
         protoc           : '3.1.0-build2',
         querydsl         : '4.1.4',
         selenium         : '2.53.1',
-        slf4j            : '1.7.21',
-        springFramework  : '4.3.4.RELEASE',
+        slf4j            : '1.7.22',
+        springFramework  : '4.3.5.RELEASE',
         springDataCommons: '1.12.5.RELEASE',
-        springDataJpa    : '1.10.5.RELEASE',
-        springBoot       : '1.4.2.RELEASE',
+        springDataJpa    : '1.10.6.RELEASE',
+        springBoot       : '1.4.3.RELEASE',
         testContainers   : '1.1.7'
 ]
 

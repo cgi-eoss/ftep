@@ -285,6 +285,9 @@ $drupal_hash_salt = '';
 if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
     $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
 };
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https') {
+    $_SERVER['HTTPS'] = 'on';
+};
 
 /**
  * PHP settings:

@@ -60,6 +60,10 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     $scope.map.removeInteraction(draw);
                     $scope.searchPolygon.selectedArea = event.feature.getGeometry().clone();
                     updateSearchPolygon($scope.searchPolygon.selectedArea);
+
+                    var area = angular.copy($scope.searchPolygon.selectedArea);
+                    var wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
+                    $rootScope.$broadcast('update.searchPolygonWkt', wkt);
                 });
 
                 $scope.map.addInteraction(draw);
@@ -211,13 +215,13 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 $scope.map.addLayer(layerMapBox);
                 $scope.maplayer.active = "MapBox";
             }
-        };
 
-        var layers = [layerMapBox];
+            $scope.map.addLayer(searchAreaLayer);
+        };
 
         var mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
-            projection: 'EPSG:4326',
+            projection: EPSG_4326,
             undefinedHTML: '&nbsp;'
           });
 
@@ -234,7 +238,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 mousePositionControl
             ]),
             target: 'map',
-            layers: layers,
+            layers: [layerMapBox],
             view: new ol.View({
               center: ol.proj.fromLonLat([0, 51.28]),
               zoom: 4
@@ -414,7 +418,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                                     lonlatPoints.push(p);
                                 }
                             }
-                            var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform('EPSG:4326', 'EPSG:3857');
+                            var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
 
                             var resultItem =  new ol.Feature({
                                 geometry: pol,
@@ -466,7 +470,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                           lonlatPoints.push(p);
                        }
                     }
-                    var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform('EPSG:4326', 'EPSG:3857');
+                    var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
                     var resultItem =  new ol.Feature({
                          geometry: pol,
                          data: item
@@ -567,12 +571,14 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             $scope.map.removeInteraction(draw);
             addInteraction();
             $rootScope.$broadcast('polygon.drawn', undefined);
+            $rootScope.$broadcast('update.searchPolygonWkt', undefined);
         };
 
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
             if($scope.searchPolygon.selectedArea){
-                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry($scope.searchPolygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                var area = angular.copy($scope.searchPolygon.selectedArea);
+                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
                 clipboard.copy($scope.searchPolygon.wkt);
             }
         }
@@ -604,7 +610,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
            function DialogController($scope, $mdDialog, ProjectService) {
              $scope.polygon = { wkt: '', valid: false};
              if(polygon.selectedArea) {
-                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(polygon.selectedArea.transform('EPSG:3857', 'EPSG:4326'));
+                 var area = angular.copy(polygon.selectedArea);
+                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
                  $scope.polygon.valid = true;
              }
              $scope.closeDialog = function() {
@@ -616,8 +623,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                  }
                  if(searchPolygonWkt && searchPolygonWkt != ''){
                      var newPol = new ol.format.WKT().readFeature(searchPolygonWkt, {
-                         dataProjection: 'EPSG:4326',
-                         featureProjection: 'EPSG:3857'
+                         dataProjection: EPSG_4326,
+                         featureProjection: EPSG_3857
                      });
                      searchAreaLayer.getSource().addFeature(newPol);
 
@@ -628,13 +635,12 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
              $scope.validateWkt = function(wkt){
                  try{
                      new ol.format.WKT().readFeature(wkt, {
-                         dataProjection: 'EPSG:4326',
-                         featureProjection: 'EPSG:3857'
+                         dataProjection: EPSG_4326,
+                         featureProjection: EPSG_3857
                        });
                      $scope.polygon.valid = true;
                  }
                  catch(error){
-                     console.log('error: ', error);
                      $scope.polygon.valid = false;
                  }
              };
@@ -662,7 +668,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                             VERSION: '1.1.0',
                             FORMAT: 'image/png'
                         },
-                        projection: 'EPSG:4326'
+                        projection: EPSG_3857
                     });
                     var productLayer = new ol.layer.Image({
                         source: source

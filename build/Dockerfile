@@ -52,7 +52,7 @@ ENV M2_HOME /opt/apache-maven-${MAVEN_VERSION}
 ENV PATH=${M2_HOME}/bin:${PATH}
 
 # Gradle
-ENV GRADLE_VERSION 3.2.1
+ENV GRADLE_VERSION 3.3
 RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
 ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
 ENV PATH=${GRADLE_HOME}/bin:${PATH}
@@ -81,7 +81,7 @@ RUN yum install -y \
  subversion \
  && yum clean all
 
-# Install puppet for preparing distribution module
+# Install puppet for testing distribution module
 RUN yum install -y \
  https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm \
  && yum clean all
@@ -102,4 +102,3 @@ RUN echo -e "ftep ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers.d/01_ftep
 RUN rm -f /opt/rh/devtoolset-2/root/usr/bin/sudo
 # The script allows the uid of the ftep user to be modified prior to launching sshd
 ADD sshdBootstrap.sh /usr/sbin/sshdBootstrap.sh
-

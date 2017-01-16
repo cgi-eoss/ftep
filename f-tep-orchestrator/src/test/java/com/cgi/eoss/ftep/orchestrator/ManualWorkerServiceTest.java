@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,6 +17,9 @@ import static org.junit.Assume.assumeTrue;
 public class ManualWorkerServiceTest {
 
     @Mock
+    private JobEnvironmentService jobEnvironmentService;
+
+    @Mock
     private ServiceInputOutputManager serviceInputOutputManager;
 
     private WorkerService workerService;
@@ -27,7 +31,7 @@ public class ManualWorkerServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        workerService = new ManualWorkerService(serviceInputOutputManager);
+        workerService = new ManualWorkerService(jobEnvironmentService, serviceInputOutputManager);
     }
 
     @Test

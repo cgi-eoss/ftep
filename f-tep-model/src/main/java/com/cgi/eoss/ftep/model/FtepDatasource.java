@@ -1,5 +1,11 @@
 package com.cgi.eoss.ftep.model;
 
+import com.github.jasminb.jsonapi.annotations.Type;
+import com.google.common.collect.ComparisonChain;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,22 +15,17 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.google.common.collect.ComparisonChain;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-
 /**
  * F-TEP datasource to search from.
  */
 @Data
-@EqualsAndHashCode(exclude = { "id" })
-@Table(name = "ftep_datasource", indexes = { @Index(name = "idxName", columnList = "name"), }, uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "name" }) })
+@EqualsAndHashCode(exclude = {"id"})
+@Table(name = "ftep_datasource", indexes = {@Index(name = "idxName", columnList = "name"),}, uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})})
 @NoArgsConstructor
 @Entity
-public class FtepDatasource implements FtepEntity<FtepDatasource> {
+@Type("datasource")
+public class FtepDatasource implements FtepEntity<FtepDatasource>, Searchable {
 
     /**
      * Unique identifier of the datasource
@@ -90,15 +91,11 @@ public class FtepDatasource implements FtepEntity<FtepDatasource> {
 
     /**
      * Create a new FtepDatasource instance with the minimum required parameters
-     * 
-     * @param name
-     *            Name of the datasource
-     * @param template
-     *            Template of the datasource
-     * @param dowloadDomain
-     *            Domain managed by this datasource
-     * @param credentialsData
-     *            Credentials data
+     *
+     * @param name Name of the datasource
+     * @param template Template of the datasource
+     * @param dowloadDomain Domain managed by this datasource
+     * @param credentialsData Credentials data
      */
     public FtepDatasource(String name, String template, String dowloadDomain, String credentialsData) {
         this.name = name;

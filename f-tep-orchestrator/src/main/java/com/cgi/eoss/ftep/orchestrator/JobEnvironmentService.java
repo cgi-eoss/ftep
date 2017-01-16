@@ -26,13 +26,44 @@ public class JobEnvironmentService {
     private static final String OUTPUT_DIR = "outDir";
 
     /**
+     * <p>Create a new job environment. If the jobConfig map is not empty, a job configuration file is created in the
+     * workspace.</p>
+     *
+     * @param jobId The jobId for the environment.
+     * @param jobConfig The job configuration parameters, to be written to {@link #JOB_CONFIG_FILENAME} in the working
+     * directory if not empty.
+     * @return The created environment.
+     * @throws IOException If any problem occurred in creating the job workspace or config file.
+     */
+    public JobEnvironment createEnvironment(String jobId, Multimap<String, String> jobConfig) throws IOException {
+        JobEnvironment environment = createEnvironment(jobId);
+
+        if (!jobConfig.isEmpty()) {
+            Path configFile = environment.getWorkingDir().resolve(JOB_CONFIG_FILENAME);
+
+            List<String> configFileLines = jobConfig.keySet().stream()
+                    .map(key -> key + "=" + String.join(",", jobConfig.get(key)))
+                    .collect(Collectors.toList());
+            Files.write(configFile, configFileLines, CREATE_NEW);
+
+            LOG.info("Created job configuration file for job {} in location: {}", jobId, configFile);
+        }
+
+        return environment;
+    }
+
+    // TODO Make this configurable
+    public Path getBasedir() {
+        return DEFAULT_BASEDIR;
+    }
+
+    /**
      * <p>Create a new job environment with the required workspace directories.</p>
      *
      * @param jobId The jobId for the environment.
      * @return The created environment.
-     * @throws IOException If any problem occurred in creating the job workspace.
      */
-    public JobEnvironment createEnvironment(String jobId) throws IOException {
+    private JobEnvironment createEnvironment(String jobId) throws IOException {
         Path workingDir = getBasedir().resolve(WORKING_DIR_PREFIX + jobId);
         Path inputDir = workingDir.resolve(INPUT_DIR);
         Path outputDir = workingDir.resolve(OUTPUT_DIR);
@@ -49,35 +80,6 @@ public class JobEnvironmentService {
                 .inputDir(inputDir)
                 .outputDir(outputDir)
                 .build();
-    }
-
-    /**
-     * <p>Create a new job environment, including a job configuration file in the workspace.</p>
-     *
-     * @param jobId The jobId for the environment.
-     * @param jobConfig The job configuration parameters, to be written to {@link #JOB_CONFIG_FILENAME} in the working
-     * directory.
-     * @return The created environment.
-     * @throws IOException If any problem occurred in creating the job workspace or config file.
-     */
-    public JobEnvironment createEnvironment(String jobId, Multimap<String, String> jobConfig) throws IOException {
-        JobEnvironment environment = createEnvironment(jobId);
-
-        Path configFile = environment.getWorkingDir().resolve(JOB_CONFIG_FILENAME);
-
-        List<String> configFileLines = jobConfig.keySet().stream()
-                .map(key -> key + "=" + String.join(",", jobConfig.get(key)))
-                .collect(Collectors.toList());
-        Files.write(configFile, configFileLines, CREATE_NEW);
-
-        LOG.info("Created job configuration file for job {} in location: {}", jobId, configFile);
-
-        return environment;
-    }
-
-    // TODO Make this configurable
-    public Path getBasedir() {
-        return DEFAULT_BASEDIR;
     }
 
 }

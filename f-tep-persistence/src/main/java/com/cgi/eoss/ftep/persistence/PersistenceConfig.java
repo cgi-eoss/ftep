@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.util.Properties;
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @Import({

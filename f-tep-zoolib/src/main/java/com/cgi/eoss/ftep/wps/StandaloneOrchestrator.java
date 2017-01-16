@@ -3,8 +3,11 @@ package com.cgi.eoss.ftep.wps;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import io.grpc.BindableService;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -30,7 +33,10 @@ public class StandaloneOrchestrator implements Closeable {
         SLF4JBridgeHandler.install();
     }
 
+    @Getter
     private final Server server;
+    @Getter
+    private final ManagedChannelBuilder<?> channelBuilder;
 
     /**
      * <p>Instantiate a gRPC server with a globally static collection of services. The collection should be managed by
@@ -58,6 +64,7 @@ public class StandaloneOrchestrator implements Closeable {
 
         LOG.info("Starting standalone gRPC server!");
         this.server = inProcessServerBuilder.build().start();
+        this.channelBuilder = InProcessChannelBuilder.forName(realName).directExecutor();
     }
 
     @PreDestroy

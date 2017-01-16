@@ -5,6 +5,8 @@ import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
+import com.cgi.eoss.ftep.orchestrator.data.JobStatusService;
+import com.cgi.eoss.ftep.orchestrator.data.ServiceDataService;
 import com.cgi.eoss.ftep.rpc.ApplicationLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.ApplicationParams;
 import com.cgi.eoss.ftep.rpc.ApplicationResponse;
@@ -16,8 +18,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
 /**
  * <p>Server endpoint for the ApplicationLauncher RPC service.</p>
  */
@@ -26,18 +26,15 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
 
     private final WorkerService workerService;
     private final JobStatusService jobStatusService;
-    private final JobEnvironmentService jobEnvironmentService;
     private final ServiceDataService serviceDataService;
 
     public ApplicationLauncher(WorkerService workerService,
                                JobStatusService jobStatusService,
-                               ServiceDataService serviceDataService,
-                               JobEnvironmentService jobEnvironmentService) {
+                               ServiceDataService serviceDataService) {
         // TODO Distribute by configuring and connecting to these services via RPC
         this.workerService = workerService;
         this.jobStatusService = jobStatusService;
         this.serviceDataService = serviceDataService;
-        this.jobEnvironmentService = jobEnvironmentService;
     }
 
     // TODO Extract common functionality between GUI Applications and Processing Services
@@ -47,22 +44,11 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
 
         // TODO Check coins and estimated cost
 
-        JobEnvironment jobEnvironment;
-        try {
-            jobEnvironment = jobEnvironmentService.createEnvironment(request.getJobId());
-        } catch (IOException e) {
-            LOG.error("Failed to create working environment for job {}", request.getJobId());
-            throw new ServiceExecutionException(e);
-        }
-
         FtepJob job = FtepJob.builder()
                 .jobId(request.getJobId())
                 .userId(request.getUserId())
                 .serviceId(request.getServiceId())
                 .status(JobStatus.CREATED)
-                .workingDir(jobEnvironment.getWorkingDir())
-                .inputDir(jobEnvironment.getInputDir())
-                .outputDir(jobEnvironment.getOutputDir())
                 .build();
 
         ApiEntity<ResourceJob> apiJob = null;
@@ -70,8 +56,12 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
         try {
             apiJob = jobStatusService.create(job.getJobId(), job.getUserId(), job.getServiceId());
 
-            // Get a worker
+            // Get a worker and instantiate the job workspace
             Worker worker = workerService.getWorker();
+            JobEnvironment jobEnvironment = worker.createJobEnvironment(request.getJobId(), inputs);
+            job.setWorkingDir(jobEnvironment.getWorkingDir());
+            job.setInputDir(jobEnvironment.getInputDir());
+            job.setOutputDir(jobEnvironment.getOutputDir());
 
             // Set up input data
             LOG.info("Downloading input data for {}", job.getJobId());
@@ -129,20 +119,11 @@ public class ApplicationLauncher extends ApplicationLauncherGrpc.ApplicationLaun
             responseObserver.onCompleted();
         } catch (Exception e) {
             if (apiJob != null) {
-                setJobInError(apiJob);
+                jobStatusService.setJobInError(apiJob);
             }
 
             LOG.error("Failed to launch application; notifying gRPC client", e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
-        }
-    }
-
-    private void setJobInError(ApiEntity<ResourceJob> apiJob) {
-        try {
-            jobStatusService.update(apiJob);
-            apiJob.getResource().setStatus(JobStatus.ERROR.name());
-        } catch (Exception e) {
-            LOG.error("Unable to set job to ERROR state (swallowing exception)", e);
         }
     }
 

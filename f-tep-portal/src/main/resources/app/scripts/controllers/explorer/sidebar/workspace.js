@@ -17,8 +17,16 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
         $scope.outputValues = {};
         $scope.dropList = { items: []};
         $scope.inputValues = {};
-        $scope.optionalInputs = {};
         $scope.dropLists = {};
+
+        var polygonWkt = undefined;
+        $scope.$on('update.searchPolygonWkt', function(event, wkt) {
+            polygonWkt = wkt;
+        });
+
+        $scope.pastePolygon = function(identifier){
+            $scope.inputValues[identifier] = polygonWkt;
+        }
 
         $scope.onDrop = function(items, fieldId) {
             if($scope.dropLists[fieldId] === undefined){
@@ -57,7 +65,6 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             $scope.isWpsLoading = true;
             $scope.outputValues = {};
             $scope.inputValues = {};
-            $scope.optionalInputs = {};
             $scope.dropLists = {};
             delete $scope.info;
 
@@ -92,16 +99,12 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             var iparams=[];
 
             for(var key in $scope.inputValues){
-                console.log($scope.optionalInputs);
                 console.log(key);
-                console.log($scope.optionalInputs[key]);
-                if($scope.optionalInputs[key] === undefined || ($scope.optionalInputs[key] && $scope.optionalInputs[key] === true)){
-                    iparams.push({
-                        identifier: key,
-                        value: $scope.inputValues[key],
-                        dataType: "string"
-                    });
-                }
+                iparams.push({
+                    identifier: key,
+                    value: $scope.inputValues[key],
+                    dataType: "string"
+                });
             }
 
             var oparams=[];

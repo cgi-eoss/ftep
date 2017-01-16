@@ -71,6 +71,13 @@ define(['../ftepmodules'], function (ftepmodules) {
 
                 if (this.parameters.mission.name.indexOf('2') > -1) {
                     params.maxCloudCoverPercentage = this.parameters.mission.maxCloudCover;
+                    if(this.parameters.mission.text != ''){
+                        params.name = this.parameters.mission.text;
+                    }
+                }
+
+                if(params.tep && params.tep === true && this.parameters.mission.text
+                        && this.parameters.mission.text != ''){
                     params.name = this.parameters.mission.text;
                 }
             }

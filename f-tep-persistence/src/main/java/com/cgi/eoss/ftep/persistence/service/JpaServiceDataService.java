@@ -1,15 +1,17 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@org.springframework.stereotype.Service
+@Service
 @Transactional(readOnly = true)
 public class JpaServiceDataService extends AbstractJpaDataService<FtepService> implements ServiceDataService {
 
@@ -37,6 +39,11 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     @Override
     public List<FtepService> search(String term) {
         return ftepServiceDao.findByNameContainingIgnoreCase(term);
+    }
+
+    @Override
+    public List<FtepService> findByOwner(FtepUser user) {
+        return ftepServiceDao.findByOwner(user);
     }
 
 }

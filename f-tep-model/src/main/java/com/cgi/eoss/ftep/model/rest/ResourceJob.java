@@ -1,4 +1,3 @@
-
 package com.cgi.eoss.ftep.model.rest;
 
 import com.github.jasminb.jsonapi.annotations.Id;

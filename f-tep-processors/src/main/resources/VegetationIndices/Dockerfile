@@ -56,6 +56,8 @@ ENV PATH=/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/bin:/op
 # Prepare processor script
 RUN mkdir -p /home/worker/processor
 COPY epsg2utm.py /home/worker/processor/epsg2utm.py
+COPY polygon2nsewBounds.py /home/worker/processor/polygon2nsewBounds.py
 COPY S2_preprocess.xml /home/worker/processor/S2_preprocess.xml
+COPY S2_mosaic.xml /home/worker/processor/S2_mosaic.xml
 COPY workflow.sh /home/worker/processor/workflow.sh
 ENTRYPOINT ["/home/worker/processor/workflow.sh"]

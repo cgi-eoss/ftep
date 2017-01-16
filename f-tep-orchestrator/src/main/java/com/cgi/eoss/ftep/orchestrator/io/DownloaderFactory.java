@@ -1,41 +1,46 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
-import lombok.experimental.UtilityClass;
+import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.google.api.client.util.Maps;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * <p>Factory to produce instances of {@link Downloader} for different URIs. The specific implementations returned may
  * differ depending on configuration, allowing environment-specific handling of a given URI.</p>
  */
-@UtilityClass
 public class DownloaderFactory {
 
-    private static final String PROTOCOL_HANDLER_PROP_BASE = "ftep.protocol-handler.";
+    // TODO Make these handlers configurable for different environments, and allow priority loading
+    private final Map<String, Downloader> downloaders = Maps.newHashMap();
 
-    static {
-        // TODO Make these properties configurable for different environments
-        System.setProperty("ftep.protocol-handler.ftep", "com.cgi.eoss.ftep.orchestrator.io.FtepDownloader");
-        System.setProperty("ftep.protocol-handler.http", "com.cgi.eoss.ftep.orchestrator.io.HttpFtpDownloader");
-        System.setProperty("ftep.protocol-handler.ftp", "com.cgi.eoss.ftep.orchestrator.io.HttpFtpDownloader");
-        System.setProperty("ftep.protocol-handler.s2", "com.cgi.eoss.ftep.orchestrator.io.S2CEDADownloader");
+    public DownloaderFactory(CredentialsDataService credentialsDataService) {
+        FtepDownloader ftepDownloader = new FtepDownloader();
+        FtpDownloader ftpDownloader = new FtpDownloader(credentialsDataService);
+        HttpDownloader httpDownloader = new HttpDownloader(credentialsDataService);
+        S2CEDADownloader s2CEDADownloader = new S2CEDADownloader(ftpDownloader);
+
+        registerDownloader("ftep", ftepDownloader);
+        registerDownloader("ftp", ftpDownloader);
+        registerDownloader("ftps", ftpDownloader);
+        registerDownloader("http", httpDownloader);
+        registerDownloader("https", httpDownloader);
+        registerDownloader("s2", s2CEDADownloader);
+    }
+
+    private void registerDownloader(String scheme, Downloader downloader) {
+        downloaders.put(scheme, downloader);
     }
 
     /**
      * @return A {@link Downloader} capable of resolving and retrieving the given URI in the current environment.
      */
-    public static Downloader getHandler(URI uri) {
+    public Downloader getDownloader(URI uri) {
         try {
-            String handlerProperty = PROTOCOL_HANDLER_PROP_BASE + uri.getScheme();
-            String handlerClass = System.getProperty(handlerProperty);
-            Class<?> cls = Class.forName(handlerClass);
-            if (Downloader.class.isAssignableFrom(cls)) {
-                return (Downloader) cls.getConstructor().newInstance();
-            } else {
-                throw new ClassCastException("Invalid protocol handler class: " + handlerClass);
-            }
+            return downloaders.get(uri.getScheme());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ServiceIoException(e);
         }
     }
 }

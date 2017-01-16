@@ -1,5 +1,6 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.data;
 
+import com.cgi.eoss.ftep.model.FtepDatasource;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,10 +25,12 @@ public class FtepJsonApi {
     // TODO Make API endpoints configurable
     private static final String API_LOGIN = "login";
     private static final String API_JOBS = "jobs";
+    private static final String API_AUTHENTICATION = "datasources/getAuthentication";
 
     private final FtepApiUrl api;
     private final HttpTransport transport;
     private final ResourceConverter resourceJobConverter;
+    private final ResourceConverter datsourceConverter;
 
     public FtepJsonApi(String baseUrl) {
         this(baseUrl, new NetHttpTransport());
@@ -37,6 +40,7 @@ public class FtepJsonApi {
         this.api = new FtepApiUrl(baseUrl);
         this.transport = transport;
         this.resourceJobConverter = new ResourceConverter(ResourceJob.class);
+        this.datsourceConverter = new ResourceConverter(FtepDatasource.class);
     }
 
     public ApiEntity<ResourceJob> insert(ResourceJob job) throws IOException, IllegalAccessException {
@@ -55,17 +59,17 @@ public class FtepJsonApi {
                 .build();
     }
 
-    private HttpContent getHttpContentForResourceJob(ResourceJob job) throws JsonProcessingException, IllegalAccessException {
-        byte[] bytes = resourceJobConverter.writeObject(job);
-        return new ByteArrayContent(Json.MEDIA_TYPE, bytes);
-    }
-
     public void update(ApiEntity<ResourceJob> apiJob) throws IOException, IllegalAccessException {
         HttpContent content = getHttpContentForResourceJob(apiJob.getResource());
         HttpRequest request = transport.createRequestFactory()
                 .buildPatchRequest(new GenericUrl(apiJob.getResourceEndpoint()), content)
                 .setThrowExceptionOnExecuteError(true);
         submitAndGetJsonApiResourceJob(request);
+    }
+
+    public FtepDatasource getDataSource(String host) throws IOException {
+        HttpRequest request = transport.createRequestFactory().buildGetRequest(api.authentication(host));
+        return submitAndGetJsonApiDatasource(request).get();
     }
 
     private JSONAPIDocument<ResourceJob> submitAndGetJsonApiResourceJob(HttpRequest request) throws IOException {
@@ -75,11 +79,28 @@ public class FtepJsonApi {
         HttpResponse response = request.execute();
         try {
             LOG.debug("Received HTTP response status: {} {}", response.getStatusCode(), response.getStatusMessage());
-            JSONAPIDocument<ResourceJob> document = resourceJobConverter.readDocument(ByteStreams.toByteArray(response.getContent()), ResourceJob.class);
-            return document;
+            return resourceJobConverter.readDocument(ByteStreams.toByteArray(response.getContent()), ResourceJob.class);
         } finally {
             response.disconnect();
         }
+    }
+
+    private JSONAPIDocument<FtepDatasource> submitAndGetJsonApiDatasource(HttpRequest request) throws IOException {
+        LOG.debug("Submitting HTTP {} request to URL: {}", request.getRequestMethod(), request.getUrl());
+        LOG.trace("HTTP request content: {}", request.getContent());
+
+        HttpResponse response = request.execute();
+        try {
+            LOG.debug("Received HTTP response status: {} {}", response.getStatusCode(), response.getStatusMessage());
+            return datsourceConverter.readDocument(ByteStreams.toByteArray(response.getContent()), FtepDatasource.class);
+        } finally {
+            response.disconnect();
+        }
+    }
+
+    private HttpContent getHttpContentForResourceJob(ResourceJob job) throws JsonProcessingException, IllegalAccessException {
+        byte[] bytes = resourceJobConverter.writeObject(job);
+        return new ByteArrayContent(Json.MEDIA_TYPE, bytes);
     }
 
     private static final class FtepApiUrl {
@@ -92,6 +113,13 @@ public class FtepJsonApi {
         public GenericUrl jobs() {
             GenericUrl url = new GenericUrl(baseUrl);
             url.appendRawPath(API_JOBS);
+            return url;
+        }
+
+        public GenericUrl authentication(String host) {
+            GenericUrl url = new GenericUrl(baseUrl);
+            url.appendRawPath(API_AUTHENTICATION);
+            url.appendRawPath(host);
             return url;
         }
     }

@@ -1,26 +1,53 @@
 group 'com.cgi.eoss.f-tep'
-version '0.2.0'
+version '0.3.0'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
-compileJava {
-    options.compilerArgs << "-s"
-    options.compilerArgs << "$buildDir/generated-sources"
-
-    doFirst {
-        file(new File(buildDir, "/generated-sources")).mkdirs()
+sourceSets {
+    generated {
+        java {
+            srcDirs = ["${buildDir}/generated/java"]
+        }
+    }
+    main {
+        java {
+            srcDirs += "${buildDir}/generated/java"
+        }
     }
 }
 
-clean.doLast {
-    file(new File(buildDir, "/generated-sources")).deleteDir()
+configurations {
+    querydslApt
 }
 
 dependencies {
     compileOnly deps.lombok
-    compileOnly deps.querydslApt
+
+    querydslApt deps.querydslApt
 
     compile deps.guava
     compile deps.hibernateJpa21Api
     compile deps.jsonapiConverter
+    compile deps.querydslJpa
+}
+
+task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {
+    source = sourceSets.main.java
+    classpath = configurations.compileOnly + configurations.querydslApt
+    options.compilerArgs = [
+            '-proc:only',
+            '-processor', 'com.querydsl.apt.hibernate.HibernateAnnotationProcessor'
+    ]
+    destinationDir = sourceSets.generated.java.srcDirs.iterator().next()
+}
+
+compileJava {
+    dependsOn generateQueryDSL
+}
+
+sonarqube {
+    properties {
+        property "sonar.exclusions", "target/generated/**/*"
+    }
 }

@@ -1,16 +1,16 @@
 # Configure the gateway to the F-TEP services, reverse-proxying to nodes implementing the other classes
-class ftep::proxy(
-  $enable_ssl = false,
-  $enable_sso = false,
+class ftep::proxy (
+  $enable_ssl             = false,
+  $enable_sso             = false,
 
   $context_path_geoserver = '/geoserver',
-  $context_path_webapp = '/app',
-  $context_path_wps = '/wps',
+  $context_path_webapp    = '/app',
+  $context_path_wps       = '/wps',
 
-  $tls_cert_path = '/etc/pki/tls/certs/ftep_portal.crt',
-  $tls_key_path = '/etc/pki/tls/private/ftep_portal.key',
-  $tls_cert = undef,
-  $tls_key = undef,
+  $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
+  $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
+  $tls_cert               = undef,
+  $tls_key                = undef,
 ) {
 
   require ::ftep::globals
@@ -19,13 +19,11 @@ class ftep::proxy(
 
   include ::apache::mod::proxy
 
-  apache::vhost { 'ftep-proxy':
-    port             => '80',
-    docroot          => '/var/www/html',
-    default_vhost    => true,
-    vhost_name       => '_default_',          # The default landing site should always be Drupal
-    proxy_dest       => 'http://ftep-drupal', # Drupal is always mounted at the base_url
-    proxy_pass       => [
+  $default_proxy_config = {
+    docroot    => '/var/www/html',
+    vhost_name => '_default_',          # The default landing site should always be Drupal
+    proxy_dest => 'http://ftep-drupal', # Drupal is always mounted at the base_url
+    proxy_pass => [                     # Other proxied paths:
       {
         'path' => $context_path_geoserver,
         'url'  => 'http://ftep-geoserver'
@@ -60,6 +58,24 @@ class ftep::proxy(
       owner   => 'root',
       group   => 'root',
       content => $tls_key,
+    }
+
+    apache::vhost { 'ftep-proxy':
+      port            => '443',
+      ssl             => true,
+      ssl_cert        => $tls_cert_path,
+      ssl_key         => $tls_key_path,
+      default_vhost   => true,
+      request_headers => [
+        'set X-Forwarded-Proto "https"'
+      ],
+      *               => $default_proxy_config
+    }
+  } else {
+    apache::vhost { 'ftep-proxy':
+      port          => '80',
+      default_vhost => true,
+      *             => $default_proxy_config
     }
   }
 

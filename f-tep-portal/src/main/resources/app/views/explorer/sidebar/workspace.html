@@ -51,76 +51,80 @@
 
             <section class="workspace-content">
 
-                <div class="service-field" ng-repeat="fieldDesc in serviceDescription.DataInputs.Input">
+                <form id="serviceForm" name="serviceForm">
 
-                    <div class="row checkbox-container" ng-show="fieldDesc.optional">
-                        <div class="col-md-12">
-                            <md-checkbox ng-model="optionalInputs[fieldDesc.Identifier.__text]" aria-label="Service Option"/>
-                            <span ng-click="serviceTypes.value = !serviceTypes.value">
-                                {{fieldDesc.Identifier.__text}}
-                                <i class="material-icons"
-                                   uib-tooltip="{{fieldDesc.Abstract.__text}}"
-                                   tooltip-placement="right"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                                    info
-                                </i>
-                            </span>
-                        </div>
-                    </div>
+                    <div class="service-field" ng-repeat="fieldDesc in serviceDescription.DataInputs.Input">
 
-                    <div class="input-container"
-                         ng-show="fieldDesc.optional == false || optionalInputs[fieldDesc.Identifier.__text] == true">
+                        <div class="input-container">
 
-                        <div class="row input-header" ng-hide="fieldDesc.optional">
-                            <md-subheader class="md-accent">
-                                {{fieldDesc.Identifier.__text}} - {{fieldDesc.Title.__text}}
-                            </md-subheader>
-                        </div>
+                            <div class="row input-header">
+                                <md-subheader class="md-accent">
+                                    {{fieldDesc.Identifier.__text}} - {{fieldDesc.Title.__text}}
+                                    <span ng-show="!fieldDesc.optional">*</span>
+                                <button type="button input-button"
+                                        class="btn"
+                                        ng-show="fieldDesc.Identifier.__text == 'aoi'"
+                                        ng-click="pastePolygon(fieldDesc.Identifier.__text)"
+                                        aria-label="Copy from map"
+                                        uib-tooltip="Copy from map"
+                                        tooltip-placement="right"
+                                        tooltip-trigger="mouseenter"
+                                        tooltip-append-to-body="true">
 
-                        <div class="row input-item">
-                           <div class="col-md-12">
-                                <md-input-container md-no-float>
-                                    <input ng-model="inputValues[fieldDesc.Identifier.__text]"
-                                           type="{{getInputType(fieldDesc)}}"
-                                           dnd-list="dropLists[fieldDesc.Identifier.__text]"
-                                           dnd-drop="onDrop(item, fieldDesc.Identifier.__text)">
-                                    <div class="hint" ng-show="true">{{fieldDesc.Abstract.__text}}</div>
-                                </md-input-container>
-                           </div>
-                       </div>
+                                    <i class="material-icons">input</i>
 
-                        <div class="row drop-items">
-                            <div class="col-md-12">
-
-                                <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
-                                         uib-tooltip="{{item}}"
-                                         tooltip-placement="top"
-                                         tooltip-trigger="mouseenter"
-                                         tooltip-append-to-body="true">
-                                    <div class="md-chip-content">
-                                        {{getShortName(item)}}
-                                    </div>
-                                    <div class="md-chip-close">
-                                        <i class="material-icons"
-                                           ng-click="removeSelectedItem(fieldDesc.Identifier.__text, item)">
-                                            close
-                                        </i>
-                                    </div>
-                                </md-chip>
-
+                                </button>
+                                </md-subheader>
                             </div>
+
+                            <div class="row input-item">
+                               <div class="col-md-12">
+                                    <md-input-container md-no-float>
+                                        <input ng-model="inputValues[fieldDesc.Identifier.__text]"
+                                               type="{{getInputType(fieldDesc)}}"
+                                               ng-required="!fieldDesc.optional"
+                                               dnd-list="dropLists[fieldDesc.Identifier.__text]"
+                                               dnd-drop="onDrop(item, fieldDesc.Identifier.__text)">
+                                        <div class="hint" ng-show="true">{{fieldDesc.Abstract.__text}}</div>
+                                    </md-input-container>
+                               </div>
+                           </div>
+
+                            <div class="row drop-items">
+                                <div class="col-md-12">
+
+                                    <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
+                                             uib-tooltip="{{item}}"
+                                             tooltip-placement="top"
+                                             tooltip-trigger="mouseenter"
+                                             tooltip-append-to-body="true">
+                                        <div class="md-chip-content">
+                                            {{getShortName(item)}}
+                                        </div>
+                                        <div class="md-chip-close">
+                                            <i class="material-icons"
+                                               ng-click="removeSelectedItem(fieldDesc.Identifier.__text, item)">
+                                                close
+                                            </i>
+                                        </div>
+                                    </md-chip>
+
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
 
-                </div>
+                </form>
 
                 <md-button id="launch-button"
                            class="md-icon-button md-fab md-mini btn-success"
+                           form="serviceForm"
+                           ng-disabled="serviceForm.$invalid"
                            ng-hide="isWpsLoading"
                            aria-label="Launch"
-                           ng-click="displayTab('JOB'); launchProcessing()"
+                           ng-click="displayTab('JOBS'); launchProcessing()"
                            uib-tooltip="Launch"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"

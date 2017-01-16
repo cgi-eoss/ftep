@@ -28,9 +28,19 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/VegetationIndices
             dataType = string
         </Default>
     </LiteralData>
-    [epsg]
-    Title = Target EPSG CRS identifier
-    Abstract = EPSG coordinate reference system identifier of the target product, e.g. '32635'
+    [crs]
+    Title = Target CRS identifier
+    Abstract = EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [aoi]
+    Title = Area of interest
+    Abstract = Well-known text POLYGON describing the AOI to be processed
     minOccurs = 1
     maxOccurs = 1
     <LiteralData>

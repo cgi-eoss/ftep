@@ -10,7 +10,7 @@ class ftep::db::postgresql(
   $acls = []
 
   unique([$ftep::globals::wps_hostname, $ftep::globals::drupal_hostname]).each | $host | {
-    concat($acls, "host ${db_name} ${db_username} ${host}/32 md5")
+    concat($acls, "host ${db_name} ${db_username} ${host} md5")
   }
 
   # We have to control the package version
@@ -20,6 +20,7 @@ class ftep::db::postgresql(
   }->
   class { ::postgresql::server:
     ipv4acls                   => $acls,
+    listen_addresses           => '*',
   }
   class { ::postgresql::server::postgis: }
   class { ::postgresql::server::contrib: }

@@ -6,63 +6,63 @@ import com.github.jasminb.jsonapi.annotations.Type;
 @Type("login")
 public class ResourceLogin {
 
-  @Id
-  private String id;
+    @Id
+    private String id;
 
-  // Attributes in HTTP request
-  private String user;
-  private String password;
+    // Attributes in HTTP request
+    private String user;
+    private String password;
 
-  // Attributes in response
-  private String sessionId;
-  private String sessionName;
-  private String token;
+    // Attributes in response
+    private String sessionId;
+    private String sessionName;
+    private String token;
 
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public void setUser(String user) {
-    this.user = user;
-  }
+    public void setUser(String user) {
+        this.user = user;
+    }
 
-  public String getToken() {
-    return token;
-  }
+    public String getToken() {
+        return token;
+    }
 
-  public void setToken(String token) {
-    this.token = token;
-  }
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-  public String getSessionName() {
-    return sessionName;
-  }
+    public String getSessionName() {
+        return sessionName;
+    }
 
-  public void setSessionName(String sessionName) {
-    this.sessionName = sessionName;
-  }
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
 
-  public String getSessionId() {
-    return sessionId;
-  }
+    public String getSessionId() {
+        return sessionId;
+    }
 
-  public void setSessionId(String sessionId) {
-    this.sessionId = sessionId;
-  }
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-  @Override
-  public String toString() {
-    return "Login{" + "id='" + id + '\'' + ", user='" + user + '\'' + ", sessionId=" + sessionId
-        + ", sessionName=" + sessionName + ", token=" + token + '}';
-  }
+    @Override
+    public String toString() {
+        return "Login{" + "id='" + id + '\'' + ", user='" + user + '\'' + ", sessionId=" + sessionId
+                + ", sessionName=" + sessionName + ", token=" + token + '}';
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
 }

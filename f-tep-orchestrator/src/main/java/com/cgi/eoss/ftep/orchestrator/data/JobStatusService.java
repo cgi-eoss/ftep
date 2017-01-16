@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.data;
 
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.rest.ApiEntity;
@@ -42,6 +42,16 @@ public class JobStatusService {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(apiJob.getResourceId()));
 
         api.update(apiJob);
+    }
+
+
+    public void setJobInError(ApiEntity<ResourceJob> apiJob) {
+        try {
+            apiJob.getResource().setStatus(JobStatus.ERROR.name());
+            update(apiJob);
+        } catch (Exception e) {
+            LOG.error("Unable to set job to ERROR state (swallowing exception)", e);
+        }
     }
 
 }

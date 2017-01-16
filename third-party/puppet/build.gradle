@@ -32,7 +32,7 @@ tasks.addRule("Pattern: collectSources_<ID>") { String taskName ->
             def module = (taskName - 'collectSources_')
 
             def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
-            def moduleShortName = ((String)moduleMetadata.name).split('[-/]')[1]
+            def moduleShortName = ((String) moduleMetadata.name).split('[-/]')[1]
             def targetDir = "${buildDir}/modules/${moduleShortName}"
 
             def srcs = fileTree(module) {
@@ -65,32 +65,41 @@ tasks.addRule("Pattern: buildModule_<ID>") { String taskName ->
             def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
 
             // Configure the tar task
-            baseName = moduleMetadata.name
+            baseName = moduleMetadata.name.replaceAll('/', '-')
             version = moduleMetadata.version
             compression = Compression.GZIP
             extension = 'tar.gz'
             from srcTask
-            into "${moduleMetadata.name}-${version}"
+            into "${moduleMetadata.name.replaceAll('/', '-')}-${version}"
         }
     }
 }
 
 def genChecksumsTask(String module, File checksumsFile, FileTree srcs) {
-    return tasks.create("genChecksums_${module}") {
-        TreeMap checksums = [:]
-        srcs.visit { e ->
-            if (!e.isDirectory) {
-                def hash = java.security.MessageDigest.getInstance('MD5').with {
-                    e.file.eachByte(8192) { byte[] bfr, int len ->
-                        update bfr, 0, len
+    return tasks.create("genChecksums_${module}", SourceTask) {
+        mustRunAfter clean
+
+        source srcs
+        outputs.dir checksumsFile.parent
+        outputs.file checksumsFile
+
+        doLast {
+            TreeMap checksums = [:]
+            srcs.visit { e ->
+                if (!e.isDirectory) {
+                    def hash = java.security.MessageDigest.getInstance('MD5').with {
+                        e.file.eachByte(8192) { byte[] bfr, int len ->
+                            update bfr, 0, len
+                        }
+                        it.digest()
                     }
-                    it.digest()
+                    checksums.put(e.relativePath.toString(), new BigInteger(1, hash).toString(16).padLeft(32, '0'))
                 }
-                checksums.put(e.relativePath.toString(), new BigInteger(1, hash).toString(16).padLeft(32, '0'))
             }
+            checksums.sort
+            checksumsFile.parentFile.mkdirs()
+            checksumsFile.write(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(checksums)))
         }
-        checksums.sort
-        checksumsFile.write(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(checksums)))
     }
 }
 

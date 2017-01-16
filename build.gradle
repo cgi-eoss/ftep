@@ -2,7 +2,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 group 'com.cgi.eoss.f-tep'
-version '0.2.0'
+version '0.3.0'
 
 // This pattern allows us to override the URLs from init.gradle or gradle.properties
 ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://repo1.maven.org/maven2'
@@ -41,6 +41,9 @@ buildscript {
     }
 }
 
+apply plugin: "org.sonarqube"
+
+
 def depVersions = [
         awaitility       : '2.0.0',
         commonsIo        : '2.5',
@@ -65,7 +68,9 @@ def depVersions = [
         junit            : '4.12',
         logback          : '1.1.7',
         lombok           : '1.16.10',
+        mockFtpServer    : '2.7.1',
         mockito          : '2.2.26',
+        okHttp           : '3.5.0',
         protoc           : '3.1.0-build2',
         querydsl         : '4.1.4',
         selenium         : '2.53.1',
@@ -74,8 +79,7 @@ def depVersions = [
         springDataCommons: '1.12.5.RELEASE',
         springDataJpa    : '1.10.5.RELEASE',
         springBoot       : '1.4.2.RELEASE',
-        testContainers   : '1.1.7',
-        wget             : '1.4.3'
+        testContainers   : '1.1.7'
 ]
 
 ext.deps = [
@@ -104,6 +108,7 @@ ext.deps = [
         jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
         logbackClassic         : 'ch.qos.logback:logback-classic:' + depVersions.logback,
         lombok                 : 'org.projectlombok:lombok:' + depVersions.lombok,
+        okHttp                 : 'com.squareup.okhttp3:okhttp:' + depVersions.okHttp,
         protoc                 : 'com.google.protobuf:protoc:' + depVersions.protoc,
         protocGenGrpcJava      : 'io.grpc:protoc-gen-grpc-java:' + depVersions.grpc,
         querydslApt            : [
@@ -119,11 +124,12 @@ ext.deps = [
         springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
         springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
         springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
-        wget                   : 'com.github.axet:wget:' + depVersions.wget,
 
         awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
         hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
         hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
+        mockFtpServer          : 'org.mockftpserver:MockFtpServer:' + depVersions.mockFtpServer,
+        mockWebServer          : 'com.squareup.okhttp3:mockwebserver:' + depVersions.okHttp,
         mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,
         junit                  : 'junit:junit:' + depVersions.junit,
         selenium               : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
@@ -137,12 +143,4 @@ static def getRpmVersion(version) {
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
             release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
     ]
-}
-
-apply plugin: "org.sonarqube"
-
-sonarqube {
-    properties {
-        property "sonar.jacoco.reportMissing.force.zero", true
-    }
 }

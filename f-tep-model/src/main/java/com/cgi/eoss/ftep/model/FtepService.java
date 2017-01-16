@@ -1,6 +1,15 @@
 package com.cgi.eoss.ftep.model;
 
-import javax.persistence.CascadeType;
+import com.cgi.eoss.ftep.model.enums.AccessLevel;
+import com.cgi.eoss.ftep.model.enums.ModeType;
+import com.cgi.eoss.ftep.model.enums.ServiceLicence;
+import com.cgi.eoss.ftep.model.enums.ServiceStatus;
+import com.cgi.eoss.ftep.model.enums.ServiceType;
+import com.google.common.collect.ComparisonChain;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,17 +23,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import com.cgi.eoss.ftep.model.enums.AccessLevel;
-import com.cgi.eoss.ftep.model.enums.ModeType;
-import com.cgi.eoss.ftep.model.enums.ServiceLicence;
-import com.cgi.eoss.ftep.model.enums.ServiceStatus;
-import com.cgi.eoss.ftep.model.enums.ServiceType;
-import com.google.common.collect.ComparisonChain;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 /**
  * <p>F-TEP service definition for a defined processing workflow or GUI application. This should correspond to a service
@@ -69,7 +67,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
     /**
      * <p>The mode of the service, e.g. 'sscale' or 'bulk'.</p>
      */
-    @Column(name="mode", nullable = false)
+    @Column(name = "mode", nullable = false)
     @Enumerated(EnumType.STRING)
     private ModeType mode = ModeType.SSCALE;
 
@@ -82,7 +80,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
     /**
      * <p>The user owning the service, typically the service creator.</p>
      */
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private FtepUser owner;
 

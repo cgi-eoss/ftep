@@ -110,13 +110,13 @@ define(['../ftepmodules'], function (ftepmodules) {
         defaultStartTime.setMonth(defaultStartTime.getMonth() - 12);
 
         this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: undefined, 
-                text: undefined, pageNumber: 1, mission: undefined, polarisation: undefined, maxCloudCover: undefined};
+                text: undefined, pageNumber: 1, mission: undefined, polarisation: undefined, maxCloudCover: 5}; //default value of 5% for max cloudiness
 
         this.resetSearchParameters = function(){
             var pageCopy = this.parameters.pageNumber;
             var polygonCopy = this.parameters.polygon;
             this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: polygonCopy, 
-                    text: undefined, pageNumber: pageCopy, mission: undefined, polarisation: undefined, maxCloudCover: undefined};
+                    text: undefined, pageNumber: pageCopy, mission: undefined, polarisation: undefined, maxCloudCover: 5};
             return this.parameters;
         }
 

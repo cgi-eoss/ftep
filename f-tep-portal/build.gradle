@@ -182,6 +182,7 @@ artifacts {
 
 sonarqube {
     properties {
+        property "sonar.sources", "src/main/resources/app"
         property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*,src/main/resources/app/scripts/zoo-client/**/*"
     }
 }

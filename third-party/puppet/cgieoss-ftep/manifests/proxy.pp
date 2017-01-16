@@ -25,8 +25,8 @@ class ftep::proxy (
     proxy_dest => 'http://ftep-drupal', # Drupal is always mounted at the base_url
   }
 
-  # Directory/Location directives
-  $default_directories = [ ]
+  # Directory/Location directives - cannot be an empty array...
+  $default_directories = undef
 
   # Reverse proxied paths
   $default_proxy_pass = [
@@ -52,7 +52,7 @@ class ftep::proxy (
     contain ::ftep::proxy::shibboleth
 
     # Add the /Shibboleth.sso SP callback location and secured paths
-    $directories = concat($default_directories, [
+    $directories = [
       {
         'provider'   => 'location',
         'path'       => '/Shibboleth.sso',
@@ -76,7 +76,7 @@ class ftep::proxy (
         'custom_fragment'       => 'ShibCompatWith24 On',
         'auth_require'          => 'shib-session',
       }
-    ])
+    ]
 
     # Insert the callback location at the start of the reverse proxy list
     $proxy_pass = concat([{

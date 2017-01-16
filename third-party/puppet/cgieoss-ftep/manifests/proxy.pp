@@ -21,22 +21,72 @@ class ftep::proxy (
 
   $default_proxy_config = {
     docroot    => '/var/www/html',
-    vhost_name => '_default_',          # The default landing site should always be Drupal
+    vhost_name => '_default_', # The default landing site should always be Drupal
     proxy_dest => 'http://ftep-drupal', # Drupal is always mounted at the base_url
-    proxy_pass => [                     # Other proxied paths:
+  }
+
+  # Directory/Location directives
+  $default_directories = [ ]
+
+  # Reverse proxied paths
+  $default_proxy_pass = [
+    {
+      'path' => $context_path_geoserver,
+      'url'  => 'http://ftep-geoserver'
+    },
+    {
+      'path' => $context_path_webapp,
+      'url'  => 'http://ftep-webapp'
+    },
+    {
+      'path' => $context_path_wps,
+      'url'  => 'http://ftep-wps'
+    },
+  ]
+
+
+  if $enable_sso {
+    unless ($tls_cert and $tls_key) {
+      fail("ftep::proxy requres \$tls_cert and \$tls_key to be set if \$enable_sso is true")
+    }
+    contain ::ftep::proxy::shibboleth
+
+    # Add the /Shibboleth.sso SP callback location and secured paths
+    $directories = concat($default_directories, [
       {
-        'path' => $context_path_geoserver,
-        'url'  => 'http://ftep-geoserver'
+        'provider'   => 'location',
+        'path'       => '/Shibboleth.sso',
+        'sethandler' => 'shib'
       },
       {
-        'path' => $context_path_webapp,
-        'url'  => 'http://ftep-webapp'
+        'provider'              => 'location',
+        'path'                  => $context_path_webapp,
+        'auth_type'             => 'shibboleth',
+        'shib_use_headers'      => 'On',
+        'shib_request_settings' => { 'requireSession' => '1' },
+        'custom_fragment'       => 'ShibCompatWith24 On',
+        'auth_require'          => 'shib-session',
       },
       {
-        'path' => $context_path_wps,
-        'url'  => 'http://ftep-wps'
-      },
-    ],
+        'provider'              => 'location',
+        'path'                  => '/secure',
+        'auth_type'             => 'shibboleth',
+        'shib_use_headers'      => 'On',
+        'shib_request_settings' => { 'requireSession' => '1' },
+        'custom_fragment'       => 'ShibCompatWith24 On',
+        'auth_require'          => 'shib-session',
+      }
+    ])
+
+    # Insert the callback location at the start of the reverse proxy list
+    $proxy_pass = concat([{
+      'path'         => '/Shibboleth.sso',
+      'url'          => '!',
+      'reverse_urls' => []
+    }], $default_proxy_pass)
+  } else {
+    $directories = $default_directories
+    $proxy_pass = $default_proxy_pass
   }
 
   if $enable_ssl {
@@ -69,18 +119,18 @@ class ftep::proxy (
       request_headers => [
         'set X-Forwarded-Proto "https"'
       ],
+      directories     => $directories,
+      proxy_pass      => $proxy_pass,
       *               => $default_proxy_config
     }
   } else {
     apache::vhost { 'ftep-proxy':
       port          => '80',
       default_vhost => true,
+      directories   => $directories,
+      proxy_pass    => $proxy_pass,
       *             => $default_proxy_config
     }
-  }
-
-  if $enable_sso {
-    contain ::ftep::proxy::shibboleth
   }
 
 }

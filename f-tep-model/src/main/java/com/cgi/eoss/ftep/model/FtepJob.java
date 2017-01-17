@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -78,7 +80,14 @@ public class FtepJob implements FtepEntity<FtepJob> {
      * Short description of current activity of the job
      */
     @Column(name = "step", nullable = false)
-    private String step;
+    private String step = JobStep.CREATED.getText();
+
+    /**
+     * Short description of current status of the job
+     */
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private JobStatus status = JobStatus.CREATED;
 
     /**
      * Create a new FtepJob instance with the minimum required parameters
@@ -86,17 +95,16 @@ public class FtepJob implements FtepEntity<FtepJob> {
      * @param jobId The job ID as assigned by the WPS server
      * @param owner The user who owns the job
      * @param service The service this job is running on
-     * @param step Short description of current activity of the job
      */
-    public FtepJob(String jobId, FtepUser owner, FtepService service, String step) {
+    public FtepJob(String jobId, FtepUser owner, FtepService service) {
         this.jobId = jobId;
         this.owner = owner;
         this.service = service;
-        this.step = step;
     }
 
     @Override
     public int compareTo(FtepJob o) {
         return ComparisonChain.start().compare(jobId, o.jobId).result();
     }
+
 }

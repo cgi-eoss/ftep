@@ -4,20 +4,18 @@ import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QFtepService.ftepService;
+
 @Service
 @Transactional(readOnly = true)
 public class JpaServiceDataService extends AbstractJpaDataService<FtepService> implements ServiceDataService {
-
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact)
-            .withMatcher("owner", ExampleMatcher.GenericPropertyMatcher::exact);
 
     private final FtepServiceDao ftepServiceDao;
 
@@ -32,8 +30,8 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepService entity) {
+        return ftepService.name.eq(entity.getName()).and(ftepService.owner.eq(entity.getOwner()));
     }
 
     @Override
@@ -44,6 +42,11 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     @Override
     public List<FtepService> findByOwner(FtepUser user) {
         return ftepServiceDao.findByOwner(user);
+    }
+
+    @Override
+    public FtepService getByName(String serviceName) {
+        return ftepServiceDao.findOne(ftepService.name.eq(serviceName));
     }
 
 }

@@ -3,19 +3,18 @@ package com.cgi.eoss.ftep.persistence.service;
 import com.cgi.eoss.ftep.model.FtepDatasource;
 import com.cgi.eoss.ftep.persistence.dao.FtepDatasourceDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QFtepDatasource.ftepDatasource;
+
 @Service
 @Transactional(readOnly = true)
 public class JpaDatasourceDataService extends AbstractJpaDataService<FtepDatasource> implements DatasourceDataService {
-
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact);
 
     private final FtepDatasourceDao ftepDatasourceDao;
 
@@ -30,8 +29,8 @@ public class JpaDatasourceDataService extends AbstractJpaDataService<FtepDatasou
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepDatasource entity) {
+        return ftepDatasource.name.eq(entity.getName());
     }
 
     @Override

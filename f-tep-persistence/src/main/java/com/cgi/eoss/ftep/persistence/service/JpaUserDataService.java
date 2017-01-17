@@ -3,12 +3,15 @@ package com.cgi.eoss.ftep.persistence.service;
 import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepUserDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.cgi.eoss.ftep.model.QFtepUser.ftepUser;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,8 +33,8 @@ public class JpaUserDataService extends AbstractJpaDataService<FtepUser> impleme
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepUser entity) {
+        return ftepUser.name.eq(entity.getName());
     }
 
     @Override
@@ -39,4 +42,8 @@ public class JpaUserDataService extends AbstractJpaDataService<FtepUser> impleme
         return ftepUserDao.findByNameContainingIgnoreCase(term);
     }
 
+    @Override
+    public FtepUser getByName(String name) {
+        return ftepUserDao.findOne(ftepUser.name.eq(name));
+    }
 }

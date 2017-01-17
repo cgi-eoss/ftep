@@ -5,4 +5,5 @@ import com.cgi.eoss.ftep.model.FtepUser;
 public interface UserDataService extends
         FtepEntityDataService<FtepUser>,
         SearchableDataService<FtepUser> {
+    FtepUser getByName(String name);
 }

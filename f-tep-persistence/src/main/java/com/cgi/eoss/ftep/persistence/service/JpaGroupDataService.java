@@ -4,20 +4,18 @@ import com.cgi.eoss.ftep.model.FtepGroup;
 import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepGroupDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QFtepGroup.ftepGroup;
+
 @Service
 @Transactional(readOnly = true)
 public class JpaGroupDataService extends AbstractJpaDataService<FtepGroup> implements GroupDataService {
-
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact)
-            .withMatcher("owner", ExampleMatcher.GenericPropertyMatcher::exact);
 
     private final FtepGroupDao ftepGroupDao;
 
@@ -32,8 +30,8 @@ public class JpaGroupDataService extends AbstractJpaDataService<FtepGroup> imple
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepGroup entity) {
+        return ftepGroup.name.eq(entity.getName()).and(ftepGroup.owner.eq(entity.getOwner()));
     }
 
     @Override

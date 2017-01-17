@@ -4,20 +4,18 @@ import com.cgi.eoss.ftep.model.FtepProject;
 import com.cgi.eoss.ftep.model.FtepUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepProjectDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QFtepProject.ftepProject;
+
 @Service
 @Transactional(readOnly = true)
 public class JpaProjectDataService extends AbstractJpaDataService<FtepProject> implements ProjectDataService {
-
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact)
-            .withMatcher("owner", ExampleMatcher.GenericPropertyMatcher::exact);
 
     private final FtepProjectDao ftepProjectDao;
 
@@ -32,8 +30,8 @@ public class JpaProjectDataService extends AbstractJpaDataService<FtepProject> i
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepProject entity) {
+        return ftepProject.name.eq(entity.getName()).and(ftepProject.owner.eq(entity.getOwner()));
     }
 
     @Override

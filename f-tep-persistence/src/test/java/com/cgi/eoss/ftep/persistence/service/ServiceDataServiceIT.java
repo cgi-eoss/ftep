@@ -47,6 +47,7 @@ public class ServiceDataServiceIT {
         assertThat(dataService.search("serv"), is(ImmutableList.of(svc)));
         assertThat(dataService.findByOwner(owner), is(ImmutableList.of(svc)));
         assertThat(dataService.findByOwner(owner2), is(ImmutableList.of()));
+        assertThat(dataService.getByName("Test Service"), is(svc));
     }
 
 }

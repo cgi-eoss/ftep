@@ -3,19 +3,18 @@ package com.cgi.eoss.ftep.persistence.service;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QFtepFile.ftepFile;
+
 @Service
 @Transactional(readOnly = true)
 public class JpaFileDataService extends AbstractJpaDataService<FtepFile> implements FileDataService {
-
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact);
 
     private final FtepFileDao ftepFileDao;
 
@@ -30,8 +29,8 @@ public class JpaFileDataService extends AbstractJpaDataService<FtepFile> impleme
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(FtepFile entity) {
+        return ftepFile.name.eq(entity.getName());
     }
 
     @Override

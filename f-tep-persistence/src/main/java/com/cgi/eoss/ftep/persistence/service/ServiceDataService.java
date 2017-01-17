@@ -9,4 +9,6 @@ public interface ServiceDataService extends
         FtepEntityDataService<FtepService>,
         SearchableDataService<FtepService> {
     List<FtepService> findByOwner(FtepUser user);
+
+    FtepService getByName(String serviceName);
 }

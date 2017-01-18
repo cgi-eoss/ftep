@@ -5,8 +5,11 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
+    compileOnly deps.lombok
+
     compile project(':f-tep-model')
 
+    compile deps.gson
     compile deps.guava
     compile deps.hibernateCore
     compile deps.hibernateEntityManager

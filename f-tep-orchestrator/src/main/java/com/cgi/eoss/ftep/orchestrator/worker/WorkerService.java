@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
 /**
  * <p>Provides access to F-TEP worker nodes.</p>

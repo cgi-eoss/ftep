@@ -22,11 +22,13 @@ dependencies {
     compile deps.springBootAutoconfigure
 
     testCompile deps.hamcrestJunit
+    testCompile deps.hsqldb
     testCompile deps.jimfs
     testCompile deps.junit
     testCompile deps.mockFtpServer
     testCompile deps.mockWebServer
     testCompile deps.mockito
+    testCompile deps.springTest
 
     testRuntime deps.logbackClassic
 }

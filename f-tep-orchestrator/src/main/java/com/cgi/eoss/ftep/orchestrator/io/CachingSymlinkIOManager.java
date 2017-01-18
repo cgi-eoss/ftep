@@ -7,6 +7,8 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,11 +22,13 @@ import static org.awaitility.Duration.ONE_SECOND;
 import static org.awaitility.Duration.TEN_MINUTES;
 
 @Slf4j
+@Service("cachingSymlinkIOManager")
 public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final HashFunction HASH_FUNCTION = Hashing.sha1();
 
     private final LoadingCache<URI, Path> loadingCache;
 
+    @Autowired
     public CachingSymlinkIOManager(Path cacheRoot, DownloaderFactory downloaderFactory) {
         this.loadingCache = CacheBuilder.newBuilder()
                 .concurrencyLevel(1)

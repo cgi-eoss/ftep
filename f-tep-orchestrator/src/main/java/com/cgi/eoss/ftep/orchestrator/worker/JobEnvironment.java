@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
 import lombok.Builder;
 import lombok.Data;

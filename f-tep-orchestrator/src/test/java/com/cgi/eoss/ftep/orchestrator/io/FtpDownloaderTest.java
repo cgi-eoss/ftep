@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
 import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 public class FtpDownloaderTest {
 
     @Mock
-    private CredentialsDataService credentialsDataService;
+    private DatasourceDataService datasourceDataService;
 
     private Path targetPath;
 
@@ -53,14 +53,14 @@ public class FtpDownloaderTest {
         this.ftpServer = buildFakeFtpServer();
         this.ftpServer.start();
 
-        this.dl = new FtpDownloader(credentialsDataService);
+        this.dl = new FtpDownloader(datasourceDataService);
     }
 
     @Test
     public void test() throws Exception {
         String ftpHost = "localhost:" + ftpServer.getServerControlPort();
 
-        when(credentialsDataService.getCredentials(any())).thenReturn(Credentials.builder()
+        when(datasourceDataService.getCredentials(any())).thenReturn(Credentials.builder()
                 .username("ftpuser")
                 .password("ftppass")
                 .build());

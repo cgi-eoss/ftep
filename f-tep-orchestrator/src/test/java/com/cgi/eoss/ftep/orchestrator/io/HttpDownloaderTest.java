@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
 import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 public class HttpDownloaderTest {
     @Mock
-    private CredentialsDataService credentialsDataService;
+    private DatasourceDataService datasourceDataService;
 
     private Path targetPath;
 
@@ -51,7 +51,7 @@ public class HttpDownloaderTest {
         this.webServer = buildFakeWebServer();
         this.webServer.start();
 
-        this.dl = new HttpDownloader(credentialsDataService);
+        this.dl = new HttpDownloader(datasourceDataService);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class HttpDownloaderTest {
         webServer.enqueue(new MockResponse().setResponseCode(401));
         webServer.enqueue(new MockResponse().setBody(new Buffer().readFrom(testFileIs)));
 
-        when(credentialsDataService.getCredentials(any())).thenReturn(Credentials.builder()
+        when(datasourceDataService.getCredentials(any())).thenReturn(Credentials.builder()
                 .username("httpuser")
                 .password("httppass")
                 .build());

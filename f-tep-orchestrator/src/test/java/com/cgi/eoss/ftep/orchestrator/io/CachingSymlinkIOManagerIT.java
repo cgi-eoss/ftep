@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
 import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 public class CachingSymlinkIOManagerIT {
     @Mock
-    private CredentialsDataService credentialsDataService;
+    private DatasourceDataService datasourceDataService;
 
     private FakeFtpServer ftpServer;
 
@@ -65,7 +65,7 @@ public class CachingSymlinkIOManagerIT {
         Files.createDirectories(cacheDir);
         Files.createDirectories(workDir);
 
-        when(credentialsDataService.getCredentials(any())).thenReturn(
+        when(datasourceDataService.getCredentials(any())).thenReturn(
                 Credentials.builder().username("ftepuser").password("fteppass").build());
 
         ftpServer = buildFtpServer();
@@ -73,7 +73,7 @@ public class CachingSymlinkIOManagerIT {
         webServer = buildWebServer();
         webServer.start();
 
-        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(credentialsDataService));
+        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(datasourceDataService));
     }
 
     @Test

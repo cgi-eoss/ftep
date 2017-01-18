@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
 import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import com.github.dockerjava.api.DockerClient;
@@ -6,6 +6,8 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 
@@ -13,6 +15,7 @@ import java.io.File;
  * <p>Provides control and access of worker nodes, i.e. machines where F-TEP services may be executed.</p>
  * <p>Injects required local and remote services to the workers.</p>
  */
+@Service("manualWorkerService")
 @Slf4j
 public class ManualWorkerService implements WorkerService {
 
@@ -30,6 +33,7 @@ public class ManualWorkerService implements WorkerService {
         this(null, null);
     }
 
+    @Autowired
     public ManualWorkerService(JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;

@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
 import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import org.junit.Before;

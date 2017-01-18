@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepDatasource;
+import com.cgi.eoss.ftep.model.internal.Credentials;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -28,7 +29,7 @@ public class DatasourceDataServiceIT {
         FtepDatasource datasource = new FtepDatasource(
                 "Test Datasource",
                 "template",
-                "dowloadDomain",
+                "downloadDomain",
                 "credentialsData");
         dataService.save(datasource);
 
@@ -39,16 +40,59 @@ public class DatasourceDataServiceIT {
         assertThat(dataService.isUniqueAndValid(new FtepDatasource(
                 "Test Datasource",
                 "template",
-                "dowloadDomain",
+                "downloadDomain",
                 "credentialsData")), is(false));
         assertThat(dataService.isUniqueAndValid(new FtepDatasource(
                 "Test Datasource2",
                 "template",
-                "dowloadDomain",
+                "downloadDomain",
                 "credentialsData")), is(true));
 
         assertThat(dataService.search("datas"), is(ImmutableList.of(datasource)));
+    }
 
+    @Test
+    public void testGetEmptyCredentials() throws Exception {
+        FtepDatasource datasource = new FtepDatasource(
+                "Test Datasource",
+                "template",
+                "example.com",
+                "");
+        dataService.save(datasource);
+
+        Credentials credentials = dataService.getCredentials("example.com");
+        assertThat(credentials.isBasicAuth(), is(false));
+    }
+
+    @Test
+    public void testGetPlainCredentials() throws Exception {
+        FtepDatasource datasource = new FtepDatasource(
+                "Test Datasource",
+                "template",
+                "example.com",
+                "{\"user\":\"user\",\"password\":\"pass\"}");
+        datasource.setPolicy("credentials");
+        dataService.save(datasource);
+
+        Credentials credentials = dataService.getCredentials("example.com");
+        assertThat(credentials.isBasicAuth(), is(true));
+        assertThat(credentials.getUsername(), is("user"));
+        assertThat(credentials.getPassword(), is("pass"));
+    }
+
+    @Test
+    public void testGetCertificateCredentials() throws Exception {
+        FtepDatasource datasource = new FtepDatasource(
+                "Test Datasource",
+                "template",
+                "example.com",
+                "{\"certpath\":\"/path/to/cert\"}");
+        datasource.setPolicy("x509");
+        dataService.save(datasource);
+
+        Credentials credentials = dataService.getCredentials("example.com");
+        assertThat(credentials.isBasicAuth(), is(false));
+        assertThat(credentials.getCertificate(), is("/path/to/cert"));
     }
 
 }

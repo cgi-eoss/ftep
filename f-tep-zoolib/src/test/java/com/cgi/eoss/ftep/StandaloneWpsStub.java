@@ -2,7 +2,8 @@ package com.cgi.eoss.ftep;
 
 import com.cgi.eoss.ftep.wps.StandaloneOrchestrator;
 import com.cgi.eoss.ftep.wps.WpsServicesClient;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +22,14 @@ public final class StandaloneWpsStub {
 
             LOG.info("Calling service StandaloneWpsStub");
 
-            String outputUrl = client.launchApplication(
+            Multimap<String, String> serviceOutputs = client.launchService(
                     "testJob",
-                    "testApp",
                     "testUser",
                     "testService",
-                    ImmutableList.of("ftep://INPUT_FILE"),
-                    1);
+                    ImmutableMultimap.of("input", "ftep://INPUT_FILE",
+                            "timeout", "1"));
+
+            outputs.putAll(serviceOutputs.asMap());
 
             return 3;
         } catch (Exception e) {

@@ -1,29 +1,43 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
 import com.google.common.collect.Multimap;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
-
 /**
  * <p>Service to manage working environments for WPS job instances, including directory handling.</p>
  */
+@Service
 @Slf4j
 public class JobEnvironmentService {
 
-    private static final Path DEFAULT_BASEDIR = Paths.get("/data/cache");
     private static final String JOB_CONFIG_FILENAME = "FTEP-WPS-INPUT.properties";
     private static final String WORKING_DIR_PREFIX = "Job_";
     private static final String INPUT_DIR = "inDir";
     private static final String OUTPUT_DIR = "outDir";
+
+    @Getter
+    private final Path baseDir;
+
+    /**
+     * <p>Construct a new JobEnvironmentService which manages job workspaces in the given base directory.</p>
+     *
+     * @param jobEnvironmentRoot The absolute path to the job workspace parent directory.
+     */
+    @Autowired
+    public JobEnvironmentService(Path jobEnvironmentRoot) {
+        this.baseDir = jobEnvironmentRoot;
+    }
 
     /**
      * <p>Create a new job environment. If the jobConfig map is not empty, a job configuration file is created in the
@@ -52,11 +66,6 @@ public class JobEnvironmentService {
         return environment;
     }
 
-    // TODO Make this configurable
-    public Path getBasedir() {
-        return DEFAULT_BASEDIR;
-    }
-
     /**
      * <p>Create a new job environment with the required workspace directories.</p>
      *
@@ -64,7 +73,7 @@ public class JobEnvironmentService {
      * @return The created environment.
      */
     private JobEnvironment createEnvironment(String jobId) throws IOException {
-        Path workingDir = getBasedir().resolve(WORKING_DIR_PREFIX + jobId);
+        Path workingDir = baseDir.resolve(WORKING_DIR_PREFIX + jobId);
         Path inputDir = workingDir.resolve(INPUT_DIR);
         Path outputDir = workingDir.resolve(OUTPUT_DIR);
 

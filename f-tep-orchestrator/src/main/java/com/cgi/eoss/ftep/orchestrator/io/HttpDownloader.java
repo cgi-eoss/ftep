@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
 import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
 import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Authenticator;
@@ -30,9 +30,9 @@ public class HttpDownloader implements Downloader {
 
     private final OkHttpClient client;
 
-    HttpDownloader(CredentialsDataService credentialsDataService) {
+    HttpDownloader(DatasourceDataService datasourceDataService) {
         this.client = new OkHttpClient.Builder()
-                .authenticator(new FtepAuthenticator(credentialsDataService))
+                .authenticator(new FtepAuthenticator(datasourceDataService))
                 .build();
     }
 
@@ -70,10 +70,10 @@ public class HttpDownloader implements Downloader {
 
     private static final class FtepAuthenticator implements Authenticator {
         private static final int MAX_RETRIES = 3;
-        private final CredentialsDataService credentialsDataService;
+        private final DatasourceDataService datasourceDataService;
 
-        private FtepAuthenticator(CredentialsDataService credentialsDataService) {
-            this.credentialsDataService = credentialsDataService;
+        private FtepAuthenticator(DatasourceDataService datasourceDataService) {
+            this.datasourceDataService = datasourceDataService;
         }
 
         @Override
@@ -85,7 +85,7 @@ public class HttpDownloader implements Downloader {
                 return null;
             }
 
-            Credentials creds = credentialsDataService.getCredentials(url.host());
+            Credentials creds = datasourceDataService.getCredentials(url.host());
 
             if (creds.isBasicAuth()) {
                 String credHeader = okhttp3.Credentials.basic(creds.getUsername(), creds.getPassword());

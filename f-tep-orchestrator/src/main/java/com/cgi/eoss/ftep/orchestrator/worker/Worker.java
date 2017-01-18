@@ -1,5 +1,6 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.worker;
 
+import com.cgi.eoss.ftep.orchestrator.DockerLaunchConfig;
 import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;

@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
-import com.cgi.eoss.ftep.orchestrator.data.CredentialsDataService;
+import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
 import com.google.api.client.util.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.util.Map;
@@ -10,15 +12,17 @@ import java.util.Map;
  * <p>Factory to produce instances of {@link Downloader} for different URIs. The specific implementations returned may
  * differ depending on configuration, allowing environment-specific handling of a given URI.</p>
  */
+@Service
 public class DownloaderFactory {
 
     // TODO Make these handlers configurable for different environments, and allow priority loading
     private final Map<String, Downloader> downloaders = Maps.newHashMap();
 
-    public DownloaderFactory(CredentialsDataService credentialsDataService) {
+    @Autowired
+    public DownloaderFactory(DatasourceDataService datasourceDataService) {
         FtepDownloader ftepDownloader = new FtepDownloader();
-        FtpDownloader ftpDownloader = new FtpDownloader(credentialsDataService);
-        HttpDownloader httpDownloader = new HttpDownloader(credentialsDataService);
+        FtpDownloader ftpDownloader = new FtpDownloader(datasourceDataService);
+        HttpDownloader httpDownloader = new HttpDownloader(datasourceDataService);
         S2CEDADownloader s2CEDADownloader = new S2CEDADownloader(ftpDownloader);
 
         registerDownloader("ftep", ftepDownloader);

@@ -1,15 +1,14 @@
 package com.cgi.eoss.ftep.wps;
 
-import com.cgi.eoss.ftep.model.enums.ServiceType;
-import com.cgi.eoss.ftep.model.rest.ApiEntity;
-import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.orchestrator.data.FtepJsonApi;
-import com.cgi.eoss.ftep.orchestrator.JobEnvironmentService;
-import com.cgi.eoss.ftep.orchestrator.data.JobStatusService;
-import com.cgi.eoss.ftep.orchestrator.ManualWorkerService;
-import com.cgi.eoss.ftep.orchestrator.ProcessorLauncher;
-import com.cgi.eoss.ftep.orchestrator.data.ServiceDataService;
+import com.cgi.eoss.ftep.model.FtepJob;
+import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.orchestrator.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.orchestrator.worker.JobEnvironmentService;
+import com.cgi.eoss.ftep.orchestrator.worker.ManualWorkerService;
+import com.cgi.eoss.ftep.orchestrator.worker.WorkerFactory;
+import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -19,10 +18,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -34,6 +31,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,28 +41,10 @@ import static org.mockito.Mockito.when;
  */
 public class WpsServicesClientIT {
     private static final String RPC_SERVER_NAME = WpsServicesClientIT.class.getName();
-    public static final String TEST_CONTAINER_IMAGE = "hello-world:latest";
+    private static final String TEST_CONTAINER_IMAGE = "hello-world:latest";
 
     @Mock
-    private FtepJsonApi api;
-
-    @Mock
-    private ServiceInputOutputManager inputOutputManager;
-
-    @Spy
-    private JobEnvironmentService jobEnvironmentService;
-
-    @Spy
-    @InjectMocks
-    private ManualWorkerService workerService;
-
-    @Spy
-    @InjectMocks
-    private JobStatusService jobStatusService;
-
-    @Spy
-    @InjectMocks
-    private ServiceDataService serviceDataService;
+    private JobDataService jobDataService;
 
     private FileSystem fs;
 
@@ -77,30 +58,31 @@ public class WpsServicesClientIT {
 
         MockitoAnnotations.initMocks(this);
 
-        ProcessorLauncher processorLauncher = new ProcessorLauncher(workerService, jobStatusService, serviceDataService);
-
         this.fs = Jimfs.newFileSystem(Configuration.unix());
-
-        when(jobEnvironmentService.getBasedir()).thenReturn(fs.getPath("/tmp/ftep_data"));
         Files.createDirectories(fs.getPath("/tmp/ftep_data"));
 
-        StandaloneOrchestrator.resetServices(ImmutableSet.of(processorLauncher));
+        JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(fs.getPath("/tmp/ftep_data")));
+        ServiceInputOutputManager ioManager = mock(ServiceInputOutputManager.class);
+        ManualWorkerService manualWorkerService = new ManualWorkerService(jobEnvironmentService, ioManager);
+
+        WorkerFactory workerFactory = new WorkerFactory(manualWorkerService);
+
+        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService);
+
+        StandaloneOrchestrator.resetServices(ImmutableSet.of(ftepServiceLauncher));
         StandaloneOrchestrator orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
         wpsServicesClient = new WpsServicesClient(orchestrator.getChannelBuilder());
 
-        serviceDataService.registerService("serviceId", TEST_CONTAINER_IMAGE, ServiceType.PROCESSOR);
-
         // Ensure the test image is available before testing
-        workerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
+        manualWorkerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
     }
 
     @Test
     public void launchProcessor() throws Exception {
-        when(api.insert(any())).thenAnswer(invocation -> ApiEntity.<ResourceJob>builder()
-                .resource(invocation.getArgument(0))
-                .resourceEndpoint("http://example.com/api/v1.0/jobs")
-                .resourceId("1")
-                .build());
+        FtepService service = mock(FtepService.class);
+        when(service.getDescription()).thenReturn(TEST_CONTAINER_IMAGE);
+        when(jobDataService.buildNew(any(), any(), any())).thenAnswer(invocation ->
+                new FtepJob(invocation.getArgument(0), mock(FtepUser.class), service));
 
         String jobId = "jobId";
         String userId = "userId";
@@ -110,7 +92,7 @@ public class WpsServicesClientIT {
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
                 .build();
 
-        Multimap<String, String> outputs = wpsServicesClient.launchProcessor(jobId, userId, serviceId, inputs);
+        Multimap<String, String> outputs = wpsServicesClient.launchService(jobId, userId, serviceId, inputs);
         assertThat(outputs, is(notNullValue()));
 
         List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_jobId/FTEP-WPS-INPUT.properties"));

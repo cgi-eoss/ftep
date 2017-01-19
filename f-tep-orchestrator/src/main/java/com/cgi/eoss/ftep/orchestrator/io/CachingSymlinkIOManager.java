@@ -5,15 +5,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.google.common.io.MoreFiles;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static org.awaitility.Awaitility.with;
@@ -87,16 +86,12 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
 
                     Files.move(inProgressDir, resultDir, ATOMIC_MOVE);
                 } catch (Exception e) {
-                    // Clean up if any error occurred
-                    Files.walk(inProgressDir, FileVisitOption.FOLLOW_LINKS)
-                            .sorted(Comparator.reverseOrder())
-                            .forEach((path) -> {
-                                try {
-                                    Files.delete(path);
-                                } catch (IOException e1) {
-                                    throw new ServiceIoException("Unable to delete from failed cache: " + path, e1);
-                                }
-                            });
+                    try {
+                        // Try to clean up if any error occurred
+                        MoreFiles.deleteRecursively(inProgressDir);
+                    } catch (Exception e1) {
+                        LOG.error("Unable to clean up failed cache directory", e1);
+                    }
                     throw new ServiceIoException("Failed to populate cache directory: " + inProgressDir, e);
                 }
             }

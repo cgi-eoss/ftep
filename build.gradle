@@ -34,52 +34,59 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
     }
 }
 
-apply plugin: "org.sonarqube"
-apply plugin: "com.github.ben-manes.versions"
+apply plugin: 'org.sonarqube'
+apply plugin: 'com.github.ben-manes.versions'
 
 def depVersions = [
-        awaitility       : '2.0.0',
-        commonsIo        : '2.5',
-        commonsNet       : '3.5',
-        cucumber         : '1.2.5',
-        dockerJava       : '3.0.0',
-        freemarker       : '2.3.25-incubating',
-        googleHttpClient : '1.22.0',
-        grpc             : '1.0.3',
-        gson             : '2.7',
-        guava            : '20.0',
-        hamcrest         : '2.0.0.0',
-        hibernateJpa21Api: '1.0.0.Final',
-        hibernate        : '5.2.6.Final',
-        hikaricp         : '2.5.1',
-        hsqldb           : '2.3.4',
-        httpclient       : '4.3.1',
-        jackson          : '2.8.6',
-        javaxServletApi  : '3.1.0',
-        jimfs            : '1.1',
-        jsonapiConverter : '0.3',
-        jsr305           : '3.0.1',
-        junit            : '4.12',
-        logback          : '1.1.8',
-        lombok           : '1.16.12',
-        mockFtpServer    : '2.7.1',
-        mockito          : '2.2.26',
-        okHttp           : '3.5.0',
-        protoc           : '3.1.0-build2',
-        querydsl         : '4.1.4',
-        selenium         : '2.53.1',
-        slf4j            : '1.7.22',
-        springFramework  : '4.3.5.RELEASE',
-        springDataCommons: '1.12.5.RELEASE',
-        springDataJpa    : '1.10.6.RELEASE',
-        springDataRest   : '2.5.6.RELEASE',
-        springBoot       : '1.4.3.RELEASE',
-        testContainers   : '1.1.7'
+        awaitility              : '2.0.0',
+        commonsIo               : '2.5',
+        commonsNet              : '3.5',
+        cucumber                : '1.2.5',
+        dockerJava              : '3.0.0',
+        freemarker              : '2.3.25-incubating',
+        googleHttpClient        : '1.22.0',
+        grpc                    : '1.0.3',
+        gson                    : '2.7',
+        guava                   : '21.0',
+        hamcrest                : '2.0.0.0',
+        hibernateJpa21Api       : '1.0.0.Final',
+        hibernate               : '5.2.6.Final',
+        hikaricp                : '2.5.1',
+        hsqldb                  : '2.3.4',
+        httpclient              : '4.3.1',
+        jackson                 : '2.8.6',
+        javaxServletApi         : '3.1.0',
+        jimfs                   : '1.1',
+        jsonapiConverter        : '0.3',
+        jsr305                  : '3.0.1',
+        junit                   : '4.12',
+        logback                 : '1.1.8',
+        lombok                  : '1.16.12',
+        mockFtpServer           : '2.7.1',
+        mockito                 : '2.6.3',
+        okHttp                  : '3.5.0',
+        protoc                  : '3.1.0-build2',
+        querydsl                : '4.1.4',
+        selenium                : '2.53.1',
+        slf4j                   : '1.7.22',
+        springFramework         : '4.3.5.RELEASE',
+        springDataCommons       : '1.12.5.RELEASE',
+        springDataJpa           : '1.10.6.RELEASE',
+        springDataRest          : '2.5.6.RELEASE',
+        springBoot              : '1.4.3.RELEASE',
+        testContainers          : '1.1.7',
+
+        // Build plugin versions
+        clientDependenciesPlugin: '1.3.1',
+        jsPlugin                : '2.14.1',
+        osPackagePlugin         : '4.3.0',
+        protobufPlugin          : '0.8.0',
+        shadowPlugin            : '1.2.4'
 ]
 
 ext.deps = [
@@ -143,9 +150,18 @@ ext.deps = [
         testContainersSelenium : 'org.testcontainers:selenium:' + depVersions.testContainers
 ]
 
+ext.pl = [
+        clientDependencies: 'gradle.plugin.com.craigburke.gradle:client-dependencies:' + depVersions.clientDependenciesPlugin,
+        js                : 'com.eriwen:gradle-js-plugin:' + depVersions.jsPlugin,
+        osPackage         : 'com.netflix.nebula:gradle-ospackage-plugin:' + depVersions.osPackagePlugin,
+        protobuf          : 'com.google.protobuf:protobuf-gradle-plugin:' + depVersions.protobufPlugin,
+        shadow            : 'com.github.jengelman.gradle.plugins:shadow:' + depVersions.shadowPlugin,
+        springBoot        : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBoot
+]
+
 static def getRpmVersion(version) {
     return [
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
-            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
+            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern('yyyyMMddHHmmss')) : '1'
     ]
 }

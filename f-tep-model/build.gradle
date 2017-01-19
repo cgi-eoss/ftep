@@ -9,6 +9,9 @@ sourceSets {
         java {
             srcDirs = ["${buildDir}/generated/java"]
         }
+        resources {
+            srcDirs = []
+        }
     }
     main {
         java {
@@ -48,6 +51,6 @@ compileJava {
 
 sonarqube {
     properties {
-        property "sonar.exclusions", "target/generated/**/*"
+        property "sonar.exclusions", "${buildDir}/generated/**/*"
     }
 }

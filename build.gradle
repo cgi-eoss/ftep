@@ -60,6 +60,7 @@ def depVersions = [
         hsqldb           : '2.3.4',
         httpclient       : '4.3.1',
         jackson          : '2.8.6',
+        javaxServletApi  : '3.1.0',
         jimfs            : '1.1',
         jsonapiConverter : '0.3',
         jsr305           : '3.0.1',
@@ -76,6 +77,7 @@ def depVersions = [
         springFramework  : '4.3.5.RELEASE',
         springDataCommons: '1.12.5.RELEASE',
         springDataJpa    : '1.10.6.RELEASE',
+        springDataRest   : '2.5.6.RELEASE',
         springBoot       : '1.4.3.RELEASE',
         testContainers   : '1.1.7'
 ]
@@ -101,6 +103,7 @@ ext.deps = [
         httpclient             : 'org.apache.httpcomponents:httpclient:' + depVersions.httpclient,
         jacksonDatabind        : 'com.fasterxml.jackson.core:jackson-databind:' + depVersions.jackson,
         jacksonDataformatYaml  : 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:' + depVersions.jackson,
+        javaxServletApi        : 'javax.servlet:javax.servlet-api:' + depVersions.javaxServletApi,
         jimfs                  : 'com.google.jimfs:jimfs:' + depVersions.jimfs,
         jsonapiConverter       : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
         jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
@@ -117,11 +120,14 @@ ext.deps = [
         slf4j                  : 'org.slf4j:slf4j-api:' + depVersions.slf4j,
         slf4jJclBridge         : 'org.slf4j:jcl-over-slf4j:' + depVersions.slf4j,
         slf4jJulBridge         : 'org.slf4j:jul-to-slf4j:' + depVersions.slf4j,
+        springContext          : 'org.springframework:spring-orm:' + depVersions.springFramework,
         springOrm              : 'org.springframework:spring-orm:' + depVersions.springFramework,
         springTx               : 'org.springframework:spring-tx:' + depVersions.springFramework,
         springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
         springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
+        springBootUndertow     : 'org.springframework.boot:spring-boot-starter-undertow:' + depVersions.springBoot,
         springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
+        springDataRestWebMvc   : 'org.springframework.data:spring-data-rest-webmvc:' + depVersions.springDataRest,
 
         awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
         hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
@@ -132,6 +138,7 @@ ext.deps = [
         junit                  : 'junit:junit:' + depVersions.junit,
         selenium               : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
         springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
+        springBootTestStarter  : 'org.springframework.boot:spring-boot-starter-test:' + depVersions.springBoot,
         testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers,
         testContainersSelenium : 'org.testcontainers:selenium:' + depVersions.testContainers
 ]

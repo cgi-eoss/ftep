@@ -1,0 +1,24 @@
+group 'com.cgi.eoss.f-tep'
+version '0.4.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+dependencies {
+    compile project(':f-tep-model')
+    compile project(':f-tep-persistence')
+
+    compile deps.springContext
+    compile deps.springBootAutoconfigure
+    compile deps.springDataRestWebMvc
+
+    testCompile deps.hamcrestJunit
+    testCompile deps.hsqldb
+    testCompile deps.javaxServletApi
+    testCompile deps.junit
+    testCompile deps.springTest
+    testCompile deps.springBootTestStarter
+    testCompile deps.springBootUndertow
+
+    testRuntime deps.logbackClassic
+}

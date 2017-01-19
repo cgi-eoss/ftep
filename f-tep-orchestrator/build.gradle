@@ -8,6 +8,7 @@ dependencies {
     compileOnly deps.lombok
 
     compile project(':f-tep-model')
+    compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
     compile deps.awaitility
@@ -17,6 +18,8 @@ dependencies {
     compile deps.googleHttpClientJackson
     compile deps.okHttp
     compile deps.slf4j
+    compile deps.springContext
+    compile deps.springBootAutoconfigure
 
     testCompile deps.hamcrestJunit
     testCompile deps.jimfs

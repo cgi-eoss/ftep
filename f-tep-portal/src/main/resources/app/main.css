@@ -142,6 +142,15 @@ input {
     height: auto;
   }
 }
+#bottombar #bottombar-contents .resulthighlight {
+  background-color: #bcdff1;
+}
+#bottombar #bottombar-contents .resulthighlight .material-icons {
+  color: #ff4081;
+}
+#bottombar #bottombar-contents .resulthighlight:hover {
+  background-color: #31708f;
+}
 #bottombar md-content {
   background-color: transparent;
 }
@@ -406,15 +415,6 @@ input {
 }
 #results .products-list .geo-item:hover .material-icons {
   color: #ff4081;
-}
-#results .products-list .resulthighlight {
-  background-color: #bcdff1;
-}
-#results .products-list .resulthighlight .material-icons {
-  color: #ff4081;
-}
-#results .products-list .resulthighlight:hover {
-  background-color: #31708f;
 }
 #results .result-info {
   padding: 0.5rem;

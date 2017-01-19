@@ -60,6 +60,7 @@
             <li ng-repeat="outputFile in jobOutputs"
                 class="job-detail"
                 ng-click="selectOutputFile(outputFile)"
+                ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
                 dnd-draggable="getSelectedOutputFiles(outputFile)">
                 <div class="row no-margin">
                     <div class="col-xs-11">{{outputFile.attributes.fname}}</div>

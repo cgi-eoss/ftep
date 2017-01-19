@@ -20,13 +20,19 @@ import java.nio.file.StandardOpenOption;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+/**
+ * <p>{@link WpsServiceWriter} implementation to generate a ZOO-Kernel-compatible java class, and compile it into a jar.
+ * The result should be usable directly by zoo_launcher.cgi as a WPS service implementation.</p>
+ * <p>The template used for the .java file should be available on the classpath, in the
+ * <code>/templates/java_launcher.java.ftl</code> path. A default template is packaged in this module's artifact.</p>
+ */
 @Slf4j
-public class JavaWpsServiceWriter implements WpsServiceWriter {
+public class JavaZooServiceWriter implements WpsServiceWriter {
     private static final String JAVA_CLASS_TEMPLATE = "java_launcher.java.ftl";
 
     private final Configuration freemarker;
 
-    public JavaWpsServiceWriter() {
+    public JavaZooServiceWriter() {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
         cfg.setClassForTemplateLoading(getClass(), "/templates/");
         cfg.setDefaultEncoding("UTF-8");
@@ -56,7 +62,7 @@ public class JavaWpsServiceWriter implements WpsServiceWriter {
             Files.delete(sourceFile);
             Files.delete(workDir);
         } catch (TemplateException | IOException e) {
-            LOG.error("Failed to create WPS service jar for {}", svc.getId(), e);
+            throw new WpsDescriptorIoException("Failed to create WPS service jar for " + svc.getId(), e);
         }
     }
 

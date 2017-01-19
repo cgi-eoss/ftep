@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 
-public class JavaWpsServiceWriterTest {
+public class JavaZooServiceWriterTest {
 
     @Rule
     public ExpectedException ex = ExpectedException.none();
@@ -37,7 +37,7 @@ public class JavaWpsServiceWriterTest {
 
     @Before
     public void setUp() throws Exception {
-        this.wpsServiceWriter = new JavaWpsServiceWriter();
+        this.wpsServiceWriter = new JavaZooServiceWriter();
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

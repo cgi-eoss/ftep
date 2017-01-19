@@ -7,6 +7,7 @@ import java.nio.file.Path;
 /**
  * <p>Utility to generate ZOO-Project WPS service implementations from {@link FtepServiceDescriptor} objects.</p>
  */
+@FunctionalInterface
 public interface WpsServiceWriter {
 
     /**

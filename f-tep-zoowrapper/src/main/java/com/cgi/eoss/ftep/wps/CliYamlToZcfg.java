@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.google.common.base.Preconditions;
+import lombok.experimental.UtilityClass;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
  * <p>One argument is expected: the absolute path to a .yaml file. The output will be a .zcfg file in the same
  * directory. Any existing file of the same name will <em>not</em> be overwritten.</p>
  */
+@UtilityClass
 public class CliYamlToZcfg {
 
     private static final YamlFtepServiceDescriptorHandler YAML = new YamlFtepServiceDescriptorHandler();

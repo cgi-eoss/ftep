@@ -38,6 +38,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         $scope.resultsTotal = results[0].results.totalResults;
                         $scope.resultsPageSize = results[0].results.itemsPerPage;
                         $scope.resultsCurrentPage = GeoService.parameters.pageNumber;
+
+                        $scope.pageFrom = $scope.resultsCurrentPage * $scope.resultsPageSize - $scope.resultsPageSize + 1;
+                        $scope.pageTo = $scope.resultsCurrentPage * $scope.resultsPageSize;
+                        if ($scope.pageTo > $scope.resultsTotal) {
+                            $scope.pageTo = $scope.resultsTotal;
+                        }
                     }
                     else{
                         delete $scope.geoResults;

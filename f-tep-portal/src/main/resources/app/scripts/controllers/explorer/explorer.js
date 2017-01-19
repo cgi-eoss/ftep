@@ -8,7 +8,14 @@
 define(['../../ftepmodules'], function (ftepmodules) {
   'use strict';
 
-  ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog, TabService) {
+  ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog, TabService, MessageService) {
+
+    /* Active session message count */
+    $scope.message = {};
+    $scope.message.count = MessageService.countMessages();
+    $scope.$on('update.messages', function(event, job) {
+        $scope.message.count = MessageService.countMessages();
+    });
 
     /** BOTTOM BAR **/
 
@@ -156,12 +163,13 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 template:
                   '<md-dialog id="metadata-dialog" aria-label="Metadata dialog">' +
                   '  <h4 class="product-item">{{item.attributes.fname}}</h4>' +
-                  '  <a class="item-download" uib-tooltip="Download" tooltip-trigger="mouseenter" tooltip-append-to-body="true" href="{{getLink(item)}}" target="_self">' +
-                  '     <span class="glyphicon glyphicon-download-alt"></span>' +
-                  '  </a>' +
                   '  <md-dialog-content>' +
                   '    <div class="dialog-content-area">' +
                   '    </div>' +
+                  '  <md-button  aria-label="Download" tooltip-trigger="mouseenter" tooltip-append-to-body="true"' +
+                  '              href="{{getLink(item)}}" target="_self">' +
+                  '    Download <i class="material-icons">file_download</i>' +
+                  '  </md-button>' +
                   '  </md-dialog-content>' +
                   '</md-dialog>',
                 controller: DialogController,
@@ -178,9 +186,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
               template:
                 '<md-dialog id="metadata-dialog" aria-label="Metadata dialog">' +
                 '  <h4>{{item.identifier}}</h4>' +
-                '  <a class="item-download" uib-tooltip="Download" tooltip-trigger="mouseenter" tooltip-append-to-body="true" href="{{getLink(item)}}" target="_self">' +
-                '     <span class="glyphicon glyphicon-download-alt"></span>' +
-                '  </a>' +
                 '  <md-dialog-content>' +
                 '    <div class="dialog-content-area">' +
                 '        <div class="row">' +
@@ -200,6 +205,10 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 '            <div class="col-md-8">{{item.stop}}</div>' +
                 '        </div>' +
                 '    </div>' +
+                '    <md-button  class = "download-button" aria-label="Download" tooltip-trigger="mouseenter"' +
+                '                tooltip-append-to-body="true" href="{{getLink(item)}}" target="_self">' +
+                '      Download <i class="material-icons">file_download</i>' +
+                '    </md-button>' +
                 '  </md-dialog-content>' +
                 '</md-dialog>',
               controller: DialogController,

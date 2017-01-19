@@ -18,11 +18,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                 name: "SEARCH",
                 active: true
             },
-                        {
+            {
                 name: "SERVICES",
                 active: false
             },
-                        {
+            {
                 name: "WORKSPACE",
                 active: false
             }
@@ -40,14 +40,18 @@ define(['../ftepmodules'], function (ftepmodules) {
             {
                 name: "JOBS",
                 active: false
-            }
+            },
+            {
+                name: "MESSAGES",
+                active: false
+            },
         ];
 
         this.setActiveTab = function (location, tabName) {
             for (var item in tabs[location]) {
                 if (tabs[location][item].name === tabName) {
                      tabs[location][item].active = true;
-                     activeTab = tabs[location][item].name;
+                     activeTab = item;
                 } else {
                      tabs[location][item].active = false;
                 }

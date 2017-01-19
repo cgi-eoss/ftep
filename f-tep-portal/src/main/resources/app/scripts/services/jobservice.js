@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', function ($http, ftepProperties, $q, $timeout, $rootScope) {
+    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -55,7 +55,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       })
                       .catch(function (e) {
                           connectionError = true;
-                          window.alert('Could not get jobs. Retries left: ' + retriesLeft);
+                          MessageService.addMessage(
+                              'Error',
+                              'Could not get jobs',
+                              'Could not get jobs. Retries left: ' + retriesLeft
+                          );
                           retriesLeft--;
                           deferred.reject();
                       })
@@ -102,7 +106,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       }
                   }).
                   catch(function(e) {
-                      window.alert('Failed to remove job');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to remove job',
+                          'Failed to remove job'
+                      );
                       console.log(e);
                       reject();
                   });
@@ -117,7 +125,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  window.alert('Could not get job outputs');
+                  MessageService.addMessage(
+                      'Error',
+                      'Could not get job outputs',
+                      'Could not get job outputs'
+                  );
                   deferred.reject();
               });
 

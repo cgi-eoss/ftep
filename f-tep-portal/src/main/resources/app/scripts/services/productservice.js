@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('ProductService', [ '$http', 'ftepProperties', '$q', function ($http, ftepProperties, $q) {
+    ftepmodules.service('ProductService', [ '$http', 'ftepProperties', '$q', 'MessageService', function ($http, ftepProperties, $q, MessageService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -20,7 +20,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  window.alert('Could not get services');
+                  MessageService.addMessage(
+                      'Error',
+                      'Could not get services',
+                      'Could not get services'
+                  );
                   deferred.reject();
               });
               return deferred.promise;

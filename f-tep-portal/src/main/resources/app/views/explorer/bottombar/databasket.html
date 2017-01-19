@@ -1,11 +1,15 @@
 <section ng-if="selectedDatabasket == undefined" class="note">Please select or create a databasket first</section>
 
-<section ng-if="selectedDatabasket != undefined" class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+<section ng-if="selectedDatabasket != undefined"
+         class="panel-body scrollme"
+         is-bar-shown="flag"
+         rebuild-on="rebuild:scrollbar"
+         rebuild-on-resize>
 
     <h3>{{selectedDatabasket.attributes.name}}</h3>
     <h4>{{selectedDatabasket.attributes.description}}</h4>
 
-    <md-list-item class="md-1-line" ng-repeat="item in selectedDatabasket.items">
+    <md-list-item class="md-2-line" ng-repeat="item in selectedDatabasket.items">
 
         <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
             <i class="material-icons"

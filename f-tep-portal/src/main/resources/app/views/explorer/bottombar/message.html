@@ -1,0 +1,13 @@
+<section ng-if="selectedMessage == undefined" class="note">Please select a message first</section>
+
+<section ng-if="selectedMessage !== undefined"
+         class="panel-body scrollme"
+         is-bar-shown="flag"
+         rebuild-on="rebuild:scrollbar"
+         rebuild-on-resize>
+
+    <h3>{{selectedMessage.status}} - {{selectedMessage.title}}</h3>
+    <h4>{{selectedMessage.time}}</h4>
+    <p>{{selectedMessage.description}}</p>
+
+</section>

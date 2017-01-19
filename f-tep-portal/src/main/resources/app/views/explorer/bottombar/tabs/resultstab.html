@@ -1,0 +1,172 @@
+<div class="button-section-small">
+   <md-menu-bar>
+       <md-menu>
+            <md-button ng-click="$mdOpenMenu($event)"
+                       class="toolbar-button"
+                       aria-label="Results Action Menu"
+                       uib-tooltip="Results Action Menu"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">settings</i>
+            </md-button>
+            <md-menu-content>
+                <md-menu-item>
+                     <md-button ng-disabled="geoResults == undefined"
+                                ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+                                aria-label="Select All"
+                                ng-click="selectAll()">
+                        <span>
+                            <span class="material-icons">check_box</span>
+                            <span class="menu-text">Select All</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-disabled="geoResults == undefined"
+                               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+                               aria-label="Deselect All"
+                               ng-click="clearSelection()">
+                        <span>
+                            <span class="material-icons">check_box_outline_blank</span>
+                            <span class="menu-text">Deselect All</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-disabled="geoResults == undefined"
+                               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+                               aria-label="Invert Selection"
+                               ng-click="invertSelection()">
+                        <span>
+                            <span class="material-icons">indeterminate_check_box</span>
+                            <span class="menu-text">Invert Selection</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="createNewBasket($event)"
+                               aria-label="Create New Databasket">
+                        <span>
+                            <span class="material-icons">add_shopping_cart</span>
+                            <span class="menu-text">Create New Databasket</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-menu ng-controller="DatabasketCtrl">
+                        <md-button ng-click="$mdOpenMenu($event)"
+                                   class="toolbar-button"
+                                   aria-label="Select Databasket"
+                                   uib-tooltip="Select Databasket"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                            <span>
+                                <span class="material-icons">shopping_cart</span>
+                                <span class="menu-text">Select Databasket</span>
+                            </span>
+                        </md-button>
+                        <md-menu-content>
+                            <md-menu-item ng-repeat="basket in databaskets">
+                                 <md-button ng-click="selectDatabasket(basket)"
+                                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            aria-label="Databasket">
+                                    <span>
+                                        <span class="material-icons">shopping_basket</span>
+                                        <span class="menu-text">{{basket.attributes.name}}</span>
+                                    </span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-disabled="geoResults == undefined || selectedDatabasket == undefined"
+                               ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
+                               ng-click="addToDatabasket()"
+                               aria-label="Add to Databasket">
+                        <span>
+                            <span class="material-icons">shopping_basket</span>
+                            <span class="menu-text">Add to {{selectedDatabasket.attributes.name}}</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+    </md-menu-bar>
+</div>
+
+<div class="button-section-large">
+
+    <md-button class="toolbar-button"
+               ng-disabled="geoResults == undefined"
+               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+               ng-click="selectAll()"
+               aria-label="Select All"
+               uib-tooltip="Select All"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">check_box</i>
+    </md-button>
+
+    <md-button class="toolbar-button"
+               ng-disabled="geoResults == undefined"
+               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+               ng-click="clearSelection()"
+               aria-label="Deselect All"
+               uib-tooltip="Deselect All"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">check_box_outline_blank</i>
+    </md-button>
+
+    <md-button class="toolbar-button"
+               ng-disabled="geoResults == undefined"
+               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
+               ng-click="invertSelection()"
+               aria-label="Invert Selection"
+               uib-tooltip="Invert Selection"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">indeterminate_check_box</i>
+    </md-button>
+
+    <md-button class="toolbar-button"
+               ng-click="createNewBasket($event)"
+               aria-label="Create New Databasket"
+               uib-tooltip="Create New Databasket"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add_shopping_cart</i>
+    </md-button>
+
+    <md-menu ng-controller="DatabasketCtrl">
+        <md-button ng-click="$mdOpenMenu($event)"
+                   class="toolbar-button"
+                   aria-label="Select Databasket"
+                   uib-tooltip="Select Databasket"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">shopping_cart</i>
+        </md-button>
+        <md-menu-content>
+            <md-menu-item ng-repeat="basket in databaskets">
+                 <md-button ng-click="selectDatabasket(basket)"
+                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                            aria-label="Databasket">
+                    <i class="material-icons">shopping_basket</i>{{basket.attributes.name}}
+                </md-button>
+            </md-menu-item>
+        </md-menu-content>
+    </md-menu>
+
+    <md-button class="toolbar-button"
+               ng-disabled="geoResults == undefined || selectedDatabasket == undefined"
+               ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
+               ng-click="addToDatabasket()"
+               aria-label="Add to Databasket"
+               uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">shopping_basket</i>
+    </md-button>
+</div>

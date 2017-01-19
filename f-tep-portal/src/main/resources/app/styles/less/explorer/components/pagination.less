@@ -1,0 +1,32 @@
+@import "variable";
+.ftep {
+    .pagination {
+        font-size: 0.6rem;
+        margin: 0;
+        a {
+            background-color: transparent;
+            border: none;
+            color: @brand;
+            .border(border-left, @bg);
+            &:first-child {}
+            &:hover {
+                background: @accent-light;
+                color: @brand-dark;
+            }
+        }
+        .active {
+            a {
+                background-color: @accent;
+                border-color: @accent;
+                color: @text-light;
+            }
+        }
+        li:first-child a {
+            border: none;
+        }
+    }
+    .paging-details {
+        float: right;
+        padding-top: 0.4rem;
+    }
+}

@@ -1,0 +1,76 @@
+@import "variable";
+.ftep {
+    .filter-list {
+        .filter-list-title {
+            color: @accent;
+        }
+        .filter-checkboxes {
+            .border(border-bottom, @bg);
+            margin: 0;
+            padding: 10px;
+            &:hover {
+                background-color: @alert;
+            }
+            .check-container {
+                padding: 4px 0;
+            }
+            div:focus {
+                outline: none;
+                border: 0;
+            }
+            md-checkbox {
+                margin: 0;
+            }
+        }
+    }
+    .item-list {
+        .active {
+            background-color: @alert;
+        }
+        md-list-item {
+            min-width: 0;
+            width: 100%;
+
+            .md-avatar {
+                .material-icons {
+                    text-align: center;
+                    width: 100%;
+                }
+            }
+            .toolbar-button {
+                padding: 0 0.25rem;
+                i {
+                    font-size: 1rem;
+                }
+            }
+            &:hover {
+                background-color: @alert;
+                .md-button {
+                    background-color: transparent;
+                }
+                .toolbar-button {
+                    color: @accent;
+                }
+            }
+        }
+    }
+    .list {
+        margin: 0;
+        padding: 0;
+        .list-group {
+            .border(border-bottom, @bg);
+            cursor: pointer;
+            font-size: 0.7rem;
+            .expander, label {
+                margin: 0;
+                padding: 0.25rem;
+            }
+            .expander {
+                padding: 0.125rem;
+            }
+            &:hover {
+                background-color: @light-gray;
+            }
+        }
+    }
+}

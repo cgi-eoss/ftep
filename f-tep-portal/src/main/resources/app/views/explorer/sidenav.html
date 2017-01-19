@@ -11,7 +11,11 @@
             <i class="material-icons" uib-tooltip="Workspace" tooltip-placement="right">settings_input_component</i>
         </li>
         <li ng-click="toggleResultsMenu()">
-            <i class="material-icons" uib-tooltip="Results" tooltip-placement="right">visibility</i>
+            <i class="material-icons" uib-tooltip="Data-Panel" tooltip-placement="right">visibility</i>
+        </li>
+        <li ng-click="displayTab('MESSAGES')">
+            <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
+            <span class="notification">{{message.count}}</span>
         </li>
     </ul>
 

@@ -9,14 +9,22 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
     ftepmodules.controller('BottombarCtrl',
-        [ '$scope', '$rootScope', 'CommonService', 'TabService', 'JobService', 'GeoService','BasketService',
-        function($scope, $rootScope, CommonService, TabService, JobService, GeoService, BasketService) {
+        [ '$scope', '$rootScope', 'CommonService', 'TabService', 'JobService', 'GeoService','BasketService', 'MessageService',
+        function($scope, $rootScope, CommonService, TabService, JobService, GeoService, BasketService, MessageService) {
 
                 $scope.resultPaging = {currentPage: 1, pageSize: GeoService.getItemsPerPage(), total: 0};
                 $scope.spinner = GeoService.spinner;
                 $scope.tab = {};
-                $scope.tab.active = "RESULTS";
+                $scope.tab.active = "0";
                 var selectedResultItems = [];
+
+                $scope.getPagingValues = function(resultPaging) {
+                    var v1 = (resultPaging.currentPage * resultPaging.pageSize) - resultPaging.pageSize + 1;
+                    var v2 = resultPaging.currentPage * resultPaging.pageSize;
+                    var v3 = resultPaging.total;
+                    var v4 = "Showing " + v1 + " - " + v2 + " of " + v3;
+                    return v4;
+                };
 
                 $scope.$on('update.tab', function(event, activeTab) {
                     $scope.tab.active = activeTab;
@@ -152,6 +160,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.selectedDatabasket.items= items;
                 });
 
+                $scope.$on('select.databasket', function(event, basket, items) {
+                    $scope.selectedDatabasket = basket;
+                    $scope.selectedDatabasket.items= items;
+                });
+
                 $scope.addToDatabasket = function() {
                     for (var i = 0; i < selectedResultItems.length; i++) {
                         var found = false;
@@ -182,6 +195,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 };
 
                 $scope.clearDatabasket = function() {
+                    BasketService.clearBasket($scope.selectedDatabasket);
                     $scope.selectedDatabasket.items = [];
                 };
 
@@ -203,14 +217,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.createNewBasket = function($event){
                     switch($scope.tab.active) {
-                        case 'RESULTS':
+                        case 0:
                             $scope.createDatabasketDialog($event, selectedResultItems);
                             break;
-                        case 'DATABASKETS':
+                        case 1:
                             var itemsList = $scope.selectedDatabasket ? $scope.selectedDatabasket.items : [];
                             $scope.createDatabasketDialog($event, itemsList);
                             break;
-                        case 'JOBS':
+                        case 2:
                             $scope.createDatabasketDialog($event, jobSelectedOutputs);
                             break;
                     }
@@ -231,7 +245,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 /* End of Selected Databasket */
 
                 /* Selected Job */
-                $scope.selectedJob = undefined;
                 $scope.jobOutputs = [];
                 var jobSelectedOutputs = [];
 
@@ -332,6 +345,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 });
 
                 /* End of Selected Job */
+
+                /* Selected Message */
+
+                $scope.$on('show.message', function(event, message) {
+                    $scope.selectedMessage = message;
+                    $scope.$broadcast('rebuild:scrollbar');
+                });
+
+                /* End of Selected Message */
 
                 $scope.getColor = function(status){
                     return CommonService.getColor(status);

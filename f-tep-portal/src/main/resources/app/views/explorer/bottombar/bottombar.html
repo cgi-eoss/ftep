@@ -1,197 +1,51 @@
 <div id="bottombar-header" class="row no-margin">
 
-    <section id="bottombar-tabs" class="col-xs-6">
-
-         <ul class="nav nav-pills" >
-            <li role="presentation"
-                ng-class="{'active': tab.active == 'RESULTS'}"
-                ng-click="tab.active = 'RESULTS'">
-                <a>RESULTS</a>
-            </li>
-            <li role="presentation"
-                ng-class="{'active': tab.active == 'DATABASKETS'}"
-                ng-click="tab.active = 'DATABASKETS'">
-                <a>DATABASKETS</a>
-            </li>
-            <li role="presentation"
-                ng-class="{'active': tab.active == 'JOBS'}"
-                ng-click="tab.active = 'JOBS'">
-                <a>JOBS</a>
-            </li>
-        </ul>
-
+    <section id="bottombar-tabs" class="col-xs-9">
+        <md-tabs md-selected="tab.active" md-disable-animation>
+            <md-tab label="RESULTS" ng-click="tab.active = '0'"></md-tab>
+            <md-tab label="DATABASKETS" ng-click="tab.active = '1'"></md-tab>
+            <md-tab label="JOBS" ng-click="tab.active = '2'"></md-tab>
+            <md-tab label="MESSAGES ({{message.count}})" ng-click="tab.active = '3'"></md-tab>
+        </md-tabs>
     </section>
 
-    <section ng-if="tab.active == 'RESULTS'" class="col-xs-6">
-
-        <div class="col-xs-8 button-section">
-                <paging page="resultPaging.currentPage"
-                    page-size="resultPaging.pageSize"
-                    total="resultPaging.total"
-                    show-first-last="true"
-                    paging-action="fetchResultsPage(page)">
-                </paging>
-        </div>
-
-        <div class="col-xs-4 button-section">
-            <md-button class="toolbar-button"
-                       ng-disabled="geoResults == undefined"
-                       ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
-                       aria-label="Select All"
-                       uib-tooltip="Select all"
-                       tooltip-trigger="mouseenter"
-                       ng-click="selectAll()">
-                <i class="material-icons">check_box</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       ng-disabled="geoResults == undefined"
-                       ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
-                       aria-label="Deselect All"
-                       uib-tooltip="Deselect all"
-                       tooltip-trigger="mouseenter"
-                       ng-click="clearSelection()">
-                <i class="material-icons">check_box_outline_blank</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       ng-disabled="geoResults == undefined"
-                       ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
-                       aria-label="Invert Selection"
-                       uib-tooltip="Invert selection"
-                       tooltip-trigger="mouseenter"
-                       ng-click="invertSelection()">
-                <i class="material-icons">indeterminate_check_box</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       ng-click="createNewBasket($event)"
-                       aria-label="Create New Databasket"
-                       uib-tooltip="Create new databasket"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">add_shopping_cart</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       ng-disabled="geoResults == undefined || selectedDatabasket == undefined"
-                       ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
-                       ng-click="addToDatabasket()"
-                       aria-label="Add to Databasket"
-                       uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">shopping_basket</i>
-            </md-button>
-        </div>
-
-    </section>
-
-    <section ng-if="tab.active == 'DATABASKETS'" class="col-xs-6">
-
-        <div class="col-xs-8"></div>
-
-        <div class="col-xs-4 button-section">
-            <md-button class="toolbar-button"
-                       ng-disabled="selectedDatabasket == undefined"
-                       ng-class="selectedDatabasket == undefined ? 'icon-disabled' : ''"
-                       ng-click="clearDatabasket()"
-                       aria-label="Clear Databasket"
-                       uib-tooltip="Clear databasket"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">remove_shopping_cart</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       uib-tooltip="Create new databasket"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true"
-                       ng-click="createNewBasket($event)"
-                       aria-label="Create New Databasket">
-                <i class="material-icons">add_shopping_cart</i>
-            </md-button>
-        </div>
-
-    </section>
-
-    <section ng-if="tab.active == 'JOBS'" class="col-xs-6">
-
-        <div class="col-xs-8 button-section"></div>
-
-        <div class="col-xs-4 button-section">
-
-            <md-button class="toolbar-button"
-                       uib-tooltip="Select all"
-                       tooltip-trigger="mouseenter"
-                       ng-click="selectAllOutputs()"
-                       aria-label="Select All">
-                <i class="material-icons">check_box</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       uib-tooltip="Deselect all"
-                       tooltip-trigger="mouseenter"
-                       ng-click="clearOutputsSelection()"
-                       aria-label="Deselect All">
-                <i class="material-icons">check_box_outline_blank</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       uib-tooltip="Invert selection"
-                       tooltip-trigger="mouseenter"
-                       ng-click="invertOutputsSelection()"
-                       aria-label="Invert Selection">
-                <i class="material-icons">indeterminate_check_box</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       uib-tooltip="Create new databasket"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true"
-                       ng-click="createNewBasket($event)"
-                       aria-label="Create New Databasket">
-                <i class="material-icons">add_shopping_cart</i>
-            </md-button>
-
-            <md-button class="toolbar-button"
-                       aria-label="Add to Cart"
-                       uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true"
-                       ng-disabled="selectedDatabasket == undefined"
-                       ng-class="(selectedDatabasket == undefined) ? 'icon-disabled' : ''"
-                       ng-click="addOutputsToDatabasket()">
-                <i class="material-icons">shopping_basket</i>
-            </md-button>
-        </div>
-
-    </section>
+    <section ng-if="tab.active == '0'" class="button-section col-xs-3" ng-include src="'views/explorer/bottombar/tabs/resultstab.html'" />
+    <section ng-if="tab.active == '1'" class="col-xs-3" ng-include src="'views/explorer/bottombar/tabs/databasketstab.html'" />
+    <section ng-if="tab.active == '2'" class="col-xs-3" ng-include src="'views/explorer/bottombar/tabs/jobstab.html'" />
 
 </div>
 
-<section id="bottombar-contents" class="row">
+<div id="bottombar-contents" class="row">
 
-    <section class="bottombar-pane" ng-if="tab.active == 'RESULTS'">
+    <section class="bottombar-pane" ng-if="tab.active == '0'">
         <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
     </section>
 
-    <section class="row bottombar-pane" ng-if="tab.active == 'DATABASKETS'">
-        <div class="col-xs-4 bottombar-left">
-            <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
-        </div>
-        <div class="col-xs-8 bottombar-right">
+    <section class="bottombar-pane" ng-if="tab.active == '1'">
+        <div class="col-md-8 bottombar-right">
             <div id="databasket" ng-include src="'views/explorer/bottombar/databasket.html'" />
         </div>
+        <div class="col-md-4 bottombar-left">
+            <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
+        </div>
     </section>
 
-    <section class="row bottombar-pane" ng-if="tab.active == 'JOBS'">
-        <div class="col-xs-4 bottombar-left">
+    <section class="bottombar-pane" ng-if="tab.active == '2'">
+        <div class="col-md-8 bottombar-right">
+            <div id="job" ng-include src="'views/explorer/bottombar/job.html'" />
+        </div>
+        <div class="col-md-4 bottombar-left">
             <div id="jobs" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
         </div>
-        <div class="col-xs-8 bottombar-right">
-            <div id="job" ng-include ng-if="selectedJob != undefined" src="'views/explorer/bottombar/job.html'" />
+    </section>
+
+    <section class="bottombar-pane" ng-if="tab.active == '3'" ng-controller="MessagesCtrl">
+        <div class="col-md-8 bottombar-right">
+            <div id="message" ng-include src="'views/explorer/bottombar/message.html'" />
+        </div>
+        <div class="col-md-4 bottombar-left">
+            <div id="messages" ng-include src="'views/explorer/bottombar/messages.html'" />
         </div>
     </section>
 
-</section>
+</div>

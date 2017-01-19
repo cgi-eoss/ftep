@@ -13,7 +13,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.dbPaging = {
                 dbCurrentPage: 1,
-                dbPageSize: 5,
+                dbPageSize: 10,
                 dbTotal: 0
             };
 
@@ -62,10 +62,38 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 });
             };
 
+            $scope.displayFilters = false;
+
+            $scope.toggleFilters = function () {
+                $scope.displayFilters = !$scope.displayFilters;
+                $scope.$broadcast('rebuild:scrollbar');
+            };
+
+            $scope.databasketSearch = {
+                searchText: ''
+            };
+
+            $scope.databasketSearch = function (item) {
+                if (item.attributes.name.toLowerCase().indexOf(
+                    $scope.databasketSearch.searchText.toLowerCase()) > -1) {
+                    return true;
+                }
+                return false;
+            };
+
+
             /* Show databasket details */
             $scope.showDatabasket = function (basket) {
                 BasketService.getItems(basket).then(function (result) {
                     $rootScope.$broadcast('update.databasket', basket, result.files);
+                    var container = document.getElementById('bottombar');
+                    container.scrollTop = 0;
+                });
+            };
+
+            $scope.selectDatabasket = function (basket) {
+                BasketService.getItems(basket).then(function (result) {
+                    $rootScope.$broadcast('select.databasket', basket, result.files);
                 });
             };
 

@@ -8,7 +8,28 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('ProjectService', [ '$http', 'ftepProperties', '$q', function ($http, ftepProperties, $q) {
+    ftepmodules.service('ProjectService', [ '$http', 'ftepProperties', '$q', 'MessageService', function ($http, ftepProperties, $q, MessageService) {
+
+        var messages = [
+          {
+              status: "Error",
+              title: "Could not get projects",
+              description: "Could not get projects"
+
+          },
+          {
+              status: "Error",
+              title: "Could not create project",
+              description: "Could not create project: conflicts with an already existing one"
+
+          },
+          {
+              status: "Error",
+              title: "Failed to update project",
+              description: "Failed to update project"
+
+          },
+        ];
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -20,7 +41,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  window.alert('Could not get projects');
+                  MessageService.addMessage(
+                      'Error',
+                      'Could not get projects',
+                      'Could not get projects'
+                  );
                   deferred.reject();
               });
               return deferred.promise;
@@ -40,7 +65,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   catch(function(e) {
                       if(e.status == 409){
-                          window.alert('Could not create project: conflicts with an already existing one');
+                          MessageService.addMessage(
+                              'Error',
+                              'Could not create project',
+                              'Could not create project: conflicts with an already existing one'
+                          );
                       }
                       reject();
                   });
@@ -57,7 +86,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(project);
                   }).
                   catch(function(e) {
-                      window.alert('Failed to remove project');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to remove project',
+                          'Failed to remove project'
+                      );
                       console.log(e);
                       reject();
                   });
@@ -75,7 +108,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(response.data.data);
                   }).
                   catch(function(e) {
-                      window.alert('Failed to update project');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to update project',
+                          'Failed to update project'
+                      );
                       console.log(e);
                       reject();
                   });

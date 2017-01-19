@@ -4,7 +4,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
   'use strict';
 
-  ftepmodules.service('GroupService', [ '$rootScope', '$http', 'ftepProperties', '$q', function ($rootScope, $http, ftepProperties, $q) {
+  ftepmodules.service('GroupService', [ '$rootScope', '$http', 'ftepProperties', '$q', 'MessageService', function ($rootScope, $http, ftepProperties, $q, MessageService) {
 
     $http.defaults.headers.post['Content-Type'] = 'application/json';
     $http.defaults.withCredentials = true;
@@ -16,7 +16,11 @@ define(['../ftepmodules'], function (ftepmodules) {
         deferred.resolve(response.data.data);
       })
       .catch(function(e){
-          window.alert('could not get Groups');
+          MessageService.addMessage(
+              'Error',
+              'Could not get Groups',
+              'Could not get Groups'
+          );
           deferred.reject();
       });
       return deferred.promise;
@@ -25,8 +29,8 @@ define(['../ftepmodules'], function (ftepmodules) {
     //POST Method to create new Groups
     this.createGroup = function(name, desc){
       return $q(function(resolve, reject) {
-    	  //added var group which takes in attributes name and description
-    	  var group = {type: 'groups', attributes:{name: name, description: (desc ? desc : '')}};
+        //added var group which takes in attributes name and description
+        var group = {type: 'groups', attributes:{name: name, description: (desc ? desc : '')}};
         $http({
           method: 'POST',
           url: ftepProperties.URL + '/groups',
@@ -37,17 +41,21 @@ define(['../ftepmodules'], function (ftepmodules) {
         }).
         catch(function(e) {
           if(e.status == 409){
-            window.alert('Could not create group: conflicts with an already existing one');
+            MessageService.addMessage(
+                'Error',
+                'Could not create group',
+                'Could not create group: conflicts with an already existing one'
+            );
           }
           reject();
         });
       });
     };
-    
+
     //DELETE Method to remove group
     this.removeGroup = function(group){
       return $q(function(resolve, reject) {
-    	  //next two lines are repeated again-why?
+        //next two lines are repeated again-why?
         $http.defaults.headers.post['Content-Type'] = 'application/json';
         $http.defaults.withCredentials = true;
         $http({
@@ -58,13 +66,17 @@ define(['../ftepmodules'], function (ftepmodules) {
           resolve(group);
         }).
         catch(function(e) {
-          window.alert('Failed to remove Group');
-          console.log(e);
-          reject();
+            MessageService.addMessage(
+                'Error',
+                'Failed to remove Group',
+                'Failed to remove Group'
+            );
+            console.log(e);
+            reject();
         });
       });
     };
-    
+
     //PATCH Method to edit an existing group
     this.updateGroup = function(group){
         return $q(function(resolve, reject) {
@@ -79,13 +91,17 @@ define(['../ftepmodules'], function (ftepmodules) {
                 resolve(group);
             }).
             catch(function(e) {
-                window.alert('Failed to update Group');
+                MessageService.addMessage(
+                    'Error',
+                    'Failed to update Group',
+                    'Failed to update Group'
+                );
                 console.log(e);
                 reject();
             });
         });
     };
-    
+
     return this;
   }]);
 });

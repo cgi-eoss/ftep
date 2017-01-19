@@ -1,45 +1,52 @@
-#databaskets-panel #databasket-list {
-  padding: 0;
+#databaskets {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  height: 100%;
 }
-#databaskets-panel #databasket-list .basket-item {
-  list-style: none;
-  margin: 0;
-  padding-left: 0.5rem;
-  border-bottom: #d9d9d9 solid 1px;
+#databaskets input {
+  height: 1.4rem;
+  padding-left: 4px;
+  padding-right: 4px;
+  z-index: 10;
 }
-#databaskets-panel #databasket-list .basket-item p {
-  padding: 0 0 0 4px;
-  margin: 0;
+#databaskets .md-avatar {
+  cursor: move;
+  z-index: 1;
 }
-#databaskets-panel #databasket-list .basket-item .basket-name {
-  padding: 0 0 0 4px;
-  line-height: 1.8rem;
-  margin: 0;
+#databaskets .ng-hide.ng-hide-animate {
+  display: none;
 }
-#databaskets-panel #databasket-list .basket-item .basket-edit {
-  margin: 0;
-}
-#databaskets-panel #databasket-list .basket-item .basket-edit .input-group .basket-rename {
-  display: inline-block;
-  height: 2rem;
-  position: relative;
-  padding: 0 0 0 4px;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools {
-  margin: 0;
-}
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button {
-  line-height: 1.5rem;
-  min-height: 1rem;
+#databaskets .pagination {
+  text-align: center;
   width: 100%;
 }
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button i {
-  font-size: 0.9rem;
-  text-align: center;
+#databaskets .pagination paging {
+  display: inline-block;
 }
-#databaskets-panel #databasket-list .basket-item .basket-item-tools .md-button:hover {
-  color: #ff4081;
+.pagination-buttons {
+  margin-top: 10px;
+  margin-bottom: 15px;
 }
-#databaskets-panel #databasket-list .basket-item:hover {
-  background-color: #aed581;
+.pagination-buttons .pagination {
+  margin: 0;
+}
+.pagination-buttons .pagination a {
+  background-color: transparent;
+  border: none;
+  color: #558b2f;
+  padding: 2px 0.5rem;
+  border-left: #d2d2d2 solid 1px;
+}
+.pagination-buttons .pagination a:hover {
+  background: #ff80ab;
+  color: #33691e;
+}
+.pagination-buttons .pagination .active a {
+  background-color: #ff4081;
+  border-color: #ff4081;
+  color: rgba(255, 255, 255, 0.87);
+}
+.pagination-buttons .pagination li:first-child a {
+  border: none;
 }

@@ -39,18 +39,17 @@
 }
 #sidebar-left md-toolbar {
   background-color: transparent;
-  height: 0;
+  height: 2.5rem;
+  min-height: 2rem;
 }
 #sidebar-left md-toolbar .md-toolbar-tools {
   background-color: #aed581;
+  padding: 0;
   color: rgba(0, 0, 0, 0.7);
 }
 #sidebar-left md-toolbar .md-toolbar-tools span {
   font-size: 1.0rem;
   text-transform: uppercase;
-}
-#sidebar-left .note {
-  margin: 0.8rem;
 }
 #sidebar-left .panel {
   background-color: transparent;

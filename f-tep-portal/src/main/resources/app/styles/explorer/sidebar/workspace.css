@@ -1,60 +1,75 @@
-#workspace-panel .workspace-header {
+#workspace-panel .info {
+  color: #ff4081;
+}
+#workspace-panel .service-header {
   text-align: center;
 }
-.service-field {
-  margin: 4px 0px 10px 0px;
+#workspace-panel .service-header .service-title {
+  font-size: 1.2rem;
+  margin-bottom: 0;
 }
-.optional-checkbox {
-  margin-left: 6px!important;
+#workspace-panel .workspace-content {
+  font-size: 0.8rem;
+  line-height: 1rem;
 }
-.btn-close-workspace {
+#workspace-panel .workspace-content i {
+  font-size: 0.9rem;
+}
+#workspace-panel #launch-button {
+  background-color: #ff80ab;
+  bottom: 20px;
+  float: right;
+  height: 40px;
+  margin: 0;
+  min-height: 0;
+  padding: 0;
+  position: fixed;
+  right: 40px;
+  width: 40px;
+}
+#workspace-panel #launch-button .material-icons {
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 30px;
+  height: 100%;
+  line-height: 40px;
+  width: 100%;
+}
+#workspace-panel #launch-button:hover {
+  background-color: #ff4081;
+}
+md-chip {
+  background-color: lightgray;
+  border-radius: 16px;
+  color: rgba(0, 0, 0, 0.54);
+  display: block;
   float: left;
-  background-color: transparent;
-  padding-left: 0.2em;
-  padding-top: 3px;
-}
-.dropzone {
-  height: 130px;
-  border: solid 1px #e8e8e8;
-  margin: 12px 2px 2px 2px;
-  padding: 3px;
-}
-.dropzone-list {
-  list-style-type: none;
-  padding-left: 2px;
-  margin-left: 20px;
-}
-.dropzone-list li {
-  display: inline-block;
-  width: 100px;
-  height: 30px;
-  background-color: #f4f4f4;
-  border-radius: 5px;
-  border: solid 1px #c0c0c0;
-  padding: 2px;
+  font-size: 12px;
+  height: 32px;
+  line-height: 32px;
   margin: 2px;
+  max-width: 110px;
+  padding-left: 12px;
 }
-.drop-item-delete {
-  position: relative;
+md-chip .md-chip-content {
+  float: left;
+  height: 32px;
+  max-width: 50px;
+  overflow: hidden;
+  padding-right: 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+md-chip .md-chip-close {
   float: right;
+  line-height: 22px;
+  padding-right: 12px;
+  padding-top: 4px;
 }
-.itemCounter {
-  padding: 1px 5px;
-  float: right;
-  background: #e6e6e6;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
+md-chip .md-chip-close i {
+  cursor: pointer;
+  font-size: 12px;
 }
-.launch-button {
-  margin-left: 10px;
-  background-color: #345A3D;
-  color: #fff;
-}
-.launch-button[disabled] {
-  background-color: #c0c0c0;
-  color: #fff !important;
-}
-.launch-button:HOVER:not([disabled]) {
-  background-color: #107e3f !important;
+md-chip:hover {
+  background-color: #31708f;
+  color: rgba(255, 255, 255, 0.87);
 }

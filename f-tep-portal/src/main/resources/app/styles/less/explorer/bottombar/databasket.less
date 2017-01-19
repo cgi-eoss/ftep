@@ -1,7 +1,6 @@
 @import "variable";
 #databasket {
     display: flex;
-    font-size: 0.6rem;
     flex-flow: column;
     flex: 1 1 auto;
     height: 100%;
@@ -17,13 +16,24 @@
         cursor: move;
         height: auto;
         margin: 0;
+        padding-top: 18px;
     }
     md-list-item {
+        .border(border-bottom, @bg);
+        font-size: 0.6rem;
+        max-height: 60px;
+        min-height: 60px;
+        word-wrap: break-word;
         &:hover {
-            background-color: @light-gray;
-            .material-icons {
-                color: @accent;
+            background-color: @alert;
+            .toolbar-button {
+                .material-icons {
+                    color: @accent;
+                }
             }
+        }
+        .md-list-item-text {
+            float: left;
         }
     }
 }

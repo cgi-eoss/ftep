@@ -1,0 +1,13 @@
+#message {
+  display: flex;
+  flex-flow: column;
+  flex: 1 1 auto;
+  height: 100%;
+}
+#message h3 {
+  font-size: 1.2rem;
+  margin-top: 0;
+}
+#message h4 {
+  font-size: 0.8rem;
+}

@@ -25,6 +25,16 @@
 #job .job-title h4 {
   margin: 0;
 }
-#job .resultnormal {
-  border-bottom: #d2d2d2 solid 1px;
+#job .job-detail .key {
+  font-weight: bold;
+}
+#job .job-detail:hover {
+  background-color: #d9edf7;
+}
+#job .toolbar-button {
+  min-height: 0;
+  line-height: 1rem;
+}
+#job .toolbar-button .material-icons {
+  color: #ff4081;
 }

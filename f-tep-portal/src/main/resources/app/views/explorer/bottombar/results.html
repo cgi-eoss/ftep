@@ -1,15 +1,15 @@
-<div class="scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+<div class="scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-    <div class="spinner" ng-show="spinner.loading"></div>
+    <div ng-if="geoResults == undefined && !spinner.loading" class="result-info">No results to display</div>
 
-    <div ng-if="geoResults == undefined" class="result-info">No results to display</div>
+    <div class="spinner-container" ng-show="spinner.loading">
+        <div class="spinner" />
+    </div>
 
     <div ng-if="geoResults != undefined">
 
         <ul class="products-list product-list-in-box">
-
             <div ng-repeat="result in geoResults">
-
                 <li class="geo-item"
                     ng-repeat="item in result.results.entities"
                     ng-click="toggleSelection(item)"
@@ -17,53 +17,72 @@
                     ng-mouseover="updateMetadata(item)"
                     dnd-draggable="getSelectedItemsLinks(item)">
 
-                    <div class="row">
+                    <div class="row no-margin">
 
-                        <div class="col-md-12">
-
-                            <span class="pull-right controls">
-                                <a uib-tooltip="Download"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true"
-                                   href="{{getLink(item)}}"
-                                   target="_self">
-                                    <span class="glyphicon glyphicon-download-alt"></span>
-                                </a>
-                                <a ng-click="showMetadata($event, item)">
-                                    <span class="glyphicon glyphicon-info-sign metadata-info-button"></span>
-                                </a>
-                            </span>
+                        <div class="col-xs-11 no-padding">
 
                             <div class="row">
-                                <div class="col-md-8">
+                                <div class="col-md-12 title">
                                     {{item.identifier}}
                                 </div>
                             </div>
 
-                            <div class="row result-description">
-                                <div class="col-md-4">
-                                    <div class="product-title">
-                                        Start: {{item.start}}
-                                    </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    Start: {{item.start}}
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     End: {{item.stop}}
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     Size: {{item.size | bytesToGB}}
                                 </div>
+
                             </div>
+
+                        </div>
+
+                        <div class="col-xs-1 no-padding">
+
+                            <md-button class="toolbar-button md-secondary"
+                                       ng-click="showMetadata($event, item)"
+                                       aria-label="Show Metadata"
+                                       uib-tooltip="Show Metadata"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                <i class="material-icons">info_outline</i>
+                            </md-button>
+
+                            <md-button class="toolbar-button md-secondary"
+                                       href="{{getLink(item)}}"
+                                       target="_self"
+                                       aria-label="Download"
+                                       uib-tooltip="Download"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                <i class="material-icons">file_download</i>
+                            </md-button>
 
                         </div>
 
                     </div>
 
                 </li>
-
             </div>
-
         </ul>
 
     </div>
 
 </div>
+
+<section class="pagination">
+    <paging page="resultPaging.currentPage"
+        page-size="resultPaging.pageSize"
+        total="resultPaging.total"
+        show-first-last="true"
+        paging-action="fetchResultsPage(page)">
+    </paging>
+    <div class="paging-details" ng-controller="ResultsCtrl">Showing {{pageFrom}} - {{pageTo}} of {{resultsTotal}}</div>
+</section>

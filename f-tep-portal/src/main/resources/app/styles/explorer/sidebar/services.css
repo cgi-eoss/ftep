@@ -1,22 +1,15 @@
-#services-accordion .input-group {
-  margin-bottom: 12px;
+#services .item-list h3 {
+  font-size: 0.8rem;
 }
-.services-content {
-  height: 65vh;
-  overflow-y: scroll;
+#services .item-list p {
+  font-size: 0.5rem;
 }
-#services-list md-list-item:HOVER {
-  cursor: pointer;
-  background-color: #f0f0f0;
+#services .item-list .toolbar-button .material-icons {
+  font-size: 1rem;
 }
-.product-item {
-  word-wrap: break-word;
+#services .item-list .material-icons {
+  font-size: 0.8rem;
 }
-.rating {
-  cursor: default;
-  float: right;
-}
-.rating img {
-  height: 12px;
-  width: 12px;
+.star-full {
+  color: #ffd600;
 }

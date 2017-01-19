@@ -1,0 +1,25 @@
+@import "variable";
+.ftep {
+    .rzslider {
+        .rz-bubble{
+            .text-sec();
+        }
+        .rz-pointer {
+            width: 16px;
+            height: 16px;
+            border-radius: 25px;
+            top: -6px;
+            .rz-active::after {
+                background-color: transparent;
+            }
+            &:hover {
+                width: 24px;
+                height: 24px;
+                top: -10px;
+            }
+            &:after {
+                background-color: transparent;
+            }
+        }
+    }
+}

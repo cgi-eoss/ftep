@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', function ($rootScope, $http, ftepProperties, $q, $timeout) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -86,7 +86,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                           })
                           .catch(function (e) {
                               connectionError = true;
-                              window.alert('Could not get databaskets. Retries left: ' + retriesLeft);
+                              MessageService.addMessage(
+                                  'Error',
+                                  'Could not get databaskets',
+                                  'Could not get databaskets. Retries left: ' + retriesLeft
+                              );
                               retriesLeft--;
                               deferred.reject();
                           })
@@ -113,7 +117,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data);
               })
               .catch(function(e){
-                  window.alert('could not get databasket items');
+                  MessageService.addMessage(
+                      'Error',
+                      'Could not get databaskets',
+                      'Could not get databasket items'
+                  );
                   deferred.reject();
               });
               return deferred.promise;
@@ -138,7 +146,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   catch(function(e) {
                       if(e.status == 409){
-                          window.alert('Could not create databasket: conflicts with an already existing one');
+                          MessageService.addMessage(
+                              'Error',
+                              'Could not create databasket',
+                              'Could not create databasket: conflicts with an already existing one'
+                          );
                       }
                       reject();
                   });
@@ -188,19 +200,48 @@ define(['../ftepmodules'], function (ftepmodules) {
                           resolve(basket);
                       }).
                       catch(function(e) {
-                          window.alert('Failed to remove databasket');
+                          MessageService.addMessage(
+                              'Error',
+                              'Failed to remove databasket',
+                              'Failed to remove databasket'
+                          );
                           console.log(e);
                           reject();
                       });
                   }).
                   catch(function(e) {
-                      window.alert('Failed to remove databasket relationships');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to remove databasket relationships',
+                          'Failed to remove databasket relationships'
+                      );
                       console.log(e);
                       reject();
                   });
               });
           };
           /** END OF DELETE DATABASKET **/
+
+          /** REMOVE ALL FILES **/
+          this.clearBasket = function(basket){
+              return $q(function(resolve, reject) {
+                  $http({
+                      method: 'PATCH',
+                      url: ftepProperties.URL + '/databaskets/' + basket.id + '/relationships/files',
+                      data: '{"data": ' + JSON.stringify([]) + '}',
+                  }).
+                  catch(function(e) {
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to clear databasket',
+                          'Failed to clear databasket.'
+                      );
+                      console.log(e);
+                      reject();
+                  });
+              });
+          };
+          /** END OF REMOVE ALL FILES **/
 
           /** REMOVE A SINGLE FILE **/
 
@@ -216,7 +257,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(file);
                   }).
                   catch(function(e) {
-                      window.alert('Failed to remove relationship');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to remove relationship',
+                          'Failed to remove relationship'
+                      );
                       console.log(e);
                       reject();
                   });
@@ -239,7 +284,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                       resolve(basket);
                   }).
                   catch(function(e) {
-                      window.alert('Failed to update databasket');
+                      MessageService.addMessage(
+                          'Error',
+                          'Failed to update databasket',
+                          'Failed to update databasket'
+                      );
                       console.log(e);
                       reject();
                   });

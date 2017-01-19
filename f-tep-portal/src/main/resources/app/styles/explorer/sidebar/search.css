@@ -10,9 +10,6 @@
 #search-panel md-datepicker {
   max-width: 100%;
 }
-#search-panel .md-toolbar-tools {
-  height: 2.5rem;
-}
 #search-panel #searchForm {
   padding-bottom: 3rem;
 }

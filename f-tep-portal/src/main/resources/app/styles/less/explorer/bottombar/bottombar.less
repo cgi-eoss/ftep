@@ -5,6 +5,7 @@
     left: @sidenav-width;
     min-height: 300px;
     overflow-x: auto;
+    overflow-y: hidden;
     position: fixed;
     transition: all 0.4s ease-out;
     width: calc(100% ~"-" @sidenav-width);
@@ -13,11 +14,21 @@
     #bottombar-header {
         flex: 0 1 auto;
         height: 42px;
-        min-width: 900px;
+        min-width: @min-width;
         width: 100%;
+        #bottombar-tabs {
+            padding: 0 0 0 0.5rem;
+            height: 42px;
+            .md-tab {
+                padding-top: 8px;
+            }
+            md-tabs-wrapper, md-pagination-wrapper {
+               height: 42px;
+            }
+        }
         .button-section {
-            padding-left: 0px;
-            padding-right: 1rem;
+            padding:0;
+            padding-right: 0.5rem;
             button {
                 color: @brand-dark;
                 float: right;
@@ -29,31 +40,21 @@
                 background-color: transparent;
                 outline: none;
             }
-            .pagination {
-                float:right;
-                margin: 0.5rem 0;
-                a {
-                    background-color: transparent;
-                    border: none;
-                    color: @brand;
-                    padding: 2px 0.5rem;
-                    .border(border-left, @bg);
-                    &:first-child {}
-                    &:hover {
-                        background: @accent-light;
-                        color: @brand-dark;
-                    }
-                }
-                .active {
-                    a {
-                        background-color: @accent;
-                        border-color: @accent;
-                        color: @text-light;
-                    }
-                }
-                li:first-child a {
-                    border: none;
-                }
+        }
+        @media screen and (max-width: @sm-max-width){
+            .button-section-large {
+                display: none;
+            }
+            .button-section-small {
+                display: inline;
+            }
+        }
+        @media screen and (min-width: 992px){
+            .button-section-large {
+                display: inline;
+            }
+            .button-section-small {
+                display: none;
             }
         }
         .row {
@@ -64,22 +65,37 @@
         flex: 1 1 auto;
         height: calc(100% ~"-" 42px);
         margin: 0;
-        min-width: 900px;
-        .bottombar-pane {
+        min-width: @min-width;
+          .bottombar-pane {
             height: 100%;
             width: 100%;
-            .bottombar-left {
-                height:100%;
-                width: 30%;
-            }
-            .bottombar-right {
-                height:100%;
-                width: 70%;
+        }
+        .bottombar-left {
+            .border(border-bottom, @bg);
+            .border(border-left, @bg);
+            .border(border-top, @bg);
+            height:100%;
+            padding: 0;
+        }
+        .bottombar-right {
+            height:100%;
+            padding: 0;
+            @media screen and (max-width: @sm-max-width){
+                height: auto;
             }
         }
     }
     md-content {
         background-color: transparent;
+    }
+    md-input-container {
+        margin: 0;
+        width: 100%;
+        .text-sec();
+        .hint {
+            font-size: 0.6rem;
+            .text-hint();
+        }
     }
     .md-subheader {
         background-color: transparent;
@@ -88,28 +104,6 @@
             padding-right: 0;
             label {
                 .text-sec();
-            }
-        }
-    }
-    md-tabs {
-        height: 100%;
-    }
-    .nav-pills {
-        li {
-            a {
-                background-color: transparent;
-                border-radius: 0;
-                color: @dark-gray;
-            }
-            &:hover {
-                cursor: pointer;
-            }
-        }
-        li.active {
-            a {
-                background-color: transparent;
-                border-bottom: 2px solid @accent;
-                color: @brand;
             }
         }
     }

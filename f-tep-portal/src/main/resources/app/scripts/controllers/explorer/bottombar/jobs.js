@@ -80,7 +80,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
-            $scope.displayFilters = true;
+            $scope.displayFilters = false;
 
             $scope.toggleFilters = function () {
                 $scope.displayFilters = !$scope.displayFilters;
@@ -101,6 +101,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.selectJob = function (job) {
                 $rootScope.$broadcast('select.job', job);
+                var container = document.getElementById('bottombar');
+                container.scrollTop = 0;
             };
 
             $scope.removeJob = function (event, job) {

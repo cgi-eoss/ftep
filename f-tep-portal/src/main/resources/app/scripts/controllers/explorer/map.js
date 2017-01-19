@@ -199,7 +199,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
         // Update map layer & tooltip
         $scope.maplayer = {};
-        $scope.maplayer.active = "Open Street";
+        $scope.maplayer.active = "MapBox";
 
         $scope.setMapType = function(newType) {
             if(newType === 'OSM') {

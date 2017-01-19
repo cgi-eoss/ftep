@@ -665,8 +665,7 @@ ul[dnd-list] > li {
   height: 1.6rem;
 }
 #map-layer md-menu-item.active {
-  background-color: #aed581;
-  color: rgba(255, 255, 255, 0.87);
+  background-color: #d9edf7;
 }
 #map-layer md-menu-item.active .md-button {
   cursor: default !important;

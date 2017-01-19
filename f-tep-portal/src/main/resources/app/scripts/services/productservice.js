@@ -14,10 +14,13 @@ define(['../ftepmodules'], function (ftepmodules) {
           $http.defaults.headers.post['Content-Type'] = 'application/json';
           $http.defaults.withCredentials = true;
 
+          var servicesCache;
+
           this.getServices = function(){
               var deferred = $q.defer();
               $http.get( ftepProperties.URL + '/services').then(function(response) {
                   deferred.resolve(response.data.data);
+                  servicesCache = response.data.data;
               })
               .catch(function(e){
                   MessageService.addMessage(
@@ -29,6 +32,19 @@ define(['../ftepmodules'], function (ftepmodules) {
               });
               return deferred.promise;
           };
+
+          this.getServiceById = function(id){
+              var service = undefined;
+              if(servicesCache){
+                  for(var i = 0; i < servicesCache.length; i++){
+                      if(servicesCache[i].id === id){
+                          service = servicesCache[i];
+                          break;
+                      }
+                  }
+              }
+              return service;
+          }
 
           return this;
       }]);

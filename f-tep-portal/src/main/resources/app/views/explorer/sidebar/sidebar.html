@@ -2,25 +2,24 @@
 
     <div ng-controller="ProjectCtrl"
          ng-include src="'views/explorer/sidebar/project.html'"
-         ng-show="true"
          class="sidebar-header">
     </div>
 
     <div ng-controller="SearchbarCtrl"
          ng-include src="'views/explorer/sidebar/search.html'"
-         ng-show="nav_search"
+         ng-show="nav_active === section.SEARCH"
          class="sidebar-item">
     </div>
 
     <div ng-controller="ServicesCtrl"
          ng-include src="'views/explorer/sidebar/services.html'"
-         ng-show="nav_services"
+         ng-show="nav_active === section.SERVICES"
          class="sidebar-item">
     </div>
 
     <div ng-controller="WorkspaceCtrl"
          ng-include src="'views/explorer/sidebar/workspace.html'"
-         ng-show="nav_workspace"
+         ng-show="nav_active === section.WORKSPACE"
          class="sidebar-item">
     </div>
 

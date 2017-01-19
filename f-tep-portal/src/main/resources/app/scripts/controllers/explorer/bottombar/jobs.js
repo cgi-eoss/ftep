@@ -131,6 +131,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 });
             };
 
+            $scope.repeatJob = function(job){
+                $rootScope.$broadcast('rerun.service', job.attributes.inputs, job.relationships.service.data[0].id);
+            }
+
             $scope.hasGuiEndPoint = function (endPoint) {
                 if (endPoint && endPoint.includes("http")) {
                     return true;

@@ -8,7 +8,8 @@
 define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], function (ftepmodules, tpl_describeProcess) {
     'use strict';
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService',  function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService', 'ProductService',
+                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService) {
 
         $scope.selectedService;
         $scope.serviceDescription;
@@ -61,35 +62,47 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
         };
 
         $scope.$on('update.selectedService', function(event, service) {
-            $scope.selectedService = service;
-            $scope.isWpsLoading = true;
+            updateService(service);
+        });
+
+        function updateService(service){
             $scope.outputValues = {};
             $scope.inputValues = {};
             $scope.dropLists = {};
             delete $scope.info;
 
-            WpsService.getDescription(service.attributes.name).then(function(data){
+            if($scope.selectedService === undefined || $scope.selectedService.id != service.id){
+                $scope.selectedService = service;
+                $scope.isWpsLoading = true;
 
-                data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                for(var i in data.ProcessDescriptions.ProcessDescription.DataInputs.Input){
-                    if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
-                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
-                    } else {
-                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
-                    }
-                }
-                for(var j in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
-                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
-                    if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
-                        $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
-                        console.log($scope.outputValues);
-                    }
-                }
+                WpsService.getDescription(service.attributes.name).then(function(data){
 
-                $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
-                $scope.isWpsLoading = false;
-            });
+                    data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
+                    data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
+                    for(var i in data.ProcessDescriptions.ProcessDescription.DataInputs.Input){
+                        if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
+                            data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
+                        } else {
+                            data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
+                        }
+                    }
+                    for(var j in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
+                        var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
+                        if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
+                            $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
+                        }
+                    }
+
+                    $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
+                    $scope.isWpsLoading = false;
+                });
+            }
+        }
+
+        $scope.$on('rerun.service', function(event, inputs, serviceId){
+            var service = ProductService.getServiceById(serviceId);
+            updateService(service);
+            $scope.inputValues = inputs;
         });
 
         $scope.launchProcessing = function() {

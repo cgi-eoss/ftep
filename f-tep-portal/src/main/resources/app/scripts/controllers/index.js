@@ -13,6 +13,8 @@ define(['../ftepmodules'], function (ftepmodules) {
         $scope.goTo = function ( path ) {
             $location.path( path );
         };
+
+        $scope.version = document.getElementById("version").content;
       });
 
 });

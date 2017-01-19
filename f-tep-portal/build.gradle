@@ -7,7 +7,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '0.2.0'
+version '0.2.1'
 
 apply plugin: 'java'
 apply plugin: 'nebula.ospackage'
@@ -128,9 +128,14 @@ task copyIndex(type: Copy) {
     into "${buildDir}/staging"
     include 'index.html'
 
+    // Force this task to re-run, to ensure version is always up to date
+    outputs.upToDateWhen { false }
+
     filter { line ->
         line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
                 '<script src="scripts/app.js"></script>')
+        line.replace('<meta id="version" name="version" content="dev">',
+                "<meta id=\"version\" name=\"version\" content=\"${version}\">")
     }
 
     dependsOn copyApp, copyJs, copyConfig

@@ -500,12 +500,11 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.map.addInteraction(selectClick);
 
         selectClick.on('select', function(evt) {
-            if(evt.selected.length > 0){
-                $rootScope.$broadcast('map.item.toggled', evt.selected[0].get('data'));
+            var selectedItems = [];
+            for(var i = 0; i < selectClick.getFeatures().getLength(); i++){
+                selectedItems.push(selectClick.getFeatures().item(i).get('data'));
             }
-            if(evt.deselected.length > 0){
-                $rootScope.$broadcast('map.item.toggled', evt.deselected[0].get('data'));
-            }
+            $rootScope.$broadcast('map.item.toggled', selectedItems);
         });
 
         $scope.$on('results.item.selected', function(event, item, selected) {
@@ -513,23 +512,20 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         });
 
         function selectItem(item, selected){
-            var style;
-            if(selected){
-                style = selectedStyle;
-            }
-            else {
-                style = resultStyle;
-            }
-
             var features = resultsLayer.getSource().getFeatures();
             for(var i = 0; i < features.length; i++){
                 if((item.identifier && item.identifier == features[i].get('data').identifier)){
-                    features[i].setStyle(style);
                     if(selected){
+                        selectClick.getFeatures().push(features[i]);
                         $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
+                        var zoomLevel = 3;
                         if($scope.map.getView().getZoom() > 3){
-                            $scope.map.getView().setZoom($scope.map.getView().getZoom()-2); //zoom out a bit, to show the location better
+                            zoomLevel = $scope.map.getView().getZoom()-2;
                         }
+                        $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
+                    }
+                    else {
+                        selectClick.getFeatures().remove(features[i]);
                     }
                     break;
                 }
@@ -542,13 +538,12 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
         function selectAll(selected){
             if(resultsLayer){
-                var features = resultsLayer.getSource().getFeatures();
-                for(var i = 0; i < features.length; i++){
-                    if(selected){
-                        features[i].setStyle(selectedStyle);
-                    }
-                    else{
-                        features[i].setStyle(resultStyle);
+                while(selectClick.getFeatures().getLength() > 0){
+                    selectClick.getFeatures().pop();
+                }
+                if(selected){
+                    for(var i = 0; i < resultsLayer.getSource().getFeatures().length; i++){
+                        selectClick.getFeatures().push(resultsLayer.getSource().getFeatures()[i]);
                     }
                 }
             }

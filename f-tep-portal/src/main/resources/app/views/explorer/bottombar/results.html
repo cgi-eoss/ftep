@@ -6,11 +6,11 @@
         <div class="spinner" />
     </div>
 
-    <div ng-if="geoResults != undefined">
+    <div id="resultDiv" ng-if="geoResults != undefined">
 
         <ul class="products-list product-list-in-box">
             <div ng-repeat="result in geoResults">
-                <li class="geo-item"
+                <li id="{{item.identifier}}" class="geo-item"
                     ng-repeat="item in result.results.entities"
                     ng-click="toggleSelection(item)"
                     ng-class="isSelected(item) ? 'resulthighlight' : 'resultnormal'"

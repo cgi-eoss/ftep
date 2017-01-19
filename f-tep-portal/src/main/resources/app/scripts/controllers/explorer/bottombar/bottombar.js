@@ -9,8 +9,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
     ftepmodules.controller('BottombarCtrl',
-        [ '$scope', '$rootScope', 'CommonService', 'TabService', 'JobService', 'GeoService','BasketService', 'MessageService',
-        function($scope, $rootScope, CommonService, TabService, JobService, GeoService, BasketService, MessageService) {
+        [ '$scope', '$rootScope', '$anchorScroll', '$timeout', 'CommonService', 'TabService', 'JobService', 'GeoService','BasketService', 'MessageService',
+        function($scope, $rootScope, $anchorScroll, $timeout, CommonService, TabService, JobService, GeoService, BasketService, MessageService) {
 
                 $scope.resultPaging = {currentPage: 1, pageSize: GeoService.getItemsPerPage(), total: 0};
                 $scope.spinner = GeoService.spinner;
@@ -35,7 +35,23 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     setResults(results);
                     $scope.tab.active = TabService.setActiveTab("bottom", "RESULTS");
                     selectedResultItems = [];
+                    scrollResults();
                 });
+
+                function scrollResults(anchorId){
+                    if(anchorId){
+                        $timeout(function () {
+                            $anchorScroll(anchorId);
+                        }, 50);
+                    }
+                    else{ // scroll to top
+                        $timeout(function () {
+                            if(document.getElementById('resultDiv')){
+                                document.getElementById('resultDiv').scrollTop = 0;
+                            }
+                        }, 50);
+                    }
+                }
 
                 function setResults(results){
                     if(results && results.length >0){
@@ -65,22 +81,33 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                    });
                 };
 
-                $scope.$on('map.item.toggled', function(event, item) {
-                    $scope.toggleSelection(item, true);
+                $scope.$on('map.item.toggled', function(event, items) {
+                    scrollResults();
+                    selectedResultItems = items;
+                    if(items && items.length > 0){
+                        scrollResults(items[items.length-1].identifier);
+                    }
+                    $scope.$apply(function() {
+                        selectedResultItems = selectedResultItems;
+                    });
                 });
 
                 $scope.toggleSelection = function(item, fromMap) {
-                    if(item){
-                        var index = selectedResultItems.indexOf(item);
-                        if (index < 0) {
-                            selectedResultItems.push(item);
-                        } else {
-                            selectedResultItems.splice(index, 1);
+                        if(item){
+                            var index = selectedResultItems.indexOf(item);
+
+                            if (index < 0) {
+                                selectedResultItems.push(item);
+                                if(fromMap){
+                                    scrollResults(item.identifier);
+                                }
+                            } else {
+                                selectedResultItems.splice(index, 1);
+                            }
+                            if(fromMap == undefined){
+                                $rootScope.$broadcast('results.item.selected', item, index < 0);
+                            }
                         }
-                        if(fromMap == undefined){
-                            $rootScope.$broadcast('results.item.selected', item, index < 0);
-                        }
-                    }
                 };
 
                 $scope.isSelected = function(item) {

@@ -49,7 +49,7 @@
 
     <section class="item-list list">
 
-            <md-list-item class="md-3-line"
+            <md-list-item class="md-2-line"
                           ng-repeat="message in messages | orderBy: '-time'"
                           ng-show="filteredMessages.indexOf(message.status) > -1"
                           ng-click="selectMessage(message)"
@@ -64,7 +64,6 @@
                 <div class="md-list-item-text" layout="column">
                     <h3>{{message.title}}</h3>
                     <h4>{{message.time}}</h4>
-                    <p>{{message.description}}</p>
                 </div>
 
                 <md-button class="toolbar-button md-secondary"
@@ -79,18 +78,6 @@
 
             </md-list-item>
 
-    </section>
-
-    <section>
-        <md-button class="wide no-margin"
-                   ng-click="clearAll($event)"
-                   aria-label="Clear All"
-                   uib-tooltip="Clear All"
-                   tooltip-placement="top"
-                   tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">
-            Clear All <i class="material-icons">clear</i>
-        </md-button>
     </section>
 
 </div>

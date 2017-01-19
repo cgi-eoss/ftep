@@ -1,10 +1,10 @@
+<div class="spinner-container" ng-show="spinner.loading">
+    <div class="spinner" />
+</div>
+
 <div class="scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
     <div ng-if="geoResults == undefined && !spinner.loading" class="result-info">No results to display</div>
-
-    <div class="spinner-container" ng-show="spinner.loading">
-        <div class="spinner" />
-    </div>
 
     <div id="resultDiv" ng-if="geoResults != undefined">
 

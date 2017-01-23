@@ -32,8 +32,10 @@ class FtepResourceGroup extends FtepResource {
         $params=array(":uid"=> $user->uid) ;
         $parameters = new Parameters($_GET);
 
-        $jid="";
-        if(!is_null($id)){
+	$jid="";
+	// changed is_null to NULL due to some
+	// error in the dev environment
+        if(!$id==NULL){
             $jid=" AND (gid=:gid) ";
             $params[ ':gid' ] = $id;
         }

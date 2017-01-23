@@ -91,16 +91,20 @@ function ftep_job_schema() {
             'unique keys' => array(
                     'name_uniq' => array('jid'),
             ),
-            'foreign keys' => array(
-                'fk_services' => array(
-                    'table' => 'services',
-                    'columns' => array('jid' => 'uuid'),
-                ),
-                'fk_ftep_services' => array(
-                    'table' => 'drupal_ftep_service',
-                    'columns' => array('sid' => 'sid'),
-                ),
-            ),
+	    // THIS BLOCK IS COMMENTED OUT AT THE MOMENT
+	    // DUE TO ISSUES WITH THE DRUPAL FTEP MODULES
+	    // INSTALLATION ORDER
+            //'foreign keys' => array(
+            //    'fk_services' => array(
+            //        'table' => 'services',
+            //        'columns' => array('jid' => 'uuid'),
+            //    ),
+            //    'fk_ftep_services' => array(
+            //        'table' => 'drupal_ftep_service',
+            //        'columns' => array('sid' => 'sid'),
+            //    ),
+            //),
+	    // END OF COMMENT BLOCK
             // alter table drupal_ftep_job add foreign key(jid) references services(uuid);
 	);
 	return $schema;

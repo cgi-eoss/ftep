@@ -29,8 +29,10 @@ class FtepResourceDataSource extends FtepResource {
 
     public function read($id=null){
         $user = $this->getUser();
-        $params=array(":id"=> $id) ;
-        if(is_null($id)){
+	$params=array(":id"=> $id) ;
+	// changed is_null to NULL due to some
+	// error in the dev environment
+        if($id==NULL){
             $result = db_query( sprintf("SELECT *, '%s' as type FROM {%s}", $this->getResourceName(),$this->getEntityName()));
         } else {
             $result = db_query( sprintf("SELECT *, '%s' as type FROM {%s} WHERE (id=:id) ", $this->getResourceName(),$this->getEntityName()) , $params );

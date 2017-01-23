@@ -55,8 +55,10 @@ class FtepResourceDataBasket extends FtepResource {
 
         $opts=array();
 
-        $jid="";
-        if(!is_null($id)){
+	$jid="";
+	// changed in_null to NULL because of errors
+	// in the dev environment
+        if(!$id==NULL){
             // Going for a single item
             $jid=" AND (idb=:idb) ";
             $params[':idb' ] = $id;

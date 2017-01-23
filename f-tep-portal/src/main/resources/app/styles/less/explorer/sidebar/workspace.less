@@ -3,18 +3,67 @@
     .info {
         color: @accent;
     }
-    .service-header {
-        text-align: center;
-        .service-title {
-            font-size: 1.2rem;
-            margin-bottom: 0;
+    .workspace-header {
+        .service-header {
+            text-align: center;
+            .service-title {
+                color: @text;
+                font-size: 1.2rem;
+                margin-bottom: 0;
+                .md-subheader-inner {
+                    padding: 0 0 0.2rem 0;
+                }
+            }
+        }
+        .service-description-title {
+            h4 {
+               font-size: 0.8rem;
+            }
+        }
+        .service-description {
+            .border(border-bottom, @bg);
+            h5 {
+                color: @accent;
+                font-size: 0.7rem;
+            }
         }
     }
     .workspace-content {
         font-size: 0.8rem;
         line-height: 1rem;
-        i {
-            font-size: 0.9rem;
+        .service-field {
+            padding: 4px;
+            .input-item {
+                input {
+                  font-size: 0.6rem;
+                }
+            }
+            .md-subheader {
+                color: @text;
+                font-size: 0.7rem;
+                padding-top: 0.5rem;
+                button {
+                    background-color: @dark-button;
+                    color: @text-light;
+                    margin-left: 4px;
+                    padding: 2px 4px;
+                    &:hover {
+                        background-color: @dark-button-hover;
+                    }
+                }
+                i {
+                     font-size: 0.7rem;
+                }
+                .md-subheader-inner {
+                    padding: 0;
+                }
+                .required-asterisk {
+                    color: @accent;
+                }
+            }
+            &:hover {
+                background-color: @alert;
+            }
         }
     }
     #launch-button {
@@ -39,41 +88,13 @@
             background-color: @accent;
         }
     }
-}
-
-md-chip {
-    background-color: @light-gray;
-    border-radius: 16px;
-    color: @dark-gray;
-    display: block;
-    float: left;
-    font-size: 12px;
-    height: 32px;
-    line-height: 32px;
-    margin: 2px;
-    max-width: 110px;
-    padding-left: 12px;
-    .md-chip-content {
-        float: left;
-        height: 32px;
-        max-width: 50px;
-        overflow: hidden;
-        padding-right: 4px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    .md-button[disabled] {
+        background-color: @disabled !important;
     }
-    .md-chip-close {
-        float: right;
-        line-height: 22px;
-        padding-right: 12px;
-        padding-top: 4px;
-        i {
-            cursor: pointer;
-            font-size: 12px;
+    .btn-success[disabled]:hover {
+        background-color: @error !important;
+        .material-icons {
+            color: @error-text !important;
         }
-    }
-    &:hover {
-        background-color: @alert-text;
-        color: @text-light;
     }
 }

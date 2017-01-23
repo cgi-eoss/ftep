@@ -1153,19 +1153,62 @@ input {
 #workspace-panel .info {
   color: #ff4081;
 }
-#workspace-panel .service-header {
+#workspace-panel .workspace-header .service-header {
   text-align: center;
 }
-#workspace-panel .service-header .service-title {
+#workspace-panel .workspace-header .service-header .service-title {
+  color: rgba(0, 0, 0, 0.87);
   font-size: 1.2rem;
   margin-bottom: 0;
+}
+#workspace-panel .workspace-header .service-header .service-title .md-subheader-inner {
+  padding: 0 0 0.2rem 0;
+}
+#workspace-panel .workspace-header .service-description-title h4 {
+  font-size: 0.8rem;
+}
+#workspace-panel .workspace-header .service-description {
+  border-bottom: #d2d2d2 solid 1px;
+}
+#workspace-panel .workspace-header .service-description h5 {
+  color: #ff4081;
+  font-size: 0.7rem;
 }
 #workspace-panel .workspace-content {
   font-size: 0.8rem;
   line-height: 1rem;
 }
-#workspace-panel .workspace-content i {
-  font-size: 0.9rem;
+#workspace-panel .workspace-content .service-field {
+  padding: 4px;
+}
+#workspace-panel .workspace-content .service-field .input-item input {
+  font-size: 0.6rem;
+}
+#workspace-panel .workspace-content .service-field .md-subheader {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 0.7rem;
+  padding-top: 0.5rem;
+}
+#workspace-panel .workspace-content .service-field .md-subheader button {
+  background-color: rgba(50, 50, 50, 0.3);
+  color: rgba(255, 255, 255, 0.87);
+  margin-left: 4px;
+  padding: 2px 4px;
+}
+#workspace-panel .workspace-content .service-field .md-subheader button:hover {
+  background-color: rgba(50, 50, 50, 0.8);
+}
+#workspace-panel .workspace-content .service-field .md-subheader i {
+  font-size: 0.7rem;
+}
+#workspace-panel .workspace-content .service-field .md-subheader .md-subheader-inner {
+  padding: 0;
+}
+#workspace-panel .workspace-content .service-field .md-subheader .required-asterisk {
+  color: #ff4081;
+}
+#workspace-panel .workspace-content .service-field:hover {
+  background-color: #d9edf7;
 }
 #workspace-panel #launch-button {
   background-color: #ff80ab;
@@ -1189,41 +1232,14 @@ input {
 #workspace-panel #launch-button:hover {
   background-color: #ff4081;
 }
-md-chip {
-  background-color: lightgray;
-  border-radius: 16px;
-  color: rgba(0, 0, 0, 0.54);
-  display: block;
-  float: left;
-  font-size: 12px;
-  height: 32px;
-  line-height: 32px;
-  margin: 2px;
-  max-width: 110px;
-  padding-left: 12px;
+#workspace-panel .md-button[disabled] {
+  background-color: #BBB !important;
 }
-md-chip .md-chip-content {
-  float: left;
-  height: 32px;
-  max-width: 50px;
-  overflow: hidden;
-  padding-right: 4px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+#workspace-panel .btn-success[disabled]:hover {
+  background-color: #f2dede !important;
 }
-md-chip .md-chip-close {
-  float: right;
-  line-height: 22px;
-  padding-right: 12px;
-  padding-top: 4px;
-}
-md-chip .md-chip-close i {
-  cursor: pointer;
-  font-size: 12px;
-}
-md-chip:hover {
-  background-color: #31708f;
-  color: rgba(255, 255, 255, 0.87);
+#workspace-panel .btn-success[disabled]:hover .material-icons {
+  color: #a94442 !important;
 }
 
 #sidenav {

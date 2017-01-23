@@ -1,7 +1,4 @@
 @import "variable";
-@mapbutton: rgba(50, 50, 50, 0.3);
-@mapbutton-hover: rgba(50, 50, 50, 0.8);
-@coords: rgba(50, 50, 50, 0.8);
 
 #map-container {
     height: 100%;
@@ -28,9 +25,9 @@
             }
             button {
                 &:hover {
-                   background-color: @mapbutton-hover;
+                   background-color: @dark-button-hover;
                 }
-                background-color: @mapbutton;
+                background-color: @dark-button;
                 color: rgba(255,255,255,.8);
                 height: 1.6rem;
                 width: 1.6rem;
@@ -41,9 +38,9 @@
         }
         .map-type {
             top: 70px;
-            background-color: @mapbutton;
+            background-color: @dark-button;
             &:hover {
-                background-color: @mapbutton-hover;
+                background-color: @dark-button-hover;
             }
         }
         .ol-zoom {
@@ -59,9 +56,9 @@
             top: 242px;
         }
         .map-clear, .polygon-copy, .polygon-edit {
-            background-color: @mapbutton;
+            background-color: @dark-button;
             &:hover {
-                background-color: @mapbutton-hover;
+                background-color: @dark-button-hover;
             }
         }
         .map-clear {
@@ -90,8 +87,8 @@
             top: 70px;
             width: auto;
             .ol-scale-line-inner {
-                border-color: @mapbutton-hover;
-                color: @mapbutton-hover;
+                border-color: @dark-button-hover;
+                color: @dark-button-hover;
                 font-size: 14px;
                 font-weight: bold;
                 height: 1rem;

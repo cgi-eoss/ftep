@@ -57,28 +57,29 @@
 
                         <div class="input-container">
 
-                            <div class="row input-header">
+                            <div class="row no-margin input-header">
                                 <md-subheader class="md-accent">
-                                    {{fieldDesc.Identifier.__text}} - {{fieldDesc.Title.__text}}
-                                    <span ng-show="!fieldDesc.optional">*</span>
+                                    <span uib-tooltip="{{fieldDesc.Identifier.__text}}"
+                                        tooltip-placement="top"
+                                        tooltip-trigger="mouseenter"
+                                        tooltip-append-to-body="true">{{fieldDesc.Title.__text}}</span>
+                                    <span class="required-asterisk" ng-show="!fieldDesc.optional">*</span>
                                 <button type="button input-button"
                                         class="btn"
                                         ng-show="fieldDesc.Identifier.__text == 'aoi'"
                                         ng-click="pastePolygon(fieldDesc.Identifier.__text)"
-                                        aria-label="Copy from map"
-                                        uib-tooltip="Copy from map"
+                                        aria-label="Copy From Map"
+                                        uib-tooltip="Copy From Map"
                                         tooltip-placement="right"
                                         tooltip-trigger="mouseenter"
                                         tooltip-append-to-body="true">
-
-                                    <i class="material-icons">input</i>
-
+                                    <i class="material-icons">content_copy</i>
                                 </button>
                                 </md-subheader>
                             </div>
 
-                            <div class="row input-item">
-                               <div class="col-md-12">
+                            <div class="row no-margin input-item">
+                               <div class="col-md-12 no-padding">
                                     <md-input-container md-no-float>
                                         <input ng-model="inputValues[fieldDesc.Identifier.__text]"
                                                type="{{getInputType(fieldDesc)}}"
@@ -90,8 +91,8 @@
                                </div>
                            </div>
 
-                            <div class="row drop-items">
-                                <div class="col-md-12">
+                            <div class="row no-margin drop-items">
+                                <div class="col-md-12 no-padding">
 
                                     <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
                                              uib-tooltip="{{item}}"

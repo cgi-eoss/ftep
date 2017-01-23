@@ -34,18 +34,17 @@
                     archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true
                 }
 
-// TODO Pending fix for testcontainers docker-in-docker functionality
-//                stage('Acceptance Test') {
-//                    timeout(20) {
-//                        try {
-//                            sh "gradle -I ${GRADLEINIT} test -pf-tep-test -PacceptanceTests"
-//                        } catch (Exception e) {
-//                            // Swallow acceptance test failures
-//                        } finally {
-//                            step($class: 'CucumberTestResultArchiver', testResults: 'f-tep-test/target/test-results/cucumber.json')
-//                        }
-//                    }
-//                }
+                stage('Acceptance Test') {
+                    timeout(20) {
+                        try {
+                            sh "gradle -I ${GRADLEINIT} test -pf-tep-test -PacceptanceTests"
+                        } catch (Exception e) {
+                            // Swallow acceptance test failures
+                        } finally {
+                            step($class: 'CucumberTestResultArchiver', testResults: 'f-tep-test/target/test-results/cucumber.json')
+                        }
+                    }
+                }
 
                 if (!eossCI.isTriggeredByGerrit()) {
                     stage('SonarQube Analysis') {

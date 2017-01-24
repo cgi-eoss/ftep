@@ -139,7 +139,7 @@ class ftep::drupal (
     ],
     rewrites         => [
       {
-        rewrite_rule => ['^/api/(.*) /api.php?q=api/$1 [P,L]']
+        rewrite_rule => ['^/secure/api/v1.0/(.*) /api.php?q=api/$1 [P,L]']
       }
     ]
   }

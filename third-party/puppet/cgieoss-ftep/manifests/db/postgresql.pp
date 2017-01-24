@@ -1,7 +1,8 @@
-class ftep::db::postgresql(
-  $db_name           = $ftep::globals::ftep_db_name,
-  $db_username       = $ftep::globals::ftep_db_username,
-  $db_password       = $ftep::globals::ftep_db_password,
+class ftep::db::postgresql (
+  $db_name     = $ftep::globals::ftep_db_name,
+  $db_v2_name  = $ftep::globals::ftep_db_v2_name,
+  $db_username = $ftep::globals::ftep_db_username,
+  $db_password = $ftep::globals::ftep_db_password,
 ) {
 
   # EPEL is required for the postgis extensions
@@ -17,16 +18,22 @@ class ftep::db::postgresql(
   class { ::postgresql::globals:
     manage_package_repo => true,
     version             => '9.5',
-  }->
-  class { ::postgresql::server:
-    ipv4acls                   => $acls,
-    listen_addresses           => '*',
-  }
+  } ->
+    class { ::postgresql::server:
+      ipv4acls         => $acls,
+      listen_addresses => '*',
+    }
   class { ::postgresql::server::postgis: }
   class { ::postgresql::server::contrib: }
 
   ::postgresql::server::db { 'ftepdb':
     dbname   => $db_name,
+    user     => $db_username,
+    password => postgresql_password($db_username, $db_password),
+    grant    => 'ALL',
+  }
+  ::postgresql::server::db { 'ftepdb_v2':
+    dbname   => $db_v2_name,
     user     => $db_username,
     password => postgresql_password($db_username, $db_password),
     grant    => 'ALL',

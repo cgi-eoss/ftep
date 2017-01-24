@@ -25,3 +25,5 @@ classes:
 #    ip: 127.0.0.1
 #  ftep-wps:
 #    ip: 127.0.0.1
+#  ftep-server:
+#    ip: 127.0.0.1

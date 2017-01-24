@@ -39,6 +39,14 @@ services:
       - ftep-db
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:rw'
+  ftep-server:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: server.pkg
+        puppetconf: server.yaml
+    links:
+      - ftep-db
   ftep-proxy:
     extends: ftep-db
     build:
@@ -49,3 +57,4 @@ services:
       - ftep-drupal
       - ftep-webapp
       - ftep-wps
+      - ftep-server

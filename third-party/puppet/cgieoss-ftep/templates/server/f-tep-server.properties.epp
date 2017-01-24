@@ -1,0 +1,21 @@
+<%- |
+    Integer $server_port,
+    String $api_base_path,
+    String $jdbc_driver,
+    String $jdbc_url,
+    String $jdbc_user,
+    String $jdbc_password,
+    String $jdbc_data_source_class_name
+| -%>
+# Managed by Puppet
+
+# Server config
+server.port=<%= $server_port %>
+ftep.api.base-path=<%= $api_base_path %>
+
+# Database config
+jdbc.driver=<%= $jdbc_driver %>
+jdbc.url=<%= $jdbc_url %>
+jdbc.user=<%= $jdbc_user %>
+jdbc.password=<%= $jdbc_password %>
+jdbc.dataSourceClassName=<%= $jdbc_data_source_class_name %>

@@ -6,6 +6,7 @@ class ftep::proxy (
   $context_path_geoserver = '/geoserver',
   $context_path_webapp    = '/app',
   $context_path_wps       = '/wps',
+  $context_path_api_v2    = '/secure/api/v2.0',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -41,6 +42,10 @@ class ftep::proxy (
     {
       'path' => $context_path_wps,
       'url'  => 'http://ftep-wps'
+    },
+    {
+      'path' => $context_path_api_v2,
+      'url'  => "http://ftep-server:${ftep::globals::server_application_port}/${context_path_api_v2}"
     },
   ]
 

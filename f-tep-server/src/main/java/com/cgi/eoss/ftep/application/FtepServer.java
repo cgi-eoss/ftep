@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 })
 @SpringBootApplication(scanBasePackageClasses = FtepServer.class)
 @PropertySource(value = "file:/var/f-tep/etc/f-tep-server.properties", ignoreResourceNotFound = true)
-@PropertySource(value = "file:${user.home}/.config/f-tep/ftep-server.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "file:${user.home}/.config/f-tep/f-tep-server.properties", ignoreResourceNotFound = true)
 public class FtepServer {
     public static void main(String[] args) {
         SpringApplication.run(FtepServer.class, args);

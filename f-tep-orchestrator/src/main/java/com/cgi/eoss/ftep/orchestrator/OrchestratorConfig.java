@@ -22,12 +22,12 @@ import java.nio.file.Paths;
 public class OrchestratorConfig {
 
     @Bean
-    public Path cacheRoot(@Value("${ftep.orchestrator.cache.baseDir:'/data/cache/dl'}") String cacheRoot) {
+    public Path cacheRoot(@Value("${ftep.orchestrator.cache.baseDir:/data/cache/dl}") String cacheRoot) {
         return Paths.get(cacheRoot);
     }
 
     @Bean
-    public Path jobEnvironmentRoot(@Value("${ftep.orchestrator.jobEnv.baseDir:'/data/cache/jobs'}") String jobEnvRoot) {
+    public Path jobEnvironmentRoot(@Value("${ftep.orchestrator.jobEnv.baseDir:/data/cache/jobs}") String jobEnvRoot) {
         return Paths.get(jobEnvRoot);
     }
 

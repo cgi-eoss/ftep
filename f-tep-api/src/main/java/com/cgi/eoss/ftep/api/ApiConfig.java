@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api;
 
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,14 +25,12 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 @ComponentScan("com.cgi.eoss.ftep.api")
 public class ApiConfig {
 
-    private static final String API_BASE_PATH = "/api";
-
     @Bean
-    public RepositoryRestConfigurer repositoryRestConfigurer() {
+    public RepositoryRestConfigurer repositoryRestConfigurer(@Value("${ftep.api.base-path:/api}") String apiBasePath) {
         return new RepositoryRestConfigurerAdapter() {
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-                config.setBasePath(API_BASE_PATH);
+                config.setBasePath(apiBasePath);
                 config.setRepositoryDetectionStrategy(ANNOTATED);
             }
         };

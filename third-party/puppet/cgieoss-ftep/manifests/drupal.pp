@@ -93,12 +93,15 @@ class ftep::drupal (
     core_version     => $drupal_version,
     modules          => {
       'ctools'            => '1.9',
-      'endpoint'          => '1.4',
       'entity'            => '1.7',
       'entityreference'   => '1.1',
       'registry_autoload' => '1.3',
       'shib_auth'         => '4.3',
       'views'             => '3.13',
+      'endpoint'          => { 'download' => {
+        'type' => 'copy',
+        'url'  => 'file:///opt/f-tep-drupalmodules/endpoint/',
+      } },
       $ftep_module_name   => { 'download' => {
         'type' => 'copy',
         'url'  => 'file:///opt/f-tep-drupalmodules/ftep-backend/',

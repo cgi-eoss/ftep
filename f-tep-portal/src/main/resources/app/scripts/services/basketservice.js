@@ -50,8 +50,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                       params: parameters,
                   })
                   .then(function (response) {
-                      basketListCache = response.result;
-                      deferred.resolve(response.result);
+                      basketListCache = response.data;
+                      deferred.resolve(response.data);
                   });
               return deferred.promise;
           }
@@ -76,11 +76,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                               params: parameters,
                           })
                           .then(function (response) {
-                              if (angular.equals(basketListCache, response.result) == false) {
-                                  basketListCache = response.result;
-                                  $rootScope.$broadcast('refresh.databaskets', response.result);
+                              if (angular.equals(basketListCache, response.data) == false) {
+                                  basketListCache = response.data;
+                                  $rootScope.$broadcast('refresh.databaskets', response.data);
                               }
-                              deferred.resolve(response.result);
+                              deferred.resolve(response.data);
                               retriesLeft = 3;
                               connectionError = false;
                           })
@@ -114,7 +114,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                   url: ftepProperties.URL + '/databaskets/' + databasket.id + '/relationships/files'
               })
               .then(function(response) {
-                  deferred.resolve(response.result);
+                  deferred.resolve(response.data);
               })
               .catch(function(e){
                   MessageService.addMessage(
@@ -140,9 +140,9 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   then(function(response) {
                       if(items){
-                          addItems(response.result.data, items);
+                          addItems(response.data.data, items);
                       }
-                      resolve(response.result.data);
+                      resolve(response.data.data);
                   }).
                   catch(function(e) {
                       if(e.status == 409){

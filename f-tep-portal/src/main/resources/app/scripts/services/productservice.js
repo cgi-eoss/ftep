@@ -19,8 +19,8 @@ define(['../ftepmodules'], function (ftepmodules) {
           this.getServices = function(){
               var deferred = $q.defer();
               $http.get( ftepProperties.URL + '/services').then(function(response) {
-                  deferred.resolve(response.result.data);
-                  servicesCache = response.result.data;
+                  deferred.resolve(response.data.data);
+                  servicesCache = response.data.data;
               })
               .catch(function(e){
                   MessageService.addMessage(

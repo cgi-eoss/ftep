@@ -87,8 +87,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                 params: params,
             }).
             then(function(response) {
-                setCache(response.result.data);
-                deferred.resolve(response.result.data);
+                setCache(response.data.data);
+                deferred.resolve(response.data.data);
             }).
             catch(function(e) {
                 deferred.reject();

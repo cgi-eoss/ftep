@@ -43,13 +43,13 @@ define(['../ftepmodules'], function (ftepmodules) {
               } else {
                   var deferred = $q.defer();
                   $http.get(ftepProperties.URL + '/jobs?include=service&fields[service]=name').then(function (response) {
-                          if (angular.equals(jobListCache, response.result) == false) {
-                              waitingForNewJob = ((jobListCache != undefined) && (jobListCache.meta.total <= response.result.meta.total));
-                              jobListCache = response.result;
-                              $rootScope.$broadcast('refresh.jobs', response.result);
+                          if (angular.equals(jobListCache, response.data) == false) {
+                              waitingForNewJob = ((jobListCache != undefined) && (jobListCache.meta.total <= response.data.meta.total));
+                              jobListCache = response.data;
+                              $rootScope.$broadcast('refresh.jobs', response.data);
                               findRunningJob();
                           }
-                          deferred.resolve(response.result);
+                          deferred.resolve(response.data);
                           retriesLeft = 3;
                           connectionError = false;
                       })
@@ -122,7 +122,7 @@ define(['../ftepmodules'], function (ftepmodules) {
               var deferred = $q.defer();
 
               $http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
-                  deferred.resolve(response.result.data);
+                  deferred.resolve(response.data.data);
               })
               .catch(function(e){
                   MessageService.addMessage(

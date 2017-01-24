@@ -47,7 +47,7 @@ public class HttpDownloader implements Downloader {
             throw new ServiceIoException("Unsuccessful HTTP response: " + response);
         }
 
-        String filename = getFilename(uri, response.headers("Content-Disposition"));
+        String filename = getFilename(uri, response.headers(FILENAME_HEADER));
 
         Path outputFile = targetDir.resolve(filename);
 

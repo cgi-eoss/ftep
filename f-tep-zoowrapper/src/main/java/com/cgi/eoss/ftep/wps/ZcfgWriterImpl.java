@@ -36,7 +36,7 @@ public class ZcfgWriterImpl implements ZcfgWriter {
             Template tpl = freemarker.getTemplate(ZCFG_TEMPLATE);
             tpl.process(svc, writer);
         } catch (Exception e) {
-            throw new RuntimeException("Could not write ZCFG with Freemarker template", e);
+            throw new WpsDescriptorIoException("Could not write ZCFG with Freemarker template: " + zcfg, e);
         }
     }
 

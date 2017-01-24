@@ -7,6 +7,7 @@ import java.nio.file.Path;
 /**
  * <p>Utility to generate ZOO-Project zcfg files from {@link FtepServiceDescriptor} objects.</p>
  */
+@FunctionalInterface
 public interface ZcfgWriter {
 
     /**

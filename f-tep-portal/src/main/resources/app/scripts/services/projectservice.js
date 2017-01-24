@@ -38,7 +38,7 @@ define(['../ftepmodules'], function (ftepmodules) {
           this.getProjects = function(){
               var deferred = $q.defer();
               $http.get( ftepProperties.URL + '/projects').then(function(response) {
-                  deferred.resolve(response.data.data);
+                  deferred.resolve(response.result.data);
               })
               .catch(function(e){
                   MessageService.addMessage(
@@ -61,7 +61,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                       data: '{"data": ' + JSON.stringify(project) + '}',
                   }).
                   then(function(response) {
-                      resolve(response.data.data);
+                      resolve(response.result.data);
                   }).
                   catch(function(e) {
                       if(e.status == 409){
@@ -105,7 +105,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                       data: '{"data": ' + JSON.stringify(project) + '}',
                   }).
                   then(function(response) {
-                      resolve(response.data.data);
+                      resolve(response.result.data.data);
                   }).
                   catch(function(e) {
                       MessageService.addMessage(

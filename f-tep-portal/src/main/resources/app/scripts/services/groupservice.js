@@ -13,7 +13,7 @@ define(['../ftepmodules'], function (ftepmodules) {
     this.getGroups = function(){
       var deferred = $q.defer();
       $http.get( ftepProperties.URL + '/groups').then(function(response) {
-        deferred.resolve(response.data.data);
+        deferred.resolve(response.result.data);
       })
       .catch(function(e){
           MessageService.addMessage(
@@ -37,7 +37,7 @@ define(['../ftepmodules'], function (ftepmodules) {
           data: '{"data": ' + JSON.stringify(group) + '}',
         }).
         then(function(response) {
-          resolve(response.data.data);
+          resolve(response.result.data);
         }).
         catch(function(e) {
           if(e.status == 409){

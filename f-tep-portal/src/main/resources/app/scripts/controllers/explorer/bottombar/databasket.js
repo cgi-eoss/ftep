@@ -44,7 +44,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.$on('refresh.databaskets', function (event, result) {
                 $scope.databaskets = result.data;
-                $scope.dbPaging.dbTotal = result.meta.total[0];
+                $scope.dbPaging.dbTotal = result.meta.total;
             });
 
             $scope.removeDatabasket = function (event, basket) {

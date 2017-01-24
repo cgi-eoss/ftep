@@ -1,16 +1,16 @@
 # Install and manage GeoServer for WMS/WFS
-class ftep::geoserver(
-  $group = 'geoserver',
-  $user = 'geoserver',
-  $user_home = '/home/geoserver',
-  $geoserver_home = '/opt/geoserver',
-  $geoserver_data_dir = '/opt/geoserver-data',
-  $config_file = '/etc/default/geoserver',
-  $init_script = '/etc/init.d/geoserver',
-  $geoserver_version = '2.10.0',
+class ftep::geoserver (
+  $group                  = 'geoserver',
+  $user                   = 'geoserver',
+  $user_home              = '/home/geoserver',
+  $geoserver_home         = '/opt/geoserver',
+  $geoserver_data_dir     = '/opt/geoserver-data',
+  $config_file            = '/etc/default/geoserver',
+  $init_script            = '/etc/init.d/geoserver',
+  $geoserver_version      = '2.10.0',
   $geoserver_download_url = 'http://sourceforge.net/projects/geoserver/files/GeoServer/2.10.0/geoserver-2.10.0-bin.zip',
-  $geoserver_port = '9080',
-  $geoserver_stopport = '9079',
+  $geoserver_port         = '9080',
+  $geoserver_stopport     = '9079',
 ) {
 
   contain ::ftep::common::java
@@ -29,6 +29,8 @@ class ftep::geoserver(
     require    => Group[$group],
   }
 
+  ensure_packages(['unzip'])
+
   # This is created by the ::archive resource
   $geoserver_path = "${user_home}/geoserver-2.10.0"
 
@@ -44,19 +46,19 @@ class ftep::geoserver(
     user             => $user,
     target           => $user_home,
     src_target       => $user_home,
-    require          => [User[$user]],
+    require          => [User[$user], Package['unzip']],
   }
 
   file { $geoserver_home:
-    ensure           => link,
-    target           => $geoserver_path,
-    require          => Archive[$archive],
+    ensure  => link,
+    target  => $geoserver_path,
+    require => Archive[$archive],
   }
   file { $geoserver_data_dir:
-    ensure           => directory,
-    mode             => '0755',
-    owner            => $user,
-    require          => User[$user],
+    ensure  => directory,
+    mode    => '0755',
+    owner   => $user,
+    require => User[$user],
   }
 
   $config_file_epp = @(END)
@@ -82,7 +84,7 @@ END
 
   file { $init_script:
     ensure  => present,
-    mode => '0755',
+    mode    => '0755',
     content => epp('ftep/geoserver/initscript.sh.epp'), # no parameterisation yet
     require => [User[$user], Archive[$archive], File[$config_file]],
   }
@@ -92,7 +94,7 @@ END
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
-    require => [File[$init_script]],
+    require    => [File[$init_script]],
   }
 
 }

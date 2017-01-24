@@ -19,6 +19,8 @@ test {
     }
 
     systemProperties['HARNESS_DIR'] = harnessDir
+
+    testLogging.showStandardStreams = true
 }
 
 if (project.hasProperty("acceptanceTests")) {

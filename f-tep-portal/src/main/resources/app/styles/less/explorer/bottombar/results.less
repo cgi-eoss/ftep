@@ -10,7 +10,6 @@
         padding: 0 1rem;
         text-align: center;
         width: 100%;
-
         paging {
             display: inline-block;
         }
@@ -21,9 +20,42 @@
         .geo-item {
             .border(border-bottom, @bg);
             cursor: pointer;
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 0.8em;
             padding: 0.4rem;
             padding-bottom: 0.2rem;
-            font-size: 0.8em;
+            .buttons, .details, .draghandle {
+                display: flex;
+                flex-direction: column;
+            }
+            .buttons {
+                .col-sm-6 {
+                    padding: 0 10px;
+                }
+            }
+            .details {
+                h5 {
+                    margin: 0;
+                }
+                p {
+                    margin: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+            .draghandle {
+                cursor: move;
+                min-height: 100%;
+                max-height: 100%;
+                max-width: 50px;
+                .md-avatar {
+                    height: auto;
+                    margin: 0;
+                    margin: auto;
+                }
+            }
             .title {
                 font-size: 1.2em;
                 font-weight: 500;
@@ -60,7 +92,6 @@
             z-index: 10;
         }
     }
-
     @keyframes spin {
         0% {
             transform: rotate(0deg);

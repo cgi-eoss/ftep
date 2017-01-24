@@ -1,6 +1,6 @@
-<div class="button-section-small">
-   <md-menu-bar>
-       <md-menu>
+<div class="button-section button-section-small">
+    <md-menu-bar>
+        <md-menu>
             <md-button ng-click="$mdOpenMenu($event)"
                        class="toolbar-button"
                        aria-label="Results Action Menu"
@@ -95,7 +95,7 @@
     </md-menu-bar>
 </div>
 
-<div class="button-section-large">
+<div class="button-section button-section-large">
 
     <md-button class="toolbar-button"
                ng-disabled="geoResults == undefined"
@@ -139,25 +139,30 @@
         <i class="material-icons">add_shopping_cart</i>
     </md-button>
 
-    <md-menu ng-controller="DatabasketCtrl">
-        <md-button ng-click="$mdOpenMenu($event)"
-                   class="toolbar-button"
-                   aria-label="Select Databasket"
-                   uib-tooltip="Select Databasket"
-                   tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">
-            <i class="material-icons">shopping_cart</i>
-        </md-button>
-        <md-menu-content>
-            <md-menu-item ng-repeat="basket in databaskets">
-                 <md-button ng-click="selectDatabasket(basket)"
-                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
-                            aria-label="Databasket">
-                    <i class="material-icons">shopping_basket</i>{{basket.attributes.name}}
-                </md-button>
-            </md-menu-item>
-        </md-menu-content>
-    </md-menu>
+    <md-menu-bar>
+        <md-menu ng-controller="DatabasketCtrl">
+            <md-button ng-click="$mdOpenMenu($event)"
+                       class="toolbar-button"
+                       aria-label="Select Databasket"
+                       uib-tooltip="Select Databasket"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">shopping_cart</i>
+            </md-button>
+            <md-menu-content>
+                <md-menu-item ng-repeat="basket in databaskets">
+                     <md-button ng-click="selectDatabasket(basket)"
+                                ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                aria-label="Databasket">
+                        <span>
+                            <span class="material-icons">shopping_basket</span>
+                            <span class="menu-text">{{basket.attributes.name}}</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+    </md-menu-bar>
 
     <md-button class="toolbar-button"
                ng-disabled="geoResults == undefined || selectedDatabasket == undefined"

@@ -10,60 +10,74 @@
 
         <ul class="products-list product-list-in-box">
             <div ng-repeat="result in geoResults">
-                <li id="{{item.identifier}}" class="geo-item"
+                <li id="{{item.identifier}}"
                     ng-repeat="item in result.results.entities"
                     ng-click="toggleSelection(item)"
                     ng-class="isSelected(item) ? 'resulthighlight' : 'resultnormal'"
                     ng-mouseover="updateMetadata(item)"
                     dnd-draggable="getSelectedItemsLinks(item)">
 
-                    <div class="row no-margin">
+                    <div class="row no-margin geo-item">
 
-                        <div class="col-xs-11 no-padding">
+                        <div class="col-xs-1 no-padding draghandle">
+                             <div class="md-avatar" alt="drag handle">
+                                <i class="material-icons"
+                                   uib-tooltip="Drag Result"
+                                   tooltip-placement="top"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">drag_handle</i>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-10 no-padding details">
 
                             <div class="row">
                                 <div class="col-md-12 title">
-                                    {{item.identifier}}
+                                    <h5>{{item.identifier}}</h5>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-3">
-                                    Start: {{item.start}}
+                                    <p>Start: {{item.start}}</p>
                                 </div>
                                 <div class="col-md-3">
-                                    End: {{item.stop}}
+                                    <p>End: {{item.stop}}</p>
                                 </div>
                                 <div class="col-md-2">
-                                    Size: {{item.size | bytesToGB}}
+                                    <p>Size: {{item.size | bytesToGB}}</p>
                                 </div>
 
                             </div>
 
                         </div>
 
-                        <div class="col-xs-1 no-padding">
-
-                            <md-button class="toolbar-button md-secondary"
-                                       ng-click="showMetadata($event, item)"
-                                       aria-label="Show Metadata"
-                                       uib-tooltip="Show Metadata"
-                                       tooltip-placement="top"
-                                       tooltip-trigger="mouseenter"
-                                       tooltip-append-to-body="true">
-                                <i class="material-icons">info_outline</i>
-                            </md-button>
-
-                            <md-button class="toolbar-button md-secondary"
-                                       href="{{getLink(item)}}"
-                                       target="_self"
-                                       aria-label="Download"
-                                       uib-tooltip="Download"
-                                       tooltip-placement="top"
-                                       tooltip-trigger="mouseenter"
-                                       tooltip-append-to-body="true">
-                                <i class="material-icons">file_download</i>
-                            </md-button>
+                        <div class="col-xs-1 no-padding buttons">
+                            <div class="row no-margin">
+                                <div class="col-sm-6">
+                                      <md-button class="toolbar-button md-secondary"
+                                                 ng-click="showMetadata($event, item)"
+                                                 aria-label="Show Metadata"
+                                                 uib-tooltip="Show Metadata"
+                                                 tooltip-placement="top"
+                                                 tooltip-trigger="mouseenter"
+                                                 tooltip-append-to-body="true">
+                                        <i class="material-icons">info_outline</i>
+                                    </md-button>
+                                </div>
+                                <div class="col-sm-6">
+                                     <md-button class="toolbar-button md-secondary"
+                                                href="{{getLink(item)}}"
+                                                target="_self"
+                                                aria-label="Download"
+                                                uib-tooltip="Download"
+                                                tooltip-placement="top"
+                                                tooltip-trigger="mouseenter"
+                                                tooltip-append-to-body="true">
+                                        <i class="material-icons">file_download</i>
+                                    </md-button>
+                                </div>
+                            </div>
 
                         </div>
 

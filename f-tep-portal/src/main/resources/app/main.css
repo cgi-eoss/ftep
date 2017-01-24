@@ -64,13 +64,21 @@ input {
   background-color: #ffffff;
 }
 #bottombar #bottombar-header {
+  display: -ms-flexbox;
+  display: flex;
   -ms-flex: 0 1 auto;
       flex: 0 1 auto;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
   height: 42px;
   min-width: calc(44px + 380px);
   width: 100%;
 }
 #bottombar #bottombar-header #bottombar-tabs {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
   padding: 0 0 0 0.5rem;
   height: 42px;
 }
@@ -82,8 +90,14 @@ input {
   height: 42px;
 }
 #bottombar #bottombar-header .button-section {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  height: 100%;
   padding: 0;
   padding-right: 0.5rem;
+  width: 100%;
 }
 #bottombar #bottombar-header .button-section button {
   color: #33691e;
@@ -96,17 +110,20 @@ input {
   background-color: transparent;
   outline: none;
 }
+#bottombar #bottombar-header .button-section md-menu-bar .toolbar-button {
+  height: 36px;
+}
 @media screen and (max-width: 991px) {
   #bottombar #bottombar-header .button-section-large {
     display: none;
   }
   #bottombar #bottombar-header .button-section-small {
-    display: inline;
+    display: block;
   }
 }
 @media screen and (min-width: 992px) {
   #bottombar #bottombar-header .button-section-large {
-    display: inline;
+    display: block;
   }
   #bottombar #bottombar-header .button-section-small {
     display: none;
@@ -401,9 +418,44 @@ input {
 #results .products-list .geo-item {
   border-bottom: #d2d2d2 solid 1px;
   cursor: pointer;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  font-size: 0.8em;
   padding: 0.4rem;
   padding-bottom: 0.2rem;
-  font-size: 0.8em;
+}
+#results .products-list .geo-item .buttons,
+#results .products-list .geo-item .details,
+#results .products-list .geo-item .draghandle {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
+#results .products-list .geo-item .buttons .col-sm-6 {
+  padding: 0 10px;
+}
+#results .products-list .geo-item .details h5 {
+  margin: 0;
+}
+#results .products-list .geo-item .details p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#results .products-list .geo-item .draghandle {
+  cursor: move;
+  min-height: 100%;
+  max-height: 100%;
+  max-width: 50px;
+}
+#results .products-list .geo-item .draghandle .md-avatar {
+  height: auto;
+  margin: 0;
+  margin: auto;
 }
 #results .products-list .geo-item .title {
   font-size: 1.2em;
@@ -446,6 +498,42 @@ input {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.ftep md-chip {
+  background-color: lightgray;
+  border-radius: 16px;
+  color: rgba(0, 0, 0, 0.54);
+  display: block;
+  float: left;
+  font-size: 10px;
+  height: 32px;
+  line-height: 32px;
+  margin: 2px;
+  max-width: 110px;
+  padding-left: 12px;
+}
+.ftep md-chip .md-chip-content {
+  float: left;
+  height: 32px;
+  max-width: 50px;
+  overflow: hidden;
+  padding-right: 4px;
+  white-space: nowrap;
+}
+.ftep md-chip .md-chip-close {
+  float: right;
+  line-height: 22px;
+  padding-right: 12px;
+  padding-top: 4px;
+}
+.ftep md-chip .md-chip-close i {
+  cursor: pointer;
+  font-size: 12px;
+}
+.ftep md-chip:hover {
+  background-color: #31708f;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .ftep .md-dialog-container {
@@ -566,6 +654,13 @@ input {
   background-color: lightgray;
 }
 
+.ftep md-menu-bar {
+  float: right;
+  padding: 0;
+}
+.ftep md-menu-item {
+  color: #558b2f;
+}
 .ftep md-menu-item .md-button {
   font-size: 14px;
 }
@@ -580,7 +675,6 @@ input {
 .ftep md-menu-item .material-icons {
   float: left;
   height: 24px;
-  padding-top: 6px;
   padding-right: 10px;
   width: 50px;
 }
@@ -684,6 +778,10 @@ input {
 }
 .ftep .toolbar-button:hover {
   background-color: transparent;
+}
+
+.ftep .tooltip {
+  word-wrap: break-word;
 }
 
 .ftep {
@@ -1284,19 +1382,22 @@ input {
 #sidenav #explorer-nav-wrapper .explorer-nav li:hover:hover {
   background-color: rgba(50, 50, 50, 0.9);
 }
-#sidenav .notification {
+#sidenav .notification-container {
+  position: relative;
+}
+#sidenav .notification-container .notification {
   background-color: #a94442;
   border-radius: 25px;
   color: rgba(255, 255, 255, 0.87);
   float: left;
   font-size: 11px;
-  margin-left: -10px;
-  margin-top: 18px;
+  left: 24px;
+  top: 28px;
   min-width: 16px;
   padding: 0 3px;
   position: absolute;
   text-align: center;
-  z-index: 200;
+  z-index: 20;
 }
 
 @font-face {

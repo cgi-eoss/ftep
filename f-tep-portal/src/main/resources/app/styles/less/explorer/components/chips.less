@@ -1,0 +1,38 @@
+@import "variable";
+.ftep {
+    md-chip {
+        background-color: @light-gray;
+        border-radius: 16px;
+        color: @dark-gray;
+        display: block;
+        float: left;
+        font-size: 10px;
+        height: 32px;
+        line-height: 32px;
+        margin: 2px;
+        max-width: 110px;
+        padding-left: 12px;
+        .md-chip-content {
+            float: left;
+            height: 32px;
+            max-width: 50px;
+            overflow: hidden;
+            padding-right: 4px;
+            white-space: nowrap;
+        }
+        .md-chip-close {
+            float: right;
+            line-height: 22px;
+            padding-right: 12px;
+            padding-top: 4px;
+            i {
+                cursor: pointer;
+                font-size: 12px;
+            }
+        }
+        &:hover {
+            background-color: @alert-text;
+            color: @text-light;
+        }
+    }
+}

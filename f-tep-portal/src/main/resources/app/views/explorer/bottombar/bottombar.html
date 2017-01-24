@@ -10,19 +10,19 @@
     </section>
 
     <section ng-if="tab.active == '0'"
-             class="button-section col-xs-3"
+             class="col-xs-3 no-padding"
              ng-include
              src="'views/explorer/bottombar/tabs/resultstab.html'" />
     <section ng-if="tab.active == '1'"
-             class="col-xs-3"
+             class="col-xs-3 no-padding"
              ng-include
              src="'views/explorer/bottombar/tabs/databasketstab.html'" />
     <section ng-if="tab.active == '2'"
-             class="col-xs-3"
+             class="col-xs-3 no-padding"
              ng-include
              src="'views/explorer/bottombar/tabs/jobstab.html'" />
     <section ng-if="tab.active == '3'"
-             class="col-xs-3"
+             class="col-xs-3 no-padding"
              ng-include
              src="'views/explorer/bottombar/tabs/messagestab.html'"
              ng-controller="MessagesCtrl" />

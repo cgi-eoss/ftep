@@ -12,11 +12,15 @@
     z-index: 2;
     .bg-trans(@bg-light);
     #bottombar-header {
+        display: flex;
         flex: 0 1 auto;
+        flex-wrap: wrap;
         height: 42px;
         min-width: @min-width;
         width: 100%;
         #bottombar-tabs {
+            display: flex;
+            flex-direction: column;
             padding: 0 0 0 0.5rem;
             height: 42px;
             .md-tab {
@@ -27,8 +31,12 @@
             }
         }
         .button-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             padding:0;
             padding-right: 0.5rem;
+            width: 100%;
             button {
                 color: @brand-dark;
                 float: right;
@@ -40,18 +48,23 @@
                 background-color: transparent;
                 outline: none;
             }
+            md-menu-bar {
+                .toolbar-button {
+                     height: 36px;
+                }
+            }
         }
         @media screen and (max-width: @sm-max-width){
             .button-section-large {
                 display: none;
             }
             .button-section-small {
-                display: inline;
+                display: block;
             }
         }
         @media screen and (min-width: 992px){
             .button-section-large {
-                display: inline;
+                display: block;
             }
             .button-section-small {
                 display: none;

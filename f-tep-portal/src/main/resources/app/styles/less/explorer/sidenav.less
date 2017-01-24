@@ -34,18 +34,22 @@
             }
         }
     }
-    .notification {
-        background-color: @error-text;
-        border-radius: 25px;
-        color: @text-light;
-        float: left;
-        font-size: 11px;
-        margin-left: -10px;
-        margin-top: 18px;
-        min-width: 16px;
-        padding: 0 3px;
-        position: absolute;
-        text-align: center;
-        z-index: 200;
+    .notification-container {
+        position: relative;
+        .notification {
+            background-color: @error-text;
+            border-radius: 25px;
+            color: @text-light;
+            float: left;
+            font-size: 11px;
+            left: 24px;
+            top: 28px;
+            min-width: 16px;
+            padding: 0 3px;
+            position: absolute;
+            text-align: center;
+            z-index: 20;
+        }
     }
+
 }

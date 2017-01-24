@@ -3,7 +3,7 @@
 # Install and manage ZOO-Project's zoo-kernel WPS server, and the
 # f-tep-processors WPS service package.
 #
-class ftep::wps(
+class ftep::wps (
   $manage_zoo_kernel = true,
   $manage_package    = true,
   $package_ensure    = 'present',
@@ -31,9 +31,9 @@ class ftep::wps(
   $db_type           = 'PG',
   $db_schema         = 'public',
 
-  $env_config = { },
-  $ftep_config = { },
-  $other_config = { },
+  $env_config        = { },
+  $ftep_config       = { },
+  $other_config      = { },
 ) {
 
   require ::ftep::globals
@@ -52,8 +52,8 @@ class ftep::wps(
   $real_db_pass = pick($db_pass, $::ftep::globals::ftep_db_password)
 
   ensure_packages(['f-tep-processors'], {
-    ensure  => 'latest',
-    name    => 'f-tep-processors',
+    ensure => 'latest',
+    name   => 'f-tep-processors',
   })
 
   if ($manage_zoo_kernel) {
@@ -66,9 +66,9 @@ class ftep::wps(
       }
 
       ensure_packages(['zoo-kernel'], {
-        ensure  => $_package_ensure,
-        name    => $package_name,
-        tag     => 'ftep',
+        ensure => $_package_ensure,
+        name   => $package_name,
+        tag    => 'ftep',
       })
     }
 
@@ -106,10 +106,11 @@ class ftep::wps(
   }
 
   ::apache::vhost { 'ftep-wps':
-    port             => '80',
-    servername       => 'ftep-wps',
-    docroot          => '/var/www/cgi-bin',
-    scriptalias      => $config_path,
+    port        => '80',
+    servername  => 'ftep-wps',
+    docroot     => '/var/www/cgi-bin',
+    scriptalias => $config_path,
+    options     => ['-Indexes']
   }
 
 }

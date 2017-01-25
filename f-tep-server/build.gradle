@@ -17,14 +17,15 @@ dependencies {
     compile project(':f-tep-api')
     compile project(':f-tep-orchestrator')
 
+    compile deps.aspectjWeaver
+    compile deps.flyway
+    compile deps.javaxServletApi
+    compile deps.logbackClassic
     compile deps.springContext
     compile deps.springBootAutoconfigure
-
-    runtime deps.javaxServletApi
-    runtime deps.logbackClassic
-    runtime deps.springBootUndertow
-    runtime deps.springDataRestHalBrowser
-    runtime deps.aspectjWeaver
+    compile deps.springBootActuator
+    compile deps.springBootUndertow
+    compile deps.springDataRestHalBrowser
 
     // Default provided database adapters
     runtime deps.hsqldb

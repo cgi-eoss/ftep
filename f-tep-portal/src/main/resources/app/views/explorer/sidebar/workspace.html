@@ -10,7 +10,7 @@
 
     <div class="panel-body scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-        <section ng-if="!selectedService">
+        <section ng-if="!serviceParams.selectedService">
             <div class="row service-header">
                 <md-subheader class="md-accent md-subheader-top service-title" ng-hide="isWpsLoading">
                      No Selected Service
@@ -25,13 +25,13 @@
 
         <div ng-show="isWpsLoading">Loading...</div>
 
-        <div id="wps_{{serviceDescription.Identifier1}}" ng-if="selectedService" ng-hide="isWpsLoading">
+        <div id="wps_{{serviceDescription.Identifier1}}" ng-if="serviceParams.selectedService" ng-hide="isWpsLoading">
 
             <section class="workspace-header">
 
-                <div class="row service-header" ng-if="selectedService">
+                <div class="row service-header">
                     <md-subheader class="md-accent md-subheader-top service-title">
-                        {{selectedService.attributes.name}}
+                        {{serviceParams.selectedService.attributes.name}}
                     </md-subheader>
                 </div>
 
@@ -125,7 +125,7 @@
                            ng-disabled="serviceForm.$invalid"
                            ng-hide="isWpsLoading"
                            aria-label="Launch"
-                           ng-click="displayTab('JOBS'); launchProcessing()"
+                           ng-click="displayTab(bottomNavTabs.JOBS); launchProcessing()"
                            uib-tooltip="Launch"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"

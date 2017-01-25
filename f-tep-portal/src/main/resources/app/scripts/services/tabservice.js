@@ -10,54 +10,29 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('TabService', [ '$q', function ($q) {
 
-        var tabs = {};
-        var activeTab = "";
+        var sideNavTabs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
 
-        tabs.side = [
-            {
-                name: "SEARCH",
-                active: true
-            },
-            {
-                name: "SERVICES",
-                active: false
-            },
-            {
-                name: "WORKSPACE",
-                active: false
-            }
-        ];
+        var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
 
-        tabs.bottom = [
-            {
-                name: "RESULTS",
-                active: true
-            },
-            {
-                name: "DATABASKETS",
-                active: false
-            },
-            {
-                name: "JOBS",
-                active: false
-            },
-            {
-                name: "MESSAGES",
-                active: false
-            },
-        ];
+        this.getSideNavTabs = function(){
+            return angular.copy(sideNavTabs);
+        }
 
-        this.setActiveTab = function (location, tabName) {
-            for (var item in tabs[location]) {
-                if (tabs[location][item].name === tabName) {
-                     tabs[location][item].active = true;
-                     activeTab = item;
-                } else {
-                     tabs[location][item].active = false;
-                }
-            }
-            return activeTab;
+        this.getBottomNavTabs = function(){
+            return angular.copy(bottomNavTabs);
+        }
+
+        /** PRESERVE USER SELECTIONS **/
+        this.navInfo = {
+                activeSideNav: undefined,
+                activeBottomNav: bottomNavTabs.RESULTS,
+                bottomViewVisible: false,
+                sideViewVisible: false
         };
+
+        /** END OF PRESERVE USER SELECTIONS **/
+
+        this.resultTab = { nameExtention: '' };
 
         return this;
     }]);

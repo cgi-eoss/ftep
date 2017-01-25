@@ -137,6 +137,28 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           };
 
+          /** PRESERVE USER SELECTIONS **/
+          this.params = {
+                  selectedJob: undefined,
+                  jobOutputs: [], //all outputs of the selected job
+                  jobSelectedOutputs: [], //selected outputs
+                  displayFilters: false, //whether filter section is opened or not
+                  jobStatuses: [    //filter options
+                                {
+                                    name: "Succeeded",
+                                    value: true
+                                }, {
+                                    name: "Failed",
+                                    value: true
+                                }, {
+                                    name: "Running",
+                                    value: true
+                                }
+                              ],
+                  jobGroupInfo: {} //info about job groups, which ones are opened, etc.
+          };
+          /** END OF PRESERVE USER SELECTIONS **/
+
           return this;
       }]);
 });

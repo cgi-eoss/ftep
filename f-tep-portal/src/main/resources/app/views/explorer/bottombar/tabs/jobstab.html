@@ -12,7 +12,8 @@
             <md-menu-content>
                 <md-menu-item>
                      <md-button aria-label="Select All"
-                                ng-click="selectAllOutputs()">
+                                ng-click="selectAllOutputs()"
+                                ng-disabled="jobParams.selectedJob == undefined">
                         <span>
                             <span class="material-icons">check_box</span>
                             <span class="menu-text">Select All</span>
@@ -21,7 +22,8 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button aria-label="Deselect All"
-                               ng-click="clearOutputsSelection()">
+                               ng-click="clearOutputsSelection()"
+                               ng-disabled="jobParams.selectedJob == undefined">
                         <span>
                             <span class="material-icons">check_box_outline_blank</span>
                             <span class="menu-text">Deselect All</span>
@@ -30,7 +32,8 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button aria-label="Invert Selection"
-                               ng-click="invertOutputsSelection()">
+                               ng-click="invertOutputsSelection()"
+                               ng-disabled="jobParams.selectedJob == undefined">
                          <span>
                              <span class="material-icons">indeterminate_check_box</span>
                              <span class="menu-text">Invert Selection</span>
@@ -62,7 +65,7 @@
                         <md-menu-content>
                             <md-menu-item ng-repeat="basket in databaskets">
                                  <md-button ng-click="selectDatabasket(basket)"
-                                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
                                             aria-label="Databasket">
                                     <span>
                                         <span class="material-icons">shopping_basket</span>
@@ -74,9 +77,9 @@
                     </md-menu>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-disabled="selectedDatabasket == undefined"
-                               ng-class="(selectedDatabasket == undefined) ? 'icon-disabled' : ''"
-                               ng-click="addOutputsToDatabasket()"
+                    <md-button ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
+                               ng-class="(dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1) ? 'icon-disabled' : ''"
+                               ng-click="addToDatabasket()"
                                aria-label="Add to Databasket">
                          <span>
                              <span class="material-icons">shopping_basket</span>
@@ -96,7 +99,8 @@
                aria-label="Select All"
                uib-tooltip="Select All"
                tooltip-trigger="mouseenter"
-               tooltip-append-to-body="true">
+               tooltip-append-to-body="true"
+               ng-disabled="jobParams.selectedJob == undefined">
         <i class="material-icons">check_box</i>
     </md-button>
 
@@ -105,7 +109,8 @@
                aria-label="Deselect All"
                uib-tooltip="Deselect All"
                tooltip-trigger="mouseenter"
-               tooltip-append-to-body="true">
+               tooltip-append-to-body="true"
+               ng-disabled="jobParams.selectedJob == undefined">
         <i class="material-icons">check_box_outline_blank</i>
     </md-button>
 
@@ -114,12 +119,13 @@
                aria-label="Invert Selection"
                uib-tooltip="Invert Selection"
                tooltip-trigger="mouseenter"
-               tooltip-append-to-body="true">
+               tooltip-append-to-body="true"
+               ng-disabled="jobParams.selectedJob == undefined">
         <i class="material-icons">indeterminate_check_box</i>
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-click="createNewBasket($event)"
+               ng-click="createNewBasket($event, jobSelectedOutputs)"
                aria-label="Create New Databasket"
                uib-tooltip="Create New Databasket"
                tooltip-trigger="mouseenter"
@@ -140,7 +146,7 @@
             <md-menu-content>
                 <md-menu-item ng-repeat="basket in databaskets">
                      <md-button ng-click="selectDatabasket(basket)"
-                                ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
                                 aria-label="Databasket">
                         <span>
                             <span class="material-icons">shopping_basket</span>
@@ -153,11 +159,11 @@
     </md-menu-bar>
 
     <md-button class="toolbar-button"
-               ng-disabled="selectedDatabasket == undefined"
-               ng-class="(selectedDatabasket == undefined) ? 'icon-disabled' : ''"
-               ng-click="addOutputsToDatabasket()"
+               ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
+               ng-class="(dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1) ? 'icon-disabled' : ''"
+               ng-click="addToDatabasket()"
                aria-label="Add to Databasket"
-               uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
+               uib-tooltip="Add to {{dbParams.selectedDatabasket.attributes.name}}"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true">
         <i class="material-icons">shopping_basket</i>

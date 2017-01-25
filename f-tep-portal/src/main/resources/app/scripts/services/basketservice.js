@@ -296,6 +296,21 @@ define(['../ftepmodules'], function (ftepmodules) {
           };
           /** END OF UPDATE DATABASKET **/
 
+          /** PRESERVE USER SELECTIONS **/
+          this.params = {
+                  selectedDatabasket: undefined,
+                  selectedItems: undefined,
+                  searchText: '',
+                  displayFilters: false
+          };
+
+          this.pagingData = {
+                  dbCurrentPage: 1,
+                  dbPageSize: 10,
+                  dbTotal: 0
+          };
+          /** END OF PRESERVE USER SELECTIONS **/
+
           return this;
       }]);
 });

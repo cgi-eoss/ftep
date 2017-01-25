@@ -13,7 +13,7 @@
                 <li id="{{item.identifier}}"
                     ng-repeat="item in result.results.entities"
                     ng-click="toggleSelection(item)"
-                    ng-class="isSelected(item) ? 'resulthighlight' : 'resultnormal'"
+                    ng-class="(resultParams.selectedResultItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
                     ng-mouseover="updateMetadata(item)"
                     dnd-draggable="getSelectedItemsLinks(item)">
 
@@ -98,5 +98,5 @@
         show-first-last="true"
         paging-action="fetchResultsPage(page)">
     </paging>
-    <div class="paging-details" ng-controller="ResultsCtrl">Showing {{pageFrom}} - {{pageTo}} of {{resultsTotal}}</div>
+    <div class="paging-details">Showing {{pageFrom}} - {{pageTo}} of {{resultPaging.total}}</div>
 </section>

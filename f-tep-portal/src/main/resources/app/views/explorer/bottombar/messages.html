@@ -11,7 +11,7 @@
 
                 <div class="col-xs-1 expander">
                     <i class="material-icons"
-                       ng-show="!displayFilters"
+                       ng-show="!msgParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Show Filters"
                        uib-tooltip="Show Filters"
@@ -21,7 +21,7 @@
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="displayFilters"
+                       ng-show="msgParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Hide Filters"
                        uib-tooltip="Hide Filters"
@@ -35,9 +35,9 @@
             </div>
 
             <div class="col-md-12 col-lg-4 filter-checkboxes"
-                 ng-show="displayFilters"
+                 ng-show="msgParams.displayFilters"
                  ng-click="messageStatus.value = !messageStatus.value; filterMessages()"
-                 ng-repeat="messageStatus in messageStatuses">
+                 ng-repeat="messageStatus in msgParams.messageStatuses">
                 <md-checkbox ng-model="messageStatus.value"
                              ng-click="messageStatus.value = !messageStatus.value; filterMessages()"
                              aria-label="Message Filter"/>
@@ -53,7 +53,7 @@
                           ng-repeat="message in messages | orderBy: '-time'"
                           ng-show="filteredMessages.indexOf(message.status) > -1"
                           ng-click="selectMessage(message)"
-                          ng-class="{active: message.id == selectedMessage.id}">
+                          ng-class="{active: message.id == msgParams.selectedMessage.id}">
 
                 <div class="md-avatar" alt="{{message.attributes.step}}" style="{{getColor(message.status)}}">
                     <i class="material-icons" ng-if="message.status === 'Error'">error</i>

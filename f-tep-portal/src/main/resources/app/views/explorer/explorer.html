@@ -11,7 +11,7 @@
                     md-component-id="left"
                     md-disable-backdrop
                     md-whiteframe="4"
-                    ng-show="searchMenuVisible">
+                    ng-show="navInfo.sideViewVisible">
              <div class="sidebar-container" ng-include src="'views/explorer/sidebar/sidebar.html'"></div>
         </md-sidenav>
 
@@ -19,10 +19,7 @@
 
     <div id="map-container" ng-include src="'views/explorer/map.html'"></div>
 
-    <div id="bottombar" class="explorer-content" ng-controller="BottombarCtrl" ng-include src="'views/explorer/bottombar/bottombar.html'" ng-show="resultsMenuVisible"></div>
+    <div id="bottombar" class="explorer-content" ng-controller="BottombarCtrl" ng-include src="'views/explorer/bottombar/bottombar.html'"
+            ng-show="navInfo.bottomViewVisible"></div>
 
-</div>
-
-<div class="warnings error-text" ng-show="warning.isVisible">
-    {{warning.message}}
 </div>

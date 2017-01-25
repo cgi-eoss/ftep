@@ -11,7 +11,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
     ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService', 'ProductService',
                                 function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService) {
 
-        $scope.selectedService;
+        $scope.serviceParams = ProductService.params;
         $scope.serviceDescription;
         $scope.isWpsLoading = false;
         $scope.info;
@@ -71,32 +71,30 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             $scope.dropLists = {};
             delete $scope.info;
 
-            if($scope.selectedService === undefined || $scope.selectedService.id != service.id){
-                $scope.selectedService = service;
-                $scope.isWpsLoading = true;
+            $scope.serviceParams.selectedService = service;
+            $scope.isWpsLoading = true;
 
-                WpsService.getDescription(service.attributes.name).then(function(data){
+            WpsService.getDescription(service.attributes.name).then(function(data){
 
-                    data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                    data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                    for(var i in data.ProcessDescriptions.ProcessDescription.DataInputs.Input){
-                        if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
-                            data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
-                        } else {
-                            data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
-                        }
+                data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
+                data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
+                for(var i in data.ProcessDescriptions.ProcessDescription.DataInputs.Input){
+                    if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
+                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
+                    } else {
+                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
                     }
-                    for(var j in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
-                        var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
-                        if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
-                            $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
-                        }
+                }
+                for(var j in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
+                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
+                    if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
+                        $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
                     }
+                }
 
-                    $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
-                    $scope.isWpsLoading = false;
-                });
-            }
+                $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
+                $scope.isWpsLoading = false;
+            });
         }
 
         $scope.$on('rerun.service', function(event, inputs, serviceId){
@@ -107,7 +105,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
 
         $scope.launchProcessing = function() {
             console.log('Process..');
-            var aProcess = $scope.selectedService.attributes.name;
+            var aProcess = $scope.serviceParams.selectedService.attributes.name;
             notify('Running '+aProcess+' service..');
             var iparams=[];
 
@@ -150,6 +148,13 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             var str = label.substr(from);
             return '..'.concat(str);
         };
+
+        function setup(){
+            if($scope.serviceParams.selectedService){
+                updateService($scope.serviceParams.selectedService);
+            }
+        }
+        setup();
 
     }]);
 });

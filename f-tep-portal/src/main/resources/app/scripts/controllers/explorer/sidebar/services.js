@@ -1,8 +1,8 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', 'ProductService', '$sce',
-                                 function ($scope, $rootScope, ProductService, $sce) {
+    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', '$sce', 'ProductService', 'TabService',
+                                 function ($scope, $rootScope, $sce, ProductService, TabService) {
 
 
             // Service types which services are grouped by
@@ -22,7 +22,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
 
             $scope.serviceSearch = {
-                searchText: ''
+                searchText: ProductService.params.searchText
             };
 
             $scope.serviceQuickSearch = function (item) {
@@ -34,6 +34,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.selectService = function (service) {
                 $rootScope.$broadcast('update.selectedService', service);
+                TabService.navInfo.activeSideNav = TabService.getSideNavTabs().WORKSPACE;
             };
 
             $scope.getShortDesc = function (desc) {

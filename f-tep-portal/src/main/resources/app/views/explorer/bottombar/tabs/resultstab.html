@@ -52,8 +52,8 @@
                         </span>
                     </md-button>
                 </md-menu-item>
-                <md-menu-item>
-                    <md-menu ng-controller="DatabasketCtrl">
+                <md-menu-item ng-controller="DatabasketCtrl">
+                    <md-menu>
                         <md-button ng-click="$mdOpenMenu($event)"
                                    class="toolbar-button"
                                    aria-label="Select Databasket"
@@ -68,7 +68,7 @@
                         <md-menu-content>
                             <md-menu-item ng-repeat="basket in databaskets">
                                  <md-button ng-click="selectDatabasket(basket)"
-                                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
                                             aria-label="Databasket">
                                     <span>
                                         <span class="material-icons">shopping_basket</span>
@@ -80,8 +80,8 @@
                     </md-menu>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-disabled="geoResults == undefined || selectedDatabasket == undefined"
-                               ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
+                    <md-button ng-disabled="geoResults == undefined || dbParams.selectedDatabasket == undefined"
+                               ng-class="(geoResults == undefined || dbParams.selectedDatabasket == undefined) ? 'icon-disabled' : ''"
                                ng-click="addToDatabasket()"
                                aria-label="Add to Databasket">
                         <span>
@@ -152,7 +152,7 @@
             <md-menu-content>
                 <md-menu-item ng-repeat="basket in databaskets">
                      <md-button ng-click="selectDatabasket(basket)"
-                                ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
                                 aria-label="Databasket">
                         <span>
                             <span class="material-icons">shopping_basket</span>
@@ -165,11 +165,11 @@
     </md-menu-bar>
 
     <md-button class="toolbar-button"
-               ng-disabled="geoResults == undefined || selectedDatabasket == undefined"
-               ng-class="(geoResults == undefined || selectedDatabasket == undefined) ? 'icon-disabled' : ''"
+               ng-disabled="resultParams.selectedResultItems.length < 1 || dbParams.selectedDatabasket == undefined"
+               ng-class="(resultParams.selectedResultItems.length < 1 || dbParams.selectedDatabasket == undefined) ? 'icon-disabled' : ''"
                ng-click="addToDatabasket()"
                aria-label="Add to Databasket"
-               uib-tooltip="Add to {{selectedDatabasket.attributes.name}}"
+               uib-tooltip="Add to {{dbParams.selectedDatabasket.attributes.name}}"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true">
         <i class="material-icons">shopping_basket</i>

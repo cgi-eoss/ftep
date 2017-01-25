@@ -11,8 +11,8 @@
             </md-button>
             <md-menu-content>
                 <md-menu-item>
-                     <md-button ng-disabled="selectedDatabasket == undefined"
-                                ng-class="selectedDatabasket == undefined ? 'icon-disabled' : ''"
+                     <md-button ng-disabled="dbParams.selectedDatabasket == undefined"
+                                ng-class="dbParams.selectedDatabasket == undefined ? 'icon-disabled' : ''"
                                 ng-click="clearDatabasket()"
                                 aria-label="Clear Databasket">
                         <span>
@@ -22,7 +22,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-menu ng-controller="DatabasketCtrl">
+                    <md-menu>
                         <md-button ng-click="$mdOpenMenu($event)"
                                    class="toolbar-button"
                                    aria-label="Select Databasket"
@@ -37,7 +37,7 @@
                         <md-menu-content>
                             <md-menu-item ng-repeat="basket in databaskets">
                                  <md-button ng-click="selectDatabasket(basket)"
-                                            ng-class="(basket.attributes.name == selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
                                             aria-label="Databasket">
                                     <span>
                                         <span class="material-icons">shopping_basket</span>
@@ -49,7 +49,7 @@
                     </md-menu>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-click="createNewBasket($event)"
+                    <md-button ng-click="createNewBasket($event, dbParams.selectedDatabasket ? dbParams.selectedDatabasket.items : [])"
                                aria-label="Create New Databasket">
                         <span>
                             <span class="material-icons">add_shopping_cart</span>
@@ -64,8 +64,8 @@
 
 <div class="button-section button-section-large">
     <md-button class="toolbar-button"
-               ng-disabled="selectedDatabasket == undefined"
-               ng-class="selectedDatabasket == undefined ? 'icon-disabled' : ''"
+               ng-disabled="dbParams.selectedDatabasket == undefined"
+               ng-class="dbParams.selectedDatabasket == undefined ? 'icon-disabled' : ''"
                ng-click="clearDatabasket()"
                aria-label="Clear Databasket"
                uib-tooltip="Clear Databasket"
@@ -75,7 +75,7 @@
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-click="createNewBasket($event)"
+               ng-click="createNewBasket($event, dbParams.selectedDatabasket ? dbParams.selectedDatabasket.items : [])"
                aria-label="Create New Databasket"
                uib-tooltip="Create New Databasket"
                tooltip-trigger="mouseenter"

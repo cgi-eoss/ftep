@@ -45,6 +45,25 @@ define(['../ftepmodules'], function (ftepmodules) {
             $rootScope.$broadcast('update.messages');
         };
 
+        this.params = {
+                messageStatuses: [
+                    {
+                         name: "Error",
+                         value: true
+                    },
+                    {
+                         name: "Warning",
+                         value: true
+                    },
+                    {
+                         name: "Info",
+                         value: true
+                    }
+                ],
+                selectedMessage: undefined,
+                displayFilters: false
+        };
+
         return this;
     }]);
 });

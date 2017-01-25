@@ -44,7 +44,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }
               }
               return service;
-          }
+          };
+
+          this.params = {
+                  selectedService: undefined,
+                  searchText: ''
+          };
 
           return this;
       }]);

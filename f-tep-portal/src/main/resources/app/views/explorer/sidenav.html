@@ -1,19 +1,19 @@
 <nav id="explorer-nav-wrapper">
 
     <ul class="explorer-nav">
-        <li ng-click="toggleSidebar('search')">
+        <li ng-click="toggleSidebar(sideNavTabs.SEARCH)">
             <i class="material-icons" uib-tooltip="Search" tooltip-placement="right">search</i>
         </li>
-        <li ng-click="toggleSidebar('services')">
+        <li ng-click="toggleSidebar(sideNavTabs.SERVICES)">
             <i class="material-icons" uib-tooltip="Services" tooltip-placement="right">settings_remote</i>
         </li>
-        <li ng-click="toggleSidebar('workspace')">
+        <li ng-click="toggleSidebar(sideNavTabs.WORKSPACE)">
             <i class="material-icons" uib-tooltip="Workspace" tooltip-placement="right">settings_input_component</i>
         </li>
-        <li ng-click="toggleResultsMenu()">
+        <li ng-click="toggleBottomView()">
             <i class="material-icons" uib-tooltip="Data-Panel" tooltip-placement="right">visibility</i>
         </li>
-        <li ng-click="displayTab('MESSAGES')" class="notification-container">
+        <li ng-click="displayTab(bottomNavTabs.MESSAGES)" class="notification-container">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification">{{message.count}}</span>
         </li>

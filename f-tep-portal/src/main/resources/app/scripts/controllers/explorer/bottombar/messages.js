@@ -12,32 +12,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                  function ($scope, $rootScope, $mdDialog, CommonService, MessageService) {
 
             $scope.messages = MessageService.getMessages();
-            $scope.messageStatuses = [
-                {
-                    name: "Error",
-                    value: true
-                }, {
-                    name: "Warning",
-                    value: true
-                }, {
-                    name: "Info",
-                    value: true
-                }
-            ];
-            $scope.selected = {};
+            $scope.msgParams = MessageService.params;
+
             $scope.filteredMessages = [];
-            $scope.displayFilters = false;
 
             $scope.toggleFilters = function () {
-                $scope.displayFilters = !$scope.displayFilters;
+                $scope.msgParams.displayFilters = !$scope.msgParams.displayFilters;
                 $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.filterMessages = function () {
                 $scope.filteredMessages = [];
-                for (var i = 0; i < $scope.messageStatuses.length; i++) {
-                    if ($scope.messageStatuses[i].value === true) {
-                        $scope.filteredMessages.push($scope.messageStatuses[i].name);
+                for (var i = 0; i < $scope.msgParams.messageStatuses.length; i++) {
+                    if ($scope.msgParams.messageStatuses[i].value === true) {
+                        $scope.filteredMessages.push($scope.msgParams.messageStatuses[i].name);
                     }
                 }
             };
@@ -48,7 +36,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.selectMessage = function (message) {
-                $rootScope.$broadcast('show.message', message);
+                $scope.msgParams.selectedMessage = message;
+                $scope.$broadcast('rebuild:scrollbar');
                 var container = document.getElementById('bottombar');
                 container.scrollTop = 0;
             };
@@ -59,18 +48,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.clearMessage = function (event, message) {
                 MessageService.clearMessage(message);
+                if($scope.msgParams.selectedMessage && $scope.msgParams.selectedMessage.id === message.id){
+                    delete $scope.msgParams.selectedMessage;
+                }
             };
 
             $scope.clearAll = function (event) {
                 CommonService.confirm(event, 'Are you sure you want to clear all messages?').then(function (confirmed) {
                     if (confirmed !== false) {
                         MessageService.clearAll();
+                        delete $scope.msgParams.selectedMessage;
                     }
                 });
-            };
-
-            $scope.getColor = function (status) {
-                return CommonService.getColor(status);
             };
 
     }]);

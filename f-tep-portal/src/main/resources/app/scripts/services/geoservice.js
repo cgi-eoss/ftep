@@ -30,15 +30,15 @@ define(['../ftepmodules'], function (ftepmodules) {
             var deferred = $q.defer();
 
             if(pageNumber){
-                this.parameters.pageNumber = pageNumber;
+                this.pagingData.currentPage = pageNumber;
             }
             else{
-                this.parameters.pageNumber = 1;
+                this.pagingData.currentPage = 1;
             }
 
             // set times to midnight, and increment end date by one day to make it inclusive
-            var start = angular.copy(this.parameters.startTime);
-            var end = angular.copy(this.parameters.endTime);
+            var start = angular.copy(this.searchParameters.startTime);
+            var end = angular.copy(this.searchParameters.endTime);
 
             start.setHours(0,0,0,0);
             end.setHours(0,0,0,0);
@@ -51,34 +51,34 @@ define(['../ftepmodules'], function (ftepmodules) {
             var params = {
                     startDate: start,
                     endDate: end,
-                    startPage: this.parameters.pageNumber,
+                    startPage: this.pagingData.currentPage,
                     maximumRecords: ITEMS_PER_PAGE,
-                    sat: this.dataSources[0].id === this.parameters.selectedDatasource.id,
-                    tep: this.dataSources[1].id === this.parameters.selectedDatasource.id,
+                    sat: this.dataSources[0].id === this.searchParameters.selectedDatasource.id,
+                    tep: this.dataSources[1].id === this.searchParameters.selectedDatasource.id,
                     ref: false
             }; //TODO ref data
 
-            if(this.parameters.polygon){
+            if(this.searchParameters.polygon){
                 var bboxVal = [];
-                for(var i = 0; i < this.parameters.polygon.length; i++){
-                    bboxVal[i] = this.parameters.polygon[i].toFixed(0);
+                for(var i = 0; i < this.searchParameters.polygon.length; i++){
+                    bboxVal[i] = this.searchParameters.polygon[i].toFixed(0);
                 }
                 params.bbox = bboxVal.toString();
             }
 
-            if (this.parameters.mission) {
-                params.platform = this.parameters.mission.name;
+            if (this.searchParameters.mission) {
+                params.platform = this.searchParameters.mission.name;
 
-                if (this.parameters.mission.name.indexOf('1') > -1 && this.parameters.polarisation) {
-                    params.polarisation = this.parameters.polarisation.label;
+                if (this.searchParameters.mission.name.indexOf('1') > -1 && this.searchParameters.polarisation) {
+                    params.polarisation = this.searchParameters.polarisation.label;
                 }
-                else if (this.parameters.mission.name.indexOf('2') > -1) {
-                    params.maxCloudCoverPercentage = this.parameters.maxCloudCover;
+                else if (this.searchParameters.mission.name.indexOf('2') > -1) {
+                    params.maxCloudCoverPercentage = this.searchParameters.maxCloudCover;
                 }
             }
 
-            if(this.parameters.text &&  this.parameters.text != ''){
-                params.name = this.parameters.text;
+            if(this.searchParameters.text &&  this.searchParameters.text != ''){
+                params.name = this.searchParameters.text;
             }
 
             $http({
@@ -101,24 +101,48 @@ define(['../ftepmodules'], function (ftepmodules) {
             return resultCache;
         };
 
-        this.getItemsPerPage = function(){
-            return ITEMS_PER_PAGE;
-        }
-
         // Default search time is a year until now
         var defaultStartTime = new Date();
         defaultStartTime.setMonth(defaultStartTime.getMonth() - 12);
 
-        this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: undefined, 
-                text: undefined, pageNumber: 1, mission: undefined, polarisation: undefined, maxCloudCover: 5}; //default value of 5% for max cloudiness
+        /** PRESERVE USER SELECTIONS **/
+        this.searchParameters = {
+                selectedDatasource: undefined,
+                startTime: defaultStartTime,
+                endTime: new Date(),
+                polygon: undefined,
+                text: undefined,
+                mission: undefined,
+                polarisation: undefined,
+                maxCloudCover: 5 //default value of 5% for max cloudiness
+        };
 
         this.resetSearchParameters = function(){
-            var pageCopy = this.parameters.pageNumber;
-            var polygonCopy = this.parameters.polygon;
-            this.parameters = {selectedDatasource: undefined, startTime: defaultStartTime, endTime: new Date(), polygon: polygonCopy, 
-                    text: undefined, pageNumber: pageCopy, mission: undefined, polarisation: undefined, maxCloudCover: 5};
-            return this.parameters;
-        }
+            var polygonCopy = this.searchParameters.polygon;
+            this.searchParameters = {
+                    selectedDatasource: undefined,
+                    startTime: defaultStartTime,
+                    endTime: new Date(),
+                    polygon: polygonCopy,
+                    text: undefined,
+                    mission: undefined,
+                    polarisation: undefined,
+                    maxCloudCover: 5
+            };
+            return this.searchParameters;
+        };
+
+        this.pagingData = {
+                currentPage: 1,
+                pageSize: ITEMS_PER_PAGE,
+                total: 0
+        };
+
+        this.params = {
+                selectedResultItems: []
+        };
+
+        /** END OF PRESERVE USER SELECTIONS **/
 
         this.dataSources = [
             {
@@ -183,6 +207,17 @@ define(['../ftepmodules'], function (ftepmodules) {
         ];
 
         this.spinner = {loading: false};
+
+        this.getResultsNameExtention = function(){
+            var nameExtention = '';
+            if(this.searchParameters.mission){
+                nameExtention = ': ' + this.searchParameters.mission.name;
+            }
+            else if(this.searchParameters.selectedDatasource){
+                nameExtention = ': ' + this.searchParameters.selectedDatasource.name;
+            }
+            return nameExtention;
+        };
 
         return this;
     }]);

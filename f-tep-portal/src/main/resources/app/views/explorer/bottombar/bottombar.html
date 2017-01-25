@@ -1,27 +1,30 @@
 <div id="bottombar-header" class="row no-margin">
 
     <section id="bottombar-tabs" class="col-xs-9">
-        <md-tabs md-selected="tab.active" md-disable-animation>
-            <md-tab label="RESULTS" ng-click="tab.active = '0'"></md-tab>
-            <md-tab label="DATABASKETS" ng-click="tab.active = '1'"></md-tab>
-            <md-tab label="JOBS" ng-click="tab.active = '2'"></md-tab>
-            <md-tab label="MESSAGES ({{message.count}})" ng-click="tab.active = '3'"></md-tab>
+        <md-tabs md-selected="navInfo.activeBottomNav" md-disable-animation>
+            <md-tab label="RESULTS{{resultTab.nameExtention}}" ng-click="navInfo.activeBottomNav = bottomNavTabs.RESULTS"></md-tab>
+            <md-tab label="DATABASKETS" ng-click="navInfo.activeBottomNav = bottomNavTabs.DATABASKETS"></md-tab>
+            <md-tab label="JOBS" ng-click="navInfo.activeBottomNav = bottomNavTabs.JOBS"></md-tab>
+            <md-tab label="MESSAGES ({{message.count}})" ng-click="navInfo.activeBottomNav = bottomNavTabs.MESSAGES"></md-tab>
         </md-tabs>
     </section>
 
-    <section ng-if="tab.active == '0'"
+    <section ng-show="navInfo.activeBottomNav == bottomNavTabs.RESULTS"
              class="col-xs-3 no-padding"
              ng-include
-             src="'views/explorer/bottombar/tabs/resultstab.html'" />
-    <section ng-if="tab.active == '1'"
+             src="'views/explorer/bottombar/tabs/resultstab.html'"
+             ng-controller="ResultsCtrl"/>
+    <section ng-show="navInfo.activeBottomNav == bottomNavTabs.DATABASKETS"
              class="col-xs-3 no-padding"
              ng-include
-             src="'views/explorer/bottombar/tabs/databasketstab.html'" />
-    <section ng-if="tab.active == '2'"
+             src="'views/explorer/bottombar/tabs/databasketstab.html'"
+             ng-controller="DatabasketCtrl"/>
+    <section ng-show="navInfo.activeBottomNav == bottomNavTabs.JOBS"
              class="col-xs-3 no-padding"
              ng-include
-             src="'views/explorer/bottombar/tabs/jobstab.html'" />
-    <section ng-if="tab.active == '3'"
+             src="'views/explorer/bottombar/tabs/jobstab.html'"
+             ng-controller="JobsCtrl"/>
+    <section ng-show="navInfo.activeBottomNav == bottomNavTabs.MESSAGES"
              class="col-xs-3 no-padding"
              ng-include
              src="'views/explorer/bottombar/tabs/messagestab.html'"
@@ -31,29 +34,29 @@
 
 <div id="bottombar-contents" class="row">
 
-    <section class="bottombar-pane" ng-if="tab.active == '0'">
+    <section class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.RESULTS" ng-controller="ResultsCtrl">
         <div id="results" ng-include src="'views/explorer/bottombar/results.html'" />
     </section>
 
-    <section class="bottombar-pane" ng-if="tab.active == '1'">
+    <section class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.DATABASKETS" ng-controller="DatabasketCtrl">
         <div class="col-md-8 bottombar-right">
             <div id="databasket" ng-include src="'views/explorer/bottombar/databasket.html'" />
         </div>
         <div class="col-md-4 bottombar-left">
-            <div id="databaskets" ng-controller="DatabasketCtrl" ng-include src="'views/explorer/bottombar/databaskets.html'" />
+            <div id="databaskets" ng-include src="'views/explorer/bottombar/databaskets.html'" />
         </div>
     </section>
 
-    <section class="bottombar-pane" ng-if="tab.active == '2'">
+    <section class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.JOBS" ng-controller="JobsCtrl" >
         <div class="col-md-8 bottombar-right">
             <div id="job" ng-include src="'views/explorer/bottombar/job.html'" />
         </div>
         <div class="col-md-4 bottombar-left">
-            <div id="jobs" ng-controller="JobsCtrl" ng-include src="'views/explorer/bottombar/jobs.html'" />
+            <div id="jobs" ng-include src="'views/explorer/bottombar/jobs.html'" />
         </div>
     </section>
 
-    <section class="bottombar-pane" ng-if="tab.active == '3'" ng-controller="MessagesCtrl">
+    <section class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.MESSAGES" ng-controller="MessagesCtrl">
         <div class="col-md-8 bottombar-right">
             <div id="message" ng-include src="'views/explorer/bottombar/message.html'" />
         </div>

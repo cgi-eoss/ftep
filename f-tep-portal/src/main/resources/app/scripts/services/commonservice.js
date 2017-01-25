@@ -10,10 +10,6 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('CommonService', [ '$rootScope', 'ftepProperties', '$mdDialog', '$q', function($rootScope, ftepProperties, $mdDialog, $q) {
 
-                this.warn = function(message){
-                    $rootScope.$broadcast('show.warning', message);
-                };
-
                 this.getColor = function(status){
                     if("Succeeded" === status || "approved" === status){
                         return "background: #dff0d8; border: 2px solid #d0e9c6; color: #3c763d";

@@ -19,7 +19,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.polarisations = GeoService.polarisations;
 
             // Initialise object to store data to send to GeoService
-            $scope.searchParameters = GeoService.parameters;
+            $scope.searchParameters = GeoService.searchParameters;
 
             /** ----- DATASOURCES ----- **/
 
@@ -77,13 +77,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 maxValue: $scope.searchParameters.endTime.getTime()
             };
 
-            // Refresh slider when unhidden
-            $scope.refreshSlider = function () {
-                $timeout(function () {
-                    $scope.$broadcast('rzSliderForceRender');
-                }, 50);
-            };
-
             // Update input values on slider change
             function onSliderChange() { // jshint ignore:line
                 $scope.searchParameters.startTime = new Date($scope.timeRangeSlider.minValue);
@@ -94,6 +87,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.updateSlider = function () {
                 $scope.timeRangeSlider.minValue = $scope.searchParameters.startTime.getTime();
                 $scope.timeRangeSlider.maxValue = $scope.searchParameters.endTime.getTime();
+                $timeout(function () {
+                    $scope.$broadcast('rzSliderForceRender');
+                }, 50);
             };
 
             /** ----- MISSIONS ----- **/

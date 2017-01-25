@@ -1,6 +1,6 @@
-<section ng-if="selectedJob == undefined" class="note">Please select a job first</section>
+<section ng-if="jobParams.selectedJob == undefined" class="note">Please select a job first</section>
 
-<div ng-if="selectedJob != undefined"
+<div ng-if="jobParams.selectedJob != undefined"
      class="scrollme"
      is-bar-shown="flag"
      rebuild-on="rebuild:scrollbar"
@@ -9,12 +9,12 @@
     <section class="row no-margin">
 
         <div class="col-xs-6 job-title">
-            <h4>Job ID: {{selectedJob.id}}</h4>
+            <h4>Job ID: {{jobParams.selectedJob.id}}</h4>
         </div>
 
         <div class="col-xs-6 job-title">
-            <div class="job-status" style="{{getColor(selectedJob.attributes.status)}}">
-                {{selectedJob.attributes.status}}
+            <div class="job-status" style="{{getColor(jobParams.selectedJob.attributes.status)}}">
+                {{jobParams.selectedJob.attributes.status}}
             </div>
         </div>
 
@@ -38,7 +38,7 @@
     <section class="job-details" ng-if="jobTab == 'INPUTS'">
 
         <ul class="job-files no-margin">
-            <li ng-repeat="(key, value) in getJobInputs(selectedJob)" class="job-detail">
+            <li ng-repeat="(key, value) in getJobInputs(jobParams.selectedJob)" class="job-detail">
                 <div class="row no-margin">
                     <div class="col-sm-3 key">{{key}}</div>
                     <div ng-repeat="link in value">
@@ -57,7 +57,7 @@
     <section class="job-details" ng-if="jobTab == 'OUTPUTS'">
 
         <ul class="job-files no-margin">
-            <li ng-repeat="outputFile in jobOutputs"
+            <li ng-repeat="outputFile in jobParams.jobOutputs"
                 class="job-detail"
                 ng-click="selectOutputFile(outputFile)"
                 ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"

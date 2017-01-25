@@ -19,43 +19,24 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     /** BOTTOM BAR **/
 
-    $scope.resultsMenuVisible = false;
+    $scope.navInfo = TabService.navInfo;
 
     $scope.displayTab = function(tab){
-        $scope.resultsMenuVisible = true;
-        var activeTab = TabService.setActiveTab("bottom", tab);
-        $rootScope.$broadcast('update.tab', activeTab);
+        $scope.navInfo.bottomViewVisible = true;
+        $scope.navInfo.activeBottomNav = tab;
         $scope.$broadcast('rebuild:scrollbar');
     };
 
-    $scope.toggleResultsMenu = function(){
-        $scope.resultsMenuVisible = !$scope.resultsMenuVisible;
+    $scope.toggleBottomView = function(){
+        $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
         $scope.$broadcast('rebuild:scrollbar');
     };
 
     /** END OF BOTTOM BAR **/
 
-    /* Warnings */
-    $scope.warning = { isVisible: false, message: ''};
-
-    $scope.$on('show.warning', function(event, message) {
-        console.log(message);
-        $scope.warning.isVisible= true;
-        $scope.warning.message= message;
-
-        setTimeout(function(){ clearMessages(); }, 1000);
-    });
-
-    function clearMessages(){
-        console.log('clean');
-        $scope.warning.isVisible= false;
-        $scope.warning.message= message;
-    }
-
     /* Create Databasket Modal */
     $scope.newBasket = {name: undefined, description: undefined};
     $scope.createDatabasketDialog = function($event, selectedItems) {
-        console.log(selectedItems);
         var parentEl = angular.element(document.body);
         $mdDialog.show({
           parent: parentEl,

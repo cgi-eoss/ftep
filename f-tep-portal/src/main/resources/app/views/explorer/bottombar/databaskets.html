@@ -11,7 +11,7 @@
 
                 <div class="col-xs-1 expander">
                     <i class="material-icons"
-                       ng-show="!displayFilters"
+                       ng-show="!dbParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Show Filters"
                        uib-tooltip="Show Filters"
@@ -21,7 +21,7 @@
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="displayFilters"
+                       ng-show="dbParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Hide Filters"
                        uib-tooltip="Hide Filters"
@@ -34,8 +34,8 @@
 
             </div>
 
-            <md-input-container md-no-float ng-show="displayFilters">
-                <input ng-model="databasketSearch.searchText" type="text" placeholder="Search">
+            <md-input-container md-no-float ng-show="dbParams.displayFilters">
+                <input ng-model="dbParams.searchText" type="text" placeholder="Search">
             </md-input-container>
 
         </ul>
@@ -43,9 +43,9 @@
 
     <section class="item-list list">
         <md-list-item class="md-2-line"
-                      ng-repeat="basket in databaskets | orderBy: 'attributes.name' | filter: databasketSearch.searchText"
-                      ng-click="showDatabasket(basket);"
-                      ng-class="{active: basket.attributes.name == selectedDatabasket.attributes.name}">
+                      ng-repeat="basket in databaskets | orderBy: 'attributes.name' | filter: dbParams.searchText"
+                      ng-click="selectDatabasket(basket);"
+                      ng-class="{active: basket.attributes.name == dbParams.selectedDatabasket.attributes.name}">
 
             <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketDragItems(basket)">
                 <i class="material-icons"

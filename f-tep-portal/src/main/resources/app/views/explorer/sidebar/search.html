@@ -17,7 +17,7 @@
         <md-list id="datasource-list" class="datasources" ng-show="!searchParameters.selectedDatasource">
             <md-list-item class="md-2-line"
                           ng-repeat="datasource in dataSources"
-                          ng-click="selectDataSource(datasource); refreshSlider()">
+                          ng-click="selectDataSource(datasource)">
                 <md-icon class="material-icons md-24">{{datasource.icon}}</md-icon>
                 <div class="md-list-item-text">
                     <h3>{{datasource.name}}</h3>
@@ -183,7 +183,7 @@
                    form="searchForm"
                    ng-disabled="searchForm.$invalid"
                    aria-label="Search"
-                   ng-click="displayTab('RESULTS')">
+                   ng-click="displayTab(bottomNavTabs.RESULTS)">
             <i class="material-icons">search</i>
         </md-button>
 

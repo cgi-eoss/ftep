@@ -8,17 +8,18 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('SidebarCtrl', function ($scope, $timeout, $mdSidenav) {
+    ftepmodules.controller('SidebarCtrl', function ($scope, $timeout, $mdSidenav, TabService) {
 
-        $scope.searchMenuVisible = false;
-        $scope.section = { SEARCH: 'search', SERVICES: 'services', WORKSPACE: 'workspace'};
-        $scope.nav_active = undefined;
+        $scope.sideViewVisible = TabService.sideViewVisible;
+        $scope.sideNavTabs = TabService.getSideNavTabs();
+        $scope.bottomNavTabs = TabService.getBottomNavTabs();
+        $scope.navInfo = TabService.navInfo;
 
         var sidebarWidth = $('#sidebar-left').width();
         var sidenavWidth = $('#sidenav').width();
 
         function showSidebarArea() {
-            $scope.searchMenuVisible = true;
+            $scope.navInfo.sideViewVisible = true;
             $mdSidenav('left').open();
             $("#bottombar").css("left", sidebarWidth + 44);
             $("#bottombar").css({ 'width': 'calc(100% - ' + (sidebarWidth + 44) + 'px)'});
@@ -29,8 +30,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.hideSidebarArea = function () {
-            $scope.searchMenuVisible = false;
-            $scope.nav_active = undefined;
+            $scope.navInfo.sideViewVisible = false;
+            $scope.navInfo.activeSideNav = undefined;
             $mdSidenav('left').close();
             $("#bottombar").css("left", sidenavWidth + 44);
             $("#bottombar").css({ 'width': 'calc(100% - ' + 44 + 'px)' });
@@ -38,21 +39,30 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.$on('rerun.service', function(event) {
-            $scope.nav_active = $scope.section.WORKSPACE;
+            $scope.navInfo.activeSideNav = $scope.sideNavTabs.WORKSPACE;
             showSidebarArea();
         });
 
-        $scope.toggleSidebar = function (section) {
+        $scope.toggleSidebar = function (tab) {
 
             $scope.$broadcast('rebuild:scrollbar');
-            if($scope.nav_active === section){
+            if($scope.navInfo.activeSideNav === tab){
                 $scope.hideSidebarArea();
             }
             else{
-                $scope.nav_active = section;
+                $scope.navInfo.activeSideNav = tab;
                 showSidebarArea();
             }
         };
+
+        function setup(){
+            if($scope.navInfo.sideViewVisible){
+                $timeout(function () {
+                    showSidebarArea();
+                }, 300);
+            }
+        }
+        setup();
 
     });
 

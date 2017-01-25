@@ -58,7 +58,7 @@
             <md-list-item class="md-2-line"
                           ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
                           ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
-                          ng-click="selectService(service); toggleSidebar('workspace')">
+                          ng-click="selectService(service)">
 
                 <div class="md-list-item-text" layout="column">
                     <h3>{{service.attributes.name}}</h3>

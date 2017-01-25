@@ -9,23 +9,42 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
     ftepmodules.controller('ResultsCtrl',
-            [ '$scope', '$rootScope', 'CommonService', 'JobService', 'GeoService', function($scope, $rootScope, CommonService, JobService, GeoService) {
+            [ '$scope', '$rootScope', '$anchorScroll', '$timeout', 'CommonService', 'GeoService', 'TabService',
+                  function($scope, $rootScope, $anchorScroll, $timeout, CommonService, GeoService, TabService) {
 
-                $scope.pageNumber = 1;
-                $scope.resultsCurrentPage = 1;
-                $scope.resultsPageSize = 0;
-                $scope.resultsTotal = 0;
+                $scope.resultPaging = GeoService.pagingData;
                 $scope.spinner = GeoService.spinner;
+                $scope.resultParams = GeoService.params;
 
-                $scope.resultTabs = {selected: 0};
-                var selectedResultItems = [];
+                $scope.getPagingValues = function(resultPaging) {
+                    var start = (resultPaging.currentPage * resultPaging.pageSize) - resultPaging.pageSize + 1;
+                    var end = resultPaging.currentPage * resultPaging.pageSize;
+                    return "Showing " + start + " - " + end + " of " + resultPaging.total;
+                };
 
                 $scope.$on('update.geoResults', function(event, results) {
                     $scope.spinner.loading = false;
                     setResults(results);
-                    $scope.resultTabs = {selected: 0};
-                    selectedResultItems = [];
+                    TabService.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
+                    TabService.resultTab.nameExtention = GeoService.getResultsNameExtention();
+                    $scope.resultParams.selectedResultItems = [];
+                    scrollResults();
                 });
+
+                function scrollResults(anchorId){
+                    if(anchorId){
+                        $timeout(function () {
+                            $anchorScroll(anchorId);
+                        }, 50);
+                    }
+                    else{ // scroll to top
+                        $timeout(function () {
+                            if(document.getElementById('resultDiv')){
+                                document.getElementById('resultDiv').scrollTop = 0;
+                            }
+                        }, 50);
+                    }
+                }
 
                 function setResults(results){
                     if(results && results.length >0){
@@ -35,18 +54,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         else{
                             delete $scope.geoResults;
                         }
-                        $scope.resultsTotal = results[0].results.totalResults;
-                        $scope.resultsPageSize = results[0].results.itemsPerPage;
-                        $scope.resultsCurrentPage = GeoService.parameters.pageNumber;
+                        $scope.resultPaging.total = results[0].results.totalResults;
 
-                        $scope.pageFrom = $scope.resultsCurrentPage * $scope.resultsPageSize - $scope.resultsPageSize + 1;
-                        $scope.pageTo = $scope.resultsCurrentPage * $scope.resultsPageSize;
-                        if ($scope.pageTo > $scope.resultsTotal) {
-                            $scope.pageTo = $scope.resultsTotal;
+                        $scope.pageFrom = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize - $scope.resultPaging.pageSize + 1;
+                        $scope.pageTo = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize;
+                        if ($scope.pageTo > $scope.resultPaging.total) {
+                            $scope.pageTo = $scope.resultPaging.total;
                         }
                     }
                     else{
                         delete $scope.geoResults;
+                        $scope.resultPaging.currentPage = 1;
+                        $scope.resultPaging.total = 0;
                     }
                 }
                 setResults(GeoService.getResultCache());
@@ -60,48 +79,43 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                    });
                 };
 
-                $scope.$on('map.item.toggled', function(event, item) {
-                    $scope.toggleSelection(item, true);
+                $scope.$on('map.item.toggled', function(event, items) {
+                    scrollResults();
+                    $scope.resultParams.selectedResultItems = items;
+                    if(items && items.length > 0){
+                        scrollResults(items[items.length-1].identifier);
+                    }
                 });
 
                 $scope.toggleSelection = function(item, fromMap) {
-                    if(item){
-                        var index = selectedResultItems.indexOf(item);
-                        if (index < 0) {
-                            selectedResultItems.push(item);
-                        } else {
-                            selectedResultItems.splice(index, 1);
-                        }
-                        if(fromMap == undefined){
-                            $rootScope.$broadcast('results.item.selected', item, index < 0);
-                        }
-                    }
-                };
+                        if(item){
+                            var index = $scope.resultParams.selectedResultItems.indexOf(item);
 
-                $scope.isSelected = function(item) {
-                    var selected = false;
-                    if(selectedResultItems){
-                        for(var i = 0; i < selectedResultItems.length; i++){
-                            if(angular.equals(item, selectedResultItems[i])){
-                                selected = true;
-                                break;
+                            if (index < 0) {
+                                $scope.resultParams.selectedResultItems.push(item);
+                                if(fromMap){
+                                    scrollResults(item.identifier);
+                                }
+                            } else {
+                                $scope.resultParams.selectedResultItems.splice(index, 1);
+                            }
+                            if(fromMap == undefined){
+                                $rootScope.$broadcast('results.item.selected', item, index < 0);
                             }
                         }
-                    }
-                    return selected;
                 };
 
                 $scope.clearSelection = function() {
-                    selectedResultItems = [];
+                    $scope.resultParams.selectedResultItems = [];
                     $rootScope.$broadcast('results.select.all', false);
                 };
 
                 $scope.selectAll = function() {
-                    selectedResultItems = [];
+                    $scope.resultParams.selectedResultItems = [];
                     for(var i = 0; i < $scope.geoResults.length; i++) {
                         if($scope.geoResults[i].results != null && $scope.geoResults[i].results.entities.length > 0){
                             var list = $scope.geoResults[i].results.entities.slice();
-                            selectedResultItems.push.apply(selectedResultItems, list);
+                            $scope.resultParams.selectedResultItems = $scope.resultParams.selectedResultItems.concat(list);
                         }
                     }
                     $rootScope.$broadcast('results.select.all', true);
@@ -113,15 +127,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         if($scope.geoResults[i].results != null && $scope.geoResults[i].results.entities.length > 0){
                             var list = $scope.geoResults[i].results.entities.slice();
                             for(var e = 0; e < list.length; e++){
-                                if(selectedResultItems.indexOf(list[e]) == -1){
+                                if($scope.resultParams.selectedResultItems.indexOf(list[e]) < 0){
                                     newSelection.push(list[e]);
                                 }
                             }
                         }
                     }
-                    selectedResultItems = [];
-                    selectedResultItems.push.apply(selectedResultItems, newSelection);
-                    $rootScope.$broadcast('results.invert', selectedResultItems);
+                    $scope.resultParams.selectedResultItems = newSelection;
+                    $rootScope.$broadcast('results.invert', $scope.resultParams.selectedResultItems);
                 };
 
                 $scope.getLink = function(item){
@@ -129,120 +142,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 };
 
                 $scope.getSelectedItemsLinks = function(item){
-                    if($scope.isSelected(item) == false){
+                    if($scope.resultParams.selectedResultItems.indexOf(item) < 0){
                         $scope.toggleSelection(item);
                     }
-                    var links = selectedResultItems[0].link;
-                    for(var i = 1; i < selectedResultItems.length; i++){
-                        links = links.concat(',', selectedResultItems[i].link);
+                    var links = $scope.resultParams.selectedResultItems[0].link;
+                    for(var i = 1; i < $scope.resultParams.selectedResultItems.length; i++){
+                        links = links.concat(',', $scope.resultParams.selectedResultItems[i].link);
                     }
 
                     return links;
-                };
-
-                function getKeyByValue(object, value) {
-                    return Object.keys(object).find(function (key) {
-                        return object[key] === value;
-                    });
-                  }
-
-                /* Selected Job */
-                $scope.selectedJob = undefined;
-                $scope.jobOutputs = [];
-                var jobSelectedOutputs = [];
-
-                $scope.$on('select.job', function(event, job) {
-                    $scope.selectedJob = job;
-                    $scope.resultTabs.selected = 2;
-                    jobSelectedOutputs = [];
-                    JobService.getOutputs(job.id).then(function(data){
-                        $scope.jobOutputs = data;
-                        $rootScope.$broadcast('show.products', job.id, data);
-                    });
-                });
-
-                $scope.$on('refresh.jobs', function(event, result) {
-                    if($scope.selectedJob){
-                        for(var i = 0; i < result.data.length; i++){
-                            if($scope.selectedJob.id == result.data[i].id){
-                                $scope.selectedJob = result.data[i];
-                                JobService.getOutputs($scope.selectedJob.id).then(function(data){
-                                    $scope.jobOutputs = data;
-                                    $rootScope.$broadcast('show.products', $scope.selectedJob.id, data);
-                                });
-                            }
-                        }
-                    }
-                });
-
-                $scope.getJobInputs = function(job){
-                    if(job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0){
-                        return job.attributes.inputs;
-                    }
-                    else{
-                        return undefined;
-                    }
-                };
-
-                $scope.getOutputLink = function(link){
-                    return CommonService.getOutputLink(link);
-                };
-
-                $scope.getSelectedOutputFiles = function(file) {
-                    if (jobSelectedOutputs.indexOf(file) < 0) {
-                        jobSelectedOutputs.push(file);
-                    }
-                    var links = CommonService.getOutputLink(jobSelectedOutputs[0].attributes.link);
-                    for(var i=1; i < jobSelectedOutputs.length; i++){
-                        links = links.concat(",", CommonService.getOutputLink(jobSelectedOutputs[i].attributes.link));
-                    }
-
-                    return links;
-                };
-
-                $scope.selectOutputFile = function(item){
-                    var index = jobSelectedOutputs.indexOf(item);
-                    if (index < 0) {
-                        jobSelectedOutputs.push(item);
-                    } else {
-                        jobSelectedOutputs.splice(index, 1);
-                    }
-                };
-
-                $scope.selectAllOutputs = function(){
-                    jobSelectedOutputs = [];
-                    jobSelectedOutputs.push.apply(jobSelectedOutputs, $scope.jobOutputs);
-                };
-
-                $scope.clearOutputsSelection = function(){
-                    jobSelectedOutputs = [];
-                };
-
-                $scope.invertOutputsSelection = function(){
-                    var newSelection = [];
-                    for(var i = 0; i < $scope.jobOutputs.length; i++) {
-                        if(jobSelectedOutputs.indexOf($scope.jobOutputs[i]) < 0){
-                             newSelection.push($scope.jobOutputs[i]);
-                        }
-                    }
-                    jobSelectedOutputs = [];
-                    jobSelectedOutputs.push.apply(jobSelectedOutputs, newSelection);
-                };
-
-                $scope.isOutputSelected = function(item) {
-                    return jobSelectedOutputs.indexOf(item) > -1;
-                };
-
-                $scope.$on('delete.job', function(event, job) {
-                    if(angular.equals(job, $scope.selectedJob)){
-                        delete $scope.selectedJob;
-                    }
-                });
-
-                /* End of Selected Job */
-
-                $scope.getColor = function(status){
-                    return CommonService.getColor(status);
                 };
 
     } ]);

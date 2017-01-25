@@ -11,7 +11,7 @@
 
                 <div class="col-xs-1 expander">
                     <i class="material-icons"
-                       ng-show="!displayFilters"
+                       ng-show="!jobParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Show Filters"
                        uib-tooltip="Show Filters"
@@ -21,7 +21,7 @@
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="displayFilters"
+                       ng-show="jobParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Hide Filters"
                        uib-tooltip="Hide Filters"
@@ -35,9 +35,9 @@
             </div>
 
             <div class="col-md-12 col-lg-4 filter-checkboxes"
-                 ng-show="displayFilters"
-                 ng-click="jobStatus.value = !jobStatus.value; filterJobs()"
-                 ng-repeat="jobStatus in jobStatuses">
+                 ng-show="jobParams.displayFilters"
+                 ng-repeat="jobStatus in jobParams.jobStatuses"
+                 ng-click="jobStatus.value = !jobStatus.value; filterJobs()">
                 <md-checkbox ng-model="jobStatus.value"
                              ng-click="jobStatus.value = !jobStatus.value; filterJobs()"
                              aria-label="Job Filter"/>
@@ -48,7 +48,7 @@
     </section>
 
     <section class="item-list">
-        <div class="list" ng-repeat="service in jobServices">
+        <div class="list" ng-repeat="service in serviceGroups">
 
             <div class="row no-margin list-group">
 
@@ -85,7 +85,7 @@
                           ng-repeat="job in groupedJobs[service.id] | orderBy: 'id'"
                           ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1"
                           ng-click="selectJob(job)"
-                          ng-class="{active: job.id == selectedJob.id}">
+                          ng-class="{active: job.id == jobParams.selectedJob.id}">
 
                 <div class="md-avatar" alt="{{job.attributes.step}}" style="{{getColor(job.attributes.status)}}">
                     <i class="material-icons" ng-if="job.attributes.status === 'Succeeded'">done</i>

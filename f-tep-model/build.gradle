@@ -7,7 +7,7 @@ apply plugin: 'jacoco'
 sourceSets {
     generated {
         java {
-            srcDirs = ["${buildDir}/generated/java"]
+            srcDirs = ["target/generated/java"]
         }
         resources {
             srcDirs = []
@@ -15,7 +15,7 @@ sourceSets {
     }
     main {
         java {
-            srcDirs += "${buildDir}/generated/java"
+            srcDirs += "target/generated/java"
         }
     }
 }
@@ -51,6 +51,6 @@ compileJava {
 
 sonarqube {
     properties {
-        property "sonar.exclusions", "${buildDir}/generated/**/*"
+        property "sonar.exclusions", "target/generated/**/*"
     }
 }

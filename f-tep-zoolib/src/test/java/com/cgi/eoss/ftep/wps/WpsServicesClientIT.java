@@ -48,7 +48,7 @@ public class WpsServicesClientIT {
 
     private FileSystem fs;
 
-    private WpsServicesClient wpsServicesClient;
+    private FtepServicesClient ftepServicesClient;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +71,7 @@ public class WpsServicesClientIT {
 
         StandaloneOrchestrator.resetServices(ImmutableSet.of(ftepServiceLauncher));
         StandaloneOrchestrator orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
-        wpsServicesClient = new WpsServicesClient(orchestrator.getChannelBuilder());
+        ftepServicesClient = new FtepServicesClient(orchestrator.getChannelBuilder());
 
         // Ensure the test image is available before testing
         manualWorkerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
@@ -92,7 +92,7 @@ public class WpsServicesClientIT {
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
                 .build();
 
-        Multimap<String, String> outputs = wpsServicesClient.launchService(jobId, userId, serviceId, inputs);
+        Multimap<String, String> outputs = ftepServicesClient.launchService(jobId, userId, serviceId, inputs);
         assertThat(outputs, is(notNullValue()));
 
         List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_jobId/FTEP-WPS-INPUT.properties"));

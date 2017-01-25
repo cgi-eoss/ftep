@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * may access the F-TEP orchestration environment more easily.</p>
  */
 @Slf4j
-public class WpsServicesClient {
+public class FtepServicesClient {
 
     private final ManagedChannel channel;
     private final FtepServiceLauncherGrpc.FtepServiceLauncherBlockingStub ftepServiceLauncherBlockingStub;
@@ -26,7 +26,7 @@ public class WpsServicesClient {
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
      */
-    public WpsServicesClient(String host, int port) {
+    public FtepServicesClient(String host, int port) {
         // TLS is unused since this should only be active in the F-TEP infrastructure, i.e. not public
         // TODO Investigate feasibility of certificate security
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
@@ -35,7 +35,7 @@ public class WpsServicesClient {
     /**
      * <p>Construct gRPC client using an existing channel builder.</p>
      */
-    public WpsServicesClient(ManagedChannelBuilder<?> channelBuilder) {
+    public FtepServicesClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
         ftepServiceLauncherBlockingStub = FtepServiceLauncherGrpc.newBlockingStub(channel);
         ftepServiceLauncherStub = FtepServiceLauncherGrpc.newStub(channel);

@@ -46,8 +46,8 @@ dependencies {
     testCompile deps.awaitility
     testCompile deps.cucumberJava8
     testCompile deps.cucumberJunit
-    testCompile deps.googleHttpClient
     testCompile deps.junit
+    testCompile deps.okHttp
     testCompile deps.testContainers
     testCompile deps.testContainersSelenium
     testCompile deps.selenium

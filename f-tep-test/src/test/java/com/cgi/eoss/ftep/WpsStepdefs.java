@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep;
 
-import com.google.api.client.http.HttpResponse;
 import cucumber.api.java8.En;
+import okhttp3.Response;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testcontainers.containers.BrowserWebDriverContainer;
 
@@ -27,8 +27,8 @@ public class WpsStepdefs implements En {
         });
 
         When("^a user requests GetCapabilities from WPS$", () -> {
-            HttpResponse response = harness.getWpsResponse("/cgi-bin/zoo_loader.cgi?request=GetCapabilities&service=WPS");
-            assertThat(response.getStatusCode(), is(200));
+            Response response = harness.getWpsResponse("/cgi-bin/zoo_loader.cgi?request=GetCapabilities&service=WPS");
+            assertThat(response.code(), is(200));
             responseBody = harness.getResponseContent(response);
         });
 

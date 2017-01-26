@@ -14,8 +14,6 @@ dependencies {
     compile deps.awaitility
     compile deps.commonsNet
     compile deps.dockerJava
-    compile deps.googleHttpClient
-    compile deps.googleHttpClientJackson
     compile deps.okHttp
     compile deps.slf4j
     compile deps.springContext

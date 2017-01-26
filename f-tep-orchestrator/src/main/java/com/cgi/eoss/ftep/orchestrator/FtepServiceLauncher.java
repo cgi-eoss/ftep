@@ -21,6 +21,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
+import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
+@GRpcService
 public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLauncherImplBase {
 
     private static final String GUACAMOLE_PORT = "8080/tcp";

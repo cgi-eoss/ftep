@@ -20,6 +20,7 @@ dependencies {
     compile deps.slf4j
     compile deps.springContext
     compile deps.springBootAutoconfigure
+    compile deps.springBootGrpcStarter
 
     testCompile deps.hamcrestJunit
     testCompile deps.hsqldb

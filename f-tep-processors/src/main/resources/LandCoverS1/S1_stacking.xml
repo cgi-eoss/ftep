@@ -1,0 +1,39 @@
+<graph id="S1_forest_averaging">
+    <version>1.0</version>
+
+    <node id="CreateStack">
+        <operator>CreateStack</operator>
+        <sources>
+            <sourceProducts>${sourceProducts}</sourceProducts>
+        </sources>
+        <parameters>
+            <masterBands/>
+            <sourceBands/>
+            <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+            <extent>Minimum</extent>
+            <initialOffsetMethod>Product Geolocation</initialOffsetMethod>
+        </parameters>
+    </node>
+
+    <node id="Stack-Averaging">
+        <operator>Stack-Averaging</operator>
+        <sources>
+            <sourceProduct refid="CreateStack"/>
+        </sources>
+        <parameters>
+            <statistic>Mean Average</statistic>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="Stack-Averaging"/>
+        </sources>
+        <parameters>
+            <file>${ofile}</file>
+            <formatName>GeoTIFF</formatName>
+        </parameters>
+    </node>
+
+</graph>

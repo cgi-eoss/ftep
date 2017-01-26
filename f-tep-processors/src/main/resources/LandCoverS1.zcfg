@@ -1,0 +1,115 @@
+[LandCoverS1]
+Title = Calculate land coverage (a forest map) from Sentinel-1 SAR data
+Abstract = Land cover map, with image classification trained by Random Forest model
+processVersion = 1.0
+storeSupported = true
+statusSupported = true
+serviceType = Java
+serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
+
+<DataInputs>
+    [inputfiles]
+    Title = Input data
+    Abstract = The input Sentinel-1 data files
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [refDataShapefile]
+    Title = Reference data archive containing shapefile for image classification training
+    Abstract = Expected is a .zip with flat content structure containing one *.shp and associated files
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [shapefileAttribute]
+    Title = String identifying the field in the shapefile to be used for training the model
+    Abstract = E.g. 'Class'
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [crs]
+    Title = Target CRS identifier
+    Abstract = EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [aoi]
+    Title = Area of interest
+    Abstract = Well-known text POLYGON describing the AOI to be processed
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+    [dem]
+    Title = Digital elevation model
+    Abstract = Digital elevation model identifier: e.g. SRTM 1Sec HGT (default)
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+            value = SRTM 1Sec HGT
+        </Default>
+    </LiteralData>
+    [targetResolution]
+    Title = Target image resolution
+    Abstract = Desired image resolution in metres. Controls resampling of the input data. Example: '10'
+    minOccurs = 1
+    maxOccurs = 1
+    <LiteralData>
+        <Default>
+            dataType = string
+        </Default>
+    </LiteralData>
+</DataInputs>
+
+<DataOutputs>
+    [Result]
+    Title = GeoTiff image file
+    Abstract = The requested vegetation index image
+    <ComplexData>
+        <Default>
+            mimeType = image/tiff
+            extension = tif
+            asReference = true
+        </Default>
+    </ComplexData>
+    [Model]
+    Title = Training model
+    Abstract = The output of the image classification training step
+    <ComplexData>
+        <Default>
+            mimeType = text/plain
+            extension = txt
+            asReference = true
+        </Default>
+    </ComplexData>
+    [ConfusionMatrix]
+    Title = Confusion matrix
+    Abstract = The CSV confusion matrix output of the image classification training step
+    <ComplexData>
+        <Default>
+            mimeType = text/csv
+            extension = csv
+            asReference = true
+        </Default>
+    </ComplexData>
+</DataOutputs>

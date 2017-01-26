@@ -1,0 +1,41 @@
+<graph id="S1_forest_image2power">
+    <version>1.0</version>
+    <node id="Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters>
+            <file>${ifile}</file>
+        </parameters>
+    </node>
+
+    <node id="BandMaths">
+        <operator>BandMaths</operator>
+        <sources>
+            <sourceProduct refid="Read"/>
+        </sources>
+        <parameters>
+            <targetBands>
+                <targetBand>
+                    <name>proc</name>
+                    <type>float32</type>
+                    <expression>exp10(Gamma0_VV)</expression>
+                    <description/>
+                    <unit/>
+                    <noDataValue>0.0</noDataValue>
+                </targetBand>
+            </targetBands>
+            <variables/>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="BandMaths"/>
+        </sources>
+        <parameters>
+            <file>${ofile}</file>
+            <formatName>GeoTIFF</formatName>
+        </parameters>
+    </node>
+</graph>

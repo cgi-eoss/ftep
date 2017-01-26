@@ -5,12 +5,12 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-model')
 
-    compile deps.gson
-    compile deps.httpclient
-    compile deps.jsonapiConverter
-    compile deps.slf4j
+    compile 'com.github.jasminb:jsonapi-converter'
+    compile 'com.google.code.gson:gson'
+    compile 'org.apache.httpcomponents:httpclient'
+    compile 'org.slf4j:slf4j-api'
 }

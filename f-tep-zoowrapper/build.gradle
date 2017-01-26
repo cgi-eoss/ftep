@@ -5,18 +5,18 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-model')
     compile project(':f-tep-zoolib')
 
-    compile deps.freemarker
-    compile deps.guava
-    compile deps.jacksonDatabind
-    compile deps.jacksonDataformatYaml
-    compile deps.slf4j
+    compile 'org.freemarker:freemarker'
+    compile 'com.google.guava:guava'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    compile 'org.slf4j:slf4j-api'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.jimfs
-    testCompile deps.junit
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'junit:junit'
 }

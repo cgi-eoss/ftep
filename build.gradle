@@ -9,6 +9,24 @@ ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl :
 ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
 ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
 
+
+
+buildscript {
+    repositories {
+        maven {
+            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+        }
+    }
+    dependencies {
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
+        classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+    }
+}
+
+apply plugin: 'org.sonarqube'
+apply plugin: 'com.github.ben-manes.versions'
+
 allprojects {
     buildscript {
         repositories {
@@ -25,145 +43,92 @@ allprojects {
     plugins.withType(JavaPlugin) {
         sourceCompatibility = 1.8
     }
-}
 
-buildscript {
-    repositories {
-        maven {
-            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        dependencies {
+            dependency 'ch.qos.logback:logback-classic:1.1.9'
+            dependency 'commons-io:commons-io:2.5'
+            dependency 'commons-net:commons-net:3.5'
+            dependency 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+            dependency 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.6'
+            dependency 'com.github.docker-java:docker-java:3.0.0'
+            dependency 'com.github.jasminb:jsonapi-converter:0.3'
+            dependency 'com.google.code.findbugs:jsr305:3.0.1'
+            dependency 'com.google.code.gson:gson:2.7'
+            dependency 'com.google.guava:guava:21.0'
+            dependency 'com.google.jimfs:jimfs:1.1'
+            dependency 'com.google.protobuf:protoc:3.1.0-build2'
+            dependency 'com.querydsl:querydsl-apt:4.1.4'
+            dependency 'com.querydsl:querydsl-jpa:4.1.4'
+            dependency 'com.squareup.okhttp3:mockwebserver:3.5.0'
+            dependency 'com.squareup.okhttp3:okhttp:3.5.0'
+            dependency 'com.zaxxer:HikariCP:2.6.0'
+            dependency 'info.cukes:cucumber-java8:1.2.5'
+            dependency 'info.cukes:cucumber-junit:1.2.5'
+            dependency 'io.grpc:grpc-netty:1.0.3'
+            dependency 'io.grpc:grpc-protobuf:1.0.3'
+            dependency 'io.grpc:grpc-stub:1.0.3'
+            dependency 'io.grpc:protoc-gen-grpc-java:1.0.3'
+            dependency 'javax.servlet:javax.servlet-api:3.1.0'
+            dependency 'junit:junit:4.12'
+            dependency 'org.apache.httpcomponents:httpclient:4.3.1'
+            dependency 'org.aspectj:aspectjweaver:1.8.10'
+            dependency 'org.awaitility:awaitility:2.0.0'
+            dependency 'org.flywaydb:flyway-core:4.0.3'
+            dependency 'org.freemarker:freemarker:2.3.25-incubating'
+            dependency 'org.hamcrest:hamcrest-junit:2.0.0.0'
+            dependency 'org.hibernate:hibernate-core:5.2.7.Final'
+            dependency 'org.hibernate:hibernate-entitymanager:5.2.7.Final'
+            dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
+            dependency 'org.hsqldb:hsqldb:2.3.4'
+            dependency 'org.lognet:grpc-spring-boot-starter:1.0.0'
+            dependency 'org.mockftpserver:MockFtpServer:2.7.1'
+            dependency 'org.mockito:mockito-core:2.6.8'
+            dependency 'org.postgresql:postgresql:9.4.1212'
+            dependency 'org.projectlombok:lombok:1.16.12'
+            dependency 'org.seleniumhq.selenium:selenium-java:3.0.1'
+            dependency 'org.slf4j:jcl-over-slf4j:1.7.22'
+            dependency 'org.slf4j:jul-to-slf4j:1.7.22'
+            dependency 'org.slf4j:slf4j-api:1.7.22'
+            dependency 'org.springframework:spring-context:4.3.6.RELEASE'
+            dependency 'org.springframework:spring-orm:4.3.6.RELEASE'
+            dependency 'org.springframework:spring-test:4.3.6.RELEASE'
+            dependency 'org.springframework:spring-tx:4.3.6.RELEASE'
+            dependency 'org.springframework.boot:spring-boot:1.4.3.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-autoconfigure:1.4.3.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-actuator:1.4.3.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-test:1.4.3.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-undertow:1.4.3.RELEASE'
+            dependency 'org.springframework.data:spring-data-jpa:1.10.6.RELEASE'
+            dependency 'org.springframework.data:spring-data-rest-hal-browser:2.5.6.RELEASE'
+            dependency 'org.springframework.data:spring-data-rest-webmvc:2.5.6.RELEASE'
+            dependency 'org.testcontainers:selenium:1.1.8'
+            dependency 'org.testcontainers:testcontainers:1.1.8'
         }
     }
-    dependencies {
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
-    }
 }
 
-apply plugin: 'org.sonarqube'
-apply plugin: 'com.github.ben-manes.versions'
-
 def depVersions = [
-        aspectjWeaver           : '1.8.10',
-        awaitility              : '2.0.0',
-        commonsIo               : '2.5',
-        commonsNet              : '3.5',
-        cucumber                : '1.2.5',
-        dockerJava              : '3.0.0',
-        flyway                  : '4.0.3',
-        freemarker              : '2.3.25-incubating',
-        grpc                    : '1.0.3',
-        gson                    : '2.7',
-        guava                   : '21.0',
-        hamcrest                : '2.0.0.0',
-        hibernateJpa21Api       : '1.0.0.Final',
-        hibernate               : '5.2.6.Final',
-        hikaricp                : '2.5.1',
-        hsqldb                  : '2.3.4',
-        httpclient              : '4.3.1',
-        jackson                 : '2.8.6',
-        javaxServletApi         : '3.1.0',
-        jimfs                   : '1.1',
-        jsonapiConverter        : '0.3',
-        jsr305                  : '3.0.1',
-        junit                   : '4.12',
-        logback                 : '1.1.9',
-        lombok                  : '1.16.12',
-        mockFtpServer           : '2.7.1',
-        mockito                 : '2.6.6',
-        okHttp                  : '3.5.0',
-        postgresql              : '9.4.1212',
-        protoc                  : '3.1.0-build2',
-        querydsl                : '4.1.4',
-        selenium                : '3.0.1',
-        slf4j                   : '1.7.22',
-        springFramework         : '4.3.5.RELEASE',
-        springDataCommons       : '1.12.5.RELEASE',
-        springDataJpa           : '1.10.6.RELEASE',
-        springDataRest          : '2.5.6.RELEASE',
-        springBoot              : '1.4.3.RELEASE',
-        springBootGrpcStarter   : '1.0.0',
-        testContainers          : '1.1.8',
-
         // Build plugin versions
-        clientDependenciesPlugin: '1.3.1',
-        jsPlugin                : '2.14.1',
-        osPackagePlugin         : '4.3.0',
-        protobufPlugin          : '0.8.0',
-        shadowPlugin            : '1.2.4'
-]
-
-ext.deps = [
-        aspectjWeaver           : 'org.aspectj:aspectjweaver:' + depVersions.aspectjWeaver,
-        commonsIo               : 'commons-io:commons-io:' + depVersions.commonsIo,
-        commonsNet              : 'commons-net:commons-net:' + depVersions.commonsNet,
-        cucumberJava8           : 'info.cukes:cucumber-java8:' + depVersions.cucumber,
-        cucumberJunit           : 'info.cukes:cucumber-junit:' + depVersions.cucumber,
-        dockerJava              : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
-        flyway                  : 'org.flywaydb:flyway-core:' + depVersions.flyway,
-        freemarker              : 'org.freemarker:freemarker:' + depVersions.freemarker,
-        grpcNetty               : 'io.grpc:grpc-netty:' + depVersions.grpc,
-        grpcProtobuf            : 'io.grpc:grpc-protobuf:' + depVersions.grpc,
-        grpcStub                : 'io.grpc:grpc-stub:' + depVersions.grpc,
-        gson                    : 'com.google.code.gson:gson:' + depVersions.gson,
-        guava                   : 'com.google.guava:guava:' + depVersions.guava,
-        hibernateCore           : 'org.hibernate:hibernate-core:' + depVersions.hibernate,
-        hibernateEntityManager  : 'org.hibernate:hibernate-entitymanager:' + depVersions.hibernate,
-        hibernateJpa21Api       : 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:' + depVersions.hibernateJpa21Api,
-        hikaricp                : 'com.zaxxer:HikariCP:' + depVersions.hikaricp,
-        httpclient              : 'org.apache.httpcomponents:httpclient:' + depVersions.httpclient,
-        jacksonDatabind         : 'com.fasterxml.jackson.core:jackson-databind:' + depVersions.jackson,
-        jacksonDataformatYaml   : 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:' + depVersions.jackson,
-        javaxServletApi         : 'javax.servlet:javax.servlet-api:' + depVersions.javaxServletApi,
-        jimfs                   : 'com.google.jimfs:jimfs:' + depVersions.jimfs,
-        jsonapiConverter        : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
-        jsr305                  : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
-        logbackClassic          : 'ch.qos.logback:logback-classic:' + depVersions.logback,
-        lombok                  : 'org.projectlombok:lombok:' + depVersions.lombok,
-        okHttp                  : 'com.squareup.okhttp3:okhttp:' + depVersions.okHttp,
-        postgresql              : 'org.postgresql:postgresql:' + depVersions.postgresql,
-        protoc                  : 'com.google.protobuf:protoc:' + depVersions.protoc,
-        protocGenGrpcJava       : 'io.grpc:protoc-gen-grpc-java:' + depVersions.grpc,
-        querydslApt             : [
-                'com.querydsl:querydsl-apt:' + depVersions.querydsl + ':hibernate',
-                'org.hibernate:hibernate-core:' + depVersions.hibernate,
-        ],
-        querydslJpa             : 'com.querydsl:querydsl-jpa:' + depVersions.querydsl,
-        slf4j                   : 'org.slf4j:slf4j-api:' + depVersions.slf4j,
-        slf4jJclBridge          : 'org.slf4j:jcl-over-slf4j:' + depVersions.slf4j,
-        slf4jJulBridge          : 'org.slf4j:jul-to-slf4j:' + depVersions.slf4j,
-        springContext           : 'org.springframework:spring-orm:' + depVersions.springFramework,
-        springOrm               : 'org.springframework:spring-orm:' + depVersions.springFramework,
-        springTx                : 'org.springframework:spring-tx:' + depVersions.springFramework,
-        springBoot              : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
-        springBootAutoconfigure : 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
-        springBootActuator      : 'org.springframework.boot:spring-boot-starter-actuator:' + depVersions.springBoot,
-        springBootGrpcStarter   : 'org.lognet:grpc-spring-boot-starter:' + depVersions.springBootGrpcStarter,
-        springBootUndertow      : 'org.springframework.boot:spring-boot-starter-undertow:' + depVersions.springBoot,
-        springDataJpa           : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
-        springDataRestWebMvc    : 'org.springframework.data:spring-data-rest-webmvc:' + depVersions.springDataRest,
-        springDataRestHalBrowser: 'org.springframework.data:spring-data-rest-hal-browser:' + depVersions.springDataRest,
-
-        awaitility              : 'org.awaitility:awaitility:' + depVersions.awaitility,
-        hamcrestJunit           : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
-        hsqldb                  : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
-        mockFtpServer           : 'org.mockftpserver:MockFtpServer:' + depVersions.mockFtpServer,
-        mockWebServer           : 'com.squareup.okhttp3:mockwebserver:' + depVersions.okHttp,
-        mockito                 : 'org.mockito:mockito-core:' + depVersions.mockito,
-        junit                   : 'junit:junit:' + depVersions.junit,
-        selenium                : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
-        springTest              : 'org.springframework:spring-test:' + depVersions.springFramework,
-        springBootTestStarter   : 'org.springframework.boot:spring-boot-starter-test:' + depVersions.springBoot,
-        testContainers          : 'org.testcontainers:testcontainers:' + depVersions.testContainers,
-        testContainersSelenium  : 'org.testcontainers:selenium:' + depVersions.testContainers
+        clientDependenciesPlugin  : '1.3.1',
+        dependencyManagementPlugin: '1.0.0.RELEASE',
+        jsPlugin                  : '2.14.1',
+        osPackagePlugin           : '4.3.0',
+        protobufPlugin            : '0.8.0',
+        shadowPlugin              : '1.2.4',
+        springBootPlugin          : '1.4.3.RELEASE'
 ]
 
 ext.pl = [
-        clientDependencies: 'gradle.plugin.com.craigburke.gradle:client-dependencies:' + depVersions.clientDependenciesPlugin,
-        js                : 'com.eriwen:gradle-js-plugin:' + depVersions.jsPlugin,
-        osPackage         : 'com.netflix.nebula:gradle-ospackage-plugin:' + depVersions.osPackagePlugin,
-        protobuf          : 'com.google.protobuf:protobuf-gradle-plugin:' + depVersions.protobufPlugin,
-        shadow            : 'com.github.jengelman.gradle.plugins:shadow:' + depVersions.shadowPlugin,
-        springBoot        : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBoot
+        clientDependencies  : 'gradle.plugin.com.craigburke.gradle:client-dependencies:' + depVersions.clientDependenciesPlugin,
+        dependencyManagement: 'io.spring.gradle:dependency-management-plugin:' + depVersions.dependencyManagementPlugin,
+        js                  : 'com.eriwen:gradle-js-plugin:' + depVersions.jsPlugin,
+        osPackage           : 'com.netflix.nebula:gradle-ospackage-plugin:' + depVersions.osPackagePlugin,
+        protobuf            : 'com.google.protobuf:protobuf-gradle-plugin:' + depVersions.protobufPlugin,
+        shadow              : 'com.github.jengelman.gradle.plugins:shadow:' + depVersions.shadowPlugin,
+        springBoot          : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBootPlugin
 ]
 
 static def getRpmVersion(version) {

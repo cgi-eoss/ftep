@@ -25,14 +25,15 @@ configurations {
 }
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
-    querydslApt deps.querydslApt
+    querydslApt group: 'com.querydsl', name: 'querydsl-apt', classifier: 'hibernate'
+    querydslApt 'org.hibernate:hibernate-core'
 
-    compile deps.guava
-    compile deps.hibernateJpa21Api
-    compile deps.jsonapiConverter
-    compile deps.querydslJpa
+    compile 'com.github.jasminb:jsonapi-converter'
+    compile 'com.google.guava:guava'
+    compile 'com.querydsl:querydsl-jpa'
+    compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api'
 }
 
 task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {

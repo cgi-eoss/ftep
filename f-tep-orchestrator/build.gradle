@@ -5,29 +5,29 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
-    compile deps.awaitility
-    compile deps.commonsNet
-    compile deps.dockerJava
-    compile deps.okHttp
-    compile deps.slf4j
-    compile deps.springContext
-    compile deps.springBootAutoconfigure
-    compile deps.springBootGrpcStarter
+    compile 'commons-net:commons-net'
+    compile 'com.github.docker-java:docker-java'
+    compile 'com.squareup.okhttp3:okhttp'
+    compile 'org.awaitility:awaitility'
+    compile 'org.lognet:grpc-spring-boot-starter'
+    compile 'org.slf4j:slf4j-api'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-autoconfigure'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.hsqldb
-    testCompile deps.jimfs
-    testCompile deps.junit
-    testCompile deps.mockFtpServer
-    testCompile deps.mockWebServer
-    testCompile deps.mockito
-    testCompile deps.springTest
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.mockftpserver:MockFtpServer'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'org.springframework:spring-test'
 
-    testRuntime deps.logbackClassic
+    testRuntime 'ch.qos.logback:logback-classic'
 }

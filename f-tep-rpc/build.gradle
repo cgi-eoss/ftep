@@ -22,11 +22,11 @@ sourceSets {
 
 protobuf {
     protoc {
-        artifact = deps.protoc
+        artifact = 'com.google.protobuf:protoc:3.1.0-build2'
     }
     plugins {
         grpc {
-            artifact = deps.protocGenGrpcJava
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.0.3'
         }
     }
     generateProtoTasks {
@@ -41,11 +41,11 @@ protobuf {
 }
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
-    compile deps.grpcNetty
-    compile deps.grpcProtobuf
-    compile deps.grpcStub
+    compile 'io.grpc:grpc-netty'
+    compile 'io.grpc:grpc-protobuf'
+    compile 'io.grpc:grpc-stub'
 }
 
 sonarqube {

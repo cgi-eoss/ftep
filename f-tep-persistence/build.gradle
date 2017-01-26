@@ -5,24 +5,24 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-model')
 
-    compile deps.gson
-    compile deps.guava
-    compile deps.hibernateCore
-    compile deps.hibernateEntityManager
-    compile deps.hikaricp
-    compile deps.querydslJpa
-    compile deps.springOrm
-    compile deps.springTx
-    compile deps.springBoot
-    compile deps.springBootAutoconfigure
-    compile deps.springDataJpa
+    compile 'com.google.code.gson:gson'
+    compile 'com.google.guava:guava'
+    compile 'com.querydsl:querydsl-jpa'
+    compile 'com.zaxxer:HikariCP'
+    compile 'org.hibernate:hibernate-core'
+    compile 'org.hibernate:hibernate-entitymanager'
+    compile 'org.springframework:spring-orm'
+    compile 'org.springframework:spring-tx'
+    compile 'org.springframework.boot:spring-boot'
+    compile 'org.springframework.boot:spring-boot-autoconfigure'
+    compile 'org.springframework.data:spring-data-jpa'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.hsqldb
-    testCompile deps.junit
-    testCompile deps.springTest
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.springframework:spring-test'
 }

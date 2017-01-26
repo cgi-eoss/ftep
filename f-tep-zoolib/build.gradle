@@ -5,20 +5,20 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-rpc')
     compile project(':f-tep-orchestrator')
 
-    compile deps.guava
-    compile deps.logbackClassic
-    compile deps.slf4j
-    compile deps.slf4jJulBridge
+    compile 'com.google.guava:guava'
+    compile 'ch.qos.logback:logback-classic'
+    compile 'org.slf4j:jul-to-slf4j'
+    compile 'org.slf4j:slf4j-api'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.jimfs
-    testCompile deps.junit
-    testCompile deps.mockito
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'junit:junit'
+    testCompile 'org.mockito:mockito-core'
 }
 
 sonarqube {

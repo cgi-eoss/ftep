@@ -17,19 +17,19 @@ dependencies {
     compile project(':f-tep-api')
     compile project(':f-tep-orchestrator')
 
-    compile deps.aspectjWeaver
-    compile deps.flyway
-    compile deps.javaxServletApi
-    compile deps.logbackClassic
-    compile deps.springContext
-    compile deps.springBootAutoconfigure
-    compile deps.springBootActuator
-    compile deps.springBootUndertow
-    compile deps.springDataRestHalBrowser
+    compile 'ch.qos.logback:logback-classic'
+    compile 'javax.servlet:javax.servlet-api'
+    compile 'org.aspectj:aspectjweaver'
+    compile 'org.flywaydb:flyway-core'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-autoconfigure'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-undertow'
+    compile 'org.springframework.data:spring-data-rest-hal-browser'
 
     // Default provided database adapters
-    runtime deps.hsqldb
-    runtime deps.postgresql
+    runtime 'org.hsqldb:hsqldb'
+    runtime 'org.postgresql:postgresql'
 }
 
 springBoot {

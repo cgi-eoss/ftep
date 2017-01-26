@@ -5,11 +5,11 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-common')
     compile project(':f-tep-datamanager')
     compile project(':f-tep-model')
 
-    compile deps.slf4j
+    compile 'org.slf4j:slf4j-api'
 }

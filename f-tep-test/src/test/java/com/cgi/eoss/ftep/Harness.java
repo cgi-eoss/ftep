@@ -52,7 +52,7 @@ class Harness {
                         try (Response response = httpClient.newCall(webappRoot).execute()) {
                             assertThat(response, is(notNullValue()));
                         }
-                        Request wpsServices = new Request.Builder().url(getWpsUrl("/cgi-bin/zoo_loader.cgi?request=GetCapabilities&service=WPS")).build();
+                        Request wpsServices = new Request.Builder().url(getWpsUrl("/zoo_loader.cgi?request=GetCapabilities&service=WPS")).build();
                         try (Response response = httpClient.newCall(wpsServices).execute()) {
                             assertThat(response.code(), is(200));
                         }
@@ -84,7 +84,7 @@ class Harness {
     }
 
     private String getWpsUrl(String path) {
-        return getFtepBaseUrl() + "/wps" + path;
+        return getFtepBaseUrl() + "/secure/wps" + path;
     }
 
     private String getFtepBaseUrl() {

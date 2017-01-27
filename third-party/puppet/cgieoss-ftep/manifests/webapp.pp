@@ -4,8 +4,8 @@ class ftep::webapp(
 
   $url_prefix   = 'http://localhost',
   $api_url      = 'http://localhost/secure/api/v1.0',
-  $zoo_url      = 'http://localhost/wps',
-  $wms_url      = 'http://localhost:8080/geoserver',
+  $zoo_url      = 'http://localhost/secure/wps/zoo_loader.cgi',
+  $wms_url      = 'http://localhost/geoserver',
   $mapbox_token = 'pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ',
 ) {
 

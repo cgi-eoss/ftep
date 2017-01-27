@@ -5,7 +5,7 @@ class ftep::proxy (
 
   $context_path_geoserver = '/geoserver',
   $context_path_webapp    = '/app',
-  $context_path_wps       = '/wps',
+  $context_path_wps       = '/secure/wps',
   $context_path_api_v2    = '/secure/api/v2.0',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',

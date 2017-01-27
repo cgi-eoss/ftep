@@ -8,12 +8,14 @@ class ftep::wps (
   $manage_package    = true,
   $package_ensure    = 'present',
   $package_name      = 'zoo-kernel',
-  $config_path       = '/var/www/cgi-bin',
+  $cgi_path          = '/var/www/cgi-bin',
   $main_config_file  = 'main.cfg',
+  $script_alias      = '/zoo_loader.cgi',
+  $cgi_file          = 'zoo_loader.cgi',
 
   # zoo-kernel config
   $wps_version       = '1.0.0',
-  $lang              = 'en-GB',
+  $lang              = 'en-US',
   $server_address    = 'https://forestry-tep.eo.esa.int/wps',
   $data_path         = '/var/www/temp',
   $tmp_path          = '/data/cache',
@@ -72,7 +74,7 @@ class ftep::wps (
       })
     }
 
-    file { "${config_path}/${main_config_file}":
+    file { "${cgi_path}/${main_config_file}":
       ensure  => 'present',
       mode    => '0644',
       owner   => 'root',
@@ -106,11 +108,21 @@ class ftep::wps (
   }
 
   ::apache::vhost { 'ftep-wps':
-    port        => '80',
-    servername  => 'ftep-wps',
-    docroot     => '/var/www/cgi-bin',
-    scriptalias => $config_path,
-    options     => ['-Indexes']
+    port          => '80',
+    servername    => 'ftep-wps',
+    docroot       => $cgi_path,
+    scriptaliases => [{
+      alias => $script_alias,
+      path  => "${cgi_path}/${cgi_file}"
+    }],
+    options       => ['-Indexes']
+  }
+
+  # Ensure zoo_loader.cgi can access NFS shares
+  if $facts['selinux'] {
+    ::selinux::boolean { 'httpd_use_nfs':
+      ensure => true,
+    }
   }
 
 }

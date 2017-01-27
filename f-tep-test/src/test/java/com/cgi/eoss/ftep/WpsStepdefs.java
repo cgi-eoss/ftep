@@ -27,7 +27,7 @@ public class WpsStepdefs implements En {
         });
 
         When("^a user requests GetCapabilities from WPS$", () -> {
-            Response response = harness.getWpsResponse("/cgi-bin/zoo_loader.cgi?request=GetCapabilities&service=WPS");
+            Response response = harness.getWpsResponse("/zoo_loader.cgi?request=GetCapabilities&service=WPS");
             assertThat(response.code(), is(200));
             responseBody = harness.getResponseContent(response);
         });

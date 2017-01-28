@@ -49,6 +49,5 @@ dependencies {
     runtime(project(path: ':f-tep-demoprocessor', configuration: 'shadow')) { transitive = false }
 }
 
-artifacts {
-    archives buildRpm
-}
+configurations { pkg }
+artifacts { pkg buildRpm }

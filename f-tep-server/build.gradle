@@ -41,7 +41,8 @@ springBoot {
 bootRepackage.dependsOn = [jar]
 buildRpm.dependsOn bootRepackage
 buildDeb.dependsOn bootRepackage
-artifacts { archives buildRpm }
+configurations { pkg }
+artifacts { pkg buildRpm }
 
 ospackage {
     packageName 'f-tep-server'

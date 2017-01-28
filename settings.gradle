@@ -18,5 +18,8 @@ include 'f-tep-orchestrator'
 include 'f-tep-api'
 include 'f-tep-server'
 
+include 'third-party/cxx/zoo-project'
+include 'third-party/pkg'
 include 'third-party/puppet'
 
+include 'distribution'

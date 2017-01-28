@@ -1,0 +1,46 @@
+buildscript {
+    dependencies {
+        classpath pl.osPackage
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.4.0-SNAPSHOT'
+
+apply plugin: 'base'
+apply plugin: 'nebula.ospackage'
+
+task buildZoo(type: Exec) {
+    executable "${projectDir}/build.sh"
+}
+
+ospackage {
+    packageName 'zoo-kernel'
+    version '1.5.0'
+    release '1'
+    arch X86_64
+    os LINUX
+    packageDescription 'ZOO-Kernel WPS server'
+    url 'http://zoo-project.org/'
+    license 'MIT License'
+    vendor 'F-TEP'
+
+    requires('java-1.8.0-openjdk-headless')
+    requires('gdal')
+    requires('fcgi')
+
+    postInstall file('postinst.sh')
+
+    into '/'
+    from("${buildDir}/staging") {
+        user 'root'
+        include '**'
+    }
+}
+
+buildRpm.dependsOn buildZoo
+buildDeb.dependsOn buildZoo
+
+sonarqube {
+    skipProject = true
+}

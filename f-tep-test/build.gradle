@@ -24,22 +24,13 @@ test {
 }
 
 if (project.hasProperty("acceptanceTests")) {
-    test.dependsOn 'copyDocker', 'copyPuppet', 'copyRepo'
+    test.dependsOn 'copyFtepDist'
 }
 
-task copyDocker(type: Copy) {
-    from "${projectDir}/src/test/docker"
+task copyFtepDist(type: Sync) {
     into harnessDir
-}
-
-task copyPuppet(type: Copy) {
-    from tarTree(resources.gzip("${projectDir}/../.dist/puppet.tar.gz"))
-    into "${harnessDir}/puppet"
-}
-
-task copyRepo(type: Copy) {
-    from "${projectDir}/../.dist/repo"
-    into "${harnessDir}/repo"
+    from "${projectDir}/src/test/docker"
+    from "${projectDir}/../.dist"
 }
 
 dependencies {

@@ -9,24 +9,6 @@ ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl :
 ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
 ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
 
-
-
-buildscript {
-    repositories {
-        maven {
-            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
-        }
-    }
-    dependencies {
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
-        classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
-    }
-}
-
-apply plugin: 'org.sonarqube'
-apply plugin: 'com.github.ben-manes.versions'
-
 allprojects {
     buildscript {
         repositories {
@@ -135,9 +117,27 @@ ext.pl = [
         springBoot          : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBootPlugin
 ]
 
-static def getRpmVersion(version) {
+buildscript {
+    repositories {
+        maven {
+            url project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
+        }
+    }
+    dependencies {
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
+        classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+    }
+}
+
+apply plugin: 'org.sonarqube'
+apply plugin: 'com.github.ben-manes.versions'
+
+ext.snapshotRpmQualifier = System.getenv("BUILD_NUMBER") == null ? LocalDateTime.now().format(DateTimeFormatter.ofPattern('yyyyMMddHHmmss')) : System.getenv("BUILD_NUMBER")
+
+def getRpmVersion(version) {
     return [
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
-            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern('yyyyMMddHHmmss')) : '1'
+            release: version.endsWith('-SNAPSHOT') ? "SNAPSHOT${snapshotRpmQualifier}" : '1'
     ]
 }

@@ -14,30 +14,27 @@
         def dockerArgs = "${dockerInDockerArgs} -e http_proxy -e https_proxy -e no_proxy -e HOME=${WORKSPACE}/.home"
         buildImg.inside(dockerArgs) {
             withGradleEnv {
+                def gradle = "gradle -I ${GRADLEINIT}"
+
                 // Build F-TEP
                 stage('Build F-TEP') {
                     try {
-                        sh "./build/ftep.sh"
+                        sh "${gradle} build --parallel"
                     } finally {
                         junit allowEmptyResults: true, testResults: '**/target/test-results/test/TEST-*.xml'
                     }
                 }
 
-                // Build third-party components
-                stage('Build ZOO-Project') {
-                    sh "./build/zoo-project.sh"
-                }
-
-                // Build full standalone distribution (and archive the result)
+                // Assemble full standalone distribution (and archive the result)
                 stage('Build Distribution') {
-                    sh "./build/standalone-dist.sh"
+                    sh "${gradle} buildDist -pdistribution --parallel"
                     archiveArtifacts artifacts: '.dist/**/*', fingerprint: true, allowEmptyArchive: true
                 }
 
                 stage('Acceptance Test') {
                     timeout(20) {
                         try {
-                            sh "gradle -I ${GRADLEINIT} test -pf-tep-test -PacceptanceTests"
+                            sh "${gradle} test -pf-tep-test -PacceptanceTests"
                         } catch (Exception e) {
                             // Swallow acceptance test failures
                         } finally {
@@ -48,7 +45,7 @@
 
                 if (!eossCI.isTriggeredByGerrit()) {
                     stage('SonarQube Analysis') {
-                        eossCI.sonarqubeGradle("", "gradle -I ${GRADLEINIT}")
+                        eossCI.sonarqubeGradle("", gradle)
                     }
                 }
             } // end withGradleEnv

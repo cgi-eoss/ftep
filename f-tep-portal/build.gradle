@@ -176,9 +176,8 @@ ospackage {
     }
 }
 
-artifacts {
-    archives buildRpm
-}
+configurations { pkg }
+artifacts { pkg buildRpm }
 
 sonarqube {
     properties {

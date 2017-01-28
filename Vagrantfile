@@ -13,6 +13,7 @@ Vagrant.configure('2') do |config|
     build.ssh.username = 'ftep'
     build.ssh.password = 'ftep'
     build.vm.synced_folder '.', '/home/ftep/build'
+    build.vm.synced_folder '/home/vanzettenp/.gradle', '/home/ftep/.gradle'
 
     build.vm.provider 'docker' do |d|
       d.build_dir = './build'
@@ -62,9 +63,9 @@ Vagrant.configure('2') do |config|
     #
     config.puppet_install.puppet_version = '4.8.1'
     ftep.vm.provision 'puppet' do |puppet|
-      puppet.environment_path = 'distribution'
+      puppet.environment_path = '.dist'
       puppet.environment = 'puppet'
-      puppet.hiera_config_path = 'distribution/puppet/hiera.yaml'
+      puppet.hiera_config_path = '.dist/puppet/hiera.yaml'
       puppet.working_directory = '/tmp/vagrant-puppet/environments/puppet'
       #puppet.options = "--debug"
     end

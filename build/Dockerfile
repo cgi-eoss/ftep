@@ -45,18 +45,6 @@ RUN yum install -y \
  && yum clean all
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0
 
-# Maven
-ENV MAVEN_VERSION 3.3.9
-RUN cd /opt && curl -s -L https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xz
-ENV M2_HOME /opt/apache-maven-${MAVEN_VERSION}
-ENV PATH=${M2_HOME}/bin:${PATH}
-
-# Gradle
-ENV GRADLE_VERSION 3.3
-RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
-ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
-ENV PATH=${GRADLE_HOME}/bin:${PATH}
-
 # ZOO-Project dependencies (order of installation is important)
 RUN yum install -y \
  http://elgis.argeo.org/repos/6/elgis-release-6-6_0.noarch.rpm \
@@ -90,8 +78,11 @@ RUN yum install -y \
  && yum clean all
 ENV PATH=/opt/puppetlabs/bin:${PATH}
 
-# Re-use the puppet-provided ruby for other gems
-RUN /opt/puppetlabs/puppet/bin/gem install -n /usr/local/bin fpm
+# Gradle
+ENV GRADLE_VERSION 3.3
+RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
+ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
+ENV PATH=${GRADLE_HOME}/bin:${PATH}
 
 # Set up user and environment for interactive usage
 RUN adduser -d /home/ftep -m ftep && echo "ftep" | passwd ftep --stdin

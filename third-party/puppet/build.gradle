@@ -3,6 +3,11 @@ version '0.1.0'
 
 apply plugin: 'base'
 
+configurations {
+    moduleTars
+    allModules
+}
+
 // Puppet modules to stage into ${buildDir}/modules and package into ${buildDir}/distributions
 def puppetModules = [
         'cgieoss-ftep',
@@ -26,13 +31,17 @@ def puppetModules = [
         'camptocamp-archive', // (v0.9.0)
 ]
 
+def moduleMetadata = [:]
+puppetModules.each {
+    moduleMetadata.put(it, new groovy.json.JsonSlurper().parse(file("${it}/metadata.json")))
+}
+
 tasks.addRule("Pattern: collectSources_<ID>") { String taskName ->
     if (taskName.startsWith("collectSources_")) {
-        task(taskName, type: Copy) {
+        task(taskName, type: Sync) {
             def module = (taskName - 'collectSources_')
 
-            def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
-            def moduleShortName = ((String) moduleMetadata.name).split('[-/]')[1]
+            def moduleShortName = moduleMetadata[module].name.split('[-/]')[1]
             def targetDir = "${buildDir}/modules/${moduleShortName}"
 
             def srcs = fileTree(module) {
@@ -62,15 +71,13 @@ tasks.addRule("Pattern: buildModule_<ID>") { String taskName ->
             def srcTask = tasks["collectSources_${module}"]
             dependsOn srcTask
 
-            def moduleMetadata = new groovy.json.JsonSlurper().parse(file("${module}/metadata.json"))
-
             // Configure the tar task
-            baseName = moduleMetadata.name.replaceAll('/', '-')
-            version = moduleMetadata.version
+            baseName = moduleMetadata[module].name.replaceAll('/', '-')
+            version = moduleMetadata[module].version
             compression = Compression.GZIP
             extension = 'tar.gz'
             from srcTask
-            into "${moduleMetadata.name.replaceAll('/', '-')}-${version}"
+            into "${moduleMetadata[module].name.replaceAll('/', '-')}-${version}"
         }
     }
 }
@@ -103,9 +110,24 @@ def genChecksumsTask(String module, File checksumsFile, FileTree srcs) {
     }
 }
 
-puppetModules.each { module ->
-    def mod = tasks["buildModule_${module}"]
-    build.dependsOn mod
+task allModulesTar(type: Tar) {
+    baseName = 'allModules'
+    compression = Compression.GZIP
+    extension = 'tar.gz'
+
+    puppetModules.each { module ->
+        into(moduleMetadata[module].name.split('[-/]')[1]) {
+            from tasks["collectSources_${module}"]
+        }
+    }
+}
+
+artifacts {
+    allModules allModulesTar
+    // Uncomment to add individual module .tar.gz files to the default build
+    //puppetModules.each { module ->
+    //    moduleTars tasks["buildModule_${module}"]
+    //}
 }
 
 sonarqube {

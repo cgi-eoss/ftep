@@ -33,6 +33,7 @@ dependencies {
 }
 
 springBoot {
+    classifier = 'bin'
     executable = true
 }
 
@@ -59,7 +60,7 @@ ospackage {
     from("${buildDir}/libs") {
         into 'bin'
         include '*.jar'
-        rename('f-tep-server-.*\\.jar', 'f-tep-server.jar')
+        rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
     }
 
     from("src/ospackage/f-tep-server.properties") {

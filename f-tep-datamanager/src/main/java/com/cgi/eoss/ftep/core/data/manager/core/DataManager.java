@@ -5,12 +5,15 @@ import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.zoo.project.ZooConstants;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // Symlinks created by this module are regardless of elements removed
 
@@ -154,17 +157,18 @@ public class DataManager {
             LOG.debug("Starting SECP script execution at: {}", LocalDateTime.now());
             Process scriptProcessCall = Runtime.getRuntime().exec(command, null, new File(downloadDir));
 
-            StreamGrabber errorGrabber = new StreamGrabber(scriptProcessCall.getErrorStream());
-            StreamGrabber outputGrabber = new StreamGrabber(scriptProcessCall.getInputStream());
-            errorGrabber.start();
-            outputGrabber.start();
+            List<String> errorLogs;
+            List<String> outputLogs;
+            try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(scriptProcessCall.getErrorStream()));
+                 BufferedReader outputReader = new BufferedReader(new InputStreamReader(scriptProcessCall.getInputStream()))
+            ) {
+                // Wait for until the script terminates
+                scriptProcessCall.waitFor();
+                LOG.debug("Completed SECP script execution at: {}", LocalDateTime.now());
 
-            // Wait for until the script terminates
-            scriptProcessCall.waitFor();
-            LOG.debug("Completed SECP script execution at: {}", LocalDateTime.now());
-
-            List<String> errorLogs = errorGrabber.getLines();
-            List<String> outputLogs = outputGrabber.getLines();
+                errorLogs = errorReader.lines().collect(Collectors.toList());
+                outputLogs = outputReader.lines().collect(Collectors.toList());
+            }
 
             LOG.debug("+++++++++++++++--------- SECP script stderr logs ----------++++++++++++++++++");
             errorLogs.forEach(LOG::debug);
@@ -174,6 +178,7 @@ public class DataManager {
 
             // When ready check the exit code
             int exitVal = scriptProcessCall.exitValue();
+
             if (0 != exitVal) {
                 // On fail
                 LOG.error("Data download failed with exit value: {} for {}", exitVal, oneUrlInRow);

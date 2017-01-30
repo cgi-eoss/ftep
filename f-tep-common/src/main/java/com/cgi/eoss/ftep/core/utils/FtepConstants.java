@@ -28,9 +28,9 @@ public final class FtepConstants {
 
   public static final int DOCKER_DAEMON_PORT = 2376;
 
-  public static final String DB_API_LOGIN_INT_ENDPOINT = "https://192.168.3.83/api/v1.0/login";
+  public static final String DB_API_LOGIN_INT_ENDPOINT = "http://ftep-db-api/api/v1.0/login";
 
-  public static final String DB_API_JOBTABLE_INT_ENDPOINT = "https://192.168.3.83/api/v1.0/jobs";
+  public static final String DB_API_JOBTABLE_INT_ENDPOINT = "http://ftep-db-api/api/v1.0/jobs";
 
   public static final String DB_API_USER = "ftepApiUser";
 
@@ -56,8 +56,7 @@ public final class FtepConstants {
 
   public static final int DISK_CACHE_REMOVABLE_COUNT = 10;
 
-  public static final String DATASOURCE_QUERY_ENDPOINT =
-      "https://192.168.3.83/api/v1.0/datasources/getAuthentication/";
+  public static final String DATASOURCE_QUERY_ENDPOINT = "http://ftep-db-api/api/v1.0/datasources/getAuthentication/";
 
 
   // Output file patterns

@@ -21,7 +21,7 @@ public class ManualWorkerService implements WorkerService {
 
     private static final String DEFAULT_DOCKER_HOST = "localhost";
     private static final String DEFAULT_DOCKER_PORT = "2376";
-    private static final RemoteApiVersion DEFAULT_DOCKER_API_VERSION = RemoteApiVersion.VERSION_1_22;
+    private static final RemoteApiVersion DEFAULT_DOCKER_API_VERSION = RemoteApiVersion.VERSION_1_19;
     private static final String DEFAULT_DOCKER_CERT_PATH = System.getProperty("user.home") + File.separator + ".docker";
     private static final String DOCKER_UNIX_SOCKET = "unix:///var/run/docker.sock";
 

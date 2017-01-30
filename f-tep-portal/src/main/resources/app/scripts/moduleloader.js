@@ -24,6 +24,7 @@ define([
     './services/geoservice',
     './services/groupservice',
     './services/jobservice',
+    './services/mapservice',
     './services/messageservice',
     './services/projectservice',
     './services/productservice',

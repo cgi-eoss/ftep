@@ -8,7 +8,8 @@
 define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
-    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', function($scope, $rootScope, $mdDialog, ftepProperties) {
+    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService',
+                                    function($scope, $rootScope, $mdDialog, ftepProperties, MapService) {
 
         var EPSG_3857 = "EPSG:3857", //Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
             EPSG_4326 = "EPSG:4326"; //Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
@@ -20,65 +21,89 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         };
 
         $scope.drawType = SHAPE.NONE;
+        var searchLayerFeatures = MapService.searchLayerFeatures;
+        $scope.mapType = MapService.mapType;
+        $scope.searchPolygon = MapService.searchPolygon;
 
-        var draw; // global so we can remove it later
-        var features = new ol.Collection();
+        var resultStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.15)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#ffcc33',
+                width: 2
+            })
+        });
 
-        $scope.searchPolygon = { selectedArea: undefined, wkt: undefined };
-        function addInteraction() {
-            if(searchAreaLayer){
-                searchAreaLayer.getSource().clear();
+        var searchBoxStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)'
+              }),
+            stroke: new ol.style.Stroke({
+                color: '#ed0707',
+                width: 2,
+                lineDash: [15, 5]
+            })
+        });
+
+        /** MAP LAYER TYPES **/
+        var layerOSM = new ol.layer.Tile({
+            name: 'Test_OSM',
+            source: new ol.source.OSM()
+        });
+
+        var layerMapBox = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                tileSize: [512, 512],
+                url: ftepProperties.MAPBOX_URL
+            })
+        });
+        /** END OF MAP LAYER TYPES **/
+
+        /** MAP INTERACTIONS FOR THE POLYGONS **/
+        var modify = new ol.interaction.Modify({
+            features: searchLayerFeatures,
+            // the SHIFT key must be pressed to delete vertices, so
+            // that new vertices can be drawn at the same position
+            // of existing vertices
+            deleteCondition: function(event) {
+              return ol.events.condition.shiftKeyOnly(event) &&
+                  ol.events.condition.singleClick(event);
             }
-            if(droppedFileLayer){
-                $scope.map.removeLayer(droppedFileLayer);
-            }
-            if($scope.drawType !== SHAPE.NONE){
-                var geometryFunction, maxPoints;
-                if($scope.drawType === SHAPE.BOX){
-                    maxPoints = 2;
-                    geometryFunction = function(coordinates, geometry) {
-                      if (!geometry) {
-                        geometry = new ol.geom.Polygon(null);
-                      }
-                      var start = coordinates[0];
-                      var end = coordinates[1];
-                      geometry.setCoordinates([
-                        [start, [start[0], end[1]], end, [end[0], start[1]], start]
-                      ]);
-                      return geometry;
-                    };
+        });
+
+        modify.on('modifyend',function(e){
+            updateSearchPolygon(e.features.getArray()[0].getGeometry());
+        });
+
+        var dragAndDropInteraction = new ol.interaction.DragAndDrop({
+            formatConstructors: [
+                ol.format.KML
+                //TODO other formats?
+            ]
+        });
+
+        var selectClick = MapService.selectClick;
+
+        selectClick.on('select', function(evt) {
+            var selectedItems = [];
+            for(var i = 0; i < selectClick.getFeatures().getLength(); i++){
+                if(selectClick.getFeatures().item(i) && selectClick.getFeatures().item(i).get('data')){
+                    selectedItems.push(selectClick.getFeatures().item(i).get('data'));
                 }
-                draw = new ol.interaction.Draw({
-                  features: features,
-                  type: ($scope.drawType.type) /** @type {ol.geom.GeometryType} */ ,
-                  geometryFunction: geometryFunction,
-                  maxPoints: maxPoints
-                });
-
-                draw.on('drawend', function (event) {
-                    $scope.drawType = SHAPE.NONE;
-                    $scope.map.removeInteraction(draw);
-                    $scope.searchPolygon.selectedArea = event.feature.getGeometry().clone();
-                    updateSearchPolygon($scope.searchPolygon.selectedArea);
-
-                    var area = angular.copy($scope.searchPolygon.selectedArea);
-                    var wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
-                    $rootScope.$broadcast('update.searchPolygonWkt', wkt);
-                });
-
-                $scope.map.addInteraction(draw);
             }
-        }
+            $rootScope.$broadcast('map.item.toggled', selectedItems);
+        });
 
-        addInteraction();
+        /** END OF MAP INTERACTIONS FOR THE POLYGONS **/
 
-        function updateSearchPolygon(geom, refit){
-            var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-            $rootScope.$broadcast('polygon.drawn', polygonWSEN);
-            if(refit && refit === true){
-                $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
-            }
-        }
+        /** MOUSE POSITION COORDINATES **/
+        var mousePositionControl = new ol.control.MousePosition({
+            coordinateFormat: ol.coordinate.createStringXY(4),
+            projection: EPSG_4326,
+            undefinedHTML: '&nbsp;'
+        });
+        /** END OF MOUSE POSITION COORDINATES **/
 
         $scope.draw = function(shape, opt_options) {
 
@@ -109,124 +134,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         };
         ol.inherits($scope.draw, ol.control.Control);
 
-        var defaultStyle = {
-                'Point': new ol.style.Style({
-                  image: new ol.style.Circle({
-                    fill: new ol.style.Fill({
-                      color: 'rgba(255,255,0,0.5)'
-                    }),
-                    radius: 5,
-                    stroke: new ol.style.Stroke({
-                      color: '#ff0',
-                      width: 1
-                    })
-                  })
-                }),
-                'LineString': new ol.style.Style({
-                  stroke: new ol.style.Stroke({
-                    color: '#f00',
-                    width: 3
-                  })
-                }),
-                'Polygon': new ol.style.Style({
-                  fill: new ol.style.Fill({
-                    color: 'rgba(0,255,255,0.5)'
-                  }),
-                  stroke: new ol.style.Stroke({
-                    color: '#E9FF5D',
-                    width: 1
-                  })
-                }),
-                'MultiPoint': new ol.style.Style({
-                  image: new ol.style.Circle({
-                    fill: new ol.style.Fill({
-                      color: 'rgba(255,0,255,0.5)'
-                    }),
-                    radius: 5,
-                    stroke: new ol.style.Stroke({
-                      color: '#f0f',
-                      width: 1
-                    })
-                  })
-                }),
-                'MultiLineString': new ol.style.Style({
-                  stroke: new ol.style.Stroke({
-                    color: '#0f0',
-                    width: 3
-                  })
-                }),
-                'MultiPolygon': new ol.style.Style({
-                  fill: new ol.style.Fill({
-                    color: 'rgba(0,0,255,0.5)'
-                  }),
-                  stroke: new ol.style.Stroke({
-                    color: '#00f',
-                    width: 1
-                  })
-                })
-        };
-
-        var styleFunction = function(feature, resolution) {
-            var featureStyleFunction = feature.getStyleFunction();
-            if (featureStyleFunction) {
-              return featureStyleFunction.call(feature, resolution);
-            } else {
-              return defaultStyle[feature.getGeometry().getType()];
-            }
-        };
-
-        var dragAndDropInteraction = new ol.interaction.DragAndDrop({
-            formatConstructors: [
-                ol.format.KML
-                //TODO other formats?
-            ]
-        });
-
-        var layerOSM = new ol.layer.Tile({
-            name: 'Test_OSM',
-            source: new ol.source.OSM()
-        });
-
-        var layerMQ = new ol.layer.Tile({
-            name: 'Test_MQ',
-            source: new ol.source.MapQuest({
-                layer: 'sat'
-            })
-        });
-
-        var layerMapBox = new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                tileSize: [512, 512],
-                url: ftepProperties.MAPBOX_URL
-            })
-        });
-
-        // Update map layer & tooltip
-        $scope.maplayer = {};
-        $scope.maplayer.active = "MapBox";
-
-        $scope.setMapType = function(newType) {
-            if(newType === 'OSM') {
-                $scope.map.removeLayer(layerMapBox);
-                $scope.map.addLayer(layerOSM);
-                $scope.maplayer.active = "Open Street";
-            } else if (newType === 'MB') {
-                $scope.map.removeLayer(layerOSM);
-                $scope.map.addLayer(layerMapBox);
-                $scope.maplayer.active = "MapBox";
-            }
-
-            $scope.map.addLayer(searchAreaLayer);
-        };
-
-        var mousePositionControl = new ol.control.MousePosition({
-            coordinateFormat: ol.coordinate.createStringXY(4),
-            projection: EPSG_4326,
-            undefinedHTML: '&nbsp;'
-          });
-
         $scope.map = new ol.Map({
-            interactions: ol.interaction.defaults().extend([dragAndDropInteraction]),
+            interactions: ol.interaction.defaults().extend([modify, dragAndDropInteraction, selectClick]),
             controls: ol.control.defaults({
                   attributionOptions: ({
                   collapsible: false
@@ -245,319 +154,91 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             })
           });
 
-        window.onresize = function() {
-            $scope.map.updateSize();
-        };
-
-        var searchBoxStyle = new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.2)'
-              }),
-            stroke: new ol.style.Stroke({
-                color: '#ed0707',
-                width: 2,
-                lineDash: [15, 5]
-            })
-        });
-
-        var searchAreaLayer = new ol.layer.Vector({
-          source: new ol.source.Vector({features: features}),
-          style: searchBoxStyle
-        });
-        $scope.map.addLayer(searchAreaLayer);
-
-        var modify = new ol.interaction.Modify({
-            features: features,
-            // the SHIFT key must be pressed to delete vertices, so
-            // that new vertices can be drawn at the same position
-            // of existing vertices
-            deleteCondition: function(event) {
-              return ol.events.condition.shiftKeyOnly(event) &&
-                  ol.events.condition.singleClick(event);
-            }
-          });
-        $scope.map.addInteraction(modify);
-
-        /* Custom KML reader, when file has GroundOverlay features, which OL3 doesn't support */
-        var reader = new FileReader();
-        reader.onload = function(){
-          var data = reader.result;
-          if(data.indexOf('GroundOverlay') > -1){
-              var x2js = new X2JS();
-              var kmlJson = x2js.xml_str2json(data);
-              console.log('<GroundOverlay>');
-              console.log(kmlJson.kml.Document.GroundOverlay.LatLonBox);
-              var latlonbox = kmlJson.kml.Document.GroundOverlay.LatLonBox;
-              var polygonWSEN = [parseFloat(latlonbox.west), parseFloat(latlonbox.south), parseFloat(latlonbox.east), parseFloat(latlonbox.north)];
-              var polyExtent = ol.proj.transformExtent(polygonWSEN, EPSG_4326, EPSG_3857);
-              var pol =  ol.geom.Polygon.fromExtent(polyExtent);
-
-              var kmlVector = new ol.source.Vector({
-                  features: [new ol.Feature({
-                      geometry: pol
-                   })]
-              });
-
-              droppedFileLayer = new ol.layer.Vector({
-                  source: kmlVector,
-                  style: searchBoxStyle
-              });
-
-              $scope.map.addLayer(droppedFileLayer);
-              $scope.map.getView().fit(polyExtent, /** @type {ol.Size} */ ($scope.map.getSize()));
-
-              $rootScope.$broadcast('polygon.drawn', polygonWSEN);
-          }
-        };
-
-        var droppedFileLayer;
-        dragAndDropInteraction.on('addfeatures', function(event) {
-            if(droppedFileLayer){
-                $scope.map.removeLayer(droppedFileLayer);
-            }
+        var draw; // global so we can remove it later
+        function addInteraction() {
             if(searchAreaLayer){
                 searchAreaLayer.getSource().clear();
             }
-            if(event.features.length < 1){
-                //no features could be parsed, try a custom approach
-                reader.readAsText(event.file);
+            if(droppedFileLayer){
+                $scope.map.removeLayer(droppedFileLayer);
             }
-            else {
-                var vectorSource = new ol.source.Vector({
-                  features: event.features
+            if($scope.drawType !== SHAPE.NONE){
+                var geometryFunction, maxPoints;
+                if($scope.drawType === SHAPE.BOX){
+                    maxPoints = 2;
+                    geometryFunction = function(coordinates, geometry) {
+                      if (!geometry) {
+                        geometry = new ol.geom.Polygon(null);
+                      }
+                      var start = coordinates[0];
+                      var end = coordinates[1];
+                      geometry.setCoordinates([
+                        [start, [start[0], end[1]], end, [end[0], start[1]], start]
+                      ]);
+                      return geometry;
+                    };
+                }
+                draw = new ol.interaction.Draw({
+                  features: searchLayerFeatures,
+                  type: ($scope.drawType.type) /** @type {ol.geom.GeometryType} */ ,
+                  geometryFunction: geometryFunction,
+                  maxPoints: maxPoints
                 });
-                droppedFileLayer = new ol.layer.Image({
-                    opacity: 0.50,
-                    source: new ol.source.ImageVector({
-                        source: vectorSource,
-                        style: new ol.style.Style({
-                            fill: new ol.style.Fill({
-                                color: 'rgba(241, 0, 0, 0.3)'
-                              }),
-                            stroke: new ol.style.Stroke({
-                                color: '#ed0707',
-                                width: 2
-                            })
-                        })
-                    })
+
+                draw.on('drawend', function (event) {
+                    $scope.drawType = SHAPE.NONE;
+                    $scope.map.removeInteraction(draw);
+                    updateSearchPolygon(event.feature.getGeometry());
                 });
-                $scope.map.addLayer(droppedFileLayer);
-                console.log(vectorSource.getExtent());
-                $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
-                var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-                $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+
+                $scope.map.addInteraction(draw);
             }
+        }
+        addInteraction();
+
+        $scope.setMapType = function(newType) {
+            if(newType === 'OSM') {
+                $scope.map.removeLayer(layerMapBox);
+                $scope.map.addLayer(layerOSM);
+                $scope.mapType.active = "Open Street";
+            } else if (newType === 'MB') {
+                $scope.map.removeLayer(layerOSM);
+                $scope.map.addLayer(layerMapBox);
+                $scope.mapType.active = "MapBox";
+            }
+
+            $scope.map.addLayer(searchAreaLayer);
+        };
+
+        var searchAreaLayer = new ol.layer.Vector({
+          source: new ol.source.Vector({
+                  features: searchLayerFeatures
+              }),
+              style: searchBoxStyle
         });
+        $scope.map.addLayer(searchAreaLayer);
 
-       var resultStyle = new ol.style.Style({
-           fill: new ol.style.Fill({
-               color: 'rgba(255, 255, 255, 0.15)'
-           }),
-           stroke: new ol.style.Stroke({
-               color: '#ffcc33',
-               width: 2
-           })
-       });
+        function updateSearchPolygon(geom, refit){
+            var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
+            $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+            if(refit && refit === true){
+                $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+            }
 
-       var selectedStyle = new ol.style.Style({
-                 fill: new ol.style.Fill({
-                   color: 'rgba(0,255,255,0.8)'
-                 }),
-                 stroke: new ol.style.Stroke({
-                   color: 'rgba(255,75,255,0.8)',
-                   width: 3
-                 }),
-                 image: new ol.style.Circle({
-                     fill: new ol.style.Fill({
-                       color: 'rgba(255,255,0,0.2)'
-                     }),
-                     radius: 5,
-                     stroke: new ol.style.Stroke({
-                       color: 'rgba(255,75,255,0.8)',
-                       width: 3
-                     })
-                   })
-               });
-
-        /* Display results on map */
-       var resultsLayer;
-       function addResultLayer(items) {
-
-           var vectorSource = new ol.source.Vector({
-               features: items
-           });
-
-           resultsLayer = new ol.layer.Vector({
-               source: vectorSource,
-               style: resultStyle
-           });
-
-           $scope.map.addLayer(resultsLayer);
+            $scope.searchPolygon.selectedArea = geom.clone();
+            var area = angular.copy($scope.searchPolygon.selectedArea);
+            var wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
+            $scope.searchPolygon.wkt = wkt;
         }
 
-        $scope.$on('update.geoResults', function(event, results) {
-            selectAll(false);
-            $scope.map.removeLayer(resultsLayer);
-            var featureItems = [];
-            if(results){
-                for(var folderNr = 0; folderNr < results.length; folderNr++){
-                    var isLONLAT = true;
-                    if(results[folderNr].datasource == 'CEDA2'){
-                        isLONLAT = false;
-                    }
-                    if(results[folderNr].results && results[folderNr].results.entities){
-                        for(var i = 0; i < results[folderNr].results.entities.length; i++){
-                            var item = results[folderNr].results.entities[i];
-                            var lonlatPoints = [];
-                            for(var k = 0; k < item.geo.coordinates.length; k++){
-                                for(var m = 0; m < item.geo.coordinates[k].length; m++){
-                                    var p = item.geo.coordinates[k][m];
-                                    if(isLONLAT === false){
-                                        p = p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
-                                    }
-                                    lonlatPoints.push(p);
-                                }
-                            }
-                            var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
-
-                            var resultItem =  new ol.Feature({
-                                geometry: pol,
-                                data: item
-                            });
-
-                            featureItems.push(resultItem);
-                        }
-                    }
-                }
-            }
-
-            if(featureItems.length > 0){
-                addResultLayer(featureItems);
-                $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
-            }
-        });
-
-        var basketLayer;
-        function addBasketLayer(items) {
-
-            var vectorSource = new ol.source.Vector({
-                features: items
-            });
-
-            basketLayer = new ol.layer.Vector({
-                source: vectorSource,
-                style: resultStyle
-            });
-
-            $scope.map.addLayer(basketLayer);
-         }
-
-        $scope.$on('upload.basket', function(event, basketFiles) {
-            $scope.map.removeLayer(basketLayer);
-            $scope.map.removeLayer(resultsLayer);
-            var featureItems = [];
-            for(var i = 0; i < basketFiles.length; i++){
-                var item = basketFiles[i];
-                if(item.attributes.properties && item.attributes.properties.geo){
-                    if(item.attributes.properties.geo.type == 'polygon'){
-                       item.attributes.properties.geo.type = 'Polygon';
-                    }
-                    var lonlatPoints = [];
-                    for(var k = 0; k < item.attributes.properties.geo.coordinates.length; k++){
-                       for(var m = 0; m < item.attributes.properties.geo.coordinates[k].length; m++){
-                          var p = angular.copy(item.attributes.properties.geo.coordinates[k][m]);
-                          p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
-                          lonlatPoints.push(p);
-                       }
-                    }
-                    var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
-                    var resultItem =  new ol.Feature({
-                         geometry: pol,
-                         data: item
-                    });
-                    featureItems.push(resultItem);
-                }
-            }
-            if(featureItems.length > 0){
-                addBasketLayer(featureItems);
-                $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize());
-            }
-        });
-
-        $scope.$on('unload.basket', function(event) {
-            $scope.map.removeLayer(basketLayer);
-            if(resultsLayer){
-                $scope.map.addLayer(resultsLayer);
-            }
-        });
-
-        var selectClick = new ol.interaction.Select({
-            condition: ol.events.condition.click,
-            toggleCondition: ol.events.condition.shiftKeyOnly,
-            style: selectedStyle
-        });
-
-        $scope.map.addInteraction(selectClick);
-
-        selectClick.on('select', function(evt) {
-            var selectedItems = [];
-            for(var i = 0; i < selectClick.getFeatures().getLength(); i++){
-                selectedItems.push(selectClick.getFeatures().item(i).get('data'));
-            }
-            $rootScope.$broadcast('map.item.toggled', selectedItems);
-        });
-
-        $scope.$on('results.item.selected', function(event, item, selected) {
-            selectItem(item, selected);
-        });
-
-        function selectItem(item, selected){
-            var features = resultsLayer.getSource().getFeatures();
-            for(var i = 0; i < features.length; i++){
-                if((item.identifier && item.identifier == features[i].get('data').identifier)){
-                    if(selected){
-                        selectClick.getFeatures().push(features[i]);
-                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
-                        var zoomLevel = 3;
-                        if($scope.map.getView().getZoom() > 3){
-                            zoomLevel = $scope.map.getView().getZoom()-2;
-                        }
-                        $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
-                    }
-                    else {
-                        selectClick.getFeatures().remove(features[i]);
-                    }
-                    break;
-                }
+        // Copy the coordinates to clipboard which can be then pasted to service input fields
+        $scope.copyPolygon = function(){
+            if($scope.searchPolygon.wkt){
+                clipboard.copy($scope.searchPolygon.wkt);
             }
         }
 
-        $scope.$on('results.select.all', function(event, selected) {
-            selectAll(selected);
-        });
-
-        function selectAll(selected){
-            if(resultsLayer){
-                while(selectClick.getFeatures().getLength() > 0){
-                    selectClick.getFeatures().pop();
-                }
-                if(selected){
-                    for(var i = 0; i < resultsLayer.getSource().getFeatures().length; i++){
-                        selectClick.getFeatures().push(resultsLayer.getSource().getFeatures()[i]);
-                    }
-                }
-            }
-        }
-
-        $scope.$on('results.invert', function(event, items) {
-            selectAll(false);
-
-            for(var i = 0; i < items.length; i++){
-                selectItem(items[i], true);
-            }
-        });
-
-        $scope.clearMap = function(){
+        $scope.clearSearchPolygon = function(){
             if(droppedFileLayer){
                 $scope.map.removeLayer(droppedFileLayer);
             }
@@ -566,18 +247,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             $scope.map.removeInteraction(draw);
             addInteraction();
             $rootScope.$broadcast('polygon.drawn', undefined);
-            $rootScope.$broadcast('update.searchPolygonWkt', undefined);
         };
 
-        // Copy the coordinates to clipboard which can be then pasted to service input fields
-        $scope.copyPolygon = function(){
-            if($scope.searchPolygon.selectedArea){
-                var area = angular.copy($scope.searchPolygon.selectedArea);
-                $scope.searchPolygon.wkt  = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
-                clipboard.copy($scope.searchPolygon.wkt);
-            }
-        }
-
+        //Dialog to enable editing the polygon coordinates manually (coordinates shown in EPSG_4326 projection)
         $scope.editPolygonDialog = function($event, polygon) {
             $event.stopPropagation();
             $event.preventDefault();
@@ -642,6 +314,211 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
            }
         };
 
+        /* Custom KML reader, when file has GroundOverlay features, which OL3 doesn't support */
+        var reader = new FileReader();
+        reader.onload = function(){
+          var data = reader.result;
+          if(data.indexOf('GroundOverlay') > -1){
+              var x2js = new X2JS();
+              var kmlJson = x2js.xml_str2json(data);
+              console.log('<GroundOverlay>');
+              console.log(kmlJson.kml.Document.GroundOverlay.LatLonBox);
+              var latlonbox = kmlJson.kml.Document.GroundOverlay.LatLonBox;
+              var polygonWSEN = [parseFloat(latlonbox.west), parseFloat(latlonbox.south), parseFloat(latlonbox.east), parseFloat(latlonbox.north)];
+              var polyExtent = ol.proj.transformExtent(polygonWSEN, EPSG_4326, EPSG_3857);
+              var pol =  ol.geom.Polygon.fromExtent(polyExtent);
+
+              var kmlVector = new ol.source.Vector({
+                  features: [new ol.Feature({
+                      geometry: pol
+                   })]
+              });
+
+              droppedFileLayer = new ol.layer.Vector({
+                  source: kmlVector,
+                  style: searchBoxStyle
+              });
+
+              $scope.map.addLayer(droppedFileLayer);
+              $scope.map.getView().fit(polyExtent, /** @type {ol.Size} */ ($scope.map.getSize()));
+
+              $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+          }
+        };
+
+        var droppedFileLayer;
+        dragAndDropInteraction.on('addfeatures', function(event) {
+            if(droppedFileLayer){
+                $scope.map.removeLayer(droppedFileLayer);
+            }
+            if(searchAreaLayer){
+                searchAreaLayer.getSource().clear();
+            }
+            if(event.features.length < 1){
+                //no features could be parsed, try a custom approach
+                reader.readAsText(event.file);
+            }
+            else {
+                var vectorSource = new ol.source.Vector({
+                  features: event.features
+                });
+                droppedFileLayer = new ol.layer.Image({
+                    opacity: 0.50,
+                    source: new ol.source.ImageVector({
+                        source: vectorSource,
+                        style: searchBoxStyle
+                    })
+                });
+                $scope.map.addLayer(droppedFileLayer);
+                $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+                var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
+                $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+            }
+        });
+
+        /** RESULTS LAYER **/
+        var resultLayerFeatures = MapService.resultLayerFeatures;
+        var resultsLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: resultLayerFeatures
+            }),
+            style: resultStyle
+        });
+        $scope.map.addLayer(resultsLayer);
+
+        $scope.$on('update.geoResults', function(event, results) {
+            selectAll(false);
+            resultLayerFeatures.clear();
+            if(results){
+                for(var folderNr = 0; folderNr < results.length; folderNr++){
+                    var isLONLAT = true;
+                    if(results[folderNr].datasource == 'CEDA2'){
+                        isLONLAT = false;
+                    }
+                    if(results[folderNr].results && results[folderNr].results.entities){
+                        for(var i = 0; i < results[folderNr].results.entities.length; i++){
+                            var item = results[folderNr].results.entities[i];
+                            var lonlatPoints = [];
+                            for(var k = 0; k < item.geo.coordinates.length; k++){
+                                for(var m = 0; m < item.geo.coordinates[k].length; m++){
+                                    var p = item.geo.coordinates[k][m];
+                                    if(isLONLAT === false){
+                                        p = p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
+                                    }
+                                    lonlatPoints.push(p);
+                                }
+                            }
+                            var pol = new ol.geom[item.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
+
+                            var resultItem =  new ol.Feature({
+                                geometry: pol,
+                                data: item
+                            });
+
+                            resultLayerFeatures.push(resultItem);
+                        }
+                    }
+                }
+            }
+
+            $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
+        });
+
+        $scope.$on('results.item.selected', function(event, item, selected) {
+            selectItem(item, selected);
+        });
+
+        function selectItem(item, selected){
+            var features = resultsLayer.getSource().getFeatures();
+            for(var i = 0; i < features.length; i++){
+                if((item.identifier && item.identifier == features[i].get('data').identifier)){
+                    if(selected){
+                        selectClick.getFeatures().push(features[i]);
+                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
+                        var zoomLevel = 3;
+                        if($scope.map.getView().getZoom() > 3){
+                            zoomLevel = $scope.map.getView().getZoom()-2;
+                        }
+                        $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
+                    }
+                    else {
+                        selectClick.getFeatures().remove(features[i]);
+                    }
+                    break;
+                }
+            }
+        }
+
+        $scope.$on('results.select.all', function(event, selected) {
+            selectAll(selected);
+        });
+
+        function selectAll(selected){
+            if(resultsLayer){
+                while(selectClick.getFeatures().getLength() > 0){
+                    selectClick.getFeatures().pop();
+                }
+                if(selected){
+                    for(var i = 0; i < resultsLayer.getSource().getFeatures().length; i++){
+                        selectClick.getFeatures().push(resultsLayer.getSource().getFeatures()[i]);
+                    }
+                }
+            }
+        }
+
+        $scope.$on('results.invert', function(event, items) {
+            selectAll(false);
+
+            for(var i = 0; i < items.length; i++){
+                selectItem(items[i], true);
+            }
+        });
+
+        /** END OF RESULTS LAYER **/
+
+        /** BASKET LAYER **/
+        var basketLayerFeatures = MapService.basketLayerFeatures;
+        var basketLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: basketLayerFeatures
+            }),
+            style: resultStyle
+        });
+
+        $scope.$on('upload.basket', function(event, basketFiles) {
+            $scope.map.removeLayer(resultsLayer);
+            basketLayerFeatures.clear();
+            for(var i = 0; i < basketFiles.length; i++){
+                var item = basketFiles[i];
+                if(item.attributes.properties && item.attributes.properties.geo){
+                    if(item.attributes.properties.geo.type == 'polygon'){
+                       item.attributes.properties.geo.type = 'Polygon';
+                    }
+                    var lonlatPoints = [];
+                    for(var k = 0; k < item.attributes.properties.geo.coordinates.length; k++){
+                       for(var m = 0; m < item.attributes.properties.geo.coordinates[k].length; m++){
+                          var p = angular.copy(item.attributes.properties.geo.coordinates[k][m]);
+                          p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
+                          lonlatPoints.push(p);
+                       }
+                    }
+                    var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
+                    var resultItem =  new ol.Feature({
+                         geometry: pol,
+                         data: item
+                    });
+                    basketLayerFeatures.push(resultItem);
+                }
+            }
+            $scope.map.addLayer(basketLayer);
+            $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize());
+        });
+
+        $scope.$on('unload.basket', function(event) {
+            $scope.map.removeLayer(basketLayer);
+            $scope.map.addLayer(resultsLayer);
+        });
+
         // WMS layer to show products on map
         var productLayers = [];
         $scope.$on('show.products', function(event, jobId, products) {
@@ -673,6 +550,11 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 }
             }
         });
+
+        window.onresize = function() {
+            $scope.map.updateSize();
+        };
+
 
     }]);
 });

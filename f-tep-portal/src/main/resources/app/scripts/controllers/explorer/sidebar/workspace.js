@@ -8,8 +8,9 @@
 define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], function (ftepmodules, tpl_describeProcess) {
     'use strict';
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService', 'ProductService',
-                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService',
+                                              'ProductService', 'MapService',
+                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService, MapService) {
 
         $scope.serviceParams = ProductService.params;
         $scope.serviceDescription;
@@ -20,13 +21,9 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
         $scope.inputValues = {};
         $scope.dropLists = {};
 
-        var polygonWkt = undefined;
-        $scope.$on('update.searchPolygonWkt', function(event, wkt) {
-            polygonWkt = wkt;
-        });
-
         $scope.pastePolygon = function(identifier){
-            $scope.inputValues[identifier] = polygonWkt;
+            console.log(MapService.getPolygonWkt());
+            $scope.inputValues[identifier] = MapService.getPolygonWkt();
         }
 
         $scope.onDrop = function(items, fieldId) {

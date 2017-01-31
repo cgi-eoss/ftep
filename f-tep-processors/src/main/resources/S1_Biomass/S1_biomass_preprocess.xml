@@ -8,17 +8,29 @@
         </parameters>
     </node>
 
-    <node id="Multilook">
-        <operator>Multilook</operator>
+    <node id="BandSelect">
+        <operator>BandSelect</operator>
         <sources>
             <sourceProduct refid="Read"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <sourceBands>Amplitude_VV</sourceBands>
-            <nRgLooks>3</nRgLooks>
-            <nAzLooks>3</nAzLooks>
+            <selectedPolarisations>VH</selectedPolarisations>
+            <sourceBands/>
+            <bandNamePattern/>
+        </parameters>
+    </node>
+
+    <node id="Multilook">
+        <operator>Multilook</operator>
+        <sources>
+            <sourceProduct refid="Bandselect"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <nRgLooks>5</nRgLooks>
+            <nAzLooks>5</nAzLooks>
             <outputIntensity>true</outputIntensity>
-            <grSquarePixel>false</grSquarePixel>
+            <grSquarePixel>true</grSquarePixel>
         </parameters>
     </node>
 
@@ -36,9 +48,9 @@
             <createGammaBand>false</createGammaBand>
             <createBetaBand>true</createBetaBand>
             <selectedPolarisations/>
-            <outputSigmaBand>false</outputSigmaBand>
+            <outputSigmaBand>true</outputSigmaBand>
             <outputGammaBand>false</outputGammaBand>
-            <outputBetaBand>true</outputBetaBand>
+            <outputBetaBand>false</outputBetaBand>
         </parameters>
     </node>
 
@@ -48,10 +60,10 @@
             <sourceProduct refid="Calibration"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <sourceBands>Beta0_VV</sourceBands>
-            <demName>${dem}</demName>
+            <sourceBands/>
+            <demName>External DEM</demName>
             <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
-            <externalDEMFile/>
+            <externalDEMFile>${demFile}</externalDEMFile>
             <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
             <outputSimulatedImage>false</outputSimulatedImage>
             <reGridMethod>false</reGridMethod>
@@ -65,7 +77,10 @@
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <sourceBands/>
-            <demName>${dem}</demName>
+            <demName>External DEM</demName>
+            <externalDEMFile>${demFile}</externalDEMFile>
+            <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+            <externalDEMApplyEGM>true</externalDEMApplyEGM>
             <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
             <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
             <pixelSpacingInMeter>${targetResolution}</pixelSpacingInMeter>
@@ -75,10 +90,9 @@
                 PRIMEM[&quot;Greenwich&quot;, 0.0],
                 UNIT[&quot;degree&quot;, 0.017453292519943295],
                 AXIS[&quot;Geodetic longitude&quot;, EAST],
-                AXIS[&quot;Geodetic latitude&quot;, NORTH]]
-            </mapProjection>
+                AXIS[&quot;Geodetic latitude&quot;, NORTH]]</mapProjection>
             <nodataValueAtSea>true</nodataValueAtSea>
-            <saveDEM>false</saveDEM>
+            <saveDEM>true</saveDEM>
             <saveLatLon>false</saveLatLon>
             <saveIncidenceAngleFromEllipsoid>false</saveIncidenceAngleFromEllipsoid>
             <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>

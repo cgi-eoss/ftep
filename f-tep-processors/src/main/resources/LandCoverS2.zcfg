@@ -84,7 +84,7 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS2
 <DataOutputs>
     [Result]
     Title = GeoTiff image file
-    Abstract = The requested vegetation index image
+    Abstract = The requested land cover image
     <ComplexData>
         <Default>
             mimeType = image/tiff

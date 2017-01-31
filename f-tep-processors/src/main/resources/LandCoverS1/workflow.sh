@@ -26,9 +26,9 @@ SHAPEFILE_ATTR="${shapefileAttribute}"
 
 # Internal params
 S1_PREPROCESS="${WORKFLOW}/S1_preprocess.xml"
-S1_STACKING="${WORKFLOW}/S1_stacking.xml"
+S1_TEMPORAL_AVERAGE="${WORKFLOW}/S1_temporal_average.xml"
 PREPROCESSED_PREFIX="preprocessed"
-STACK_OUTPUT="${PROC_DIR}/stack.tif"
+TEMPORAL_AVG_OUTPUT="${PROC_DIR}/stack.tif"
 TRAINING_INPUT="${PROC_DIR}/training_input.tif"
 
 TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}_training_model.txt"
@@ -40,19 +40,18 @@ I=0
 for IN in $(find -L ${IN_DIR} -type d -name 'S1*.SAFE'); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
-    INTERIM_FILE="${PROC_DIR}/interim-${I}.tif"
     time gpt ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"
 done
 
-# Multi-temporal filtering
+# Multi-temporal averaging
 if [ $I -gt 1 ]; then
-    time gpt ${S1_STACKING} -Pofile="${STACK_OUTPUT}" ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
+    time gpt ${S1_TEMPORAL_AVERAGE} -Pofile="${TEMPORAL_AVG_OUTPUT}" ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
 else
-    mv ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif "${STACK_OUTPUT}"
+    mv ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif "${TEMPORAL_AVG_OUTPUT}"
 fi
 
 # Reprojection to user-requested EPSG
-time gpt -Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${STACK_OUTPUT}
+time gpt Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${TEMPORAL_AVG_OUTPUT}
 
 # OTB training with "random forest" model + reference data
 time otbcli_TrainImagesClassifier \

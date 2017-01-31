@@ -1,12 +1,12 @@
 ---
-id: "LandCoverS1"
-title: "Calculate land coverage (a forest map) from Sentinel-1 SAR data"
-description: "Land cover map, with image classification trained by Random Forest model"
+id: "S1Biomass"
+title: "Calculate biomass (stem volume) from Sentinel-1 SAR data"
+description: "Stem volume calculation"
 version: "1.0"
 storeSupported: true
 statusSupported: true
 serviceType: "Java"
-serviceProvider: "com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1"
+serviceProvider: "com/cgi/eoss/ftep/core/wpswrapper/S1Biomass"
 dataInputs:
   - id: "inputfiles"
     title: "Input data"
@@ -17,18 +17,18 @@ dataInputs:
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
-  - id: "refDataShapefile"
-    title: "Reference data archive containing shapefile for image classification training"
-    description: "Expected is a .zip with flat content structure containing one *.shp and associated files"
+  - id: "refDataDem"
+    title: "Reference data containing digital elevation model"
+    description: "Expected is a single .tif with filename matching 'DEM_*.tif' (or a .zip containing same)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
-  - id: "shapefileAttribute"
-    title: "String identifying the field in the shapefile to be used for training the model"
-    description: "E.g. 'Class'"
+  - id: "refDataForestMask"
+    title: "Reference data containing forest mask"
+    description: "Expected is a single .tif with filename matching 'ForestMask_*.tif' (or a .zip containing same)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"
@@ -53,16 +53,6 @@ dataInputs:
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
-  - id: "dem"
-    title: "Digital elevation model"
-    description: "Digital elevation model identifier: e.g. SRTM 1Sec HGT (default)"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-      value: "SRTM 1Sec HGT"
-    supportedAttrs: []
   - id: "targetResolution"
     title: "Target image resolution"
     description: "Desired image resolution in metres. Controls resampling of the input data. Example: '10'"
@@ -75,28 +65,10 @@ dataInputs:
 dataOutputs:
   - id: "Result"
     title: "GeoTiff image file"
-    description: "The requested land cover image"
+    description: "The requested biomass image"
     data: "COMPLEX"
     defaultAttrs:
       mimeType: "image/tiff"
       extension: "tif"
-      asReference: "true"
-    supportedAttrs: []
-  - id: "Model"
-    title: "Training model"
-    description: "The output of the image classification training step"
-    data: "COMPLEX"
-    defaultAttrs:
-      mimeType: "text/plain"
-      extension: "txt"
-      asReference: "true"
-    supportedAttrs: []
-  - id: "ConfusionMatrix"
-    title: "Confusion matrix"
-    description: "The CSV confusion matrix output of the image classification training step"
-    data: "COMPLEX"
-    defaultAttrs:
-      mimeType: "text/csv"
-      extension: "csv"
       asReference: "true"
     supportedAttrs: []

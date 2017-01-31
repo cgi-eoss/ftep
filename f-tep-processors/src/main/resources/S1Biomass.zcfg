@@ -1,11 +1,11 @@
-[LandCoverS1]
-Title = Calculate land coverage (a forest map) from Sentinel-1 SAR data
-Abstract = Land cover map, with image classification trained by Random Forest model
+[S1Biomass]
+Title = Calculate biomass (stem volume) from Sentinel-1 SAR data
+Abstract = Stem volume calculation
 processVersion = 1.0
 storeSupported = true
 statusSupported = true
 serviceType = Java
-serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
+serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/S1Biomass
 
 <DataInputs>
     [inputfiles]
@@ -18,9 +18,9 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
             dataType = string
         </Default>
     </LiteralData>
-    [refDataShapefile]
-    Title = Reference data archive containing shapefile for image classification training
-    Abstract = Expected is a .zip with flat content structure containing one *.shp and associated files
+    [refDataDem]
+    Title = Reference data containing digital elevation model
+    Abstract = Expected is a single .tif with filename matching 'DEM_*.tif' (or a .zip containing same)
     minOccurs = 1
     maxOccurs = 1
     <LiteralData>
@@ -28,9 +28,9 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
             dataType = string
         </Default>
     </LiteralData>
-    [shapefileAttribute]
-    Title = String identifying the field in the shapefile to be used for training the model
-    Abstract = E.g. 'Class'
+    [refDataForestMask]
+    Title = Reference data containing forest mask
+    Abstract = Expected is a single .tif with filename matching 'ForestMask_*.tif' (or a .zip containing same)
     minOccurs = 1
     maxOccurs = 1
     <LiteralData>
@@ -58,17 +58,6 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
             dataType = string
         </Default>
     </LiteralData>
-    [dem]
-    Title = Digital elevation model
-    Abstract = Digital elevation model identifier: e.g. SRTM 1Sec HGT (default)
-    minOccurs = 1
-    maxOccurs = 1
-    <LiteralData>
-        <Default>
-            dataType = string
-            value = SRTM 1Sec HGT
-        </Default>
-    </LiteralData>
     [targetResolution]
     Title = Target image resolution
     Abstract = Desired image resolution in metres. Controls resampling of the input data. Example: '10'
@@ -84,31 +73,11 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS1
 <DataOutputs>
     [Result]
     Title = GeoTiff image file
-    Abstract = The requested land cover image
+    Abstract = The requested biomass image
     <ComplexData>
         <Default>
             mimeType = image/tiff
             extension = tif
-            asReference = true
-        </Default>
-    </ComplexData>
-    [Model]
-    Title = Training model
-    Abstract = The output of the image classification training step
-    <ComplexData>
-        <Default>
-            mimeType = text/plain
-            extension = txt
-            asReference = true
-        </Default>
-    </ComplexData>
-    [ConfusionMatrix]
-    Title = Confusion matrix
-    Abstract = The CSV confusion matrix output of the image classification training step
-    <ComplexData>
-        <Default>
-            mimeType = text/csv
-            extension = csv
             asReference = true
         </Default>
     </ComplexData>

@@ -26,8 +26,6 @@ SHAPEFILE_ATTR="${shapefileAttribute}"
 
 # Internal params
 S1_PREPROCESS="${WORKFLOW}/S1_preprocess.xml"
-S1_GAMMA2POWERDOMAIN="${WORKFLOW}/S1_gamma2powerdomain.xml"
-S1_POWERDOMAIN2GAMMA="${WORKFLOW}/S1_powerdomain2gamma.xml"
 S1_STACKING="${WORKFLOW}/S1_stacking.xml"
 PREPROCESSED_PREFIX="preprocessed"
 STACK_OUTPUT="${PROC_DIR}/stack.tif"
@@ -43,19 +41,15 @@ for IN in $(find ${IN_DIR} -type d -name 'S1*.SAFE'); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
     INTERIM_FILE="${PROC_DIR}/interim-${I}.tif"
-    time gpt -c 6144M ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${INTERIM_FILE}"
-    time gpt -c 6144M ${S1_GAMMA2POWERDOMAIN} -Pifile="${INTERIM_FILE}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"
+    time gpt -c 6144M ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"
 done
 
 # Multi-temporal filtering
 if [ $I -gt 1 ]; then
-    time gpt -c 6144M ${S1_STACKING} -Pofile=${PROC_DIR}/multitemporal.tif ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
+    time gpt -c 6144M ${S1_STACKING} -Pofile="${STACK_OUTPUT}" ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
 else
-    mv ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif ${PROC_DIR}/multitemporal.tif
+    mv ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif "${STACK_OUTPUT}"
 fi
-
-# Return stacked image from power domain to gamma
-time gpt -c 6144M ${S1_POWERDOMAIN2GAMMA} -Pifile=${PROC_DIR}/multitemporal.tif -Pofile="${STACK_OUTPUT}"
 
 # Reprojection to user-requested EPSG
 time gpt -c 6144M Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${STACK_OUTPUT}

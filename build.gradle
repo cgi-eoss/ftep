@@ -44,8 +44,8 @@ allprojects {
             dependency 'com.google.protobuf:protoc:3.1.0-build2'
             dependency 'com.querydsl:querydsl-apt:4.1.4'
             dependency 'com.querydsl:querydsl-jpa:4.1.4'
-            dependency 'com.squareup.okhttp3:mockwebserver:3.5.0'
-            dependency 'com.squareup.okhttp3:okhttp:3.5.0'
+            dependency 'com.squareup.okhttp3:mockwebserver:3.6.0'
+            dependency 'com.squareup.okhttp3:okhttp:3.6.0'
             dependency 'com.zaxxer:HikariCP:2.6.0'
             dependency 'info.cukes:cucumber-java8:1.2.5'
             dependency 'info.cukes:cucumber-junit:1.2.5'
@@ -67,7 +67,7 @@ allprojects {
             dependency 'org.hsqldb:hsqldb:2.3.4'
             dependency 'org.lognet:grpc-spring-boot-starter:1.0.0'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
-            dependency 'org.mockito:mockito-core:2.6.8'
+            dependency 'org.mockito:mockito-core:2.7.0'
             dependency 'org.postgresql:postgresql:9.4.1212'
             dependency 'org.projectlombok:lombok:1.16.12'
             dependency 'org.seleniumhq.selenium:selenium-java:3.0.1'
@@ -78,14 +78,14 @@ allprojects {
             dependency 'org.springframework:spring-orm:4.3.6.RELEASE'
             dependency 'org.springframework:spring-test:4.3.6.RELEASE'
             dependency 'org.springframework:spring-tx:4.3.6.RELEASE'
-            dependency 'org.springframework.boot:spring-boot:1.4.3.RELEASE'
-            dependency 'org.springframework.boot:spring-boot-autoconfigure:1.4.3.RELEASE'
-            dependency 'org.springframework.boot:spring-boot-starter-actuator:1.4.3.RELEASE'
-            dependency 'org.springframework.boot:spring-boot-starter-test:1.4.3.RELEASE'
-            dependency 'org.springframework.boot:spring-boot-starter-undertow:1.4.3.RELEASE'
-            dependency 'org.springframework.data:spring-data-jpa:1.10.6.RELEASE'
-            dependency 'org.springframework.data:spring-data-rest-hal-browser:2.5.6.RELEASE'
-            dependency 'org.springframework.data:spring-data-rest-webmvc:2.5.6.RELEASE'
+            dependency 'org.springframework.boot:spring-boot:1.5.1.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-autoconfigure:1.5.1.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-actuator:1.5.1.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-test:1.5.1.RELEASE'
+            dependency 'org.springframework.boot:spring-boot-starter-undertow:1.5.1.RELEASE'
+            dependency 'org.springframework.data:spring-data-jpa:1.11.0.RELEASE'
+            dependency 'org.springframework.data:spring-data-rest-hal-browser:2.6.0.RELEASE'
+            dependency 'org.springframework.data:spring-data-rest-webmvc:2.6.0.RELEASE'
             dependency 'org.springframework.security:spring-security-acl:4.2.1.RELEASE'
             dependency 'org.springframework.security:spring-security-config:4.2.1.RELEASE'
             dependency 'org.springframework.security:spring-security-core:4.2.1.RELEASE'
@@ -104,7 +104,7 @@ def depVersions = [
         osPackagePlugin           : '4.3.0',
         protobufPlugin            : '0.8.0',
         shadowPlugin              : '1.2.4',
-        springBootPlugin          : '1.4.3.RELEASE'
+        springBootPlugin          : '1.5.1.RELEASE'
 ]
 
 ext.pl = [
@@ -126,7 +126,7 @@ buildscript {
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
-        classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
     }
 }
 

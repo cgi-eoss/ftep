@@ -12,6 +12,7 @@ PROC_DIR="${WORKER_DIR}/procDir"
 TIMESTAMP=$(date --utc +%Y%m%d_%H%M%SZ)
 EPSG2UTM="python ${WORKFLOW}/epsg2utm.py"
 POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
+S2PRODUCTZONES="python ${WORKFLOW}/s2ProductZones.py"
 
 mkdir -p ${PROC_DIR}
 
@@ -59,27 +60,35 @@ safe2xml() {
 
 # Preprocess S2 input(s): extract correct bands and resample
 I=0
-for IN in $(find ${IN_DIR} -type d -name 'S2*.SAFE'); do
+# TODO (Eventually) figure out how to mosaic from multiple inputs
+I=0
+for IN in $(find -L ${IN_DIR} -type d -name 'S2*.SAFE' | head -1); do
     I=$((I+1))
     XML=$(safe2xml ${IN#${IN_DIR}/})
     INPUT_FILE="${IN}/${XML}"
-    gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"
+    # Read the product with each possible formatName (UTM zone)
+    COVERED_EPSGS=($(${S2PRODUCTZONES} ${IN}/GRANULE/*/S2*.xml))
+    for PRODUCT_EPSG in COVERED_EPSGS; do
+        UTM_ZONE=$(${EPSG2UTM} ${PRODUCT_EPSG#EPSG:})
+        FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
+        time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"
+    done
 done
 
-# Preprocess S2 input(s): mosaic multiple inputs
+# Preprocess S2 input(s): mosaic multiple CRS values
 AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
-gpt BandSelect -t ${TRAINING_INPUT} -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
+time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
+time gpt BandSelect -t ${TRAINING_INPUT} -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
 
 # OTB training with "random forest" model + reference data
-otbcli_TrainImagesClassifier \
+time otbcli_TrainImagesClassifier \
  -io.il ${TRAINING_INPUT} -io.vd ${TRAINING_SHAPEFILE} \
  -sample.mv -1 -sample.mt -1 -sample.vtr 0.5 -sample.edg false -sample.vfn ${SHAPEFILE_ATTR} \
  -classifier rf -classifier.rf.max 5 -classifier.rf.min 10 -classifier.rf.var 0 -classifier.rf.nbtrees 100 \
  -io.out ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} -io.confmatout ${TRAINING_OUTPUT_CONFUSION_MATRIX_CSV}
 
 # Final calculation using trained model
-otbcli_ImageClassifier \
+time otbcli_ImageClassifier \
  -in ${TRAINING_INPUT} \
  -model ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} \
  -out ${OUTPUT_FILE}

@@ -37,22 +37,22 @@ OUTPUT_FILE="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0
-for IN in $(find ${IN_DIR} -type d -name 'S1*.SAFE'); do
+for IN in $(find -L ${IN_DIR} -type d -name 'S1*.SAFE'); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
     INTERIM_FILE="${PROC_DIR}/interim-${I}.tif"
-    time gpt -c 6144M ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"
+    time gpt ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"
 done
 
 # Multi-temporal filtering
 if [ $I -gt 1 ]; then
-    time gpt -c 6144M ${S1_STACKING} -Pofile="${STACK_OUTPUT}" ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
+    time gpt ${S1_STACKING} -Pofile="${STACK_OUTPUT}" ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif
 else
     mv ${PROC_DIR}/${PREPROCESSED_PREFIX}-*.tif "${STACK_OUTPUT}"
 fi
 
 # Reprojection to user-requested EPSG
-time gpt -c 6144M Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${STACK_OUTPUT}
+time gpt -Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${STACK_OUTPUT}
 
 # OTB training with "random forest" model + reference data
 time otbcli_TrainImagesClassifier \

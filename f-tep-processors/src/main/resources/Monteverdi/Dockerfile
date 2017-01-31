@@ -1,5 +1,5 @@
 # Builds a docker gui image
-FROM hurricane/dockergui:xvnc
+FROM hurricane/dockergui:x11rdp1.3
 
 MAINTAINER Rakesh
 
@@ -36,21 +36,30 @@ RUN echo 'deb http://archive.ubuntu.com/ubuntu trusty-updates main universe rest
 #########################################
 
 # Install steps for X app
-RUN apt-get update
+#RUN apt-get update
 
-RUN apt-get install -y libx11-6 libxext6 libxau6 libxxf86vm1 libxdmcp6 libdrm2 libglu1 libgtk2.0-0
+#RUN apt-get install -y libx11-6 libxext6 libxau6 libxxf86vm1 libxdmcp6 libdrm2 libglu1 libgtk2.0-0
 
-ENV \
-  TBX="OTB-5.6.0-Linux64.run" \
-  OTB_URL="https://www.orfeo-toolbox.org/packages/OTB-5.6.0-Linux64.run" 
+# Download and install OTB
+ENV OTB_MAJ_VER='5'\
+ OTB_MIN_VER='8'\
+ OTB_POINT_VER='0'
 
-RUN wget $OTB_URL && chmod +x $TBX
+ENV OTB_BASE_URL="https://www.orfeo-toolbox.org/packages"\
+ OTB_ALT_URL="https://www.orfeo-toolbox.org/packages/archives/OTB"\
+ OTB_INSTALLER="OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64.run"
 
-RUN sh $TBX
+LABEL otb.version="${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}"
 
-RUN ln -s OTB-5.6.0-Linux64 otb
+# OTB downloads move around, so first test the current release, then try the archive
+RUN if curl -o/dev/null -sLIf "${OTB_BASE_URL}/${OTB_INSTALLER}"; then\
+ curl -sL "${OTB_BASE_URL}/${OTB_INSTALLER}" >/var/tmp/${OTB_INSTALLER}; else\
+ curl -sL "${OTB_ALT_URL}/${OTB_INSTALLER}" >/var/tmp/${OTB_INSTALLER}; fi
 
-ENV PATH=$PATH:/otb/bin
+#######################
+# Configure environment
+RUN echo "/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/lib" >>/etc/ld.so.conf.d/otb.conf && ldconfig
+ENV PATH=/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/bin:${PATH}
 
 # Copy X app start script to right location
 COPY startapp.sh /startapp.sh

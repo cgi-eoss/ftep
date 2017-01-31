@@ -12,6 +12,7 @@ PROC_DIR="${WORKER_DIR}/procDir"
 TIMESTAMP=$(date --utc +%Y%m%d_%H%M%SZ)
 EPSG2UTM="python ${WORKFLOW}/epsg2utm.py"
 POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
+S2PRODUCTZONES="python ${WORKFLOW}/s2ProductZones.py"
 
 mkdir -p ${PROC_DIR}
 
@@ -23,8 +24,6 @@ TARGET_RESOLUTION="${targetResolution:-10}"
 VEG_INDEX="${vegIndex}"
 
 # Calculated input params
-UTM_ZONE=$(${EPSG2UTM} ${EPSG#EPSG:})
-FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
 SCALING_FACTOR=$(echo "scale=2;${TARGET_RESOLUTION}/10" | bc)
 
 # Internal params
@@ -54,18 +53,25 @@ safe2xml() {
 }
 
 # Preprocess S2 input(s): extract correct bands and resample
+# TODO (Eventually) figure out how to mosaic from multiple inputs
 I=0
-for IN in $(find ${IN_DIR} -type d -name 'S2*.SAFE'); do
+for IN in $(find -L ${IN_DIR} -type d -name 'S2*.SAFE' | head -1); do
     I=$((I+1))
     XML=$(safe2xml ${IN#${IN_DIR}/})
     INPUT_FILE="${IN}/${XML}"
-    gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"
+    # Read the product with each possible formatName (UTM zone)
+    COVERED_EPSGS=($(${S2PRODUCTZONES} ${IN}/GRANULE/*/S2*.xml))
+    for PRODUCT_EPSG in COVERED_EPSGS; do
+        UTM_ZONE=$(${EPSG2UTM} ${PRODUCT_EPSG#EPSG:})
+        FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
+        time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"
+    done
 done
 
-# Preprocess S2 input(s): mosaic multiple inputs
+# Preprocess S2 input(s): mosaic multiple CRS values
 AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
-gpt BandSelect -t ${VI_INPUT} -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
+time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -Pepsg="${EPSG}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
+time gpt BandSelect -t ${VI_INPUT} -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
 
 # Execute otb to generate radiometric index
-otbcli_RadiometricIndices -in ${VI_INPUT} -channels.blue 1 -channels.green 2 -channels.red 3 -channels.nir 4 -list Vegetation:${VEG_INDEX} -out ${VI_OUTPUT}
+time otbcli_RadiometricIndices -in ${VI_INPUT} -channels.blue 1 -channels.green 2 -channels.red 3 -channels.nir 4 -list Vegetation:${VEG_INDEX} -out ${VI_OUTPUT}

@@ -55,7 +55,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                     maximumRecords: ITEMS_PER_PAGE,
                     sat: this.dataSources[0].id === this.searchParameters.selectedDatasource.id,
                     tep: this.dataSources[1].id === this.searchParameters.selectedDatasource.id,
-                    ref: false
+                    ref: this.dataSources[2].id === this.searchParameters.selectedDatasource.id
             }; //TODO ref data
 
             if(this.searchParameters.polygon){

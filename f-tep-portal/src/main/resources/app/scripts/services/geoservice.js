@@ -67,7 +67,7 @@ define(['../ftepmodules'], function (ftepmodules) {
             }
 
             if (this.searchParameters.mission) {
-                params.platform = this.searchParameters.mission.name;
+                params.mission = this.searchParameters.mission.name;
 
                 if (this.searchParameters.mission.name.indexOf('1') > -1 && this.searchParameters.polarisation) {
                     params.polarisation = this.searchParameters.polarisation.label;
@@ -168,17 +168,11 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         this.missions = [
             {
-                name: "Sentinel-1A",
+                name: "Sentinel-1",
                 id: 0
             }, {
-                name: "Sentinel-1B",
+                name: "Sentinel-2",
                 id: 1
-            }, {
-                name: "Sentinel-2A",
-                id: 2
-            }, {
-                name: "Sentinel-2B",
-                id: 3
             }
         ];
 

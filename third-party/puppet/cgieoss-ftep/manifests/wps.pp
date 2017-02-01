@@ -115,6 +115,14 @@ class ftep::wps (
       alias => $script_alias,
       path  => "${cgi_path}/${cgi_file}"
     }],
+    aliases => [{
+      alias => '/wps/ftep-output',
+      path  => '/data/cache'
+    }],
+    directories => [{
+      path => '/data/cache',
+      options => [ '-Indexes' ]
+    }],
     options       => ['-Indexes']
   }
 

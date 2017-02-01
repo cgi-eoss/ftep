@@ -138,7 +138,8 @@ class FtepResourceJob extends FtepResource {
                 $resx[] =(object) array(
                     "jobid"=>$aresult[1][0],
                     "fname"=>$aresult[2][0],
-                    "link" => "/secure/api/v1.0/download?j=".$id."&f=".$aresult[2][0]
+		    // "link" => "/secure/api/v1.0/download?j=".$id."&f=".$aresult[2][0]
+		    "link" => "/download/Job_" . $aresult[1][0] . "/outDir/" . $aresult[2][0]
                 );
             }
         }

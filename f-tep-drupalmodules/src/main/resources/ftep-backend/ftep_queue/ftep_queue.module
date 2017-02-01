@@ -1,6 +1,8 @@
 <?php
-define('GEOSERVER_URL',"http://192.168.3.85:8080/geoserver/");
-define('GEOSERVER_CREDENTIALS',"admin:geoserver");
+
+define('GEOSERVER_URL',"http://ftep-geoserver.eoss-cloud.it/geoserver/");
+define('GEOSERVER_CREDENTIALS',"admin:JGxAw1Dw1CdY4xv6qvs1FTsxGK61XiqtgxXc8CpTZOA");
+define('GEOSERVER_DOWNLOAD',"http://ftep-wps.eoss-cloud.it/wps/ftep-output/");
 
 // require_once 'Monolog/autoload.php';
 require __DIR__ . '/vendor/autoload.php';
@@ -172,7 +174,8 @@ function catalogueIngest($jobid,$id,$filename){
     $RESTO_USER="admin";
     $RESTO_PWD="77137394cabe5c2d09c6f2eabd8f9136";
     $RESTO_COLLECTION="ftep";
-    $RESTO_ENDPOINT="https://192.168.3.83/resto/collections";
+    // $RESTO_ENDPOINT="https://192.168.3.83/resto/collections";
+    $RESTO_ENDPOINT="http://ftep-resto.eoss-cloud.it/resto/collections";
 
     $curl = new Curl();
     $url_params=array();
@@ -257,7 +260,8 @@ function catalogueIngest($jobid,$id,$filename){
         $feature->properties->wms ="wms";
   //      $feature->properties->resource =  "https://192.171.139.83/secure/api/v1.0/download?j=$jid&f=$id.tif";
   //      $feature->properties->resourceMimeType = "image/tiff";
-        $feature->properties->resource =  "https://192.171.139.83/".encode($jobid, $filename );
+  //      $feature->properties->resource =  "https://192.171.139.83/".encode($jobid, $filename );
+        $feature->properties->resource = GEOSERVER_DOWNLOAD . "/$jobid/$filename"; 
         $feature->properties->resourceSize = "333";
         //$feature->properties->jobid = $jobid;
         $feature->properties->jobid = $id;

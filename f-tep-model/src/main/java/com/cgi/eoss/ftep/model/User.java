@@ -14,17 +14,17 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
- * F-TEP user in Drupal.
+ * <p>F-TEP user account. Parameters are expected to be provided by an external SSO IdP.</p>
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "user", indexes = {@Index(name = "idxName", columnList = "name")})
 @NoArgsConstructor
 @Entity
-public class FtepUser implements FtepEntity<FtepUser>, Searchable {
+public class User implements FtepEntity<User>, Searchable {
 
     /**
-     * Unique identifier of the user.
+     * <p>Unique internal identifier of the user.</p>
      */
     @Id
     @Column(name = "uid")
@@ -44,16 +44,16 @@ public class FtepUser implements FtepEntity<FtepUser>, Searchable {
     private String email;
 
     /**
-     * Create a new FtepUser instance with the minimum required parameters
+     * Create a new User instance with the minimum required parameters
      *
      * @param name Account name of the user, as returned from the SSO SP.
      */
-    public FtepUser(String name) {
+    public User(String name) {
         this.name = name;
     }
 
     @Override
-    public int compareTo(FtepUser o) {
+    public int compareTo(User o) {
         return ComparisonChain.start().compare(name, o.name).result();
     }
 

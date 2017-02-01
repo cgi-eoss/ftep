@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -28,8 +28,8 @@ public class ServiceDataServiceIT {
 
     @Test
     public void test() throws Exception {
-        FtepUser owner = new FtepUser("owner-uid");
-        FtepUser owner2 = new FtepUser("owner-uid2");
+        User owner = new User("owner-uid");
+        User owner2 = new User("owner-uid2");
         userService.save(ImmutableSet.of(owner, owner2));
 
         FtepService svc = new FtepService();

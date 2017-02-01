@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
-import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
+import com.cgi.eoss.ftep.model.DownloaderCredentials;
+import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -19,10 +19,10 @@ public class FtpDownloader implements Downloader {
     private static final int CONNECT_TIMEOUT = 2000;
     private static final String FTPS_SCHEME = "ftps";
 
-    private final DatasourceDataService datasourceDataService;
+    private final DownloaderCredentialsDataService credentialsDataService;
 
-    FtpDownloader(DatasourceDataService datasourceDataService) {
-        this.datasourceDataService = datasourceDataService;
+    FtpDownloader(DownloaderCredentialsDataService credentialsDataService) {
+        this.credentialsDataService = credentialsDataService;
     }
 
     @Override
@@ -38,8 +38,8 @@ public class FtpDownloader implements Downloader {
             } else {
                 ftpClient.connect(uri.getHost(), uri.getPort());
             }
-            Credentials creds = datasourceDataService.getCredentials(uri.getHost());
-            if (creds.isBasicAuth()) {
+            DownloaderCredentials creds = credentialsDataService.getByHost(uri.getHost());
+            if (creds.getType() == DownloaderCredentials.Type.BASIC) {
                 ftpClient.login(creds.getUsername(), creds.getPassword());
             }
             ftpClient.enterLocalPassiveMode();

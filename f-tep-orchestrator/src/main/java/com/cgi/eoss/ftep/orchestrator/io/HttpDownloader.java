@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
-import com.cgi.eoss.ftep.model.internal.Credentials;
-import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
+import com.cgi.eoss.ftep.model.DownloaderCredentials;
+import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.google.common.io.ByteStreams;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Authenticator;
@@ -30,9 +30,9 @@ public class HttpDownloader implements Downloader {
 
     private final OkHttpClient client;
 
-    HttpDownloader(DatasourceDataService datasourceDataService) {
+    HttpDownloader(DownloaderCredentialsDataService downloaderCredentialsDataService) {
         this.client = new OkHttpClient.Builder()
-                .authenticator(new FtepAuthenticator(datasourceDataService))
+                .authenticator(new FtepAuthenticator(downloaderCredentialsDataService))
                 .build();
     }
 
@@ -70,10 +70,10 @@ public class HttpDownloader implements Downloader {
 
     private static final class FtepAuthenticator implements Authenticator {
         private static final int MAX_RETRIES = 3;
-        private final DatasourceDataService datasourceDataService;
+        private final DownloaderCredentialsDataService credentialsDataService;
 
-        private FtepAuthenticator(DatasourceDataService datasourceDataService) {
-            this.datasourceDataService = datasourceDataService;
+        private FtepAuthenticator(DownloaderCredentialsDataService credentialsDataService) {
+            this.credentialsDataService = credentialsDataService;
         }
 
         @Override
@@ -85,9 +85,9 @@ public class HttpDownloader implements Downloader {
                 return null;
             }
 
-            Credentials creds = datasourceDataService.getCredentials(url.host());
+            DownloaderCredentials creds = credentialsDataService.getByHost(url.host());
 
-            if (creds.isBasicAuth()) {
+            if (creds.getType() == DownloaderCredentials.Type.BASIC) {
                 String credHeader = okhttp3.Credentials.basic(creds.getUsername(), creds.getPassword());
                 return response.request().newBuilder()
                         .header("Authorization", credHeader)

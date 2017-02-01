@@ -1,8 +1,9 @@
 package com.cgi.eoss.ftep.wps;
 
-import com.cgi.eoss.ftep.model.FtepJob;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.orchestrator.worker.JobEnvironmentService;
@@ -80,9 +81,14 @@ public class WpsServicesClientIT {
     @Test
     public void launchProcessor() throws Exception {
         FtepService service = mock(FtepService.class);
+        User user = mock(User.class);
+
         when(service.getDescription()).thenReturn(TEST_CONTAINER_IMAGE);
-        when(jobDataService.buildNew(any(), any(), any())).thenAnswer(invocation ->
-                new FtepJob(invocation.getArgument(0), mock(FtepUser.class), service));
+        when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
+            JobConfig config = new JobConfig(user, service);
+            config.setInputs(invocation.getArgument(3));
+            return new Job(config, invocation.getArgument(0), user);
+        });
 
         String jobId = "jobId";
         String userId = "userId";

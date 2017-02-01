@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator.io;
 
-import com.cgi.eoss.ftep.persistence.service.DatasourceDataService;
+import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +19,10 @@ public class DownloaderFactory {
     private final Map<String, Downloader> downloaders = Maps.newHashMap();
 
     @Autowired
-    public DownloaderFactory(DatasourceDataService datasourceDataService) {
+    public DownloaderFactory(DownloaderCredentialsDataService credentialsDataService) {
         FtepDownloader ftepDownloader = new FtepDownloader();
-        FtpDownloader ftpDownloader = new FtpDownloader(datasourceDataService);
-        HttpDownloader httpDownloader = new HttpDownloader(datasourceDataService);
+        FtpDownloader ftpDownloader = new FtpDownloader(credentialsDataService);
+        HttpDownloader httpDownloader = new HttpDownloader(credentialsDataService);
         S2CEDADownloader s2CEDADownloader = new S2CEDADownloader(ftpDownloader);
 
         registerDownloader("ftep", ftepDownloader);

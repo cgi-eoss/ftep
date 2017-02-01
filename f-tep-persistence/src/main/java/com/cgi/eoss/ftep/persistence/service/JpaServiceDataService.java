@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 import com.querydsl.core.types.Predicate;
@@ -40,7 +40,7 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     }
 
     @Override
-    public List<FtepService> findByOwner(FtepUser user) {
+    public List<FtepService> findByOwner(User user) {
         return ftepServiceDao.findByOwner(user);
     }
 

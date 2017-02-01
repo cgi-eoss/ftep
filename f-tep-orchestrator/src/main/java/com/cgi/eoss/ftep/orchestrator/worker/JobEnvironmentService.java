@@ -40,7 +40,7 @@ public class JobEnvironmentService {
     }
 
     /**
-     * <p>Create a new job environment. If the jobConfig map is not empty, a job configuration file is created in the
+     * <p>Create a new job environment. If the config map is not empty, a job configuration file is created in the
      * workspace.</p>
      *
      * @param jobId The jobId for the environment.

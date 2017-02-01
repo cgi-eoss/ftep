@@ -1,15 +1,15 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepGroup;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.User;
 
 import java.util.List;
 
 public interface GroupDataService extends
-        FtepEntityDataService<FtepGroup>,
-        SearchableDataService<FtepGroup> {
+        FtepEntityDataService<Group>,
+        SearchableDataService<Group> {
 
-    List<FtepGroup> findGroupMemberships(FtepUser user);
+    List<Group> findGroupMemberships(User user);
 
-    List<FtepGroup> findByOwner(FtepUser user);
+    List<Group> findByOwner(User user);
 }

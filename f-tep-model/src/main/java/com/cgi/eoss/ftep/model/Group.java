@@ -22,19 +22,19 @@ import javax.persistence.UniqueConstraint;
 import java.util.Set;
 
 /**
- * F-TEP group to share products and services between users.
+ * <p>F-TEP group of users for access control lists.</p>
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
-@Table(name = "ftep_group", indexes = {@Index(name = "idxName", columnList = "name"),
-        @Index(name = "idxOwner", columnList = "uid"),}, uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"name", "uid"})})
+@Table(name = "ftep_groups",
+        indexes = {@Index(name = "idxName", columnList = "name"), @Index(name = "idxOwner", columnList = "uid")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "uid"})})
 @NoArgsConstructor
 @Entity
-public class FtepGroup implements FtepEntity<FtepGroup>, Searchable {
+public class Group implements FtepEntity<Group>, Searchable {
 
     /**
-     * Unique identifier of the group
+     * <p>Unique identifier of the group.</p>
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,51 +42,45 @@ public class FtepGroup implements FtepEntity<FtepGroup>, Searchable {
     private Long id;
 
     /**
-     * Name of the group
+     * <p>Name of the group.</p>
      */
     @Column(name = "name", nullable = false)
     private String name;
 
     /**
-     * Human-readable descriptive summary of the group
+     * <p>Human-readable descriptive summary of the group.</p>
      */
-    @Column(name = "description", nullable = false)
-    private String description = "";
+    @Column(name = "description")
+    private String description;
 
     /**
-     * The user owning the group, typically the group creator
+     * <p>The user owning the group, typically the group creator.</p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "uid")
-    private FtepUser owner;
+    @JoinColumn(name = "uid", nullable = false)
+    private User owner;
 
     /**
-     * Databaskets that belong to this group
-     */
-    @ManyToMany(mappedBy = "groups", fetch = FetchType.EAGER)
-    private Set<FtepDatabasket> databaskets = Sets.newHashSet();
-
-    /**
-     * List of members of this group
+     * <p>Members of this group.</p>
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ftep_group_member", joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "gid"),
-            inverseJoinColumns = @JoinColumn(name = "userid", referencedColumnName = "uid"))
-    private Set<FtepUser> members = Sets.newHashSet();
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "uid"))
+    private Set<User> members = Sets.newHashSet();
 
     /**
-     * Create a new FtepGroup instance with the minimum required parameters
+     * <p>Create a new group of users with the minimum parameters.</p>
      *
-     * @param name Name of the group
-     * @param owner User who created the group
+     * @param name Name of the group.
+     * @param owner User owning the group.
      */
-    public FtepGroup(String name, FtepUser owner) {
+    public Group(String name, User owner) {
         this.name = name;
         this.owner = owner;
     }
 
     @Override
-    public int compareTo(FtepGroup o) {
+    public int compareTo(Group o) {
         return ComparisonChain.start().compare(name, o.name).compare(owner.getId(), o.owner.getId()).result();
     }
 

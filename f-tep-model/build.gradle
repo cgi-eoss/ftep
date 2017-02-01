@@ -34,6 +34,12 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.querydsl:querydsl-jpa'
     compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
+
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
 }
 
 task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {

@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import com.cgi.eoss.ftep.persistence.dao.FtepUserDao;
+import com.cgi.eoss.ftep.persistence.dao.UserDao;
 import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,36 +10,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.cgi.eoss.ftep.model.QFtepUser.ftepUser;
+import static com.cgi.eoss.ftep.model.QUser.user;
 
 @Service
 @Transactional(readOnly = true)
-public class JpaUserDataService extends AbstractJpaDataService<FtepUser> implements UserDataService {
+public class JpaUserDataService extends AbstractJpaDataService<User> implements UserDataService {
 
-    private final FtepUserDao ftepUserDao;
+    private final UserDao dao;
 
     @Autowired
-    public JpaUserDataService(FtepUserDao ftepUserDao) {
-        this.ftepUserDao = ftepUserDao;
+    public JpaUserDataService(UserDao userDao) {
+        this.dao = userDao;
     }
 
     @Override
-    FtepEntityDao<FtepUser> getDao() {
-        return ftepUserDao;
+    FtepEntityDao<User> getDao() {
+        return dao;
     }
 
     @Override
-    Predicate getUniquePredicate(FtepUser entity) {
-        return ftepUser.name.eq(entity.getName());
+    Predicate getUniquePredicate(User entity) {
+        return user.name.eq(entity.getName());
     }
 
     @Override
-    public List<FtepUser> search(String term) {
-        return ftepUserDao.findByNameContainingIgnoreCase(term);
+    public List<User> search(String term) {
+        return dao.findByNameContainingIgnoreCase(term);
     }
 
     @Override
-    public FtepUser getByName(String name) {
-        return ftepUserDao.findOne(ftepUser.name.eq(name));
+    public User getByName(String name) {
+        return dao.findOne(user.name.eq(name));
     }
+
 }

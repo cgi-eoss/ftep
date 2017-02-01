@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api;
 
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -54,8 +54,8 @@ public class UsersApiIT {
 
     @Test
     public void testGet() throws Exception {
-        FtepUser owner = dataService.save(new FtepUser("owner-uid"));
-        FtepUser owner2 = dataService.save(new FtepUser("owner-uid2"));
+        User owner = dataService.save(new User("owner-uid"));
+        User owner2 = dataService.save(new User("owner-uid2"));
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
@@ -84,12 +84,12 @@ public class UsersApiIT {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")));
 
-        FtepUser ftepUser = new FtepUser("Ftep User");
-        FtepUser ftepUser2 = new FtepUser("Ftep User 2");
-        ftepUser.setEmail("ftep.user@example.com");
-        ftepUser2.setEmail("ftep.user.2@example.com");
+        User user = new User("Ftep User");
+        User user2 = new User("Ftep User 2");
+        user.setEmail("ftep.user@example.com");
+        user2.setEmail("ftep.user.2@example.com");
 
-        assertThat(dataService.getAll(), is(ImmutableList.of(ftepUser, ftepUser2)));
+        assertThat(dataService.getAll(), is(ImmutableList.of(user, user2)));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class UsersApiIT {
                 "{\"name\": \"New Name\", \"email\":\"new.ftep.email@example.com\"}")).andExpect(
                 status().isNoContent());
 
-        FtepUser expected = new FtepUser("New Name");
+        User expected = new User("New Name");
         expected.setEmail("new.ftep.email@example.com");
         assertThat(dataService.getByName("New Name"), is(expected));
     }
@@ -123,7 +123,7 @@ public class UsersApiIT {
                 "{\"name\": \"New Name\"}")).andExpect(
                 status().isNoContent());
 
-        FtepUser expected = new FtepUser("New Name");
+        User expected = new User("New Name");
         expected.setEmail("ftep.user@example.com");
         assertThat(dataService.getByName("New Name"), is(expected));
     }
@@ -139,7 +139,7 @@ public class UsersApiIT {
 
         mockMvc.perform(delete(location)).andExpect(status().isMethodNotAllowed());
 
-        FtepUser expected = new FtepUser("Ftep User");
+        User expected = new User("Ftep User");
         expected.setEmail("ftep.user@example.com");
         assertThat(dataService.getAll(), is(ImmutableList.of(expected)));
     }

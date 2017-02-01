@@ -82,7 +82,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    private FtepUser owner;
+    private User owner;
 
     /**
      * <p> Access level of the service </p>
@@ -129,7 +129,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
      * @param name Name of the service.
      * @param owner The user owning the service.
      */
-    public FtepService(String name, FtepUser owner) {
+    public FtepService(String name, User owner) {
         this.name = name;
         this.owner = owner;
     }

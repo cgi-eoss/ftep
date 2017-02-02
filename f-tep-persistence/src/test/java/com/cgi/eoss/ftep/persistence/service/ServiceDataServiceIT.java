@@ -35,14 +35,14 @@ public class ServiceDataServiceIT {
         FtepService svc = new FtepService();
         svc.setName("Test Service");
         svc.setOwner(owner);
+        svc.setDockerTag("dockerTag");
         dataService.save(svc);
 
         assertThat(dataService.getAll(), is(ImmutableList.of(svc)));
         assertThat(dataService.getById(svc.getId()), is(svc));
         assertThat(dataService.getByIds(ImmutableSet.of(svc.getId())), is(ImmutableList.of(svc)));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service", owner)), is(false));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service2", owner)), is(true));
-        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service", owner2)), is(true));
+        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service", owner, "dockerTag")), is(false));
+        assertThat(dataService.isUniqueAndValid(new FtepService("Test Service2", owner, "dockerTag")), is(true));
 
         assertThat(dataService.search("serv"), is(ImmutableList.of(svc)));
         assertThat(dataService.findByOwner(owner), is(ImmutableList.of(svc)));

@@ -83,7 +83,7 @@ public class WpsServicesClientIT {
         FtepService service = mock(FtepService.class);
         User user = mock(User.class);
 
-        when(service.getDescription()).thenReturn(TEST_CONTAINER_IMAGE);
+        when(service.getDockerTag()).thenReturn(TEST_CONTAINER_IMAGE);
         when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
             JobConfig config = new JobConfig(user, service);
             config.setInputs(invocation.getArgument(3));

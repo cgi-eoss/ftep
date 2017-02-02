@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep;
 
-import com.cgi.eoss.ftep.wps.StandaloneOrchestrator;
 import com.cgi.eoss.ftep.wps.FtepServicesClient;
+import com.cgi.eoss.ftep.wps.StandaloneOrchestrator;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.slf4j.Logger;

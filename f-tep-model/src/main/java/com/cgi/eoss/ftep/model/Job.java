@@ -60,7 +60,7 @@ public class Job implements FtepEntity<Job> {
      * <p>The user executing this job.</p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner")
+    @JoinColumn(name = "owner", nullable = false)
     private User owner;
 
     /**
@@ -90,7 +90,7 @@ public class Job implements FtepEntity<Job> {
     private String stage;
 
     /**
-     * <p>URL to the graphical interface if this is a {@link com.cgi.eoss.ftep.model.enums.ServiceType#APPLICATION}.</p>
+     * <p>URL to the graphical interface if this is a {@link ServiceType#APPLICATION}.</p>
      */
     @Column(name = "gui_url")
     private String guiUrl;

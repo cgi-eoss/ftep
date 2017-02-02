@@ -5,7 +5,7 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.JobStep;
-import com.cgi.eoss.ftep.model.enums.ServiceType;
+import com.cgi.eoss.ftep.model.ServiceType;
 import com.cgi.eoss.ftep.orchestrator.worker.JobEnvironment;
 import com.cgi.eoss.ftep.orchestrator.worker.Worker;
 import com.cgi.eoss.ftep.orchestrator.worker.WorkerEnvironment;
@@ -74,9 +74,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             prepareInputs(inputs, job, worker, jobEnvironment);
 
-            // TODO Use a proper container ID field, not "description"
-            String dockerImageTag = service.getDescription();
-
+            String dockerImageTag = service.getDockerTag();
             DockerLaunchConfig.DockerLaunchConfigBuilder dockerConfigBuilder = DockerLaunchConfig.builder()
                     .image(dockerImageTag)
                     .volume("/nobody/workDir")
@@ -85,7 +83,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .bind(jobEnvironment.getWorkingDir().getParent().toString() + ":" + jobEnvironment.getWorkingDir().getParent().toString())
                     .defaultLogging(true);
 
-            if (service.getKind() == ServiceType.APPLICATION) {
+            if (service.getType() == ServiceType.APPLICATION) {
                 dockerConfigBuilder.exposedPort(GUACAMOLE_PORT);
             }
 
@@ -95,7 +93,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Wait for exit, with timeout if necessary
             int exitCode;
-            if (service.getKind() == ServiceType.APPLICATION) {
+            if (service.getType() == ServiceType.APPLICATION) {
                 updateGuiEndpoint(job, worker, containerId);
                 int timeout = Integer.parseInt(Iterables.getOnlyElement(inputs.get(TIMEOUT_PARAM)));
                 exitCode = worker.waitForContainerExit(containerId, timeout);

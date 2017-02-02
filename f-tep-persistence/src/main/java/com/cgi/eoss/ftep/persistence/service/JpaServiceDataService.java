@@ -31,7 +31,7 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
 
     @Override
     Predicate getUniquePredicate(FtepService entity) {
-        return ftepService.name.eq(entity.getName()).and(ftepService.owner.eq(entity.getOwner()));
+        return ftepService.name.eq(entity.getName());
     }
 
     @Override

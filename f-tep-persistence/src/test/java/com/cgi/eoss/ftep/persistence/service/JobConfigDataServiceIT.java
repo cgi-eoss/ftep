@@ -46,9 +46,11 @@ public class JobConfigDataServiceIT {
         FtepService svc = new FtepService();
         svc.setName("Test Service");
         svc.setOwner(owner);
+        svc.setDockerTag("dockerTag");
         FtepService svc2 = new FtepService();
         svc2.setName("Test Service2");
         svc2.setOwner(owner);
+        svc2.setDockerTag("dockerTag");
         svcService.save(ImmutableSet.of(svc, svc2));
 
         Multimap<String, String> job1Inputs = ImmutableMultimap.of(
@@ -86,6 +88,7 @@ public class JobConfigDataServiceIT {
         FtepService svc = new FtepService();
         svc.setName("Test Service");
         svc.setOwner(owner);
+        svc.setDockerTag("dockerTag");
         svcService.save(ImmutableSet.of(svc));
 
         JobConfig jobConfig = new JobConfig(owner, svc);

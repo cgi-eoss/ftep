@@ -62,6 +62,7 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     }
 
     @Override
+    @Transactional
     public Job buildNew(String extId, String ownerId, String serviceId, Multimap<String, String> inputs) {
         User owner = userDataService.getByName(ownerId);
         FtepService service = serviceDataService.getByName(serviceId);

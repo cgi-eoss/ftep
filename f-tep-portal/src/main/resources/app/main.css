@@ -47,6 +47,28 @@ input {
 }
 /* End of Groups */
 
+#community-container {
+  margin-top: 50px;
+  padding-left: 44px;
+}
+#community-container .left-container {
+  width: 50%;
+}
+#community-container .left-container md-input-container {
+  margin: 0;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.7);
+}
+#community-container .left-container md-input-container .hint {
+  font-size: 0.6rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+#community-container .right-container {
+  width: 50%;
+}
+
+
+
 #bottombar {
   bottom: 0;
   height: 35%;
@@ -1476,6 +1498,77 @@ input {
   -moz-osx-font-smoothing: grayscale;
   /* Support for IE. */
   font-feature-settings: 'liga';
+}
+
+#helpdesk-container {
+  margin-top: 50px;
+  padding: 18px;
+  font-size: 20px;
+}
+#helpdesk-container h2 {
+  font-size: 22px;
+  font-weight: 900;
+}
+#helpdesk-container h3 {
+  font-size: 20px;
+  font-weight: 900;
+}
+#helpdesk-container .block {
+  background-color: #ebebe0;
+}
+#helpdesk-container #helpdesk-info {
+  padding: 40px 40px 120px 40px;
+  font-size: 22px;
+}
+#helpdesk-container #supported-services {
+  margin-top: 35px;
+}
+#helpdesk-container #contact {
+  margin-top: 40px;
+  padding: 20px 40px 40px 40px;
+}
+#helpdesk-container #links {
+  margin-left: 40px;
+  margin-right: 20px;
+  padding: 40px;
+}
+#helpdesk-container #links img {
+  height: 60px;
+  width: 180px;
+}
+#helpdesk-container #links a,
+#helpdesk-container #links a:hover {
+  font-weight: 900;
+  text-decoration: none;
+}
+#helpdesk-container #links a {
+  color: #33691e;
+  text-shadow: 1px 1px 2px #FFF;
+}
+#helpdesk-container #links a:hover {
+  color: #FFF;
+  text-shadow: 1px 1px 2px #000;
+}
+#helpdesk-container #links ul {
+  list-style-type: none;
+}
+#helpdesk-container #videoclips {
+  margin: 20px 20px 0px 40px;
+  padding: 20px 40px 20px 40px;
+}
+#helpdesk-container #videoclips img {
+  height: 150px;
+  width: 290px;
+}
+#helpdesk-container #videoclips img:hover {
+  border: 4px solid #ff4081;
+}
+#helpdesk-container #videoclips .video {
+  padding: 10px 20px;
+  text-align: justify;
+}
+#helpdesk-container #videoclips .video p {
+  padding: 5px;
 }
 
 @font-face {

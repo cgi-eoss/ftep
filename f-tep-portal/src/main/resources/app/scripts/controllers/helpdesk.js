@@ -8,83 +8,49 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('HelpdeskCtrl', function ($scope, $http) {
+    ftepmodules.controller('HelpdeskCtrl', function ($scope, $http, ProductService) {
 
-        $scope.result = 'hidden';
-        $scope.submitButtonDisabled = false;
-        $scope.submitted = false; //used so that form errors are shown only after the form has been submitted
-        $scope.submit = function (contactform) {
-            $scope.submitted = true;
-            $scope.submitButtonDisabled = true;
-            if (contactform.$valid) {
-                $http({
-                    method: 'POST',
-                    url: 'contact-form.php',
-                    data: $.param($scope.formData), //param method from jQuery
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    } //set the headers so angular passing info as form data (not request payload)
-                }).success(function (data) {
-                    console.log(data);
-                    if (data.success) { //success comes from the return json object
-                        $scope.submitButtonDisabled = true;
-                        $scope.resultMessage = data.message;
-                        $scope.result = 'bg-success';
-                    } else {
-                        $scope.submitButtonDisabled = false;
-                        $scope.resultMessage = data.message;
-                        $scope.result = 'bg-danger';
+        $scope.videos = [
+                 {
+                     url: 'https://forestry-tep.eo.esa.int/manual/search_create_databasket.mp4',
+                     description: 'Perform a Search and create/manage databasket',
+                     image: 'images/helpdesk/search.jpg'
+                 },
+                 {
+                     url: 'https://forestry-tep.eo.esa.int/manual/run_sentinel2_ndvi.mp4',
+                     description: 'Run an NDVI service',
+                     image: 'images/helpdesk/service_NDVI.jpg'
+                 },
+                 {
+                     url: 'https://forestry-tep.eo.esa.int/manual/open_ndvi_snap.mp4',
+                     description: 'Open a product using Sentinel2 Toolbox',
+                     image: 'images/helpdesk/NDVI_product_toolbox.jpg'
+                 },
+                 {
+                     url: 'https://forestry-tep.eo.esa.int/manual/vegindex_snap.mp4',
+                     description: 'Create a VegetaionIndex and open result in Sentinel2 Toolbox',
+                     image: 'images/helpdesk/vegind_product_toolbox.jpg'
+                 }
+        ];
+
+        function setup(){
+            $scope.applications = [];
+            $scope.processors = [];
+            ProductService.getServices().then(function (services) {
+                if(services){
+                    for(var i=0; i<services.length; i++){
+                        if(services[i].attributes.kind === 'application'){
+                            $scope.applications.push(services[i].attributes.name);
+                        }
+                        else if(services[i].attributes.kind === 'processor'){
+                            $scope.processors.push(services[i].attributes.name);
+                        }
                     }
-                });
-            } else {
-                $scope.submitButtonDisabled = false;
-                $scope.resultMessage = 'Failed! Please fill out all the fields.';
-                $scope.result = 'bg-danger';
-            }
-        };
+                }
+            });
+        }
+        setup();
+
     });
 });
 
-//for PHP Mailer
-/*
-<?php
-    require_once 'phpmailer/PHPMailerAutoload.php';
-
-    if (isset($_POST['inputName']) && isset($_POST['inputEmail']) && isset($_POST['inputSubject']) && isset($_POST['inputMessage'])) {
-
-        //check if any of the inputs are empty
-        if (empty($_POST['inputName']) || empty($_POST['inputEmail']) || empty($_POST['inputSubject']) || empty($_POST['inputMessage'])) {
-            $data = array('success' => false, 'message' => 'Please fill out the form completely.');
-            echo json_encode($data);
-            exit;
-        }
-
-        //create an instance of PHPMailer
-        $mail = new PHPMailer();
-
-        $mail->From = $_POST['inputEmail'];
-        $mail->FromName = $_POST['inputName'];
-        $mail->AddAddress('something@test.com'); //recipient
-        $mail->Subject = $_POST['inputSubject'];
-        $mail->Body = "Name: " . $_POST['inputName'] . "\r\n\r\nMessage: " . stripslashes($_POST['inputMessage']);
-
-        if (isset($_POST['ref'])) {
-            $mail->Body .= "\r\n\r\nRef: " . $_POST['ref'];
-        }
-
-        if(!$mail->send()) {
-            $data = array('success' => false, 'message' => 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo);
-            echo json_encode($data);
-            exit;
-        }
-
-        $data = array('success' => true, 'message' => 'Thanks! We have received your message.');
-        echo json_encode($data);
-
-    } else {
-
-        $data = array('success' => false, 'message' => 'Please fill out the form completely.');
-        echo json_encode($data);
-
-    }
-*/

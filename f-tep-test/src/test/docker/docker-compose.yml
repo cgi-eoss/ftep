@@ -47,6 +47,14 @@ services:
         puppetconf: server.yaml
     links:
       - ftep-db
+  ftep-worker:
+    extends: ftep-db
+    build:
+      args:
+        pkgconf: worker.pkg
+        puppetconf: worker.yaml
+    links:
+      - ftep-server
   ftep-proxy:
     extends: ftep-db
     build:

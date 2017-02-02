@@ -7,7 +7,9 @@ classes:
 #  - ftep::drupal
 #  - ftep::geoserver
 #  - ftep::proxy
+#  - ftep::server
 #  - ftep::webapp
+#  - ftep::worker
 #  - ftep::wps
 
 #ftep::repo::location: file:///path/to/repo
@@ -21,9 +23,11 @@ classes:
 #    ip: 127.0.0.1
 #  ftep-proxy:
 #    ip: 127.0.0.1
+#  ftep-server:
+#    ip: 127.0.0.1
 #  ftep-webapp:
 #    ip: 127.0.0.1
 #  ftep-wps:
 #    ip: 127.0.0.1
-#  ftep-server:
-#    ip: 127.0.0.1
+#
+# Note that ftep::workers are self-registering with the ftep::server

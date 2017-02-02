@@ -139,10 +139,10 @@ public class Worker {
         return jobEnvironmentService.createEnvironment(jobId, jobConfig);
     }
 
-    private static boolean isValidUri(String uri) {
+    private static boolean isValidUri(String test) {
         try {
-            URI.create(uri);
-            return true;
+            URI uri = URI.create(test);
+            return uri.getScheme() != null;
         } catch (Exception e) {
             return false;
         }

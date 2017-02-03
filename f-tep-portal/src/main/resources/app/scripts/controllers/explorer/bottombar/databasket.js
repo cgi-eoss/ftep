@@ -26,12 +26,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     collectFiles(result.included);
                 });
             };
-            $scope.fetchDbPage($scope.dbPaging.dbCurrentPage);
 
             function collectFiles(files) {
                 collectedFiles = {};
-                for (var i = 0; i < files.length; i++) {
-                    collectedFiles[files[i].id] = files[i];
+                if(files){
+                    for (var i = 0; i < files.length; i++) {
+                        collectedFiles[files[i].id] = files[i];
+                    }
                 }
             }
 
@@ -42,6 +43,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.$on('refresh.databaskets', function (event, result) {
                 $scope.databaskets = result.data;
                 $scope.dbPaging.dbTotal = result.meta.total;
+                collectFiles(result.included);
             });
 
             $scope.removeDatabasket = function (event, basket) {

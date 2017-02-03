@@ -488,30 +488,32 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.$on('upload.basket', function(event, basketFiles) {
             $scope.map.removeLayer(resultsLayer);
             basketLayerFeatures.clear();
-            for(var i = 0; i < basketFiles.length; i++){
-                var item = basketFiles[i];
-                if(item.attributes.properties && item.attributes.properties.geo){
-                    if(item.attributes.properties.geo.type == 'polygon'){
-                       item.attributes.properties.geo.type = 'Polygon';
+            if(basketFiles && basketFiles.length > 0){
+                for(var i = 0; i < basketFiles.length; i++){
+                    var item = basketFiles[i];
+                    if(item.attributes.properties && item.attributes.properties.geo){
+                        if(item.attributes.properties.geo.type == 'polygon'){
+                           item.attributes.properties.geo.type = 'Polygon';
+                        }
+                        var lonlatPoints = [];
+                        for(var k = 0; k < item.attributes.properties.geo.coordinates.length; k++){
+                           for(var m = 0; m < item.attributes.properties.geo.coordinates[k].length; m++){
+                              var p = angular.copy(item.attributes.properties.geo.coordinates[k][m]);
+                              p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
+                              lonlatPoints.push(p);
+                           }
+                        }
+                        var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
+                        var resultItem =  new ol.Feature({
+                             geometry: pol,
+                             data: item
+                        });
+                        basketLayerFeatures.push(resultItem);
                     }
-                    var lonlatPoints = [];
-                    for(var k = 0; k < item.attributes.properties.geo.coordinates.length; k++){
-                       for(var m = 0; m < item.attributes.properties.geo.coordinates[k].length; m++){
-                          var p = angular.copy(item.attributes.properties.geo.coordinates[k][m]);
-                          p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
-                          lonlatPoints.push(p);
-                       }
-                    }
-                    var pol = new ol.geom[item.attributes.properties.geo.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
-                    var resultItem =  new ol.Feature({
-                         geometry: pol,
-                         data: item
-                    });
-                    basketLayerFeatures.push(resultItem);
                 }
+                $scope.map.addLayer(basketLayer);
+                $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize());
             }
-            $scope.map.addLayer(basketLayer);
-            $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize());
         });
 
         $scope.$on('unload.basket', function(event) {

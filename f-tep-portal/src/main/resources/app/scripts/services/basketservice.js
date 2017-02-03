@@ -311,6 +311,9 @@ define(['../ftepmodules'], function (ftepmodules) {
           };
           /** END OF PRESERVE USER SELECTIONS **/
 
+          // Initiate the databasket list
+          this.getDatabaskets(this.pagingData.dbCurrentPage, this.pagingData.dbPageSize);
+
           return this;
       }]);
 });

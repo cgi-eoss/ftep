@@ -1,0 +1,3 @@
+spring.application.name: 'F-TEP Worker'
+
+server.port=8091

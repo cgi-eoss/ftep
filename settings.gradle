@@ -17,6 +17,7 @@ include 'f-tep-rpc'
 include 'f-tep-orchestrator'
 include 'f-tep-api'
 include 'f-tep-server'
+include 'f-tep-worker'
 
 include 'third-party/cxx/zoo-project'
 include 'third-party/pkg'

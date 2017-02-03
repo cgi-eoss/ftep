@@ -39,7 +39,7 @@ ADD repo /var/tmp/repo
 
 RUN cd /var/tmp/puppet \
  && puppet apply \
- --hiera_config=/var/tmp/puppet/hiera.yaml \
+ --hiera_config=/var/tmp/puppet/hiera-global.yaml \
  --environmentpath=/var/tmp \
  --environment=puppet \
  /var/tmp/puppet/manifest.pp

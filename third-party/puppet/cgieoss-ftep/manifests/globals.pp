@@ -24,6 +24,7 @@ class ftep::globals (
 
   # App server port config
   $server_application_port = 8090,
+  $worker_application_port = 8091,
 ) {
 
   # Alias reverse-proxy hosts via hosts file

@@ -8,14 +8,19 @@
     String $jdbc_data_source_class_name
 | -%>
 # Managed by Puppet
+# F-TEP Server service configuration
+
+spring.application.name=F-TEP Server
 
 # Server config
 server.port=<%= $server_port %>
 ftep.api.base-path=<%= $api_base_path %>
 
-# Database config
-jdbc.driver=<%= $jdbc_driver %>
-jdbc.url=<%= $jdbc_url %>
-jdbc.user=<%= $jdbc_user %>
-jdbc.password=<%= $jdbc_password %>
-jdbc.dataSourceClassName=<%= $jdbc_data_source_class_name %>
+# Database connection
+spring.datasource.url=<%= $jdbc_url %>
+spring.datasource.username=<%= $jdbc_user %>
+spring.datasource.password=<%= $jdbc_password %>
+spring.datasource.driver-class-name=<%= $jdbc_driver %>
+
+flyway.enabled=true
+spring.jpa.hibernate.ddl-auto=none

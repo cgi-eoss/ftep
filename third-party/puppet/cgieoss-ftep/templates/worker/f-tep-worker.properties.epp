@@ -1,0 +1,10 @@
+<%- |
+    Integer $server_port,
+| -%>
+# Managed by Puppet
+# F-TEP Worker service configuration
+
+spring.application.name=F-TEP Worker
+
+# Server config
+server.port=<%= $server_port %>

@@ -14,21 +14,17 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'nebula.ospackage'
 
 dependencies {
-    compile project(':f-tep-api')
-    compile project(':f-tep-orchestrator')
+    compile project(':f-tep-rpc')
 
     compile 'ch.qos.logback:logback-classic'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
-    compile 'org.flywaydb:flyway-core'
+    compile 'org.lognet:grpc-spring-boot-starter'
+    compile 'org.slf4j:slf4j-api'
     compile 'org.springframework:spring-context'
     compile 'org.springframework.boot:spring-boot-autoconfigure'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-undertow'
-
-    // Default provided database adapters
-    runtime 'org.hsqldb:hsqldb'
-    runtime 'org.postgresql:postgresql'
 }
 
 springBoot {
@@ -44,7 +40,7 @@ configurations { pkg }
 artifacts { pkg buildRpm }
 
 ospackage {
-    packageName 'f-tep-server'
+    packageName 'f-tep-worker'
     version getRpmVersion(project.version).version
     release getRpmVersion(project.version).release
     arch NOARCH
@@ -60,13 +56,13 @@ ospackage {
     from("${buildDir}/libs") {
         into 'bin'
         include '*-bin.jar'
-        rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
+        rename('f-tep-worker-.*\\-bin.jar', 'f-tep-worker.jar')
     }
 
-    from("src/ospackage/f-tep-server.properties") {
+    from("src/ospackage/f-tep-worker.properties") {
         into 'etc'
         fileType CONFIG | NOREPLACE
     }
 
-    link('/etc/init.d/f-tep-server', '/var/f-tep/bin/f-tep-server.jar')
+    link('/etc/init.d/f-tep-worker', '/var/f-tep/bin/f-tep-worker.jar')
 }

@@ -61,11 +61,11 @@ Vagrant.configure('2') do |config|
     #   - ftep::backend
     # ftep::repo::location: 'file:///vagrant/.dist/repo'
     #
-    config.puppet_install.puppet_version = '4.8.1'
+    config.puppet_install.puppet_version = '4.9.0'
     ftep.vm.provision 'puppet' do |puppet|
       puppet.environment_path = '.dist'
       puppet.environment = 'puppet'
-      puppet.hiera_config_path = '.dist/puppet/hiera.yaml'
+      puppet.hiera_config_path = '.dist/puppet/hiera-global.yaml'
       puppet.working_directory = '/tmp/vagrant-puppet/environments/puppet'
       #puppet.options = "--debug"
     end

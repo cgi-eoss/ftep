@@ -1,6 +1,3 @@
 ---
 classes:
   - ftep::wps
-  - docker
-
-docker::manage_service: false

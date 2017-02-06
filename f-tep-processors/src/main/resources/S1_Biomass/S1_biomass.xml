@@ -34,7 +34,7 @@
         </parameters>
     </node>
 
-    <node id="BandMaths">
+    <node id="ForestBiomass">
         <operator>BandMaths</operator>
         <sources>
             <sourceProduct refid="Collocate"/>
@@ -54,10 +54,30 @@
         </parameters>
     </node>
 
+    <node id="NaturalNumber">
+        <operator>BandMaths</operator>
+        <sources>
+            <sourceProduct refid="ForestBiomass"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <targetBands>
+                <targetBand>
+                    <name>volume_reg</name>
+                    <type>float32</type>
+                    <expression>if (volume_out&lt;0) then 0 else volume_out</expression>
+                    <description/>
+                    <unit/>
+                    <noDataValue>0.0</noDataValue>
+                </targetBand>
+            </targetBands>
+            <variables/>
+        </parameters>
+    </node>
+
     <node id="Write">
         <operator>Write</operator>
         <sources>
-            <sourceProduct refid="BandMaths"/>
+            <sourceProduct refid="NaturalNumber"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>${ofile}</file>

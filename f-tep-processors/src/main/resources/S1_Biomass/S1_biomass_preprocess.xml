@@ -48,7 +48,7 @@
             <createGammaBand>false</createGammaBand>
             <createBetaBand>true</createBetaBand>
             <selectedPolarisations/>
-            <outputSigmaBand>true</outputSigmaBand>
+            <outputSigmaBand>false</outputSigmaBand>
             <outputGammaBand>false</outputGammaBand>
             <outputBetaBand>false</outputBetaBand>
         </parameters>
@@ -60,7 +60,7 @@
             <sourceProduct refid="Calibration"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <sourceBands/>
+            <sourceBands>Beta0_VH</sourceBands>
             <demName>External DEM</demName>
             <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
             <externalDEMFile>${demFile}</externalDEMFile>
@@ -92,7 +92,7 @@
                 AXIS[&quot;Geodetic longitude&quot;, EAST],
                 AXIS[&quot;Geodetic latitude&quot;, NORTH]]</mapProjection>
             <nodataValueAtSea>true</nodataValueAtSea>
-            <saveDEM>true</saveDEM>
+            <saveDEM>false</saveDEM>
             <saveLatLon>false</saveLatLon>
             <saveIncidenceAngleFromEllipsoid>false</saveIncidenceAngleFromEllipsoid>
             <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>

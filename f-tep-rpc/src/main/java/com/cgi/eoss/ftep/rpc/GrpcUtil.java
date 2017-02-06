@@ -18,22 +18,22 @@ public class GrpcUtil {
      * @param params The parameters to be converted.
      * @return The params input collection mapped to &lt;String, String&gt; entries.
      */
-    public static Multimap<String, String> paramsListToMap(List<Param> params) {
+    public static Multimap<String, String> paramsListToMap(List<JobParam> params) {
         ImmutableMultimap.Builder<String, String> mapBuilder = ImmutableMultimap.builder();
         params.forEach(p -> mapBuilder.putAll(p.getParamName(), p.getParamValueList()));
         return mapBuilder.build();
     }
 
     /**
-     * <p>Convert a {@link Multimap} into a collection of {@link Param}s for gRPC.</p>
+     * <p>Convert a {@link Multimap} into a collection of {@link JobParam}s for gRPC.</p>
      *
      * @param params The parameters to be converted.
-     * @return The params input collection mapped to {@link Param}s.
+     * @return The params input collection mapped to {@link JobParam}s.
      */
-    public static Iterable<Param> mapToParams(Multimap<String, String> params) {
-        ImmutableList.Builder<Param> paramsBuilder = ImmutableList.builder();
+    public static Iterable<JobParam> mapToParams(Multimap<String, String> params) {
+        ImmutableList.Builder<JobParam> paramsBuilder = ImmutableList.builder();
         params.keySet().forEach(
-                k -> paramsBuilder.add(Param.newBuilder().setParamName(k).addAllParamValue(params.get(k)).build()));
+                k -> paramsBuilder.add(JobParam.newBuilder().setParamName(k).addAllParamValue(params.get(k)).build()));
         return paramsBuilder.build();
     }
 }

@@ -16,7 +16,7 @@ import java.nio.file.Paths;
         PropertyPlaceholderAutoConfiguration.class,
         PersistenceConfig.class
 })
-@ComponentScan("com.cgi.eoss.ftep.orchestrator")
+@ComponentScan(basePackageClasses = OrchestratorConfig.class)
 public class OrchestratorConfig {
 
     @Bean

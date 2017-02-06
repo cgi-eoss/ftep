@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc.worker";
+
+service FtepWorker {
+    rpc PrepareInputs (JobInputs) returns (JobEnvironment);
+    rpc LaunchContainer (DockerContainerConfig) returns (DockerContainer);
+    rpc ExecuteServiceCmd (ServiceCmd) returns (ServiceCmdResponse);
+    rpc GetPortBindings (DockerContainer) returns (PortBindings);
+    rpc StopContainer (DockerContainer) returns (StopContainerResponse);
+    rpc WaitForContainerExit (ExitParams) returns (ContainerExitCode);
+    rpc WaitForContainerExitWithTimeout (ExitWithTimeoutParams) returns (ContainerExitCode);
+}
+
+message JobInputs {
+    string jobId = 1;
+    repeated JobParam inputs = 2;
+}
+
+message JobEnvironment {
+    string workingDir = 1;
+    string inputDir = 2;
+    string outputDir = 3;
+}
+
+message DockerContainerConfig {
+    string dockerImage = 1;
+    repeated DockerVolumeBind binds = 2;
+    repeated DockerExposedPort ports = 3;
+}
+
+message DockerVolumeBind {
+    string hostPath = 1;
+    string containerPath = 2;
+}
+
+message DockerExposedPort {
+    string portDef = 1;
+}
+
+message DockerContainer {
+    string id = 1;
+}
+
+message ServiceCmd {
+    DockerContainer container = 1;
+    string command = 2;
+}
+
+message ServiceCmdResponse {
+}
+
+message PortBindings {
+    repeated PortBinding bindings = 1;
+}
+
+message PortBinding {
+    string portDef = 1;
+    string binding = 2;
+}
+
+message StopContainerResponse {
+}
+
+message ExitParams {
+    DockerContainer container = 1;
+}
+
+message ExitWithTimeoutParams {
+    DockerContainer container = 1;
+    int32 timeout = 2;
+}
+
+message ContainerExitCode {
+    int32 exitCode = 1;
+}

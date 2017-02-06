@@ -1,26 +1,23 @@
 syntax = "proto3";
 
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
 option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc";
-option java_outer_classname = "WpsServices";
 
 service FtepServiceLauncher {
-    rpc LaunchService (FtepServiceParams) returns (FtepServiceResponse) {
-    }
+    rpc LaunchService (FtepServiceParams) returns (FtepServiceResponse);
 }
 
 message FtepServiceParams {
     string jobId = 1;
     string userId = 2;
     string serviceId = 3;
-    repeated Param inputs = 4;
+    repeated JobParam inputs = 4;
 }
 
 message FtepServiceResponse {
-    repeated Param outputs = 1;
-}
-
-message Param {
-    string paramName = 1;
-    repeated string paramValue = 2;
+    repeated JobParam outputs = 1;
 }

@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.persistence;
 
+import com.cgi.eoss.ftep.model.FtepEntity;
+import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -16,11 +18,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
 })
-@EnableJpaRepositories(basePackages = "com.cgi.eoss.ftep.persistence.dao",
+@EnableJpaRepositories(basePackageClasses = FtepEntityDao.class,
         excludeFilters = {@ComponentScan.Filter(SpringJpaRepositoryIgnore.class)})
 @EnableTransactionManagement
-@EntityScan(basePackages = "com.cgi.eoss.ftep.model")
-@ComponentScan("com.cgi.eoss.ftep.persistence")
+@EntityScan(basePackageClasses = FtepEntity.class)
+@ComponentScan(basePackageClasses = PersistenceConfig.class)
 public class PersistenceConfig {
 
 }

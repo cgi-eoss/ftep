@@ -24,9 +24,9 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         RepositoryRestMvcConfiguration.class,
         PersistenceConfig.class
 })
-@EnableJpaRepositories(basePackages = "com.cgi.eoss.ftep.api")
+@EnableJpaRepositories(basePackageClasses = ApiConfig.class)
 @EnableWebSecurity
-@ComponentScan("com.cgi.eoss.ftep.api")
+@ComponentScan(basePackageClasses = ApiConfig.class)
 public class ApiConfig {
 
     @Bean

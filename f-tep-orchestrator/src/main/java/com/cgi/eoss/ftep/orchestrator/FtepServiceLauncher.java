@@ -15,7 +15,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
-import com.cgi.eoss.ftep.rpc.Param;
+import com.cgi.eoss.ftep.rpc.JobParam;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -107,7 +107,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             executeService(job, containerId);
 
-            List<Param> outputs = collectOutputs(job);
+            List<JobParam> outputs = collectOutputs(job);
 
             responseObserver.onNext(FtepServiceResponse.newBuilder()
                     .addAllOutputs(outputs)
@@ -165,7 +165,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         // TODO Implement async services-as-configuration
     }
 
-    private List<Param> collectOutputs(Job job) {
+    private List<JobParam> collectOutputs(Job job) {
         job.setStage(JobStep.OUTPUT_LIST.getText());
         jobDataService.save(job);
 

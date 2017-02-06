@@ -14,6 +14,11 @@ class ftep::server (
   $jdbc_user                  = undef,
   $jdbc_password              = undef,
   $jdbc_datasource_class_name = 'org.postgresql.ds.PGSimpleDataSource',
+
+  $cache_basedir              = '/data/cache/dl',
+  $cache_concurrency          = 4,
+  $cache_maxweight            = 1024,
+  $jobs_basedir               = '/data/cache/jobs',
 ) {
 
   require ::ftep::globals
@@ -54,6 +59,10 @@ class ftep::server (
       'jdbc_user'                   => $real_db_user,
       'jdbc_password'               => $real_db_pass,
       'jdbc_data_source_class_name' => $jdbc_datasource_class_name,
+      'cache_basedir'               => $cache_basedir,
+      'cache_concurrency'           => $cache_concurrency,
+      'cache_maxweight'             => $cache_maxweight,
+      'jobs_basedir'                => $jobs_basedir,
     }),
     require => Package['f-tep-server'],
   }

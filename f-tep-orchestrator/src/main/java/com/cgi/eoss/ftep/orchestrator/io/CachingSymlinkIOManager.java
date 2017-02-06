@@ -3,11 +3,16 @@ package com.cgi.eoss.ftep.orchestrator.io;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.Weigher;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,9 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
-import static org.awaitility.Awaitility.with;
-import static org.awaitility.Duration.ONE_SECOND;
-import static org.awaitility.Duration.TEN_MINUTES;
 
 @Slf4j
 @Service("cachingSymlinkIOManager")
@@ -29,10 +31,21 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private final LoadingCache<URI, Path> loadingCache;
 
     @Autowired
-    public CachingSymlinkIOManager(Path cacheRoot, DownloaderFactory downloaderFactory) {
+    public CachingSymlinkIOManager(@Qualifier("cacheConcurrencyLevel") Integer concurrencyLevel,
+                                   @Qualifier("cacheMaxWeight") Integer maximumWeight,
+                                   @Qualifier("cacheRoot") Path cacheRoot,
+                                   DownloaderFactory downloaderFactory) {
         this.loadingCache = CacheBuilder.newBuilder()
-                .concurrencyLevel(1)
+                .concurrencyLevel(concurrencyLevel)
+                .maximumWeight(maximumWeight)
+                .weigher(new GigabyteWeigher())
+                .removalListener(new PathDeletingRemovalListener())
                 .build(new UriCacheLoader(cacheRoot, downloaderFactory));
+    }
+
+    public CachingSymlinkIOManager(Path cacheRoot,
+                                   DownloaderFactory downloaderFactory) {
+        this(4, 1024, cacheRoot, downloaderFactory);
     }
 
     @Override
@@ -44,10 +57,6 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
         } catch (Exception e) {
             throw new ServiceIoException("Could not populate cache from URI: " + uri, e);
         }
-    }
-
-    private static String hashUri(URI uri) {
-        return HASH_FUNCTION.hashString(uri.toString(), Charset.forName("UTF-8")).toString();
     }
 
     private class UriCacheLoader extends CacheLoader<URI, Path> {
@@ -69,9 +78,8 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
 
                 // If a download is already in progress, wait for it to finish
                 if (Files.isDirectory(inProgressDir)) {
-                    LOG.info("Download already in progress, waiting for completion for URI {}: {}", uri, resultDir);
-                    blockUntilDownloadFinishes(inProgressDir, resultDir);
-                    return resultDir;
+                    LOG.warn("Partial download found for URI, cleaning up and continuing: {} downloading to {}", uri, inProgressDir);
+                    MoreFiles.deleteRecursively(inProgressDir);
                 }
 
                 LOG.info("URI not found in cache, downloading: {}", uri);
@@ -103,14 +111,56 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
             LOG.info("Returning cached directory for URI {}: {}", uri, resultDir);
             return resultDir;
         }
+
+        private String hashUri(URI uri) {
+            return HASH_FUNCTION.hashString(uri.toString(), Charset.forName("UTF-8")).toString();
+        }
     }
 
-    private void blockUntilDownloadFinishes(Path inProgressDir, Path resultDir) {
-        // TODO Remove when this class is a singleton in an environment; LoadingCache does concurrency
-        with().pollInterval(ONE_SECOND)
-                .and().atMost(TEN_MINUTES)
-                .await("Download task has finished")
-                .until(() -> !Files.exists(inProgressDir) && Files.exists(resultDir));
+    /**
+     * <p>Calculates the relative weight of cache entries by simply counting the number of gigabytes in the entry.</p>
+     * <p>The result is rounded towards positive infinity, so the minimum weight of an entry (even &lt;1 GB) is always
+     * 1.</p>
+     */
+    private static final class GigabyteWeigher implements Weigher<URI, Path> {
+        @Override
+        public int weigh(URI key, Path value) {
+            try {
+                long dirSize = Files.walk(value)
+                        .filter(Files::isRegularFile)
+                        .mapToLong(this::getFileSize)
+                        .sum();
+                return (int) Math.ceil(dirSize / FileUtils.ONE_GB);
+            } catch (IOException e) {
+                LOG.warn("Could not calculate size of directory {}", value);
+                return 1;
+            }
+        }
+
+        private long getFileSize(Path p) {
+            try {
+                return Files.size(p);
+            } catch (IOException e) {
+                LOG.warn("Could not calculate size of file {}", p);
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * <p>Fully removes the cached download directory when a cache entry expires.</p>
+     */
+    private static final class PathDeletingRemovalListener implements RemovalListener<URI, Path> {
+        @Override
+        public void onRemoval(RemovalNotification<URI, Path> notification) {
+            LOG.info("Download cache entry {} expired: {}", notification.getKey(), notification.getCause());
+            LOG.info("Removing cached download path: {}", notification.getValue());
+            try {
+                MoreFiles.deleteRecursively(notification.getValue());
+            } catch (IOException e) {
+                LOG.error("Unable to delete expired cache directory {}", notification.getValue(), e);
+            }
+        }
     }
 
 }

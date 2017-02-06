@@ -1,11 +1,17 @@
 <%- |
     Integer $server_port,
     String $api_base_path,
+
     String $jdbc_driver,
     String $jdbc_url,
     String $jdbc_user,
     String $jdbc_password,
-    String $jdbc_data_source_class_name
+    String $jdbc_data_source_class_name,
+
+    String $cache_basedir,
+    Integer $cache_concurrency,
+    Integer $cache_maxweight,
+    String $jobs_basedir,
 | -%>
 # Managed by Puppet
 # F-TEP Server service configuration
@@ -24,3 +30,9 @@ spring.datasource.driver-class-name=<%= $jdbc_driver %>
 
 flyway.enabled=true
 spring.jpa.hibernate.ddl-auto=none
+
+# Orchestrator configuration
+ftep.orchestrator.cache.baseDir=<%= $cache_basedir %>
+ftep.orchestrator.cache.concurrency=<%= $cache_concurrency %>
+ftep.orchestrator.cache.maxWeight=<%= $cache_maxweight %>
+ftep.orchestrator.jobEnv.baseDir=<%= $jobs_basedir %>

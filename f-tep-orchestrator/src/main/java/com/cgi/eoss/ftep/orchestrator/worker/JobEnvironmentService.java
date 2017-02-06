@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class JobEnvironmentService {
      * @param jobEnvironmentRoot The absolute path to the job workspace parent directory.
      */
     @Autowired
-    public JobEnvironmentService(Path jobEnvironmentRoot) {
+    public JobEnvironmentService(@Qualifier("jobEnvironmentRoot") Path jobEnvironmentRoot) {
         this.baseDir = jobEnvironmentRoot;
     }
 

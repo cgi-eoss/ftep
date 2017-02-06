@@ -20,6 +20,16 @@ import java.nio.file.Paths;
 public class OrchestratorConfig {
 
     @Bean
+    public Integer cacheConcurrencyLevel(@Value("${ftep.orchestrator.cache.concurrency:4}") int concurrencyLevel) {
+        return concurrencyLevel;
+    }
+
+    @Bean
+    public Integer cacheMaxWeight(@Value("${ftep.orchestrator.cache.maxWeight:1024}") int maximumWeight) {
+        return maximumWeight;
+    }
+
+    @Bean
     public Path cacheRoot(@Value("${ftep.orchestrator.cache.baseDir:/data/cache/dl}") String cacheRoot) {
         return Paths.get(cacheRoot);
     }

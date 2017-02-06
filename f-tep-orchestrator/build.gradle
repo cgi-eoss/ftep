@@ -11,21 +11,14 @@ dependencies {
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
-    compile 'commons-net:commons-net'
     compile 'com.github.docker-java:docker-java'
-    compile 'com.squareup.okhttp3:okhttp'
-    compile 'org.awaitility:awaitility'
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.slf4j:slf4j-api'
     compile 'org.springframework:spring-context'
-    compile 'org.springframework.boot:spring-boot-autoconfigure'
 
-    testCompile 'com.google.jimfs:jimfs'
-    testCompile 'com.squareup.okhttp3:mockwebserver'
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.hsqldb:hsqldb'
-    testCompile 'org.mockftpserver:MockFtpServer'
     testCompile 'org.mockito:mockito-core'
     testCompile 'org.springframework:spring-test'
 

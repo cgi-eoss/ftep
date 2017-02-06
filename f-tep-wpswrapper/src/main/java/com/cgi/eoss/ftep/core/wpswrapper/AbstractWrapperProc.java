@@ -1,12 +1,21 @@
 package com.cgi.eoss.ftep.core.wpswrapper;
 
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.RemoteApiVersion;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.HashMap;
 
 @Slf4j
 public abstract class AbstractWrapperProc {
+    private static final String DEFAULT_DOCKER_HOST = "localhost";
+    private static final String DEFAULT_DOCKER_PORT = "2376";
+    private static final String DEFAULT_DOCKER_CERT_PATH = System.getProperty("user.home") + File.separator + ".docker";
+    private static final String DOCKER_UNIX_SOCKET = "unix:///var/run/docker.sock";
 
     private String dockerImageName;
 
@@ -41,6 +50,25 @@ public abstract class AbstractWrapperProc {
 
     public String getDockerImageName() {
         return dockerImageName;
+    }
+
+    protected static DockerClient getDockerClient(String dockerHost) {
+        DockerClientConfig.DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder()
+                .withApiVersion(RemoteApiVersion.VERSION_1_19);
+
+        String hostUrl;
+        if (!dockerHost.equals(DEFAULT_DOCKER_HOST)) {
+            // Use TLS-secured remote docker host
+            hostUrl = "tcp://" + dockerHost + ":" + DEFAULT_DOCKER_PORT;
+            configBuilder.withDockerTlsVerify(true).withDockerCertPath(DEFAULT_DOCKER_CERT_PATH);
+        } else {
+            // Use the default unix socket rather than TCP to localhost
+            hostUrl = DOCKER_UNIX_SOCKET;
+        }
+        configBuilder.withDockerHost(hostUrl);
+        LOG.info("Worker connecting to docker: {}", hostUrl);
+
+        return DockerClientBuilder.getInstance(configBuilder.build()).build();
     }
 
 }

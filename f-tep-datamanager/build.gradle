@@ -8,7 +8,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-common')
-    compile project(':f-tep-orchestrator')
+    compile project(':f-tep-worker')
 
     compile 'org.slf4j:slf4j-api'
 }

@@ -1,4 +1,6 @@
-class ftep::db {
+class ftep::db(
+  $trust_local_network = false,
+) {
 
   require ::ftep::globals
 

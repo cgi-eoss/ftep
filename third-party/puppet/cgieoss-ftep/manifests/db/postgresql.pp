@@ -8,10 +8,19 @@ class ftep::db::postgresql (
   # EPEL is required for the postgis extensions
   require ::epel
 
-  $acls = []
-
-  unique([$ftep::globals::wps_hostname, $ftep::globals::drupal_hostname]).each | $host | {
-    concat($acls, "host ${db_name} ${db_username} ${host} md5")
+  if $ftep::db::trust_local_network {
+    $acls = [
+      "host ${db_name} ${db_username} samenet md5",
+      "host ${db_v2_name} ${db_username} samenet md5",
+    ]
+  } else {
+    $acls = [
+      "host ${db_name} ${db_username} ${ftep::globals::wps_hostname} md5",
+      "host ${db_name} ${db_username} ${ftep::globals::drupal_hostname} md5",
+      "host ${db_name} ${db_username} ${ftep::globals::server_hostname} md5",
+      # Access to v2 db only required for f-tep-server
+      "host ${db_v2_name} ${db_username} ${ftep::globals::server_hostname} md5",
+    ]
   }
 
   # We have to control the package version

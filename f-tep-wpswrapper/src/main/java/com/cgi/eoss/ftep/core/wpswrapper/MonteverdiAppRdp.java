@@ -8,8 +8,6 @@ import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
 import com.cgi.eoss.ftep.core.wpswrapper.utils.LogContainerTestCallback;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.orchestrator.worker.ManualWorkerService;
-import com.cgi.eoss.ftep.orchestrator.worker.Worker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -105,8 +103,7 @@ public class MonteverdiAppRdp extends AbstractWrapperProc {
         timeoutInHours = Integer.parseInt(timeout);
       }
 
-      Worker worker = new ManualWorkerService().getWorker(workerVmIpAddr);
-      DockerClient dockerClient = worker.getDockerClient();
+      DockerClient dockerClient = getDockerClient(workerVmIpAddr);
 
       CreateContainerResponse container =
           dockerClient.createContainerCmd(DOCKER_IMAGE_NAME).withVolumes(volume1, volume2)

@@ -6,16 +6,21 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.ServiceType;
-import com.cgi.eoss.ftep.orchestrator.worker.JobEnvironment;
-import com.cgi.eoss.ftep.orchestrator.worker.Worker;
-import com.cgi.eoss.ftep.orchestrator.worker.WorkerEnvironment;
-import com.cgi.eoss.ftep.orchestrator.worker.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
+import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
+import com.cgi.eoss.ftep.rpc.worker.DockerContainer;
+import com.cgi.eoss.ftep.rpc.worker.DockerContainerConfig;
+import com.cgi.eoss.ftep.rpc.worker.ExitParams;
+import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
+import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
+import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -27,12 +32,12 @@ import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
- * <p>Primary entrypoint for WPS services to launch in F-TEP.</p>
+ * <p>Primary entry point for WPS services to launch in F-TEP.</p>
  * <p>Provides access to F-TEP data services and job distribution capability.</p>
  */
 @Service
@@ -69,45 +74,68 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             checkCost(job.getConfig());
 
             // TODO Determine WorkerEnvironment from service parameters
-            Worker worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
-            JobEnvironment jobEnvironment = worker.createJobEnvironment(job.getExtId(), inputs);
+            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
 
-            prepareInputs(inputs, job, worker, jobEnvironment);
+            // Prepare inputs
+            LOG.info("Downloading input data for {}", jobId);
+            job.setStartTime(ZonedDateTime.now());
+            job.setStatus(JobStatus.RUNNING);
+            job.setStage(JobStep.DATA_FETCH.getText());
+            jobDataService.save(job);
+            JobEnvironment jobEnvironment = worker.prepareInputs(JobInputs.newBuilder()
+                    .setJobId(jobId)
+                    .addAllInputs(request.getInputsList())
+                    .build());
 
+            // Configure container
             String dockerImageTag = service.getDockerTag();
-            DockerLaunchConfig.DockerLaunchConfigBuilder dockerConfigBuilder = DockerLaunchConfig.builder()
-                    .image(dockerImageTag)
-                    .volume("/nobody/workDir")
-                    .volume(jobEnvironment.getWorkingDir().getParent().toString())
-                    .bind(jobEnvironment.getWorkingDir().toAbsolutePath().toString() + ":" + "/nobody/workDir")
-                    .bind(jobEnvironment.getWorkingDir().getParent().toString() + ":" + jobEnvironment.getWorkingDir().getParent().toString())
-                    .defaultLogging(true);
-
+            DockerContainerConfig.Builder dockerConfigBuilder = DockerContainerConfig.newBuilder()
+                    .setDockerImage(dockerImageTag)
+                    .addBinds(jobEnvironment.getWorkingDir() + ":" + "/nobody/workDir")
+                    .addBinds(Paths.get(jobEnvironment.getWorkingDir()).getParent().toString() + ":" + Paths.get(jobEnvironment.getWorkingDir()).getParent().toString());
             if (service.getType() == ServiceType.APPLICATION) {
-                dockerConfigBuilder.exposedPort(GUACAMOLE_PORT);
+                dockerConfigBuilder.addPorts(GUACAMOLE_PORT);
             }
+            LOG.info("Launching docker image {} for {}", dockerImageTag, jobId);
+            job.setStage(JobStep.PROCESSING.getText());
+            jobDataService.save(job);
+            DockerContainer dockerContainer = worker.launchContainer(dockerConfigBuilder.build());
 
-            String containerId = launchContainer(job, worker, dockerConfigBuilder.build());
-            // TODO Stream logs from docker container to WPS (or direct to web client)
-            LOG.info("Job {} ({}) launched for service: {}", job.getId(), job.getExtId(), service.getName());
+            // TODO Implement async service command execution
+
+            LOG.info("Job {} ({}) launched for service: {}", job.getId(), jobId, service.getName());
+
+            // Update GUI endpoint URL for client access
+            if (service.getType() == ServiceType.APPLICATION) {
+                PortBinding portBinding = worker.getPortBindings(dockerContainer).getBindingsList().stream()
+                        .filter(b -> b.getPortDef().equals(GUACAMOLE_PORT))
+                        .findFirst()
+                        .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container: " + jobId));
+
+                String guiUrl = portBinding.getBinding();
+
+                LOG.info("Updating GUI URL for job {} ({}): {}", jobId, job.getConfig().getService().getName(), guiUrl);
+                job.setGuiUrl(guiUrl);
+                jobDataService.save(job);
+            }
 
             // Wait for exit, with timeout if necessary
-            int exitCode;
-            if (service.getType() == ServiceType.APPLICATION) {
-                updateGuiEndpoint(job, worker, containerId);
+            ContainerExitCode exitCode;
+            if (inputs.containsKey(TIMEOUT_PARAM)) {
                 int timeout = Integer.parseInt(Iterables.getOnlyElement(inputs.get(TIMEOUT_PARAM)));
-                exitCode = worker.waitForContainerExit(containerId, timeout);
+                exitCode = worker.waitForContainerExitWithTimeout(ExitWithTimeoutParams.newBuilder().setContainer(dockerContainer).setTimeout(timeout).build());
             } else {
-                exitCode = worker.waitForContainerExit(containerId);
+                exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setContainer(dockerContainer).build());
             }
 
-            if (exitCode != 0) {
+            if (exitCode.getExitCode() != 0) {
                 throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
             }
 
-            executeService(job, containerId);
-
-            List<JobParam> outputs = collectOutputs(job);
+            // TODO Collect outputs
+            job.setStage(JobStep.OUTPUT_LIST.getText());
+            jobDataService.save(job);
+            List<JobParam> outputs = ImmutableList.of();
 
             responseObserver.onNext(FtepServiceResponse.newBuilder()
                     .addAllOutputs(outputs)
@@ -129,49 +157,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
     private void checkCost(JobConfig jobConfig) {
         // TODO Determine coin cost of config and compare with user account
-    }
-
-    private void prepareInputs(Multimap<String, String> inputs, Job job, Worker worker, JobEnvironment jobEnvironment) throws IOException {
-        LOG.info("Downloading input data for {}", job.getExtId());
-        job.setStartTime(ZonedDateTime.now());
-        job.setStatus(JobStatus.RUNNING);
-        job.setStage(JobStep.DATA_FETCH.getText());
-        jobDataService.save(job);
-        worker.prepareInputs(inputs, jobEnvironment.getInputDir());
-    }
-
-    private String launchContainer(Job job, Worker worker, DockerLaunchConfig dockerLaunchConfig) {
-        job.setStage(JobStep.PROCESSING.getText());
-        jobDataService.save(job);
-
-        LOG.info("Launching docker image {} for {}", dockerLaunchConfig.getImage(), job.getExtId());
-        return worker.launchDockerContainer(dockerLaunchConfig);
-    }
-
-    private void updateGuiEndpoint(Job job, Worker worker, String containerId) {
-        // Retrieve the port binding from the container to publish as the GUI endpoint
-        String guiUrl = Iterables.getOnlyElement(worker.getContainerPortBindings(containerId).get(GUACAMOLE_PORT), null);
-
-        if (guiUrl == null) {
-            throw new ServiceExecutionException("Could not find GUI port on docker container for config " + job.getId());
-        }
-
-        LOG.info("Updating GUI URL for job {} ({}): {}", job.getExtId(), job.getConfig().getService().getName(), guiUrl);
-        job.setGuiUrl(guiUrl);
-        jobDataService.save(job);
-    }
-
-    private void executeService(Job job, String containerId) {
-        // TODO Implement async services-as-configuration
-    }
-
-    private List<JobParam> collectOutputs(Job job) {
-        job.setStage(JobStep.OUTPUT_LIST.getText());
-        jobDataService.save(job);
-
-        // TODO Implement
-
-        return ImmutableList.of();
     }
 
 }

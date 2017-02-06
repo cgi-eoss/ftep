@@ -14,9 +14,15 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'nebula.ospackage'
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok'
+
     compile project(':f-tep-rpc')
 
     compile 'ch.qos.logback:logback-classic'
+    compile 'commons-io:commons-io'
+    compile 'commons-net:commons-net'
+    compile 'com.github.docker-java:docker-java'
+    compile 'com.squareup.okhttp3:okhttp'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.lognet:grpc-spring-boot-starter'
@@ -25,6 +31,18 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-autoconfigure'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-undertow'
+
+
+    testCompile project(':f-tep-persistence')
+
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.mockftpserver:MockFtpServer'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'org.springframework:spring-test'
 }
 
 springBoot {

@@ -16,7 +16,6 @@ dependencies {
 
     compile project(':f-tep-common')
     compile project(':f-tep-datamanager')
-    compile project(':f-tep-orchestrator')
     compile project(':f-tep-requesthandler')
 
     compile 'com.github.docker-java:docker-java'

@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.core.data.manager.core;
 
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
-import com.cgi.eoss.ftep.orchestrator.io.ZipHandler;
+import com.cgi.eoss.ftep.worker.io.ZipHandler;
 import com.google.common.collect.Iterables;
 import lombok.extern.slf4j.Slf4j;
 

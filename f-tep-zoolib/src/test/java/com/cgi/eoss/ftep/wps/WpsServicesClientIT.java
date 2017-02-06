@@ -5,18 +5,25 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.FtepServiceLauncher;
-import com.cgi.eoss.ftep.orchestrator.io.ServiceInputOutputManager;
-import com.cgi.eoss.ftep.orchestrator.worker.JobEnvironmentService;
-import com.cgi.eoss.ftep.orchestrator.worker.ManualWorkerService;
-import com.cgi.eoss.ftep.orchestrator.worker.WorkerFactory;
+import com.cgi.eoss.ftep.orchestrator.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.worker.worker.FtepWorker;
+import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.internal.ServerImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,6 +33,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -51,6 +59,8 @@ public class WpsServicesClientIT {
 
     private FtepServicesClient ftepServicesClient;
 
+    private ServerImpl server;
+
     @Before
     public void setUp() throws Exception {
         // Shortcut if docker socket is not accessible to the current user
@@ -64,18 +74,34 @@ public class WpsServicesClientIT {
 
         JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(fs.getPath("/tmp/ftep_data")));
         ServiceInputOutputManager ioManager = mock(ServiceInputOutputManager.class);
-        ManualWorkerService manualWorkerService = new ManualWorkerService(jobEnvironmentService, ioManager);
 
-        WorkerFactory workerFactory = new WorkerFactory(manualWorkerService);
+        DockerClientConfig dockerClientConfig = DockerClientConfig.createDefaultConfigBuilder()
+                .withApiVersion(RemoteApiVersion.VERSION_1_19)
+                .withDockerHost("unix:///var/run/docker.sock")
+                .build();
+        DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
 
+        InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(RPC_SERVER_NAME).directExecutor();
+        InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
+
+        WorkerFactory workerFactory = new WorkerFactory(channelBuilder);
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService);
+        FtepWorker ftepWorker = new FtepWorker(dockerClient, jobEnvironmentService, ioManager);
 
-        StandaloneOrchestrator.resetServices(ImmutableSet.of(ftepServiceLauncher));
-        StandaloneOrchestrator orchestrator = new StandaloneOrchestrator(RPC_SERVER_NAME);
-        ftepServicesClient = new FtepServicesClient(orchestrator.getChannelBuilder());
+        inProcessServerBuilder.addService(ftepServiceLauncher);
+        inProcessServerBuilder.addService(ftepWorker);
+
+        server = inProcessServerBuilder.build().start();
+
+        ftepServicesClient = new FtepServicesClient(channelBuilder);
 
         // Ensure the test image is available before testing
-        manualWorkerService.getWorker().getDockerClient().pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
+        dockerClient.pullImageCmd(TEST_CONTAINER_IMAGE).exec(new PullImageResultCallback()).awaitSuccess();
+    }
+
+    @After
+    public void tearDown() {
+        server.shutdownNow();
     }
 
     @Test
@@ -90,7 +116,7 @@ public class WpsServicesClientIT {
             return new Job(config, invocation.getArgument(0), user);
         });
 
-        String jobId = "jobId";
+        String jobId = UUID.randomUUID().toString();
         String userId = "userId";
         String serviceId = "serviceId";
         Multimap<String, String> inputs = ImmutableMultimap.<String, String>builder()
@@ -101,7 +127,7 @@ public class WpsServicesClientIT {
         Multimap<String, String> outputs = ftepServicesClient.launchService(jobId, userId, serviceId, inputs);
         assertThat(outputs, is(notNullValue()));
 
-        List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_jobId/FTEP-WPS-INPUT.properties"));
+        List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
         assertThat(jobConfigLines, is(ImmutableList.of(
                 "inputKey1=inputVal1",
                 "inputKey2=inputVal2-1,inputVal2-2"

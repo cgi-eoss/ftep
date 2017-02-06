@@ -8,6 +8,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-model')
+    compile project(':f-tep-rpc')
 
     compile 'com.google.code.gson:gson'
     compile 'com.google.guava:guava'
@@ -15,6 +16,7 @@ dependencies {
     compile 'com.zaxxer:HikariCP'
     compile 'org.hibernate:hibernate-core'
     compile 'org.hibernate:hibernate-entitymanager'
+    compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-orm'
     compile 'org.springframework:spring-tx'
     compile 'org.springframework.boot:spring-boot'

@@ -30,17 +30,8 @@ message JobEnvironment {
 
 message DockerContainerConfig {
     string dockerImage = 1;
-    repeated DockerVolumeBind binds = 2;
-    repeated DockerExposedPort ports = 3;
-}
-
-message DockerVolumeBind {
-    string hostPath = 1;
-    string containerPath = 2;
-}
-
-message DockerExposedPort {
-    string portDef = 1;
+    repeated string binds = 2;
+    repeated string ports = 3;
 }
 
 message DockerContainer {

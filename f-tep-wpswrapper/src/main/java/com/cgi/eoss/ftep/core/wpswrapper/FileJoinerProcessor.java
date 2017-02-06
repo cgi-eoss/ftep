@@ -7,8 +7,6 @@ import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.core.utils.beans.InsertResult;
 import com.cgi.eoss.ftep.model.internal.FtepJob;
 import com.cgi.eoss.ftep.model.rest.ResourceJob;
-import com.cgi.eoss.ftep.orchestrator.worker.ManualWorkerService;
-import com.cgi.eoss.ftep.orchestrator.worker.Worker;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
@@ -106,8 +104,7 @@ public class FileJoinerProcessor extends AbstractWrapperProc {
             Volume volume1 = new Volume(dirToMount);
             String workerVmIpAddr = requestHandler.getWorkVmIpAddr();
 
-            Worker worker = new ManualWorkerService().getWorker(workerVmIpAddr);
-            DockerClient dockerClient = worker.getDockerClient();
+            DockerClient dockerClient = getDockerClient(workerVmIpAddr);
 
             CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)
                     .withVolumes(volume1).withBinds(new Bind(dirToMount, volume1))

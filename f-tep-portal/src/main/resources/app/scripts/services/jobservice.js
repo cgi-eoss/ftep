@@ -8,8 +8,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService',
-                                        function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService) {
+    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService',
+                                        function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -22,8 +22,18 @@ define(['../ftepmodules'], function (ftepmodules) {
           var connectionError = false, retriesLeft = 3;
           var waitingForNewJob = false;
 
+          var USE_TEST_DATA = false;
+
           /** Return the jobs for the user **/
           this.getJobs = function(newJobWasPushed) {
+              if(USE_TEST_DATA){
+                  var deferred = $q.defer();
+                  $timeout(function () {
+                      getTestData(deferred);
+                  }, 100);
+                  return deferred.promise;
+              }
+
               if(newJobWasPushed){
                   waitingForNewJob = newJobWasPushed;
               }
@@ -34,6 +44,19 @@ define(['../ftepmodules'], function (ftepmodules) {
                   return pollJobs();
               }
           };
+
+          //TODO only for prototyping
+          function getTestData(deferred){
+              console.log('USING TEST DATA for jobs');
+              $.getJSON("temp_data/test_jobs.json", function(json) {
+                  jobListCache = json;
+                  deferred.resolve(json);
+                  $rootScope.$broadcast('refresh.jobs', json);
+              })
+              .fail(function(e) {
+                console.log( "error", e );
+              });
+          }
 
           /** Polls jobs every 4 sec **/
           var pollJobs = function () {
@@ -134,6 +157,18 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           };
 
+          this.jobOwnershipFilters = {
+                  ALL_JOBS: {id: 0, name: 'All', criteria: ''},
+                  MY_JOBS: {id: 1, name: 'Mine', criteria: undefined},
+                  SHARED_JOBS: {id: 2, name: 'Shared', criteria: undefined}
+          };
+
+          var that = this; //workaround for now
+          UserService.getCurrentUser().then(function(currentUser){
+              that.jobOwnershipFilters.MY_JOBS.criteria = { owner: {name: currentUser.name } };
+              that.jobOwnershipFilters.SHARED_JOBS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+          });
+
           /** PRESERVE USER SELECTIONS **/
           this.params = {
               explorer: {
@@ -153,6 +188,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                                     value: true
                                 }
                               ],
+                  selectedOwnershipFilter: this.jobOwnershipFilters.ALL_JOBS,
                   jobGroupInfo: {} //info about job groups, which ones are opened, etc.
               },
               community: {

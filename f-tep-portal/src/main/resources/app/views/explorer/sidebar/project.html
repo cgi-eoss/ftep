@@ -47,18 +47,6 @@
                     </md-button>
                 </div>
 
-                <div class="col-xs-1 no-padding heading-item">
-                    <md-button class="toolbar-button"
-                               ng-click="shareProject($event)"
-                               aria-label="Share Project"
-                               uib-tooltip="Share"
-                               tooltip-placement="right"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">
-                        <i class="material-icons">folder_shared</i>
-                    </md-button>
-                </div>
-
                 <div class="col-xs-1 no-padding heading-item" />
 
                 <div class="col-xs-1 no-padding heading-item">
@@ -83,7 +71,7 @@
                 ng-dblclick="cacheProject(project); projectEdit = true"
                 ng-class="{active:$first}">
                 <div class="row project-item-row">
-                    <div class="col-xs-9 project-item-col">
+                    <div class="col-xs-8 project-item-col">
 
                         <div class="project-name-container" ng-show="!projectEdit || project.id == 0">
                             <span class="selectable project-name">{{project.attributes.name}}</span>
@@ -111,6 +99,19 @@
                             </div>
                         </div>
 
+                    </div>
+
+                    <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
+
+                        <md-button class="toolbar-button"
+                                   ng-click="shareObjectDialog($event, project)"
+                                   aria-label="Share Project"
+                                   uib-tooltip="Share"
+                                   tooltip-placement="top"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                            <i class="material-icons">share</i>
+                        </md-button>
                     </div>
 
                     <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">

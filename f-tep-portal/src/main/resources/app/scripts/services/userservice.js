@@ -1,6 +1,6 @@
 /**
  * @ngdoc service
- * @name ftepApp.TabService
+ * @name ftepApp.UserService
  * @description
  * # UserService
  * Service in the ftepApp.
@@ -21,6 +21,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             groupUsers: [],
             searchText: '',
             displayUserFilters: false
+        };
+
+        var currentUser;
+
+        this.getCurrentUser = function(){
+            var deferred = $q.defer();
+            usersAPI.from(ftepProperties.URLv2 + '/currentUser')
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                    deferred.resolve(document);
+                }, function (error) {
+                    MessageService.addError ('Error getting user data', 'Failed to get user data');
+                    deferred.reject();
+                });
+            return deferred.promise;
         };
 
         this.getAllUsers = function () {

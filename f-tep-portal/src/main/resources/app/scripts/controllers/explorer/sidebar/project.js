@@ -51,11 +51,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.projects.push(data);
         });
 
-        $scope.shareProject = function ($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
-        };
-
         var projectCache = {};
 
         $scope.cacheProject = function (project) {

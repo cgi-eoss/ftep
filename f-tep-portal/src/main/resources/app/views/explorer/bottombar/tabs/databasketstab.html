@@ -11,10 +11,11 @@
             </md-button>
             <md-menu-content>
                 <md-menu-item>
-                     <md-button ng-disabled="dbParams.selectedDatabasket == undefined"
-                                ng-class="dbParams.selectedDatabasket == undefined ? 'icon-disabled' : ''"
-                                ng-click="clearDatabasket()"
-                                aria-label="Clear Databasket">
+                     <md-button ng-click="clearDatabasket()"
+                                aria-label="Clear Databasket"
+                                has-permission="EDIT"
+                                permission-source="{{dbParams.selectedDatabasket}}"
+                                disable-on-check>
                         <span>
                             <span class="material-icons">remove_shopping_cart</span>
                             <span class="menu-text">Clear Databasket</span>
@@ -64,13 +65,14 @@
 
 <div class="button-section button-section-large">
     <md-button class="toolbar-button"
-               ng-disabled="dbParams.selectedDatabasket == undefined"
-               ng-class="dbParams.selectedDatabasket == undefined ? 'icon-disabled' : ''"
                ng-click="clearDatabasket()"
                aria-label="Clear Databasket"
                uib-tooltip="Clear Databasket"
                tooltip-trigger="mouseenter"
-               tooltip-append-to-body="true">
+               tooltip-append-to-body="true"
+               has-permission="EDIT"
+               permission-source="{{dbParams.selectedDatabasket}}"
+               disable-on-check>
         <i class="material-icons">remove_shopping_cart</i>
     </md-button>
 

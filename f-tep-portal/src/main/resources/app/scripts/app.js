@@ -124,5 +124,71 @@ define([
         };
     });
 
+    app.filter('asSingular', function () {
+        return function (name) {
+            if (name.lastIndexOf('s') === (name.length -1)) {
+                return name.substr(0, name.length-1);
+            } else {
+                return name;
+            }
+        };
+    });
+
+    app.directive('hasPermission', function() {
+        return {
+            link: function(scope, element, attrs, ngModel) {
+
+                if(!attrs.hasPermission || ['READ', 'EDIT', 'ADMIN'].indexOf(attrs.hasPermission.toUpperCase() ) < 0) {
+                    throw 'hasPermission must be set';
+                }
+
+                if(!attrs.hasOwnProperty('permissionSource')) {
+                    throw 'For each hasPermission attribute, the permissionSource must also be set';
+                }
+
+                function checkPermission(){
+                    var userPermission = 'READ'; //default user permission
+                    if(attrs.permissionSource){
+                        var permissionSource = JSON.parse(attrs.permissionSource);
+                        userPermission = (permissionSource.attributes.permissionLevel ? permissionSource.attributes.permissionLevel : 'READ');
+                    }
+
+                    var allowed = false;
+                    switch(attrs.hasPermission){
+                        case 'READ':
+                            allowed = true;
+                            break;
+                        case 'EDIT':
+                            allowed = (['EDIT', 'ADMIN',].indexOf(userPermission.toUpperCase()) > -1);
+                            break;
+                        case 'ADMIN':
+                            allowed = (['ADMIN'].indexOf(userPermission.toUpperCase()) > -1);
+                            break;
+                    }
+
+                    //Whether an element has been requested to be disabled only. If no disable-on-check setting, hide the whole element.
+                    if(attrs.hasOwnProperty('disableOnCheck')){
+                        attrs.$set('disabled', !allowed);
+                    }
+                    else{
+                        if(allowed){
+                            element.show();
+                        }
+                        else {
+                            element.hide();
+                        }
+                    }
+                }
+                checkPermission();
+
+                // watch for element updates
+                attrs.$observe('permissionSource', function() {
+                    checkPermission();
+                });
+
+            }
+          };
+        });
+
     return app;
 });

@@ -8,8 +8,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService',
-                                           function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService',
+                                           function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -21,20 +21,44 @@ define(['../ftepmodules'], function (ftepmodules) {
           var POLLING_FREQUENCY = 20 * 1000;
           var connectionError = false, retriesLeft = 3;
 
+          var USE_TEST_DATA = false;
+
           /** GET DATABASKETS & POLL **/
           this.getDatabaskets = function(pageNumber, pageSize, noCache){
-            if(noCache && noCache === true){
-                return retrieveDatabaskets(pageNumber, pageSize);
-            }
-            else if(is_polling && pNumber === pageNumber){
-                return $q.when(basketListCache);
-            }
-            else {
-                pNumber = pageNumber;
-                pSize = pageSize;
-                return pollDatabaskets(pageNumber, pageSize);
-            }
+              if(USE_TEST_DATA){
+                  var deferred = $q.defer();
+                  $timeout(function () {
+                      getTestData(deferred);
+                  }, 100);
+                  return deferred.promise;
+              }
+              else{
+                if(noCache && noCache === true){
+                    return retrieveDatabaskets(pageNumber, pageSize);
+                }
+                else if(is_polling && pNumber === pageNumber){
+                    return $q.when(basketListCache);
+                }
+                else {
+                    pNumber = pageNumber;
+                    pSize = pageSize;
+                    return pollDatabaskets(pageNumber, pageSize);
+                }
+              }
           };
+
+          //TODO only for prototyping
+          function getTestData(deferred){
+              console.log('USING TEST DATA for databaskets');
+              $.getJSON("temp_data/test_databaskets.json", function(json) {
+                  basketListCache = json;
+                  deferred.resolve(json);
+                  $rootScope.$broadcast('refresh.databaskets', json);
+              })
+              .fail(function(e) {
+                console.log( "error", e );
+              });
+          }
 
           // fetch the databaskets once
           function retrieveDatabaskets(pageNumber, pageSize){
@@ -290,6 +314,18 @@ define(['../ftepmodules'], function (ftepmodules) {
           };
           /** END OF UPDATE DATABASKET **/
 
+          this.dbOwnershipFilters = {
+                  ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
+                  MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
+                  SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
+          };
+
+          var that = this; //workaround for now
+          UserService.getCurrentUser().then(function(currentUser){
+              that.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
+              that.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+          });
+
           /** PRESERVE USER SELECTIONS **/
           this.params = {
               explorer: {
@@ -297,7 +333,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                   selectedItems: undefined,
                   searchText: '',
                   displayFilters: false,
-                  showBaskets: true
+                  showBaskets: true,
+                  selectedOwnerhipFilter: this.dbOwnershipFilters.ALL_BASKETS
               },
               community: {
                   selectedDatabasket: undefined,

@@ -38,12 +38,22 @@
                 <input ng-model="dbParams.searchText" type="text" placeholder="Search">
             </md-input-container>
 
+            <div class="col-md-12 filter-radiobutton" ng-show="dbParams.displayFilters">
+                <md-radio-group ng-model="dbParams.selectedOwnerhipFilter" layout="row">
+                    <div ng-repeat="ownershipFilter in dbOwnershipFilters">
+                        <md-radio-button ng-value="ownershipFilter"><!-- TODO ng-click to request new set from backend -->
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
         </ul>
     </section>
 
     <section class="item-list list">
         <md-list-item class="md-2-line"
-                      ng-repeat="basket in databaskets | orderBy: 'attributes.name' | filter: dbParams.searchText"
+                      ng-repeat="basket in databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText | orderBy: 'attributes.name'"
                       ng-click="selectDatabasket(basket);"
                       ng-class="{active: basket.attributes.name == dbParams.selectedDatabasket.attributes.name}">
 
@@ -62,11 +72,25 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
+                       ng-click="shareObjectDialog($event, basket)"
+                       aria-label="Share"
+                       uib-tooltip="Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true"
+                       has-permission="ADMIN"
+                       permission-source="{{basket}}">
+                <i class="material-icons">share</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
                        ng-click="editDatabasketDialog($event, basket)"
                        uib-tooltip="Edit"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
+                       tooltip-append-to-body="true"
+                       has-permission="EDIT"
+                       permission-source="{{basket}}">
                 <i class="material-icons">create</i>
             </md-button>
 
@@ -75,7 +99,9 @@
                        uib-tooltip="Delete"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
+                       tooltip-append-to-body="true"
+                       has-permission="ADMIN"
+                       permission-source="{{basket}}">
                 <i class="material-icons">delete</i>
             </md-button>
 

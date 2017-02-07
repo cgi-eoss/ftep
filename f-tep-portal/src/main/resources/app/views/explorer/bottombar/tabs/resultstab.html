@@ -12,7 +12,6 @@
             <md-menu-content>
                 <md-menu-item>
                      <md-button ng-disabled="geoResults == undefined"
-                                ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                                 aria-label="Select All"
                                 ng-click="selectAll()">
                         <span>
@@ -23,7 +22,6 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="geoResults == undefined"
-                               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                                aria-label="Deselect All"
                                ng-click="clearSelection()">
                         <span>
@@ -34,7 +32,6 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="geoResults == undefined"
-                               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                                aria-label="Invert Selection"
                                ng-click="invertSelection()">
                         <span>
@@ -81,7 +78,6 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="geoResults == undefined || dbParams.selectedDatabasket == undefined"
-                               ng-class="(geoResults == undefined || dbParams.selectedDatabasket == undefined) ? 'icon-disabled' : ''"
                                ng-click="addToDatabasket()"
                                aria-label="Add to Databasket">
                         <span>
@@ -99,7 +95,6 @@
 
     <md-button class="toolbar-button"
                ng-disabled="geoResults == undefined"
-               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                ng-click="selectAll()"
                aria-label="Select All"
                uib-tooltip="Select All"
@@ -110,7 +105,6 @@
 
     <md-button class="toolbar-button"
                ng-disabled="geoResults == undefined"
-               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                ng-click="clearSelection()"
                aria-label="Deselect All"
                uib-tooltip="Deselect All"
@@ -121,7 +115,6 @@
 
     <md-button class="toolbar-button"
                ng-disabled="geoResults == undefined"
-               ng-class="(geoResults == undefined) ? 'icon-disabled' : ''"
                ng-click="invertSelection()"
                aria-label="Invert Selection"
                uib-tooltip="Invert Selection"
@@ -166,7 +159,6 @@
 
     <md-button class="toolbar-button"
                ng-disabled="resultParams.selectedResultItems.length < 1 || dbParams.selectedDatabasket == undefined"
-               ng-class="(resultParams.selectedResultItems.length < 1 || dbParams.selectedDatabasket == undefined) ? 'icon-disabled' : ''"
                ng-click="addToDatabasket()"
                aria-label="Add to Databasket"
                uib-tooltip="Add to {{dbParams.selectedDatabasket.attributes.name}}"

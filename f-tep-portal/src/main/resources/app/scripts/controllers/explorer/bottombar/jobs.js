@@ -12,6 +12,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                  function ($scope, $rootScope, CommonService, JobService, $sce) {
 
             $scope.jobParams = JobService.params.explorer;
+            $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
 
             var jobs = [];
             $scope.serviceGroups = [];
@@ -123,13 +124,28 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.repeatJob = function(job){
                 $rootScope.$broadcast('rerun.service', job.attributes.inputs, job.relationships.service.data[0].id);
-            }
+            };
 
             $scope.hasGuiEndPoint = function (endPoint) {
                 if (endPoint && endPoint.includes("http")) {
                     return true;
                 }
                 return false;
+            };
+
+            $scope.isVisible = function(job, service){
+                var jobOwnershipFilter = false;
+                if($scope.jobParams.selectedOwnershipFilter === $scope.jobOwnershipFilters.MY_JOBS){
+                    jobOwnershipFilter = (job.attributes.permissionLevel === 'OWNER');
+                }
+                else if($scope.jobParams.selectedOwnershipFilter === $scope.jobOwnershipFilters.SHARED_JOBS){
+                    jobOwnershipFilter = (job.attributes.permissionLevel !== 'OWNER');
+                }
+                else{
+                    jobOwnershipFilter = true;
+                }
+
+                return $scope.isJobGroupOpened(service.id) && $scope.filteredJobStatuses.indexOf(job.attributes.status) > -1 && jobOwnershipFilter;
             };
 
             /* Selected Job */

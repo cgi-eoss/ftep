@@ -78,7 +78,6 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-                               ng-class="(dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1) ? 'icon-disabled' : ''"
                                ng-click="addToDatabasket()"
                                aria-label="Add to Databasket">
                          <span>
@@ -160,7 +159,6 @@
 
     <md-button class="toolbar-button"
                ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-               ng-class="(dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1) ? 'icon-disabled' : ''"
                ng-click="addToDatabasket()"
                aria-label="Add to Databasket"
                uib-tooltip="Add to {{dbParams.selectedDatabasket.attributes.name}}"

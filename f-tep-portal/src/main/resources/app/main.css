@@ -411,6 +411,13 @@ input {
 .ftep .filter-list .filter-checkboxes md-checkbox {
   margin: 0;
 }
+.ftep .filter-list .filter-radiobutton {
+  border-bottom: #d2d2d2 solid 1px;
+  padding-left: 10px;
+}
+.ftep .filter-list .filter-radiobutton md-radio-button {
+  margin: 10px 40px 10px 0px;
+}
 .ftep .item-list .active {
   background-color: #d9edf7;
 }
@@ -709,6 +716,10 @@ input {
 #bottombar #bottombar-header .button-section .md-button.md-focused:not([disabled]) {
   background-color: transparent;
   outline: none;
+}
+#bottombar #bottombar-header .button-section .md-button[disabled] {
+  color: #BBB;
+  cursor: default;
 }
 #bottombar #bottombar-header .button-section md-menu-bar .toolbar-button {
   height: 36px;

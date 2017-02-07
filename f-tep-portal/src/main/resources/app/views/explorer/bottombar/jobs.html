@@ -44,6 +44,16 @@
                 <span>{{jobStatus.name}}</span>
             </div>
 
+            <div class="col-md-12 filter-radiobutton" ng-show="jobParams.displayFilters">
+                <md-radio-group ng-model="jobParams.selectedOwnershipFilter" layout="row">
+                    <div ng-repeat="ownershipFilter in jobOwnershipFilters">
+	                    <md-radio-button ng-value="ownershipFilter">
+	                        {{ownershipFilter.name}}
+	                    </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
         </ul>
     </section>
 
@@ -82,7 +92,7 @@
             </div>
 
             <md-list-item class="md-3-line"
-                          ng-repeat="job in groupedJobs[service.id] | orderBy: 'id'"
+                          ng-repeat="job in groupedJobs[service.id] | filter: jobParams.selectedOwnershipFilter.criteria | orderBy: 'id'"
                           ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1"
                           ng-click="selectJob(job)"
                           ng-class="{active: job.id == jobParams.selectedJob.id}">
@@ -112,12 +122,26 @@
                 </md-button>
 
                 <md-button class="toolbar-button md-secondary"
+                           ng-click="shareObjectDialog($event, job)"
+                           aria-label="Share"
+                           uib-tooltip="Share"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true"
+                           has-permission="ADMIN"
+                           permission-source="{{job}}">
+                    <i class="material-icons">share</i>
+                </md-button>
+
+                <md-button class="toolbar-button md-secondary"
                            ng-click="removeJob($event, job)"
                            aria-label="Delete"
                            uib-tooltip="Delete"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
+                           tooltip-append-to-body="true"
+	                       has-permission="ADMIN"
+	                       permission-source="{{job}}">
                     <i class="material-icons">delete</i>
                 </md-button>
 

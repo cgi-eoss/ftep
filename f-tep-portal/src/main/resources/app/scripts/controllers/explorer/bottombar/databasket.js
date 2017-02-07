@@ -13,6 +13,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.dbPaging = BasketService.pagingData;
             $scope.dbParams = BasketService.params.explorer;
+            $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
 
             $scope.databaskets = [];
 

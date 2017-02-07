@@ -28,7 +28,9 @@
                    uib-tooltip="Remove"
                    tooltip-placement="top"
                    tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">
+                   tooltip-append-to-body="true"
+                   has-permission="EDIT"
+                   permission-source="{{dbParams.selectedDatabasket}}">
             <i class="material-icons">close</i>
         </md-button>
 

@@ -7,6 +7,7 @@ class ftep::proxy (
   $context_path_webapp    = '/app',
   $context_path_wps       = '/secure/wps',
   $context_path_api_v2    = '/secure/api/v2.0',
+  $context_path_monitor   = '/monitor',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -51,6 +52,10 @@ class ftep::proxy (
       'path' => '/download',
       'url'  => "http://ftep-wps/wps/ftep-output"
     },
+    {
+      'path' => $context_path_monitor,
+      'url'  => 'http://ftep-monitor'
+    }
   ]
 
 

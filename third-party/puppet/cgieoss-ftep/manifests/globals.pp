@@ -13,6 +13,7 @@ class ftep::globals (
   $webapp_hostname         = 'ftep-webapp',
   $wps_hostname            = 'ftep-wps',
   $server_hostname         = 'ftep-server',
+  $monitor_hostname        = 'ftep-monitor',
 
   $hosts_override          = { },
 
@@ -25,6 +26,10 @@ class ftep::globals (
   # App server port config
   $server_application_port = 8090,
   $worker_application_port = 8091,
+
+  # monitor port config
+  $monitor_data_port = 8086,
+
 ) {
 
   # Alias reverse-proxy hosts via hosts file

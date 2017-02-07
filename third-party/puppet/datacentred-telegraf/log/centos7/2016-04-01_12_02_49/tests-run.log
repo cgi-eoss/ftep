@@ -1,0 +1,8 @@
+[00;32mBegin spec/acceptance/default_spec.rb
+[00;00m[00;31mLoadError: cannot load such file -- spec_helper_acceptance
+[00;00m[00;31m/Users/nick/src/dcdev/puppet-telegraf/spec/acceptance/default_spec.rb:1
+[00;00m[00;31m/Users/nick/src/dcdev/puppet-telegraf/spec/acceptance/default_spec.rb:1
+[00;00m[00;31m/Users/nick/.rbenv/versions/2.1.6/lib/ruby/gems/2.1.0/gems/beaker-2.33.0/bin/beaker:6
+[00;00m[01;31mWarning: spec/acceptance/default_spec.rb errored in 0.01 seconds
+[00;00m[00;34m  Test Case spec/acceptance/default_spec.rb reported: #<LoadError: cannot load such file -- spec_helper_acceptance>
+[00;00m

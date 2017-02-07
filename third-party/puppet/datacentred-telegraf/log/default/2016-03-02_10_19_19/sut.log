@@ -1,0 +1,4 @@
+2016-03-02 10:19:40	[+]	docker	debian-8-amd64	debian-8-x64
+2016-03-02 10:19:40	[+]	docker	ubuntu-14.04-x64	ubuntu-14-04
+2016-03-02 10:21:43	[-]	docker	debian-8-amd64	debian-8-x64
+2016-03-02 10:21:43	[-]	docker	ubuntu-14.04-x64	ubuntu-14-04

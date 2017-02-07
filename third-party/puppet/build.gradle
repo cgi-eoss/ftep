@@ -29,6 +29,9 @@ def puppetModules = [
         'stahnma-epel', // (v1.2.2)
         'tohuwabohu-drupal', // (v3.0.0)
         'camptocamp-archive', // (v0.9.0)
+        'bfraser-grafana', // (v2.5.0)
+        'golja-influxdb', // (v4.0.0)
+        'datacentred-telegraf', // (v1.3.0)
 ]
 
 def moduleMetadata = [:]

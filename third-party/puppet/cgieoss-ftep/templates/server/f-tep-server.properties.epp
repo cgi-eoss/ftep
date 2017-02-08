@@ -1,5 +1,6 @@
 <%- |
     Integer $server_port,
+    Integer $grpc_port,
     String $api_base_path,
 
     String $jdbc_driver,
@@ -8,10 +9,8 @@
     String $jdbc_password,
     String $jdbc_data_source_class_name,
 
-    String $cache_basedir,
-    Integer $cache_concurrency,
-    Integer $cache_maxweight,
-    String $jobs_basedir,
+    String $local_worker_hostname,
+    Integer $local_worker_grpc_port
 | -%>
 # Managed by Puppet
 # F-TEP Server service configuration
@@ -20,6 +19,7 @@ spring.application.name=F-TEP Server
 
 # Server config
 server.port=<%= $server_port %>
+grpc.port=<%= $grpc_port %>
 ftep.api.base-path=<%= $api_base_path %>
 
 # Database connection
@@ -31,8 +31,6 @@ spring.datasource.driver-class-name=<%= $jdbc_driver %>
 flyway.enabled=true
 spring.jpa.hibernate.ddl-auto=none
 
-# Orchestrator configuration
-ftep.orchestrator.cache.baseDir=<%= $cache_basedir %>
-ftep.orchestrator.cache.concurrency=<%= $cache_concurrency %>
-ftep.orchestrator.cache.maxWeight=<%= $cache_maxweight %>
-ftep.orchestrator.jobEnv.baseDir=<%= $jobs_basedir %>
+# LOCAL worker configuration
+ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>
+ftep.orchestrator.worker.local.grpcPort=<%= $local_worker_grpc_port %>

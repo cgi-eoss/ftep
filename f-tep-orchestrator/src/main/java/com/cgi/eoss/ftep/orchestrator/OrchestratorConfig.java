@@ -28,7 +28,7 @@ public class OrchestratorConfig {
      */
     @Bean
     public ManagedChannelBuilder localChannelBuilder(@Value("${ftep.orchestrator.worker.local.grpcHost:f-tep-worker}") String host,
-                                                     @Value("${ftep.orchestrator.worker.local.grpcPort:6565}") Integer port) {
+                                                     @Value("${ftep.orchestrator.worker.local.grpcPort:6566}") Integer port) {
         return ManagedChannelBuilder.forAddress(host, port);
     }
 

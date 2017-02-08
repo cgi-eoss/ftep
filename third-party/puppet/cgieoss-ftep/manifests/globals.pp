@@ -23,9 +23,11 @@ class ftep::globals (
   $ftep_db_username        = 'ftep-user',
   $ftep_db_password        = 'ftep-pass',
 
-  # App server port config
+  # App server port config for HTTP and gRPC
   $server_application_port = 8090,
   $worker_application_port = 8091,
+  $server_grpc_port        = 6565,
+  $worker_grpc_port        = 6566,
 
   # monitor port config
   $monitor_data_port = 8086,

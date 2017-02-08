@@ -54,6 +54,7 @@ ospackage {
     permissionGroup 'ftep'
 
     preInstall file('src/ospackage/preinst.sh')
+    postInstall file('src/ospackage/postinst.sh')
 
     into '/var/f-tep'
 
@@ -61,6 +62,7 @@ ospackage {
         into 'bin'
         include '*-bin.jar'
         rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
+        fileMode 0500
     }
 
     from("src/ospackage/f-tep-server.properties") {

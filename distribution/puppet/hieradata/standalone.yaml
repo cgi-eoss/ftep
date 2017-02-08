@@ -6,6 +6,7 @@ classes:
 #  - ftep::db
 #  - ftep::drupal
 #  - ftep::geoserver
+#  - ftep::monitor
 #  - ftep::proxy
 #  - ftep::server
 #  - ftep::webapp
@@ -21,11 +22,15 @@ classes:
 #    ip: 127.0.0.1
 #  ftep-geoserver:
 #    ip: 127.0.0.1
+#  ftep-monitor:
+#    ip: 127.0.0.1
 #  ftep-proxy:
 #    ip: 127.0.0.1
 #  ftep-server:
 #    ip: 127.0.0.1
 #  ftep-webapp:
+#    ip: 127.0.0.1
+#  ftep-worker:
 #    ip: 127.0.0.1
 #  ftep-wps:
 #    ip: 127.0.0.1

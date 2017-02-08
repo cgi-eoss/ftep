@@ -32,7 +32,6 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-undertow'
 
-
     testCompile project(':f-tep-persistence')
 
     testCompile 'com.google.jimfs:jimfs'
@@ -68,6 +67,7 @@ ospackage {
     permissionGroup 'ftep'
 
     preInstall file('src/ospackage/preinst.sh')
+    postInstall file('src/ospackage/postinst.sh')
 
     into '/var/f-tep'
 
@@ -75,6 +75,7 @@ ospackage {
         into 'bin'
         include '*-bin.jar'
         rename('f-tep-worker-.*\\-bin.jar', 'f-tep-worker.jar')
+        fileMode 0500
     }
 
     from("src/ospackage/f-tep-worker.properties") {

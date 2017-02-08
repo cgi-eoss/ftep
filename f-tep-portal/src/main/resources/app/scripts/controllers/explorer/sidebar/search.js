@@ -81,7 +81,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             function onSliderChange() { // jshint ignore:line
                 $scope.searchParameters.startTime = new Date($scope.timeRangeSlider.minValue);
                 $scope.searchParameters.endTime = new Date($scope.timeRangeSlider.maxValue);
-            };
+            }
 
             // Update slider values on input change
             $scope.updateSlider = function () {
@@ -100,7 +100,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 } else {
                     return false;
                 }
-            };
+            }
 
             function isSentinel2(mission){
                 if(mission && mission.name){
@@ -108,7 +108,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 } else {
                     return false;
                 }
-            };
+            }
 
             // Display additional parameters based on mission selection
             $scope.missionDetails = {

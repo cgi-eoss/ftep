@@ -137,10 +137,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $rootScope.$broadcast('results.invert', $scope.resultParams.selectedResultItems);
                 };
 
-                $scope.getLink = function(item){
-                    return CommonService.getLink(item, $scope.geoResults);
-                };
-
                 $scope.getSelectedItemsLinks = function(item){
                     if($scope.resultParams.selectedResultItems.indexOf(item) < 0){
                         $scope.toggleSelection(item);

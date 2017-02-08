@@ -22,27 +22,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                     }
                 };
 
-                this.getLink = function(item, results){
-                    var link;
-                    if(item.link){
-                        link = item.link;
-                    }
-                    else if(item.attributes && item.attributes.link){
-                        link = item.attributes.link;
-                    }
-                    else if(item.identifier && results){
-                        for(var i = 0; i < results.length; i++){
-                            link = Object.keys(results[i].results.entities).find(function (key) {
-                                return results[i].results.entities[key] === item;
-                            });
-                            if(link){
-                                break;
-                            }
-                        }
-                    }
-                    return link;
-                };
-
                 this.getOutputLink = function(link){
                     return  ftepProperties.URL_PREFIX + link;
                 };

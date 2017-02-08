@@ -58,7 +58,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         if ($scope.databaskets.length === 0) {
                             $scope.dbPaging.dbCurrentPage = $scope.dbPaging.dbCurrentPage - 1;
                         }
-                        $scope.fetchDbPage(pgNr, true);
+                        $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
                     });
                 });
             };
@@ -150,7 +150,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.getBasketDragItems = function (basket) {
                 var str = "";
-                var firstIsDone = false;
                 if (basket.relationships.files && basket.relationships.files.data.length > 0) {
                     for (var i = 0; i < basket.relationships.files.data.length; i++) {
                         var file = collectedFiles[basket.relationships.files.data[i].id];

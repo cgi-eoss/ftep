@@ -52,12 +52,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     for (var i = 0; i < items.length; i++) {
                         var found = false;
                         for(var k = 0; k < $scope.dbParams.selectedDatabasket.items.length; k++){
-                            if(angular.equals(items[i], $scope.dbParams.selectedDatabasket.items[k])){
-                                found = true;
-                                break;
-                            }
-                            else if($scope.dbParams.selectedDatabasket.items[k].name
-                                        && $scope.dbParams.selectedDatabasket.items[k].name == items[i].identifier){
+                            if(angular.equals(items[i], $scope.dbParams.selectedDatabasket.items[k])
+                                || ($scope.dbParams.selectedDatabasket.items[k].name
+                                            && $scope.dbParams.selectedDatabasket.items[k].name == items[i].identifier)){
                                 found = true;
                                 break;
                             }

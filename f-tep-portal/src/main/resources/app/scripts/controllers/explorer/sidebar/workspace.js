@@ -75,15 +75,15 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
 
                 data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
                 data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                for(var i in data.ProcessDescriptions.ProcessDescription.DataInputs.Input){
+                for(var i = 0; i < data.ProcessDescriptions.ProcessDescription.DataInputs.Input.length; i++){
                     if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
                         data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
                     } else {
                         data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
                     }
                 }
-                for(var j in data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output){
-                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
+                for(var i= 0; i < data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output.length; i++){
+                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[i];
                     if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
                         $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
                     }
@@ -107,21 +107,24 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             var iparams=[];
 
             for(var key in $scope.inputValues){
-                console.log(key);
-                iparams.push({
-                    identifier: key,
-                    value: $scope.inputValues[key],
-                    dataType: "string"
-                });
+                if ($scope.inputValues.hasOwnProperty(key)) {
+                    iparams.push({
+                        identifier: key,
+                        value: $scope.inputValues[key],
+                        dataType: "string"
+                    });
+                }
             }
 
             var oparams=[];
             for(var keyout in $scope.outputValues){
-                oparams.push({
-                    identifier: keyout,
-                    mimeType: $scope.outputValues[keyout],
-                    asReference: "true"
-                });
+                if($scope.outputValues.hasOwnProperty(key)){
+                    oparams.push({
+                        identifier: keyout,
+                        mimeType: $scope.outputValues[keyout],
+                        asReference: "true"
+                    });
+                }
             }
 
             console.log("----In ----");

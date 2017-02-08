@@ -27,7 +27,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             }, 300);
-        };
+        }
 
         $scope.hideSidebarArea = function () {
             $scope.navInfo.sideViewVisible = false;

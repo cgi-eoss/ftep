@@ -99,16 +99,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                 $rootScope.$broadcast('upload.group', group);
             };
 
-            $scope.updateGroup = function (enterClicked, group) {
-                if (enterClicked) {
-                    console.log('Update Group:', group);
-                    GroupService.updateGroup(group).then(function () {
-                        groupCache[group.id] = undefined;
-                    });
-                }
-                return !enterClicked;
-            };
-
             var groupCache = {};
             $scope.cacheGroup = function (group) {
                 if (groupCache[group.id] === undefined) {
@@ -124,6 +114,17 @@ define(['../ftepmodules'], function (ftepmodules) {
                 }
                 return result;
             };
+
+            $scope.updateGroup = function (enterClicked, group) {
+                if (enterClicked) {
+                    console.log('Update Group:', group);
+                    GroupService.updateGroup(group).then(function () {
+                        groupCache[group.id] = undefined;
+                    });
+                }
+                return !enterClicked;
+            };
+
 
       }]);
 

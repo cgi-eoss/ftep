@@ -38,6 +38,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             JobService.getOutputs($scope.jobParams.selectedJob.id).then(function(data){
                                 $scope.jobParams.jobOutputs = data;
                             });
+                            break;
                         }
                     }
                 }
@@ -131,27 +132,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 return false;
             };
 
-            function getLiItems(object) {
-                var result = '';
-                if (object instanceof Object === true && Object.keys(object).length > 0) {
-                    for (var key in object) {
-                        result = result + '<li>' +
-                            '<div class="row">' +
-                            '<div class="col-md-2">' + key +
-                            '</div>' +
-                            '<div class="col-md-10 wrap-text">' + object[key] +
-                            '</div>' +
-                            '</div>' +
-                            '</li>';
-                    }
-                } else {
-                    result = '<li>-</li>';
-                }
-                return result;
-            }
-
             /* Selected Job */
-
             $scope.selectJob = function (job) {
                 $scope.jobParams.selectedJob = job;
                 $scope.jobParams.jobSelectedOutputs = [];

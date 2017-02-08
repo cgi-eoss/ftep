@@ -13,7 +13,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
     /* Active session message count */
     $scope.message = {};
     $scope.message.count = MessageService.countMessages();
-    $scope.$on('update.messages', function(event, job) {
+    $scope.$on('update.messages', function(event) {
         $scope.message.count = MessageService.countMessages();
     });
 
@@ -148,7 +148,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                   '    <div class="dialog-content-area">' +
                   '    </div>' +
                   '  <md-button  aria-label="Download" tooltip-trigger="mouseenter" tooltip-append-to-body="true"' +
-                  '              href="{{getLink(item)}}" target="_self">' +
+                  '              href="{{item.link}}" target="_self">' +
                   '    Download <i class="material-icons">file_download</i>' +
                   '  </md-button>' +
                   '  </md-dialog-content>' +
@@ -187,7 +187,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 '        </div>' +
                 '    </div>' +
                 '    <md-button  class = "download-button" aria-label="Download" tooltip-trigger="mouseenter"' +
-                '                tooltip-append-to-body="true" href="{{getLink(item)}}" target="_self">' +
+                '                tooltip-append-to-body="true" href="{{item.link}}" target="_self">' +
                 '      Download <i class="material-icons">file_download</i>' +
                 '    </md-button>' +
                 '  </md-dialog-content>' +
@@ -202,10 +202,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
          $scope.item = data;
          $scope.closeDialog = function() {
              $mdDialog.hide();
-         };
-
-         $scope.getLink = function(item){
-             return CommonService.getLink(item);
          };
        }
     };

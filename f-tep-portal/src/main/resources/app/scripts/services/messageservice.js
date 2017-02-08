@@ -34,7 +34,8 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.clearMessage = function (message) {
-            messages.pop(message);
+            var index = messages.indexOf(message);
+            messages.splice( index, 1 );
             $rootScope.$broadcast('update.messages');
         };
 

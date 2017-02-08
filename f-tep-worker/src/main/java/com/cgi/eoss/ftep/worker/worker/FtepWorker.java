@@ -16,6 +16,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -80,12 +81,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @Override
     public void launchContainer(DockerContainerConfig request, StreamObserver<DockerContainer> responseObserver) {
+        String containerId = null;
         try {
             CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
             createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
             createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
 
-            String containerId = createContainerCmd.exec().getId();
+            containerId = createContainerCmd.exec().getId();
             dockerClient.startContainerCmd(containerId).exec();
 
             // Enable container logging via slf4J by default
@@ -96,36 +98,54 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to launch docker container {}", request.getDockerImage(), e);
+            if (!Strings.isNullOrEmpty(containerId)) {
+                removeContainer(containerId);
+            }
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }
 
     @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
+        String containerId = request.getContainer().getId();
         try {
-            int exitCode = waitForContainer(request.getContainer().getId()).awaitStatusCode();
+            int exitCode = waitForContainer(containerId).awaitStatusCode();
             responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Failed to properly wait for container exit: {}", request.getContainer().getId(), e);
+            LOG.error("Failed to properly wait for container exit: {}", containerId, e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        } finally {
+            removeContainer(containerId);
         }
     }
 
     @Override
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
+        String containerId = request.getContainer().getId();
         try {
-            int exitCode = waitForContainer(request.getContainer().getId()).awaitStatusCode(request.getTimeout(), TimeUnit.HOURS);
+            int exitCode = waitForContainer(containerId).awaitStatusCode(request.getTimeout(), TimeUnit.HOURS);
             responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Failed to properly wait for container exit: {}", request.getContainer().getId(), e);
+            LOG.error("Failed to properly wait for container exit: {}", containerId, e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        } finally {
+            removeContainer(containerId);
         }
     }
 
     private WaitContainerResultCallback waitForContainer(String containerId) {
         return dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
+    }
+
+    private void removeContainer(String containerId) {
+        try {
+            LOG.info("Removing container {}", containerId);
+            dockerClient.removeContainerCmd(containerId).exec();
+        } catch (Exception e) {
+            LOG.error("Failed to delete container {}", containerId, e);
+        }
     }
 
     private static boolean isValidUri(String test) {

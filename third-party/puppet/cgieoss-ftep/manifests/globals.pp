@@ -30,8 +30,8 @@ class ftep::globals (
   $worker_grpc_port        = 6566,
 
   # monitor port config
-  $monitor_data_port = 8086,
-
+  $grafana_port            = 8089,
+  $monitor_data_port       = 8086,
 ) {
 
   # Alias reverse-proxy hosts via hosts file

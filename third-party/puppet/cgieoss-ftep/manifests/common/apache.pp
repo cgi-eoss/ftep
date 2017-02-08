@@ -16,6 +16,18 @@ class ftep::common::apache {
       port     => $ftep::globals::server_application_port,
       protocol => 'tcp'
     }
+
+    ::selinux::port { 'f-tep-worker':
+      context  => 'http_port_t',
+      port     => $ftep::globals::worker_application_port,
+      protocol => 'tcp'
+    }
+
+    ::selinux::port { 'grafana':
+      context  => 'http_port_t',
+      port     => $ftep::globals::grafana_port,
+      protocol => 'tcp'
+    }
   }
 
 }

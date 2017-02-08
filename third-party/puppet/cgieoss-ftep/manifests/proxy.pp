@@ -54,7 +54,7 @@ class ftep::proxy (
     },
     {
       'path' => $context_path_monitor,
-      'url'  => 'http://ftep-monitor'
+      'url'  => "http://ftep-monitor:${ftep::globals::grafana_port}"
     }
   ]
 

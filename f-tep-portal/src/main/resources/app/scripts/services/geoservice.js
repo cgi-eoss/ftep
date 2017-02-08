@@ -153,7 +153,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 fields: {date: true, mission: true}
             }, {
                 id: 2,
-                name: "Product",
+                name: "Existing Products",
                 icon: "local_library",
                 description: "All preprocessed data",
                 fields: {name: true}

@@ -35,6 +35,7 @@ class ftep::worker (
     ensure => 'latest',
     name   => 'f-tep-worker',
     tag    => 'ftep',
+    notify => Service['f-tep-worker'],
   })
 
   # TODO Manage nfs server for $data_basedir

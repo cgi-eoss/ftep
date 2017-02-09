@@ -29,7 +29,7 @@ import javax.persistence.UniqueConstraint;
 @Data
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_job_configs",
-        indexes = {@Index(name = "idxOwner", columnList = "owner"), @Index(name = "idxService", columnList = "service")},
+        indexes = {@Index(name = "ftep_job_configs_service_idx", columnList = "service"), @Index(name = "ftep_job_configs_owner_idx", columnList = "owner")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs"}))
 @NoArgsConstructor
 @Entity

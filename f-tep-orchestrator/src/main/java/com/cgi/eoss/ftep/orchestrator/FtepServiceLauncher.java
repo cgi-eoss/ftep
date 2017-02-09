@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -78,7 +78,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Prepare inputs
             LOG.info("Downloading input data for {}", jobId);
-            job.setStartTime(ZonedDateTime.now());
+            job.setStartTime(LocalDateTime.now());
             job.setStatus(JobStatus.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
             jobDataService.save(job);
@@ -143,10 +143,12 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             responseObserver.onCompleted();
 
             job.setStatus(JobStatus.COMPLETED);
+            job.setEndTime(LocalDateTime.now());
             jobDataService.save(job);
         } catch (Exception e) {
             if (job != null) {
                 job.setStatus(JobStatus.ERROR);
+                job.setEndTime(LocalDateTime.now());
                 jobDataService.save(job);
             }
 

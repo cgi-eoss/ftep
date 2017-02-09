@@ -22,14 +22,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 /**
  * <p>Representation of a single {@link JobConfig} execution.</p>
  */
 @Data
 @Table(name = "ftep_jobs",
-        indexes = {@Index(name = "idxJobConfig", columnList = "job_config_id"), @Index(name = "idxOwner", columnList = "owner")},
+        indexes = {@Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"), @Index(name = "ftep_jobs_owner_idx", columnList = "owner")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
 @NoArgsConstructor
 @Entity
@@ -53,7 +53,7 @@ public class Job implements FtepEntity<Job> {
      * <p>The job configuration used to launch this specific execution.</p>
      */
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "job_config_id", nullable = false)
+    @JoinColumn(name = "job_config", nullable = false)
     private JobConfig config;
 
     /**
@@ -67,13 +67,13 @@ public class Job implements FtepEntity<Job> {
      * <p>The date and time this job was launched.</p>
      */
     @Column(name = "start_time")
-    private ZonedDateTime startTime;
+    private LocalDateTime startTime;
 
     /**
      * <p>The date and time this job execution ended.</p>
      */
     @Column(name = "end_time")
-    private ZonedDateTime endTime;
+    private LocalDateTime endTime;
 
     /**
      * <p>The current execution status of the job.</p>

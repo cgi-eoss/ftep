@@ -27,8 +27,8 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_groups",
-        indexes = {@Index(name = "idxName", columnList = "name"), @Index(name = "idxOwner", columnList = "uid")},
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "uid"})})
+        indexes = {@Index(name = "ftep_groups_name_idx", columnList = "name"), @Index(name = "ftep_groups_owner_idx", columnList = "owner")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
 public class Group implements FtepEntity<Group>, Searchable {
@@ -57,7 +57,7 @@ public class Group implements FtepEntity<Group>, Searchable {
      * <p>The user owning the group, typically the group creator.</p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "uid", nullable = false)
+    @JoinColumn(name = "owner", nullable = false)
     private User owner;
 
     /**

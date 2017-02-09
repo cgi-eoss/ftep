@@ -46,7 +46,7 @@ class ftep::proxy (
     },
     {
       'path' => $context_path_api_v2,
-      'url'  => "http://ftep-server:${ftep::globals::server_application_port}/${context_path_api_v2}"
+      'url'  => "http://ftep-server:${ftep::globals::server_application_port}${context_path_api_v2}"
     },
     {
       'path' => '/download',

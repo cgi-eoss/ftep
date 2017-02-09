@@ -18,7 +18,7 @@ import javax.persistence.Table;
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
-@Table(name = "user", indexes = {@Index(name = "idxName", columnList = "name")})
+@Table(name = "ftep_users", indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")})
 @NoArgsConstructor
 @Entity
 public class User implements FtepEntity<User>, Searchable {

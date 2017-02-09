@@ -40,6 +40,7 @@ class ftep::server (
     ensure => 'latest',
     name   => 'f-tep-server',
     tag    => 'ftep',
+    notify => Service['f-tep-server'],
   })
 
   file { $config_file:
@@ -62,12 +63,18 @@ class ftep::server (
     notify  => Service['f-tep-server'],
   }
 
+  $default_service_requires = [Package['f-tep-server'], File[$config_file]]
+  $service_requires = defined(Class["::ftep::db"]) ? {
+    true    => concat($default_service_requires, Class['::ftep::db']),
+    default => $default_service_requires
+  }
+
   service { 'f-tep-server':
     ensure     => $service_ensure,
     enable     => $service_enable,
     hasrestart => true,
     hasstatus  => true,
-    require    => [Package['f-tep-server'], File[$config_file]],
+    require    => $service_requires,
   }
 
 }

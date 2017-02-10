@@ -532,13 +532,11 @@ input {
   height: 32px;
   line-height: 32px;
   margin: 2px;
-  max-width: 110px;
   padding-left: 12px;
 }
 .ftep md-chip .md-chip-content {
   float: left;
   height: 32px;
-  max-width: 50px;
   overflow: hidden;
   padding-right: 4px;
   white-space: nowrap;
@@ -1360,6 +1358,10 @@ input {
 }
 #workspace-panel .btn-success[disabled]:hover .material-icons {
   color: #a94442 !important;
+}
+.dropped-file-popover {
+  max-width: 1000px;
+  width: 800px;
 }
 
 #sidenav {

@@ -167,14 +167,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 if ($scope.jobParams.jobSelectedOutputs.indexOf(file) < 0) {
                     $scope.jobParams.jobSelectedOutputs.push(file);
                 }
-                var links = CommonService.getOutputLink($scope.jobParams.jobSelectedOutputs[0].attributes.link);
-                for(var i=1; i < $scope.jobParams.jobSelectedOutputs.length; i++){
-                    links = links.concat(",", CommonService.getOutputLink($scope.jobParams.jobSelectedOutputs[i].attributes.link));
-                }
-
                 $scope.$broadcast('rebuild:scrollbar');
 
-                return links;
+                return $scope.jobParams.jobSelectedOutputs;
             };
 
             $scope.selectOutputFile = function(item){

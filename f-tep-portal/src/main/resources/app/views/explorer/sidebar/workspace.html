@@ -95,10 +95,11 @@
                                 <div class="col-md-12 no-padding">
 
                                     <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
-                                             uib-tooltip="{{item}}"
-                                             tooltip-placement="top"
-                                             tooltip-trigger="mouseenter"
-                                             tooltip-append-to-body="true">
+                                             uib-popover-html="getDroppedFilePopover({{item}})"
+                                             popover-placement="right"
+                                             popover-trigger="'mouseenter'"
+                                             popover-append-to-body="true"
+                                             popover-class="dropped-file-popover">
                                         <div class="md-chip-content">
                                             {{getShortName(item)}}
                                         </div>

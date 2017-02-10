@@ -149,17 +149,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.getBasketDragItems = function (basket) {
-                var str = "";
+                var files = [];
                 if (basket.relationships.files && basket.relationships.files.data.length > 0) {
                     for (var i = 0; i < basket.relationships.files.data.length; i++) {
                         var file = collectedFiles[basket.relationships.files.data[i].id];
-                        if (file.attributes.properties && file.attributes.properties.details.file
-                                    && str.indexOf(file.attributes.properties.details.file.path) < 0) {
-                            str = str.concat(',', file.attributes.properties.details.file.path);
-                        }
+                        files.push(file);
                     }
                 }
-                return str.substr(1);
+                return files;
             };
 
             /* Selected Databasket */

@@ -141,12 +141,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     if($scope.resultParams.selectedResultItems.indexOf(item) < 0){
                         $scope.toggleSelection(item);
                     }
-                    var links = $scope.resultParams.selectedResultItems[0].link;
-                    for(var i = 1; i < $scope.resultParams.selectedResultItems.length; i++){
-                        links = links.concat(',', $scope.resultParams.selectedResultItems[i].link);
-                    }
 
-                    return links;
+                    return $scope.resultParams.selectedResultItems;
                 };
 
     } ]);

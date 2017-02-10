@@ -9,15 +9,15 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
     'use strict';
 
     ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService',
-                                              'ProductService', 'MapService',
-                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService, MapService) {
+                                              'ProductService', 'MapService', 'CommonService',
+                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService, MapService,
+                                        CommonService) {
 
         $scope.serviceParams = ProductService.params;
         $scope.serviceDescription;
         $scope.isWpsLoading = false;
         $scope.info;
         $scope.outputValues = {};
-        $scope.dropList = { items: []};
         $scope.inputValues = {};
         $scope.dropLists = {};
 
@@ -31,13 +31,15 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                 $scope.dropLists[fieldId] = [];
             }
             if(items) {
-                var itemsList = items.split(",");
-                for(var i in itemsList){
-                    if($scope.dropLists[fieldId].indexOf(itemsList[i]) < 0){
-                        $scope.dropLists[fieldId].push(itemsList[i]);
+                var pathStr = getPaths($scope.dropLists[fieldId]);
+                for(var i = 0; i < items.length; i++){
+                    var path = getFilePath(items[i]);
+
+                    if(pathStr.indexOf(path) < 0){
+                        $scope.dropLists[fieldId].push(items[i]);
                     }
                 }
-                $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
+                $scope.inputValues[fieldId] = getPaths($scope.dropLists[fieldId]);
                 return true;
             }
             else {
@@ -45,10 +47,33 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             }
         };
 
+        function getPaths(files){
+            var str = '';
+            for(var i = 0; i < files.length; i++){
+                var path = getFilePath(files[i]);
+                str = str.concat(',', path);
+            }
+            return str.substr(1);
+        }
+
+        function getFilePath(file){
+            var path = '';
+            if(file.type === 'files'){
+                path = file.attributes.properties.details.file.path;
+            }
+            else if(file.type === 'file'){
+                path = CommonService.getOutputLink(file.attributes.link);
+            }
+            else{
+                path = file.link;
+            }
+            return path;
+        }
+
         $scope.removeSelectedItem = function(fieldId, item){
             var index = $scope.dropLists[fieldId].indexOf(item);
             $scope.dropLists[fieldId].splice(index, 1);
-            $scope.inputValues[fieldId] = $scope.dropLists[fieldId].toString();
+            $scope.inputValues[fieldId] = getPaths($scope.dropLists[fieldId]);
         };
 
         $scope.getInputType = function(fieldDesc){
@@ -143,10 +168,77 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             $scope.info = text;
         }
 
-        $scope.getShortName = function(label){
-            var from = (label.length - 8 > 0) ? label.length - 8: 0;
-            var str = label.substr(from);
+        $scope.getShortName = function(file){
+            var name = getFileName(file);
+            var from = (name.length - 18 > 0) ? name.length - 18: 0;
+            var str = name.substr(from);
             return '..'.concat(str);
+        };
+
+        function getFileName(file){
+            var name = '';
+            if(file.type === 'files'){
+                name = file.attributes.name;
+            }
+            else if(file.type === 'file'){
+                name = file.attributes.fname;
+            }
+            else{
+                name = file.identifier;
+            }
+            return name;
+        }
+
+        var popover = {};
+        $scope.getDroppedFilePopover = function (file) {
+
+            var name, start, stop, bytes;
+            if(file.type === 'files'){
+                name = file.attributes.name;
+                start = file.attributes.properties.start;
+                stop = file.attributes.properties.stop;
+                bytes = file.attributes.properties.size;
+            }
+            else if(file.type === 'file'){
+                name = file.attributes.fname;
+                start = '';
+                stop = '';
+                bytes = '';
+            }
+            else {
+                name = file.identifier;
+                start = file.start;
+                stop = file.stop;
+                bytes = file.size;
+            }
+
+            var sizeInGb = '';
+            if (isNaN(bytes) || bytes < 1) {
+                sizeInGb = bytes;
+            } else {
+                sizeInGb = (bytes / 1073741824).toFixed(2) + ' GB';
+            }
+
+            var html =
+                '<div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-2">Name:</div>' +
+                        '<div class="col-sm-10">' + name + '</div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-2">Start:</div>' +
+                        '<div class="col-sm-10">' + start + '</div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-2">End:</div>' +
+                        '<div class="col-sm-10">' + stop + '</div>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-sm-2">Size:</div>' +
+                        '<div class="col-sm-10">' +  sizeInGb + '</div>' +
+                    '</div>' +
+                '</div>';
+            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
         };
 
         function setup(){

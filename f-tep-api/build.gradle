@@ -8,8 +8,11 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
 
+    compile 'javax.cache:cache-api'
     compile 'javax.servlet:javax.servlet-api'
+    compile 'org.ehcache:ehcache'
     compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-starter-cache'
     compile 'org.springframework.data:spring-data-rest-webmvc'
     compile 'org.springframework.data:spring-data-rest-hal-browser'
     compile 'org.springframework.security:spring-security-acl'

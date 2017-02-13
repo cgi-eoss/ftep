@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.cgi.eoss.ftep.model.QUser.user;
 
@@ -40,7 +41,17 @@ public class JpaUserDataService extends AbstractJpaDataService<User> implements 
 
     @Override
     public User getByName(String name) {
-        return dao.findOne(user.name.eq(name));
+        return maybeGetByName(name).orElse(null);
+    }
+
+    @Transactional
+    @Override
+    public User getOrSave(String name) {
+        return maybeGetByName(name).orElse(save(new User(name)));
+    }
+
+    private Optional<User> maybeGetByName(String name) {
+        return Optional.ofNullable(dao.findOne(user.name.eq(name)));
     }
 
 }

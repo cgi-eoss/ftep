@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -42,6 +44,13 @@ public class User implements FtepEntity<User>, Searchable {
      */
     @Column(name = "mail")
     private String email;
+
+    /**
+     * <p>The F-TEP application role of the user.</p>
+     */
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.GUEST;
 
     /**
      * Create a new User instance with the minimum required parameters

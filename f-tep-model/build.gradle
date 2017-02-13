@@ -37,6 +37,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
+    compile 'org.springframework.security:spring-security-core'
 
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'

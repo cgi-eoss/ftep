@@ -32,6 +32,10 @@ def puppetModules = [
         'bfraser-grafana', // (v2.5.0)
         'golja-influxdb', // (v4.0.0)
         'datacentred-telegraf', // (v1.3.0)
+	'puppetlabs-mongodb', // (v0.17.0)
+	'richardc-datacat', // (v1.2.1)
+	'elasticsearch-elasticsearch', //(v0.16.1)
+	'graylog2-graylog2' //(v1.2.1)
 ]
 
 def moduleMetadata = [:]

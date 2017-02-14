@@ -6,6 +6,7 @@ class ftep::monitor(){
   contain ::ftep::monitor::grafana
   contain ::ftep::monitor::influxdb
   contain ::ftep::monitor::telegraf
+  contain ::ftep::monitor::graylog
 
 }
 

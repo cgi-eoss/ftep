@@ -1,0 +1,32 @@
+<%- |
+    String $graylog_server,
+    String $graylog_port,
+    String $graylog_api_path,
+    String $graylog_gelf_tcp_port,
+    String $graylog_context_path,
+    String $log_path,
+    String $log_pattern
+| -%>
+
+server-url = "http://<%= $graylog_server%>:<%= $graylog_port %>/<%= $graylog_api_path %>"
+
+collector-id = "file:/etc/graylog/collector/collector-id"
+
+inputs {
+  apache-access {
+    type = "file"
+    path-glob-root = "<%= $log_path %>"
+    path-glob-pattern = "<%= $log_pattern %>"
+  }
+}
+
+outputs {
+  gelf-tcp {
+    type = "gelf"
+    host = "<%= $graylog_server %>"
+    port = <%= $graylog_gelf_tcp_port %>
+  }
+  console {
+    type = "stdout"
+  }
+}

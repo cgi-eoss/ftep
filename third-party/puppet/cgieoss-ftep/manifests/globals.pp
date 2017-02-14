@@ -61,6 +61,7 @@ class ftep::globals (
   $graylog_port                = 8087,
   $graylog_context_path        = '/log',
   $graylog_gelf_tcp_port       = 5140,
+  $graylog_server              = $monitor_hostname
 
   $enable_log4j2_graylog       = false,
 

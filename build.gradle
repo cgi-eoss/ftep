@@ -30,7 +30,7 @@ allprojects {
 
     dependencyManagement {
         dependencies {
-            dependency 'ch.qos.logback:logback-classic:1.1.9'
+            dependency 'ch.qos.logback:logback-classic:1.2.1'
             dependency 'commons-io:commons-io:2.5'
             dependency 'commons-net:commons-net:3.5'
             dependency 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
@@ -50,10 +50,10 @@ allprojects {
             dependency 'com.zaxxer:HikariCP:2.6.0'
             dependency 'info.cukes:cucumber-java8:1.2.5'
             dependency 'info.cukes:cucumber-junit:1.2.5'
-            dependency 'io.grpc:grpc-netty:1.1.1'
-            dependency 'io.grpc:grpc-protobuf:1.1.1'
-            dependency 'io.grpc:grpc-stub:1.1.1'
-            dependency 'io.grpc:protoc-gen-grpc-java:1.1.1'
+            dependency 'io.grpc:grpc-netty:1.1.2'
+            dependency 'io.grpc:grpc-protobuf:1.1.2'
+            dependency 'io.grpc:grpc-stub:1.1.2'
+            dependency 'io.grpc:protoc-gen-grpc-java:1.1.2'
             dependency 'io.springfox:springfox-data-rest:2.6.1'
             dependency 'io.springfox:springfox-swagger2:2.6.1'
             dependency 'io.springfox:springfox-swagger-ui:2.6.1'
@@ -71,11 +71,11 @@ allprojects {
             dependency 'org.hibernate:hibernate-entitymanager:5.2.7.Final'
             dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
             dependency 'org.hsqldb:hsqldb:2.3.4'
-            dependency 'org.lognet:grpc-spring-boot-starter:1.0.0'
+            dependency 'org.lognet:grpc-spring-boot-starter:2.0.0'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
-            dependency 'org.mockito:mockito-core:2.7.0'
+            dependency 'org.mockito:mockito-core:2.7.6'
             dependency 'org.postgresql:postgresql:9.4.1212'
-            dependency 'org.projectlombok:lombok:1.16.12'
+            dependency 'org.projectlombok:lombok:1.16.14'
             dependency 'org.seleniumhq.selenium:selenium-java:3.0.1'
             dependency 'org.slf4j:jcl-over-slf4j:1.7.22'
             dependency 'org.slf4j:jul-to-slf4j:1.7.22'
@@ -132,7 +132,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.14.0'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
     }
 }

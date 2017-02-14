@@ -47,7 +47,7 @@ public class JpaUserDataService extends AbstractJpaDataService<User> implements 
     @Transactional
     @Override
     public User getOrSave(String name) {
-        return maybeGetByName(name).orElse(save(new User(name)));
+        return maybeGetByName(name).orElseGet(() -> save(new User(name)));
     }
 
     private Optional<User> maybeGetByName(String name) {

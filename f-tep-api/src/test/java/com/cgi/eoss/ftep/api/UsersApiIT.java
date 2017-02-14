@@ -1,8 +1,11 @@
 package com.cgi.eoss.ftep.api;
 
+import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.google.common.collect.ImmutableSet;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -41,6 +45,22 @@ public class UsersApiIT {
     @Autowired
     private MockMvc mockMvc;
 
+    private User ftepGuest;
+    private User ftepUser;
+    private User ftepAdmin;
+
+    @Before
+    public void setUp() {
+        ftepGuest = new User("ftep-guest");
+        ftepGuest.setRole(Role.GUEST);
+        ftepUser = new User("ftep-user");
+        ftepUser.setRole(Role.USER);
+        ftepAdmin = new User("ftep-admin");
+        ftepAdmin.setRole(Role.ADMIN);
+
+        dataService.save(ImmutableSet.of(ftepGuest, ftepUser, ftepAdmin));
+    }
+
     @After
     public void tearDown() {
         dataService.deleteAll();
@@ -48,7 +68,7 @@ public class UsersApiIT {
 
     @Test
     public void testGetIndex() throws Exception {
-        mockMvc.perform(get("/api/").requestAttr("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(get("/api/").requestAttr("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.users").exists());
     }
@@ -60,40 +80,35 @@ public class UsersApiIT {
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
-        assertThat(dataService.getAll(), contains(owner, owner2));
-
-        mockMvc.perform(get("/api/users").requestAttr("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(get("/api/users").requestAttr("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
-                .andExpect(jsonPath("$._embedded.users[1].name").value("owner-uid2"))
-                .andExpect(jsonPath("$._embedded.users[1].email").value("owner2@example.com"))
-                .andExpect(jsonPath("$._embedded.users[1]._links.self.href").value(endsWith("/users/" + owner2.getId())));
+                .andExpect(jsonPath("$._embedded.users[4].name").value("owner-uid2"))
+                .andExpect(jsonPath("$._embedded.users[4].email").value("owner2@example.com"))
+                .andExpect(jsonPath("$._embedded.users[4]._links.self.href").value(endsWith("/users/" + owner2.getId())));
 
-        mockMvc.perform(get("/api/users/" + owner.getId()).requestAttr("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(get("/api/users/" + owner.getId()).requestAttr("REMOTE_USER", "ftep-new-user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("owner-uid"))
                 .andExpect(jsonPath("$.email").value("owner@example.com"))
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/users/" + owner.getId())));
 
-        // The querying user "ftep-test" was created automatically
-        assertThat(dataService.getAll(), contains(owner, owner2, new User("ftep-test")));
+        // The unknown user "ftep-new-user" was created automatically
+        assertThat(dataService.getByName("ftep-new-user"), is(notNullValue()));
     }
 
     @Test
     public void testGetWithoutAuthRequestAttribute() throws Exception {
-        User owner = dataService.save(new User("owner-uid"));
-        assertThat(dataService.getAll(), contains(owner));
-
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void testCreate() throws Exception {
-        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")));
-        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"Ftep User 2\", \"email\":\"ftep.user.2@example.com\"}"))
+        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User 2\", \"email\":\"ftep.user.2@example.com\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")));
 
@@ -102,20 +117,20 @@ public class UsersApiIT {
         user.setEmail("ftep.user@example.com");
         user2.setEmail("ftep.user.2@example.com");
 
-        assertThat(dataService.getAll(), contains(new User("ftep-test"), user, user2));
+        assertThat(dataService.getAll(), containsInRelativeOrder(user, user2));
     }
 
     @Test
     public void testUpdate() throws Exception {
-        MvcResult result = mockMvc.perform(
-                post("/api/users").requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
-                .andReturn();
+        MvcResult result =
+                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                        .andExpect(status().isCreated())
+                        .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
+                        .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(put(location).requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"New Name\", \"email\":\"new.ftep.email@example.com\"}")).andExpect(
+        mockMvc.perform(put(location).requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\", \"email\":\"new.ftep.email@example.com\"}")).andExpect(
                 status().isNoContent());
 
         User expected = new User("New Name");
@@ -125,14 +140,15 @@ public class UsersApiIT {
 
     @Test
     public void testPartialUpdate() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
-                .andReturn();
+        MvcResult result =
+                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                        .andExpect(status().isCreated())
+                        .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
+                        .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(patch(location).requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"New Name\"}"))
+        mockMvc.perform(patch(location).requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\"}"))
                 .andExpect(status().isNoContent());
 
         User expected = new User("New Name");
@@ -142,19 +158,20 @@ public class UsersApiIT {
 
     @Test
     public void testDelete() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", "ftep-test").content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
-                .andReturn();
+        MvcResult result =
+                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                        .andExpect(status().isCreated())
+                        .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
+                        .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(delete(location).requestAttr("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(delete(location).requestAttr("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isMethodNotAllowed());
 
         User expected = new User("Ftep User");
         expected.setEmail("ftep.user@example.com");
-        assertThat(dataService.getAll(), contains(new User("ftep-test"), expected));
+        assertThat(dataService.getByName("Ftep User"), is(notNullValue()));
     }
 
 }

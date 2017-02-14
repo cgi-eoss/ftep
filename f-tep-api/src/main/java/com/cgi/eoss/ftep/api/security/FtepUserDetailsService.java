@@ -28,11 +28,8 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
         Assert.notNull(token.getDetails());
 
-        String username = token.getName();
-        com.cgi.eoss.ftep.model.User user = userDataService.getOrSave(username);
-        Set<? extends GrantedAuthority> authorities = ImmutableSet.of(user.getRole());
-
-        return new User(token.getName(), "N/A", true, true, true, true, authorities);
+        com.cgi.eoss.ftep.model.User user = userDataService.getOrSave(token.getName());
+        return new User(user.getName(), "N/A", true, true, true, true, ImmutableSet.of(user.getRole()));
     }
 
 }

@@ -29,8 +29,8 @@ public class UserDataServiceIT {
         User owner2 = new User("owner-uid2");
         dataService.save(ImmutableSet.of(owner, owner2));
 
-        assertThat(dataService.getAll(), is(ImmutableList.of(owner, owner2)));
         assertThat(dataService.getById(owner.getId()), is(owner));
+        assertThat(dataService.getById(owner2.getId()), is(owner2));
         assertThat(dataService.getByIds(ImmutableSet.of(owner.getId())), is(ImmutableList.of(owner)));
         assertThat(dataService.isUniqueAndValid(new User("owner-uid")), is(false));
         assertThat(dataService.isUniqueAndValid(new User("owner-uid3")), is(true));

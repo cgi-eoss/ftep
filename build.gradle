@@ -64,7 +64,7 @@ allprojects {
             dependency 'org.aspectj:aspectjweaver:1.8.10'
             dependency 'org.awaitility:awaitility:2.0.0'
             dependency 'org.ehcache:ehcache:3.2.0'
-            dependency 'org.flywaydb:flyway-core:4.0.3'
+            dependency 'org.flywaydb:flyway-core:4.1.0'
             dependency 'org.freemarker:freemarker:2.3.25-incubating'
             dependency 'org.hamcrest:hamcrest-junit:2.0.0.0'
             dependency 'org.hibernate:hibernate-core:5.2.7.Final'

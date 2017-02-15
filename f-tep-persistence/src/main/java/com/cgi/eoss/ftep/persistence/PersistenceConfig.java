@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.FtepEntity;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         PropertyPlaceholderAutoConfiguration.class,
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
+        FlywayAutoConfiguration.class,
 })
 @EnableJpaRepositories(basePackageClasses = FtepEntityDao.class,
         excludeFilters = {@ComponentScan.Filter(SpringJpaRepositoryIgnore.class)})

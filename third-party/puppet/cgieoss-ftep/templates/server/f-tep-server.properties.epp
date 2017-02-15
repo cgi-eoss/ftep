@@ -29,7 +29,8 @@ spring.datasource.password=<%= $jdbc_password %>
 spring.datasource.driver-class-name=<%= $jdbc_driver %>
 
 flyway.enabled=true
-spring.jpa.hibernate.ddl-auto=none
+flyway.locations=db/migration/{vendor}
+spring.jpa.hibernate.ddl-auto=validate
 
 # LOCAL worker configuration
 ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>

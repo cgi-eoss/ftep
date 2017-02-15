@@ -14,6 +14,7 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.querydsl:querydsl-jpa'
     compile 'com.zaxxer:HikariCP'
+    compile 'org.flywaydb:flyway-core'
     compile 'org.hibernate:hibernate-core'
     compile 'org.hibernate:hibernate-entitymanager'
     compile 'org.lognet:grpc-spring-boot-starter'

@@ -112,9 +112,14 @@ public class ApiSecurityConfig {
     }
 
     @Bean
-    public MethodSecurityExpressionHandler createExpressionHandler(AclService aclService){
+    public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
+        return new AclPermissionEvaluator(aclService);
+    }
+
+    @Bean
+    public MethodSecurityExpressionHandler createExpressionHandler(AclPermissionEvaluator aclPermissionEvaluator){
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-        expressionHandler.setPermissionEvaluator(new AclPermissionEvaluator(aclService));
+        expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
         return expressionHandler;
     }
 

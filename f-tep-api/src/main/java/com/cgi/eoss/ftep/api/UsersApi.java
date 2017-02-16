@@ -22,8 +22,4 @@ public interface UsersApi extends CrudRepository<User, Long> {
     @RestResource(exported = false)
     void delete(User user);
 
-    @Override
-    @RestResource(exported = false)
-    void delete(Long id);
-
 }

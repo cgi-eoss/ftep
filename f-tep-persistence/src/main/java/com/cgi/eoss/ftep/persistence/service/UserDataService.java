@@ -1,6 +1,9 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.User;
+
+import java.util.Set;
 
 public interface UserDataService extends
         FtepEntityDataService<User>,
@@ -15,4 +18,12 @@ public interface UserDataService extends
      * @return A persisted user entity with the given name.
      */
     User getOrSave(String name);
+
+    /**
+     * <p>Return all groups of which the requested user is a member.</p>
+     *
+     * @param user The user for whom groups should be listed.
+     * @return A collection of the given user's groups.
+     */
+    Set<Group> getGroups(User user);
 }

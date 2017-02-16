@@ -211,7 +211,7 @@ public class ServicesApiIT {
     }
 
     private void createAce(ObjectIdentity oi, Sid sid, Permission p) {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(ftepAdmin.getName(), "N/A", "ADMIN"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(ftepAdmin.getName(), "N/A", "ROLE_ADMIN"));
 
         MutableAcl acl;
         try {

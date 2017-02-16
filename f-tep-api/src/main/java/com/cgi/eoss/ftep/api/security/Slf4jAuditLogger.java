@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
  */
 @Component
 final class Slf4jAuditLogger implements AuditLogger {
-    private static Logger LOG = LoggerFactory.getLogger(Slf4jAuditLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Slf4jAuditLogger.class);
 
     @Override
     public void logIfNeeded(boolean granted, AccessControlEntry ace) {
@@ -23,9 +23,9 @@ final class Slf4jAuditLogger implements AuditLogger {
             AuditableAccessControlEntry auditableAce = (AuditableAccessControlEntry) ace;
 
             if (granted && auditableAce.isAuditSuccess()) {
-                LOG.info("GRANTED due to ACE: {}", ace);
+                LOG.debug("GRANTED due to ACE: {}", ace);
             } else if (!granted && auditableAce.isAuditFailure()) {
-                LOG.info("DENIED due to ACE: {}", ace);
+                LOG.debug("DENIED due to ACE: {}", ace);
             }
         }
     }

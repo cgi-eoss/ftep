@@ -19,6 +19,7 @@ import java.util.List;
 )
 public interface ServicesApi extends CrudRepository<FtepService, Long> {
 
+    // TODO Evaluate performance and prefer limiting by query rather than @PostFilter
     @Override
     @PostFilter("filterObject.status == T(com.cgi.eoss.ftep.model.ServiceStatus).AVAILABLE or hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
     List<FtepService> findAll();

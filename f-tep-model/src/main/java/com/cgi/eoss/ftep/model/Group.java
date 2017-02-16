@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,7 +32,9 @@ import java.util.Set;
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
-public class Group implements FtepEntity<Group>, Searchable {
+public class Group implements FtepEntity<Group>, Searchable, GrantedAuthority {
+
+    private static final String GROUP_AUTHORITY_PREFIX = "GROUP_";
 
     /**
      * <p>Unique identifier of the group.</p>
@@ -82,6 +85,11 @@ public class Group implements FtepEntity<Group>, Searchable {
     @Override
     public int compareTo(Group o) {
         return ComparisonChain.start().compare(name, o.name).compare(owner.getId(), o.owner.getId()).result();
+    }
+
+    @Override
+    public String getAuthority() {
+        return GROUP_AUTHORITY_PREFIX + id;
     }
 
 }

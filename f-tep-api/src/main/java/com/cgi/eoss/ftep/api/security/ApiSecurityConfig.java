@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.model.Role;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
@@ -82,7 +83,11 @@ public class ApiSecurityConfig {
 
     @Bean
     public JCacheManagerCustomizer jCacheManagerCustomizer() {
-        return cacheManager -> cacheManager.createCache(ACL_CACHE_NAME, new MutableConfiguration<Serializable, Object>());
+        return cacheManager -> {
+            if (!Iterables.contains(cacheManager.getCacheNames(), ACL_CACHE_NAME)) {
+                cacheManager.createCache(ACL_CACHE_NAME, new MutableConfiguration<Serializable, Object>());
+            }
+        };
     }
 
     @Bean

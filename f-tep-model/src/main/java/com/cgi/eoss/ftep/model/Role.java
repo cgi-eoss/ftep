@@ -13,9 +13,15 @@ public enum Role implements GrantedAuthority {
     CONTENT_AUTHORITY,
     ADMIN;
 
+    private static final String ROLE_AUTHORITY_PREFIX = "ROLE_";
+
     @Override
     public String getAuthority() {
-        return "ROLE_" + toString();
+        return ROLE_AUTHORITY_PREFIX + toString();
+    }
+
+    public static String getRoleAuthorityPrefix() {
+        return ROLE_AUTHORITY_PREFIX;
     }
 
 }

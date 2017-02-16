@@ -34,7 +34,7 @@ public class ApiConfigIT {
 
     @Test
     public void testGetIndex() throws Exception {
-        mockMvc.perform(get("/api/").requestAttr("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(get("/api/").header("REMOTE_USER", "ftep-test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.groups").exists())
                 .andExpect(jsonPath("$._links.jobs").exists())

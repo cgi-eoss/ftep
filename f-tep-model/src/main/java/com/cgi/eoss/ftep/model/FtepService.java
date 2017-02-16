@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
 import com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -91,6 +92,7 @@ public class FtepService implements FtepEntity<FtepService>, Searchable {
     @Lob
     @Convert(converter = FtepServiceDescriptorYamlConverter.class)
     @Column(name = "wps_descriptor")
+    @JsonIgnore
     private FtepServiceDescriptor serviceDescriptor;
 
     /**

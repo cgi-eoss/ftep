@@ -68,7 +68,7 @@ public class UsersApiIT {
 
     @Test
     public void testGetIndex() throws Exception {
-        mockMvc.perform(get("/api/").requestAttr("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.users").exists());
     }
@@ -80,14 +80,14 @@ public class UsersApiIT {
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
-        mockMvc.perform(get("/api/users").requestAttr("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/users").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
                 .andExpect(jsonPath("$._embedded.users[4].name").value("owner-uid2"))
                 .andExpect(jsonPath("$._embedded.users[4].email").value("owner2@example.com"))
                 .andExpect(jsonPath("$._embedded.users[4]._links.self.href").value(endsWith("/users/" + owner2.getId())));
 
-        mockMvc.perform(get("/api/users/" + owner.getId()).requestAttr("REMOTE_USER", "ftep-new-user"))
+        mockMvc.perform(get("/api/users/" + owner.getId()).header("REMOTE_USER", "ftep-new-user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("owner-uid"))
                 .andExpect(jsonPath("$.email").value("owner@example.com"))
@@ -95,6 +95,7 @@ public class UsersApiIT {
 
         // The unknown user "ftep-new-user" was created automatically
         assertThat(dataService.getByName("ftep-new-user"), is(notNullValue()));
+        assertThat(dataService.getByName("ftep-new-user").getRole(), is(Role.GUEST));
     }
 
     @Test
@@ -105,10 +106,10 @@ public class UsersApiIT {
 
     @Test
     public void testCreate() throws Exception {
-        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+        mockMvc.perform(post("/api/users").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")));
-        mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User 2\", \"email\":\"ftep.user.2@example.com\"}"))
+        mockMvc.perform(post("/api/users").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User 2\", \"email\":\"ftep.user.2@example.com\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")));
 
@@ -123,14 +124,14 @@ public class UsersApiIT {
     @Test
     public void testUpdate() throws Exception {
         MvcResult result =
-                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                mockMvc.perform(post("/api/users").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
                         .andExpect(status().isCreated())
                         .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
                         .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(put(location).requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\", \"email\":\"new.ftep.email@example.com\"}")).andExpect(
+        mockMvc.perform(put(location).header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\", \"email\":\"new.ftep.email@example.com\"}")).andExpect(
                 status().isNoContent());
 
         User expected = new User("New Name");
@@ -141,14 +142,14 @@ public class UsersApiIT {
     @Test
     public void testPartialUpdate() throws Exception {
         MvcResult result =
-                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                mockMvc.perform(post("/api/users").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
                         .andExpect(status().isCreated())
                         .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
                         .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(patch(location).requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\"}"))
+        mockMvc.perform(patch(location).header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"New Name\"}"))
                 .andExpect(status().isNoContent());
 
         User expected = new User("New Name");
@@ -159,14 +160,14 @@ public class UsersApiIT {
     @Test
     public void testDelete() throws Exception {
         MvcResult result =
-                mockMvc.perform(post("/api/users").requestAttr("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
+                mockMvc.perform(post("/api/users").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"Ftep User\", \"email\":\"ftep.user@example.com\"}"))
                         .andExpect(status().isCreated())
                         .andExpect(header().string("Location", matchesPattern(".*/users/\\d+$")))
                         .andReturn();
 
         String location = result.getResponse().getHeader("Location");
 
-        mockMvc.perform(delete(location).requestAttr("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(delete(location).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isMethodNotAllowed());
 
         User expected = new User("Ftep User");

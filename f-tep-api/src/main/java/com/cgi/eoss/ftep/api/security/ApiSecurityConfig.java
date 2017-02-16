@@ -28,12 +28,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 import javax.cache.configuration.MutableConfiguration;
 import javax.sql.DataSource;
@@ -50,25 +49,24 @@ public class ApiSecurityConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute) {
+            @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader) {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(HttpSecurity httpSecurity) throws Exception {
                 // Extracts the shibboleth user id from the request
-                RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
+                RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
                 filter.setAuthenticationManager(authenticationManager());
-                filter.setPrincipalEnvironmentVariable(usernameRequestAttribute);
+                filter.setPrincipalRequestHeader(usernameRequestHeader);
 
                 // Handles any authentication exceptions, and translates to a simple 403
                 // There is no login redirection as we are expecting pre-auth
                 ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
 
-                // TODO Enable per-object ACLs
                 httpSecurity
                         .addFilterBefore(exceptionTranslationFilter, RequestAttributeAuthenticationFilter.class)
                         .addFilter(filter)
                         .authorizeRequests()
-                        .anyRequest().permitAll();
+                        .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();
             }
@@ -117,7 +115,7 @@ public class ApiSecurityConfig {
     }
 
     @Bean
-    public MethodSecurityExpressionHandler createExpressionHandler(AclPermissionEvaluator aclPermissionEvaluator){
+    public MethodSecurityExpressionHandler createExpressionHandler(AclPermissionEvaluator aclPermissionEvaluator) {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
         return expressionHandler;

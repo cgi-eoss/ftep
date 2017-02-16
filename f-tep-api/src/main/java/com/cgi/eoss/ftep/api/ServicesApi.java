@@ -1,24 +1,46 @@
 package com.cgi.eoss.ftep.api;
 
+import com.cgi.eoss.ftep.api.projections.ShortFtepService;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.security.access.method.P;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 
-@RepositoryRestResource(path = "services", itemResourceRel = "service", collectionResourceRel = "services")
-public interface ServicesApi extends PagingAndSortingRepository<FtepService, Long>, FtepServiceDao {
+import java.util.List;
+
+@RepositoryRestResource(
+        path = "services",
+        itemResourceRel = "service",
+        collectionResourceRel = "services",
+        excerptProjection = ShortFtepService.class
+)
+public interface ServicesApi extends CrudRepository<FtepService, Long> {
 
     @Override
-    @RestResource(exported = false)
+    @PostFilter("filterObject.status == T(com.cgi.eoss.ftep.model.ServiceStatus).AVAILABLE or hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
+    List<FtepService> findAll();
+
+    @Override
+    @PostAuthorize("returnObject.status == T(com.cgi.eoss.ftep.model.ServiceStatus).AVAILABLE or hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(returnObject, 'read')")
+    FtepService findOne(Long id);
+
+    @Override
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or (#service.id != null and hasPermission(#service, 'write'))")
+    <S extends FtepService> S save(@P("service") S service);
+
+    @Override
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     void delete(Iterable<? extends FtepService> services);
 
     @Override
-    @RestResource(exported = false)
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     void delete(FtepService service);
 
     @Override
-    @RestResource(exported = false)
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     void delete(Long id);
 
 }

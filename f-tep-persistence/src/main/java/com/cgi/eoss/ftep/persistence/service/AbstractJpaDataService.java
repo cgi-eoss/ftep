@@ -80,6 +80,11 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
         return null;
     }
 
+    @Override
+    public T convert(Long source) {
+        return getById(source);
+    }
+
     /**
      * @param entity The potentially detached entity
      */

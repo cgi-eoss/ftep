@@ -25,7 +25,7 @@ public interface JobsApi extends CrudRepository<Job, Long> {
     void delete(Iterable<? extends Job> jobs);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#job, 'admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#job, 'administration')")
     void delete(@P("job") Job job);
 
 }

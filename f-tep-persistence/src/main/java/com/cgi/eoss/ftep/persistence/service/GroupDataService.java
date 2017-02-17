@@ -8,6 +8,7 @@ import java.util.List;
 public interface GroupDataService extends
         FtepEntityDataService<Group>,
         SearchableDataService<Group> {
+    Group getByName(String name);
 
     List<Group> findGroupMemberships(User user);
 

@@ -1,11 +1,13 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import org.springframework.core.convert.converter.Converter;
+
 import java.util.Collection;
 import java.util.List;
 
 /**
  */
-public interface DataService<T, I> {
+public interface DataService<T, I> extends Converter<I, T> {
 
     /**
      * Delete the specified object from the data store.

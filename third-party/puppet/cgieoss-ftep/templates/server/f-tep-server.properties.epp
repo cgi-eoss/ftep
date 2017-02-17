@@ -1,13 +1,15 @@
 <%- |
     Integer $server_port,
     Integer $grpc_port,
-    String $api_base_path,
 
     String $jdbc_driver,
     String $jdbc_url,
     String $jdbc_user,
     String $jdbc_password,
     String $jdbc_data_source_class_name,
+
+    String $api_base_path,
+    Boolean $api_enable_security,
 
     String $local_worker_hostname,
     Integer $local_worker_grpc_port
@@ -20,7 +22,6 @@ spring.application.name=F-TEP Server
 # Server config
 server.port=<%= $server_port %>
 grpc.port=<%= $grpc_port %>
-ftep.api.base-path=<%= $api_base_path %>
 
 # Database connection
 spring.datasource.url=<%= $jdbc_url %>
@@ -31,6 +32,10 @@ spring.datasource.driver-class-name=<%= $jdbc_driver %>
 flyway.enabled=true
 flyway.locations=db/migration/{vendor}
 spring.jpa.hibernate.ddl-auto=validate
+
+# API configuration
+spring.data.rest.basePath=<%= $api_base_path %>
+ftep.api.security.enabled=<%= $api_enable_security %>
 
 # LOCAL worker configuration
 ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>

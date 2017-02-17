@@ -22,7 +22,7 @@ public interface JobConfigsApi extends CrudRepository<JobConfig, Long> {
     void delete(Iterable<? extends JobConfig> groups);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#jobConfig, 'admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#jobConfig, 'administration')")
     void delete(@P("jobConfig") JobConfig jobConfig);
 
 }

@@ -14,7 +14,7 @@ public interface GroupsApi extends CrudRepository<Group, Long> {
     <S extends Group> Iterable<S> save(Iterable<S> groups);
 
     @Override
-    @PreAuthorize("(#group.id == null) or hasRole('ROLE_ADMIN') or hasPermission(#group, 'admin')")
+    @PreAuthorize("(#group.id == null) or hasRole('ROLE_ADMIN') or hasPermission(#group, 'administration')")
     <S extends Group> S save(@P("group") S group);
 
     @Override
@@ -22,7 +22,7 @@ public interface GroupsApi extends CrudRepository<Group, Long> {
     void delete(Iterable<? extends Group> groups);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#group, 'admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#group, 'administration')")
     void delete(@P("group") Group group);
 
 }

@@ -8,13 +8,15 @@ class ftep::server (
   # f-tep-server.properties config
   $application_port           = undef,
   $grpc_port                  = undef,
-  $api_base_path              = '/secure/api/v2.0',
 
   $jdbc_url                   = undef,
   $jdbc_driver                = 'org.postgresql.Driver',
   $jdbc_user                  = undef,
   $jdbc_password              = undef,
   $jdbc_datasource_class_name = 'org.postgresql.ds.PGSimpleDataSource',
+
+  $api_base_path              = '/secure/api/v2.0',
+  $api_enable_security        = false,
 
   $local_worker_hostname      = 'ftep-worker',
   $local_worker_grpc_port     = undef,
@@ -50,12 +52,13 @@ class ftep::server (
     content => epp('ftep/server/f-tep-server.properties.epp', {
       'server_port'                 => $real_application_port,
       'grpc_port'                   => $real_grpc_port,
-      'api_base_path'               => $api_base_path,
       'jdbc_driver'                 => $jdbc_driver,
       'jdbc_url'                    => $real_db_url,
       'jdbc_user'                   => $real_db_user,
       'jdbc_password'               => $real_db_pass,
       'jdbc_data_source_class_name' => $jdbc_datasource_class_name,
+      'api_base_path'               => $api_base_path,
+      'api_enable_security'         => $api_enable_security,
       'local_worker_hostname'       => $local_worker_hostname,
       'local_worker_grpc_port'      => $real_local_worker_grpc_port,
     }),

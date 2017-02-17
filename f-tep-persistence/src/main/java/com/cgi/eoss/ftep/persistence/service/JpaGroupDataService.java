@@ -40,6 +40,11 @@ public class JpaGroupDataService extends AbstractJpaDataService<Group> implement
     }
 
     @Override
+    public Group getByName(String name) {
+        return dao.findOneByName(name);
+    }
+
+    @Override
     public List<Group> findGroupMemberships(User user) {
         return dao.findByMembersContaining(user);
     }

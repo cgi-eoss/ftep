@@ -62,7 +62,7 @@ public class JpaUserDataService extends AbstractJpaDataService<User> implements 
     }
 
     private Optional<User> maybeGetByName(String name) {
-        return Optional.ofNullable(dao.findOne(user.name.eq(name)));
+        return Optional.ofNullable(dao.findOneByName(name));
     }
 
 }

@@ -32,6 +32,12 @@ class ftep::globals (
   # monitor port config
   $grafana_port            = 8089,
   $monitor_data_port       = 8086,
+
+  # graylog config
+  $graylog_secret          = 'bQ999ugSIvHXfWQqrwvAomNxaMsErX6I4UWicpS9ZU8EDmuFnhX9AmcoM43s4VGKixd2f6d6cELbRuPWO5uayHnBrBbNWVth',
+  $graylog_sha256          = 'a7fdfe53e2a13cb602def10146388c65051c67e60ee55c051668a1c709449111', # sha256 of graylogpass
+  $graylog_port            = 8087,
+
 ) {
 
   # Alias reverse-proxy hosts via hosts file

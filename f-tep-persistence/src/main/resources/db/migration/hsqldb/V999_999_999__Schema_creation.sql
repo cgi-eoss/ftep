@@ -89,7 +89,7 @@ CREATE INDEX ftep_jobs_job_config_idx
 CREATE INDEX ftep_jobs_owner_idx
   ON ftep_jobs (owner);
 
--- FtepFile and DataBasket tables
+-- FtepFile and Databasket tables
 
 CREATE TABLE ftep_files (
   id       BIGINT IDENTITY PRIMARY KEY,
@@ -104,6 +104,25 @@ CREATE UNIQUE INDEX ftep_files_resto_id_idx
   ON ftep_files (resto_id);
 CREATE INDEX ftep_files_owner_idx
   ON ftep_files (owner);
+
+CREATE TABLE ftep_databaskets (
+  id    BIGINT IDENTITY PRIMARY KEY,
+  name  CHARACTER VARYING(255) NOT NULL,
+  owner BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
+);
+CREATE INDEX ftep_databaskets_name_idx
+  ON ftep_databaskets (name);
+CREATE INDEX ftep_databaskets_owner_idx
+  ON ftep_databaskets (owner);
+CREATE UNIQUE INDEX ftep_databaskets_name_owner_idx
+  ON ftep_databaskets (name, owner);
+
+CREATE TABLE ftep_databasket_files (
+  databasket_id BIGINT FOREIGN KEY REFERENCES ftep_databaskets (id),
+  file_id       BIGINT FOREIGN KEY REFERENCES ftep_files (id)
+);
+CREATE UNIQUE INDEX ftep_databasket_files_basket_file_idx
+  ON ftep_databasket_files (databasket_id, file_id);
 
 -- ACL schema from spring-security-acl
 

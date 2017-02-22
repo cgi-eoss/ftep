@@ -139,3 +139,15 @@ CREATE TABLE ftep_databasket_files (
 );
 CREATE UNIQUE INDEX ftep_databasket_files_basket_file_idx
   ON ftep_databasket_files (databasket_id, file_id);
+
+-- Tidy up uniqueness constraints on group member table
+
+CREATE UNIQUE INDEX ftep_group_member_user_group_idx
+  ON ftep_group_member (group_id, user_id);
+
+-- Remove unique group name index, create regular index and name+owner unique index
+DROP INDEX ftep_groups_name_idx;
+CREATE INDEX ftep_groups_name_idx
+  ON ftep_groups (name);
+CREATE UNIQUE INDEX ftep_groups_name_owner_idx
+  ON ftep_groups (name, owner);

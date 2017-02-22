@@ -29,7 +29,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_groups",
         indexes = {@Index(name = "ftep_groups_name_idx", columnList = "name"), @Index(name = "ftep_groups_owner_idx", columnList = "owner")},
-        uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
+        uniqueConstraints = {@UniqueConstraint(name = "ftep_groups_name_owner_idx", columnNames = {"name", "owner"})})
 @NoArgsConstructor
 @Entity
 public class Group implements FtepEntity<Group>, Searchable, GrantedAuthority {
@@ -67,8 +67,10 @@ public class Group implements FtepEntity<Group>, Searchable, GrantedAuthority {
      * <p>Members of this group.</p>
      */
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "ftep_group_member", joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "gid"),
-            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "uid"))
+    @JoinTable(name = "ftep_group_member",
+            joinColumns = @JoinColumn(name = "group_id", referencedColumnName = "gid"),
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "uid"),
+            uniqueConstraints = @UniqueConstraint(name = "ftep_group_member_user_group_idx", columnNames = {"group_id", "user_id"}))
     private Set<User> members = Sets.newHashSet();
 
     /**

@@ -46,15 +46,19 @@ CREATE TABLE ftep_groups (
   name        CHARACTER VARYING(255) NOT NULL,
   owner       BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
 );
-CREATE UNIQUE INDEX ftep_groups_name_idx
+CREATE INDEX ftep_groups_name_idx
   ON ftep_groups (name);
 CREATE INDEX ftep_groups_owner_idx
   ON ftep_groups (owner);
+CREATE UNIQUE INDEX ftep_groups_name_owner_idx
+  ON ftep_groups (name, owner);
 
 CREATE TABLE ftep_group_member (
   group_id BIGINT FOREIGN KEY REFERENCES ftep_groups (gid),
   user_id  BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
 );
+CREATE UNIQUE INDEX ftep_group_member_user_group_idx
+  ON ftep_group_member (group_id, user_id);
 
 CREATE TABLE ftep_job_configs (
   id      BIGINT IDENTITY PRIMARY KEY,

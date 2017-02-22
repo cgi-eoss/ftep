@@ -13,17 +13,29 @@ define(['../ftepmodules'], function (ftepmodules) {
         var messages = [];
         var id = 0;
 
-        this.addMessage = function (status, title, description) {
+        function addMessage(status, title, description) {
             var message = {};
             id = id + 1;
             message.id = id;
             message.status = status;
             message.title = title;
             message.time = new Date().toUTCString();
-            message.description = description;
+            message.description = description ? description : title;
             messages.push(message);
             $rootScope.$broadcast('update.messages');
         };
+
+        this.addError = function(title, description){
+            addMessage('Error', title, description);
+        }
+
+        this.addWarning = function(title, description){
+            addMessage('Warning', title, description);
+        }
+
+        this.addInfo = function(title, description){
+            addMessage('Info', title, description);
+        }
 
         this.getMessages = function () {
             return messages;

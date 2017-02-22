@@ -8,7 +8,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService) {
+    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService',
+                                        function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService) {
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -55,8 +56,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                       })
                       .catch(function (e) {
                           connectionError = true;
-                          MessageService.addMessage(
-                              'Error',
+                          MessageService.addError(
                               'Could not get jobs',
                               'Could not get jobs. Retries left: ' + retriesLeft
                           );
@@ -104,11 +104,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                           jobListCache.data.splice(i, 1);
                           jobListCache.meta.total = (jobListCache.meta.total - 1);
                       }
+                      MessageService.addInfo('Job deleted', 'Job '.concat(job.id).concat(' deleted'));
                   }).
                   catch(function(e) {
-                      MessageService.addMessage(
-                          'Error',
-                          'Failed to remove job',
+                      MessageService.addError(
                           'Failed to remove job'
                       );
                       console.log(e);
@@ -125,9 +124,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  MessageService.addMessage(
-                      'Error',
-                      'Could not get job outputs',
+                  MessageService.addError(
                       'Could not get job outputs'
                   );
                   deferred.reject();

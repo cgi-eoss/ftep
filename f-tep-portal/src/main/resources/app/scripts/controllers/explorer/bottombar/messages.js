@@ -31,10 +31,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
             $scope.filterMessages();
 
-            $scope.newMessage = function (status, title, description) {
-                MessageService.addMessage(status, title, description);
-            };
-
             $scope.selectMessage = function (message) {
                 $scope.msgParams.selectedMessage = message;
                 $scope.$broadcast('rebuild:scrollbar');

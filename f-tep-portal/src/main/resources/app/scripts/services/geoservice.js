@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('GeoService', [ '$http', 'ftepProperties', '$q', function ($http, ftepProperties, $q) {
+    ftepmodules.service('GeoService', [ '$http', 'ftepProperties', '$q', 'MessageService', function ($http, ftepProperties, $q, MessageService) {
 
         /** Set the header defaults **/
         $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -17,6 +17,11 @@ define(['../ftepmodules'], function (ftepmodules) {
         /* private methods-variables */
         var resultCache;
         var ITEMS_PER_PAGE = 20;
+        var MAX_ITEMS_ALLOWED = 100000;
+
+        this.getMaxItemsAllowed = function(){
+            return MAX_ITEMS_ALLOWED;
+        }
 
         function setCache(results){
             if(results && results.length > 0 && results[0].results.totalResults > 0){
@@ -89,9 +94,23 @@ define(['../ftepmodules'], function (ftepmodules) {
             then(function(response) {
                 setCache(response.data.data);
                 deferred.resolve(response.data.data);
+                if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
+                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
+                            +'. Please refine the search parameters to get more precise results.');
+                }
             }).
             catch(function(e) {
                 deferred.reject();
+                var errorMsg = '';
+                switch(e.status){
+                    case -1:
+                        errorMsg = 'Session expired';
+                        break;
+                    default:
+                        errorMsg = e.statusText;
+                        break;
+                }
+                MessageService.addError('Search failed', errorMsg);
             });
 
             return deferred.promise;

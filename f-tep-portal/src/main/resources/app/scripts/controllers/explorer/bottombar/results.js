@@ -16,12 +16,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.spinner = GeoService.spinner;
                 $scope.resultParams = GeoService.params;
 
-                $scope.getPagingValues = function(resultPaging) {
-                    var start = (resultPaging.currentPage * resultPaging.pageSize) - resultPaging.pageSize + 1;
-                    var end = resultPaging.currentPage * resultPaging.pageSize;
-                    return "Showing " + start + " - " + end + " of " + resultPaging.total;
-                };
-
                 $scope.$on('update.geoResults', function(event, results) {
                     $scope.spinner.loading = false;
                     setResults(results);
@@ -54,7 +48,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         else{
                             delete $scope.geoResults;
                         }
-                        $scope.resultPaging.total = results[0].results.totalResults;
+                        if(results[0].results.totalResults > GeoService.getMaxItemsAllowed()){
+                            $scope.resultPaging.total = GeoService.getMaxItemsAllowed();
+                        }
+                        else{
+                            $scope.resultPaging.total = results[0].results.totalResults;
+                        }
 
                         $scope.pageFrom = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize - $scope.resultPaging.pageSize + 1;
                         $scope.pageTo = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize;

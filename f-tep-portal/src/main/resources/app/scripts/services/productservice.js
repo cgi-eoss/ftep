@@ -23,9 +23,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                   servicesCache = response.data.data;
               })
               .catch(function(e){
-                  MessageService.addMessage(
-                      'Error',
-                      'Could not get services',
+                  MessageService.addError(
                       'Could not get services'
                   );
                   deferred.reject();

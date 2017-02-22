@@ -20,9 +20,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                   deferred.resolve(response.data.data);
               })
               .catch(function(e){
-                  MessageService.addMessage(
-                      'Error',
-                      'Could not get projects',
+                  MessageService.addError(
                       'Could not get projects'
                   );
                   deferred.reject();
@@ -41,13 +39,13 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   then(function(response) {
                       resolve(response.data.data);
+                      MessageService.addInfo('Project created', 'New project '.concat(name).concat(' created'));
                   }).
                   catch(function(e) {
                       if(e.status == 409){
-                          MessageService.addMessage(
-                              'Error',
+                          MessageService.addError(
                               'Could not create project',
-                              'Could not create project: conflicts with an already existing one'
+                              'Conflicts with an already existing one'
                           );
                       }
                       reject();
@@ -63,11 +61,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   then(function(response) {
                       resolve(project);
+                      MessageService.addInfo('Project deleted', 'Project '.concat(project.attributes.name).concat(' deleted'));
                   }).
                   catch(function(e) {
-                      MessageService.addMessage(
-                          'Error',
-                          'Failed to remove project',
+                      MessageService.addError(
                           'Failed to remove project'
                       );
                       console.log(e);
@@ -85,11 +82,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                   }).
                   then(function(response) {
                       resolve(response.data.data);
+                      MessageService.addInfo('Project updated', 'Project '.concat(project.attributes.name).concat(' updated'));
                   }).
                   catch(function(e) {
-                      MessageService.addMessage(
-                          'Error',
-                          'Failed to update project',
+                      MessageService.addError(
                           'Failed to update project'
                       );
                       console.log(e);

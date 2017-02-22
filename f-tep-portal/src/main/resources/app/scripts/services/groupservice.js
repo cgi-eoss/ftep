@@ -4,7 +4,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
   'use strict';
 
-  ftepmodules.service('GroupService', [ '$rootScope', '$http', 'ftepProperties', '$q', 'MessageService', function ($rootScope, $http, ftepProperties, $q, MessageService) {
+  ftepmodules.service('GroupService', [ '$rootScope', '$http', 'ftepProperties', '$q', 'MessageService',
+                                        function ($rootScope, $http, ftepProperties, $q, MessageService) {
 
     $http.defaults.headers.post['Content-Type'] = 'application/json';
     $http.defaults.withCredentials = true;
@@ -16,9 +17,7 @@ define(['../ftepmodules'], function (ftepmodules) {
         deferred.resolve(response.data.data);
       })
       .catch(function(e){
-          MessageService.addMessage(
-              'Error',
-              'Could not get Groups',
+          MessageService.addError(
               'Could not get Groups'
           );
           deferred.reject();
@@ -38,13 +37,13 @@ define(['../ftepmodules'], function (ftepmodules) {
         }).
         then(function(response) {
           resolve(response.data.data);
+          MessageService.addInfo('Group created', 'New group '.concat(name).concat(' created'));
         }).
         catch(function(e) {
           if(e.status == 409){
-            MessageService.addMessage(
-                'Error',
+            MessageService.addError(
                 'Could not create group',
-                'Could not create group: conflicts with an already existing one'
+                'Conflicts with an already existing one'
             );
           }
           reject();
@@ -64,11 +63,10 @@ define(['../ftepmodules'], function (ftepmodules) {
         }).
         then(function(response) {
           resolve(group);
+          MessageService.addInfo('Group deleted', 'Group '.concat(group.attributes.name).concat(' deleted'));
         }).
         catch(function(e) {
-            MessageService.addMessage(
-                'Error',
-                'Failed to remove Group',
+            MessageService.addError(
                 'Failed to remove Group'
             );
             console.log(e);
@@ -89,11 +87,10 @@ define(['../ftepmodules'], function (ftepmodules) {
             }).
             then(function(response) {
                 resolve(group);
+                MessageService.addInfo('Group updated', 'Group '.concat(group.attributes.name).concat(' updated'));
             }).
             catch(function(e) {
-                MessageService.addMessage(
-                    'Error',
-                    'Failed to update Group',
+                MessageService.addError(
                     'Failed to update Group'
                 );
                 console.log(e);

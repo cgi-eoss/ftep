@@ -25,7 +25,7 @@ LABEL snap.version="${SNAP_MAJ_VER}.${SNAP_MIN_VER}.${SNAP_POINT_VER}"
 RUN curl -sL "${SNAP_BASE_URL}/${SNAP_INSTALLER}" >/var/tmp/${SNAP_INSTALLER}
 
 # Install SNAP
-ADD SNAP_install.varfile /var/tmp/SNAP_install.varfile
+COPY SNAP_install.varfile /var/tmp/SNAP_install.varfile
 RUN sh /var/tmp/${SNAP_INSTALLER} -q -varfile /var/tmp/SNAP_install.varfile
 
 ##########################

@@ -46,11 +46,11 @@ ENV \
 
 RUN wget $STB_URL/$TBX && chmod +x $TBX
 
-COPY snap2.varfile /
+COPY snap.varfile /tmp/snap.varfile
 
-RUN ./$TBX -q -varfile snap2.varfile
+RUN ./$TBX -q -varfile /tmp/snap.varfile
 
-ENV PATH=/snap/bin:$PATH
+ENV PATH=/opt/snap/bin:$PATH
 
 RUN snap --nosplash --nogui --modules --update-all
 

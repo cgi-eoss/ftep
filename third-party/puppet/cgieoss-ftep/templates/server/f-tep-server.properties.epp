@@ -34,7 +34,7 @@ flyway.locations=db/migration/{vendor}
 spring.jpa.hibernate.ddl-auto=validate
 
 # API configuration
-spring.data.rest.basePath=<%= $api_base_path %>
+ftep.api.basePath=<%= $api_base_path %>
 ftep.api.security.enabled=<%= $api_enable_security %>
 
 # LOCAL worker configuration

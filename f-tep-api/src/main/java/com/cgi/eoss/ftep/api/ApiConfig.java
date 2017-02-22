@@ -73,7 +73,7 @@ public class ApiConfig {
     private static final String ACL_CACHE_NAME = "acls";
 
     @Bean
-    public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${spring.data.rest.basePath:/api}") String apiBasePath) {
+    public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
         return new WebMvcRegistrationsAdapter() {
             @Override
             public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
@@ -99,11 +99,12 @@ public class ApiConfig {
     }
 
     @Bean
-    public RepositoryRestConfigurer repositoryRestConfigurer() {
+    public RepositoryRestConfigurer repositoryRestConfigurer(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
         return new RepositoryRestConfigurerAdapter() {
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.setRepositoryDetectionStrategy(ANNOTATED);
+                config.setBasePath(apiBasePath);
                 // Ensure that the id attribute is returned for all API-mapped types
                 Arrays.stream(new Class<?>[]{Group.class, JobConfig.class, Job.class, FtepService.class, User.class})
                         .forEach(config::exposeIdsFor);

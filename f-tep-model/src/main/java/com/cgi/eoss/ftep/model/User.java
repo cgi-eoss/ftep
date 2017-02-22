@@ -14,13 +14,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * <p>F-TEP user account. Parameters are expected to be provided by an external SSO IdP.</p>
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
-@Table(name = "ftep_users", indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")})
+@Table(name = "ftep_users",
+        indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
 public class User implements FtepEntity<User>, Searchable {

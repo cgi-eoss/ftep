@@ -129,9 +129,11 @@ public class AclsApi {
         IntStream.range(0, acl.getEntries().size()).forEach(acl::deleteAce);
 
         // ... then ensure the owner ACE is present (always ADMIN)
-        Sid ownerSid = new PrincipalSid(owner.getName());
-        FtepPermission.ADMIN.getAclPermissions()
-                .forEach(p -> acl.insertAce(acl.getEntries().size(), p, ownerSid, true));
+        if (owner != null) {
+            Sid ownerSid = new PrincipalSid(owner.getName());
+            FtepPermission.ADMIN.getAclPermissions()
+                    .forEach(p -> acl.insertAce(acl.getEntries().size(), p, ownerSid, true));
+        }
 
         // ...then insert the new ACEs
         newAces.forEach((ace) -> {

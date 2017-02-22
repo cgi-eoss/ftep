@@ -36,6 +36,7 @@ public class ZipHandler {
                 if (ze.isDirectory()) {
                     Files.createDirectories(toCopy);
                 } else {
+                    Files.createDirectories(toCopy.getParent());
                     Files.copy(zis, toCopy, REPLACE_EXISTING);
                 }
                 ze = zis.getNextEntry();

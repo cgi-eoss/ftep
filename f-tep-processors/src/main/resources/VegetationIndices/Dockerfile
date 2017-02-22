@@ -25,7 +25,7 @@ LABEL snap.version="${SNAP_MAJ_VER}.${SNAP_MIN_VER}.${SNAP_POINT_VER}"
 RUN curl -sL "${SNAP_BASE_URL}/${SNAP_INSTALLER}" >/var/tmp/${SNAP_INSTALLER}
 
 # Install SNAP
-ADD SNAP_install.varfile /var/tmp/SNAP_install.varfile
+COPY SNAP_install.varfile /var/tmp/SNAP_install.varfile
 RUN sh /var/tmp/${SNAP_INSTALLER} -q -varfile /var/tmp/SNAP_install.varfile
 
 ##########################
@@ -55,9 +55,5 @@ ENV PATH=/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/bin:/op
 
 # Prepare processor script
 RUN mkdir -p /home/worker/processor
-COPY epsg2utm.py /home/worker/processor/epsg2utm.py
-COPY polygon2nsewBounds.py /home/worker/processor/polygon2nsewBounds.py
-COPY S2_preprocess.xml /home/worker/processor/S2_preprocess.xml
-COPY S2_mosaic.xml /home/worker/processor/S2_mosaic.xml
-COPY workflow.sh /home/worker/processor/workflow.sh
+COPY * /home/worker/processor/
 ENTRYPOINT ["/home/worker/processor/workflow.sh"]

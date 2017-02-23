@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api;
+package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
 import org.springframework.data.repository.CrudRepository;

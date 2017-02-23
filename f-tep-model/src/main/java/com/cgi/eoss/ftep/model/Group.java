@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Sets;
 import lombok.Data;
@@ -90,6 +91,7 @@ public class Group implements FtepEntity<Group>, Searchable, GrantedAuthority {
     }
 
     @Override
+    @JsonIgnore
     public String getAuthority() {
         return GROUP_AUTHORITY_PREFIX + id;
     }

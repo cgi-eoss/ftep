@@ -1,13 +1,18 @@
-package com.cgi.eoss.ftep.api;
+package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.api.projections.ShortGroup;
 import com.cgi.eoss.ftep.model.Group;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-@RepositoryRestResource(path = "groups", itemResourceRel = "group", collectionResourceRel = "groups")
-public interface GroupsApi extends CrudRepository<Group, Long> {
+@RepositoryRestResource(
+        path = "groups",
+        itemResourceRel = "group",
+        collectionResourceRel = "groups",
+        excerptProjection = ShortGroup.class)
+public interface GroupsApi extends GroupsApiInferringOwner, CrudRepository<Group, Long> {
 
     @Override
     @PreAuthorize("hasRole('ROLE_ADMIN')")

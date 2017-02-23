@@ -1,10 +1,9 @@
-package com.cgi.eoss.ftep.api;
+package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.User;
-import com.cgi.eoss.ftep.api.projections.ShortGroup;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -113,7 +112,7 @@ public class AclsApi {
         return groupDataService.getById(Long.parseLong(((GrantedAuthoritySid) ace.getSid()).getGrantedAuthority().replaceFirst("^GROUP_", "")));
     }
 
-    private Group hydrateShortGroup(ShortGroup sGroup) {
+    private Group hydrateSGroup(SGroup sGroup) {
         return groupDataService.getById(sGroup.getId());
     }
 
@@ -137,7 +136,7 @@ public class AclsApi {
 
         // ...then insert the new ACEs
         newAces.forEach((ace) -> {
-            Sid sid = new GrantedAuthoritySid(hydrateShortGroup(ace.getGroup()));
+            Sid sid = new GrantedAuthoritySid(hydrateSGroup(ace.getGroup()));
             ace.getPermission().getAclPermissions()
                     .forEach(p -> acl.insertAce(acl.getEntries().size(), p, sid, true));
         });
@@ -181,7 +180,7 @@ public class AclsApi {
 
     @Data
     @NoArgsConstructor
-    private static final class SGroup implements ShortGroup {
+    private static final class SGroup {
         private Long id;
         private String name;
 

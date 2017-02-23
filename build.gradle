@@ -32,10 +32,10 @@ allprojects {
         dependencies {
             dependency 'ch.qos.logback:logback-classic:1.2.1'
             dependency 'commons-io:commons-io:2.5'
-            dependency 'commons-net:commons-net:3.5'
-            dependency 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-            dependency 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.6'
-            dependency 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.8.6'
+            dependency 'commons-net:commons-net:3.6'
+            dependency 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
+            dependency 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.7'
+            dependency 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.8.7'
             dependency 'com.github.docker-java:docker-java:3.0.0'
             dependency 'com.github.jasminb:jsonapi-converter:0.3'
             dependency 'com.google.code.findbugs:jsr305:3.0.1'
@@ -67,19 +67,19 @@ allprojects {
             dependency 'org.flywaydb:flyway-core:4.1.0'
             dependency 'org.freemarker:freemarker:2.3.25-incubating'
             dependency 'org.hamcrest:hamcrest-junit:2.0.0.0'
-            dependency 'org.hibernate:hibernate-core:5.2.7.Final'
-            dependency 'org.hibernate:hibernate-entitymanager:5.2.7.Final'
+            dependency 'org.hibernate:hibernate-core:5.2.8.Final'
+            dependency 'org.hibernate:hibernate-entitymanager:5.2.8.Final'
             dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
             dependency 'org.hsqldb:hsqldb:2.3.4'
             dependency 'org.lognet:grpc-spring-boot-starter:2.0.0'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
-            dependency 'org.mockito:mockito-core:2.7.6'
-            dependency 'org.postgresql:postgresql:9.4.1212'
+            dependency 'org.mockito:mockito-core:2.7.11'
+            dependency 'org.postgresql:postgresql:42.0.0'
             dependency 'org.projectlombok:lombok:1.16.14'
-            dependency 'org.seleniumhq.selenium:selenium-java:3.0.1'
-            dependency 'org.slf4j:jcl-over-slf4j:1.7.22'
-            dependency 'org.slf4j:jul-to-slf4j:1.7.22'
-            dependency 'org.slf4j:slf4j-api:1.7.22'
+            dependency 'org.seleniumhq.selenium:selenium-java:3.1.0'
+            dependency 'org.slf4j:jcl-over-slf4j:1.7.23'
+            dependency 'org.slf4j:jul-to-slf4j:1.7.23'
+            dependency 'org.slf4j:slf4j-api:1.7.23'
             dependency 'org.springframework:spring-context:4.3.6.RELEASE'
             dependency 'org.springframework:spring-orm:4.3.6.RELEASE'
             dependency 'org.springframework:spring-test:4.3.6.RELEASE'
@@ -98,8 +98,8 @@ allprojects {
             dependency 'org.springframework.security:spring-security-config:4.2.1.RELEASE'
             dependency 'org.springframework.security:spring-security-core:4.2.1.RELEASE'
             dependency 'org.springframework.security:spring-security-web:4.2.1.RELEASE'
-            dependency 'org.testcontainers:selenium:1.1.8'
-            dependency 'org.testcontainers:testcontainers:1.1.8'
+            dependency 'org.testcontainers:selenium:1.1.9'
+            dependency 'org.testcontainers:testcontainers:1.1.9'
         }
     }
 }
@@ -110,7 +110,7 @@ def depVersions = [
         dependencyManagementPlugin: '1.0.0.RELEASE',
         jsPlugin                  : '2.14.1',
         osPackagePlugin           : '4.3.0',
-        protobufPlugin            : '0.8.0',
+        protobufPlugin            : '0.8.1',
         shadowPlugin              : '1.2.4',
         springBootPlugin          : '1.5.1.RELEASE'
 ]

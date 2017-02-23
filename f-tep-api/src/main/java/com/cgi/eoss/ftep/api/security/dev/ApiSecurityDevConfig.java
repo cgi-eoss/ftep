@@ -1,5 +1,6 @@
-package com.cgi.eoss.ftep.api.security;
+package com.cgi.eoss.ftep.api.security.dev;
 
+import com.cgi.eoss.ftep.api.security.FtepUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,34 +20,37 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
-import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 @Configuration
-@ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "SSO")
+@ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
 @EnableWebSecurity
 @EnableGlobalAuthentication
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-public class ApiSecurityConfig {
+public class ApiSecurityDevConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader) {
+            @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute) {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(HttpSecurity httpSecurity) throws Exception {
-                // Extracts the shibboleth user id from the request
-                RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
-                filter.setAuthenticationManager(authenticationManager());
-                filter.setPrincipalRequestHeader(usernameRequestHeader);
+                // Maps a session attribute to a request attribute, allowing us to choose a user id per session
+                SessionUserAttributeInjectorFilter sessionUserAttributeInjector = new SessionUserAttributeInjectorFilter(usernameRequestAttribute);
 
-                // Handles any authentication exceptions, and translates to a simple 403
-                // There is no login redirection as we are expecting pre-auth
+                // Retrieve the "sso" user from the request attributes (not from headers, as in SSO mode)
+                RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
+                filter.setAuthenticationManager(authenticationManager());
+                filter.setPrincipalEnvironmentVariable(usernameRequestAttribute);
+                filter.setExceptionIfVariableMissing(false);
+
                 ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
 
                 httpSecurity
-                        .addFilterBefore(exceptionTranslationFilter, RequestAttributeAuthenticationFilter.class)
+                        .addFilterBefore(sessionUserAttributeInjector, RequestAttributeAuthenticationFilter.class)
+                        .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
                         .addFilter(filter)
                         .authorizeRequests()
+                        .antMatchers("/user/become/*").permitAll()
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();

@@ -112,9 +112,9 @@ public class ApiConfig {
         };
     }
 
-    // Spring Security configuration for anonymous/open access, used when ftep.api.security.enabled is false
+    // Spring Security configuration for anonymous/open access
     @Bean
-    @ConditionalOnProperty(value = "ftep.api.security.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "NONE", matchIfMissing = true)
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
         return new WebSecurityConfigurerAdapter() {
             @Override

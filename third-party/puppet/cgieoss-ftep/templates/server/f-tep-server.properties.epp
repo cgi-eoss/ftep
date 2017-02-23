@@ -9,7 +9,7 @@
     String $jdbc_data_source_class_name,
 
     String $api_base_path,
-    Boolean $api_enable_security,
+    String $api_security_mode,
 
     String $local_worker_hostname,
     Integer $local_worker_grpc_port
@@ -35,7 +35,7 @@ spring.jpa.hibernate.ddl-auto=validate
 
 # API configuration
 ftep.api.basePath=<%= $api_base_path %>
-ftep.api.security.enabled=<%= $api_enable_security %>
+ftep.api.security.mode=<%= $api_security_mode %>
 
 # LOCAL worker configuration
 ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>

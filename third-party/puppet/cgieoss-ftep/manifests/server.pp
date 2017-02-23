@@ -16,7 +16,7 @@ class ftep::server (
   $jdbc_datasource_class_name = 'org.postgresql.ds.PGSimpleDataSource',
 
   $api_base_path              = '/secure/api/v2.0',
-  $api_enable_security        = false,
+  $api_security_mode          = 'NONE',
 
   $local_worker_hostname      = 'ftep-worker',
   $local_worker_grpc_port     = undef,
@@ -58,7 +58,7 @@ class ftep::server (
       'jdbc_password'               => $real_db_pass,
       'jdbc_data_source_class_name' => $jdbc_datasource_class_name,
       'api_base_path'               => $api_base_path,
-      'api_enable_security'         => $api_enable_security,
+      'api_security_mode'           => $api_security_mode,
       'local_worker_hostname'       => $local_worker_hostname,
       'local_worker_grpc_port'      => $real_local_worker_grpc_port,
     }),

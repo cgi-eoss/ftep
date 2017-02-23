@@ -68,7 +68,7 @@ for IN in $(find -L ${IN_DIR} -type d -name 'S2*.SAFE' | head -1); do
     INPUT_FILE="${IN}/${XML}"
     # Read the product with each possible formatName (UTM zone)
     COVERED_EPSGS=($(${S2PRODUCTZONES} ${IN}/GRANULE/*/S2*.xml))
-    for PRODUCT_EPSG in COVERED_EPSGS; do
+    for PRODUCT_EPSG in $COVERED_EPSGS; do
         UTM_ZONE=$(${EPSG2UTM} ${PRODUCT_EPSG#EPSG:})
         FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
         time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"

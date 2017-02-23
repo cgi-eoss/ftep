@@ -48,11 +48,26 @@ input {
 /* End of Groups */
 
 #community-container {
-  margin-top: 50px;
+  height: 100%;
+  margin: 0;
   padding-left: 44px;
+  padding-top: 50px;
+}
+#community-container #groups {
+  border-top: #d2d2d2 solid 1px;
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+#community-container #groups #groups-container {
+  border-right: #d2d2d2 solid 1px;
 }
 #community-container .left-container {
-  width: 50%;
+  min-height: 100%;
+}
+#community-container .left-container h2 {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
 }
 #community-container .left-container md-input-container {
   margin: 0;
@@ -64,10 +79,84 @@ input {
   color: rgba(0, 0, 0, 0.4);
 }
 #community-container .right-container {
-  width: 50%;
+  padding: 0;
+}
+#community-container .right-container h2 {
+  margin-top: 0;
+}
+#community-container .right-container md-content {
+  background-color: #ffffff;
+}
+#community-container .right-container md-input-container {
+  margin: 0;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.7);
+}
+#community-container .right-container md-input-container .hint {
+  font-size: 0.6rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+#community-container .right-container md-tabs-canvas {
+  border-bottom: #d2d2d2 solid 1px;
+}
+#community-container .section-title {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 1rem;
+}
+#community-container .section-title h2 {
+  margin: 0;
+}
+#community-container .section-title .title-button {
+  color: #558b2f;
+  padding: 0;
+}
+#community-container .section-title .title-button h2 {
+  padding-left: 0;
+  padding-right: 0;
+}
+#community-container .section-title .title-button h2 .md-button {
+  padding: 0 10px;
+}
+#community-container .section-title .title-button:hover {
+  color: #33691e;
+}
+#community-container .section-title .title-text {
+  padding: 0;
+  padding-top: 0.2rem;
+}
+#community-container #bottombar {
+  background-color: #ffffff;
+  border-top: #adadad solid 1px;
 }
 
 
+#groups-container {
+  background-color: #f8f8f8;
+  padding: 0.5rem;
+}
+#groups-container .section-title {
+  padding-bottom: 0.5rem;
+}
+
+#user-container .user-list .md-avatar {
+  margin: 0;
+}
+#user-container .user-list .md-avatar .material-icons {
+  height: 100%;
+  padding: 10px;
+  width: 100%;
+}
+#user-container .user-list h4 {
+  margin: 0;
+  padding-left: 1rem;
+}
+#user-container .user-list .toolbar-button {
+  padding: 0 10px;
+}
+#user-container .user-list md-list-item:hover {
+  background-color: #d9edf7;
+}
 
 #bottombar {
   bottom: 0;
@@ -93,7 +182,7 @@ input {
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   height: 42px;
-  min-width: calc(44px + 380px);
+  min-width: calc(44px + 336px);
   width: 100%;
 }
 #bottombar #bottombar-header #bottombar-tabs {
@@ -159,7 +248,7 @@ input {
       flex: 1 1 auto;
   height: calc(100% - 42px);
   margin: 0;
-  min-width: calc(44px + 380px);
+  min-width: calc(44px + 336px);
 }
 #bottombar #bottombar-contents .bottombar-pane {
   height: 100%;
@@ -588,7 +677,7 @@ input {
   padding: 5px 0px;
 }
 .ftep .md-dialog-container md-dialog {
-  min-width: calc(44px + 380px);
+  min-width: calc(44px + 336px);
 }
 
 .ftep ul[dnd-list],
@@ -1158,11 +1247,10 @@ input {
 #sidebar-left {
   background-color: transparent;
   height: 100%;
-  padding-left: 44px;
+  margin-left: 44px;
   padding-top: 50px;
   position: absolute;
-  min-width: 380px;
-  max-width: 380px;
+  min-width: 336px;
   z-index: 2;
   /** Slider Styles **/
 }
@@ -1262,7 +1350,7 @@ input {
 #sidebar-left #mCSB_2_container {
   margin: 0;
   padding: 0;
-  max-width: 380px;
+  max-width: 336px;
 }
 #sidebar-left .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
   background-color: #ff80ab;
@@ -1369,7 +1457,7 @@ input {
   left: 0;
   position: fixed;
   top: 0;
-  max-width: 44px;
+  width: 44px;
   z-index: 10;
   background-color: rgba(50, 50, 50, 0.7);
 }

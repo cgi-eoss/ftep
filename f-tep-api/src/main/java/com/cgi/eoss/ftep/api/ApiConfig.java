@@ -7,7 +7,6 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
-import com.cgi.eoss.ftep.persistence.service.FtepEntityDataService;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -28,7 +27,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.AuditLogger;
@@ -42,6 +40,7 @@ import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
@@ -53,7 +52,6 @@ import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED;
 
@@ -71,6 +69,16 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 public class ApiConfig {
 
     private static final String ACL_CACHE_NAME = "acls";
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping(apiBasePath + "/**");
+            }
+        };
+    }
 
     @Bean
     public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
@@ -105,6 +113,7 @@ public class ApiConfig {
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.setRepositoryDetectionStrategy(ANNOTATED);
                 config.setBasePath(apiBasePath);
+                config.getCorsRegistry().addMapping(apiBasePath + "/**");
                 // Ensure that the id attribute is returned for all API-mapped types
                 Arrays.stream(new Class<?>[]{Group.class, JobConfig.class, Job.class, FtepService.class, User.class})
                         .forEach(config::exposeIdsFor);

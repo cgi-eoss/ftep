@@ -27,7 +27,6 @@ dependencies {
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.springframework:spring-test'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'org.springframework.boot:spring-boot-starter-undertow'
 
     testRuntime 'ch.qos.logback:logback-classic'
 }

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.projections;
 
 import com.cgi.eoss.ftep.model.Group;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 /**
@@ -9,5 +10,8 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name = "shortGroup", types = {Group.class})
 public interface ShortGroup extends EmbeddedId {
     String getName();
+    String getDescription();
     ShortUser getOwner();
+    @Value("#{target.members.size()}")
+    Integer getSize();
 }

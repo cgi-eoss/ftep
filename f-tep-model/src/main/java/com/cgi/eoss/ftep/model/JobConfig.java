@@ -33,7 +33,7 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs"}))
 @NoArgsConstructor
 @Entity
-public class JobConfig implements FtepEntity<JobConfig> {
+public class JobConfig implements FtepEntityWithOwner<JobConfig> {
 
     /**
      * <p>Unique identifier of the job.</p>

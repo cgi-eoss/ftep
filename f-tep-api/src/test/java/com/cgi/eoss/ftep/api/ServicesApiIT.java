@@ -146,7 +146,7 @@ public class ServicesApiIT {
         mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(ftepAdmin) + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/services/\\d+$")));
-        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepContentAuthority.getName()).content("{\"name\": \"service-2\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(ftepContentAuthority) + "\"}"))
+        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepContentAuthority.getName()).content("{\"name\": \"service-2\", \"dockerTag\": \"dockerTag\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/services/\\d+$")));
 

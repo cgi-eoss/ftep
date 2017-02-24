@@ -33,7 +33,7 @@ import java.time.LocalDateTime;
         uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
 @NoArgsConstructor
 @Entity
-public class Job implements FtepEntity<Job> {
+public class Job implements FtepEntityWithOwner<Job> {
 
     /**
      * <p>Internal unique identifier of the job.</p>

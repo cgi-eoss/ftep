@@ -33,7 +33,7 @@ import java.util.Set;
         uniqueConstraints = {@UniqueConstraint(name = "ftep_groups_name_owner_idx", columnNames = {"name", "owner"})})
 @NoArgsConstructor
 @Entity
-public class Group implements FtepEntity<Group>, Searchable, GrantedAuthority {
+public class Group implements FtepEntityWithOwner<Group>, Searchable, GrantedAuthority {
 
     private static final String GROUP_AUTHORITY_PREFIX = "GROUP_";
 

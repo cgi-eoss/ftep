@@ -35,7 +35,7 @@ import java.util.UUID;
                 @UniqueConstraint(columnNames = "resto_id")})
 @NoArgsConstructor
 @Entity
-public class FtepFile implements FtepEntity<FtepFile> {
+public class FtepFile implements FtepEntityWithOwner<FtepFile> {
     /**
      * <p>Internal unique identifier of the file.</p>
      */

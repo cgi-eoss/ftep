@@ -30,7 +30,7 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
-public class FtepService implements FtepEntity<FtepService>, Searchable {
+public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable {
     /**
      * <p>Internal unique identifier of the service.</p>
      */

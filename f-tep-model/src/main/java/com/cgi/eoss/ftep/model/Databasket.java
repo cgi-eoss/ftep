@@ -28,7 +28,7 @@ import java.util.Set;
         uniqueConstraints = {@UniqueConstraint(name = "ftep_databaskets_name_owner_idx", columnNames = {"name", "owner"})})
 @NoArgsConstructor
 @Entity
-public class Databasket implements FtepEntity<Databasket>, Searchable {
+public class Databasket implements FtepEntityWithOwner<Databasket>, Searchable {
     /**
      * <p>Internal unique identifier of the databasket.</p>
      */

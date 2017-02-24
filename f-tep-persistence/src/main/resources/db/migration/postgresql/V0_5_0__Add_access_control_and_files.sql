@@ -112,7 +112,8 @@ CREATE TABLE ftep_files (
   uri      CHARACTER VARYING(255) NOT NULL,
   resto_id UUID                   NOT NULL,
   type     ftep_services_status,
-  owner    BIGINT REFERENCES ftep_users (uid)
+  owner    BIGINT REFERENCES ftep_users (uid),
+  filename CHARACTER VARYING(255)
 );
 CREATE UNIQUE INDEX ftep_files_uri_idx
   ON ftep_files (uri);

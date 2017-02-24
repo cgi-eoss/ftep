@@ -4,6 +4,11 @@ version '0.5.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'jacoco'
 
+repositories {
+    maven { url mavenGeosolutionsUrl }
+    maven { url mavenOsgeoUrl }
+}
+
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
@@ -11,9 +16,18 @@ dependencies {
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
+    compile 'com.fasterxml.jackson.core:jackson-core'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'de.grundid.opendatalab:geojson-jackson'
+    compile 'it.geosolutions:geoserver-manager'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.geotools:gt-main'
+    compile 'org.geotools:gt-geojson'
+    compile 'org.geotools:gt-geometry'
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.slf4j:slf4j-api'
     compile 'org.springframework:spring-context'
+    compile 'org.springframework:spring-web'
 
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'

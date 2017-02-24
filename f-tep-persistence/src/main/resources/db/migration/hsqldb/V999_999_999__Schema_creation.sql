@@ -100,7 +100,8 @@ CREATE TABLE ftep_files (
   uri      CHARACTER VARYING(255) NOT NULL,
   resto_id BINARY(255)            NOT NULL,
   type     CHARACTER VARYING(255) CHECK (type IN ('REFERENCE_DATA', 'OUTPUT_PRODUCT', 'EXTERNAL_PRODUCT')),
-  owner    BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
+  owner    BIGINT FOREIGN KEY REFERENCES ftep_users (uid),
+  filename CHARACTER VARYING(255)
 );
 CREATE UNIQUE INDEX ftep_files_uri_idx
   ON ftep_files (uri);

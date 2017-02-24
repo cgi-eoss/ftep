@@ -23,6 +23,10 @@ import javax.persistence.UniqueConstraint;
 import java.net.URI;
 import java.util.UUID;
 
+/**
+ * <p>A raw reference to an F-TEP file-type object. Files may be physically located on disk, or simply references to
+ * external files. These objects may be included in databaskets.</p>
+ */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_files",
@@ -45,7 +49,7 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
     private Long id;
 
     /**
-     * <p>Unique URI for the file. May be in an F-TEP internal form, e.g. "<code>ftep://refdata/abc123</code>".</p>
+     * <p>Unique URI for the file. May be in an F-TEP internal form, e.g. "<code>"ftep://refData/${owner}/${restoId}"</code>".</p>
      */
     @Column(name = "uri", nullable = false)
     @Convert(converter = UriStringConverter.class)
@@ -71,6 +75,12 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner")
     private User owner;
+
+    /**
+     * <p>Real filename to be used when materialising this file reference.</p>
+     */
+    @Column(name = "filename")
+    private String filename;
 
     /**
      * <p>Construct a new FtepFile instance with the minimum mandatory (and unique) parameters.</p>

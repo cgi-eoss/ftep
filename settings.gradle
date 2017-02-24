@@ -18,9 +18,12 @@ include 'f-tep-orchestrator'
 include 'f-tep-api'
 include 'f-tep-server'
 include 'f-tep-worker'
+include 'f-tep-catalogue'
 
 include 'third-party/cxx/zoo-project'
+include 'third-party/java/jai_core'
 include 'third-party/pkg'
 include 'third-party/puppet'
 
 include 'distribution'
+

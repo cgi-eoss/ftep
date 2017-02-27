@@ -1,0 +1,16 @@
+<nav id="ftep-nav-wrapper">
+
+    <ul class="ftep-nav">
+        <li ng-click="toggleDevPage(developerSideNavs.REFERENCE_DATA)">
+            <i class="material-icons" uib-tooltip="Reference data" tooltip-placement="right">description</i>
+        </li>
+        <li ng-click="toggleDevPage(developerSideNavs.SERVICES)">
+            <i class="material-icons" uib-tooltip="Services" tooltip-placement="right">settings_remote</i>
+        </li>
+        <li ng-click="toggleBottomView()" class="notification-container">
+            <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
+            <span class="notification">{{message.count}}</span>
+        </li>
+    </ul>
+
+</nav>

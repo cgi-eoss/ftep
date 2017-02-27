@@ -16,6 +16,8 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         var communityTabs = { MANAGE: 0, SHARE: 1};
 
+        var developerSideNavs = { REFERENCE_DATA: 0, SERVICES: 1 };
+
         this.getSideNavTabs = function(){
             return angular.copy(sideNavTabs);
         };
@@ -28,13 +30,18 @@ define(['../ftepmodules'], function (ftepmodules) {
             return angular.copy(communityTabs);
         };
 
+        this.getDeveloperSideNavs = function(){
+            return angular.copy(developerSideNavs);
+        }
+
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
                 activeSideNav: undefined,
                 activeBottomNav: bottomNavTabs.RESULTS,
                 bottomViewVisible: false,
                 sideViewVisible: false,
-                activeCommunityPage: 0
+                activeCommunityPage: communityTabs.MANAGE,
+                activeDeveloperPage: developerSideNavs.REFERENCE_DATA
         };
 
         /** END OF PRESERVE USER SELECTIONS **/

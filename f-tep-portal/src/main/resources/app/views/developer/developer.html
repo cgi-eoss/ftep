@@ -1,1 +1,17 @@
-<h3>Under construction..</h3>
+<div id="developer-container" layout="row" ng-controller="DeveloperCtrl">
+    <div id="sidenav">
+        <div ng-include src="'views/developer/sidenav.html'"></div>
+    </div>
+
+    <div id="reference-container" ng-include src="'views/developer/references.html'" class="row no-margin"
+            ng-show="navInfo.activeDeveloperPage == developerSideNavs.REFERENCE_DATA"></div>
+
+    <div id="service-container" ng-include src="'views/developer/services.html'" class="row no-margin"
+            ng-show="navInfo.activeDeveloperPage == developerSideNavs.SERVICES"></div>
+
+    <section id="bottombar"
+             class="explorer-content"
+             ng-controller="BottombarCtrl"
+             ng-include src="'views/developer/bottombar/bottombar.html'"
+             ng-show="navInfo.bottomViewVisible" />
+</div>

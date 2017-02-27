@@ -65,6 +65,7 @@ clientDependencies {
         'ng-scrollbar'('0.0.8')
         'requirejs'('2.3.2')
         'requirejs-domready'('2.0.3', into: 'domready')
+        'ng-file-upload'('12.2.13')
         'traverson'('6.0.1')
         'traverson-angular'('6.0.0')
         'traverson-hal'('6.0.0')

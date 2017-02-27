@@ -33,6 +33,7 @@ require.config({
     requireLib: 'vendor/requirejs/require',
     traversonAngular: 'vendor/traverson-angular/browser/dist/traverson-angular',
     traversonHal: 'vendor/traverson-hal/browser/dist/traverson-hal',
+    ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
 
     // ZOO-Client and dependencies
     hogan: 'zoo-client/lib/hogan/hogan-3.0.2',
@@ -161,6 +162,10 @@ require.config({
     traversonHal: {
        deps: ['traversonAngular'],
        exports: ['traversonHal']
+    },
+    ngFileUpload: {
+        deps: ['angular'],
+        exports: 'ngFileUpload'
     },
     ftepConfig: {
       exports: 'ftepConfig'

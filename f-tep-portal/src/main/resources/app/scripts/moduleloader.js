@@ -1,5 +1,6 @@
 define([
     //contollers
+    './controllers/developer',
     './controllers/helpdesk',
     './controllers/index',
     './controllers/navbar',
@@ -48,6 +49,7 @@ define([
     './services/messageservice',
     './services/projectservice',
     './services/productservice',
+    './services/referenceservice',
     './services/tabservice',
     './services/userservice',
     './services/wpsservice'

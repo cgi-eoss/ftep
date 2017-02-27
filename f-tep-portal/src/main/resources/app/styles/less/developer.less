@@ -1,0 +1,48 @@
+@import "variable";
+#developer-container{
+    height: calc(100% ~'-' @navbar-height);
+    margin: 0;
+    margin-left: @sidenav-width;
+    margin-top: @navbar-height;
+    #reference-container{
+        width: 100%;
+        #user-references{
+            .reference-list{
+                list-style: none;
+                padding-left: 0px;
+                .refrence-item{
+                    border: solid 1px @light-gray;
+                    padding: 4px 10px;
+                    margin-top: 2px;
+                }
+            }
+        }
+        #refDataForm{
+            padding: 5px 20px 40px 20px;
+            border: solid 2px @light-gray;
+            float: right;
+            md-input-container{
+                width: 100%;
+            }
+            .form-fields{
+                padding: 20px;
+            }
+            .drop-box{
+                border: 5px dashed @light-gray;
+                width: 100%;
+                height: 100px;
+                text-align: center;
+                padding-top: 25px;
+            }
+            #referenceSubmithButton{
+                background-color: @accent-light;
+                float: right;
+                margin-right: 40px;
+                padding: 0px;
+                &:hover {
+                    background-color: @accent;
+                }
+            }
+        }
+    }
+}

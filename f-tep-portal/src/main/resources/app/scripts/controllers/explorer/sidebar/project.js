@@ -8,7 +8,7 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('ProjectCtrl', function ($scope, ProjectService) {
+    ftepmodules.controller('ProjectCtrl', ['$scope', 'ProjectService', function ($scope, ProjectService) {
 
         $scope.projects = [{
                 "type": "project",
@@ -96,6 +96,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
-    });
+    }]);
 
 });

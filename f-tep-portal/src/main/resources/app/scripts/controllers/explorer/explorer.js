@@ -8,7 +8,8 @@
 define(['../../ftepmodules'], function (ftepmodules) {
   'use strict';
 
-  ftepmodules.controller('ExplorerCtrl', function ($scope, $rootScope, $mdDialog, TabService, MessageService) {
+  ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService',
+    function ($scope, $rootScope, $mdDialog, TabService, MessageService) {
 
     /* Active session message count */
     $scope.message = {};
@@ -205,5 +206,5 @@ define(['../../ftepmodules'], function (ftepmodules) {
          };
        }
     };
-  });
+  }]);
 });

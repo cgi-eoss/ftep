@@ -89,12 +89,13 @@ javascript.source {
     }
 }
 
-String finalJs = "${buildDir}/requireJs/all.js"
+String bigJs = "${buildDir}/requireJs/all.js"
+String minJs = "${buildDir}/requireJs/all.min.js"
 
 // Concatenate all required JS resources for the main app
 requireJs {
     source = [javascript.source.ftep.js.files, javascript.source.vendor.js.files]
-    dest = file(finalJs)
+    dest = file(bigJs)
     requirejs.buildprofile = file("${projectDir}/src/main/requireJs/build.js")
     requirejs.impl = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
 
@@ -103,8 +104,8 @@ requireJs {
 
 // TODO Test and enable minification, and change finalJs
 minifyJs {
-    source = "${buildDir}/requireJs/all.js"
-    dest = "${buildDir}/requireJs/all.min.js"
+    source = bigJs
+    dest = minJs
     closure {
         compilerOptions = [
                 'languageIn': 'ECMASCRIPT5'
@@ -127,7 +128,7 @@ task copyApp(type: Copy) {
 }
 
 task copyJs(type: Copy) {
-    from finalJs
+    from minifyJs
     into "${buildDir}/staging/scripts"
     rename { return "app.js" }
 
@@ -149,6 +150,8 @@ task copyIndex(type: Copy) {
     filter { line ->
         line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
                 '<script src="scripts/app.js"></script>')
+    }
+    filter { line ->
         line.replace('<meta id="version" name="version" content="dev">',
                 "<meta id=\"version\" name=\"version\" content=\"${getBannerVersion()}\">")
     }

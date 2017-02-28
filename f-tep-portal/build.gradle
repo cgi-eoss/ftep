@@ -149,9 +149,17 @@ task copyIndex(type: Copy) {
     filter { line ->
         line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
                 '<script src="scripts/app.js"></script>')
+        line.replace('<meta id="version" name="version" content="dev">',
+                "<meta id=\"version\" name=\"version\" content=\"${getBannerVersion()}\">")
     }
 
     dependsOn copyApp, copyJs, copyConfig
+}
+
+String getBannerVersion() {
+    return project.version.endsWith('-SNAPSHOT') ?
+            "${getRpmVersion(project.version).version}-dev" :
+            "${getRpmVersion(project.version).version}"
 }
 
 buildRpm.dependsOn tasks.withType(Copy)

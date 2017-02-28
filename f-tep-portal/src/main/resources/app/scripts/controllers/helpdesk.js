@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('HelpdeskCtrl', function ($scope, $http, ProductService) {
+    ftepmodules.controller('HelpdeskCtrl', ['$scope', '$http', 'ProductService', function ($scope, $http, ProductService) {
 
         $scope.videos = [
                  {
@@ -51,6 +51,6 @@ define(['../ftepmodules'], function (ftepmodules) {
         }
         setup();
 
-    });
+    }]);
 });
 

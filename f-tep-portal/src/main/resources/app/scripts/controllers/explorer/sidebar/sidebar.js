@@ -8,7 +8,7 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('SidebarCtrl', function ($scope, $timeout, $mdSidenav, TabService) {
+    ftepmodules.controller('SidebarCtrl', ['$scope', '$timeout', '$mdSidenav', 'TabService', function ($scope, $timeout, $mdSidenav, TabService) {
 
         $scope.sideViewVisible = TabService.sideViewVisible;
         $scope.sideNavTabs = TabService.getSideNavTabs();
@@ -64,6 +64,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         }
         setup();
 
-    });
+    }]);
 
 });

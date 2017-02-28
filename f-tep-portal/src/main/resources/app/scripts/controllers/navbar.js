@@ -8,9 +8,9 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('NavbarCtrl', function ($scope, $location) {
+    ftepmodules.controller('NavbarCtrl', ['$scope', '$location', function ($scope, $location) {
         $scope.isActive = function (route) {
             return route === $location.path();
         };
-    });
+    }]);
 });

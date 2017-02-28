@@ -8,7 +8,7 @@
 define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
     'use strict';
 
-    ftepmodules.service('MapService', function () {
+    ftepmodules.service('MapService', [function () {
 
         this.searchPolygon = { selectedArea: undefined, wkt: undefined };
         this.mapType = {active: 'MapBox'};
@@ -47,5 +47,5 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
         });
 
         return this;
-    });
+    }]);
 });

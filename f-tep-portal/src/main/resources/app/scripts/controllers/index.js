@@ -8,13 +8,13 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('IndexCtrl', function ($scope, $location) {
+    ftepmodules.controller('IndexCtrl', ['$scope', '$location', function ($scope, $location) {
 
         $scope.goTo = function ( path ) {
             $location.path( path );
         };
 
         $scope.version = document.getElementById("version").content;
-      });
+      }]);
 
 });

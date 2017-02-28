@@ -9,14 +9,10 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
-import org.geotools.geometry.GeometryBuilder;
-import org.geotools.geometry.text.WKTParser;
-import org.opengis.geometry.Geometry;
-import org.opengis.geometry.primitive.Point;
-import org.opengis.geometry.primitive.Primitive;
-import org.opengis.geometry.primitive.Surface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,23 +22,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.UUID;
 
 @Slf4j
 @Component
-public class ReferenceDataServiceImpl implements ReferenceDataService {
+public class FilesystemReferenceDataService implements ReferenceDataService {
 
     private final Path referenceDataBasedir;
-    private final GeometryBuilder geometryBuilder;
-    private final WKTParser wktParser;
     private final RestoService resto;
 
     @Autowired
-    public ReferenceDataServiceImpl(@Qualifier("referenceDataBasedir") Path referenceDataBasedir, GeometryBuilder geometryBuilder, WKTParser wktParser, RestoService resto) {
+    public FilesystemReferenceDataService(@Qualifier("referenceDataBasedir") Path referenceDataBasedir, RestoService resto) {
         this.referenceDataBasedir = referenceDataBasedir;
-        this.geometryBuilder = geometryBuilder;
-        this.wktParser = wktParser;
         this.resto = resto;
     }
 
@@ -73,6 +64,12 @@ public class ReferenceDataServiceImpl implements ReferenceDataService {
         ftepFile.setOwner(owner);
         ftepFile.setFilename(filename);
         return ftepFile;
+    }
+
+    @Override
+    public Resource resolve(FtepFile file) {
+        Path path = referenceDataBasedir.resolve(String.valueOf(file.getOwner().getId())).resolve(file.getFilename());
+        return new PathResource(path);
     }
 
     private GeoJsonObject getGeoJsonGeometry(String geometry) {

@@ -20,13 +20,8 @@ allprojects {
 
     repositories {
         maven { url mavenCentralUrl }
-    }
-
-    configurations.all {
-        resolutionStrategy.dependencySubstitution {
-            // jai_core is not present in maven central, so is manually bundled here
-            substitute module("javax.media:jai_core:1.1.3") with project(":third-party/java/jai_core")
-        }
+        maven { url mavenGeosolutionsUrl }
+        maven { url mavenOsgeoUrl }
     }
 
     buildDir = 'target'
@@ -79,9 +74,15 @@ allprojects {
             dependency 'org.ehcache:ehcache:3.2.0'
             dependency 'org.flywaydb:flyway-core:4.1.0'
             dependency 'org.freemarker:freemarker:2.3.25-incubating'
-            dependency 'org.geotools:gt-main:16.2'
-            dependency 'org.geotools:gt-geojson:16.2'
-            dependency 'org.geotools:gt-geometry:16.2'
+            dependency('org.geotools:gt-main:16.2') {
+                exclude 'javax.media:jai_core' // project(':third-party/java/jai_core') must be manually included
+            }
+            dependency('org.geotools:gt-geojson:16.2') {
+                exclude 'javax.media:jai_core'
+            }
+            dependency('org.geotools:gt-geometry:16.2') {
+                exclude 'javax.media:jai_core'
+            }
             dependency 'org.hamcrest:hamcrest-junit:2.0.0.0'
             dependency 'org.hibernate:hibernate-core:5.2.8.Final'
             dependency 'org.hibernate:hibernate-entitymanager:5.2.8.Final'

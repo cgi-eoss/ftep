@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Job;
@@ -61,6 +62,8 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         PropertyPlaceholderAutoConfiguration.class,
         RepositoryRestMvcAutoConfiguration.class,
         WebMvcAutoConfiguration.EnableWebMvcConfiguration.class,
+
+        CatalogueConfig.class,
         PersistenceConfig.class
 })
 @EnableCaching

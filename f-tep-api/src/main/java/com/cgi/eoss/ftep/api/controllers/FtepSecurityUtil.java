@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,8 +21,12 @@ public class FtepSecurityUtil {
     }
 
     public void updateOwnerWithCurrentUser(FtepEntityWithOwner entity) {
+        entity.setOwner(getCurrentUser());
+    }
+
+    public User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        entity.setOwner(userDataService.getByName(username));
+        return userDataService.getByName(username);
     }
 
 }

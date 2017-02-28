@@ -7,6 +7,7 @@ apply plugin: 'jacoco'
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
+    compile project(':f-tep-catalogue')
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
 

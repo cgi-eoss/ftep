@@ -4,13 +4,11 @@ version '0.5.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'jacoco'
 
-repositories {
-    maven { url mavenGeosolutionsUrl }
-    maven { url mavenOsgeoUrl }
-}
-
 dependencies {
     compileOnly 'org.projectlombok:lombok'
+
+    // Manually import excluded dependency from geotools
+    compile project(':third-party/java/jai_core')
 
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')

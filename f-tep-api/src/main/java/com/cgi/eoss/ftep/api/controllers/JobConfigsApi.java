@@ -7,7 +7,7 @@ import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(path = "jobConfigs", itemResourceRel = "jobConfig", collectionResourceRel = "jobConfigs")
-public interface JobConfigsApi extends CrudRepository<JobConfig, Long> {
+public interface JobConfigsApi extends JobConfigsApiInferringOwner, CrudRepository<JobConfig, Long> {
 
     @Override
     @PreAuthorize("hasRole('ROLE_ADMIN')")

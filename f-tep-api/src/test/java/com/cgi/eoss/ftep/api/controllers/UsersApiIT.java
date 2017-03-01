@@ -1,5 +1,6 @@
-package com.cgi.eoss.ftep.api;
+package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;

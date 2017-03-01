@@ -17,7 +17,7 @@ import java.util.List;
         collectionResourceRel = "services",
         excerptProjection = ShortFtepService.class
 )
-public interface ServicesApi extends CrudRepository<FtepService, Long> {
+public interface ServicesApi extends ServicesApiInferringOwner, CrudRepository<FtepService, Long> {
 
     // TODO Evaluate performance and prefer limiting by query rather than @PostFilter
     @Override

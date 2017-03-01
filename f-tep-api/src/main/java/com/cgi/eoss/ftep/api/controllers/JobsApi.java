@@ -8,7 +8,7 @@ import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(path = "jobs", itemResourceRel = "job", collectionResourceRel = "jobs")
-public interface JobsApi extends CrudRepository<Job, Long> {
+public interface JobsApi extends JobsApiInferringOwner, CrudRepository<Job, Long> {
 
     // Users cannot create job instances via the API; they are set via the service launch process
     @Override

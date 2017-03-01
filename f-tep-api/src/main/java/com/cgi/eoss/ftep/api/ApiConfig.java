@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -107,7 +108,7 @@ public class ApiConfig {
                 config.setRepositoryDetectionStrategy(ANNOTATED);
                 config.setBasePath(apiBasePath);
                 // Ensure that the id attribute is returned for all API-mapped types
-                Arrays.stream(new Class<?>[]{Group.class, JobConfig.class, Job.class, FtepService.class, User.class})
+                ImmutableList.of(Group.class, JobConfig.class, Job.class, FtepService.class, User.class)
                         .forEach(config::exposeIdsFor);
             }
         };

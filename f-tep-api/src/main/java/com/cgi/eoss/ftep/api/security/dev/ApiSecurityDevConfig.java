@@ -54,6 +54,8 @@ public class ApiSecurityDevConfig {
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();
+                httpSecurity
+                        .cors();
             }
         };
     }

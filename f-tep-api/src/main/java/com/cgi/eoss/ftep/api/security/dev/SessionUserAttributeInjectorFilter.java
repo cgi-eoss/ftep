@@ -15,7 +15,6 @@ import java.io.IOException;
 @Slf4j
 public class SessionUserAttributeInjectorFilter extends GenericFilterBean {
 
-
     private final String usernameRequestAttribute;
 
     public SessionUserAttributeInjectorFilter(@Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute) {
@@ -25,14 +24,18 @@ public class SessionUserAttributeInjectorFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
         Object userAttribute = httpServletRequest.getSession().getAttribute(usernameRequestAttribute);
         if (userAttribute != null) {
             String username = userAttribute.toString();
-            LOG.info("Found username in session: {}", username);
+            LOG.info("Found username '{}' in session: {}", username, httpServletRequest.getSession().getId());
             if (!Strings.isNullOrEmpty(username)) {
                 httpServletRequest.setAttribute(usernameRequestAttribute, username);
             }
+        } else {
+            LOG.warn("No username found in session: {}", httpServletRequest.getSession().getId());
         }
+
         chain.doFilter(request, response);
     }
 

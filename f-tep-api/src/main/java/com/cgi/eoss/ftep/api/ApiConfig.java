@@ -41,9 +41,9 @@ import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -72,16 +72,6 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 public class ApiConfig {
 
     private static final String ACL_CACHE_NAME = "acls";
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping(apiBasePath + "/**");
-            }
-        };
-    }
 
     @Bean
     public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
@@ -116,12 +106,23 @@ public class ApiConfig {
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.setRepositoryDetectionStrategy(ANNOTATED);
                 config.setBasePath(apiBasePath);
-                config.getCorsRegistry().addMapping(apiBasePath + "/**");
                 // Ensure that the id attribute is returned for all API-mapped types
                 Arrays.stream(new Class<?>[]{Group.class, JobConfig.class, Job.class, FtepService.class, User.class})
                         .forEach(config::exposeIdsFor);
             }
         };
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration(apiBasePath + "/**", config);
+        return source;
     }
 
     // Spring Security configuration for anonymous/open access
@@ -136,6 +137,8 @@ public class ApiConfig {
                         .anyRequest().anonymous();
                 httpSecurity
                         .csrf().disable();
+                httpSecurity
+                        .cors();
             }
         };
     }

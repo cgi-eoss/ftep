@@ -29,7 +29,6 @@ import java.net.URI;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
@@ -90,7 +89,7 @@ public class FilesApiIT {
 
         mockMvc.perform(fileUpload("/api/files/refData/new").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)"))
                 .andExpect(status().isOk());
-        verify(catalogueService).createReferenceData(eq(ftepUser), eq("testFile1"), eq("POINT(0 0)"), any());
+        verify(catalogueService).ingestReferenceData(any(), any());
     }
 
     @Test

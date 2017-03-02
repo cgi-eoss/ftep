@@ -48,6 +48,7 @@ allprojects {
             dependency 'com.google.guava:guava:21.0'
             dependency 'com.google.jimfs:jimfs:1.1'
             dependency 'com.google.protobuf:protoc:3.2.0'
+            dependency 'com.jayway.jsonpath:json-path:2.2.0'
             dependency 'com.querydsl:querydsl-apt:4.1.4'
             dependency 'com.querydsl:querydsl-jpa:4.1.4'
             dependency 'com.squareup.okhttp3:mockwebserver:3.6.0'

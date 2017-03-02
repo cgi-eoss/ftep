@@ -6,7 +6,8 @@ import java.net.URI;
 import java.util.Map;
 
 public enum CatalogueUri {
-    REFERENCE_DATA("ftep://refData/${owner}/${uuid}");
+    REFERENCE_DATA("ftep://refData/${ownerId}/${filename}"),
+    OUTPUT_PRODUCT("ftep://refData/${jobId}/${filename}");
 
     private final String internalUriPattern;
 

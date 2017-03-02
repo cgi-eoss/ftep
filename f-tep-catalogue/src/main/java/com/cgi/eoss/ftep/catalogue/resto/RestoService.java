@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.resto;
 
-import org.geojson.Feature;
+import org.geojson.GeoJsonObject;
 
 import java.util.UUID;
 
@@ -9,7 +9,20 @@ import java.util.UUID;
  */
 public interface RestoService {
     /**
-     * <p>Ingest the given GeoJson Feature to the Resto catalogue, and return the new record's UUID.</p>
+     * <p>Ingest the given GeoJsonObject to the Resto catalogue, in the F-TEP Reference Data collection, and return the
+     * new record's UUID.</p>
      */
-    UUID ingest(Feature feature);
+    UUID ingestReferenceData(GeoJsonObject object);
+
+    /**
+     * <p>Ingest the given GeoJsonObject to the Resto catalogue, in the F-TEP Output Project collection, and return the
+     * new record's UUID.</p>
+     */
+    UUID ingestOutputProduct(GeoJsonObject object);
+
+    /**
+     * <p>Ingest the given GeoJsonObject to the Resto catalogue, in the given collection, and return the new record's
+     * UUID.</p>
+     */
+    UUID ingestExternalProduct(String collection, GeoJsonObject object);
 }

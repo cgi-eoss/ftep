@@ -10,12 +10,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @RepositoryRestResource(path = "jobs", itemResourceRel = "job", collectionResourceRel = "jobs")
 public interface JobsApi extends JobsApiInferringOwner, CrudRepository<Job, Long> {
 
-    // Users cannot create job instances via the API; they are set via the service launch process
+    // Users cannot create job instances via the API; they are set via the service launch ingest
     @Override
     @RestResource(exported = false)
     <S extends Job> Iterable<S> save(Iterable<S> jobs);
 
-    // Users cannot create job instances via the API; they are set via the service launch process
+    // Users cannot create job instances via the API; they are set via the service launch ingest
     @Override
     @RestResource(exported = false)
     <S extends Job> S save(S job);

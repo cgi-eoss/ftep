@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue.files;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueUri;
+import com.cgi.eoss.ftep.catalogue.geoserver.GeoserverService;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
@@ -23,53 +23,56 @@ import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Component
-public class FilesystemReferenceDataService implements ReferenceDataService {
-
-    private final Path referenceDataBasedir;
+@Slf4j
+public class FilesystemOutputProductService implements OutputProductService {
+    private final Path outputProductBasedir;
     private final RestoService resto;
+    private final GeoserverService geoserver;
 
     @Autowired
-    public FilesystemReferenceDataService(@Qualifier("referenceDataBasedir") Path referenceDataBasedir, RestoService resto) {
-        this.referenceDataBasedir = referenceDataBasedir;
+    public FilesystemOutputProductService(@Qualifier("outputProductBasedir") Path outputProductBasedir, RestoService resto, GeoserverService geoserver) {
+        this.outputProductBasedir = outputProductBasedir;
         this.resto = resto;
+        this.geoserver = geoserver;
     }
 
     @Override
-    public FtepFile ingest(User owner, String filename, String geometry, Map<String, Object> userProperties, MultipartFile multipartFile) throws IOException {
-        Path dest = referenceDataBasedir.resolve(String.valueOf(owner.getId())).resolve(filename);
-        LOG.info("Saving new reference data to: {}", dest);
+    public FtepFile ingest(User owner, String jobId, String crs, String geometry, Map<String, Object> properties, Path path) throws IOException {
+        String filename = path.getFileName().toString();
+        Path dest = outputProductBasedir.resolve(jobId).resolve(filename);
+        LOG.info("Ingesting output product from {} to {}", path, dest);
 
         if (Files.exists(dest)) {
-            LOG.warn("Found already-existing reference data, overwriting: {}", dest);
+            LOG.warn("Found already-existing output product, overwriting: {}", dest);
         }
 
         Files.createDirectories(dest.getParent());
-        Files.copy(multipartFile.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
+        Files.move(path, dest, StandardCopyOption.REPLACE_EXISTING);
+
+        geoserver.ingest(jobId, dest, crs);
 
         Feature feature = new Feature();
-        feature.setId(owner.getName() + "_" + filename);
+        feature.setId(jobId + "_" + filename);
         feature.setGeometry(GeoUtil.getGeoJsonGeometry(geometry));
-        // TODO Add internally-generated properties?
-        feature.setProperties(userProperties);
+        feature.setProperties(properties);
 
-        UUID restoId = resto.ingestReferenceData(feature);
+        UUID restoId = resto.ingestOutputProduct(feature);
         URI uri = CatalogueUri.REFERENCE_DATA.build(
                 ImmutableMap.of(
-                        "ownerId", owner.getId().toString(),
+                        "jobId", jobId,
                         "filename", filename));
         LOG.info("Ingested product with Resto id {} and URI {}", restoId, uri);
 
         FtepFile ftepFile = new FtepFile(uri, restoId);
         ftepFile.setOwner(owner);
-        ftepFile.setFilename(referenceDataBasedir.relativize(dest).toString());
+        ftepFile.setFilename(outputProductBasedir.relativize(dest).toString());
         return ftepFile;
     }
 
     @Override
     public Resource resolve(FtepFile file) {
-        Path path = referenceDataBasedir.resolve(file.getFilename());
+        Path path = outputProductBasedir.resolve(file.getFilename());
         return new PathResource(path);
     }
 

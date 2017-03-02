@@ -1,8 +1,11 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
 import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.text.WKTParser;
@@ -14,7 +17,6 @@ import org.opengis.geometry.primitive.Curve;
 import org.opengis.geometry.primitive.Point;
 import org.opengis.geometry.primitive.Surface;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,22 +26,27 @@ import java.util.stream.Collectors;
 @Slf4j
 @UtilityClass
 public class GeoUtil {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final WKTParser WKT_PARSER = new WKTParser(new GeometryBuilder(DefaultGeographicCRS.WGS84));
 
     // London
     private static final String DEFAULT_POINT = "POINT(-0.1275 51.507222)";
 
     public static org.geojson.Point defaultPoint() {
+        return wktToGeojsonPoint(DEFAULT_POINT);
+    }
+
+    public static GeoJsonObject getGeoJsonGeometry(String geometry) {
         try {
-            return wktToGeojsonPoint(DEFAULT_POINT);
-        } catch (ParseException e) {
-            // This really shouldn't ever be hit
-            LOG.error("Default Point '{}' invalid!", DEFAULT_POINT, e);
-            throw new RuntimeException(e);
+            // TODO Check for other ISO Geometry types
+            return GeoUtil.wktToGeojsonPolygon(geometry);
+        } catch (RuntimeException e) {
+            return GeoUtil.defaultPoint();
         }
     }
 
-    public static org.geojson.Polygon wktToGeojsonPolygon(String wkt) throws ParseException {
+    public static org.geojson.Polygon wktToGeojsonPolygon(String wkt) {
         try {
             Surface surface = (Surface) WKT_PARSER.parse(wkt);
             Curve curve = (Curve) Iterables.getOnlyElement(surface.getBoundary().getExterior().getElements());
@@ -54,11 +61,11 @@ public class GeoUtil {
             return new org.geojson.Polygon(geojsonCoords);
         } catch (Exception e) {
             LOG.error("Could not convert WKT to GeoJson Polygon: {}", wkt, e);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
-    public static org.geojson.Point wktToGeojsonPoint(String wkt) throws ParseException {
+    public static org.geojson.Point wktToGeojsonPoint(String wkt) {
         try {
             Point point = (Point) WKT_PARSER.parse(wkt);
             return new org.geojson.Point(
@@ -66,7 +73,16 @@ public class GeoUtil {
                     point.getDirectPosition().getOrdinate(1));
         } catch (Exception e) {
             LOG.error("Could not convert WKT to GeoJson Point: {}", wkt, e);
-            throw e;
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String geojsonToString(GeoJsonObject object) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            LOG.error("Could not serialise GeoJsonObject: {}", object, e);
+            throw new RuntimeException(e);
         }
     }
 

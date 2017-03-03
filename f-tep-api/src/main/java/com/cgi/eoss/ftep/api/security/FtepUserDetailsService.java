@@ -18,6 +18,8 @@ import java.util.Set;
 @Service
 public class FtepUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
+    private static final GrantedAuthority PUBLIC = (GrantedAuthority) () -> "PUBLIC";
+
     private final UserDataService userDataService;
 
     @Autowired
@@ -32,7 +34,8 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
         com.cgi.eoss.ftep.model.User user = userDataService.getOrSave(token.getName());
         Set<Group> userGroups = userDataService.getGroups(user);
 
-        Collection<? extends GrantedAuthority> grantedAuthorities = ImmutableSet.<GrantedAuthority>builder().addAll(userGroups).add(user.getRole()).build();
+        // All users have the "PUBLIC" authority, plus their group memberships, plus their role
+        Collection<? extends GrantedAuthority> grantedAuthorities = ImmutableSet.<GrantedAuthority>builder().add(PUBLIC).addAll(userGroups).add(user.getRole()).build();
         return new User(user.getName(), "N/A", true, true, true, true, grantedAuthorities);
     }
 

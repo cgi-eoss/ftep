@@ -29,6 +29,11 @@ import javax.persistence.UniqueConstraint;
 public class User implements FtepEntity<User>, Searchable {
 
     /**
+     * <p>Fallback user account.</p>
+     */
+    public static final User DEFAULT = new User("ftep");
+
+    /**
      * <p>Unique internal identifier of the user.</p>
      */
     @Id

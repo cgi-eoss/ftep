@@ -53,7 +53,6 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import static org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED;
 

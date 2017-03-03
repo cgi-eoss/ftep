@@ -125,7 +125,8 @@ public class AclsApi {
         // So we have to reset the entire desired permission list for the group
 
         // First delete all existing ACEs...
-        IntStream.range(0, acl.getEntries().size()).forEach(acl::deleteAce);
+        int aceCount = acl.getEntries().size();
+        IntStream.range(0, aceCount).map(i -> aceCount - i - 1).forEach(acl::deleteAce);
 
         // ... then ensure the owner ACE is present (always ADMIN)
         if (owner != null) {

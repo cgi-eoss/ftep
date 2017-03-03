@@ -125,6 +125,7 @@ CREATE INDEX ftep_files_owner_idx
 CREATE TABLE ftep_databaskets (
   id    BIGSERIAL PRIMARY KEY,
   name  CHARACTER VARYING(255) NOT NULL,
+  description CHARACTER VARYING(255),
   owner BIGINT REFERENCES ftep_users (uid)
 );
 CREATE INDEX ftep_databaskets_name_idx

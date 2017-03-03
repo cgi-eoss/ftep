@@ -6,39 +6,42 @@ import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
- * <p>A {@link RestController} for interacting with {@link com.cgi.eoss.ftep.model.FtepFile}s.</p>
+ * <p>A {@link RepositoryRestController} for interacting with {@link com.cgi.eoss.ftep.model.FtepFile}s. Extends the
+ * simple repository-type {@link FtepFilesApi}.</p>
  */
-@RestController
-@RequestMapping("/files")
+@RepositoryRestController
+@RequestMapping("/ftepFiles")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Slf4j
-public class FilesApi {
+public class FtepFilesApiImpl {
 
     private final FtepSecurityUtil ftepSecurityUtil;
     private final CatalogueService catalogueService;
 
-    @Autowired
-    public FilesApi(FtepSecurityUtil ftepSecurityUtil, CatalogueService catalogueService) {
-        this.ftepSecurityUtil = ftepSecurityUtil;
-        this.catalogueService = catalogueService;
-    }
-
     @PostMapping("/refData/new")
-    public FtepFile saveRefData(
+    @ResponseBody
+    public Resource<FtepFile> saveRefData(
             @RequestParam("geometry") String geometry,
             @RequestParam("file") MultipartFile file) throws Exception {
         try {
@@ -51,7 +54,8 @@ public class FilesApi {
                     .properties(ImmutableMap.of()) // TODO Collect user-driven metadata properties
                     .build();
 
-            return catalogueService.ingestReferenceData(metadata, file);
+            FtepFile ftepFile = catalogueService.ingestReferenceData(metadata, file);
+            return new Resource<>(ftepFile);
         } catch (Exception e) {
             LOG.error("Could not ingest reference data file {}", file.getOriginalFilename(), e);
             throw e;
@@ -60,12 +64,13 @@ public class FilesApi {
 
     @GetMapping("/{fileId}/dl")
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#file, 'read')")
-    public ResponseEntity<Resource> downloadFile(@ModelAttribute("fileId") FtepFile file) {
-        Resource fileResource = catalogueService.getAsResource(file);
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"")
-                .body(fileResource);
+    public void downloadFile(@ModelAttribute("fileId") FtepFile file, HttpServletResponse response) throws IOException {
+        org.springframework.core.io.Resource fileResource = catalogueService.getAsResource(file);
+
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"");
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        ByteStreams.copy(fileResource.getInputStream(), response.getOutputStream());
+        response.flushBuffer();
     }
 
 }

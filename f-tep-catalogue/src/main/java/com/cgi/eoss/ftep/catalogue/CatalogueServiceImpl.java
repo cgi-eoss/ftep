@@ -51,6 +51,8 @@ public class CatalogueServiceImpl implements CatalogueService {
         switch (file.getType()) {
             case REFERENCE_DATA:
                 return referenceDataService.resolve(file);
+            case OUTPUT_PRODUCT:
+                return outputProductService.resolve(file);
             default:
                 throw new UnsupportedOperationException("Unable to materialise FtepFile: " + file);
         }

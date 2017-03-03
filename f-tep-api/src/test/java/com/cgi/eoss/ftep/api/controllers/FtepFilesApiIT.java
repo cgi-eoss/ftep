@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.util.UUID;
 
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -43,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:test-api.properties")
 @Transactional
-public class FilesApiIT {
+public class FtepFilesApiIT {
 
     @Autowired
     private UserDataService userDataService;
@@ -83,23 +85,34 @@ public class FilesApiIT {
     }
 
     @Test
-    public void saveRefData() throws Exception {
-        Resource fileResource = new ClassPathResource("/testFile1", FilesApiIT.class);
+    public void testGet() throws Exception {
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId()).header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/"+testFile1.getId()+"{?projection}")))
+                .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/"+testFile1.getId()+"/dl")));
+    }
+
+    @Test
+    public void testSaveRefData() throws Exception {
+        Resource fileResource = new ClassPathResource("/testFile1", FtepFilesApiIT.class);
         MockMultipartFile uploadFile = new MockMultipartFile("file", "testFile1", "text/plain", fileResource.getInputStream());
 
-        mockMvc.perform(fileUpload("/api/files/refData/new").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)"))
-                .andExpect(status().isOk());
+        when(catalogueService.ingestReferenceData(any(), any())).thenReturn(testFile1);
+        mockMvc.perform(fileUpload("/api/ftepFiles/refData/new").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/"+testFile1.getId()+"{?projection}")))
+                .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/"+testFile1.getId()+"/dl")));
         verify(catalogueService).ingestReferenceData(any(), any());
     }
 
     @Test
-    public void downloadFile() throws Exception {
-        Resource response = new ClassPathResource("/testFile1", FilesApiIT.class);
+    public void testDownloadFile() throws Exception {
+        Resource response = new ClassPathResource("/testFile1", FtepFilesApiIT.class);
         when(catalogueService.getAsResource(testFile1)).thenReturn(response);
 
-        mockMvc.perform(get("/api/files/" + testFile1.getId() + "/dl").header("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId() + "/dl").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isForbidden());
-        mockMvc.perform(get("/api/files/" + testFile1.getId() + "/dl").header("REMOTE_USER", ftepAdmin.getName()))
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId() + "/dl").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Disposition", "attachment; filename=\"testFile1\""))
                 .andExpect(content().bytes(ByteStreams.toByteArray(response.getInputStream())));

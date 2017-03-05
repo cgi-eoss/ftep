@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import org.geojson.GeoJsonObject;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,14 @@ public interface CatalogueService {
     FtepFile ingestOutputProduct(OutputProductMetadata outputProduct, Path path) throws IOException;
 
     /**
+     * <p>Store an external product's metadata for later reference by F-TEP.</p>
+     *
+     * @param geoJson
+     * @return
+     */
+    FtepFile indexExternalProduct(GeoJsonObject geoJson);
+
+    /**
      * <p>Resolve the given {@link FtepFile} into an appropriate Spring Resource descriptor.</p>
      *
      * @param file
@@ -51,5 +60,4 @@ public interface CatalogueService {
      * @param file
      */
     void delete(FtepFile file);
-
 }

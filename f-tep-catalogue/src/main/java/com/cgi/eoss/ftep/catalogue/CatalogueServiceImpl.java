@@ -1,11 +1,13 @@
 package com.cgi.eoss.ftep.catalogue;
 
+import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -20,12 +22,14 @@ public class CatalogueServiceImpl implements CatalogueService {
     private final FtepFileDataService ftepFileDataService;
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
+    private final ExternalProductDataService externalProductDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
         this.ftepFileDataService = ftepFileDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
+        this.externalProductDataService = externalProductDataService;
     }
 
     @Override
@@ -47,12 +51,20 @@ public class CatalogueServiceImpl implements CatalogueService {
     }
 
     @Override
+    public FtepFile indexExternalProduct(GeoJsonObject geoJson) {
+        // This will return an already-persistent object
+        return externalProductDataService.ingest(geoJson);
+    }
+
+    @Override
     public Resource getAsResource(FtepFile file) {
         switch (file.getType()) {
             case REFERENCE_DATA:
                 return referenceDataService.resolve(file);
             case OUTPUT_PRODUCT:
                 return outputProductService.resolve(file);
+            case EXTERNAL_PRODUCT:
+                return externalProductDataService.resolve(file);
             default:
                 throw new UnsupportedOperationException("Unable to materialise FtepFile: " + file);
         }

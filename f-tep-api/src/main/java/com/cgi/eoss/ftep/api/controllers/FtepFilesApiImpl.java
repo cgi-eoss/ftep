@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,7 +41,14 @@ public class FtepFilesApiImpl {
     private final FtepSecurityUtil ftepSecurityUtil;
     private final CatalogueService catalogueService;
 
-    @PostMapping("/refData/new")
+    @PostMapping("/externalProduct")
+    @ResponseBody
+    public Resource<FtepFile> saveExternalProductMetadata(@RequestBody GeoJsonObject geoJson) throws Exception {
+        FtepFile ftepFile = catalogueService.indexExternalProduct(geoJson);
+        return new Resource<>(ftepFile);
+    }
+
+    @PostMapping("/refData")
     @ResponseBody
     public Resource<FtepFile> saveRefData(
             @RequestParam("geometry") String geometry,

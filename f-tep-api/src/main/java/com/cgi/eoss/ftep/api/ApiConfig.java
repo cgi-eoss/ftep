@@ -12,6 +12,7 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
@@ -55,6 +56,7 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 import static org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED;
 
@@ -71,6 +73,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 @EnableCaching
 @EnableJpaRepositories(basePackageClasses = ApiConfig.class)
 @ComponentScan(basePackageClasses = ApiConfig.class)
+@Slf4j
 public class ApiConfig {
 
     private static final String ACL_CACHE_NAME = "acls";
@@ -174,8 +177,21 @@ public class ApiConfig {
     }
 
     @Bean
-    public MutableAclService mutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
-        return new JdbcMutableAclService(dataSource, lookupStrategy, aclCache);
+    public MutableAclService mutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) throws SQLException {
+        JdbcMutableAclService aclService = new JdbcMutableAclService(dataSource, lookupStrategy, aclCache);
+
+        // Set the ACL ID query methods appropriately for specific database types
+        switch (dataSource.getConnection().getMetaData().getDatabaseProductName()) {
+            case "PostgreSQL":
+                LOG.info("Setting ACL ID query methods for PostgreSQL");
+                aclService.setSidIdentityQuery("SELECT currval('acl_sid_id_seq');");
+                aclService.setClassIdentityQuery("SELECT currval('acl_class_id_seq');");
+                break;
+            default:
+                LOG.info("Leaving ACL ID query methods as default");
+        }
+
+        return aclService;
     }
 
 }

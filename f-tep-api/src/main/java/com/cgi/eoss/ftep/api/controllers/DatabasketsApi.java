@@ -15,19 +15,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface DatabasketsApi extends DatabasketsApiInferringOwner, CrudRepository<Databasket, Long> {
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     <S extends Databasket> Iterable<S> save(Iterable<S> databaskets);
 
     @Override
-    @PreAuthorize("(#databasket.id == null) or hasRole('ROLE_ADMIN') or hasPermission(#databasket, 'administration')")
+    @PreAuthorize("(#databasket.id == null) or hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#databasket, 'write')")
     <S extends Databasket> S save(@P("databasket") S databasket);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     void delete(Iterable<? extends Databasket> databaskets);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#databasket, 'administration')")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#databasket, 'administration')")
     void delete(@P("databasket") Databasket databasket);
 
 }

@@ -20,7 +20,7 @@ public interface FtepFilesApi extends CrudRepository<FtepFile, Long> {
     <S extends FtepFile> Iterable<S> save(Iterable<S> ftepFiles);
 
     @Override
-    @PreAuthorize("#ftepFile.id != null and (hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#ftepFile, 'administration'))")
+    @PreAuthorize("#ftepFile.id != null and (hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#ftepFile, 'write'))")
     <S extends FtepFile> S save(@P("ftepFile") S ftepFile);
 
     @Override

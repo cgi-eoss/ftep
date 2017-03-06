@@ -72,12 +72,12 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public T refresh(T obj) {
-        return null;
+        return getDao().findOne(getUniquePredicate(obj));
     }
 
     @Override
     public T refreshFull(T obj) {
-        return null;
+        return refresh(obj);
     }
 
     @Override

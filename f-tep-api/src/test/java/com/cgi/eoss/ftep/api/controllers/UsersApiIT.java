@@ -5,7 +5,6 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableSet;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,11 +59,6 @@ public class UsersApiIT {
         ftepAdmin.setRole(Role.ADMIN);
 
         dataService.save(ImmutableSet.of(ftepGuest, ftepUser, ftepAdmin));
-    }
-
-    @After
-    public void tearDown() {
-        dataService.deleteAll();
     }
 
     @Test

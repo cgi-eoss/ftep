@@ -111,10 +111,10 @@ CREATE INDEX ftep_files_owner_idx
   ON ftep_files (owner);
 
 CREATE TABLE ftep_databaskets (
-  id    BIGINT IDENTITY PRIMARY KEY,
-  name  CHARACTER VARYING(255) NOT NULL,
+  id          BIGINT IDENTITY PRIMARY KEY,
+  name        CHARACTER VARYING(255) NOT NULL,
   description CHARACTER VARYING(255),
-  owner BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
+  owner       BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
 );
 CREATE INDEX ftep_databaskets_name_idx
   ON ftep_databaskets (name);
@@ -129,6 +129,33 @@ CREATE TABLE ftep_databasket_files (
 );
 CREATE UNIQUE INDEX ftep_databasket_files_basket_file_idx
   ON ftep_databasket_files (databasket_id, file_id);
+
+CREATE TABLE ftep_projects (
+  id          BIGINT IDENTITY PRIMARY KEY,
+  name        CHARACTER VARYING(255) NOT NULL,
+  description CHARACTER VARYING(255),
+  owner       BIGINT FOREIGN KEY REFERENCES ftep_users (uid)
+);
+CREATE INDEX ftep_projects_name_idx
+  ON ftep_projects (name);
+CREATE INDEX ftep_projects_owner_idx
+  ON ftep_projects (owner);
+CREATE UNIQUE INDEX ftep_projects_name_owner_idx
+  ON ftep_projects (name, owner);
+
+CREATE TABLE ftep_project_databaskets (
+  project_id    BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
+  databasket_id BIGINT FOREIGN KEY REFERENCES ftep_databaskets (id)
+);
+CREATE UNIQUE INDEX ftep_project_databaskets_ids_idx
+  ON ftep_project_databaskets (project_id, databasket_id);
+
+CREATE TABLE ftep_project_job_configs (
+  project_id   BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
+  job_config_id BIGINT FOREIGN KEY REFERENCES ftep_job_configs (id)
+);
+CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
+  ON ftep_project_job_configs (project_id, job_config_id);
 
 -- ACL schema from spring-security-acl
 
@@ -175,3 +202,6 @@ CREATE TABLE acl_entry (
 
 -- Fallback internal user
 INSERT INTO ftep_users (name, mail) VALUES ('ftep', 'forestry-tep@esa.int');
+
+-- Default project
+INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid from ftep_users WHERE name = 'ftep'));

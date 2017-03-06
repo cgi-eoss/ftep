@@ -142,6 +142,37 @@ CREATE TABLE ftep_databasket_files (
 CREATE UNIQUE INDEX ftep_databasket_files_basket_file_idx
   ON ftep_databasket_files (databasket_id, file_id);
 
+
+CREATE TABLE ftep_projects (
+  id          BIGSERIAL PRIMARY KEY,
+  name        CHARACTER VARYING(255) NOT NULL,
+  description CHARACTER VARYING(255),
+  owner       BIGINT REFERENCES ftep_users (uid)
+);
+CREATE INDEX ftep_projects_name_idx
+  ON ftep_projects (name);
+CREATE INDEX ftep_projects_owner_idx
+  ON ftep_projects (owner);
+CREATE UNIQUE INDEX ftep_projects_name_owner_idx
+  ON ftep_projects (name, owner);
+
+CREATE TABLE ftep_project_databaskets (
+  project_id    BIGINT REFERENCES ftep_projects (id),
+  databasket_id BIGINT REFERENCES ftep_databaskets (id)
+);
+CREATE UNIQUE INDEX ftep_project_databaskets_ids_idx
+  ON ftep_project_databaskets (project_id, databasket_id);
+
+CREATE TABLE ftep_project_job_configs (
+  project_id    BIGINT REFERENCES ftep_projects (id),
+  job_config_id BIGINT REFERENCES ftep_job_configs (id)
+);
+CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
+  ON ftep_project_job_configs (project_id, job_config_id);
+
+-- Default project
+INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid FROM ftep_users WHERE name = 'ftep'));
+
 -- Tidy up uniqueness constraints on group member table
 
 CREATE UNIQUE INDEX ftep_group_member_user_group_idx

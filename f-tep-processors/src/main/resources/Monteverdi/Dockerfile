@@ -36,9 +36,17 @@ RUN echo 'deb http://archive.ubuntu.com/ubuntu trusty-updates main universe rest
 #########################################
 
 # Install steps for X app
-#RUN apt-get update
-
-#RUN apt-get install -y libx11-6 libxext6 libxau6 libxxf86vm1 libxdmcp6 libdrm2 libglu1 libgtk2.0-0
+RUN apt-get update && apt-get install -y\
+ libx11-6\
+ libxext6\
+ libxau6\
+ libxxf86vm1\
+ libxdmcp6\
+ libdrm2\
+ libglu1\
+ libgtk2.0-0\
+ python-dev\
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Download and install OTB
 ENV OTB_MAJ_VER='5'\
@@ -55,6 +63,9 @@ LABEL otb.version="${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}"
 RUN if curl -o/dev/null -sLIf "${OTB_BASE_URL}/${OTB_INSTALLER}"; then\
  curl -sL "${OTB_BASE_URL}/${OTB_INSTALLER}" >/var/tmp/${OTB_INSTALLER}; else\
  curl -sL "${OTB_ALT_URL}/${OTB_INSTALLER}" >/var/tmp/${OTB_INSTALLER}; fi
+
+# Install OTB
+RUN cd /opt && sh /var/tmp/${OTB_INSTALLER}
 
 #######################
 # Configure environment

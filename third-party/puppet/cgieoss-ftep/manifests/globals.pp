@@ -14,6 +14,7 @@ class ftep::globals (
   $wps_hostname            = 'ftep-wps',
   $server_hostname         = 'ftep-server',
   $monitor_hostname        = 'ftep-monitor',
+  $resto_hostname          = 'ftep-resto',
 
   $hosts_override          = { },
 
@@ -22,6 +23,11 @@ class ftep::globals (
   $ftep_db_v2_name         = 'ftep_v2',
   $ftep_db_username        = 'ftep-user',
   $ftep_db_password        = 'ftep-pass',
+  $ftep_db_resto_name      = 'ftep_resto',
+  $ftep_db_resto_username  = 'ftep-resto',
+  $ftep_db_resto_password  = 'ftep-resto-pass',
+  $ftep_db_resto_su_username  = 'ftep-resto-admin',
+  $ftep_db_resto_su_password  = 'ftep-resto-admin-pass',
 
   # App server port config for HTTP and gRPC
   $server_application_port = 8090,

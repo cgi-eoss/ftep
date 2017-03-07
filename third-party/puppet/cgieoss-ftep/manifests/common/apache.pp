@@ -11,6 +11,10 @@ class ftep::common::apache {
       ensure => true,
     }
 
+    ::selinux::boolean { 'httpd_can_network_connect':
+      ensure => true,
+    }
+
     ::selinux::port { 'f-tep-server':
       context  => 'http_port_t',
       port     => $ftep::globals::server_application_port,

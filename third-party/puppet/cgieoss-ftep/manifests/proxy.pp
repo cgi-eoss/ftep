@@ -4,6 +4,7 @@ class ftep::proxy (
   $enable_sso             = false,
 
   $context_path_geoserver = '/geoserver',
+  $context_path_resto     = '/resto',
   $context_path_webapp    = '/app',
   $context_path_wps       = '/secure/wps',
   $context_path_api_v2    = '/secure/api/v2.0',
@@ -35,6 +36,10 @@ class ftep::proxy (
     {
       'path' => $context_path_geoserver,
       'url'  => 'http://ftep-geoserver'
+    },
+    {
+      'path' => $context_path_resto,
+      'url'  => 'http://ftep-resto'
     },
     {
       'path' => $context_path_webapp,

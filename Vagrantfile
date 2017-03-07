@@ -61,7 +61,7 @@ Vagrant.configure('2') do |config|
     #   - ftep::backend
     # ftep::repo::location: 'file:///vagrant/.dist/repo'
     #
-    config.puppet_install.puppet_version = '4.9.0'
+    config.puppet_install.puppet_version = '4.9.3'
     ftep.vm.provision 'puppet' do |puppet|
       puppet.environment_path = '.dist'
       puppet.environment = 'puppet'

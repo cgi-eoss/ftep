@@ -24,6 +24,7 @@ include 'third-party/cxx/zoo-project'
 include 'third-party/java/jai_core'
 include 'third-party/pkg'
 include 'third-party/puppet'
+include 'third-party/resto'
 
 include 'distribution'
 

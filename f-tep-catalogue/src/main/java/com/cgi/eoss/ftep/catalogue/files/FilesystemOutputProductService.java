@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +75,21 @@ public class FilesystemOutputProductService implements OutputProductService {
     public Resource resolve(FtepFile file) {
         Path path = outputProductBasedir.resolve(file.getFilename());
         return new PathResource(path);
+    }
+
+    @Override
+    public void delete(FtepFile file) throws IOException {
+        Path relativePath = Paths.get(file.getFilename());
+
+        Files.deleteIfExists(outputProductBasedir.resolve(relativePath));
+
+        resto.deleteReferenceData(file.getRestoId());
+
+        // Workspace = jobId = first part of the relative filename
+        String workspace = relativePath.getName(0).toString();
+        // Layer name = filename without extension
+        String layerName = com.google.common.io.Files.getNameWithoutExtension(relativePath.getFileName().toString());
+        geoserver.delete(workspace, layerName);
     }
 
 }

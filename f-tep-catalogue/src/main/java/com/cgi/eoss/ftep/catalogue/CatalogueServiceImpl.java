@@ -71,8 +71,18 @@ public class CatalogueServiceImpl implements CatalogueService {
     }
 
     @Override
-    public void delete(FtepFile file) {
-        // TODO Implement deletion from external catalogues
+    public void delete(FtepFile file) throws IOException {
+        switch (file.getType()) {
+            case REFERENCE_DATA:
+                referenceDataService.delete(file);
+                break;
+            case OUTPUT_PRODUCT:
+                outputProductService.delete(file);
+                break;
+            case EXTERNAL_PRODUCT:
+                externalProductDataService.delete(file);
+                break;
+        }
         ftepFileDataService.delete(file);
     }
 

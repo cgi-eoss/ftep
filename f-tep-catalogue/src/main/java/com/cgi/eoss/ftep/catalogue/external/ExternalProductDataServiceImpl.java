@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +47,11 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
     public Resource resolve(FtepFile file) {
         // TODO Allow proxied access (with TEP coin cost) to some external data
         throw new UnsupportedOperationException("Direct download of external products via F-TEP is not permitted");
+    }
+
+    @Override
+    public void delete(FtepFile file) throws IOException {
+        resto.deleteReferenceData(file.getRestoId());
     }
 
 }

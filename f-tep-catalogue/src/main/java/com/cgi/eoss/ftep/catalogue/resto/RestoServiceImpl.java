@@ -67,6 +67,11 @@ public class RestoServiceImpl implements RestoService {
         return ingest(collection, object);
     }
 
+    @Override
+    public void deleteReferenceData(UUID restoId) {
+        delete(refDataCollection, restoId);
+    }
+
     private UUID ingest(String collection, GeoJsonObject object) {
         URI uri = URI.create(restoBaseUrl).resolve("collections").resolve(collection);
         LOG.debug("Creating new Resto catalogue entry in collection: {}", collection);
@@ -87,4 +92,24 @@ public class RestoServiceImpl implements RestoService {
             throw new RuntimeException(e);
         }
     }
+
+    private void delete(String collection, UUID uuid) {
+        URI uri = URI.create(restoBaseUrl).resolve("collections").resolve(collection);
+        LOG.debug("Deleting Resto catalogue entry {} from collection: {}", uuid, collection);
+
+        Request request = new Request.Builder().url(uri.toString()).delete().build();
+        Response response = null;
+
+        try {
+            response = client.newCall(request).execute();
+            LOG.info("Deleted Resto object with ID {}", uuid);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (response != null) {
+                LOG.debug("Received HTTP {} on deleting: {}", response.code(), uri);
+            }
+        }
+    }
+
 }

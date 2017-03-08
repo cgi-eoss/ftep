@@ -56,6 +56,12 @@ public class GeoserverServiceImpl implements GeoserverService {
         }
     }
 
+    @Override
+    public void delete(String workspace, String layerName) {
+        publisher.removeLayer(workspace, layerName);
+        LOG.info("Deleted layer from geoserver: {}{}", workspace, layerName);
+    }
+
     private void ensureWorkspaceExists(String workspace) {
         if (!reader.existsWorkspace(workspace)) {
             LOG.info("Creating new workspace {}", workspace);

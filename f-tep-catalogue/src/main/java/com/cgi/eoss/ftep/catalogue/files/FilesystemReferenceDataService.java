@@ -73,4 +73,10 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
         return new PathResource(path);
     }
 
+    @Override
+    public void delete(FtepFile file) throws IOException {
+        Files.deleteIfExists(referenceDataBasedir.resolve(file.getFilename()));
+        resto.deleteReferenceData(file.getRestoId());
+    }
+
 }

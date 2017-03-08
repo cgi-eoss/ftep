@@ -25,4 +25,9 @@ public interface RestoService {
      * UUID.</p>
      */
     UUID ingestExternalProduct(String collection, GeoJsonObject object);
+
+    /**
+     * <p>Remove the given F-TEP Reference Data product from the Resto catalogue.</p>
+     */
+    void deleteReferenceData(UUID restoId);
 }

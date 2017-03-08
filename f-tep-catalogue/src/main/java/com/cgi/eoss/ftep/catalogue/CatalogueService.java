@@ -59,5 +59,5 @@ public interface CatalogueService {
      *
      * @param file
      */
-    void delete(FtepFile file);
+    void delete(FtepFile file) throws IOException;
 }

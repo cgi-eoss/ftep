@@ -182,7 +182,7 @@ public class AclsApi {
             Acl acl = aclService.readAclById(objectIdentity, null);
 
             return acl.getEntries().stream()
-                    .filter(ace -> ace.getSid() instanceof GrantedAuthoritySid)
+                    .filter(ace -> ace.getSid() instanceof GrantedAuthoritySid && ((GrantedAuthoritySid) ace.getSid()).getGrantedAuthority().startsWith("GROUP_"))
                     .collect(Collectors.groupingBy(this::getGroup, SPRING_FTEP_ACL_SET_COLLECTOR))
                     .entrySet().stream()
                     .map(e -> FtepAccessControlEntry.builder().group(new SGroup(e.getKey())).permission(e.getValue()).build())

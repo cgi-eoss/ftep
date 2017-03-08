@@ -1,8 +1,13 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.model.Databasket;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.google.common.base.Preconditions;
@@ -60,11 +65,36 @@ public class AclsApi {
         this.groupDataService = groupDataService;
     }
 
-    @PostMapping("/service/{serviceId}")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#service, 'administration')")
-    public void setServiceAcl(@ModelAttribute("serviceId") FtepService service, @RequestBody FtepAccessControlList acl) {
-        Preconditions.checkArgument(service.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", service.getId(), acl.getEntityId());
-        setAcl(new ObjectIdentityImpl(FtepService.class, service.getId()), service.getOwner(), acl.getPermissions());
+    @PostMapping("/databasket/{databasketId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#databasket, 'administration')")
+    public void setDatabasketAcl(@ModelAttribute("databasketId") Databasket databasket, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(databasket.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", databasket.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(Databasket.class, databasket.getId()), databasket.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/databasket/{databasketId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#databasket, 'administration')")
+    public FtepAccessControlList getDatabasketAcls(@ModelAttribute("databasketId") Databasket databasket) {
+        return FtepAccessControlList.builder()
+                .entityId(databasket.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(Databasket.class, databasket.getId())))
+                .build();
+    }
+
+    @PostMapping("/ftepFile/{ftepFileId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#ftepFile, 'administration')")
+    public void setFtepFileAcl(@ModelAttribute("ftepFileId") FtepFile ftepFile, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(ftepFile.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", ftepFile.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(FtepFile.class, ftepFile.getId()), ftepFile.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/ftepFile/{ftepFileId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#ftepFile, 'administration')")
+    public FtepAccessControlList getFtepFileAcls(@ModelAttribute("ftepFileId") FtepFile ftepFile) {
+        return FtepAccessControlList.builder()
+                .entityId(ftepFile.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(FtepFile.class, ftepFile.getId())))
+                .build();
     }
 
     @PostMapping("/group/{groupId}")
@@ -74,21 +104,76 @@ public class AclsApi {
         setAcl(new ObjectIdentityImpl(Group.class, group.getId()), group.getOwner(), acl.getPermissions());
     }
 
-    @GetMapping("/service/{serviceId}")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#service, 'administration')")
-    public FtepAccessControlList getServiceAcls(@ModelAttribute("serviceId") FtepService service) {
-        return FtepAccessControlList.builder()
-                .entityId(service.getId())
-                .permissions(getFtepPermissions(new ObjectIdentityImpl(FtepService.class, service.getId())))
-                .build();
-    }
-
     @GetMapping("/group/{groupId}")
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#group, 'administration')")
     public FtepAccessControlList getServiceAcls(@ModelAttribute("groupId") Group group) {
         return FtepAccessControlList.builder()
                 .entityId(group.getId())
                 .permissions(getFtepPermissions(new ObjectIdentityImpl(Group.class, group.getId())))
+                .build();
+    }
+
+    @PostMapping("/job/{jobId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#job, 'administration')")
+    public void setJobAcl(@ModelAttribute("jobId") Job job, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(job.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", job.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(Job.class, job.getId()), job.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/job/{jobId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#job, 'administration')")
+    public FtepAccessControlList getJobAcls(@ModelAttribute("jobId") Job job) {
+        return FtepAccessControlList.builder()
+                .entityId(job.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(Job.class, job.getId())))
+                .build();
+    }
+
+    @PostMapping("/jobConfig/{jobConfigId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#jobConfig, 'administration')")
+    public void setJobConfigAcl(@ModelAttribute("jobConfigId") JobConfig jobConfig, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(jobConfig.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", jobConfig.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(JobConfig.class, jobConfig.getId()), jobConfig.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/jobConfig/{jobConfigId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#jobConfig, 'administration')")
+    public FtepAccessControlList getJobConfigAcls(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
+        return FtepAccessControlList.builder()
+                .entityId(jobConfig.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(JobConfig.class, jobConfig.getId())))
+                .build();
+    }
+
+    @PostMapping("/project/{projectId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#project, 'administration')")
+    public void setProjectAcl(@ModelAttribute("projectId") Project project, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(project.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", project.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(Project.class, project.getId()), project.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/project/{projectId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#project, 'administration')")
+    public FtepAccessControlList getProjectAcls(@ModelAttribute("projectId") Project project) {
+        return FtepAccessControlList.builder()
+                .entityId(project.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(Project.class, project.getId())))
+                .build();
+    }
+
+    @PostMapping("/service/{serviceId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#service, 'administration')")
+    public void setServiceAcl(@ModelAttribute("serviceId") FtepService service, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(service.getId().equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL {} vs BODY {}", service.getId(), acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(FtepService.class, service.getId()), service.getOwner(), acl.getPermissions());
+    }
+
+    @GetMapping("/service/{serviceId}")
+    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#service, 'administration')")
+    public FtepAccessControlList getServiceAcls(@ModelAttribute("serviceId") FtepService service) {
+        return FtepAccessControlList.builder()
+                .entityId(service.getId())
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(FtepService.class, service.getId())))
                 .build();
     }
 

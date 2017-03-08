@@ -28,10 +28,14 @@ public class ApiConfigIT {
     public void testGetIndex() throws Exception {
         mockMvc.perform(get("/api/").header("REMOTE_USER", "ftep-test"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.databaskets").exists())
+                .andExpect(jsonPath("$._links.ftepFiles").exists())
                 .andExpect(jsonPath("$._links.groups").exists())
                 .andExpect(jsonPath("$._links.jobs").exists())
                 .andExpect(jsonPath("$._links.jobConfigs").exists())
-                .andExpect(jsonPath("$._links.users").exists())
-                .andExpect(jsonPath("$._links.services").exists());
+                .andExpect(jsonPath("$._links.projects").exists())
+                .andExpect(jsonPath("$._links.services").exists())
+                .andExpect(jsonPath("$._links.users").exists());
     }
+
 }

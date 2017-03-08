@@ -1,6 +1,7 @@
 <%- |
     String $url_prefix,
     String $api_url,
+    String $api_v2_url,
     String $zoo_url,
     String $wms_url,
     String $mapbox_token,
@@ -10,6 +11,7 @@ define('ftepConfig', [], function () {
   return {
     urlPrefix: "<%= $url_prefix %>",
     apiUrl: "<%= $api_url %>",
+    apiUrlv2: "<%= $api_v2_url %>",
     zooUrl: "<%= $zoo_url %>",
     wmsUrl: "<%= $wms_url %>",
     mapboxToken: "<%= $mapbox_token %>"

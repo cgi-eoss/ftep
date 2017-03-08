@@ -9,9 +9,14 @@ class ftep::geoserver (
   $init_script            = '/etc/init.d/geoserver',
   $geoserver_version      = '2.10.0',
   $geoserver_download_url = 'http://sourceforge.net/projects/geoserver/files/GeoServer/2.10.0/geoserver-2.10.0-bin.zip',
-  $geoserver_port         = '9080',
-  $geoserver_stopport     = '9079',
+  $geoserver_extension    = 'zip',
+  $geoserver_digest       = '86d737c88ac60bc30efd65d3113925ee5c7502db',
+  $geoserver_digest_type  = 'sha1',
+  $geoserver_port         = undef,
+  $geoserver_stopport     = undef,
 ) {
+
+  require ::ftep::globals
 
   contain ::ftep::common::java
 
@@ -40,9 +45,9 @@ class ftep::geoserver (
     ensure           => present,
     url              => $geoserver_download_url,
     follow_redirects => true,
-    extension        => 'zip',
-    digest_string    => '86d737c88ac60bc30efd65d3113925ee5c7502db',
-    digest_type      => 'sha1',
+    extension        => $geoserver_extension,
+    digest_string    => $geoserver_digest,
+    digest_type      => $geoserver_digest_type,
     user             => $user,
     target           => $user_home,
     src_target       => $user_home,
@@ -70,6 +75,9 @@ PORT="<%= $port %>"
 STOPPORT="<%= $stopport %>"
 END
 
+  $real_port = pick($geoserver_port, $ftep::globals::geoserver_port)
+  $real_stopport = pick($geoserver_stopport, $ftep::globals::geoserver_stopport)
+
   file { $config_file:
     ensure  => present,
     content => inline_epp($config_file_epp, {
@@ -77,8 +85,8 @@ END
       'geoserver_user'     => $user,
       'geoserver_home'     => $geoserver_home,
       'geoserver_data_dir' => $geoserver_data_dir,
-      'port'               => $geoserver_port,
-      'stopport'           => $geoserver_stopport,
+      'port'               => "${real_port}",
+      'stopport'           => "${real_stopport}",
     })
   }
 

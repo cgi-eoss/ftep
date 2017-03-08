@@ -4,6 +4,7 @@ class ftep::webapp(
 
   $url_prefix   = 'http://localhost',
   $api_url      = 'http://localhost/secure/api/v1.0',
+  $api_v2_url   = 'http://localhost/secure/api/v2.0',
   $zoo_url      = 'http://localhost/secure/wps/zoo_loader.cgi',
   $wms_url      = 'http://localhost/geoserver',
   $mapbox_token = 'pk.eyJ1IjoidmFuemV0dGVucCIsImEiOiJjaXZiZTM3Y2owMDdqMnVwa2E1N2VsNGJnIn0.A9BNRSTYajN0fFaVdJIpzQ',
@@ -26,6 +27,7 @@ class ftep::webapp(
     content => epp('ftep/webapp/ftepConfig.js.epp', {
       'url_prefix'   => $url_prefix,
       'api_url'      => $api_url,
+      'api_v2_url'   => $api_v2_url,
       'zoo_url'      => $zoo_url,
       'wms_url'      => $wms_url,
       'mapbox_token' => $mapbox_token,
@@ -36,7 +38,7 @@ class ftep::webapp(
  ::apache::vhost { 'ftep-webapp':
    port             => '80',
    servername       => 'ftep-webapp',
-   docroot          => "$app_path",
+   docroot          => $app_path,
  }
 
 }

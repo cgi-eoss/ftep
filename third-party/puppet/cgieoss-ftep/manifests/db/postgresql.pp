@@ -19,6 +19,7 @@ class ftep::db::postgresql (
       "host ${db_name} ${db_username} samenet md5",
       "host ${db_v2_name} ${db_username} samenet md5",
       "host ${db_resto_name} ${db_resto_username} samenet md5",
+      "host ${db_resto_name} ${db_resto_su_username} samenet md5",
     ]
   } else {
     $acls = [

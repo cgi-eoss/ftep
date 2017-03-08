@@ -35,31 +35,31 @@ class ftep::proxy (
   $default_proxy_pass = [
     {
       'path' => $context_path_geoserver,
-      'url'  => 'http://ftep-geoserver'
+      'url'  => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}"
     },
     {
       'path' => $context_path_resto,
-      'url'  => 'http://ftep-resto'
+      'url'  => "http://${ftep::globals::resto_hostname}"
     },
     {
       'path' => $context_path_webapp,
-      'url'  => 'http://ftep-webapp'
+      'url'  => "http://${ftep::globals::webapp_hostname}"
     },
     {
       'path' => $context_path_wps,
-      'url'  => 'http://ftep-wps'
+      'url'  => "http://${ftep::globals::wps_hostname}"
     },
     {
       'path' => $context_path_api_v2,
-      'url'  => "http://ftep-server:${ftep::globals::server_application_port}${context_path_api_v2}"
+      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${context_path_api_v2}"
     },
     {
       'path' => '/download',
-      'url'  => "http://ftep-wps/wps/ftep-output"
+      'url'  => "http://${ftep::globals::wps_hostname}/wps/ftep-output"
     },
     {
       'path' => $context_path_monitor,
-      'url'  => "http://ftep-monitor:${ftep::globals::grafana_port}"
+      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}"
     }
   ]
 

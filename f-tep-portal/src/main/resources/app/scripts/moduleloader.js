@@ -1,16 +1,36 @@
 define([
     //contollers
-    './controllers/community',
     './controllers/helpdesk',
     './controllers/index',
     './controllers/navbar',
+    './controllers/messages',
+
+    './controllers/community/community',
+    './controllers/community/bottombar/bottombar',
+    './controllers/community/manage/manage',
+    './controllers/community/manage/databaskets/databasketscontainer',
+    './controllers/community/manage/databaskets/databasket',
+    './controllers/community/manage/databaskets/databaskets',
+    './controllers/community/manage/groups/groupscontainer',
+    './controllers/community/manage/groups/group',
+    './controllers/community/manage/groups/groups',
+    './controllers/community/manage/groups/users',
+    './controllers/community/manage/jobs/jobscontainer',
+    './controllers/community/manage/jobs/job',
+    './controllers/community/manage/jobs/jobs',
+    './controllers/community/manage/projects/projectscontainer',
+    './controllers/community/manage/projects/project',
+    './controllers/community/manage/projects/projects',
+    './controllers/community/manage/services/servicescontainer',
+    './controllers/community/manage/services/service',
+    './controllers/community/manage/services/services',
+    './controllers/community/share/share',
 
     './controllers/explorer/explorer',
     './controllers/explorer/map',
     './controllers/explorer/bottombar/bottombar',
     './controllers/explorer/bottombar/databasket',
     './controllers/explorer/bottombar/jobs',
-    './controllers/explorer/bottombar/messages',
     './controllers/explorer/bottombar/results',
     './controllers/explorer/sidebar/project',
     './controllers/explorer/sidebar/search',
@@ -29,5 +49,7 @@ define([
     './services/projectservice',
     './services/productservice',
     './services/tabservice',
+    './services/userservice',
     './services/wpsservice'
+
 ], function () {});

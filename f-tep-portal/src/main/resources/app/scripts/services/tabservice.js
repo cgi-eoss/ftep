@@ -14,20 +14,27 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
 
+        var communityTabs = { MANAGE: 0, SHARE: 1};
+
         this.getSideNavTabs = function(){
             return angular.copy(sideNavTabs);
-        }
+        };
 
         this.getBottomNavTabs = function(){
             return angular.copy(bottomNavTabs);
-        }
+        };
+
+        this.getCommunityNavTabs = function(){
+            return angular.copy(communityTabs);
+        };
 
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
                 activeSideNav: undefined,
                 activeBottomNav: bottomNavTabs.RESULTS,
                 bottomViewVisible: false,
-                sideViewVisible: false
+                sideViewVisible: false,
+                activeCommunityPage: 0
         };
 
         /** END OF PRESERVE USER SELECTIONS **/

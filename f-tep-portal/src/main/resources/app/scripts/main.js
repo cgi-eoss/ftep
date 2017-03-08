@@ -31,6 +31,8 @@ require.config({
     moment: 'vendor/moment/min/moment-with-locales',
     ol: 'vendor/openlayers/ol',
     requireLib: 'vendor/requirejs/require',
+    traversonAngular: 'vendor/traverson-angular/browser/dist/traverson-angular',
+    traversonHal: 'vendor/traverson-hal/browser/dist/traverson-hal',
 
     // ZOO-Client and dependencies
     hogan: 'zoo-client/lib/hogan/hogan-3.0.2',
@@ -151,6 +153,14 @@ require.config({
     ngScrollbar: {
       deps: ['angular'],
       exports: 'ngScrollbar'
+    },
+    traversonAngular: {
+      deps: ['angular'],
+      exports: ['traversonAngular', 'traverson']
+    },
+    traversonHal: {
+       deps: ['traversonAngular'],
+       exports: ['traversonHal']
     },
     ftepConfig: {
       exports: 'ftepConfig'

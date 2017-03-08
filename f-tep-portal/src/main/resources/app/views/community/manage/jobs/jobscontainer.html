@@ -1,0 +1,12 @@
+<div class="tab-content-container row no-margin">
+    <article id="groups-container"
+         class="col-md-3 left-container"
+         ng-include ng-controller="CommunityJobsCtrl"
+         src="'views/community/manage/jobs/jobs.html'" />
+
+     <article id="group-container"
+          class="col-md-9 right-container"
+          ng-show="displayRight()"
+          ng-include ng-controller="CommunityJobCtrl"
+          src="'views/community/manage/jobs/job.html'" />
+</div>

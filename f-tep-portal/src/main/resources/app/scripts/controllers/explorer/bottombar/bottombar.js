@@ -15,8 +15,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.bottomNavTabs = TabService.getBottomNavTabs();
                 $scope.resultTab = TabService.resultTab;
                 $scope.navInfo = TabService.navInfo;
-                $scope.dbParams = BasketService.params;
-                $scope.jobParams = JobService.params;
+                $scope.dbParams = BasketService.params.explorer;
+                $scope.jobParams = JobService.params.explorer;
                 $scope.resultParams = GeoService.params;
 
                 /** Opens a 'Create Databasket' dialog

@@ -292,10 +292,20 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           /** PRESERVE USER SELECTIONS **/
           this.params = {
+              explorer: {
                   selectedDatabasket: undefined,
                   selectedItems: undefined,
                   searchText: '',
-                  displayFilters: false
+                  displayFilters: false,
+                  showBaskets: true
+              },
+              community: {
+                  selectedDatabasket: undefined,
+                  selectedItems: undefined,
+                  searchText: '',
+                  displayFilters: false,
+                  showBaskets: true
+              }
           };
 
           this.pagingData = {

@@ -1,0 +1,11 @@
+<section id="groups-title" class="row section-title">
+    <div class="col-xs-10 title-text">
+        <h2 ng-bind="groupParams.selectedGroup.name" />
+    </div>
+</section>
+
+<section class="sub-title" ng-bind="groupParams.selectedGroup.description" />
+
+<section id="user-container"
+         ng-include ng-controller="CommunityUsersCtrl"
+         src="'views/community/manage/groups/users.html'" />

@@ -136,6 +136,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
           /** PRESERVE USER SELECTIONS **/
           this.params = {
+              explorer: {
                   selectedJob: undefined,
                   jobOutputs: [], //all outputs of the selected job
                   jobSelectedOutputs: [], //selected outputs
@@ -153,6 +154,9 @@ define(['../ftepmodules'], function (ftepmodules) {
                                 }
                               ],
                   jobGroupInfo: {} //info about job groups, which ones are opened, etc.
+              },
+              community: {
+              }
           };
           /** END OF PRESERVE USER SELECTIONS **/
 

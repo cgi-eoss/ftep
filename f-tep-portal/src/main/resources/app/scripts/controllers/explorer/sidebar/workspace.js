@@ -13,7 +13,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                                 function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService, MapService,
                                         CommonService) {
 
-        $scope.serviceParams = ProductService.params;
+        $scope.serviceParams = ProductService.params.explorer;
         $scope.serviceDescription;
         $scope.isWpsLoading = false;
         $scope.info;

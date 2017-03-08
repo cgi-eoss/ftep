@@ -1,0 +1,151 @@
+@import "variable";
+#community-container {
+    height: calc(100% ~'-' @navbar-height);
+    margin: 0;
+    margin-left: @sidenav-width;
+    margin-top: @navbar-height;
+    #bottombar {
+        background-color: @bg-light;
+        .border(border-top, @light-gray);
+    }
+    #manage-container, #share-container {
+        .border(border-top, @light-gray);
+        height: 100%;
+        width: 100%;
+        #manage-tabs {
+            height: 100%;
+            md-tabs-content-wrapper {
+                md-tab-content {
+                    height: 100%;
+                    md-content {
+                        background-color: transparent;
+                        .border(border-top, @light-gray);
+                        height: 100%;
+                        padding: 0;
+                        .tab-content {
+                            height: 100%;
+                            .tab-content-container {
+                                height: 100%;
+                            }
+                        }
+                    }
+                }
+                md-tab-content > div:nth-child(1) {
+                    height: 100%;
+                }
+            }
+        }
+    }
+    .left-container {
+        background-color: @bg;
+        height: 100%;
+        padding: 0;
+        .create-button {
+            background-color: @accent-light;
+            bottom: 1.5rem;
+            height: 40px;
+            margin: 0;
+            min-height: 0;
+            padding: 0;
+            position: absolute;
+            right: 2rem;
+            width: 40px;
+            .material-icons {
+                color: @text-light;
+                font-size: 30px;
+                height: 100%;
+                line-height: 40px;
+                width: 100%;
+            }
+            &:hover {
+                background-color: @accent;
+            }
+        }
+        .item-list {
+            padding-bottom: 3rem;
+        }
+        md-list-item {
+            .border(border-bottom, @bg);
+        }
+        md-input-container {
+            margin: 0;
+            width: 100%;
+            .text-sec();
+            .hint {
+                font-size: 0.6rem;
+                .text-hint();
+            }
+        }
+        .md-list-item-inner {
+            line-height: 1.2rem;
+            padding: 0.2rem;
+            h3 {
+                font-size: 1rem;
+                margin-bottom: 0.2rem;
+                margin-top: 0;
+            }
+        }
+        #sidebar-list {
+            height: 100%;
+            overflow-y: auto;
+        }
+    }
+    .right-container {
+        height: 100%;
+        overflow-y: scroll;
+        padding: 0.5rem 1rem;
+        md-content {
+            background-color: @bg-light;
+        }
+        md-input-container {
+            margin: 0;
+            width: 100%;
+            .text-sec();
+            .hint {
+                font-size: 0.6rem;
+                .text-hint();
+            }
+        }
+        md-tabs-canvas {
+            .border(border-bottom, @bg);
+        }
+        .section-title {
+            margin: 0;
+            padding: 0;
+            padding-bottom: 0.25rem;
+            h2 {
+                margin: 0;
+                padding-bottom: 0.5rem;
+            }
+            h3 {
+                color: @brand;
+                margin: 0;
+                padding-bottom: 0.5rem;
+            }
+            .title-button {
+                padding: 0;
+                h2, h3 {
+                    color: @accent;
+                    padding-left: 0;
+                    padding-right: 0;
+                    .md-button {
+                         padding: 0 10px;
+                    }
+                    &:hover {
+                        color: @accent-light;
+                    }
+                }
+
+            }
+            .title-text {
+                padding: 0;
+                padding-top: 0.2rem;
+            }
+        }
+        .sub-title {
+            font-size: 0.8rem;
+            margin: 0;
+            padding-bottom: 0.5rem;
+        }
+    }
+}

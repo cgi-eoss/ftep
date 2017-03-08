@@ -102,7 +102,6 @@ requireJs {
     dependsOn clientInstall
 }
 
-// TODO Test and enable minification, and change finalJs
 minifyJs {
     source = bigJs
     dest = minJs
@@ -199,3 +198,4 @@ sonarqube {
         property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*,src/main/resources/app/scripts/zoo-client/**/*"
     }
 }
+

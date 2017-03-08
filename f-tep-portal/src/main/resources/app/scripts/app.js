@@ -29,16 +29,18 @@ define([
     'moment',
     'angularMoment',
     'ngScrollbar',
+    'traversonAngular',
+    'traversonHal',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
-
-    var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'ngScrollbar']);
+    var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'ngScrollbar', 'traverson']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
         "URL_PREFIX": ftepConfig.urlPrefix,
         "URL": ftepConfig.apiUrl,
+        "URLv2": ftepConfig.apiUrlv2,
         "ZOO_URL": ftepConfig.zooUrl,
         "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
@@ -49,7 +51,8 @@ define([
         angular.bootstrap(document, ['ftepApp']);
     };
 
-    app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+    app.config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
+        $httpProvider.defaults.withCredentials = true;
         $routeProvider
             .when('/', {
                 templateUrl: 'views/explorer/explorer.html',
@@ -57,17 +60,17 @@ define([
                 controllerAs: 'main'
             })
             .when('/developer', {
-                templateUrl: 'views/developer.html'
+                templateUrl: 'views/developer/developer.html'
             })
             .when('/community', {
-                templateUrl: 'views/community.html',
+                templateUrl: 'views/community/community.html',
                 controller: 'CommunityCtrl'
             })
             .when('/account', {
-                templateUrl: 'views/account.html'
+                templateUrl: 'views/account/account.html'
             })
             .when('/helpdesk', {
-                templateUrl: 'views/helpdesk.html',
+                templateUrl: 'views/helpdesk/helpdesk.html',
                 controller: 'HelpdeskCtrl',
                 controllerAs: 'helpdesk'
             })

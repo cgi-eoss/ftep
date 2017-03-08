@@ -22,7 +22,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
 
             $scope.serviceSearch = {
-                searchText: ProductService.params.searchText
+                searchText: ProductService.params.explorer.searchText
             };
 
             $scope.serviceQuickSearch = function (item) {

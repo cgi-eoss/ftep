@@ -1,0 +1,12 @@
+<div class="tab-content-container row no-margin">
+    <article id="groups-container"
+         class="col-md-3 left-container"
+         ng-include ng-controller="CommunityDatabasketsCtrl"
+         src="'views/community/manage/databaskets/databaskets.html'" />
+
+     <article id="group-container"
+          class="col-md-9 right-container"
+          ng-show="displayRight()"
+          ng-include ng-controller="CommunityDatabasketCtrl"
+          src="'views/community/manage/databaskets/databasket.html'" />
+</div>

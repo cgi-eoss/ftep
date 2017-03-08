@@ -12,7 +12,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                  function ($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService) {
 
             $scope.dbPaging = BasketService.pagingData;
-            $scope.dbParams = BasketService.params;
+            $scope.dbParams = BasketService.params.explorer;
 
             $scope.databaskets = [];
 

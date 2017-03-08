@@ -94,6 +94,16 @@ define(['../ftepmodules'], function (ftepmodules) {
               });
           };
 
+        /** PRESERVE USER SELECTIONS **/
+          this.params = {
+              explorer: {
+                  showProjects: true
+              },
+              community: {
+                  showProjects: true
+              },
+          };
+
           return this;
       }]);
 });

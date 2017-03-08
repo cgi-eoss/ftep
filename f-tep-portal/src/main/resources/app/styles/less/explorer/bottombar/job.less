@@ -4,10 +4,20 @@
     flex-flow: column;
     flex: 1 1 auto;
     height: 100%;
-    .job-files {
-        list-style: none;
-        line-height: 1.2rem;
-        padding: 0.5rem;
+    .job-details {
+        .job-files {
+            list-style: none;
+            line-height: 1.2rem;
+            padding: 0.5rem;
+            .job-detail {
+                .key {
+                    font-weight: bold;
+                }
+                &:hover {
+                    background-color: @alert;
+                }
+            }
+        }
     }
     .job-status {
         border-radius: 1.5rem;
@@ -25,17 +35,7 @@
             margin: 0;
         }
     }
-    .job-detail {
-        .key {
-            font-weight: bold;
-        }
-        &:hover {
-            background-color: @alert;
-        }
-    }
-    .job-details {
 
-    }
     .toolbar-button {
         min-height: 0;
         line-height: 1rem;

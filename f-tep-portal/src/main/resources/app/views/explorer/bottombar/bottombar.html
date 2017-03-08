@@ -27,7 +27,7 @@
     <section ng-show="navInfo.activeBottomNav == bottomNavTabs.MESSAGES"
              class="col-xs-3 no-padding"
              ng-include
-             src="'views/explorer/bottombar/tabs/messagestab.html'"
+             src="'views/common/bottombar/tabs/messagestab.html'"
              ng-controller="MessagesCtrl" />
 
 </div>
@@ -58,10 +58,10 @@
 
     <section class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.MESSAGES" ng-controller="MessagesCtrl">
         <div class="col-md-8 bottombar-right">
-            <div id="message" ng-include src="'views/explorer/bottombar/message.html'" />
+            <div id="message" ng-include src="'views/common/bottombar/message.html'" />
         </div>
         <div class="col-md-4 bottombar-left">
-            <div id="messages" ng-include src="'views/explorer/bottombar/messages.html'" />
+            <div id="messages" ng-include src="'views/common/bottombar/messages.html'" />
         </div>
     </section>
 

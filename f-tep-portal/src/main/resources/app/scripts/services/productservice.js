@@ -45,8 +45,12 @@ define(['../ftepmodules'], function (ftepmodules) {
           };
 
           this.params = {
+              explorer: {
                   selectedService: undefined,
                   searchText: ''
+              },
+              community: {
+              }
           };
 
           return this;

@@ -1,103 +1,100 @@
 /**
  * Created by dashi on 03-08-2016.
  */
-define(['../ftepmodules'], function (ftepmodules) {
+
   'use strict';
 
-  ftepmodules.service('GroupService', [ '$rootScope', '$http', 'ftepProperties', '$q', 'MessageService',
-                                        function ($rootScope, $http, ftepProperties, $q, MessageService) {
+define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    $http.defaults.headers.post['Content-Type'] = 'application/json';
-    $http.defaults.withCredentials = true;
+    ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', function (ftepProperties, $q, MessageService, traverson) {
 
-    //GET Method to get default Groups
-    this.getGroups = function(){
-      var deferred = $q.defer();
-      $http.get( ftepProperties.URL + '/groups').then(function(response) {
-        deferred.resolve(response.data.data);
-      })
-      .catch(function(e){
-          MessageService.addError(
-              'Could not get Groups'
-          );
-          deferred.reject();
-      });
-      return deferred.promise;
-    };
+        traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
+        var rootUri = ftepProperties.URLv2;
+        var groupsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
-    //POST Method to create new Groups
-    this.createGroup = function(name, desc){
-      return $q(function(resolve, reject) {
-        //added var group which takes in attributes name and description
-        var group = {type: 'groups', attributes:{name: name, description: (desc ? desc : '')}};
-        $http({
-          method: 'POST',
-          url: ftepProperties.URL + '/groups',
-          data: '{"data": ' + JSON.stringify(group) + '}',
-        }).
-        then(function(response) {
-          resolve(response.data.data);
-          MessageService.addInfo('Group created', 'New group '.concat(name).concat(' created'));
-        }).
-        catch(function(e) {
-          if(e.status == 409){
-            MessageService.addError(
-                'Could not create group',
-                'Conflicts with an already existing one'
-            );
-          }
-          reject();
-        });
-      });
-    };
+        /** PRESERVE USER SELECTIONS **/
+        this.params = {
+            groups: [],
+            selectedGroup: undefined,
+            searchText: '',
+            displayGroupFilters: false
+        };
+        /** END OF PRESERVE USER SELECTIONS **/
 
-    //DELETE Method to remove group
-    this.removeGroup = function(group){
-      return $q(function(resolve, reject) {
-        //next two lines are repeated again-why?
-        $http.defaults.headers.post['Content-Type'] = 'application/json';
-        $http.defaults.withCredentials = true;
-        $http({
-          method: 'DELETE',
-          url: ftepProperties.URL + '/groups/' + group.id
-        }).
-        then(function(response) {
-          resolve(group);
-          MessageService.addInfo('Group deleted', 'Group '.concat(group.attributes.name).concat(' deleted'));
-        }).
-        catch(function(e) {
-            MessageService.addError(
-                'Failed to remove Group'
-            );
-            console.log(e);
-            reject();
-        });
-      });
-    };
-
-    //PATCH Method to edit an existing group
-    this.updateGroup = function(group){
-        return $q(function(resolve, reject) {
-
-            delete group.attributes.id;
-            $http({
-                method: 'PATCH',
-                url: ftepProperties.URL + '/groups/' + group.id,
-                data: '{"data": ' + JSON.stringify(group) + '}',
-            }).
-            then(function(response) {
-                resolve(group);
-                MessageService.addInfo('Group updated', 'Group '.concat(group.attributes.name).concat(' updated'));
-            }).
-            catch(function(e) {
-                MessageService.addError(
-                    'Failed to update Group'
-                );
-                console.log(e);
-                reject();
+        this.getGroups = function () {
+            var deferred = $q.defer();
+            groupsAPI.from(rootUri + '/groups/')
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document._embedded.groups);
+            }, function (error) {
+                MessageService.addError ('Could not get Groups', error);
+                deferred.reject();
             });
-        });
-    };
+            return deferred.promise;
+        };
+
+        this.createGroup = function(name, desc) {
+            return $q(function(resolve, reject) {
+                var group = {name: name, description: (desc ? desc : '')};
+                groupsAPI.from(rootUri + '/groups/')
+                         .newRequest()
+                         .post(group)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('Group created', 'New group '.concat(name).concat(' created.'));
+                    resolve(document);
+                }, function (error) {
+                    MessageService.addError ('Failed to Create Group', error);
+                    reject();
+                });
+            });
+        };
+
+        this.removeGroup = function(group) {
+            return $q(function(resolve, reject) {
+                deleteAPI.from(rootUri + '/groups/' + group.id)
+                         .newRequest()
+                         .delete()
+                         .result
+                         .then(
+                function (document) {
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('Group deleted', 'Group '.concat(group.name).concat(' deleted.'));
+                        resolve(group);
+                    } else {
+                        MessageService.addError ('Failed to Remove Group', document);
+                        reject();
+                    }
+                }, function (error) {
+                    MessageService.addError ('Failed to Remove Group', error);
+                    reject();
+                });
+            });
+        };
+
+        this.updateGroup = function (group) {
+            var newgroup = {name: group.name, description: group.description};
+            return $q(function(resolve, reject) {
+                groupsAPI.from(rootUri + '/groups/' + group.id)
+                         .newRequest()
+                         .patch(newgroup)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('Group successfully updated');
+                    resolve(document);
+                }, function (error) {
+                    MessageService.addError('Failed to update Group', error);
+                    reject();
+                });
+            });
+        };
 
     return this;
   }]);

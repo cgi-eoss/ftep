@@ -11,7 +11,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('JobsCtrl', ['$scope', '$rootScope', 'CommonService', 'JobService', '$sce',
                                  function ($scope, $rootScope, CommonService, JobService, $sce) {
 
-            $scope.jobParams = JobService.params;
+            $scope.jobParams = JobService.params.explorer;
 
             var jobs = [];
             $scope.serviceGroups = [];

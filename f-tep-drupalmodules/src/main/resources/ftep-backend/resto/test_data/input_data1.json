@@ -1,0 +1,39 @@
+{
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.584909,
+              56.365868
+            ],
+            [
+              20.782787,
+              56.786442
+            ],
+            [
+              21.191225,
+              55.293385
+            ],
+            [
+              17.149515,
+              54.877369
+            ],
+            [
+              16.584909,
+              56.365868
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "datasource_endpoint" : "https://finder.eocloud.eu/resto/api/collections/Sentinel1/search.json",
+        "external_id": "https://finder.eocloud.eu/resto/collections/Sentinel1/c1844ff8-310b-5584-a97a-11214dc72cfd.json?&lang=en",
+        "size": 1758226164,
+        "productIdentifier": "/eodata/Sentinel-1/SAR/GRD/2016/03/23/S1A_IW_GRDH_1SDV_20160323T162804_20160323T162829_010499_00F96B_C555.SAFE",
+        "title": "S1A_IW_GRDH_1SDV_20160323T162804_20160323T162829_010499_00F96B_C555.SAFE",
+        "startDate": "2016-03-23T16:28:04Z",
+        "completionDate": "2016-03-23T16:28:29Z"
+      }
+    }

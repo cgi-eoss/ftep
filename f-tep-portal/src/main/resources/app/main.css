@@ -48,6 +48,7 @@ input {
 /* End of Groups */
 
 #community-container {
+  border-top: #d2d2d2 solid 1px;
   height: calc(100% - 50px);
   margin: 0;
   margin-left: 44px;
@@ -59,7 +60,6 @@ input {
 }
 #community-container #manage-container,
 #community-container #share-container {
-  border-top: #adadad solid 1px;
   height: 100%;
   width: 100%;
 }
@@ -74,7 +74,7 @@ input {
 #community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content,
 #community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content {
   background-color: transparent;
-  border-top: #adadad solid 1px;
+  border-top: #d2d2d2 solid 1px;
   height: 100%;
   padding: 0;
 }
@@ -543,10 +543,12 @@ input {
 }
 
 #developer-container {
+  border-top: #d2d2d2 solid 1px;
   height: calc(100% - 50px);
   margin: 0;
   margin-left: 44px;
   margin-top: 50px;
+  overflow-y: auto;
 }
 #developer-container #reference-container {
   width: 100%;
@@ -561,31 +563,59 @@ input {
   margin-top: 2px;
 }
 #developer-container #reference-container #refDataForm {
-  padding: 5px 20px 40px 20px;
-  border: solid 2px lightgray;
-  float: right;
+  border-bottom: #d2d2d2 solid 1px;
+  border-left: #d2d2d2 solid 1px;
+}
+#developer-container #reference-container #refDataForm h3 {
+  margin: 0;
 }
 #developer-container #reference-container #refDataForm md-input-container {
+  margin: 0.5rem 0;
   width: 100%;
 }
-#developer-container #reference-container #refDataForm .form-fields {
+#developer-container #reference-container #refDataForm .drop-box-container {
   padding: 20px;
 }
-#developer-container #reference-container #refDataForm .drop-box {
-  border: 5px dashed lightgray;
-  width: 100%;
-  height: 100px;
-  text-align: center;
-  padding-top: 25px;
+#developer-container #reference-container #refDataForm .drop-box-container .dragover {
+  background-color: #aed581;
+  border: 5px solid #33691e !important;
 }
-#developer-container #reference-container #refDataForm #referenceSubmithButton {
+#developer-container #reference-container #refDataForm .drop-box-container .drop-box {
+  border: 5px dashed lightgray;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+  height: 5rem;
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%;
+}
+#developer-container #reference-container #refDataForm #referenceSubmitButton {
   background-color: #ff80ab;
   float: right;
-  margin-right: 40px;
-  padding: 0px;
+  height: 40px;
+  margin: 1rem;
+  min-height: 0;
+  padding: 0;
+  width: 40px;
 }
-#developer-container #reference-container #refDataForm #referenceSubmithButton:hover {
+#developer-container #reference-container #refDataForm #referenceSubmitButton .material-icons {
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 30px;
+  height: 100%;
+  line-height: 40px;
+  width: 100%;
+}
+#developer-container #reference-container #refDataForm #referenceSubmitButton:hover {
   background-color: #ff4081;
+}
+#developer-container #reference-container #refDataForm .md-button[disabled] {
+  background-color: #BBB !important;
+}
+#developer-container #reference-container #refDataForm .btn-success[disabled]:hover {
+  background-color: #f2dede !important;
+}
+#developer-container #reference-container #refDataForm .btn-success[disabled]:hover .material-icons {
+  color: #a94442 !important;
 }
 
 #bottombar {
@@ -1743,6 +1773,7 @@ input {
 }
 
 #helpdesk-container {
+  border-top: #d2d2d2 solid 1px;
   height: calc(100% - 50px);
   margin: 0;
   margin-top: 50px;

@@ -1,5 +1,6 @@
 @import "variable";
 #community-container {
+    .border(border-top, @bg);
     height: calc(100% ~'-' @navbar-height);
     margin: 0;
     margin-left: @sidenav-width;
@@ -9,7 +10,6 @@
         .border(border-top, @light-gray);
     }
     #manage-container, #share-container {
-        .border(border-top, @light-gray);
         height: 100%;
         width: 100%;
         #manage-tabs {
@@ -19,7 +19,7 @@
                     height: 100%;
                     md-content {
                         background-color: transparent;
-                        .border(border-top, @light-gray);
+                        .border(border-top, @bg);
                         height: 100%;
                         padding: 0;
                         .tab-content {

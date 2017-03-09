@@ -1,39 +1,47 @@
-<div id="user-references" class="col-md-8 no-padding">
+<section id="user-references" class="col-md-8">
     <div class="row no-margin">
-        <md-subheader class="md-accent"><h4>My reference data</h4></md-subheader>
+        <h2>My Reference Data</h2>
         <!-- TODO -->
     </div>
-</div>
+</section>
 
-<form id="refDataForm" name="refDataForm" class="col-md-4">
+<form id="refDataForm" name="refDataForm" class="col-md-4 no-padding">
         <div class="row no-margin">
-            <md-subheader class="md-accent"><h4>Add reference data</h4></md-subheader>
+            <md-subheader class="md-accent"><h3>Add Reference Data</h3></md-subheader>
         </div>
-        <div class="row no-margin form-fields">
-            <div class="col-md-12">
+        <div class="row no-margin drop-box-container">
+            <div class="col-md-12 no-padding">
                 <md-input-container md-no-float>
-                    <div ngf-drop ngf-select ng-model="newReference.file" class="drop-box" required
-                        ngf-drag-over-class="'dragover'" ngf-multiple="false" ngf-allow-dir="false">Drop a file here or click to upload</div>
+                    <div class="drop-box"
+                         required
+                         ng-model="newReference.file"
+                         ngf-drop
+                         ngf-select
+                         ngf-drag-over-class="'dragover'"
+                         ngf-multiple="false"
+                         ngf-allow-dir="false">
+                        Drop a file here or click to upload
+                    </div>
                 </md-input-container>
-                <h4>{{newReference.file.name}}</h4>
+                <h4 ng-bind="newReference.file.name" />
             </div>
 
-            <div class="col-md-12">
+            <div class="col-md-12 no-padding">
                  <md-input-container md-no-float>
-                     <input ng-model="newReference.geometry" type="text" placeholder="Geometry">
+                     <input ng-model="newReference.geometry" type="text" placeholder="Enter a geometry">
                      <div class="hint" ng-show="true">Geometry</div>
                  </md-input-container>
             </div>
 
-            <div class="col-md-12">
+            <div class="col-md-12 no-padding">
                  <md-input-container md-no-float>
-                     <input ng-model="newReference.description" type="text" placeholder="Description">
+                     <input ng-model="newReference.description" type="text" placeholder="Enter a description">
                      <div class="hint" ng-show="true">Description</div>
                  </md-input-container>
             </div>
         </div>
 
-        <md-button id="referenceSubmithButton"
+        <md-button id="referenceSubmitButton"
                    class="md-icon-button md-fab md-mini btn-success"
                    type="submit"
                    form="refDataForm"

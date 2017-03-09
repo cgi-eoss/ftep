@@ -5,7 +5,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '0.5.0-SNAPSHOT'
+version '0.6.0-SNAPSHOT'
 
 apply plugin: 'base'
 apply plugin: 'nebula.ospackage'

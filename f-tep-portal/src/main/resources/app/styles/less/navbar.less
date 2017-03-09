@@ -8,14 +8,21 @@
     z-index: 50;
     .navbar-container {
         height: @navbar-height;
+        padding: 0;
+        padding-left: 0.3rem;
         .navbar-header {
+            margin: 0;
             padding-right: 1rem;
             img {
                 height: @navbar-height;
                 padding: 5px;
             }
+            .navbar-toggle {
+                margin-right: 3rem;
+            }
         }
         .navbar-contents {
+            padding: 0;
             .nav {
                 height: 100%;
                 margin:0;
@@ -23,13 +30,13 @@
                     background-color: @bg;
                     cursor: pointer;
                     height: @navbar-height;
-                    padding: 0 20px;
+                    padding: 0 1rem;
                     .border(border-right, @bg);
                     p {
                         padding-top: 14px;
                         vertical-align: middle;
                         .material-icons {
-                            font-size: 1.2rem;
+                            font-size: 1.1rem;
                         }
                     }
                     &.active {

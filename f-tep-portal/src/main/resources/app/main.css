@@ -2015,13 +2015,22 @@ pre {
 }
 #navbar .navbar-container {
   height: 50px;
+  padding: 0;
+  padding-left: 0.3rem;
 }
 #navbar .navbar-container .navbar-header {
+  margin: 0;
   padding-right: 1rem;
 }
 #navbar .navbar-container .navbar-header img {
   height: 50px;
   padding: 5px;
+}
+#navbar .navbar-container .navbar-header .navbar-toggle {
+  margin-right: 3rem;
+}
+#navbar .navbar-container .navbar-contents {
+  padding: 0;
 }
 #navbar .navbar-container .navbar-contents .nav {
   height: 100%;
@@ -2031,7 +2040,7 @@ pre {
   background-color: #f8f8f8;
   cursor: pointer;
   height: 50px;
-  padding: 0 20px;
+  padding: 0 1rem;
   border-right: #d2d2d2 solid 1px;
 }
 #navbar .navbar-container .navbar-contents .nav li p {
@@ -2039,7 +2048,7 @@ pre {
   vertical-align: middle;
 }
 #navbar .navbar-container .navbar-contents .nav li p .material-icons {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 #navbar .navbar-container .navbar-contents .nav li.active {
   border-bottom: #558b2f solid 4px;

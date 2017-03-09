@@ -20,24 +20,10 @@
         </parameters>
     </node>
 
-    <node id="Multilook">
-        <operator>Multilook</operator>
-        <sources>
-            <sourceProduct refid="Bandselect"/>
-        </sources>
-        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-            <sourceBands/>
-            <nRgLooks>5</nRgLooks>
-            <nAzLooks>5</nAzLooks>
-            <outputIntensity>true</outputIntensity>
-            <grSquarePixel>true</grSquarePixel>
-        </parameters>
-    </node>
-
     <node id="Calibration">
         <operator>Calibration</operator>
         <sources>
-            <sourceProduct refid="Multilook"/>
+            <sourceProduct refid="BandSelect"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <sourceBands/>
@@ -50,14 +36,28 @@
             <selectedPolarisations/>
             <outputSigmaBand>false</outputSigmaBand>
             <outputGammaBand>false</outputGammaBand>
-            <outputBetaBand>false</outputBetaBand>
+            <outputBetaBand>true</outputBetaBand>
+        </parameters>
+    </node>
+
+    <node id="Multilook">
+        <operator>Multilook</operator>
+        <sources>
+            <sourceProduct refid="Calibration"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <nRgLooks>5</nRgLooks>
+            <nAzLooks>5</nAzLooks>
+            <outputIntensity>true</outputIntensity>
+            <grSquarePixel>true</grSquarePixel>
         </parameters>
     </node>
 
     <node id="Terrain-Flattening">
         <operator>Terrain-Flattening</operator>
         <sources>
-            <sourceProduct refid="Calibration"/>
+            <sourceProduct refid="Multilook"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <sourceBands>Beta0_VH</sourceBands>
@@ -133,7 +133,7 @@
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>${ofile}</file>
-            <formatName>GeoTIFF</formatName>
+            <formatName>GeoTIFF-BigTIFF</formatName>
         </parameters>
     </node>
 </graph>

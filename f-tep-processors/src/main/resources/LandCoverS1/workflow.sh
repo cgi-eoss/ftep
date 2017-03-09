@@ -51,7 +51,7 @@ else
 fi
 
 # Reprojection to user-requested EPSG
-time gpt Reproject -t ${TRAINING_INPUT} -Pcrs="${EPSG}" -Presampling="Bilinear" ${TEMPORAL_AVG_OUTPUT}
+time gpt Reproject -t ${TRAINING_INPUT} -f GeoTIFF-BigTIFF -Pcrs="${EPSG}" -Presampling="Bilinear" ${TEMPORAL_AVG_OUTPUT}
 
 # OTB training with "random forest" model + reference data
 time otbcli_TrainImagesClassifier \

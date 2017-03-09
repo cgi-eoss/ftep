@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public enum FtepPermission {
      * <p>A Spring Security GrantedAuthority for PUBLIC visibility. Not technically an FtepPermission enum value, but
      * may be treated similarly.</p>
      */
-    static final GrantedAuthority PUBLIC = (GrantedAuthority) () -> "PUBLIC";
+    static final GrantedAuthority PUBLIC = new SimpleGrantedAuthority("PUBLIC");
 
     public Set<Permission> getAclPermissions() {
         return SPRING_FTEP_PERMISSION_MAP.get(this);

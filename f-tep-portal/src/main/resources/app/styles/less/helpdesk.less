@@ -1,70 +1,70 @@
 @import "variable";
 #helpdesk-container {
-    margin-top: 50px;
-    padding: 18px;
-    font-size: 20px;
-    h2{
-       font-size: 22px;
-       font-weight: 900;
-    };
-    h3{
-       font-size: 20px;
-       font-weight: 900;
+    height: calc(100% ~'-' @navbar-height);
+    margin: 0;
+    margin-top: @navbar-height;
+    overflow-y: auto;
+    padding: 1rem;
+    .block {
+        background-color: @bg;
+        border-radius: 4px;
+        margin: 0.8rem;
+        padding: 1rem;
     }
-    .block{
-        background-color: rgb(235, 235, 224);
+    h2 {
+        color: @brand;
+        margin-top: 0;
     }
-    #helpdesk-info{
-        padding: 40px 40px 120px 40px;
-        font-size: 22px;
+    #left-column {
+        #helpdesk-info {
+            #supported-services {
+                margin-top: 1rem;
+                #services-list {
+                    padding-top: 0.5rem;
+                }
+            }
+        }
+        #contact {}
     }
-    #supported-services {
-        margin-top: 35px;
-    }
-    #contact{
-        margin-top: 40px;
-        padding: 20px 40px 40px 40px;
-    }
-    #links{
-        margin-left: 40px;
-        margin-right: 20px;
-        padding: 40px;
-        img{
-            height: 60px;
-            width: 180px;
-        };
-        a, a:hover{
-            font-weight: 900;
-            text-decoration: none;
-        };
-        a{
-            color: @brand-dark;
-            text-shadow: 1px 1px 2px #FFF;
-        };
-        a:hover{
-            color: #FFF;
-            text-shadow: 1px 1px 2px #000;
-        };
-        ul{
-            list-style-type: none;
-        };
-    }
-    #videoclips{
-        margin: 20px 20px 0px 40px;
-        padding: 20px 40px 20px 40px;
-        img{
-            height: 150px;
-            width: 290px;
-        };
-        img:hover{
-            border: 4px solid @accent;
-        };
-        .video{
-            padding: 10px 20px;
-            text-align: justify;
-        };
-        .video p{
-            padding: 5px;
-        };
+    #right-column {
+        #links {
+            img {
+                max-width: 240px;
+                width: 100%;
+            }
+            ul {
+                list-style-type: none;
+                li {
+                    padding: 0.25rem 0;
+                    a {
+                        color: @brand;
+                        font-weight: 900;
+                        text-decoration: none;
+                        &:hover {
+                            color: @brand-light;
+                        }
+                    }
+                }
+            }
+        }
+        #videoclips {
+            img {
+                transform: scale(1);
+                transition: .3s ease-in-out;
+                width: 100%;
+                &:hover {
+                    transform: scale(1.1);
+                }
+            }
+            .video {
+                padding: 0.5rem;
+                figure {
+                    margin: 0;
+                    figcaption {
+                        padding-top: 0.5rem;
+                    }
+                }
+            }
+        }
     }
 }

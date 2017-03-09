@@ -51,7 +51,7 @@ else
 fi
 
 ## Reprojection to user-requested EPSG
-time gpt Reproject -t ${REPROJECTED} -Pcrs="${EPSG}" -Presampling="Bilinear" ${TEMPORAL_AVG_OUTPUT}
+time gpt Reproject -t ${REPROJECTED} -f GeoTIFF-BigTIFF -Pcrs="${EPSG}" -Presampling="Bilinear" ${TEMPORAL_AVG_OUTPUT}
 
 # Calculate forest volume
 time gpt ${S1_FOREST_VOLUME} -Pifile=${REPROJECTED} -Pofile=${FOREST_VOLUME}

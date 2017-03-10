@@ -9,6 +9,7 @@ import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -38,13 +40,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    private final DockerClient dockerClient;
+    private final DockerClientFactory dockerClientFactory;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
 
+    // Track which DockerClient is used for which container
+    private final Map<String, DockerClient> containerClients = new HashMap<>();
+
     @Autowired
-    public FtepWorker(DockerClient dockerClient, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
-        this.dockerClient = dockerClient;
+    public FtepWorker(DockerClientFactory dockerClientFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
+        this.dockerClientFactory = dockerClientFactory;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
     }
@@ -83,12 +88,16 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void launchContainer(DockerContainerConfig request, StreamObserver<DockerContainer> responseObserver) {
         String containerId = null;
         try {
+            DockerClient dockerClient = dockerClientFactory.getDockerClient();
+
             CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
             createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
             createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
 
             containerId = createContainerCmd.exec().getId();
             dockerClient.startContainerCmd(containerId).exec();
+
+            containerClients.put(containerId, dockerClient);
 
             // Enable container logging via slf4J by default
             dockerClient.logContainerCmd(containerId).withStdErr(true).withStdOut(true).withFollowStream(true).withTailAll()
@@ -136,13 +145,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     private WaitContainerResultCallback waitForContainer(String containerId) {
-        return dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
+        return containerClients.get(containerId).waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
     }
 
     private void removeContainer(String containerId) {
         try {
             LOG.info("Removing container {}", containerId);
-            dockerClient.removeContainerCmd(containerId).exec();
+            containerClients.get(containerId).removeContainerCmd(containerId).exec();
         } catch (Exception e) {
             LOG.error("Failed to delete container {}", containerId, e);
         }

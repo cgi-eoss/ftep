@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
@@ -25,6 +26,7 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -61,12 +63,15 @@ public class WpsServicesClientIT {
 
     private ServerImpl server;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void precondition() {
         // Shortcut if docker socket is not accessible to the current user
         assumeTrue("Unable to write to Docker socket; disabling docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
         // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
+    }
 
+    @Before
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
         this.fs = Jimfs.newFileSystem(Configuration.unix());
@@ -80,13 +85,14 @@ public class WpsServicesClientIT {
                 .withDockerHost("unix:///var/run/docker.sock")
                 .build();
         DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
+        DockerClientFactory dockerClientFactory = new DockerClientFactory(dockerClient);
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(RPC_SERVER_NAME).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
 
         WorkerFactory workerFactory = new WorkerFactory(channelBuilder);
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService);
-        FtepWorker ftepWorker = new FtepWorker(dockerClient, jobEnvironmentService, ioManager);
+        FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
         inProcessServerBuilder.addService(ftepServiceLauncher);
         inProcessServerBuilder.addService(ftepWorker);

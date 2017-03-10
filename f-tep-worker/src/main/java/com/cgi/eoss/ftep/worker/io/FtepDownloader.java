@@ -1,12 +1,12 @@
 package com.cgi.eoss.ftep.worker.io;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 
-@Slf4j
+@Log4j2
 public class FtepDownloader implements Downloader {
     @Override
     public Path download(Path targetDir, URI uri) throws IOException {

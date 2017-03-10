@@ -27,7 +27,7 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
 
     @Override
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) {
-        Assert.notNull(token.getDetails());
+        Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 
         com.cgi.eoss.ftep.model.User user = userDataService.getOrSave(token.getName());
         Set<Group> userGroups = userDataService.getGroups(user);

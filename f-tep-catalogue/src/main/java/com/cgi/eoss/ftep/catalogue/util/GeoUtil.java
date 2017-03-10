@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
 import org.geotools.geometry.GeometryBuilder;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * <p>Utility methods for dealing with geo-spatial data and its various java libraries.</p>
  */
-@Slf4j
+@Log4j2
 @UtilityClass
 public class GeoUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

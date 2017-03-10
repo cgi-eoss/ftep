@@ -7,7 +7,7 @@ import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.google.common.collect.Multimap;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * <p>Client for F-TEP gRPC services. Encapsulates the usage of the RPC interface so that WPS service implementations
  * may access the F-TEP orchestration environment more easily.</p>
  */
-@Slf4j
+@Log4j2
 public class FtepServicesClient {
 
     private final ManagedChannel channel;

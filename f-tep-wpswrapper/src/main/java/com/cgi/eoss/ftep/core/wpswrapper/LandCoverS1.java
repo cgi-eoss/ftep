@@ -14,7 +14,7 @@ import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.collect.ImmutableMap;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.zoo.project.ZooConstants;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Slf4j
+@Log4j2
 public class LandCoverS1 extends AbstractWrapperProc {
 
     public LandCoverS1(String dockerImgName) {

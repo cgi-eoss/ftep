@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import com.google.common.base.Preconditions;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Slf4j
+@Log4j2
 public class S2CEDADownloader implements Downloader {
     private static final Pattern S2_PRODUCT_PATTERN = Pattern.compile("/(?<PRODUCT>S2A.*_(?<YEAR>\\d{4})(?<MONTH>\\d{2})(?<DAY>\\d{2})T\\d{6})");
     private static final String CEDA_FTP_URI_FORMAT = "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/%s/%s/%s/%s.zip";

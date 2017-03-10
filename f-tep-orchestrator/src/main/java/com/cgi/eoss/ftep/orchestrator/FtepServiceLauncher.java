@@ -27,7 +27,7 @@ import com.google.common.collect.Multimap;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ import java.util.List;
  * <p>Provides access to F-TEP data services and job distribution capability.</p>
  */
 @Service
-@Slf4j
+@Log4j2
 @GRpcService
 public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLauncherImplBase {
 

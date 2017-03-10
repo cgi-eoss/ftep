@@ -12,9 +12,7 @@ dependencies {
     compile project(':f-tep-worker')
 
     compile 'com.google.guava:guava'
-    compile 'ch.qos.logback:logback-classic'
-    compile 'org.slf4j:jul-to-slf4j'
-    compile 'org.slf4j:slf4j-api'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
 
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'com.google.jimfs:jimfs'

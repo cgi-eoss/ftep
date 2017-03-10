@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.Multimap;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.io.IOException;
 
 @Converter
-@Slf4j
+@Log4j2
 public class StringMultimapYamlConverter implements AttributeConverter<Multimap<String, String>, String> {
 
     private static final TypeReference STRING_MULTIMAP = new TypeReference<Multimap<String,String>>() { };

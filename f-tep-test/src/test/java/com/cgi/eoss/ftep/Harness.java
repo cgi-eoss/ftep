@@ -4,8 +4,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 class Harness {
-    private static final Logger LOG = LoggerFactory.getLogger(Harness.class);
+    private static final Logger LOG = LogManager.getLogger("HelloWorld");
 
     final DockerComposeContainer environment;
 

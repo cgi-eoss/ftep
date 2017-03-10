@@ -2,7 +2,7 @@ package com.cgi.eoss.ftep.catalogue.resto;
 
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.jayway.jsonpath.JsonPath;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -25,7 +25,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  * <p>Implementation of RestoService using Resto's HTTP REST-style API.</p>
  */
 @Component
-@Slf4j
+@Log4j2
 public class RestoServiceImpl implements RestoService {
 
     private final OkHttpClient client;

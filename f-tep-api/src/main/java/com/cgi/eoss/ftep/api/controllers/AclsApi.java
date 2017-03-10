@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableList;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -46,7 +46,7 @@ import java.util.stream.IntStream;
  */
 @RestController
 @RequestMapping("/acls")
-@Slf4j
+@Log4j2
 public class AclsApi {
 
     /**

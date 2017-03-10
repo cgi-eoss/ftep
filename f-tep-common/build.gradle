@@ -12,5 +12,5 @@ dependencies {
     compile 'com.github.jasminb:jsonapi-converter'
     compile 'com.google.code.gson:gson'
     compile 'org.apache.httpcomponents:httpclient'
-    compile 'org.slf4j:slf4j-api'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
 }

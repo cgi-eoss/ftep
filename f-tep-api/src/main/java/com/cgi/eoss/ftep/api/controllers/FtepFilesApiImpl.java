@@ -8,7 +8,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -35,7 +35,7 @@ import java.io.IOException;
 @RepositoryRestController
 @RequestMapping("/ftepFiles")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
+@Log4j2
 public class FtepFilesApiImpl {
 
     private final FtepSecurityUtil ftepSecurityUtil;

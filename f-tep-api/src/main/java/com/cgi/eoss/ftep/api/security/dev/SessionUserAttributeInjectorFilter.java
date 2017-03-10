@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.api.security.dev;
 
 import com.google.common.base.Strings;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -12,7 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-@Slf4j
+@Log4j2
 public class SessionUserAttributeInjectorFilter extends GenericFilterBean {
 
     private final String usernameRequestAttribute;

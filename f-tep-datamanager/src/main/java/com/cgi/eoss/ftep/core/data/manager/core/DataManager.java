@@ -2,7 +2,7 @@ package com.cgi.eoss.ftep.core.data.manager.core;
 
 import com.cgi.eoss.ftep.core.utils.DBRestApiManager;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.zoo.project.ZooConstants;
 
 import java.io.BufferedReader;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 
 // Represents one session of downloading a bunch of items
-@Slf4j
+@Log4j2
 public class DataManager {
 
     private boolean hasSkippedEntry = false;

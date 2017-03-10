@@ -42,6 +42,5 @@ dependencies {
     testCompile 'org.seleniumhq.selenium:selenium-java'
     testCompile 'org.testcontainers:selenium'
     testCompile 'org.testcontainers:testcontainers'
-
-    testRuntime 'ch.qos.logback:logback-classic'
+    testCompile 'org.springframework.boot:spring-boot-starter-log4j2'
 }

@@ -5,12 +5,12 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.File;
 import java.util.HashMap;
 
-@Slf4j
+@Log4j2
 public abstract class AbstractWrapperProc {
     private static final String DEFAULT_DOCKER_HOST = "localhost";
     private static final String DEFAULT_DOCKER_PORT = "2376";

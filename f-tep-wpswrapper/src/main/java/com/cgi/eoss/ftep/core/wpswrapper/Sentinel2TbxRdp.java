@@ -17,7 +17,7 @@ import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.zoo.project.ZooConstants;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
+@Log4j2
 public class Sentinel2TbxRdp extends AbstractWrapperProc {
 
     public Sentinel2TbxRdp(String dockerImgName) {

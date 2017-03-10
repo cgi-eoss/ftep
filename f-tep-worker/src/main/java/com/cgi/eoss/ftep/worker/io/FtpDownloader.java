@@ -3,7 +3,7 @@ package com.cgi.eoss.ftep.worker.io;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPSClient;
@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Slf4j
+@Log4j2
 public class FtpDownloader implements Downloader {
     private static final int CONNECT_TIMEOUT = 2000;
     private static final String FTPS_SCHEME = "ftps";

@@ -4,7 +4,7 @@ import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
 import com.google.common.io.ByteStreams;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import okhttp3.Authenticator;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Slf4j
+@Log4j2
 public class HttpDownloader implements Downloader {
 
     private static final String FILENAME_HEADER = "Content-Disposition";

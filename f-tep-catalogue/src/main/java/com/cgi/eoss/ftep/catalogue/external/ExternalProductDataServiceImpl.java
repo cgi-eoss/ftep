@@ -6,7 +6,7 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import java.util.UUID;
  */
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
+@Log4j2
 public class ExternalProductDataServiceImpl implements ExternalProductDataService {
 
     private final FtepFileDataService ftepFileDataService;

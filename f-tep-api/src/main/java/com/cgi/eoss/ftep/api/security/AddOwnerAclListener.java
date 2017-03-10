@@ -7,7 +7,7 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostInsertEvent;
@@ -32,7 +32,7 @@ import javax.persistence.EntityManagerFactory;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
+@Log4j2
 // TODO Replace this with an AOP aspect
 public class AddOwnerAclListener implements PostInsertEventListener {
 

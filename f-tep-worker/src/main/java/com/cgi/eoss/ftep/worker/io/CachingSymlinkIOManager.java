@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +25,7 @@ import java.nio.file.StandardOpenOption;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 
-@Slf4j
+@Log4j2
 @Service("cachingSymlinkIOManager")
 public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final int DEFAULT_CONCURRENCY_LEVEL = 4;

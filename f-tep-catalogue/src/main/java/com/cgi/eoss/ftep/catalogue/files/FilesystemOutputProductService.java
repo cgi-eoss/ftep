@@ -7,7 +7,7 @@ import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableMap;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-@Slf4j
+@Log4j2
 public class FilesystemOutputProductService implements OutputProductService {
     private final Path outputProductBasedir;
     private final RestoService resto;

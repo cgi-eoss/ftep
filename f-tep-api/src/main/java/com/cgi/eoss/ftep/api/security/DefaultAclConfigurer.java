@@ -8,7 +8,7 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.ProjectDataService;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -32,7 +32,7 @@ import javax.annotation.PostConstruct;
  */
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Slf4j
+@Log4j2
 public class DefaultAclConfigurer {
 
     private final ProjectDataService projectDataService;

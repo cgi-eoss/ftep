@@ -15,7 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.zoo.project.ZooConstants;
 
 import java.io.File;
@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
-@Slf4j
+@Log4j2
 public class RequestHandler {
 
     private DataManager dataManager;

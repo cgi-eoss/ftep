@@ -2,7 +2,7 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.google.common.collect.Multimap;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
  * <p>Service to manage working environments for WPS job instances, including directory handling.</p>
  */
 @Service
-@Slf4j
+@Log4j2
 public class JobEnvironmentService {
 
     private static final String JOB_CONFIG_FILENAME = "FTEP-WPS-INPUT.properties";

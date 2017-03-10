@@ -12,7 +12,7 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
@@ -73,7 +73,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 @EnableCaching
 @EnableJpaRepositories(basePackageClasses = ApiConfig.class)
 @ComponentScan(basePackageClasses = ApiConfig.class)
-@Slf4j
+@Log4j2
 public class ApiConfig {
 
     private static final String ACL_CACHE_NAME = "acls";

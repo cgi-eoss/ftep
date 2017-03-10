@@ -5,7 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -26,7 +26,7 @@ import java.util.zip.ZipEntry;
  * <p>The template used for the .java file should be available on the classpath, in the
  * <code>/templates/java_launcher.java.ftl</code> path. A default template is packaged in this module's artifact.</p>
  */
-@Slf4j
+@Log4j2
 public class JavaZooServiceWriter implements WpsServiceWriter {
     private static final String JAVA_CLASS_TEMPLATE = "java_launcher.java.ftl";
 

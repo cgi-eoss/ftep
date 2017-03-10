@@ -1,13 +1,13 @@
 package com.cgi.eoss.ftep.core.requesthandler;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.zoo.project.ZooConstants;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.UUID;
 
-@Slf4j
+@Log4j2
 public class ZooConfigHandler {
 
     private HashMap<String, String> mainZooConf;

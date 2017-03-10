@@ -8,8 +8,7 @@ import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.bridge.SLF4JBridgeHandler;
+import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.PreDestroy;
 import java.io.Closeable;
@@ -21,17 +20,11 @@ import java.util.Set;
  * <p>Standalone, in-process gRPC server implementation. May be used for isolation testing, or when a fully-distributed
  * environment is not necessary.</p>
  */
-@Slf4j
+@Log4j2
 public class StandaloneOrchestrator implements Closeable {
     private static final String DEFAULT_NAME = "f-tep-standalone-orchestrator";
 
     private static final Set<BindableService> SERVICES = Sets.newHashSet();
-
-    static {
-        // Redirect gRPC logs to slf4j/logback
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
 
     @Getter
     private final Server server;

@@ -5,14 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.io.IOException;
 
 @Converter
-@Slf4j
+@Log4j2
 public class FtepServiceDescriptorYamlConverter implements AttributeConverter<FtepServiceDescriptor, String> {
 
     private static final TypeReference FTEP_SERVICE_DESCRIPTOR = new TypeReference<FtepServiceDescriptor>() { };

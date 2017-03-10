@@ -22,7 +22,7 @@ import com.google.common.collect.Multimap;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * <p>Service for executing F-TEP (WPS) services inside Docker containers.</p>
  */
 @GRpcService
-@Slf4j
+@Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private final DockerClientFactory dockerClientFactory;
@@ -99,7 +99,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
             containerClients.put(containerId, dockerClient);
 
-            // Enable container logging via slf4J by default
             dockerClient.logContainerCmd(containerId).withStdErr(true).withStdOut(true).withFollowStream(true).withTailAll()
                     .exec(new LogContainerResultCallback());
 

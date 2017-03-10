@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +15,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * <p>Utility class to provide zip and unzip functionality.</p>
  */
 @UtilityClass
-@Slf4j
+@Log4j2
 public class ZipHandler {
 
     /**

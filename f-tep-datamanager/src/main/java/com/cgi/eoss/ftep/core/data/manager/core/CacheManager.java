@@ -3,7 +3,7 @@ package com.cgi.eoss.ftep.core.data.manager.core;
 import com.cgi.eoss.ftep.core.utils.FtepConstants;
 import com.cgi.eoss.ftep.worker.io.ZipHandler;
 import com.google.common.collect.Iterables;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 // Singleton
 // @SuppressWarnings("CallToPrintStackTrace")
-@Slf4j
+@Log4j2
 public class CacheManager {
     // Singleton instance
     private static final CacheManager cacheManagerInstance = new CacheManager();

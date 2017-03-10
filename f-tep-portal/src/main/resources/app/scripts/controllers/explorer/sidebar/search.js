@@ -138,11 +138,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             // Send search parameters to GeoService to process
             $scope.search = function () {
-                GeoService.getGeoResults().then(function (data) {
-                        $rootScope.$broadcast('update.geoResults', data);
-                }).catch(function () {
-                        GeoService.spinner.loading = false;
-                });
+                GeoService.getGeoResults();
             };
 
     }]);

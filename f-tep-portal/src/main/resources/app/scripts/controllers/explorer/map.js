@@ -419,9 +419,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                         }
                     }
                 }
+                $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
             }
-
-            $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
         });
 
         $scope.$on('results.item.selected', function(event, item, selected) {

@@ -70,12 +70,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 setResults(GeoService.getResultCache());
 
                 $scope.fetchResultsPage = function(pageNumber){
-                    GeoService.getGeoResults(pageNumber).then(function(data) {
-                        $rootScope.$broadcast('update.geoResults', data);
-                   })
-                   .catch(function(fallback) {
-                       GeoService.spinner.loading = false;
-                   });
+                    GeoService.getGeoResults(pageNumber);
                 };
 
                 $scope.$on('map.item.toggled', function(event, items) {

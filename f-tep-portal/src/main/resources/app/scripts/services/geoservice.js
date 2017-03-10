@@ -8,7 +8,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('GeoService', [ '$http', 'ftepProperties', '$q', 'MessageService', function ($http, ftepProperties, $q, MessageService) {
+    ftepmodules.service('GeoService', [ '$http', '$rootScope', 'ftepProperties', '$q', 'MessageService',
+                                        function ($http, $rootScope, ftepProperties, $q, MessageService) {
 
         /** Set the header defaults **/
         $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -25,14 +26,16 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         function setCache(results){
             if(results && results.length > 0 && results[0].results.totalResults > 0){
-              resultCache = results;
+                resultCache = results;
+            }
+            else{
+                resultCache = {};
             }
         }
         /* End of private methods-variables */
 
         this.getGeoResults = function(pageNumber){
             this.spinner.loading = true;
-            var deferred = $q.defer();
 
             if(pageNumber){
                 this.pagingData.currentPage = pageNumber;
@@ -93,14 +96,16 @@ define(['../ftepmodules'], function (ftepmodules) {
             }).
             then(function(response) {
                 setCache(response.data.data);
-                deferred.resolve(response.data.data);
-                if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
+                $rootScope.$broadcast('update.geoResults', response.data.data);
+
+                //When result count exceeds the limit, notify user with a message
+                if(response && response.data && response.data.data && response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
                     MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
                             +'. Please refine the search parameters to get more precise results.');
                 }
             }).
             catch(function(e) {
-                deferred.reject();
+                this.spinner.loading = false;
                 var errorMsg = '';
                 switch(e.status){
                     case -1:
@@ -112,8 +117,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                 }
                 MessageService.addError('Search failed', errorMsg);
             });
-
-            return deferred.promise;
         };
 
         this.getResultCache = function(){

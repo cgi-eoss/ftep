@@ -15,7 +15,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.dbParams = BasketService.params.explorer;
             $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
 
-            $scope.databaskets = [];
+            $scope.databaskets = BasketService.getBasketCache().data;
 
             var collectedFiles = {};
 

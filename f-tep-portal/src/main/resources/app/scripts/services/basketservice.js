@@ -16,12 +16,16 @@ define(['../ftepmodules'], function (ftepmodules) {
           $http.defaults.withCredentials = true;
 
           var pNumber, pSize;
-          var basketListCache;
+          var basketListCache = { data:[] };
           var is_polling = false;
           var POLLING_FREQUENCY = 20 * 1000;
           var connectionError = false, retriesLeft = 3;
 
           var USE_TEST_DATA = false;
+
+          this.getBasketCache = function(){
+              return basketListCache;
+          }
 
           /** GET DATABASKETS & POLL **/
           this.getDatabaskets = function(pageNumber, pageSize, noCache){

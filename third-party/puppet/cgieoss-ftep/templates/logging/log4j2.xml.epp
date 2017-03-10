@@ -1,0 +1,37 @@
+<%- |
+    String $graylog_server,
+    String $graylog_protocol,
+    Integer $graylog_port,
+    String $graylog_source_hostname,
+
+    Boolean $enable_graylog
+| -%>
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="PID">????</Property>
+        <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
+        <Property name="LOG_LEVEL_PATTERN">%5p</Property>
+        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
+        </Console>
+<% if $enable_graylog { -%>
+        <GELF name="Graylog" server="<%= $graylog_server %>" protocol="<%= $graylog_protocol %>" port="<%= $graylog_port %>" hostName="<%= $graylog_source_hostname %>">
+            <PatternLayout pattern="%logger{36} - %msg%n"/>
+            <!-- Additional fields -->
+            <KeyValuePair key="jvm" value="${java:vm}"/>
+        </GELF>
+<% } -%>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+<% if $enable_graylog { -%>
+            <AppenderRef ref="Graylog" />
+<% } -%>
+        </Root>
+    </Loggers>
+</Configuration>

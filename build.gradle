@@ -54,6 +54,7 @@ allprojects {
             dependency 'com.google.jimfs:jimfs:1.1'
             dependency 'com.google.protobuf:protoc:3.2.0'
             dependency 'com.jayway.jsonpath:json-path:2.2.0'
+            dependency 'com.lmax:disruptor:3.3.6'
             dependencySet(group: 'com.querydsl', version: '4.1.4') {
                 entry 'querydsl-apt'
                 entry 'querydsl-jpa'

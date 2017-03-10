@@ -1,6 +1,8 @@
 class ftep::server (
-  $install_path               = '/var/f-tep',
-  $config_file                = '/var/f-tep/etc/f-tep-server.properties',
+  $install_path               = '/var/f-tep/server',
+  $config_file                = '/var/f-tep/server/f-tep-server.conf',
+  $logging_config_file        = '/var/f-tep/server/log4j2.xml',
+  $properties_file            = '/var/f-tep/server/application.properties',
 
   $service_enable             = true,
   $service_ensure             = 'running',
@@ -49,7 +51,22 @@ class ftep::server (
     ensure  => 'present',
     owner   => 'ftep',
     group   => 'ftep',
-    content => epp('ftep/server/f-tep-server.properties.epp', {
+    content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+    require => Package['f-tep-server'],
+    notify  => Service['f-tep-server'],
+  }
+
+  ::ftep::logging::log4j2 { $logging_config_file:
+    require => Package['f-tep-server'],
+    notify  => Service['f-tep-server'],
+  }
+
+  file { $properties_file:
+    ensure  => 'present',
+    owner   => 'ftep',
+    group   => 'ftep',
+    content => epp('ftep/server/application.properties.epp', {
+      'logging_config_file'         => $logging_config_file,
       'server_port'                 => $real_application_port,
       'grpc_port'                   => $real_grpc_port,
       'jdbc_driver'                 => $jdbc_driver,
@@ -66,7 +83,7 @@ class ftep::server (
     notify  => Service['f-tep-server'],
   }
 
-  $default_service_requires = [Package['f-tep-server'], File[$config_file]]
+  $default_service_requires = [Package['f-tep-server'], File[$properties_file]]
   $service_requires = defined(Class["::ftep::db"]) ? {
     true    => concat($default_service_requires, Class['::ftep::db']),
     default => $default_service_requires

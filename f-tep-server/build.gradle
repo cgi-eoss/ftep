@@ -15,8 +15,10 @@ apply plugin: 'nebula.ospackage'
 
 dependencies {
     compile project(':f-tep-api')
+    compile project(':f-tep-catalogue')
     compile project(':f-tep-orchestrator')
 
+    compile 'com.lmax:disruptor'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.graylog2.log4j2:log4j2-gelf'
@@ -56,19 +58,17 @@ ospackage {
     preInstall file('src/ospackage/preinst.sh')
     postInstall file('src/ospackage/postinst.sh')
 
-    into '/var/f-tep'
+    into '/var/f-tep/server'
 
     from("${buildDir}/libs") {
-        into 'bin'
         include '*-bin.jar'
         rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
         fileMode 0500
     }
 
-    from("src/ospackage/f-tep-server.properties") {
-        into 'etc'
+    from("src/ospackage/application.properties") {
         fileType CONFIG | NOREPLACE
     }
 
-    link('/etc/init.d/f-tep-server', '/var/f-tep/bin/f-tep-server.jar')
+    link('/etc/init.d/f-tep-server', '/var/f-tep/server/f-tep-server.jar')
 }

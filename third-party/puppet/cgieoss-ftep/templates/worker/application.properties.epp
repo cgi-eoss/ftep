@@ -1,4 +1,6 @@
 <%- |
+    String $logging_config_file,
+
     Integer $server_port,
     Integer $grpc_port,
 
@@ -14,6 +16,8 @@
 # F-TEP Worker service configuration
 
 spring.application.name=F-TEP Worker
+
+logging.config=<%= $logging_config_file %>
 
 # Server config
 server.port=<%= $server_port %>

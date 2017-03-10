@@ -1,6 +1,8 @@
 class ftep::worker (
-  $install_path          = '/var/f-tep',
-  $config_file           = '/var/f-tep/etc/f-tep-worker.properties',
+  $install_path          = '/var/f-tep/worker',
+  $config_file           = '/var/f-tep/worker/f-tep-worker.conf',
+  $logging_config_file   = '/var/f-tep/worker/log4j2.xml',
+  $properties_file       = '/var/f-tep/worker/application.properties',
 
   $service_enable        = true,
   $service_ensure        = 'running',
@@ -61,7 +63,22 @@ class ftep::worker (
     ensure  => 'present',
     owner   => 'ftep',
     group   => 'ftep',
-    content => epp('ftep/worker/f-tep-worker.properties.epp', {
+    content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+    require => Package['f-tep-worker'],
+    notify  => Service['f-tep-worker'],
+  }
+
+  ::ftep::logging::log4j2 { $logging_config_file:
+    require => Package['f-tep-worker'],
+    notify  => Service['f-tep-worker'],
+  }
+
+  file { $properties_file:
+    ensure  => 'present',
+    owner   => 'ftep',
+    group   => 'ftep',
+    content => epp('ftep/worker/application.properties.epp', {
+      'logging_config_file'   => $logging_config_file,
       'server_port'           => $real_application_port,
       'grpc_port'             => $real_grpc_port,
       'ftep_server_grpc_host' => $real_server_grpc_host,
@@ -80,7 +97,7 @@ class ftep::worker (
     enable     => $service_enable,
     hasrestart => true,
     hasstatus  => true,
-    require    => [Package['f-tep-worker'], File[$config_file]],
+    require    => [Package['f-tep-worker'], File[$properties_file]],
   }
 
 }

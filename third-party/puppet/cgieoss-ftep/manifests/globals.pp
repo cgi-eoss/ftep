@@ -47,7 +47,8 @@ class ftep::globals (
   $graylog_secret            = 'bQ999ugSIvHXfWQqrwvAomNxaMsErX6I4UWicpS9ZU8EDmuFnhX9AmcoM43s4VGKixd2f6d6cELbRuPWO5uayHnBrBbNWVth',
   $graylog_sha256            = 'a7fdfe53e2a13cb602def10146388c65051c67e60ee55c051668a1c709449111', # sha256 of graylogpass
   $graylog_port              = 8087,
-  $graylog_context_path      = '/log'
+  $graylog_context_path      = '/log',
+  $graylog_gelf_tcp_port     = 5140,
 
 ) {
 

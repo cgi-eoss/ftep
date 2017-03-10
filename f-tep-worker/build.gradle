@@ -21,6 +21,7 @@ dependencies {
     compile 'commons-io:commons-io'
     compile 'commons-net:commons-net'
     compile 'com.github.docker-java:docker-java'
+    compile 'com.lmax:disruptor'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
@@ -69,19 +70,17 @@ ospackage {
     preInstall file('src/ospackage/preinst.sh')
     postInstall file('src/ospackage/postinst.sh')
 
-    into '/var/f-tep'
+    into '/var/f-tep/worker'
 
     from("${buildDir}/libs") {
-        into 'bin'
         include '*-bin.jar'
         rename('f-tep-worker-.*\\-bin.jar', 'f-tep-worker.jar')
         fileMode 0500
     }
 
-    from("src/ospackage/f-tep-worker.properties") {
-        into 'etc'
+    from("src/ospackage/application.properties") {
         fileType CONFIG | NOREPLACE
     }
 
-    link('/etc/init.d/f-tep-worker', '/var/f-tep/bin/f-tep-worker.jar')
+    link('/etc/init.d/f-tep-worker', '/var/f-tep/worker/f-tep-worker.jar')
 }

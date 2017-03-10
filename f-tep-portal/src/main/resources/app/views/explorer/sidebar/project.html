@@ -24,7 +24,7 @@
          open="projectShow">
 
         <uib-accordion-heading class="project-heading">
-            <div class="row panel-heading-container" ng-click="toggleProjectShow()">
+            <div class="row no-margin panel-heading-container" ng-click="toggleProjectShow()">
 
                 <div class="col-xs-8 no-padding project-title heading-item">
                     <h2 class="left">{{activeProject.attributes.name}}</h2>
@@ -70,14 +70,14 @@
                 ng-click="setActiveProject(project)"
                 ng-dblclick="cacheProject(project); projectEdit = true"
                 ng-class="{active:$first}">
-                <div class="row project-item-row">
-                    <div class="col-xs-8 project-item-col">
+                <div class="row no-margin project-item-row">
+                    <div class="col-xs-8 no-padding project-item-col">
 
                         <div class="project-name-container" ng-show="!projectEdit || project.id == 0">
                             <span class="selectable project-name">{{project.attributes.name}}</span>
                         </div>
 
-                        <div class="row no-padding project-edit" ng-show="projectEdit && project.id > 0">
+                        <div class="row no-margin project-edit" ng-show="projectEdit && project.id > 0">
                             <div class="col-xs-8 no-padding project-item-col">
                                 <div class="input-group">
                                     <input type="text"

@@ -34,6 +34,12 @@ class ftep::common::apache {
       port     => $ftep::globals::grafana_port,
       protocol => 'tcp'
     }
+
+    ::selinux::port { 'graylog':
+      context  => 'http_port_t',
+      port     => $ftep::globals::graylog_port,
+      protocol => 'tcp'
+    }
   }
 
 }

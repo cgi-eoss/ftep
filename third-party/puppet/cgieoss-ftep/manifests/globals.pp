@@ -2,21 +2,21 @@
 class ftep::globals (
   $manage_package_repo       = true,
 
-  # Base URL (i.e. servername) for ftep::proxy (and ftep::drupal's base_url config)
-  $base_url                  = $facts['fqdn'],
+  # Base URL for ftep::proxy
+  $base_url                  = "http://${facts['fqdn']}",
 
   # Hostnames and IPs for components
-  $db_hostname             = 'ftep-db',
-  $drupal_hostname         = 'ftep-drupal',
-  $geoserver_hostname      = 'ftep-geoserver',
-  $proxy_hostname          = 'ftep-proxy',
-  $webapp_hostname         = 'ftep-webapp',
-  $wps_hostname            = 'ftep-wps',
-  $server_hostname         = 'ftep-server',
-  $monitor_hostname        = 'ftep-monitor',
-  $resto_hostname          = 'ftep-resto',
+  $db_hostname               = 'ftep-db',
+  $drupal_hostname           = 'ftep-drupal',
+  $geoserver_hostname        = 'ftep-geoserver',
+  $proxy_hostname            = 'ftep-proxy',
+  $webapp_hostname           = 'ftep-webapp',
+  $wps_hostname              = 'ftep-wps',
+  $server_hostname           = 'ftep-server',
+  $monitor_hostname          = 'ftep-monitor',
+  $resto_hostname            = 'ftep-resto',
 
-  $hosts_override          = { },
+  $hosts_override            = { },
 
   # All classes should share this database config, or override it if necessary
   $ftep_db_name              = 'ftep',
@@ -47,6 +47,7 @@ class ftep::globals (
   $graylog_secret            = 'bQ999ugSIvHXfWQqrwvAomNxaMsErX6I4UWicpS9ZU8EDmuFnhX9AmcoM43s4VGKixd2f6d6cELbRuPWO5uayHnBrBbNWVth',
   $graylog_sha256            = 'a7fdfe53e2a13cb602def10146388c65051c67e60ee55c051668a1c709449111', # sha256 of graylogpass
   $graylog_port              = 8087,
+  $graylog_context_path      = '/log'
 
 ) {
 

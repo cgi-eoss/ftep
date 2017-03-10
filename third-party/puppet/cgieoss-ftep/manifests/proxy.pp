@@ -9,6 +9,7 @@ class ftep::proxy (
   $context_path_wps       = '/secure/wps',
   $context_path_api_v2    = '/secure/api/v2.0',
   $context_path_monitor   = '/monitor',
+  $context_path_log       = '/log',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -20,6 +21,7 @@ class ftep::proxy (
 
   contain ::ftep::common::apache
 
+  include ::apache::mod::headers
   include ::apache::mod::proxy
 
   $default_proxy_config = {
@@ -29,7 +31,13 @@ class ftep::proxy (
   }
 
   # Directory/Location directives - cannot be an empty array...
-  $default_directories = undef
+  $default_directories = [
+    {
+      'provider' => 'location',
+      'path' => $context_path_log,
+      'custom_fragment' => "RequestHeader set X-Graylog-Server-URL \"${ftep::globals::base_url}${ftep::globals::graylog_context_path}/api\""
+    }
+  ]
 
   # Reverse proxied paths
   $default_proxy_pass = [
@@ -60,6 +68,10 @@ class ftep::proxy (
     {
       'path' => $context_path_monitor,
       'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}"
+    },
+    {
+      'path' => $context_path_log,
+      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}"
     }
   ]
 
@@ -71,7 +83,7 @@ class ftep::proxy (
     contain ::ftep::proxy::shibboleth
 
     # Add the /Shibboleth.sso SP callback location and secured paths
-    $directories = [
+    $directories = concat([
       {
         'provider'   => 'location',
         'path'       => '/Shibboleth.sso',
@@ -95,7 +107,7 @@ class ftep::proxy (
         'custom_fragment'       => 'ShibCompatWith24 On',
         'auth_require'          => 'shib-session',
       }
-    ]
+    ], $default_directories)
 
     # Insert the callback location at the start of the reverse proxy list
     $proxy_pass = concat([{

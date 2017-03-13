@@ -24,6 +24,7 @@ dependencies {
     compile 'com.lmax:disruptor'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'javax.servlet:javax.servlet-api'
+    compile 'org.apache.commons:commons-lang3'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.graylog2.log4j2:log4j2-gelf'
     compile 'org.lognet:grpc-spring-boot-starter'
@@ -43,6 +44,7 @@ dependencies {
     testCompile 'org.mockftpserver:MockFtpServer'
     testCompile 'org.mockito:mockito-core'
     testCompile 'org.springframework:spring-test'
+    testCompile 'org.springframework.boot:spring-boot-test'
 }
 
 springBoot {

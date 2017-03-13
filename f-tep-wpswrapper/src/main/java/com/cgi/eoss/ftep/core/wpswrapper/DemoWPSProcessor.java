@@ -11,6 +11,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Volume;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
@@ -120,8 +121,7 @@ public class DemoWPSProcessor {
 
     Volume volume1 = new Volume(mountPoint);
 
-    DockerClientConfig config =
-        DockerClientConfig.createDefaultConfigBuilder().withDockerHost("tcp://localhost:2375")
+    DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost("tcp://localhost:2375")
             .withDockerTlsVerify(false).withApiVersion("1.22").build();
     DockerClient dockerClient = DockerClientBuilder.getInstance(config).build();
     CreateContainerResponse container = dockerClient.createContainerCmd(dkrImage)

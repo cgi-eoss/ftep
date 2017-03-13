@@ -7,11 +7,13 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.cache.Weigher;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 @Log4j2
 @Service("cachingSymlinkIOManager")
 public class CachingSymlinkIOManager implements ServiceInputOutputManager {
+
+    private static final String FTEP_SERVICE_CONTEXT = "ftep://serviceContext/${serviceName}";
+
     private static final int DEFAULT_CONCURRENCY_LEVEL = 4;
     private static final int DEFAULT_MAX_WEIGHT = 1024;
     private static final HashFunction HASH_FUNCTION = Hashing.sha1();
@@ -56,10 +61,20 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     public void prepareInput(Path link, URI uri) throws IOException {
         try {
             Path target = loadingCache.get(uri);
-            LOG.info("Linking {} to {}", link, target);
+            LOG.debug("Linking {} to {}", link, target);
             Files.createSymbolicLink(link, target);
         } catch (Exception e) {
             throw new ServiceIoException("Could not populate cache from URI: " + uri, e);
+        }
+    }
+
+    @Override
+    public Path getServiceContext(String serviceName) {
+        try {
+            URI uri = URI.create(StrSubstitutor.replace(FTEP_SERVICE_CONTEXT, ImmutableMap.of("serviceName", serviceName)));
+            return loadingCache.get(uri);
+        } catch (Exception e) {
+            throw new ServiceIoException("Could not construct service context for " + serviceName, e);
         }
     }
 

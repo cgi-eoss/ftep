@@ -11,12 +11,16 @@ import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.worker.io.ServiceIoException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import io.grpc.Status;
@@ -26,7 +30,9 @@ import lombok.extern.log4j.Log4j2;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +45,8 @@ import java.util.stream.Collectors;
 @GRpcService
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
+
+    private static final String FTEP_SERVICE_CONTEXT = "ftep://serviceContext/${serviceName}";
 
     private final DockerClientFactory dockerClientFactory;
     private final JobEnvironmentService jobEnvironmentService;
@@ -61,7 +69,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try {
             DockerClient dockerClient = dockerClientFactory.getDockerClient();
             jobClients.put(request.getJob().getId(), dockerClient);
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
@@ -96,9 +104,15 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @Override
     public void launchContainer(JobDockerConfig request, StreamObserver<LaunchContainerResponse> responseObserver) {
-        String containerId = null;
+        Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
+
         DockerClient dockerClient = jobClients.get(request.getJob().getId());
+        String containerId = null;
+
         try {
+            buildDockerImage(dockerClient, request.getServiceName(), request.getDockerImage());
+
+            // Launch tag
             CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
             createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
             createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
@@ -125,6 +139,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
+        Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
+        Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID {} does not have a known container ID", request.getJob().getId());
+
         DockerClient dockerClient = jobClients.get(request.getJob().getId());
         String containerId = jobContainers.get(request.getJob().getId());
         try {
@@ -143,6 +160,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @Override
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
+        Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
+        Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID {} does not have a known container ID", request.getJob().getId());
+
         DockerClient dockerClient = jobClients.get(request.getJob().getId());
         String containerId = jobContainers.get(request.getJob().getId());
         try {
@@ -180,4 +200,48 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             return false;
         }
     }
+
+    private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImage) throws IOException {
+        try {
+            // Retrieve service context files
+            Path serviceContext = inputOutputManager.getServiceContext(serviceName);
+
+            if (serviceContext == null || Files.list(serviceContext).count() == 0) {
+                // If no service context files are available, shortcut and fall back on the hopefully-existent image tag
+                LOG.warn("No service context files found for service '{}'; falling back on image tag", serviceName);
+                return;
+            } else if (!Files.exists(serviceContext.resolve("Dockerfile"))) {
+                LOG.warn("Service context files exist, but no Dockerfile found for service '{}'; falling back on image tag", serviceName);
+                return;
+            }
+
+            // Build image
+            LOG.info("Building Docker image '{}' for service {}", dockerImage, serviceName);
+            String imageId = dockerClient.buildImageCmd()
+                    .withBaseDirectory(serviceContext.toFile())
+                    .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
+                    .withTag(dockerImage)
+                    .exec(new BuildImageResultCallback()).awaitImageId();
+
+            // Tag image with desired image name
+            LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImage);
+        } catch (ServiceIoException e) {
+            LOG.error("Failed to retrieve Docker context files for service {}", serviceName, e);
+            throw e;
+        } catch (IOException e) {
+            LOG.error("Failed to build Docker context for service {}", serviceName, e);
+            throw e;
+        }
+    }
+
+    @VisibleForTesting
+    Map<String, DockerClient> getJobClients() {
+        return jobClients;
+    }
+
+    @VisibleForTesting
+    Map<String, String> getJobContainers() {
+        return jobContainers;
+    }
+
 }

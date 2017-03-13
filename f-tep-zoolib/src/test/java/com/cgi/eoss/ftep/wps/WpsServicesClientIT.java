@@ -12,6 +12,7 @@ import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
@@ -80,7 +81,7 @@ public class WpsServicesClientIT {
         JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(fs.getPath("/tmp/ftep_data")));
         ServiceInputOutputManager ioManager = mock(ServiceInputOutputManager.class);
 
-        DockerClientConfig dockerClientConfig = DockerClientConfig.createDefaultConfigBuilder()
+        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(RemoteApiVersion.VERSION_1_19)
                 .withDockerHost("unix:///var/run/docker.sock")
                 .build();

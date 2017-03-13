@@ -92,6 +92,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             String dockerImageTag = service.getDockerTag();
             JobDockerConfig.Builder dockerConfigBuilder = JobDockerConfig.newBuilder()
                     .setJob(rpcJob)
+                    .setServiceName(serviceId)
                     .setDockerImage(dockerImageTag)
                     .addBinds(jobEnvironment.getWorkingDir() + ":" + "/nobody/workDir")
                     .addBinds(Paths.get(jobEnvironment.getWorkingDir()).getParent().toString() + ":" + Paths.get(jobEnvironment.getWorkingDir()).getParent().toString());

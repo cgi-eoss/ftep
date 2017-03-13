@@ -22,4 +22,9 @@ public interface ServiceInputOutputManager {
      */
     void prepareInput(Path target, URI uri) throws IOException;
 
+    /**
+     * <p>Return the path to a directory containing all files necessary to build the Docker image for the given service
+     * name.</p>
+     */
+    Path getServiceContext(String serviceName);
 }

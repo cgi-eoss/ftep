@@ -30,9 +30,10 @@ message JobEnvironment {
 
 message JobDockerConfig {
     Job job = 1;
-    string dockerImage = 2;
-    repeated string binds = 3;
-    repeated string ports = 4;
+    string serviceName = 2;
+    string dockerImage = 3;
+    repeated string binds = 4;
+    repeated string ports = 5;
 }
 
 message LaunchContainerResponse {

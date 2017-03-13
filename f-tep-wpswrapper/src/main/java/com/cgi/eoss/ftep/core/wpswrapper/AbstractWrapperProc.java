@@ -2,8 +2,8 @@ package com.cgi.eoss.ftep.core.wpswrapper;
 
 import com.cgi.eoss.ftep.core.requesthandler.RequestHandler;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import lombok.extern.log4j.Log4j2;
 
@@ -53,7 +53,7 @@ public abstract class AbstractWrapperProc {
     }
 
     protected static DockerClient getDockerClient(String dockerHost) {
-        DockerClientConfig.DockerClientConfigBuilder configBuilder = DockerClientConfig.createDefaultConfigBuilder()
+        DefaultDockerClientConfig.Builder configBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(RemoteApiVersion.VERSION_1_19);
 
         String hostUrl;

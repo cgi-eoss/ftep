@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.worker;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
@@ -63,11 +64,13 @@ public class WorkerConfig {
     @Bean
     @Primary
     public DockerClient dockerClient(@Value("${ftep.worker.docker.hostUrl:unix:///var/run/docker.sock}") String dockerHostUrl) {
-        DockerClientConfig dockerClientConfig = DockerClientConfig.createDefaultConfigBuilder()
+        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(RemoteApiVersion.VERSION_1_19)
                 .withDockerHost(dockerHostUrl)
                 .build();
-        return DockerClientBuilder.getInstance(dockerClientConfig).build();
+
+        return DockerClientBuilder.getInstance(dockerClientConfig)
+                .build();
     }
 
 }

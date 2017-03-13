@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc";
+
+service ServiceContextFilesService {
+    rpc GetServiceContextFiles (GetServiceContextFilesParams) returns (ServiceContextFiles);
+}
+
+message GetServiceContextFilesParams {
+    string serviceName = 1;
+}
+
+message ServiceContextFiles {
+    string serviceName = 1;
+    repeated ShortFile files = 2;
+}

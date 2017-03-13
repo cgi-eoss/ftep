@@ -48,6 +48,9 @@ import static org.mockito.Mockito.when;
 
 public class CachingSymlinkIOManagerIT {
     @Mock
+    private FtepDownloader ftepDownloader;
+
+    @Mock
     private DownloaderCredentialsDataService credentialsDataService;
 
     private FakeFtpServer ftpServer;
@@ -88,7 +91,7 @@ public class CachingSymlinkIOManagerIT {
         webServer = buildWebServer();
         webServer.start();
 
-        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(CredentialsServiceGrpc.newBlockingStub(channelBuilder.build())));
+        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(ftepDownloader, CredentialsServiceGrpc.newBlockingStub(channelBuilder.build())));
     }
 
     @After

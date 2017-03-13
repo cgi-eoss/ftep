@@ -10,3 +10,8 @@ message JobParam {
     string paramName = 1;
     repeated string paramValue = 2;
 }
+
+message ShortFile {
+    string filename = 1;
+    bytes content = 2;
+}

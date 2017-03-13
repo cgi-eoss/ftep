@@ -19,8 +19,7 @@ public class DownloaderFactory {
     private final Map<String, Downloader> downloaders = Maps.newHashMap();
 
     @Autowired
-    public DownloaderFactory(CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService) {
-        FtepDownloader ftepDownloader = new FtepDownloader();
+    public DownloaderFactory(FtepDownloader ftepDownloader, CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService) {
         FtpDownloader ftpDownloader = new FtpDownloader(credentialsService);
         HttpDownloader httpDownloader = new HttpDownloader(credentialsService);
         S2CEDADownloader s2CEDADownloader = new S2CEDADownloader(ftpDownloader);

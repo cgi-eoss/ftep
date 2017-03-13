@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.worker;
 
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
+import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -52,6 +53,11 @@ public class WorkerConfig {
     @Bean
     public CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService(ManagedChannelBuilder channelBuilder) {
         return CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
+    }
+
+    @Bean
+    public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesService(ManagedChannelBuilder channelBuilder) {
+        return ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
     }
 
     @Bean

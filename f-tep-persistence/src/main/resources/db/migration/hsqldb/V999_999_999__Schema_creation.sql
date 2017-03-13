@@ -157,6 +157,21 @@ CREATE TABLE ftep_project_job_configs (
 CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
   ON ftep_project_job_configs (project_id, job_config_id);
 
+-- FtepServiceContextFile table
+
+CREATE TABLE ftep_service_files (
+  id       BIGINT IDENTITY PRIMARY KEY,
+  service  BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
+  filename CHARACTER VARYING(255),
+  content  CLOB
+);
+CREATE UNIQUE INDEX ftep_service_files_filename_service_idx
+  ON ftep_service_files (filename, service);
+CREATE INDEX ftep_service_files_filename_idx
+  ON ftep_service_files (filename);
+CREATE INDEX ftep_service_files_service_idx
+  ON ftep_service_files (service);
+
 -- ACL schema from spring-security-acl
 
 CREATE TABLE acl_sid (

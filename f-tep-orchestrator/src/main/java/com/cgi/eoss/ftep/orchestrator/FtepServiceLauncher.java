@@ -13,13 +13,13 @@ import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
-import com.cgi.eoss.ftep.rpc.worker.DockerContainer;
-import com.cgi.eoss.ftep.rpc.worker.DockerContainerConfig;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -78,18 +78,20 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Prepare inputs
             LOG.info("Downloading input data for {}", jobId);
+            com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder().setId(jobId).build();
             job.setStartTime(LocalDateTime.now());
             job.setStatus(JobStatus.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
             jobDataService.save(job);
-            JobEnvironment jobEnvironment = worker.prepareInputs(JobInputs.newBuilder()
-                    .setJobId(jobId)
+            JobEnvironment jobEnvironment = worker.prepareEnvironment(JobInputs.newBuilder()
+                    .setJob(rpcJob)
                     .addAllInputs(request.getInputsList())
                     .build());
 
             // Configure container
             String dockerImageTag = service.getDockerTag();
-            DockerContainerConfig.Builder dockerConfigBuilder = DockerContainerConfig.newBuilder()
+            JobDockerConfig.Builder dockerConfigBuilder = JobDockerConfig.newBuilder()
+                    .setJob(rpcJob)
                     .setDockerImage(dockerImageTag)
                     .addBinds(jobEnvironment.getWorkingDir() + ":" + "/nobody/workDir")
                     .addBinds(Paths.get(jobEnvironment.getWorkingDir()).getParent().toString() + ":" + Paths.get(jobEnvironment.getWorkingDir()).getParent().toString());
@@ -99,7 +101,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             LOG.info("Launching docker image {} for {}", dockerImageTag, jobId);
             job.setStage(JobStep.PROCESSING.getText());
             jobDataService.save(job);
-            DockerContainer dockerContainer = worker.launchContainer(dockerConfigBuilder.build());
+            LaunchContainerResponse unused = worker.launchContainer(dockerConfigBuilder.build());
 
             // TODO Implement async service command execution
 
@@ -107,7 +109,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Update GUI endpoint URL for client access
             if (service.getType() == ServiceType.APPLICATION) {
-                PortBinding portBinding = worker.getPortBindings(dockerContainer).getBindingsList().stream()
+                PortBinding portBinding = worker.getPortBindings(rpcJob).getBindingsList().stream()
                         .filter(b -> b.getPortDef().equals(GUACAMOLE_PORT))
                         .findFirst()
                         .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container: " + jobId));
@@ -123,9 +125,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             ContainerExitCode exitCode;
             if (inputs.containsKey(TIMEOUT_PARAM)) {
                 int timeout = Integer.parseInt(Iterables.getOnlyElement(inputs.get(TIMEOUT_PARAM)));
-                exitCode = worker.waitForContainerExitWithTimeout(ExitWithTimeoutParams.newBuilder().setContainer(dockerContainer).setTimeout(timeout).build());
+                exitCode = worker.waitForContainerExitWithTimeout(ExitWithTimeoutParams.newBuilder().setJob(rpcJob).setTimeout(timeout).build());
             } else {
-                exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setContainer(dockerContainer).build());
+                exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setJob(rpcJob).build());
             }
 
             if (exitCode.getExitCode() != 0) {

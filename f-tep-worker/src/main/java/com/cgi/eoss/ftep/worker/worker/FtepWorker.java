@@ -2,13 +2,13 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
-import com.cgi.eoss.ftep.rpc.worker.DockerContainer;
-import com.cgi.eoss.ftep.rpc.worker.DockerContainerConfig;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.github.dockerjava.api.DockerClient;
@@ -44,8 +44,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
 
-    // Track which DockerClient is used for which container
-    private final Map<String, DockerClient> containerClients = new HashMap<>();
+    // Track which DockerClient is used for each job
+    private final Map<String, DockerClient> jobClients = new HashMap<>();
+    // Track which container ID is used for each job
+    private final Map<String, String> jobContainers = new HashMap<>();
 
     @Autowired
     public FtepWorker(DockerClientFactory dockerClientFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
@@ -55,12 +57,20 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void prepareInputs(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
+    public void prepareEnvironment(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
+        try {
+            DockerClient dockerClient = dockerClientFactory.getDockerClient();
+            jobClients.put(request.getJob().getId(), dockerClient);
+        }catch (Exception e) {
+            LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+
         try {
             Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
 
             // Create workspace directories and input parameters file
-            com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(request.getJobId(), inputs);
+            com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(request.getJob().getId(), inputs);
 
             // Resolve and download any URI-type inputs
             for (Map.Entry<String, String> e : inputs.entries()) {
@@ -79,35 +89,35 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             responseObserver.onNext(ret);
             responseObserver.onCompleted();
         } catch (Exception e) {
-            LOG.error("Failed to prepare job inputs for {}", request.getJobId(), e);
+            LOG.error("Failed to prepare job inputs for {}", request.getJob().getId(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }
 
     @Override
-    public void launchContainer(DockerContainerConfig request, StreamObserver<DockerContainer> responseObserver) {
+    public void launchContainer(JobDockerConfig request, StreamObserver<LaunchContainerResponse> responseObserver) {
         String containerId = null;
+        DockerClient dockerClient = jobClients.get(request.getJob().getId());
         try {
-            DockerClient dockerClient = dockerClientFactory.getDockerClient();
-
             CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
             createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
             createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
 
             containerId = createContainerCmd.exec().getId();
+            jobContainers.put(request.getJob().getId(), containerId);
             dockerClient.startContainerCmd(containerId).exec();
-
-            containerClients.put(containerId, dockerClient);
 
             dockerClient.logContainerCmd(containerId).withStdErr(true).withStdOut(true).withFollowStream(true).withTailAll()
                     .exec(new LogContainerResultCallback());
 
-            responseObserver.onNext(DockerContainer.newBuilder().setId(containerId).build());
+            responseObserver.onNext(LaunchContainerResponse.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to launch docker container {}", request.getDockerImage(), e);
             if (!Strings.isNullOrEmpty(containerId)) {
-                removeContainer(containerId);
+                removeContainer(dockerClient, containerId);
+                jobContainers.remove(request.getJob().getId());
+                jobClients.remove(request.getJob().getId());
             }
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
@@ -115,42 +125,48 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
-        String containerId = request.getContainer().getId();
+        DockerClient dockerClient = jobClients.get(request.getJob().getId());
+        String containerId = jobContainers.get(request.getJob().getId());
         try {
-            int exitCode = waitForContainer(containerId).awaitStatusCode();
+            int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode();
             responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to properly wait for container exit: {}", containerId, e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         } finally {
-            removeContainer(containerId);
+            removeContainer(dockerClient, containerId);
+            jobContainers.remove(request.getJob().getId());
+            jobClients.remove(request.getJob().getId());
         }
     }
 
     @Override
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
-        String containerId = request.getContainer().getId();
+        DockerClient dockerClient = jobClients.get(request.getJob().getId());
+        String containerId = jobContainers.get(request.getJob().getId());
         try {
-            int exitCode = waitForContainer(containerId).awaitStatusCode(request.getTimeout(), TimeUnit.HOURS);
+            int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode(request.getTimeout(), TimeUnit.HOURS);
             responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to properly wait for container exit: {}", containerId, e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         } finally {
-            removeContainer(containerId);
+            removeContainer(dockerClient, containerId);
+            jobContainers.remove(request.getJob().getId());
+            jobClients.remove(request.getJob().getId());
         }
     }
 
-    private WaitContainerResultCallback waitForContainer(String containerId) {
-        return containerClients.get(containerId).waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
+    private WaitContainerResultCallback waitForContainer(DockerClient dockerClient, String containerId) {
+        return dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
     }
 
-    private void removeContainer(String containerId) {
+    private void removeContainer(DockerClient client, String containerId) {
         try {
             LOG.info("Removing container {}", containerId);
-            containerClients.get(containerId).removeContainerCmd(containerId).exec();
+            client.removeContainerCmd(containerId).exec();
         } catch (Exception e) {
             LOG.error("Failed to delete container {}", containerId, e);
         }

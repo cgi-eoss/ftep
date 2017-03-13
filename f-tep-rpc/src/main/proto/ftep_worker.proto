@@ -8,17 +8,17 @@ option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc.worker";
 
 service FtepWorker {
-    rpc PrepareInputs (JobInputs) returns (JobEnvironment);
-    rpc LaunchContainer (DockerContainerConfig) returns (DockerContainer);
+    rpc PrepareEnvironment (JobInputs) returns (JobEnvironment);
+    rpc LaunchContainer (JobDockerConfig) returns (LaunchContainerResponse);
     rpc ExecuteServiceCmd (ServiceCmd) returns (ServiceCmdResponse);
-    rpc GetPortBindings (DockerContainer) returns (PortBindings);
-    rpc StopContainer (DockerContainer) returns (StopContainerResponse);
+    rpc GetPortBindings (Job) returns (PortBindings);
+    rpc StopContainer (Job) returns (StopContainerResponse);
     rpc WaitForContainerExit (ExitParams) returns (ContainerExitCode);
     rpc WaitForContainerExitWithTimeout (ExitWithTimeoutParams) returns (ContainerExitCode);
 }
 
 message JobInputs {
-    string jobId = 1;
+    Job job = 1;
     repeated JobParam inputs = 2;
 }
 
@@ -28,18 +28,18 @@ message JobEnvironment {
     string outputDir = 3;
 }
 
-message DockerContainerConfig {
-    string dockerImage = 1;
-    repeated string binds = 2;
-    repeated string ports = 3;
+message JobDockerConfig {
+    Job job = 1;
+    string dockerImage = 2;
+    repeated string binds = 3;
+    repeated string ports = 4;
 }
 
-message DockerContainer {
-    string id = 1;
+message LaunchContainerResponse {
 }
 
 message ServiceCmd {
-    DockerContainer container = 1;
+    Job job = 1;
     string command = 2;
 }
 
@@ -59,11 +59,11 @@ message StopContainerResponse {
 }
 
 message ExitParams {
-    DockerContainer container = 1;
+    Job job = 1;
 }
 
 message ExitWithTimeoutParams {
-    DockerContainer container = 1;
+    Job job = 1;
     int32 timeout = 2;
 }
 

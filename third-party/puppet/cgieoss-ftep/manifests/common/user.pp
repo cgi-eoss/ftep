@@ -1,8 +1,11 @@
 class ftep::common::user (
-  $uid  = 'ftep',
-  $gid  = 'ftep',
-  $home = '/home/ftep'
+  $user  = undef,
+  $group = undef,
+  $home  = '/home/ftep'
 ) {
+
+  $uid = pick($user, $ftep::globals::user)
+  $gid = pick($group, $ftep::globals::group)
 
   group { $gid:
     ensure => present,

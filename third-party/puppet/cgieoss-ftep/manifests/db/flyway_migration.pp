@@ -1,6 +1,6 @@
 define ftep::db::flyway_migration (
   $location,
-  $placeholders,
+  $placeholders = { },
   $db_username,
   $db_password,
   $jdbc_url,
@@ -11,7 +11,8 @@ define ftep::db::flyway_migration (
   $placeholders_args = join($placeholders.map |$items| { "-placeholders.${items[0]}=${items[1]}" }, ' ')
 
   $flyway_command =
-    "flyway -user='${db_username}' -password='${db_password}' -url='${jdbc_url}' -locations='filesystem:${location}' ${placeholders_args}"
+    "flyway -user='${db_username}' -password='${db_password}' -url='${jdbc_url}' -locations='filesystem:${location}' ${
+      placeholders_args}"
 
   $flyway_path = $ftep::db::flyway::path;
 

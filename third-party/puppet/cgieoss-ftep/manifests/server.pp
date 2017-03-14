@@ -49,8 +49,8 @@ class ftep::server (
 
   file { $config_file:
     ensure  => 'present',
-    owner   => 'ftep',
-    group   => 'ftep',
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
     content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
     require => Package['f-tep-server'],
     notify  => Service['f-tep-server'],
@@ -63,8 +63,8 @@ class ftep::server (
 
   file { $properties_file:
     ensure  => 'present',
-    owner   => 'ftep',
-    group   => 'ftep',
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
     content => epp('ftep/server/application.properties.epp', {
       'logging_config_file'         => $logging_config_file,
       'server_port'                 => $real_application_port,

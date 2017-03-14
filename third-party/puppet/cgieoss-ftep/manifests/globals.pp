@@ -5,6 +5,10 @@ class ftep::globals (
   # Base URL for ftep::proxy
   $base_url                  = "http://${facts['fqdn']}",
 
+  # System user
+  $user                      = 'ftep',
+  $group                     = 'ftep',
+
   # Hostnames and IPs for components
   $db_hostname               = 'ftep-db',
   $drupal_hostname           = 'ftep-drupal',
@@ -28,6 +32,9 @@ class ftep::globals (
   $ftep_db_resto_password    = 'ftep-resto-pass',
   $ftep_db_resto_su_username = 'ftep-resto-admin',
   $ftep_db_resto_su_password = 'ftep-resto-admin-pass',
+  $ftep_db_zoo_name          = 'ftep_zoo',
+  $ftep_db_zoo_username      = 'ftep-zoo',
+  $ftep_db_zoo_password      = 'ftep-zoo-pass',
 
   # App server port config for HTTP and gRPC
   $server_application_port   = 8090,

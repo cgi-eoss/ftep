@@ -23,6 +23,7 @@ class ftep::worker (
 
   require ::ftep::globals
 
+  contain ::ftep::common::datadir
   contain ::ftep::common::java
   # User and group are set up by the RPM if not included here
   contain ::ftep::common::user
@@ -40,20 +41,10 @@ class ftep::worker (
     notify => Service['f-tep-worker'],
   })
 
-  # TODO Manage nfs server for $data_basedir
-
-  file { $data_basedir:
-    ensure  => directory,
-    owner   => 'ftep',
-    group   => 'ftep',
-    mode    => '755',
-    recurse => false,
-  }
-
   file { ["${data_basedir}/$cache_dir", "${data_basedir}/$jobs_dir"]:
     ensure  => directory,
-    owner   => 'ftep',
-    group   => 'ftep',
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
     mode    => '755',
     recurse => false,
     require => File[$data_basedir],
@@ -61,8 +52,8 @@ class ftep::worker (
 
   file { $config_file:
     ensure  => 'present',
-    owner   => 'ftep',
-    group   => 'ftep',
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
     content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
     require => Package['f-tep-worker'],
     notify  => Service['f-tep-worker'],
@@ -75,8 +66,8 @@ class ftep::worker (
 
   file { $properties_file:
     ensure  => 'present',
-    owner   => 'ftep',
-    group   => 'ftep',
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
     content => epp('ftep/worker/application.properties.epp', {
       'logging_config_file'   => $logging_config_file,
       'server_port'           => $real_application_port,

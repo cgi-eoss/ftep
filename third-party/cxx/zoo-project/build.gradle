@@ -36,6 +36,11 @@ ospackage {
         user 'root'
         include '**'
     }
+    from("src/zoo-project/zoo-kernel/sql/schema.sql") {
+        into '/var/www/cgi-bin/sql'
+        rename('schema.sql', 'V1_5_0__Schema_install.sql')
+        user 'root'
+    }
 }
 
 buildRpm.dependsOn buildZoo

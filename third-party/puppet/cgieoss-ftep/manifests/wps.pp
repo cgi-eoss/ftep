@@ -17,9 +17,10 @@ class ftep::wps (
   $wps_version       = '1.0.0',
   $lang              = 'en-US',
   $server_address    = 'https://forestry-tep.eo.esa.int/wps',
-  $data_path         = '/var/www/temp',
-  $tmp_path          = '/data/cache',
-  $tmp_url           = '../ftep-output',
+  $data_basedir      = '/data',
+  $data_path         = 'wps',
+  $tmp_path          = 'wps_tmp',
+  $tmp_url           = '/secure/wps/ftep-output',
   $cache_dir         = '/tmp',
 
   $provider_name     = 'CGI IT UK Ltd.',
@@ -40,8 +41,9 @@ class ftep::wps (
 
   require ::ftep::globals
 
-  contain ::ftep::common::java
   contain ::ftep::common::apache
+  contain ::ftep::common::datadir
+  contain ::ftep::common::java
   require ::apache::mod::cgi
 
   # Extra repos
@@ -49,9 +51,9 @@ class ftep::wps (
   require ::ftep::repo::elgis
 
   $real_db_host = pick($db_host, $::ftep::globals::db_hostname)
-  $real_db_name = pick($db_name, $::ftep::globals::ftep_db_name)
-  $real_db_user = pick($db_user, $::ftep::globals::ftep_db_username)
-  $real_db_pass = pick($db_pass, $::ftep::globals::ftep_db_password)
+  $real_db_name = pick($db_name, $::ftep::globals::ftep_db_zoo_name)
+  $real_db_user = pick($db_user, $::ftep::globals::ftep_db_zoo_username)
+  $real_db_pass = pick($db_pass, $::ftep::globals::ftep_db_zoo_password)
 
   ensure_packages(['f-tep-processors'], {
     ensure => 'latest',
@@ -83,8 +85,8 @@ class ftep::wps (
         'wps_version'    => $wps_version,
         'lang'           => $lang,
         'server_address' => $server_address,
-        'data_path'      => $data_path,
-        'tmp_path'       => $tmp_path,
+        'data_path'      => "${data_basedir}/${data_path}",
+        'tmp_path'       => "${data_basedir}/${tmp_path}",
         'tmp_url'        => $tmp_url,
         'cache_dir'      => $cache_dir,
 
@@ -107,6 +109,28 @@ class ftep::wps (
     }
   }
 
+  file { ["${data_basedir}/${data_path}", "${data_basedir}/${tmp_path}"]:
+    ensure  => directory,
+    owner   => $ftep::globals::user,
+    group   => $ftep::globals::group,
+    mode    => '777', # Allow httpd to write to this directory
+    recurse => false,
+    require => File[$data_basedir],
+  }
+
+  $zoo_db_migration_requires = defined(Class["::ftep::db"]) ? {
+    true    => [Class['::ftep::db'], Package['zoo-kernel']],
+    default => [Package['zoo-kernel']]
+  }
+
+  ftep::db::flyway_migration { 'zoo-kernel':
+    location    => "${cgi_path}/sql",
+    db_username => $ftep::globals::ftep_db_zoo_username,
+    db_password => $ftep::globals::ftep_db_zoo_password,
+    jdbc_url    => "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_zoo_name}",
+    require     => $zoo_db_migration_requires,
+  }
+
   ::apache::vhost { 'ftep-wps':
     port          => '80',
     servername    => 'ftep-wps',
@@ -115,12 +139,12 @@ class ftep::wps (
       alias => $script_alias,
       path  => "${cgi_path}/${cgi_file}"
     }],
-    aliases => [{
-      alias => '/wps/ftep-output',
-      path  => '/data/cache'
+    aliases       => [{
+      alias => $tmp_url,
+      path  => "${data_basedir}/${tmp_path}"
     }],
-    directories => [{
-      path => '/data/cache',
+    directories   => [{
+      path    => "${data_basedir}/${data_path}",
       options => [ '-Indexes' ]
     }],
     options       => ['-Indexes']
@@ -129,7 +153,33 @@ class ftep::wps (
   # Ensure zoo_loader.cgi can access NFS shares
   if $facts['selinux'] {
     ::selinux::boolean { 'httpd_use_nfs':
-      ensure => true,
+      ensure => true
+    }
+    selinux::boolean { 'httpd_execmem':
+      ensure => true
+    }
+    selinux::fcontext { 'data-path-rw-context':
+      context  => 'httpd_sys_rw_content_t',
+      pathname => "${data_basedir}/${data_path}"
+    }
+    selinux::fcontext { 'tmp-path-rw-context':
+      context  => 'httpd_sys_rw_content_t',
+      pathname => "${data_basedir}/${tmp_path}"
+    }
+    selinux::module { 'ftep_wps':
+      ensure => 'present',
+      content => "
+module ftep_wps 1.0.0;
+
+require {
+        type httpd_sys_script_t;
+        type proc_net_t;
+        class file { read open };
+}
+
+#============= httpd_sys_script_t ==============
+allow httpd_sys_script_t proc_net_t:file { read open };
+",
     }
   }
 

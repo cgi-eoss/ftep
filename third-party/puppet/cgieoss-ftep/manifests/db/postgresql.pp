@@ -9,6 +9,10 @@ class ftep::db::postgresql (
   $db_resto_password    = $ftep::globals::ftep_db_resto_password,
   $db_resto_su_username = $ftep::globals::ftep_db_resto_su_username,
   $db_resto_su_password = $ftep::globals::ftep_db_resto_su_password,
+
+  $db_zoo_name          = $ftep::globals::ftep_db_zoo_name,
+  $db_zoo_username      = $ftep::globals::ftep_db_zoo_username,
+  $db_zoo_password      = $ftep::globals::ftep_db_zoo_password,
 ) {
 
   # EPEL is required for the postgis extensions
@@ -20,6 +24,7 @@ class ftep::db::postgresql (
       "host ${db_v2_name} ${db_username} samenet md5",
       "host ${db_resto_name} ${db_resto_username} samenet md5",
       "host ${db_resto_name} ${db_resto_su_username} samenet md5",
+      "host ${db_zoo_name} ${db_zoo_username} samenet md5",
     ]
   } else {
     $acls = [
@@ -31,6 +36,8 @@ class ftep::db::postgresql (
       # Access to resto db only required for ftep-resto
       "host ${db_resto_name} ${db_resto_username} ${ftep::globals::resto_hostname} md5",
       "host ${db_resto_name} ${db_resto_su_username} ${ftep::globals::resto_hostname} md5",
+      # Access to zoo db only required for f-tep-wps
+      "host ${db_zoo_name} ${db_zoo_username} ${ftep::globals::wps_hostname} md5",
     ]
   }
 
@@ -71,6 +78,12 @@ class ftep::db::postgresql (
     createdb      => false,
     superuser     => true,
     require       => Postgresql::Server::Db['ftepdb_resto'],
+  }
+  ::postgresql::server::db { 'ftepdb_zoo':
+    dbname   => $db_zoo_name,
+    user     => $db_zoo_username,
+    password => postgresql_password($db_zoo_username, $db_zoo_password),
+    grant    => 'ALL',
   }
 
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc";
+
+service ZooManagerService {
+    rpc UpdateActiveZooServices (WpsServiceDescriptors) returns (UpdateActiveZooServicesResult);
+}
+
+message WpsServiceDescriptors {
+    repeated WpsServiceDescriptor services = 1;
+}
+
+message WpsServiceDescriptor {
+    string name = 1;
+    bytes content = 2;
+}
+
+message UpdateActiveZooServicesResult {
+}

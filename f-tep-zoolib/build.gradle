@@ -1,22 +1,33 @@
+buildscript {
+    dependencies {
+        classpath pl.shadow
+    }
+}
+
 group 'com.cgi.eoss.f-tep'
 version '0.6.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-rpc')
-    compile project(':f-tep-orchestrator')
-    compile project(':f-tep-worker')
 
     compile 'com.google.guava:guava'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
 
-    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile project(':f-tep-model')
+    testCompile project(':f-tep-orchestrator')
+    testCompile project(':f-tep-persistence')
+    testCompile project(':f-tep-worker')
+
+    testCompile 'com.github.docker-java:docker-java'
     testCompile 'com.google.jimfs:jimfs'
     testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.mockito:mockito-core'
 }
 

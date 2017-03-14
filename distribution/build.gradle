@@ -17,6 +17,7 @@ dependencies {
     packages project(path: ':f-tep-processors', configuration: 'pkg')
     packages project(path: ':f-tep-server', configuration: 'pkg')
     packages project(path: ':f-tep-worker', configuration: 'pkg')
+    packages project(path: ':f-tep-zoomanager', configuration: 'pkg')
     packages project(path: ':third-party/pkg', configuration: 'pkg')
     packages project(path: ':third-party/resto', configuration: 'pkg')
 

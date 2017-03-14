@@ -1,0 +1,23 @@
+<%- |
+    String $logging_config_file,
+
+    Integer $server_port,
+    Integer $grpc_port,
+
+    String $zcfg_path,
+    String $services_stub_jar
+| -%>
+# Managed by Puppet
+# F-TEP ZOO Manager service configuration
+
+spring.application.name=F-TEP ZOO Manager
+
+logging.config=<%= $logging_config_file %>
+
+# Server config
+server.port=<%= $server_port %>
+grpc.port=<%= $grpc_port %>
+
+# ZOO Manager configuration
+ftep.zoomanager.zcfg.path=<%= $zcfg_path %>
+ftep.zoomanager.stub.jarFile=<%= $services_stub_jar %>

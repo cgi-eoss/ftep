@@ -112,6 +112,7 @@ allprojects {
             dependency 'org.seleniumhq.selenium:selenium-java:3.1.0'
             dependencySet(group: 'org.springframework', version: '4.3.7.RELEASE') {
                 entry 'spring-context'
+                entry 'spring-core'
                 entry 'spring-orm'
                 entry 'spring-test'
                 entry 'spring-tx'

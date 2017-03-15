@@ -1,0 +1,87 @@
+<graph id="Graph">
+    <version>1.0</version>
+
+    <node id="Read_master">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>${ifile}</file>
+        </parameters>
+    </node>
+
+    <node id="Read_slave">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>${forestMask}</file>
+        </parameters>
+    </node>
+
+    <node id="Collocate">
+        <operator>Collocate</operator>
+        <sources>
+            <master>Read_master</master>
+            <slave>Read_slave</slave>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <targetProductName>_collocated</targetProductName>
+            <targetProductType>COLLOCATED</targetProductType>
+            <renameMasterComponents>true</renameMasterComponents>
+            <renameSlaveComponents>true</renameSlaveComponents>
+            <masterComponentPattern>volume</masterComponentPattern>
+            <slaveComponentPattern>mask</slaveComponentPattern>
+            <resamplingType>NEAREST_NEIGHBOUR</resamplingType>
+        </parameters>
+    </node>
+
+    <node id="ForestBiomass">
+        <operator>BandMaths</operator>
+        <sources>
+            <sourceProduct refid="Collocate"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <targetBands>
+                <targetBand>
+                    <name>volume_out</name>
+                    <type>float32</type>
+                    <expression>volume * mask</expression>
+                    <description/>
+                    <unit/>
+                    <noDataValue>0.0</noDataValue>
+                </targetBand>
+            </targetBands>
+            <variables/>
+        </parameters>
+    </node>
+
+    <node id="NaturalNumber">
+        <operator>BandMaths</operator>
+        <sources>
+            <sourceProduct refid="ForestBiomass"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <targetBands>
+                <targetBand>
+                    <name>volume_reg</name>
+                    <type>float32</type>
+                    <expression>if (volume_out&lt;0) then 0 else volume_out</expression>
+                    <description/>
+                    <unit/>
+                    <noDataValue>0.0</noDataValue>
+                </targetBand>
+            </targetBands>
+            <variables/>
+        </parameters>
+    </node>
+
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="NaturalNumber"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>${ofile}</file>
+            <formatName>GeoTIFF-BigTIFF</formatName>
+        </parameters>
+    </node>
+</graph>

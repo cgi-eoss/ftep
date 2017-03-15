@@ -27,4 +27,5 @@ include 'third-party/puppet'
 include 'third-party/resto'
 
 include 'distribution'
+include 'f-tep-defaultservices'
 

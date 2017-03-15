@@ -1,0 +1,74 @@
+---
+id: "S1Biomass"
+title: "Calculate biomass (stem volume) from Sentinel-1 SAR data"
+description: "Stem volume calculation"
+version: "1.0"
+storeSupported: true
+statusSupported: true
+serviceType: "Java"
+serviceProvider: "S1Biomass"
+dataInputs:
+  - id: "inputfiles"
+    title: "Input data"
+    description: "The input Sentinel-1 data files"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "refDataDem"
+    title: "Reference data containing digital elevation model"
+    description: "Expected is a single .tif with filename matching 'DEM_*.tif' (or a .zip containing same)"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "refDataForestMask"
+    title: "Reference data containing forest mask"
+    description: "Expected is a single .tif with filename matching 'ForestMask_*.tif' (or a .zip containing same)"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "crs"
+    title: "Target CRS identifier"
+    description: "EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "aoi"
+    title: "Area of interest"
+    description: "Well-known text POLYGON describing the AOI to be processed"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "targetResolution"
+    title: "Target image resolution"
+    description: "Desired image resolution in metres. Controls resampling of the input data. Example: '10'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+dataOutputs:
+  - id: "Result"
+    title: "GeoTiff image file"
+    description: "The requested biomass image"
+    data: "COMPLEX"
+    defaultAttrs:
+      mimeType: "image/tiff"
+      extension: "tif"
+      asReference: "true"
+    supportedAttrs: []

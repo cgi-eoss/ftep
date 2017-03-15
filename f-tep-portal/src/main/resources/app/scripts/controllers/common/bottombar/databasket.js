@@ -14,7 +14,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.dbParams = BasketService.params.explorer;
         $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
 
-        $scope.databaskets = [];
+        $scope.databaskets = BasketService.getBasketCache().data;
 
         var collectedFiles = {};
 
@@ -102,8 +102,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Edit existing databasket's name and description */
         $scope.editDatabasketDialog = function($event, selectedBasket) {
-            var parentEl = angular.element(document.body);
-            function EditController($scope, $mdDialog, BasketService) {
+            function EditDatabasketController($scope, $mdDialog, BasketService) {
                 $scope.editableBasket = angular.copy(selectedBasket);
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
@@ -115,31 +114,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $mdDialog.hide();
                 };
             }
+            EditDatabasketController.$inject = ['$scope', '$mdDialog', 'BasketService'];
             $mdDialog.show({
-              parent: parentEl,
-              targetEvent: $event,
-              template:
-                '<md-dialog id="databasket-dialog" aria-label="Edit databasket dialog">' +
-                '    <h4>Edit Databasket</h4>' +
-                '  <md-dialog-content>' +
-                '    <div class="dialog-content-area">' +
-                '        <md-input-container class="md-block" flex-gt-sm>' +
-                '           <label>Name</label>' +
-                '           <input ng-model="editableBasket.attributes.name" type="text"></input>' +
-                '       </md-input-container>' +
-                '       <md-input-container class="md-block" flex-gt-sm>' +
-                '           <label>Description</label>' +
-                '           <textarea ng-model="editableBasket.attributes.description"></textarea>' +
-                '       </md-input-container>' +
-                '    </div>' +
-                '  </md-dialog-content>' +
-                '  <md-dialog-actions>' +
-                '    <md-button ng-click="updateDatabasket(editableBasket)" ng-disabled="!editableBasket.attributes.name" class="md-primary">Save</md-button>' +
-                '    <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>' +
-                '  </md-dialog-actions>' +
-                '</md-dialog>',
-              controller: EditController
-           });
+                controller: EditDatabasketController,
+                templateUrl: 'views/common/bottombar/templates/editdatabasket.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
+            });
 
         };
 

@@ -54,7 +54,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
 
         /* Create Group */
         $scope.createGroupDialog = function ($event) {
-            function DialogController($scope, $mdDialog, GroupService) {
+            function CreateGroupController($scope, $mdDialog, GroupService) {
 
                 /* Get Groups and User details */
                 $scope.groupParams = GroupService.params;
@@ -76,8 +76,9 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                 };
 
             }
+            CreateGroupController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
-                controller: DialogController,
+                controller: CreateGroupController,
                 templateUrl: 'views/community/manage/groups/templates/creategroup.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
@@ -99,7 +100,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
 
         /* Edit Group */
         $scope.editGroupDialog = function ($event, selectedGroup) {
-            function DialogController($scope, $mdDialog, GroupService) {
+            function EditGroupController($scope, $mdDialog, GroupService) {
 
                 /* Get Groups and User details */
                 $scope.groupParams = GroupService.params;
@@ -126,8 +127,9 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                 };
 
             }
+            EditGroupController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
-                controller: DialogController,
+                controller: EditGroupController,
                 templateUrl: 'views/community/manage/groups/templates/editgroup.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,

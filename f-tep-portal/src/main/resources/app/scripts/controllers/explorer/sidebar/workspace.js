@@ -8,9 +8,9 @@
 define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], function (ftepmodules, tpl_describeProcess) {
     'use strict';
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$mdDialog', '$sce', '$document', 'WpsService', 'JobService',
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', '$document', 'WpsService', 'JobService',
                                               'ProductService', 'MapService', 'CommonService',
-                                function ($scope, $rootScope, $mdDialog, $sce, $document, WpsService, JobService, ProductService, MapService,
+                                function ($scope, $rootScope, $sce, $document, WpsService, JobService, ProductService, MapService,
                                         CommonService) {
 
         $scope.serviceParams = ProductService.params.explorer;

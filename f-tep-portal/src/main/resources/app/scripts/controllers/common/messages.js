@@ -8,8 +8,8 @@
 define(['../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('MessagesCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'MessageService',
-                                 function ($scope, $rootScope, $mdDialog, CommonService, MessageService) {
+    ftepmodules.controller('MessagesCtrl', ['$scope', '$rootScope', 'CommonService', 'MessageService',
+                                 function ($scope, $rootScope, CommonService, MessageService) {
 
             $scope.messages = MessageService.getMessages();
             $scope.msgParams = MessageService.params;

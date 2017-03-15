@@ -36,7 +36,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
 
         /* Add user to group */
         $scope.addUsersDialog = function($event) {
-            function EditController($scope, $mdDialog, GroupService) {
+            function AddUserController($scope, $mdDialog, GroupService) {
 
                 $scope.groupParams = GroupService.params;
                 $scope.userParams = UserService.params;
@@ -92,8 +92,9 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                     $mdDialog.hide();
                 };
             }
+            AddUserController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
-                controller: EditController,
+                controller: AddUserController,
                 templateUrl: 'views/community/manage/groups/templates/adduser.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,

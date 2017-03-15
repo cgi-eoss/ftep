@@ -1,0 +1,30 @@
+<md-dialog id="share-dialog" aria-label="Share an object dialog">
+    <h4>Share a {{sharedObject.type | asSingular}}</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <div class="row" ng-show="sharedObject.attributes.name != undefined">
+                <div class="col-md-3">Name:</div>
+                <div class="col-md-9">{{sharedObject.attributes.name}}</div>
+            </div>
+            <div class="row" ng-show="sharedObject.attributes.name == undefined">
+                <div class="col-md-3">Id:</div>
+                <div class="col-md-9">{{sharedObject.id}}</div>
+            </div>
+            <br/>
+            <br/>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Group</label>
+                <md-select ng-model="sharedObject.group">
+                    <md-option ng-value="undefined"><em>None</em></md-option>
+                    <md-option ng-repeat="group in groups" ng-value="group">
+                        {{group.attributes.name}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="shareObject(sharedObject)" ng-disabled="sharedObject.group == undefined" class="md-primary">Share</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

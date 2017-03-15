@@ -253,8 +253,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.editPolygonDialog = function($event, polygon) {
             $event.stopPropagation();
             $event.preventDefault();
-            var parentEl = angular.element(document.body);
-            function DialogController($scope, $mdDialog, ProjectService) {
+            function EditPolygonController($scope, $mdDialog, ProjectService) {
                 $scope.polygon = { wkt: '', valid: false};
                 if(polygon.selectedArea) {
                     var area = angular.copy(polygon.selectedArea);
@@ -292,26 +291,14 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     }
                 };
             }
+            EditPolygonController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
             $mdDialog.show({
-              parent: parentEl,
-              targetEvent: $event,
-              template:
-                '<md-dialog id="polygon-editor" aria-label="Edit polygon">' +
-                '  <md-dialog-content>' +
-                '    <div class="dialog-content-area">' +
-                '    <h4>Edit the polygon:</h4>' +
-                '        <md-input-container class="md-block" flex-gt-sm>' +
-                '           <textarea ng-model="polygon.wkt" rows="10" ng-change="validateWkt(polygon.wkt)" md-select-on-focus></textarea>' +
-                '       </md-input-container>' +
-                '    </div>' +
-                '  </md-dialog-content>' +
-                '  <md-dialog-actions>' +
-                '    <md-button ng-click="updatePolygon(polygon.wkt)" ng-disabled="polygon.valid == false" class="md-primary">Update</md-button>' +
-                '    <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>' +
-                '  </md-dialog-actions>' +
-                '</md-dialog>',
-              controller: DialogController
-           });
+                controller: EditPolygonController,
+                templateUrl: 'views/explorer/templates/editpolygon.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
+            });
         };
 
         /* Custom KML reader, when file has GroundOverlay features, which OL3 doesn't support */

@@ -19,12 +19,9 @@ public class JpaServiceFileDataService extends AbstractJpaDataService<FtepServic
 
     private final FtepServiceContextFileDao ftepServiceContextFileDao;
 
-    private final ServiceDataService serviceDataService;
-
     @Autowired
-    public JpaServiceFileDataService(FtepServiceContextFileDao ftepServiceContextFileDao, ServiceDataService serviceDataService) {
+    public JpaServiceFileDataService(FtepServiceContextFileDao ftepServiceContextFileDao) {
         this.ftepServiceContextFileDao = ftepServiceContextFileDao;
-        this.serviceDataService = serviceDataService;
     }
 
     @Override
@@ -40,11 +37,6 @@ public class JpaServiceFileDataService extends AbstractJpaDataService<FtepServic
     @Override
     public List<FtepServiceContextFile> findByService(FtepService service) {
         return ftepServiceContextFileDao.findByService(service);
-    }
-
-    @Override
-    public List<FtepServiceContextFile> findByService(String serviceName) {
-        return findByService(serviceDataService.getByName(serviceName));
     }
 
 }

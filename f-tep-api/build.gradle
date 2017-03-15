@@ -8,8 +8,10 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-catalogue')
+    compile project(':f-tep-defaultservices')
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
+    compile project(':f-tep-rpc')
 
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.cache:cache-api'

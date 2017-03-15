@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
@@ -24,7 +25,6 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
@@ -56,12 +56,12 @@ public class AclsApi {
     private static final Collector<AccessControlEntry, ?, FtepPermission> SPRING_FTEP_ACL_SET_COLLECTOR =
             Collectors.collectingAndThen(Collectors.mapping(AccessControlEntry::getPermission, Collectors.toSet()), FtepPermission::getFtepPermission);
 
-    private final MutableAclService aclService;
+    private final FtepSecurityService ftepSecurityService;
     private final GroupDataService groupDataService;
 
     @Autowired
-    public AclsApi(MutableAclService aclService, GroupDataService groupDataService) {
-        this.aclService = aclService;
+    public AclsApi(FtepSecurityService ftepSecurityService, GroupDataService groupDataService) {
+        this.ftepSecurityService = ftepSecurityService;
         this.groupDataService = groupDataService;
     }
 
@@ -179,7 +179,7 @@ public class AclsApi {
 
     private List<FtepAccessControlEntry> getFtepPermissions(ObjectIdentity objectIdentity) {
         try {
-            Acl acl = aclService.readAclById(objectIdentity, null);
+            Acl acl = ftepSecurityService.getAcl(objectIdentity);
 
             return acl.getEntries().stream()
                     .filter(ace -> ace.getSid() instanceof GrantedAuthoritySid && ((GrantedAuthoritySid) ace.getSid()).getGrantedAuthority().startsWith("GROUP_"))
@@ -204,9 +204,9 @@ public class AclsApi {
     private void setAcl(ObjectIdentity objectIdentity, User owner, List<FtepAccessControlEntry> newAces) {
         LOG.debug("Creating ACL on object {}: {}", objectIdentity, newAces);
 
-        MutableAcl acl = getAcl(objectIdentity);
+        MutableAcl acl = ftepSecurityService.getAcl(objectIdentity);
 
-        // JdbcMutableAclService#updateAcl deletes the entire list before saving
+        // JdbcMutableAclService#saveAcl deletes the entire list before saving
         // So we have to reset the entire desired permission list for the group
 
         // First delete all existing ACEs...
@@ -227,15 +227,7 @@ public class AclsApi {
                     .forEach(p -> acl.insertAce(acl.getEntries().size(), p, sid, true));
         });
 
-        aclService.updateAcl(acl);
-    }
-
-    private MutableAcl getAcl(ObjectIdentity objectIdentity) {
-        try {
-            return (MutableAcl) aclService.readAclById(objectIdentity);
-        } catch (NotFoundException nfe) {
-            return aclService.createAcl(objectIdentity);
-        }
+        ftepSecurityService.saveAcl(acl);
     }
 
     @Data

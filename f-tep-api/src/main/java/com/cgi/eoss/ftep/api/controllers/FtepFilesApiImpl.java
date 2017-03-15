@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
@@ -38,7 +39,7 @@ import java.io.IOException;
 @Log4j2
 public class FtepFilesApiImpl {
 
-    private final FtepSecurityUtil ftepSecurityUtil;
+    private final FtepSecurityService ftepSecurityService;
     private final CatalogueService catalogueService;
 
     @PostMapping("/externalProduct")
@@ -57,7 +58,7 @@ public class FtepFilesApiImpl {
             Preconditions.checkArgument(!Strings.isNullOrEmpty(file.getOriginalFilename()), "Uploaded filename may not be null {}", file);
 
             ReferenceDataMetadata metadata = ReferenceDataMetadata.builder()
-                    .owner(ftepSecurityUtil.getCurrentUser())
+                    .owner(ftepSecurityService.getCurrentUser())
                     .filename(file.getOriginalFilename())
                     .geometry(geometry)
                     .properties(ImmutableMap.of()) // TODO Collect user-driven metadata properties

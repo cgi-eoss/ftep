@@ -3,10 +3,12 @@ package com.cgi.eoss.ftep.persistence.service;
 import com.cgi.eoss.ftep.model.FtepEntity;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.querydsl.core.types.Predicate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEntityDataService<T> {
@@ -72,7 +74,7 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public T refresh(T obj) {
-        return getDao().findOne(getUniquePredicate(obj));
+        return Optional.ofNullable(getDao().findOne(getUniquePredicate(obj))).orElseThrow(() -> new EmptyResultDataAccessException(1));
     }
 
     @Override

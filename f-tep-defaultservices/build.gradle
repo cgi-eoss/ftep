@@ -9,6 +9,7 @@ dependencies {
 
     compile project(':f-tep-model')
 
+    compile 'org.jooq:jool'
     compile 'org.springframework:spring-core'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
 

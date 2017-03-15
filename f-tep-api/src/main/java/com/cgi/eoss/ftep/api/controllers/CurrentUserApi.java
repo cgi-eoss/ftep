@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,28 +17,28 @@ import java.util.stream.Collectors;
 @RequestMapping("/currentUser")
 public class CurrentUserApi {
 
-    private final FtepSecurityUtil ftepSecurityUtil;
+    private final FtepSecurityService ftepSecurityService;
 
     @Autowired
-    public CurrentUserApi(FtepSecurityUtil ftepSecurityUtil) {
-        this.ftepSecurityUtil = ftepSecurityUtil;
+    public CurrentUserApi(FtepSecurityService ftepSecurityService) {
+        this.ftepSecurityService = ftepSecurityService;
     }
 
     @GetMapping
     public User currentUser() {
-        return ftepSecurityUtil.getCurrentUser();
+        return ftepSecurityService.getCurrentUser();
     }
 
     @GetMapping("/grantedAuthorities")
     public List<String> grantedAuthorities() {
-        return ftepSecurityUtil.getCurrentAuthorities().stream()
+        return ftepSecurityService.getCurrentAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/groups")
     public Set<Group> groups() {
-        return ftepSecurityUtil.getCurrentGroups();
+        return ftepSecurityService.getCurrentGroups();
     }
 
 }

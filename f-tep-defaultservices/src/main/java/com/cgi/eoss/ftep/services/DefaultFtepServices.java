@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.lambda.Unchecked;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -20,9 +21,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,21 +79,16 @@ public class DefaultFtepServices {
     private static Set<FtepServiceContextFile> getServiceContextFiles(FtepService service) throws IOException {
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(DefaultFtepServices.class.getClassLoader());
         Resource baseDir = resolver.getResource("classpath:/" + service.getName());
-        Resource[] resources = resolver.getResources("classpath:/" + service.getName() + "/**/*");
+        Set<Resource> resources = ImmutableSet.copyOf(resolver.getResources("classpath:/" + service.getName() + "/**/*"));
 
-        Path basePath = Paths.get(baseDir.getURI());
-
-        Set<FtepServiceContextFile> files = new HashSet<>();
-        for (Resource resource : resources) {
-            if (!resource.getFile().isDirectory()) {
-                String relativeFilename = basePath.relativize(Paths.get(resource.getURI())).toString();
-                FtepServiceContextFile file = new FtepServiceContextFile(service, relativeFilename);
-                file.setContent(new String(ByteStreams.toByteArray(resource.getInputStream())));
-                files.add(file);
-            }
-        }
-
-        return files;
+        return resources.stream()
+                .filter(Unchecked.predicate(r -> !r.getURI().toString().endsWith("/")))
+                .map(Unchecked.function(r -> {
+                    FtepServiceContextFile file = new FtepServiceContextFile(service, baseDir.getURI().relativize(r.getURI()).toString());
+                    file.setContent(new String(ByteStreams.toByteArray(r.getInputStream())));
+                    return file;
+                }))
+                .collect(Collectors.toSet());
     }
 
 }

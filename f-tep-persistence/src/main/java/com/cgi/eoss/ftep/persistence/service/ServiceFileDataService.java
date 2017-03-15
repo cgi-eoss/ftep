@@ -8,6 +8,4 @@ import java.util.List;
 public interface ServiceFileDataService extends
         FtepEntityDataService<FtepServiceContextFile> {
     List<FtepServiceContextFile> findByService(FtepService service);
-
-    List<FtepServiceContextFile> findByService(String serviceName);
 }

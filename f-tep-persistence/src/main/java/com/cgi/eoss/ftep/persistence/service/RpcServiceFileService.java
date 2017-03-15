@@ -15,16 +15,18 @@ import java.util.List;
 @GRpcService
 public class RpcServiceFileService extends ServiceContextFilesServiceGrpc.ServiceContextFilesServiceImplBase {
 
-    private final ServiceFileDataService dataService;
+    private final ServiceDataService serviceDataService;
+    private final ServiceFileDataService fileDataService;
 
     @Autowired
-    public RpcServiceFileService(ServiceFileDataService dataService) {
-        this.dataService = dataService;
+    public RpcServiceFileService(ServiceDataService serviceDataService, ServiceFileDataService fileDataService) {
+        this.serviceDataService = serviceDataService;
+        this.fileDataService = fileDataService;
     }
 
     @Override
     public void getServiceContextFiles(GetServiceContextFilesParams request, StreamObserver<ServiceContextFiles> responseObserver) {
-        List<FtepServiceContextFile> serviceFiles = dataService.findByService(request.getServiceName());
+        List<FtepServiceContextFile> serviceFiles = fileDataService.findByService(serviceDataService.getByName(request.getServiceName()));
 
         ServiceContextFiles.Builder responseBuilder = ServiceContextFiles.newBuilder()
                 .setServiceName(request.getServiceName());

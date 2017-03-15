@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableSet;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -14,13 +13,10 @@ import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.persister.entity.EntityPersister;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,13 +27,17 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
 // TODO Replace this with an AOP aspect
 public class AddOwnerAclListener implements PostInsertEventListener {
 
     private final EntityManagerFactory entityManagerFactory;
-    private final MutableAclService aclService;
+    private final FtepSecurityService ftepSecurityService;
+
+    public AddOwnerAclListener(EntityManagerFactory entityManagerFactory, FtepSecurityService ftepSecurityService) {
+        this.entityManagerFactory = entityManagerFactory;
+        this.ftepSecurityService = ftepSecurityService;
+    }
 
     @PostConstruct
     protected void registerSelf() {
@@ -63,7 +63,7 @@ public class AddOwnerAclListener implements PostInsertEventListener {
             SecurityContextHolder.getContext().setAuthentication(token);
 
             ObjectIdentity objectIdentity = new ObjectIdentityImpl(entityClass, entity.getId());
-            MutableAcl acl = getAcl(objectIdentity);
+            MutableAcl acl = ftepSecurityService.getAcl(objectIdentity);
 
             if (acl.getEntries().size() > 0) {
                 LOG.warn("Existing access control entries found for 'new' object: {} {}", entityClass.getSimpleName(), entity.getId());
@@ -81,21 +81,13 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                         .forEach(p -> acl.insertAce(acl.getEntries().size(), p, ownerSid, true));
             }
 
-            aclService.updateAcl(acl);
+            ftepSecurityService.saveAcl(acl);
         }
     }
 
     @Override
     public boolean requiresPostCommitHanding(EntityPersister persister) {
         return true;
-    }
-
-    private MutableAcl getAcl(ObjectIdentity objectIdentity) {
-        try {
-            return (MutableAcl) aclService.readAclById(objectIdentity);
-        } catch (NotFoundException nfe) {
-            return aclService.createAcl(objectIdentity);
-        }
     }
 
 }

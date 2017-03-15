@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.worker.io;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.persistence.service.RpcServiceFileService;
+import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.google.common.collect.ImmutableList;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.when;
  */
 public class FtepDownloaderTest {
     @Mock
+    private ServiceDataService serviceDataService;
+    @Mock
     private ServiceFileDataService serviceFileDataService;
 
     private Path targetPath;
@@ -56,7 +59,7 @@ public class FtepDownloaderTest {
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(getClass().getName()).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(getClass().getName()).directExecutor();
-        RpcServiceFileService rpcServiceFileService = new RpcServiceFileService(serviceFileDataService);
+        RpcServiceFileService rpcServiceFileService = new RpcServiceFileService(serviceDataService, serviceFileDataService);
         inProcessServerBuilder.addService(rpcServiceFileService);
         server = inProcessServerBuilder.build().start();
 
@@ -101,7 +104,8 @@ public class FtepDownloaderTest {
         FtepServiceContextFile workflow = new FtepServiceContextFile(service, "workflow.sh");
         workflow.setContent(new String(Files.readAllBytes(Paths.get(getClass().getResource("/service1/workflow.sh").toURI()))));
 
-        when(serviceFileDataService.findByService("service1")).thenReturn(ImmutableList.of(dockerfile, workflow));
+        when(serviceDataService.getByName("service1")).thenReturn(service);
+        when(serviceFileDataService.findByService(service)).thenReturn(ImmutableList.of(dockerfile, workflow));
     }
 
 }

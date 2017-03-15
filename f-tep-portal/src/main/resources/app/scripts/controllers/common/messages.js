@@ -5,7 +5,7 @@
  * # MessagesCtrl
  * Controller of the ftepApp
  */
-define(['../ftepmodules'], function (ftepmodules) {
+define(['../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
     ftepmodules.controller('MessagesCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'MessageService',

@@ -177,13 +177,13 @@
         </form>
 
         <md-button id="searchButton"
-                   class="md-icon-button md-fab md-mini btn-success"
+                   class="icon-button md-icon-button md-fab md-mini btn-success"
                    ng-show="searchParameters.selectedDatasource"
                    type="submit"
                    form="searchForm"
                    ng-disabled="searchForm.$invalid"
                    aria-label="Search"
-                   ng-click="displayTab(bottomNavTabs.RESULTS)">
+                   ng-click="displayTab(bottomNavTabs.RESULTS, false)">
             <i class="material-icons">search</i>
         </md-button>
 

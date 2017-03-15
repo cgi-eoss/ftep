@@ -32,7 +32,7 @@ define(['../ftepmodules'], function (ftepmodules) {
           };
 
           this.getServiceById = function(id){
-              var service = undefined;
+              var service;
               if(servicesCache){
                   for(var i = 0; i < servicesCache.length; i++){
                       if(servicesCache[i].id === id){

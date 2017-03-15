@@ -1,17 +1,18 @@
-<div id="developer-container" layout="row" ng-controller="DeveloperCtrl">
-    <div id="sidenav">
-        <div ng-include src="'views/developer/sidenav.html'"></div>
-    </div>
+<article id="developer-container" layout="row" class="page-container row" ng-controller="DeveloperCtrl">
 
-    <div id="reference-container" ng-include src="'views/developer/references.html'" class="row no-margin"
-            ng-show="navInfo.activeDeveloperPage == developerSideNavs.REFERENCE_DATA"></div>
+    <section id="sidenav" ng-include src="'views/developer/sidenav.html'" />
 
-    <div id="service-container" ng-include src="'views/developer/services.html'" class="row no-margin"
-            ng-show="navInfo.activeDeveloperPage == developerSideNavs.SERVICES"></div>
+    <section id="reference-container" ng-include src="'views/developer/references.html'" class="row"
+             ng-show="navInfo.activeDeveloperPage == developerSideNavs.REFERENCE_DATA" />
 
-    <section id="bottombar"
-             class="explorer-content"
+    <section id="service-container" ng-include src="'views/developer/services.html'" class="row"
+             ng-show="navInfo.activeDeveloperPage == developerSideNavs.SERVICES" />
+
+    <section id="bottombar-container"
+             ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
+             class="explorer-content animationIf no-padding"
+             ng-include src="'views/common/bottombar/bottombar.html'"
              ng-controller="BottombarCtrl"
-             ng-include src="'views/developer/bottombar/bottombar.html'"
-             ng-show="navInfo.bottomViewVisible" />
-</div>
+             ng-if="navInfo.bottomViewVisible"/>
+
+</article>

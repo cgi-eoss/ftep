@@ -1,13 +1,16 @@
 define([
     //contollers
-    './controllers/developer',
-    './controllers/helpdesk',
+
     './controllers/index',
     './controllers/navbar',
-    './controllers/messages',
+
+    './controllers/common/messages',
+    './controllers/common/bottombar/bottombar',
+    './controllers/common/bottombar/databasket',
+    './controllers/common/bottombar/jobs',
+    './controllers/common/bottombar/results',
 
     './controllers/community/community',
-    './controllers/community/bottombar/bottombar',
     './controllers/community/manage/manage',
     './controllers/community/manage/databaskets/databasketscontainer',
     './controllers/community/manage/databaskets/databasket',
@@ -27,17 +30,17 @@ define([
     './controllers/community/manage/services/services',
     './controllers/community/share/share',
 
+    './controllers/developer/developer',
+
     './controllers/explorer/explorer',
     './controllers/explorer/map',
-    './controllers/explorer/bottombar/bottombar',
-    './controllers/explorer/bottombar/databasket',
-    './controllers/explorer/bottombar/jobs',
-    './controllers/explorer/bottombar/results',
     './controllers/explorer/sidebar/project',
     './controllers/explorer/sidebar/search',
     './controllers/explorer/sidebar/services',
     './controllers/explorer/sidebar/sidebar',
     './controllers/explorer/sidebar/workspace',
+
+    './controllers/helpdesk/helpdesk',
 
     //services
     './services/basketservice',

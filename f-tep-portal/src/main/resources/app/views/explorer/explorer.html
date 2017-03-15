@@ -1,10 +1,8 @@
-<div id="explorer-container" layout="row">
+<article id="explorer-container" layout="row" class="page-container row">
 
-    <div ng-controller="SidebarCtrl">
+    <section id="side-container" ng-controller="SidebarCtrl" class="col-md-4 col-xl-3 col-xxl-2 no-padding">
 
-        <div id="sidenav">
-             <div ng-include src="'views/explorer/sidenav.html'"></div>
-        </div>
+        <div id="sidenav" ng-include src="'views/explorer/sidenav.html'" />
 
         <md-sidenav id="sidebar-left"
                     class="md-sidenav-left md-whiteframe-4dp"
@@ -15,11 +13,15 @@
              <div class="sidebar-container" ng-include src="'views/explorer/sidebar/sidebar.html'"></div>
         </md-sidenav>
 
-    </div>
+    </section>
 
-    <div id="map-container" ng-include src="'views/explorer/map.html'"></div>
+    <section id="bottombar-container"
+         ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
+         class="explorer-content animationIf no-padding"
+         ng-include src="'views/common/bottombar/bottombar.html'"
+         ng-controller="BottombarCtrl"
+         ng-if="navInfo.bottomViewVisible"/>
 
-    <div id="bottombar" class="explorer-content" ng-controller="BottombarCtrl" ng-include src="'views/explorer/bottombar/bottombar.html'"
-            ng-show="navInfo.bottomViewVisible"></div>
+    <section id="map-container" ng-include src="'views/explorer/map.html'" />
 
-</div>
+</article>

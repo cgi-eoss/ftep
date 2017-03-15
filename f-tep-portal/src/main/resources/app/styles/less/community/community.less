@@ -1,19 +1,11 @@
 @import "variable";
 #community-container {
-    .border(border-top, @bg);
-    height: calc(100% ~'-' @navbar-height);
-    margin: 0;
-    margin-left: @sidenav-width;
-    margin-top: @navbar-height;
-    #bottombar {
-        background-color: @bg-light;
-        .border(border-top, @light-gray);
-    }
     #manage-container, #share-container {
         height: 100%;
         width: 100%;
         #manage-tabs {
             height: 100%;
+            padding-left: @sidenav-width;
             md-tabs-content-wrapper {
                 md-tab-content {
                     height: 100%;
@@ -40,27 +32,7 @@
         background-color: @bg;
         height: 100%;
         padding: 0;
-        .create-button {
-            background-color: @accent-light;
-            bottom: 1.5rem;
-            height: 40px;
-            margin: 0;
-            min-height: 0;
-            padding: 0;
-            position: absolute;
-            right: 2rem;
-            width: 40px;
-            .material-icons {
-                color: @text-light;
-                font-size: 30px;
-                height: 100%;
-                line-height: 40px;
-                width: 100%;
-            }
-            &:hover {
-                background-color: @accent;
-            }
-        }
+        padding-left: @sidenav-width;
         .item-list {
             padding-bottom: 3rem;
         }

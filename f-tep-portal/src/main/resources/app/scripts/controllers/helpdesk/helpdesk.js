@@ -5,10 +5,15 @@
  * # HelpdeskCtrl
  * Controller of the ftepApp
  */
-define(['../ftepmodules'], function (ftepmodules) {
-    'use strict';
+'use strict';
+define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('HelpdeskCtrl', ['$scope', '$http', 'ProductService', function ($scope, $http, ProductService) {
+    ftepmodules.controller('HelpdeskCtrl', ['$scope', '$http', 'ProductService', 'TabService', function ($scope, $http, ProductService, TabService) {
+
+        /* Set active page */
+        $scope.navInfo = TabService.navInfo;
+        $scope.navInfo.sideViewVisible = false;
+        $scope.navInfo.activeTab = TabService.getTabs().HELPDESK;
 
         $scope.videos = [
                  {

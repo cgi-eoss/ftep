@@ -3,7 +3,7 @@
     <div class="filter-list">
         <ul class="list">
 
-            <div class="row no-margin list-group filter-list-title">
+            <div class="row list-group filter-list-title">
 
                 <div class="col-xs-10" ng-click="toggleGroupFilters()">
                     <label class="md-accent">Filters</label>
@@ -42,7 +42,7 @@
     </div>
 
     <div class="row" ng-if="!groupParams.groups.length > 0">
-        <div class="col-md-12">
+        <div class="col-md-12 no-padding">
             <div class="note">You have no groups. Create a group using the + button below.</div>
         </div>
     </div>
@@ -94,9 +94,9 @@
 
 </section>
 
-<section id="create-button">
-    <md-button id="create-new-group"
-               class="md-icon-button md-fab md-mini create-button"
+<section id="create-group">
+    <md-button id="create-group-button"
+               class="icon-button md-icon-button md-fab md-mini"
                ng-click="createGroupDialog($event)"
                aria-label="Create New Group"
                uib-tooltip="Create New Group"

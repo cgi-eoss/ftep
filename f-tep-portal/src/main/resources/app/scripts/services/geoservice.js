@@ -22,7 +22,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         this.getMaxItemsAllowed = function(){
             return MAX_ITEMS_ALLOWED;
-        }
+        };
 
         function setCache(results){
             if(results && results.length > 0 && results[0].results.totalResults > 0){
@@ -99,9 +99,9 @@ define(['../ftepmodules'], function (ftepmodules) {
                 $rootScope.$broadcast('update.geoResults', response.data.data);
 
                 //When result count exceeds the limit, notify user with a message
-                if(response && response.data && response.data.data && response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
-                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
-                            +'. Please refine the search parameters to get more precise results.');
+                if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
+                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED +
+                            '. Please refine the search parameters to get more precise results.');
                 }
             }).
             catch(function(e) {

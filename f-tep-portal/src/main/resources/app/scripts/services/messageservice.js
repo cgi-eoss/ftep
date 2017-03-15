@@ -23,19 +23,19 @@ define(['../ftepmodules'], function (ftepmodules) {
             message.description = description ? description : title;
             messages.push(message);
             $rootScope.$broadcast('update.messages');
-        };
+        }
 
         this.addError = function(title, description){
             addMessage('Error', title, description);
-        }
+        };
 
         this.addWarning = function(title, description){
             addMessage('Warning', title, description);
-        }
+        };
 
         this.addInfo = function(title, description){
             addMessage('Info', title, description);
-        }
+        };
 
         this.getMessages = function () {
             return messages;

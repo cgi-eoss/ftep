@@ -7,19 +7,19 @@
 
     <div ng-controller="SearchbarCtrl"
          ng-include src="'views/explorer/sidebar/search.html'"
-         ng-show="navInfo.activeSideNav === 0"
+         ng-if="navInfo.activeSideNav === 0"
          class="sidebar-item">
     </div>
 
     <div ng-controller="ServicesCtrl"
          ng-include src="'views/explorer/sidebar/services.html'"
-         ng-show="navInfo.activeSideNav === 1"
+         ng-if="navInfo.activeSideNav === 1"
          class="sidebar-item">
     </div>
 
     <div ng-controller="WorkspaceCtrl"
          ng-include src="'views/explorer/sidebar/workspace.html'"
-         ng-show="navInfo.activeSideNav === 2"
+         ng-if="navInfo.activeSideNav === 2"
          class="sidebar-item">
     </div>
 

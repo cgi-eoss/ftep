@@ -1,11 +1,6 @@
 @import "variable";
 #developer-container {
-    .border(border-top, @bg);
-    height: calc(100% ~'-' @navbar-height);
-    margin: 0;
-    margin-left: @sidenav-width;
-    margin-top: @navbar-height;
-    overflow-y: auto;
+    padding-left: @sidenav-width !important;
     #reference-container {
         width: 100%;
         #user-references{
@@ -30,7 +25,8 @@
                 width: 100%;
             }
             .drop-box-container {
-                padding: 20px;
+                padding: 1rem;
+                padding-bottom: 4rem;
                 .dragover {
                     background-color: @brand-light;
                     border: 5px solid @brand-dark!important;
@@ -43,34 +39,6 @@
                     padding: 1.5rem;
                     text-align: center;
                     width: 100%;
-                }
-            }
-            #referenceSubmitButton {
-                background-color: @accent-light;
-                float: right;
-                height: 40px;
-                margin: 1rem;
-                min-height: 0;
-                padding: 0;
-                width: 40px;
-                .material-icons {
-                    color: @text-light;
-                    font-size: 30px;
-                    height: 100%;
-                    line-height: 40px;
-                    width: 100%;
-                }
-                &:hover {
-                    background-color: @accent;
-                }
-            }
-            .md-button[disabled] {
-                background-color: @disabled !important;
-            }
-            .btn-success[disabled]:hover {
-                background-color: @error !important;
-                .material-icons {
-                    color: @error-text !important;
                 }
             }
         }

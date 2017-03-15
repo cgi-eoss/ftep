@@ -1,11 +1,11 @@
-<div class="tab-content-container row no-margin">
+<div class="tab-content-container row">
     <article id="groups-container"
-         class="col-md-3 left-container"
+         class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
          ng-include ng-controller="CommunityGroupsCtrl"
          src="'views/community/manage/groups/groups.html'" />
 
      <article id="group-container"
-          class="col-md-9 right-container"
+          class="col-md-8 col-xl-9 col-xxl-10 right-container"
           ng-show="displayRight()"
           ng-include ng-controller="CommunityGroupCtrl"
           src="'views/community/manage/groups/group.html'" />

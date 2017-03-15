@@ -5,11 +5,15 @@
  * # DeveloperCtrl
  * Controller of the ftepApp
  */
-define(['../ftepmodules'], function (ftepmodules) {
-    'use strict';
+'use strict';
+define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'ReferenceService',
-                                             function ($scope, TabService, MessageService, ReferenceService) {
+    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'ReferenceService',function ($scope, TabService, MessageService, ReferenceService) {
+
+        /* Set active page */
+        $scope.navInfo = TabService.navInfo;
+        $scope.navInfo.sideViewVisible = false;
+        $scope.navInfo.activeTab = TabService.getTabs().DEVELOPER;
 
         /* Active session message count */
         $scope.message = {};

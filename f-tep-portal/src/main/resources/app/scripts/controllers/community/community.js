@@ -11,6 +11,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('CommunityCtrl', ['$scope', 'GroupService', 'UserService', 'MessageService', 'TabService', function ($scope, GroupService, UserService, MessageService, TabService) {
 
+        /* Set active page */
+        $scope.navInfo = TabService.navInfo;
+        $scope.navInfo.sideViewVisible = true;
+        $scope.navInfo.activeTab = TabService.getTabs().COMMUNITY;
+
         /* Active session message count */
         $scope.message = {};
         $scope.message.count = MessageService.countMessages();

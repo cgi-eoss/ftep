@@ -57,7 +57,7 @@
 
                         <div class="input-container">
 
-                            <div class="row no-margin input-header">
+                            <div class="row input-header">
                                 <md-subheader class="md-accent">
                                     <span uib-tooltip="{{fieldDesc.Identifier.__text}}"
                                         tooltip-placement="top"
@@ -78,7 +78,7 @@
                                 </md-subheader>
                             </div>
 
-                            <div class="row no-margin input-item">
+                            <div class="row input-item">
                                <div class="col-md-12 no-padding">
                                     <md-input-container md-no-float>
                                         <input ng-model="inputValues[fieldDesc.Identifier.__text]"
@@ -91,7 +91,7 @@
                                </div>
                            </div>
 
-                            <div class="row no-margin drop-items">
+                            <div class="row drop-items">
                                 <div class="col-md-12 no-padding">
 
                                     <md-chip ng-repeat="item in dropLists[fieldDesc.Identifier.__text]"
@@ -121,7 +121,7 @@
                 </form>
 
                 <md-button id="launch-button"
-                           class="md-icon-button md-fab md-mini btn-success"
+                           class="icon-button md-icon-button md-fab md-mini btn-success"
                            form="serviceForm"
                            ng-disabled="serviceForm.$invalid"
                            ng-hide="isWpsLoading"

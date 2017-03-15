@@ -236,7 +236,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             if($scope.searchPolygon.wkt){
                 clipboard.copy($scope.searchPolygon.wkt);
             }
-        }
+        };
 
         $scope.clearSearchPolygon = function(){
             if(droppedFileLayer){
@@ -254,6 +254,44 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             $event.stopPropagation();
             $event.preventDefault();
             var parentEl = angular.element(document.body);
+            function DialogController($scope, $mdDialog, ProjectService) {
+                $scope.polygon = { wkt: '', valid: false};
+                if(polygon.selectedArea) {
+                    var area = angular.copy(polygon.selectedArea);
+                    $scope.polygon.wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
+                    $scope.polygon.valid = true;
+                }
+                $scope.closeDialog = function() {
+                    $mdDialog.hide();
+                };
+                $scope.updatePolygon = function(searchPolygonWkt){
+                    if(searchAreaLayer){
+                        searchAreaLayer.getSource().clear();
+                    }
+                    if(searchPolygonWkt && searchPolygonWkt !== ''){
+                        var newPol = new ol.format.WKT().readFeature(searchPolygonWkt, {
+                            dataProjection: EPSG_4326,
+                            featureProjection: EPSG_3857
+                        });
+                        searchAreaLayer.getSource().addFeature(newPol);
+
+                        updateSearchPolygon(newPol.getGeometry(), true);
+                    }
+                    $mdDialog.hide();
+                };
+                $scope.validateWkt = function(wkt){
+                    try{
+                        new ol.format.WKT().readFeature(wkt, {
+                            dataProjection: EPSG_4326,
+                            featureProjection: EPSG_3857
+                        });
+                        $scope.polygon.valid = true;
+                    }
+                    catch(error){
+                        $scope.polygon.valid = false;
+                    }
+                };
+            }
             $mdDialog.show({
               parent: parentEl,
               targetEvent: $event,
@@ -274,44 +312,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 '</md-dialog>',
               controller: DialogController
            });
-           function DialogController($scope, $mdDialog, ProjectService) {
-             $scope.polygon = { wkt: '', valid: false};
-             if(polygon.selectedArea) {
-                 var area = angular.copy(polygon.selectedArea);
-                 $scope.polygon.wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
-                 $scope.polygon.valid = true;
-             }
-             $scope.closeDialog = function() {
-                 $mdDialog.hide();
-             };
-             $scope.updatePolygon = function(searchPolygonWkt){
-                 if(searchAreaLayer){
-                     searchAreaLayer.getSource().clear();
-                 }
-                 if(searchPolygonWkt && searchPolygonWkt != ''){
-                     var newPol = new ol.format.WKT().readFeature(searchPolygonWkt, {
-                         dataProjection: EPSG_4326,
-                         featureProjection: EPSG_3857
-                     });
-                     searchAreaLayer.getSource().addFeature(newPol);
-
-                     updateSearchPolygon(newPol.getGeometry(), true);
-                 }
-                 $mdDialog.hide();
-             };
-             $scope.validateWkt = function(wkt){
-                 try{
-                     new ol.format.WKT().readFeature(wkt, {
-                         dataProjection: EPSG_4326,
-                         featureProjection: EPSG_3857
-                       });
-                     $scope.polygon.valid = true;
-                 }
-                 catch(error){
-                     $scope.polygon.valid = false;
-                 }
-             };
-           }
         };
 
         /* Custom KML reader, when file has GroundOverlay features, which OL3 doesn't support */

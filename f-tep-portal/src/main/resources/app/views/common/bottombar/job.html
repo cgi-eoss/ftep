@@ -6,7 +6,7 @@
      rebuild-on="rebuild:scrollbar"
      rebuild-on-resize>
 
-    <section class="row no-margin">
+    <section class="row">
 
         <div class="col-xs-6 job-title">
             <h4>Job ID: {{jobParams.selectedJob.id}}</h4>
@@ -39,7 +39,7 @@
 
         <ul class="job-files no-margin">
             <li ng-repeat="(key, value) in getJobInputs(jobParams.selectedJob)" class="job-detail">
-                <div class="row no-margin">
+                <div class="row">
                     <div class="col-sm-3 key">{{key}}</div>
                     <div ng-repeat="link in value">
                         <div class="col-sm-3 key" ng-show="$index > 0"></div>
@@ -62,7 +62,7 @@
                 ng-click="selectOutputFile(outputFile)"
                 ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
                 dnd-draggable="getSelectedOutputFiles(outputFile)">
-                <div class="row no-margin">
+                <div class="row">
                     <div class="col-xs-11">{{outputFile.attributes.fname}}</div>
                     <div class="col-xs-1">
                         <md-button class="toolbar-button md-secondary"

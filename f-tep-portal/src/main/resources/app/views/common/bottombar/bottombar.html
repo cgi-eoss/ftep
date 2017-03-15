@@ -1,0 +1,62 @@
+<article id="bottombar">
+
+    <div id="bottombar-tabs" class="col-xs-12 no-padding">
+        <md-tabs md-selected="navInfo.activeBottomNav" md-disable-animation>
+
+            <section ng-controller="ResultsCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.RESULTS" class="tab-options" ng-include src="'views/common/bottombar/tabs/resultstab.html'" />
+                <md-tab label="RESULTS{{resultTab.nameExtention}}" ng-click="navInfo.activeBottomNav = bottomNavTabs.RESULTS">
+                    <md-content>
+                        <div id="results" ng-include src="'views/common/bottombar/results.html'" />
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="DatabasketCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.DATABASKETS" class="tab-options" ng-include src="'views/common/bottombar/tabs/databasketstab.html'" />
+                <md-tab label="DATABASKETS" ng-click="navInfo.activeBottomNav = bottomNavTabs.DATABASKETS">
+                    <md-content>
+                        <div class="col-md-8 bottombar-right">
+                            <div id="databasket" ng-include src="'views/common/bottombar/databasket.html'" />
+                        </div>
+                        <div class="col-md-4 bottombar-left">
+                            <div id="databaskets" ng-include src="'views/common/bottombar/databaskets.html'" />
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="JobsCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.JOBS" class="tab-options" ng-include src="'views/common/bottombar/tabs/jobstab.html'" />
+                <md-tab label="JOBS" ng-click="navInfo.activeBottomNav = bottomNavTabs.JOBS">
+                    <md-content>
+                        <div class="bottombar-pane" ng-show="navInfo.activeBottomNav == bottomNavTabs.JOBS">
+                            <div class="col-md-8 bottombar-right">
+                                <div id="job" ng-include src="'views/common/bottombar/job.html'" />
+                            </div>
+                            <div class="col-md-4 bottombar-left">
+                                <div id="jobs" ng-include src="'views/common/bottombar/jobs.html'" />
+                            </div>
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="MessagesCtrl">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.MESSAGES" class="tab-options" ng-include src="'views/common/bottombar/tabs/messagestab.html'" />
+                <md-tab label="MESSAGES ({{message.count}})" ng-click="navInfo.activeBottomNav = bottomNavTabs.MESSAGES">
+                    <md-content>
+                        <div class="col-md-8 bottombar-right">
+                            <div id="message" ng-include src="'views/common/bottombar/message.html'" />
+                        </div>
+                        <div class="col-md-4 bottombar-left">
+                            <div id="messages" ng-include src="'views/common/bottombar/messages.html'" />
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+        </md-tabs>
+    </div>
+
+</article>

@@ -14,9 +14,9 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                                         CommonService) {
 
         $scope.serviceParams = ProductService.params.explorer;
-        $scope.serviceDescription;
+        $scope.serviceDescription = undefined;
         $scope.isWpsLoading = false;
-        $scope.info;
+        $scope.info = undefined;
         $scope.outputValues = {};
         $scope.inputValues = {};
         $scope.dropLists = {};
@@ -24,7 +24,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
         $scope.pastePolygon = function(identifier){
             console.log(MapService.getPolygonWkt());
             $scope.inputValues[identifier] = MapService.getPolygonWkt();
-        }
+        };
 
         $scope.onDrop = function(items, fieldId) {
             if($scope.dropLists[fieldId] === undefined){
@@ -107,8 +107,8 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                         data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
                     }
                 }
-                for(var i= 0; i < data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output.length; i++){
-                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[i];
+                for(var j = 0; j < data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output.length; j++){
+                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
                     if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
                         $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
                     }

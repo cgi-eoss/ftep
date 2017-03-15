@@ -1,11 +1,11 @@
 @import "variable";
 #sidebar-left {
     background-color: transparent;
+    .border(border-right, @bg);
     height: 100%;
-    margin-left: @sidenav-width;
-    padding-top: @navbar-height;
-    position: absolute;
-    min-width: @sidebar-width;
+    padding-left: @sidenav-width;
+    max-width: none;
+    width: 100%;
     z-index: 2;
     form {
         padding-bottom: 30px;

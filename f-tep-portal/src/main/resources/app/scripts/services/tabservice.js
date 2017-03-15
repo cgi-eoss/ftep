@@ -10,6 +10,8 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('TabService', [ '$q', function ($q) {
 
+        var tabs = { EXPLORER: 0, DEVELOPER: 1, COMMUNITY: 2, ACCOUNT: 3, HELPDESK: 4 };
+
         var sideNavTabs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
 
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
@@ -17,6 +19,10 @@ define(['../ftepmodules'], function (ftepmodules) {
         var communityTabs = { MANAGE: 0, SHARE: 1};
 
         var developerSideNavs = { REFERENCE_DATA: 0, SERVICES: 1 };
+
+        this.getTabs = function(){
+            return angular.copy(tabs);
+        };
 
         this.getSideNavTabs = function(){
             return angular.copy(sideNavTabs);
@@ -32,10 +38,11 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         this.getDeveloperSideNavs = function(){
             return angular.copy(developerSideNavs);
-        }
+        };
 
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
+                activeTab: tabs.EXPLORER,
                 activeSideNav: undefined,
                 activeBottomNav: bottomNavTabs.RESULTS,
                 bottomViewVisible: false,

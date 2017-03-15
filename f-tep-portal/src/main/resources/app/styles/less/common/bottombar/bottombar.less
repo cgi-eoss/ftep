@@ -1,0 +1,158 @@
+@import "variable";
+#bottombar-container {
+    bottom: 0;
+    right: 0;
+    height: 35vh;
+    min-height: 300px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: absolute;
+    z-index: 2;
+    &.wide {
+        padding-left: @sidenav-width !important;
+    }
+}
+
+#bottombar {
+    .bg-trans(@bg-light);
+    .border(border, @bg);
+    height: 100%;
+    min-width: @min-width;
+    width: 100%;
+    #bottombar-tabs {
+        height: 100%;
+        md-tabs {
+            height: 100%;
+            width: 100%;
+            md-tabs-wrapper {
+                height: 48px;
+                md-tab-data {
+                    display: table;
+                    left: initial;
+                    opacity: 1;
+                    right: 2rem;
+                    z-index: 2;
+                    .tab-options {
+                        padding-top: 0.25rem;
+                        .button-section {
+                            display: flex;
+                            flex-direction: column;
+                            height: 100%;
+                            padding: 0;
+                            padding-right: 0.5rem;
+                            width: 100%;
+                            button {
+                                color: @brand-dark;
+                                float: right;
+                                &:hover {
+                                    color: @accent;
+                                }
+                            }
+                            .md-button.md-focused:not([disabled]) {
+                                background-color: transparent;
+                                outline: none;
+                            }
+                            .md-button[disabled] {
+                                color: @disabled;
+                                cursor: default;
+                            }
+                            md-menu-bar {
+                                .toolbar-button {
+                                    height: 36px;
+                                }
+                            }
+                        }
+                        @media screen and (max-width: @sm-max-width) {
+                            .button-section-large {
+                                display: none;
+                            }
+                            .button-section-small {
+                                display: block;
+                            }
+                        }
+                        @media screen and (min-width: 992px) {
+                            .button-section-large {
+                                display: block;
+                            }
+                            .button-section-small {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+            md-tabs-content-wrapper {
+                z-index: 1;
+                md-tab-content > div:nth-child(1) {
+                    height: 100%;
+                    md-content {
+                        .bottombar-pane {
+                            height: 100%;
+                        }
+                        background-color: transparent;
+                        .border(border-top, @bg);
+                        height: 100%;
+                        padding: 0;
+                        .bottombar-left {
+                            height: 100%;
+                            overflow-y: auto;
+                            padding: 0;
+                        }
+                        .bottombar-right {
+                            .border(border-right, @bg);
+                            height: 100%;
+                            overflow-y: auto;
+                            padding: 0;
+                            @media screen and (max-width: @sm-max-width) {
+                                height: auto;
+                            }
+                        }
+                        .filter-checkboxes {
+                            font-size: 0.6rem;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            md-checkbox .md-icon,  md-checkbox .md-icon.md-ripple-container {
+                                transform: scale(.8);
+                            }
+
+
+                        }
+                        md-input-container {
+                            margin: 0;
+                            width: 100%;
+                            .text-sec();
+                            .hint {
+                                font-size: 0.6rem;
+                                .text-hint();
+                            }
+                        }
+                        .md-subheader {
+                            background-color: transparent;
+                            color: @accent;
+                            .md-subheader-inner {
+                                padding-right: 0;
+                                label {
+                                    .text-sec();
+                                }
+                            }
+                        }
+                        .note {
+                            border-right: none;
+                            border-top: none;
+                        }
+                        .resulthighlight {
+                            background-color: @alert-border;
+                            .material-icons {
+                                color: @accent;
+                            }
+                            &:hover {
+                                background-color: @alert-text;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

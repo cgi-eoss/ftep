@@ -3,7 +3,7 @@
    <section class="filter-list">
         <ul class="list">
 
-            <div class="row no-margin list-group filter-list-title">
+            <div class="row list-group filter-list-title">
 
                 <div class="col-xs-11" ng-click="toggleFilters()">
                     <label class="md-accent">Filters</label>
@@ -40,16 +40,17 @@
                  ng-click="jobStatus.value = !jobStatus.value; filterJobs()">
                 <md-checkbox ng-model="jobStatus.value"
                              ng-click="jobStatus.value = !jobStatus.value; filterJobs()"
-                             aria-label="Job Filter"/>
-                <span>{{jobStatus.name}}</span>
+                             aria-label="Job Filter">
+                    {{jobStatus.name}}
+                </md-checkbox>
             </div>
 
-            <div class="col-md-12 filter-radiobutton" ng-show="jobParams.displayFilters">
-                <md-radio-group ng-model="jobParams.selectedOwnershipFilter" layout="row">
-                    <div ng-repeat="ownershipFilter in jobOwnershipFilters">
-	                    <md-radio-button ng-value="ownershipFilter">
-	                        {{ownershipFilter.name}}
-	                    </md-radio-button>
+            <div class="row filter-radiobutton" ng-show="jobParams.displayFilters">
+                <md-radio-group ng-model="jobParams.selectedOwnershipFilter">
+                    <div ng-repeat="ownershipFilter in jobOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
                     </div>
                 </md-radio-group>
             </div>
@@ -60,7 +61,7 @@
     <section class="item-list">
         <div class="list" ng-repeat="service in serviceGroups">
 
-            <div class="row no-margin list-group">
+            <div class="row list-group">
 
                 <div class="col-xs-11" ng-click="toggleJobGroup(service.id)">
                     <label>{{service.attributes.name}}</label>
@@ -140,8 +141,8 @@
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"
                            tooltip-append-to-body="true"
-	                       has-permission="ADMIN"
-	                       permission-source="{{job}}">
+                           has-permission="ADMIN"
+                           permission-source="{{job}}">
                     <i class="material-icons">delete</i>
                 </md-button>
 

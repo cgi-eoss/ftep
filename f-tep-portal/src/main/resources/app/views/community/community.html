@@ -1,39 +1,24 @@
-<article id="community-container" ng-controller="CommunityCtrl" layout="row">
+<article id="community-container" layout="row" class="page-container row" ng-controller="CommunityCtrl">
 
     <section id="sidenav" ng-include src="'views/community/sidenav.html'" />
 
     <section id="manage-container"
-             class= "row no-margin"
+             class= "row"
              ng-include
              src="'views/community/manage/manage.html'"
              ng-show="navInfo.activeCommunityPage === 0" />
 
     <section id="share-container"
-             class= "row no-margin"
+             class= "row"
              ng-include
              src="'views/community/share/share.html'"
              ng-show="navInfo.activeCommunityPage === 1" />
 
-
-    <!--<section id="community-groups" class="row no-margin"  ng-show="navInfo.activeCommunityPage === 0">
-
-        <div id="groups-container"
-         class="col-md-3 left-container"
-         ng-include ng-controller="CommunityGroupsCtrl"
-         src="'views/community/groups/groups.html'" />
-
-         <div id="group-container"
-         class="col-md-9 right-container"
-         ng-show="displayRight()"
-         ng-include ng-controller="CommunityGroupCtrl"
-         src="'views/community/groups/group.html'" />
-
-    </section>-->
-
-    <section id="bottombar"
-             class="explorer-content"
+    <section id="bottombar-container"
+             ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
+             class="explorer-content animationIf no-padding"
+             ng-include src="'views/common/bottombar/bottombar.html'"
              ng-controller="BottombarCtrl"
-             ng-include src="'views/community/bottombar/bottombar.html'"
-             ng-show="navInfo.bottomViewVisible" />
+             ng-if="navInfo.bottomViewVisible"/>
 
 </article>

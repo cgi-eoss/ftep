@@ -9,7 +9,7 @@
     </md-toolbar>
 
     <section class="filter-list">
-       <div class="row no-margin">
+       <div class="row">
             <div class="col-md-12">
                 <md-input-container md-no-float>
                     <input ng-model="serviceSearch.searchText" type="text" placeholder="Search Services">
@@ -22,7 +22,7 @@
 
         <ul class="list" ng-repeat="serviceType in serviceTypes" ng-init="isServiceTypeOpened = true">
 
-            <div class="row no-margin list-group">
+            <div class="row list-group">
 
                 <div class="col-md-11" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
                     <label>{{serviceType.label}}</label>

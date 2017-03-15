@@ -18,7 +18,7 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
 
         this.getPolygonWkt = function(){
             return angular.copy(this.searchPolygon.wkt);
-        }
+        };
 
         var selectedStyle = new ol.style.Style({
               fill: new ol.style.Fill({

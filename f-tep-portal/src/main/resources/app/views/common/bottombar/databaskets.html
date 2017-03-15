@@ -3,7 +3,7 @@
        <section class="filter-list">
         <ul class="list">
 
-            <div class="row no-margin list-group filter-list-title">
+            <div class="row list-group filter-list-title">
 
                 <div class="col-xs-11" ng-click="toggleFilters()">
                     <label class="md-accent">Filters</label>
@@ -38,9 +38,9 @@
                 <input ng-model="dbParams.searchText" type="text" placeholder="Search">
             </md-input-container>
 
-            <div class="col-md-12 filter-radiobutton" ng-show="dbParams.displayFilters">
-                <md-radio-group ng-model="dbParams.selectedOwnerhipFilter" layout="row">
-                    <div ng-repeat="ownershipFilter in dbOwnershipFilters">
+            <div class="row filter-radiobutton" ng-show="dbParams.displayFilters">
+                <md-radio-group ng-model="dbParams.selectedOwnerhipFilter">
+                    <div ng-repeat="ownershipFilter in dbOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
                         <md-radio-button ng-value="ownershipFilter"><!-- TODO ng-click to request new set from backend -->
                             {{ownershipFilter.name}}
                         </md-radio-button>

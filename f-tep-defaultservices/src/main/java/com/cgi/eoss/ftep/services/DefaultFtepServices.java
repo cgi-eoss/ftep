@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class DefaultFtepServices {
 
     private static final Map<String, ServiceType> DEFAULT_SERVICES = ImmutableMap.<String, ServiceType>builder()
+            .put("ForestChangeS2", ServiceType.PROCESSOR)
             .put("LandCoverS1", ServiceType.PROCESSOR)
             .put("LandCoverS2", ServiceType.PROCESSOR)
             .put("S1Biomass", ServiceType.PROCESSOR)

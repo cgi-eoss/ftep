@@ -1,0 +1,69 @@
+<graph id="S2_change_step2">
+    <version>1.0</version>
+
+    <node id="ReadStart">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$start</file>
+        </parameters>
+    </node>
+    <node id="ReadEnd">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$end</file>
+        </parameters>
+    </node>
+    <node id="BandMerge">
+        <operator>BandMerge</operator>
+        <sources>
+            <sourceProduct refid="ReadStart"/>
+            <sourceProduct.1 refid="ReadEnd"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <geographicError>1.0E-5</geographicError>
+        </parameters>
+    </node>
+    <node id="BandMaths">
+        <operator>BandMaths</operator>
+        <sources>
+            <sourceProduct refid="BandMerge"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <targetBands>
+                <targetBand>
+                    <name>RedRatio</name>
+                    <type>float32</type>
+                    <expression>((band_1==255)||(band_1_2==255)) ? 32766 : 10000*B4_2/(B4 + 0.0001)</expression>
+                    <description/>
+                    <unit>percent_times_100</unit>
+                    <noDataValue>32767.0</noDataValue>
+                </targetBand>
+            </targetBands>
+            <variables/>
+        </parameters>
+    </node>
+    <node id="Convert-Datatype">
+        <operator>Convert-Datatype</operator>
+        <sources>
+            <sourceProduct refid="BandMaths"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands>RedRatio</sourceBands>
+            <targetDataType>int16</targetDataType>
+            <targetScalingStr>Truncate</targetScalingStr>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="Convert-Datatype"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$ofile</file>
+            <formatName>GeoTIFF-BigTIFF</formatName>
+        </parameters>
+    </node>
+</graph>

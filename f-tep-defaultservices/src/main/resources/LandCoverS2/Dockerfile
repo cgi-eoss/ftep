@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y\
  bc\
  curl\
  libfreetype6\
+ gdal-bin\
  python\
  python-dev\
+ python-gdal\
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ###########################

@@ -1,0 +1,65 @@
+---
+id: "ForestChangeS2"
+title: "Change mapping using Sentinel-2 data"
+description: "Forest change mapped by difference in red band between two Sentinel-2 images"
+version: "1.0"
+storeSupported: true
+statusSupported: true
+serviceType: "Java"
+serviceProvider: "ForestChangeS2"
+dataInputs:
+  - id: "startproduct"
+    title: "Start product"
+    description: "The Sentinel-2 product to be used as the start point of change calculation"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "endproduct"
+    title: "End product"
+    description: "The Sentinel-2 product to be used as the end point of change calculation"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "crs"
+    title: "Target CRS identifier"
+    description: "EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "aoi"
+    title: "Area of interest"
+    description: "Well-known text POLYGON describing the AOI to be processed"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "targetResolution"
+    title: "Target image resolution"
+    description: "Desired image resolution in metres. Controls resampling of the input data. Example: '20'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+dataOutputs:
+  - id: "result"
+    title: "GeoTiff image file"
+    description: "The requested forest change map"
+    data: "COMPLEX"
+    defaultAttrs:
+      mimeType: "image/tiff"
+      extension: "tif"
+      asReference: "true"
+    supportedAttrs: []

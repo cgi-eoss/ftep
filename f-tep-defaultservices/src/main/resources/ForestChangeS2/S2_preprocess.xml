@@ -1,0 +1,93 @@
+<graph id="S2_preprocess">
+    <version>1.0</version>
+
+    <node id="ReadS2">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$ifile</file>
+        </parameters>
+    </node>
+    <node id="BandSelect">
+        <operator>BandSelect</operator>
+        <sources>
+            <sourceProduct refid="ReadS2"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <selectedPolarisations/>
+            <sourceBands>B2,B3,B4,B8</sourceBands>
+            <bandNamePattern/>
+        </parameters>
+    </node>
+    <node id="ResampleS2">
+        <operator>Resample</operator>
+        <sources>
+            <sourceProduct refid="BandSelect"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <referenceBand>B2</referenceBand>
+            <targetWidth/>
+            <targetHeight/>
+            <targetResolution/>
+            <upsampling>Nearest</upsampling>
+            <downsampling>First</downsampling>
+            <flagDownsampling>First</flagDownsampling>
+            <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+        </parameters>
+    </node>
+    <node id="ReadMsk">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$msk</file>
+        </parameters>
+    </node>
+    <node id="ConvertDatatype">
+        <operator>Convert-Datatype</operator>
+        <sources>
+            <sourceProduct refid="ReadMsk"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands>band_1</sourceBands>
+            <targetDataType>int16</targetDataType>
+            <targetScalingStr>Truncate</targetScalingStr>
+        </parameters>
+    </node>
+    <node id="ResampleMsk">
+        <operator>Resample</operator>
+        <sources>
+            <sourceProduct refid="ConvertDatatype"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <referenceBand>band_1</referenceBand>
+            <targetWidth/>
+            <targetHeight/>
+            <targetResolution/>
+            <upsampling>Nearest</upsampling>
+            <downsampling>First</downsampling>
+            <flagDownsampling>First</flagDownsampling>
+            <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+        </parameters>
+    </node>
+    <node id="BandMerge">
+        <operator>BandMerge</operator>
+        <sources>
+            <sourceProduct refid="ResampleS2"/>
+            <sourceProduct.1 refid="ResampleMsk"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <geographicError>1.0E-5</geographicError>
+        </parameters>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="BandMerge"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file>$ofile</file>
+            <formatName>GeoTIFF-BigTIFF</formatName>
+        </parameters>
+    </node>
+</graph>

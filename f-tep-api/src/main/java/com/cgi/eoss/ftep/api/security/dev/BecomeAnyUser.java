@@ -5,16 +5,15 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
-@Controller
-@RequestMapping("/user")
+@RestController
+@RequestMapping("/dev/user")
 public class BecomeAnyUser {
 
     private final String usernameRequestAttribute;
@@ -26,7 +25,6 @@ public class BecomeAnyUser {
     }
 
     @GetMapping("/become/{username},{role}")
-    @ResponseBody
     public String becomeUser(HttpSession session, @PathVariable String username, @PathVariable String role) {
         User user = new User(username);
         user.setRole(Role.valueOf(role));
@@ -38,7 +36,6 @@ public class BecomeAnyUser {
     }
 
     @GetMapping("/current")
-    @ResponseBody
     public String getCurrentUser() {
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
     }

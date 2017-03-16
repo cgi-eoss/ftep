@@ -21,6 +21,8 @@ test {
     systemProperties['HARNESS_DIR'] = harnessDir
 
     testLogging.showStandardStreams = true
+
+    ignoreFailures Boolean.getBoolean("test.ignoreFailures")
 }
 
 if (project.hasProperty("acceptanceTests")) {
@@ -34,9 +36,12 @@ task copyFtepDist(type: Sync) {
 }
 
 dependencies {
+    testCompileOnly 'org.projectlombok:lombok'
+
     testCompile 'com.squareup.okhttp3:okhttp'
     testCompile 'info.cukes:cucumber-java8'
     testCompile 'info.cukes:cucumber-junit'
+    testCompile 'info.cukes:cucumber-picocontainer'
     testCompile 'junit:junit'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.seleniumhq.selenium:selenium-java'

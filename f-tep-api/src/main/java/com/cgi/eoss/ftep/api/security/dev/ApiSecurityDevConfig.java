@@ -50,7 +50,7 @@ public class ApiSecurityDevConfig {
                         .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
                         .addFilter(filter)
                         .authorizeRequests()
-                        .antMatchers("/user/become/*").permitAll()
+                        .antMatchers("/**/dev/user/become/*").permitAll()
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();

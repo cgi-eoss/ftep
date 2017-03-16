@@ -1,9 +1,8 @@
 package com.cgi.eoss.ftep;
 
+import com.cgi.eoss.ftep.util.FtepWebClient;
 import cucumber.api.java8.En;
 import okhttp3.Response;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.testcontainers.containers.BrowserWebDriverContainer;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -14,22 +13,17 @@ import static org.junit.Assert.assertThat;
  */
 public class WpsStepdefs implements En {
 
-    private Harness harness = new Harness();
-
-    private BrowserWebDriverContainer browser;
-
     private String responseBody;
 
-    public WpsStepdefs() {
-        Given("^the F-TEP environment$", () -> {
-            harness.startFtepEnvironment();
-            browser = new BrowserWebDriverContainer().withDesiredCapabilities(DesiredCapabilities.chrome());
+    public WpsStepdefs(FtepWebClient client) {
+        Given("^F-TEP WPS is available", () -> {
+            assertThat(client.get("/secure/wps/zoo_loader.cgi").code(), is(400));
         });
 
         When("^a user requests GetCapabilities from WPS$", () -> {
-            Response response = harness.getWpsResponse("/zoo_loader.cgi?request=GetCapabilities&service=WPS");
+            Response response = client.get("/secure/wps/zoo_loader.cgi?request=GetCapabilities&service=WPS");
             assertThat(response.code(), is(200));
-            responseBody = harness.getResponseContent(response);
+            responseBody = client.getContent(response);
         });
 
         Then("^they receive the F-TEP service list$", () -> {
@@ -39,4 +33,5 @@ public class WpsStepdefs implements En {
             ));
         });
     }
+
 }

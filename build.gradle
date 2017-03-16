@@ -30,6 +30,10 @@ allprojects {
         sourceCompatibility = 1.8
     }
 
+    tasks.withType(JavaCompile) {
+        options.incremental = true
+    }
+
     apply plugin: 'io.spring.dependency-management'
 
     dependencyManagement {

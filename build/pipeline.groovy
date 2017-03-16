@@ -32,15 +32,16 @@
                 }
 
                 stage('Acceptance Test') {
-                    timeout(20) {
-                        try {
-                            sh "${gradle} test -pf-tep-test -PacceptanceTests"
-                        } catch (Exception e) {
-                            // Swallow acceptance test failures
-                        } finally {
-                            step($class: 'CucumberTestResultArchiver', testResults: 'f-tep-test/target/test-results/cucumber.json')
-                        }
-                    }
+                    echo 'Skipping flaky tests...'
+                    //timeout(20) {
+                    //    try {
+                    //        sh "${gradle} test -pf-tep-test -PacceptanceTests"
+                    //    } catch (Exception e) {
+                    //        // Swallow acceptance test failures
+                    //    } finally {
+                    //        step($class: 'CucumberTestResultArchiver', testResults: 'f-tep-test/target/test-results/cucumber.json')
+                    //    }
+                    //}
                 }
 
                 if (!eossCI.isTriggeredByGerrit()) {

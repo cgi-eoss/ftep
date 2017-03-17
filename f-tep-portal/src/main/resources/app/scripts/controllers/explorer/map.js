@@ -16,8 +16,8 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
         var SHAPE = {
                 NONE: {},
-                POLYGON : {type: 'Polygon', img: 'images/polygon.png', location: 'polygon-selection'},
-                BOX : {type: 'LineString', img: 'images/box.png', location: 'box-selection'}
+                POLYGON : {type: 'Polygon', img: 'images/polygon.png', location: 'polygon-selection', name:"Polygon"},
+                BOX : {type: 'LineString', img: 'images/box.png', location: 'box-selection', name:"Square"}
         };
 
         $scope.drawType = SHAPE.NONE;
@@ -125,6 +125,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
             var element = document.createElement('div');
             element.className = shape.location + ' ol-unselectable ol-control';
+            var title = document.createAttribute("title");
+            title.value = "Draw " + shape.name;
+            element.setAttributeNode(title);
             element.appendChild(button);
 
             ol.control.Control.call(this, {

@@ -2,11 +2,16 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.projections.ShortFtepFile;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.List;
 
 @RepositoryRestResource(
         path = "ftepFiles",
@@ -22,6 +27,9 @@ public interface FtepFilesApi extends CrudRepository<FtepFile, Long> {
     @Override
     @PreAuthorize("#ftepFile.id != null and (hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#ftepFile, 'write'))")
     <S extends FtepFile> S save(@P("ftepFile") S ftepFile);
+
+    @PostFilter("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
+    List<FtepFile> findByType(@Param("type") FtepFileType type);
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")

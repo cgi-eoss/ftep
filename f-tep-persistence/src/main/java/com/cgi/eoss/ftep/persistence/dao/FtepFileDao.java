@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.dao;
 
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 
 import java.net.URI;
@@ -13,4 +14,6 @@ public interface FtepFileDao extends FtepEntityDao<FtepFile> {
     FtepFile findOneByRestoId(UUID uuid);
 
     List<FtepFile> findByOwner(User user);
+
+    List<FtepFile> findByType(FtepFileType type);
 }

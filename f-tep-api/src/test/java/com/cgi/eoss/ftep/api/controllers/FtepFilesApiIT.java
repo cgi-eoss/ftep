@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
@@ -60,6 +61,7 @@ public class FtepFilesApiIT {
     private CatalogueService catalogueService;
 
     private FtepFile testFile1;
+    private FtepFile testFile2;
 
     private User ftepUser;
     private User ftepAdmin;
@@ -73,10 +75,18 @@ public class FtepFilesApiIT {
         userDataService.save(ImmutableSet.of(ftepUser, ftepAdmin));
 
         UUID fileUuid = UUID.randomUUID();
-        testFile1 = new FtepFile(URI.create("ftep://refData/2/" + fileUuid), fileUuid);
+        testFile1 = new FtepFile(URI.create("ftep://refData/2/testFile1"), fileUuid);
         testFile1.setOwner(ftepAdmin);
         testFile1.setFilename("testFile1");
-        fileDataService.save(testFile1);
+        testFile1.setType(FtepFileType.REFERENCE_DATA);
+
+        UUID file2Uuid = UUID.randomUUID();
+        testFile2 = new FtepFile(URI.create("ftep://outputProduct/job1/testFile2"), file2Uuid);
+        testFile2.setOwner(ftepAdmin);
+        testFile2.setFilename("testFile2");
+        testFile2.setType(FtepFileType.OUTPUT_PRODUCT);
+
+        fileDataService.save(ImmutableSet.of(testFile1, testFile2));
     }
 
     @After
@@ -86,10 +96,28 @@ public class FtepFilesApiIT {
 
     @Test
     public void testGet() throws Exception {
-        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId()).header("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId()).header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "{?projection}")))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")));
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByType?type=REFERENCE_DATA").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile1"));
+
+        // Results are filtered by ACL
+        mockMvc.perform(get("/api/ftepFiles/search/findByType?type=REFERENCE_DATA").header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(0));
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByType?type=OUTPUT_PRODUCT").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile2"));
     }
 
     @Test

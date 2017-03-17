@@ -32,7 +32,9 @@ public class FtepFileResourceProcessor implements ResourceProcessor<Resource<Fte
         resource.add(entityLinks.linkToSingleResource(FtepFile.class, resource.getContent().getId()).withSelfRel());
 
         // Add owner link
-        resource.add(entityLinks.linkToSingleResource(User.class, resource.getContent().getOwner().getId()).withRel("owner"));
+        if (resource.getContent().getOwner() != null) {
+            resource.add(entityLinks.linkToSingleResource(User.class, resource.getContent().getOwner().getId()).withRel("owner"));
+        }
 
         // Add download link
         Method downloadMethod = ReflectionUtils.findMethod(FtepFilesApiImpl.class, "downloadFile", FtepFile.class, HttpServletResponse.class);

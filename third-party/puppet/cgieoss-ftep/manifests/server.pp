@@ -33,7 +33,7 @@ class ftep::server (
   $real_application_port = pick($application_port, $ftep::globals::server_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::server_grpc_port)
 
-  $default_jdbc_url = "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_v2_name}"
+  $default_jdbc_url = "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_v2_name}?stringtype=unspecified"
   $real_db_url = pick($jdbc_url, $default_jdbc_url)
   $real_db_user = pick($jdbc_user, $::ftep::globals::ftep_db_username)
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)

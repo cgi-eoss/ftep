@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 
 import java.net.URI;
@@ -14,4 +15,6 @@ public interface FtepFileDataService extends
     FtepFile getByRestoId(UUID uuid);
 
     List<FtepFile> findByOwner(User user);
+
+    List<FtepFile> getByType(FtepFileType type);
 }

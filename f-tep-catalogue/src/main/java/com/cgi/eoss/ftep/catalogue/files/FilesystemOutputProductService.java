@@ -59,7 +59,7 @@ public class FilesystemOutputProductService implements OutputProductService {
         feature.setProperties(properties);
 
         UUID restoId = resto.ingestOutputProduct(feature);
-        URI uri = CatalogueUri.REFERENCE_DATA.build(
+        URI uri = CatalogueUri.OUTPUT_PRODUCT.build(
                 ImmutableMap.of(
                         "jobId", jobId,
                         "filename", filename));

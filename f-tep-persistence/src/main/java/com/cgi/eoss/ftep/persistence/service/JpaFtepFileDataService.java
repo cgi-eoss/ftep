@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
@@ -49,6 +50,11 @@ public class JpaFtepFileDataService extends AbstractJpaDataService<FtepFile> imp
     @Override
     public List<FtepFile> findByOwner(User user) {
         return dao.findByOwner(user);
+    }
+
+    @Override
+    public List<FtepFile> getByType(FtepFileType type) {
+        return dao.findByType(type);
     }
 
 }

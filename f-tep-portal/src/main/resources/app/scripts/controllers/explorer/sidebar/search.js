@@ -141,7 +141,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 GeoService.getGeoResults().then(function (data) {
                         $rootScope.$broadcast('update.geoResults', data);
                 }).catch(function () {
-                        GeoService.spinner.loading = false;
+                    $rootScope.$broadcast('update.geoResults');
                 });
             };
 

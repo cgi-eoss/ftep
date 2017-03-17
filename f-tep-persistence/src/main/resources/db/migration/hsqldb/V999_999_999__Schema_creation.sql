@@ -151,7 +151,7 @@ CREATE UNIQUE INDEX ftep_project_databaskets_ids_idx
   ON ftep_project_databaskets (project_id, databasket_id);
 
 CREATE TABLE ftep_project_job_configs (
-  project_id   BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
+  project_id    BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
   job_config_id BIGINT FOREIGN KEY REFERENCES ftep_job_configs (id)
 );
 CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
@@ -160,10 +160,11 @@ CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
 -- FtepServiceContextFile table
 
 CREATE TABLE ftep_service_files (
-  id       BIGINT IDENTITY PRIMARY KEY,
-  service  BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
-  filename CHARACTER VARYING(255),
-  content  CLOB
+  id         BIGINT IDENTITY PRIMARY KEY,
+  service    BIGINT  NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
+  filename   CHARACTER VARYING(255),
+  executable BOOLEAN DEFAULT FALSE NOT NULL,
+  content    CLOB
 );
 CREATE UNIQUE INDEX ftep_service_files_filename_service_idx
   ON ftep_service_files (filename, service);
@@ -219,4 +220,6 @@ CREATE TABLE acl_entry (
 INSERT INTO ftep_users (name, mail) VALUES ('ftep', 'forestry-tep@esa.int');
 
 -- Default project
-INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid from ftep_users WHERE name = 'ftep'));
+INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid
+                                                                    FROM ftep_users
+                                                                    WHERE name = 'ftep'));

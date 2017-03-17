@@ -57,6 +57,7 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     }
 
     @Override
+    @Transactional
     public CompleteFtepService save(CompleteFtepService service) {
         FtepService ftepService = service.getService();
         ftepService.setOwner(userDataService.refresh(ftepService.getOwner()));
@@ -66,6 +67,7 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     }
 
     @Override
+    @Transactional
     public void delete(FtepService service) {
         // TODO Fix the relationship so we can use orphanRemoval
         fileDataService.findByService(service).forEach(fileDataService::delete);

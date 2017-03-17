@@ -53,7 +53,7 @@ public class FtepDownloaderTest {
         MockitoAnnotations.initMocks(this);
         configureServiceFileDataService();
 
-        this.fs = Jimfs.newFileSystem(Configuration.unix());
+        this.fs = Jimfs.newFileSystem(Configuration.unix().toBuilder().setAttributeViews("basic", "owner", "posix", "unix").build());
         this.targetPath = this.fs.getPath("/target");
         Files.createDirectories(targetPath);
 
@@ -95,6 +95,7 @@ public class FtepDownloaderTest {
                 "",
                 "exit 0"
         )));
+        assertThat(Files.isExecutable(serviceContext.resolve("workflow.sh")), is(true));
     }
 
     private void configureServiceFileDataService() throws Exception {
@@ -103,6 +104,7 @@ public class FtepDownloaderTest {
         dockerfile.setContent(new String(Files.readAllBytes(Paths.get(getClass().getResource("/service1/Dockerfile").toURI()))));
         FtepServiceContextFile workflow = new FtepServiceContextFile(service, "workflow.sh");
         workflow.setContent(new String(Files.readAllBytes(Paths.get(getClass().getResource("/service1/workflow.sh").toURI()))));
+        workflow.setExecutable(true);
 
         when(serviceDataService.getByName("service1")).thenReturn(service);
         when(serviceFileDataService.findByService(service)).thenReturn(ImmutableList.of(dockerfile, workflow));

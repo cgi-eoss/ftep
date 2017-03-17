@@ -37,7 +37,11 @@ public class RpcServiceFileService extends ServiceContextFilesServiceGrpc.Servic
     }
 
     private ShortFile convertToRpcShortFile(FtepServiceContextFile file) {
-        return ShortFile.newBuilder().setFilename(file.getFilename()).setContent(ByteString.copyFromUtf8(file.getContent())).build();
+        return ShortFile.newBuilder()
+                .setFilename(file.getFilename())
+                .setContent(ByteString.copyFromUtf8(file.getContent()))
+                .setExecutable(file.isExecutable())
+                .build();
     }
 
 }

@@ -18,4 +18,5 @@ message JobParam {
 message ShortFile {
     string filename = 1;
     bytes content = 2;
+    bool executable = 3;
 }

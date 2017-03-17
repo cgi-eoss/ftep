@@ -83,11 +83,13 @@ public class DefaultFtepServices {
 
         return resources.stream()
                 .filter(Unchecked.predicate(r -> !r.getURI().toString().endsWith("/")))
-                .map(Unchecked.function(r -> {
-                    FtepServiceContextFile file = new FtepServiceContextFile(service, baseDir.getURI().relativize(r.getURI()).toString());
-                    file.setContent(new String(ByteStreams.toByteArray(r.getInputStream())));
-                    return file;
-                }))
+                .map(Unchecked.function(r -> FtepServiceContextFile.builder()
+                        .service(service)
+                        .filename(baseDir.getURI().relativize(r.getURI()).toString())
+                        .executable(baseDir.getURI().relativize(r.getURI()).toString().endsWith(".sh"))
+                        .content(new String(ByteStreams.toByteArray(r.getInputStream())))
+                        .build()
+                ))
                 .collect(Collectors.toSet());
     }
 

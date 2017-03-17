@@ -382,7 +382,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     if(results[folderNr].datasource == 'CEDA2'){
                         isLONLAT = false;
                     }
-                    if(results[folderNr].results && results[folderNr].results.entities){
+                    if(results[folderNr].results && results[folderNr].results.entities && results[folderNr].results.entities.length > 0){
                         for(var i = 0; i < results[folderNr].results.entities.length; i++){
                             var item = results[folderNr].results.entities[i];
                             var lonlatPoints = [];
@@ -404,9 +404,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
                             resultLayerFeatures.push(resultItem);
                         }
+                        $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
                     }
                 }
-                $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
             }
         });
 

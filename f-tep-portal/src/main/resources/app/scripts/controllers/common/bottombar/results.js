@@ -17,12 +17,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.resultParams = GeoService.params;
 
                 $scope.$on('update.geoResults', function(event, results) {
-                    $scope.spinner.loading = false;
                     setResults(results);
-                    TabService.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
-                    TabService.resultTab.nameExtention = GeoService.getResultsNameExtention();
-                    $scope.resultParams.selectedResultItems = [];
-                    scrollResults();
                 });
 
                 function scrollResults(anchorId){
@@ -41,6 +36,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
 
                 function setResults(results){
+                    $scope.spinner.loading = false;
                     if(results && results.length >0){
                         if(results[0].results.totalResults > 0){
                             $scope.geoResults = results;
@@ -66,11 +62,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         $scope.resultPaging.currentPage = 1;
                         $scope.resultPaging.total = 0;
                     }
+
+                    TabService.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
+                    TabService.resultTab.nameExtention = GeoService.getResultsNameExtention();
+                    $scope.resultParams.selectedResultItems = [];
+                    scrollResults();
                 }
                 setResults(GeoService.getResultCache());
 
                 $scope.fetchResultsPage = function(pageNumber){
-                    GeoService.getGeoResults(pageNumber);
+                    GeoService.getGeoResults(pageNumber).then(function(data) {
+                        $rootScope.$broadcast('update.geoResults', data);
+                   })
+                   .catch(function(fallback) {
+                       $rootScope.$broadcast('update.geoResults');
+                   });
                 };
 
                 $scope.$on('map.item.toggled', function(event, items) {

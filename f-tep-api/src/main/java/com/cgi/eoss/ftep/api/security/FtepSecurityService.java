@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -29,11 +30,13 @@ import java.util.Set;
 public class FtepSecurityService {
 
     private final MutableAclService aclService;
+    private final AclPermissionEvaluator aclPermissionEvaluator;
     private final UserDataService userDataService;
 
     @Autowired
-    public FtepSecurityService(MutableAclService aclService, UserDataService userDataService) {
+    public FtepSecurityService(MutableAclService aclService, AclPermissionEvaluator aclPermissionEvaluator, UserDataService userDataService) {
         this.aclService = aclService;
+        this.aclPermissionEvaluator = aclPermissionEvaluator;
         this.userDataService = userDataService;
     }
 
@@ -54,10 +57,6 @@ public class FtepSecurityService {
         return userDataService.getGroups(getCurrentUser());
     }
 
-    private Authentication getCurrentAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
-
     /**
      * <p>Create an access control entry granting all users (the PUBLIC authority) READ access to the given object.</p>
      *
@@ -71,10 +70,8 @@ public class FtepSecurityService {
 
         Sid publicSid = new GrantedAuthoritySid(FtepPermission.PUBLIC);
 
-//        if (acl.getEntries().stream().noneMatch(ace -> ace.getSid().equals(publicSid) && ace.getPermission().equals(BasePermission.READ))) {
         FtepPermission.READ.getAclPermissions()
                 .forEach(p -> acl.insertAce(acl.getEntries().size(), p, publicSid, true));
-//        }
 
         saveAcl(acl);
     }
@@ -90,4 +87,9 @@ public class FtepSecurityService {
     public void saveAcl(MutableAcl acl) {
         aclService.updateAcl(acl);
     }
+
+    private Authentication getCurrentAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
 }

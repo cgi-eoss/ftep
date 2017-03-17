@@ -5,7 +5,7 @@ module.exports = {
     options: {
     },
     dist: {
-      src: ['.tmp/styles/**/*.css'],
+      src: ['.tmp/post/styles/**/*.css'],
       dest: '<%= ftep.app %>/main.css',
     }
 };

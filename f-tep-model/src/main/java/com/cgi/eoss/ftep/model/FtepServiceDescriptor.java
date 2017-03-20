@@ -44,6 +44,10 @@ public class FtepServiceDescriptor {
         return FtepServiceDescriptorYamlConverter.toYaml(this);
     }
 
+    public static FtepServiceDescriptor fromYaml(String yaml) {
+        return FtepServiceDescriptorYamlConverter.fromYaml(yaml);
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

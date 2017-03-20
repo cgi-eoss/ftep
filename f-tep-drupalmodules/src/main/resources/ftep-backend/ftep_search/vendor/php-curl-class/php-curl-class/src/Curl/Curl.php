@@ -2,43 +2,12 @@
 
 namespace Curl;
 
+use Curl\ArrayUtil;
+
 class Curl
 {
-    const VERSION = '7.0.1';
+    const VERSION = '7.2.0';
     const DEFAULT_TIMEOUT = 30;
-
-    public static $RFC2616 = array(
-        // RFC2616: "any CHAR except CTLs or separators".
-        // CHAR           = <any US-ASCII character (octets 0 - 127)>
-        // CTL            = <any US-ASCII control character
-        //                  (octets 0 - 31) and DEL (127)>
-        // separators     = "(" | ")" | "<" | ">" | "@"
-        //                | "," | ";" | ":" | "\" | <">
-        //                | "/" | "[" | "]" | "?" | "="
-        //                | "{" | "}" | SP | HT
-        // SP             = <US-ASCII SP, space (32)>
-        // HT             = <US-ASCII HT, horizontal-tab (9)>
-        // <">            = <US-ASCII double-quote mark (34)>
-        '!', '#', '$', '%', '&', "'", '*', '+', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
-        'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-        'Y', 'Z', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-        'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '|', '~',
-    );
-    public static $RFC6265 = array(
-        // RFC6265: "US-ASCII characters excluding CTLs, whitespace DQUOTE, comma, semicolon, and backslash".
-        // %x21
-        '!',
-        // %x23-2B
-        '#', '$', '%', '&', "'", '(', ')', '*', '+',
-        // %x2D-3A
-        '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':',
-        // %x3C-5B
-        '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
-        'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[',
-        // %x5D-7E
-        ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-        's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~',
-    );
 
     public $curl;
     public $id = null;
@@ -81,8 +50,43 @@ class Curl
     private $xmlPattern = '~^(?:text/|application/(?:atom\+|rss\+)?)xml~i';
     private $defaultDecoder = null;
 
+    public static $RFC2616 = array(
+        // RFC2616: "any CHAR except CTLs or separators".
+        // CHAR           = <any US-ASCII character (octets 0 - 127)>
+        // CTL            = <any US-ASCII control character
+        //                  (octets 0 - 31) and DEL (127)>
+        // separators     = "(" | ")" | "<" | ">" | "@"
+        //                | "," | ";" | ":" | "\" | <">
+        //                | "/" | "[" | "]" | "?" | "="
+        //                | "{" | "}" | SP | HT
+        // SP             = <US-ASCII SP, space (32)>
+        // HT             = <US-ASCII HT, horizontal-tab (9)>
+        // <">            = <US-ASCII double-quote mark (34)>
+        '!', '#', '$', '%', '&', "'", '*', '+', '-', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
+        'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+        'Y', 'Z', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+        'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '|', '~',
+    );
+    public static $RFC6265 = array(
+        // RFC6265: "US-ASCII characters excluding CTLs, whitespace DQUOTE, comma, semicolon, and backslash".
+        // %x21
+        '!',
+        // %x23-2B
+        '#', '$', '%', '&', "'", '(', ')', '*', '+',
+        // %x2D-3A
+        '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':',
+        // %x3C-5B
+        '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+        'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[',
+        // %x5D-7E
+        ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+        's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~',
+    );
+
     private static $deferredProperties = array(
         'effectiveUrl',
+        'rfc2616',
+        'rfc6265',
         'totalTime',
     );
 
@@ -110,8 +114,6 @@ class Curl
         $this->setOpt(CURLOPT_RETURNTRANSFER, true);
         $this->headers = new CaseInsensitiveArray();
         $this->setUrl($base_url);
-        $this->rfc2616 = array_fill_keys(self::$RFC2616, true);
-        $this->rfc6265 = array_fill_keys(self::$RFC6265, true);
     }
 
     /**
@@ -148,8 +150,8 @@ class Curl
                 // Manually build a single-dimensional array from a multi-dimensional array as using curl_setopt($ch,
                 // CURLOPT_POSTFIELDS, $data) doesn't correctly handle multi-dimensional arrays when files are
                 // referenced.
-                if (self::is_array_multidim($data)) {
-                    $data = self::array_flatten_multidim($data);
+                if (ArrayUtil::is_array_multidim($data)) {
+                    $data = ArrayUtil::array_flatten_multidim($data);
                 }
 
                 // Modify array values to ensure any referenced files are properly handled depending on the support of
@@ -305,7 +307,27 @@ class Curl
             $fh = tmpfile();
         } else {
             $filename = $mixed_filename;
-            $fh = fopen($filename, 'wb');
+
+            // Use a temporary file when downloading. Not using a temporary file can cause an error when an existing
+            // file has already fully completed downloading and a new download is started with the same destination save
+            // path. The download request will include header "Range: bytes=$filesize-" which is syntactically valid,
+            // but unsatisfiable.
+            $download_filename = $filename . '.pccdownload';
+
+            $mode = 'wb';
+            // Attempt to resume download only when a temporary download file exists and is not empty.
+            if (file_exists($download_filename) && $filesize = filesize($download_filename)) {
+                $mode = 'ab';
+                $first_byte_position = $filesize;
+                $range = $first_byte_position . '-';
+                $this->setOpt(CURLOPT_RANGE, $range);
+            }
+            $fh = fopen($download_filename, $mode);
+
+            // Move the downloaded temporary file to the destination save path.
+            $this->downloadCompleteFunction = function ($fh) use ($download_filename, $filename) {
+                rename($download_filename, $filename);
+            };
         }
 
         $this->setOpt(CURLOPT_FILE, $fh);
@@ -422,9 +444,16 @@ class Curl
      *
      * @return mixed
      */
-    public function getInfo($opt)
+    public function getInfo($opt = null)
     {
-        return curl_getinfo($this->curl, $opt);
+        $args = array();
+        $args[] = $this->curl;
+
+        if (func_num_args()) {
+            $args[] = $opt;
+        }
+
+        return call_user_func_array('curl_getinfo', $args);
     }
 
     /**
@@ -702,6 +731,41 @@ class Curl
     }
 
     /**
+     * Set Cookies
+     *
+     * @access public
+     * @param  $cookies
+     */
+    public function setCookies($cookies)
+    {
+        foreach ($cookies as $key => $value) {
+            $name_chars = array();
+            foreach (str_split($key) as $name_char) {
+                if (!isset($this->rfc2616[$name_char])) {
+                    $name_chars[] = rawurlencode($name_char);
+                } else {
+                    $name_chars[] = $name_char;
+                }
+            }
+
+            $value_chars = array();
+            foreach (str_split($value) as $value_char) {
+                if (!isset($this->rfc6265[$value_char])) {
+                    $value_chars[] = rawurlencode($value_char);
+                } else {
+                    $value_chars[] = $value_char;
+                }
+            }
+
+            $this->cookies[implode('', $name_chars)] = implode('', $value_chars);
+        }
+
+        $this->setOpt(CURLOPT_COOKIE, implode('; ', array_map(function ($k, $v) {
+            return $k . '=' . $v;
+        }, array_keys($this->cookies), array_values($this->cookies))));
+    }
+
+    /**
      * Get Cookie
      *
      * @access public
@@ -792,10 +856,12 @@ class Curl
      *
      * @access public
      * @param  $cookie_file
+     *
+     * @return boolean
      */
     public function setCookieFile($cookie_file)
     {
-        $this->setOpt(CURLOPT_COOKIEFILE, $cookie_file);
+        return $this->setOpt(CURLOPT_COOKIEFILE, $cookie_file);
     }
 
     /**
@@ -803,10 +869,12 @@ class Curl
      *
      * @access public
      * @param  $cookie_jar
+     *
+     * @return boolean
      */
     public function setCookieJar($cookie_jar)
     {
-        $this->setOpt(CURLOPT_COOKIEJAR, $cookie_jar);
+        return $this->setOpt(CURLOPT_COOKIEJAR, $cookie_jar);
     }
 
     /**
@@ -1158,6 +1226,26 @@ class Curl
     }
 
     /**
+     * Get RFC 2616
+     *
+     * @access private
+     */
+    private function __get_rfc2616()
+    {
+        return array_fill_keys(self::$RFC2616, true);
+    }
+
+    /**
+     * Get RFC 6265
+     *
+     * @access private
+     */
+    private function __get_rfc6265()
+    {
+        return array_fill_keys(self::$RFC6265, true);
+    }
+
+    /**
      * Get Total Time
      *
      * @access private
@@ -1292,79 +1380,5 @@ class Curl
             $response_headers[$key] = $value;
         }
         return $response_headers;
-    }
-
-    /**
-     * Is Array Assoc
-     *
-     * @access public
-     * @param  $array
-     *
-     * @return boolean
-     */
-    public static function is_array_assoc($array)
-    {
-        return (bool)count(array_filter(array_keys($array), 'is_string'));
-    }
-
-    /**
-     * Is Array Multidim
-     *
-     * @access public
-     * @param  $array
-     *
-     * @return boolean
-     */
-    public static function is_array_multidim($array)
-    {
-        if (!is_array($array)) {
-            return false;
-        }
-
-        return (bool)count(array_filter($array, 'is_array'));
-    }
-
-    /**
-     * Array Flatten Multidim
-     *
-     * @access public
-     * @param  $array
-     * @param  $prefix
-     *
-     * @return array
-     */
-    public static function array_flatten_multidim($array, $prefix = false)
-    {
-        $return = array();
-        if (is_array($array) || is_object($array)) {
-            if (empty($array)) {
-                $return[$prefix] = '';
-            } else {
-                foreach ($array as $key => $value) {
-                    if (is_scalar($value)) {
-                        if ($prefix) {
-                            $return[$prefix . '[' . $key . ']'] = $value;
-                        } else {
-                            $return[$key] = $value;
-                        }
-                    } else {
-                        if ($value instanceof \CURLFile) {
-                            $return[$key] = $value;
-                        } else {
-                            $return = array_merge(
-                                $return,
-                                self::array_flatten_multidim(
-                                    $value,
-                                    $prefix ? $prefix . '[' . $key . ']' : $key
-                                )
-                            );
-                        }
-                    }
-                }
-            }
-        } elseif ($array === null) {
-            $return[$prefix] = $array;
-        }
-        return $return;
     }
 }

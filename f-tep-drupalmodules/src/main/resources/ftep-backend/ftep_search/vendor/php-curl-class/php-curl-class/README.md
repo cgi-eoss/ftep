@@ -1,11 +1,11 @@
 # PHP Curl Class: HTTP requests made easy
 
-[![Build Status](https://api.travis-ci.org/php-curl-class/php-curl-class.svg)](https://travis-ci.org/php-curl-class/php-curl-class)
-[![Downloads](https://img.shields.io/packagist/dt/php-curl-class/php-curl-class.svg)](https://packagist.org/packages/php-curl-class/php-curl-class)
+[![Release](https://img.shields.io/github/release/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/releases/)
+[![License](https://img.shields.io/github/license/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/php-curl-class/php-curl-class.svg)](https://travis-ci.org/php-curl-class/php-curl-class/)
+[![Downloads](https://img.shields.io/packagist/dt/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/releases/)
 
-[![License](https://img.shields.io/packagist/l/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/blob/master/LICENSE)
-
-PHP Curl Class is an object-oriented wrapper of the PHP cURL extension that makes it easy to send HTTP requests and integrate with web APIs.
+PHP Curl Class makes it easy to send HTTP requests and integrate with web APIs.
 
 ---
 
@@ -13,6 +13,7 @@ PHP Curl Class is an object-oriented wrapper of the PHP cURL extension that make
 - [Requirements](#requirements)
 - [Quick Start and Examples](#quick-start-and-examples)
 - [Available Methods](#available-methods)
+- [Security](#security)
 - [Contribute](#contribute)
 
 ---
@@ -42,9 +43,17 @@ use \Curl\Curl;
 
 $curl = new Curl();
 $curl->get('https://www.example.com/');
+
+if ($curl->error) {
+    echo 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage . "\n";
+} else {
+    echo 'Response:' . "\n";
+    var_dump($curl->response);
+}
 ```
 
 ```php
+// https://www.example.com/search?q=keyword
 $curl = new Curl();
 $curl->get('https://www.example.com/search', array(
     'q' => 'keyword',
@@ -69,7 +78,7 @@ $curl->setCookie('key', 'value');
 $curl->get('https://www.example.com/');
 
 if ($curl->error) {
-    echo 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage;
+    echo 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage . "\n";
 } else {
     echo 'Response:' . "\n";
     var_dump($curl->response);
@@ -192,7 +201,7 @@ Curl::error($callback)
 Curl::exec($ch = null)
 Curl::get($url, $data = array())
 Curl::getCookie($key)
-Curl::getInfo($opt)
+Curl::getInfo($opt = null)
 Curl::getOpt($option)
 Curl::getResponseCookie($key)
 Curl::head($url, $data = array())
@@ -210,6 +219,7 @@ Curl::setCookie($key, $value)
 Curl::setCookieFile($cookie_file)
 Curl::setCookieJar($cookie_jar)
 Curl::setCookieString($string)
+Curl::setCookies($cookies)
 Curl::setDefaultDecoder($decoder = 'json')
 Curl::setDefaultJsonDecoder()
 Curl::setDefaultTimeout()
@@ -232,11 +242,9 @@ Curl::setXmlDecoder($function)
 Curl::success($callback)
 Curl::unsetHeader($key)
 Curl::verbose($on = true, $output = STDERR)
-Curl::array_flatten_multidim($array, $prefix = false)
-Curl::is_array_assoc($array)
-Curl::is_array_multidim($array)
 MultiCurl::__construct($base_url = null)
 MultiCurl::__destruct()
+MultiCurl::addCurl(Curl $curl)
 MultiCurl::addDelete($url, $query_parameters = array(), $data = array())
 MultiCurl::addDownload($url, $mixed_filename)
 MultiCurl::addGet($url, $data = array())
@@ -259,6 +267,7 @@ MultiCurl::setCookie($key, $value)
 MultiCurl::setCookieFile($cookie_file)
 MultiCurl::setCookieJar($cookie_jar)
 MultiCurl::setCookieString($string)
+MultiCurl::setCookies($cookies)
 MultiCurl::setDigestAuthentication($username, $password = '')
 MultiCurl::setHeader($key, $value)
 MultiCurl::setHeaders($headers)
@@ -277,6 +286,10 @@ MultiCurl::success($callback)
 MultiCurl::unsetHeader($key)
 MultiCurl::verbose($on = true, $output = STDERR)
 ```
+
+### Security
+
+See [SECURITY](https://github.com/php-curl-class/php-curl-class/blob/master/SECURITY.md) for security considerations.
 
 ### Contribute
 1. Check for open issues or open a new issue to start a discussion around a bug or feature.

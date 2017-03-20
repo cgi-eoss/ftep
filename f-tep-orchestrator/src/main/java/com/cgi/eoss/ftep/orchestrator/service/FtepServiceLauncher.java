@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;

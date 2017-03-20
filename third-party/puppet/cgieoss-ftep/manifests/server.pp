@@ -20,6 +20,9 @@ class ftep::server (
   $api_base_path              = '/secure/api/v2.0',
   $api_security_mode          = 'NONE',
 
+  $zoomanager_hostname        = undef,
+  $zoomanager_grpc_port       = undef,
+
   $local_worker_hostname      = 'ftep-worker',
   $local_worker_grpc_port     = undef,
 ) {
@@ -37,6 +40,9 @@ class ftep::server (
   $real_db_url = pick($jdbc_url, $default_jdbc_url)
   $real_db_user = pick($jdbc_user, $::ftep::globals::ftep_db_username)
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)
+
+  $real_zoomanager_hostname = pick($zoomanager_hostname, $ftep::globals::wps_hostname)
+  $real_zoomanager_grpc_port = pick($zoomanager_grpc_port, $ftep::globals::zoomanager_grpc_port)
 
   $real_local_worker_grpc_port = pick($local_worker_grpc_port, $ftep::globals::worker_grpc_port)
 
@@ -76,6 +82,8 @@ class ftep::server (
       'jdbc_data_source_class_name' => $jdbc_datasource_class_name,
       'api_base_path'               => $api_base_path,
       'api_security_mode'           => $api_security_mode,
+      'zoomanager_hostname'         => $real_zoomanager_hostname,
+      'zoomanager_grpc_port'        => $real_zoomanager_grpc_port,
       'local_worker_hostname'       => $local_worker_hostname,
       'local_worker_grpc_port'      => $real_local_worker_grpc_port,
     }),

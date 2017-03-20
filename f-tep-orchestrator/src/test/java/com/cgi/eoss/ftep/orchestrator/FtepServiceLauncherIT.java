@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

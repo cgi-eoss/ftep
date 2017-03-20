@@ -9,6 +9,7 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -68,6 +69,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         WebMvcAutoConfiguration.EnableWebMvcConfiguration.class,
 
         CatalogueConfig.class,
+        OrchestratorConfig.class,
         PersistenceConfig.class
 })
 @EnableCaching

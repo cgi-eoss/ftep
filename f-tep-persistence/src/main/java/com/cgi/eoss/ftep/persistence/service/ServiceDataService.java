@@ -14,4 +14,6 @@ public interface ServiceDataService extends
     FtepService getByName(String serviceName);
 
     CompleteFtepService save(CompleteFtepService service);
+
+    List<FtepService> findAllAvailable();
 }

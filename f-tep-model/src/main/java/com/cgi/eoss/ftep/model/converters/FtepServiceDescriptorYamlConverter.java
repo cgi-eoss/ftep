@@ -17,30 +17,38 @@ public class FtepServiceDescriptorYamlConverter implements AttributeConverter<Ft
 
     private static final TypeReference FTEP_SERVICE_DESCRIPTOR = new TypeReference<FtepServiceDescriptor>() { };
 
-    private final ObjectMapper mapper;
+    private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
 
     public FtepServiceDescriptorYamlConverter() {
-        mapper = new ObjectMapper(new YAMLFactory());
     }
 
     @Override
     public String convertToDatabaseColumn(FtepServiceDescriptor attribute) {
-        try {
-            return mapper.writeValueAsString(attribute);
-        } catch (JsonProcessingException e) {
-            LOG.error("Failed to convert FtepServiceDescriptor to YAML string: {}", attribute);
-            throw new IllegalArgumentException("Could not convert FtepServiceDescriptor to YAML string", e);
-        }
+        return toYaml(attribute);
     }
 
     @Override
     public FtepServiceDescriptor convertToEntityAttribute(String dbData) {
+        return fromYaml(dbData);
+    }
+
+    public static String toYaml(FtepServiceDescriptor ftepServiceDescriptor) {
         try {
-            return mapper.readValue(dbData, FTEP_SERVICE_DESCRIPTOR);
+            return MAPPER.writeValueAsString(ftepServiceDescriptor);
+        } catch (JsonProcessingException e) {
+            LOG.error("Failed to convert FtepServiceDescriptor to YAML string: {}", ftepServiceDescriptor);
+            throw new IllegalArgumentException("Could not convert FtepServiceDescriptor to YAML string", e);
+        }
+    }
+
+    public static FtepServiceDescriptor fromYaml(String yaml) {
+        try {
+            return MAPPER.readValue(yaml, FTEP_SERVICE_DESCRIPTOR);
         } catch (IOException e) {
-            LOG.error("Failed to convert YAML string to FtepServiceDescriptor: {}", dbData);
+            LOG.error("Failed to convert YAML string to FtepServiceDescriptor: {}", yaml);
             throw new IllegalArgumentException("Could not convert YAML string to FtepServiceDescriptor", e);
         }
     }
+
 }
 

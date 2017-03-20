@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.CompleteFtepService;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
@@ -72,6 +73,11 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
         // TODO Fix the relationship so we can use orphanRemoval
         fileDataService.findByService(service).forEach(fileDataService::delete);
         ftepServiceDao.delete(service);
+    }
+
+    @Override
+    public List<FtepService> findAllAvailable() {
+        return ftepServiceDao.findByStatus(ServiceStatus.AVAILABLE);
     }
 
 }

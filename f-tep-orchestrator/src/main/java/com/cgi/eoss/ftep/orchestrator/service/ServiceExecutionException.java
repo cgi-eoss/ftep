@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.service;
 
 /**
  * <p>Signals that an exception occurred in the execution of an F-TEP Service.</p>

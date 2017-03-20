@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
+import com.cgi.eoss.ftep.orchestrator.service.WorkerEnvironment;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +29,17 @@ public class OrchestratorConfig {
      * is for {@link WorkerEnvironment#LOCAL} workers.</p>
      */
     @Bean
-    public ManagedChannelBuilder localChannelBuilder(@Value("${ftep.orchestrator.worker.local.grpcHost:f-tep-worker}") String host,
-                                                     @Value("${ftep.orchestrator.worker.local.grpcPort:6566}") Integer port) {
+    public ManagedChannelBuilder localWorkerChannelBuilder(@Value("${ftep.orchestrator.worker.local.grpcHost:f-tep-worker}") String host,
+                                                           @Value("${ftep.orchestrator.worker.local.grpcPort:6566}") Integer port) {
+        return ManagedChannelBuilder.forAddress(host, port);
+    }
+
+    /**
+     * <p>A gRPC channel builder for connecting to the specified remote host for ZOO management services.</p>
+     */
+    @Bean
+    public ManagedChannelBuilder zooManagerChannelBuilder(@Value("${ftep.orchestrator.zoomanager.grpcHost:f-tep-wps}") String host,
+                                                          @Value("${ftep.orchestrator.zoomanager.grpcPort:6567}") Integer port) {
         return ManagedChannelBuilder.forAddress(host, port);
     }
 

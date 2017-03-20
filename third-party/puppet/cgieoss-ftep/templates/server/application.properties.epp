@@ -13,6 +13,9 @@
     String $api_base_path,
     String $api_security_mode,
 
+    String $zoomanager_hostname,
+    Integer $zoomanager_grpc_port,
+
     String $local_worker_hostname,
     Integer $local_worker_grpc_port
 | -%>
@@ -40,6 +43,10 @@ spring.jpa.hibernate.ddl-auto=validate
 # API configuration
 ftep.api.basePath=<%= $api_base_path %>
 ftep.api.security.mode=<%= $api_security_mode %>
+
+# ZOO Manager configuration
+ftep.orchestrator.zoomanager.grpcHost=<%= $zoomanager_hostname %>
+ftep.orchestrator.zoomanager.grpcPort=<%= $zoomanager_grpc_port %>
 
 # LOCAL worker configuration
 ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>

@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.service;
 
 /**
  * <p>Provisioning environments for F-TEP Workers.</p>

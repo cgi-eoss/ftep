@@ -130,7 +130,7 @@ while [[ "$#" -gt 0 ]]; do
    -qco) _QUIET=true; _CREATE_OUTPUT_DIR=true; _OVERWRITE=false; _OUTPUT_DIR="$2"; shift 2 ;;
    -d) . $2; shift 2 ;;
    -U | --no-uzip) _UNCOMPRESS=false; shift 1 ;;
-   -o) _OVERWRITE=false; _OUTPUT_DIR="$2"; shift 2 ;;
+   -o) _OVERWRITE=true; _OUTPUT_DIR="$2"; shift 2 ;;
    -O) _OVERWRITE=true; _OUTPUT_DIR="$2"; shift 2 ;;
    -H) _FOLLOW_HTML=false; shift 1 ;;
    -x) _DIR_EXCLUDE_PATTERN="$2"; shift 2 ;;
@@ -263,7 +263,7 @@ function fileDriver ()
         res=$?
       fi
     else
-      curl --remote-name -J --keepalive-time 2 -k -f --create-dirs --connect-timeout $_CONNECTION_TIMEOUT --retry $_RETRY --retry-delay $_RETRY_SLEEP "file://$INPUT_URI"
+      curl --remote-name --keepalive-time 2 -k -f --create-dirs --connect-timeout $_CONNECTION_TIMEOUT --retry $_RETRY --retry-delay $_RETRY_SLEEP "file://$INPUT_URI"
       res=$?
     fi
   else
@@ -406,7 +406,7 @@ function curlDriver {
   if [[ -n "$_USER_USERNAME" && -n "$_USER_PASSWORD" ]]; then
     userpass="-u $_USER_USERNAME:$_USER_PASSWORD"
   fi
-  CURL_MESSAGE="`curl $curlopt --keepalive-time 2 $userpass --remote-name -J --keepalive-time 2 "$1" 2>&1`"
+  CURL_MESSAGE="`curl $curlopt --keepalive-time 2 $userpass --remote-name --keepalive-time 2 "$1" 2>&1`"
   res=$?
   if [[ "$res" -ne "0" ]]; then
     if [[ "${CURL_MESSAGE/The requested URL returned error: 403//}" != "$CURL_MESSAGE" ]]; then
@@ -429,6 +429,38 @@ function s3Driver ()
 {
   s3cmd get "$1" "$2" | gawk 'BEGIN{res=0;}{if ($0 ~ "[nN]o such file") res=1; if ($0 ~ "[nN]ame or service not known") res=2; if ($0 ~ "[Hh]ost key verification failed") res=3; if ($0 ~ "[pP]ermission denied .*(publickey|password)") res=129;}END{exit res}'
   return ${PIPESTATUS[1]}
+}
+
+function httpiptDriver () 
+{
+  source ${_OUTPUT_DIR}/ipt.cred
+  DOWNLOAD_BASE_URL="${download_base_url}"
+  AUTH_URL='https://finder.eocloud.eu/resto/api/authidentity'
+  DOMAIN_NAME=${domain}
+  USERNAME=${user}
+  USERPASS=${pwd}
+
+  INPUT_URI="${1#*://}"
+
+  TOKEN=$(curl -s -X POST -F "domainName=${DOMAIN_NAME}" -F "userName=${USERNAME}" -F "userPass=${USERPASS}" "${AUTH_URL}" 2>&1 )
+  res=$?
+	if [[ "$res" -ne "0" ]]; then
+		echo "[ERROR  ][secp][failed] url '$URI' - Preliminary authentication failed"
+    		rm -f "$2"
+		return $res
+	else
+		ERROR_MESSAGE=$(echo ${TOKEN} | jq -r .ErrorMessage)
+		if [[ "${ERROR_MESSAGE}" != "null" ]] 
+		then
+			echo "[ERROR  ][secp][failed] url '$URI' - $ERROR_MESSAGE"
+			return 1
+		else 
+			TOKEN_IDENTITY=$(echo ${TOKEN} | jq -r .tokenIdentity)
+		fi
+	fi
+ 	URL="${DOWNLOAD_BASE_URL}/$INPUT_URI?token=${TOKEN_IDENTITY}"
+	OUTNAME=$(echo $2 | sed -e 's/\(\?.*\)//')
+	curl -s -L -o "$OUTNAME"  "$URL" return $?
 }
 
 function httpDriver { curlDriver $@; }
@@ -560,7 +592,7 @@ while [[ -n "$_INPUT_URI" ]]; do
         loadpass "$SSO_SERVER" true
 
         #Try to re-download the file (performing log in...)
-        curl --remote-name -J --keepalive-time 2 -b $_SESSION_FILE -c $_SESSION_FILE -L -k -f -S "$IDP_ADDR" --data "cn=$_SERVER_USERNAME&password=$_SERVER_PASSWORD"'&loginFields=cn@password&loginMethod=umsso&sessionTime=untilbrowserclose&idleTime=oneday'
+        curl --remote-name --keepalive-time 2 -b $_SESSION_FILE -c $_SESSION_FILE -L -k -f -S "$IDP_ADDR" --data "cn=$_SERVER_USERNAME&password=$_SERVER_PASSWORD"'&loginFields=cn@password&loginMethod=umsso&sessionTime=untilbrowserclose&idleTime=oneday'
         res=$?
 
         #Check if you re-get the EO-SSO page
@@ -674,7 +706,7 @@ while [[ -n "$_INPUT_URI" ]]; do
   #in case of new zip files:
   echo "[INFO   ][file $filecounter] Saved to filename '$_PRINT_FILENAME'"
   if [ -f $_PRINT_FILENAME ]; then
-    mv $_PRINT_FILENAME $2
+    mv $_PRINT_FILENAME $_OUTPUT_DIR
   fi
 done
 

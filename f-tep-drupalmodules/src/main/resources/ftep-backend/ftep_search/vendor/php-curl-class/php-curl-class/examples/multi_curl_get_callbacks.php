@@ -15,7 +15,7 @@ $multi_curl->error(function ($instance) {
     echo 'error message: ' . $instance->errorMessage . "\n";
 });
 $multi_curl->complete(function ($instance) {
-    echo 'call completed' . "\n";
+    echo 'call to "' . $instance->url . '" completed.' . "\n";
 });
 
 $multi_curl->addGet('https://www.google.com/search', array(

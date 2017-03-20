@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.zoomanager.stubs;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.zoomanager.service.WpsDescriptorIoException;
 import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -67,7 +68,7 @@ public class JavaZooServiceWriter implements ZooStubWriter {
             Files.copy(jarFile, jar, StandardCopyOption.REPLACE_EXISTING);
 
             LOG.debug("Cleaning up temporary java/class/jar files");
-            MoreFiles.deleteRecursively(workDir);
+            MoreFiles.deleteRecursively(workDir, RecursiveDeleteOption.ALLOW_INSECURE);
         } catch (TemplateException | IOException e) {
             throw new WpsDescriptorIoException("Failed to create WPS services jar", e);
         }

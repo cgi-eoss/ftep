@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,7 @@ public class FilesystemOutputProductService implements OutputProductService {
         // Workspace = jobId = first part of the relative filename
         String workspace = relativePath.getName(0).toString();
         // Layer name = filename without extension
-        String layerName = com.google.common.io.Files.getNameWithoutExtension(relativePath.getFileName().toString());
+        String layerName = MoreFiles.getNameWithoutExtension(relativePath.getFileName());
         geoserver.delete(workspace, layerName);
     }
 

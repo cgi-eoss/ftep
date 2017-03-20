@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.geoserver;
 
-import com.google.common.io.Files;
+import com.google.common.io.MoreFiles;
 import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
@@ -37,15 +37,15 @@ public class GeoserverServiceImpl implements GeoserverService {
     @Override
     public void ingest(String workspace, Path path, String crs) {
         ensureWorkspaceExists(workspace);
-        String filename = path.getFileName().toString();
+        Path fileName = path.getFileName();
 
-        if (!filename.toUpperCase().endsWith(".TIF")) {
+        if (!fileName.toString().toUpperCase().endsWith(".TIF")) {
             // TODO Ingest more filetypes
             throw new UnsupportedOperationException("Unable to ingest a non-GeoTiff product");
         }
 
-        String datastoreName = Files.getNameWithoutExtension(filename);
-        String layerName = Files.getNameWithoutExtension(filename);
+        String datastoreName = MoreFiles.getNameWithoutExtension(fileName);
+        String layerName = MoreFiles.getNameWithoutExtension(fileName);
 
         try {
             publisher.publishExternalGeoTIFF(workspace, datastoreName, path.toFile(), layerName, crs, REPROJECT_TO_DECLARED, RASTER_STYLE);

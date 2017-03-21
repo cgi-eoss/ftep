@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.zoomanager.stubs;
 
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.zoomanager.ExampleServiceDescriptor;
+import com.cgi.eoss.ftep.zoomanager.ZooManagerConfig;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -39,7 +40,7 @@ public class JavaZooServiceWriterTest {
 
     @Before
     public void setUp() throws Exception {
-        this.zooStubWriter = new JavaZooServiceWriter();
+        this.zooStubWriter = new JavaZooServiceWriter(new ZooManagerConfig().freemarker(), System.getProperty("java.class.path"));
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

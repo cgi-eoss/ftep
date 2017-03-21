@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.zoomanager.zcfg;
 
 import com.cgi.eoss.ftep.zoomanager.ExampleServiceDescriptor;
+import com.cgi.eoss.ftep.zoomanager.ZooManagerConfig;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
@@ -23,7 +24,7 @@ public class ZcfgWriterImplTest {
 
     @Before
     public void setUp() {
-        this.zcfgWriter = new ZcfgWriterImpl();
+        this.zcfgWriter = new ZcfgWriterImpl(new ZooManagerConfig().freemarker());
         this.fs = Jimfs.newFileSystem(Configuration.unix());
     }
 

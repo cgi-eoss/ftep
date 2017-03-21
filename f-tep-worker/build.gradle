@@ -1,5 +1,6 @@
 buildscript {
     dependencies {
+        classpath pl.osDetector
         classpath pl.osPackage
         classpath pl.springBoot
     }
@@ -10,8 +11,10 @@ version '0.6.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+
 apply plugin: 'org.springframework.boot'
 apply plugin: 'nebula.ospackage'
+apply plugin: 'com.google.osdetector'
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
@@ -23,6 +26,7 @@ dependencies {
     compile 'com.github.docker-java:docker-java'
     compile 'com.lmax:disruptor'
     compile 'com.squareup.okhttp3:okhttp'
+    compile 'io.netty:netty-tcnative-boringssl-static'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
     compile 'org.aspectj:aspectjweaver'

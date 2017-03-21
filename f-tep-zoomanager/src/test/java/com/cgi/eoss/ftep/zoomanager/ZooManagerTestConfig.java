@@ -38,6 +38,11 @@ public class ZooManagerTestConfig {
     }
 
     @Bean
+    public String javacClasspath() {
+        return System.getProperty("java.class.path");
+    }
+
+    @Bean
     public InProcessServerBuilder serverBuilder() {
         return InProcessServerBuilder.forName(getClass().getName()).directExecutor();
     }

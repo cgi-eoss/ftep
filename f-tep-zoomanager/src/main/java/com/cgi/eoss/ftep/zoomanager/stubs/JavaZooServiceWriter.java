@@ -7,8 +7,10 @@ import com.google.common.io.RecursiveDeleteOption;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import freemarker.template.TemplateExceptionHandler;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.io.IoBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.tools.JavaCompiler;
@@ -41,13 +43,12 @@ public class JavaZooServiceWriter implements ZooStubWriter {
 
     private final Configuration freemarker;
 
-    public JavaZooServiceWriter() {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
-        cfg.setClassForTemplateLoading(getClass(), "/templates/");
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        cfg.setLogTemplateExceptions(false);
-        this.freemarker = cfg;
+    private final String javacClasspath;
+
+    @Autowired
+    public JavaZooServiceWriter(Configuration freemarker, String javacClasspath) {
+        this.freemarker = freemarker;
+        this.javacClasspath = javacClasspath;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class JavaZooServiceWriter implements ZooStubWriter {
             }
             writeJar(classes, jarFile);
 
-            LOG.debug("Copying WPS java service temporary jar {} to {}", jarFile, jar);
+            LOG.info("Generated WPS service stub jar, copying to: {}", jar);
             Files.copy(jarFile, jar, StandardCopyOption.REPLACE_EXISTING);
 
             LOG.debug("Cleaning up temporary java/class/jar files");
@@ -86,8 +87,10 @@ public class JavaZooServiceWriter implements ZooStubWriter {
     private Path compileJavaClass(Path sourceFile) {
         LOG.debug("Compiling WPS java service from {}", sourceFile);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        // The zoolib module should be the only runtime dependency, but use the current classpath to compile
-        compiler.run(null, null, null, "-classpath", System.getProperty("java.class.path"), sourceFile.toString());
+        compiler.run(null,
+                IoBuilder.forLogger(LOG).setLevel(Level.DEBUG).buildOutputStream(),
+                IoBuilder.forLogger(LOG).setLevel(Level.ERROR).buildOutputStream(),
+                "-classpath", javacClasspath, sourceFile.toString());
         return sourceFile.resolveSibling(MoreFiles.getNameWithoutExtension(sourceFile.getFileName()) + ".class");
     }
 

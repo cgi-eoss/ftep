@@ -1,5 +1,6 @@
 buildscript {
     dependencies {
+        classpath pl.osDetector
         classpath pl.osPackage
         classpath pl.springBoot
     }
@@ -10,8 +11,10 @@ version '0.6.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+
 apply plugin: 'org.springframework.boot'
 apply plugin: 'nebula.ospackage'
+apply plugin: 'com.google.osdetector'
 
 dependencies {
     compile project(':f-tep-api')
@@ -19,6 +22,7 @@ dependencies {
     compile project(':f-tep-orchestrator')
 
     compile 'com.lmax:disruptor'
+    compile 'io.netty:netty-tcnative-boringssl-static'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.graylog2.log4j2:log4j2-gelf'

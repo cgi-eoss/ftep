@@ -8,7 +8,7 @@ class ftep::common::java {
 END
 
   $libjvm_path = $facts['java_libjvm_path'] ? {
-    undef => '/etc/alternatives/jre/lib/amd64/server',
+    undef   => '/etc/alternatives/jre/lib/amd64/server',
     default => $facts['java_libjvm_path']
   }
 
@@ -18,7 +18,7 @@ END
     owner   => 'root',
     group   => 'root',
     content => inline_epp($ld_java_conf_epp, {
-      'libjvm_path'    => $libjvm_path,
+      'libjvm_path' => $libjvm_path,
     }),
   } ~>
   exec { 'java_ldconfig':

@@ -48,7 +48,7 @@ public class WorkerConfig {
     @Bean
     public ManagedChannelBuilder channelBuilder(@Value("${ftep.worker.server.grpcHost:f-tep-server}") String host,
                                                 @Value("${ftep.worker.server.grpcPort:6565}") Integer port) {
-        return ManagedChannelBuilder.forAddress(host, port);
+        return ManagedChannelBuilder.forAddress(host, port).usePlaintext(true);
     }
 
     @Bean

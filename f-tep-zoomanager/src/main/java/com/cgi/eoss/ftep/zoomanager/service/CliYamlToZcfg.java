@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.zoomanager.service;
 
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
+import com.cgi.eoss.ftep.zoomanager.ZooManagerConfig;
 import com.cgi.eoss.ftep.zoomanager.zcfg.ZcfgWriter;
 import com.cgi.eoss.ftep.zoomanager.zcfg.ZcfgWriterImpl;
 import com.google.common.base.Preconditions;
@@ -19,7 +20,7 @@ import java.nio.file.Paths;
 public class CliYamlToZcfg {
 
     private static final YamlFtepServiceDescriptorHandler YAML = new YamlFtepServiceDescriptorHandler();
-    private static final ZcfgWriter ZCFG_WRITER = new ZcfgWriterImpl();
+    private static final ZcfgWriter ZCFG_WRITER = new ZcfgWriterImpl(new ZooManagerConfig().freemarker());
 
     public static void main(String[] args) {
         Preconditions.checkArgument(args.length == 1, "One argument expected");

@@ -59,17 +59,12 @@ class ftep::wps (
   $real_db_user = pick($db_user, $::ftep::globals::ftep_db_zoo_username)
   $real_db_pass = pick($db_pass, $::ftep::globals::ftep_db_zoo_password)
 
-  # TODO Remove these deprecated processors when zoomanager has been tested
-  ensure_packages(['f-tep-processors'], {
-    ensure => 'latest',
-    name   => 'f-tep-processors',
-  })
-
   $services_stub_jar = "${cgi_path}/${jar_path}/${services_stub_jar_filename}"
 
   class { ::ftep::zoomanager:
-    zcfg_path         => $cgi_path,
-    services_stub_jar => "${cgi_path}/${jar_path}/${services_stub_jar_filename}"
+    zcfg_path           => $cgi_path,
+    classpath_jar_files => $classpath_jar_files,
+    services_stub_jar   => "${cgi_path}/${jar_path}/${services_stub_jar_filename}"
   }
 
   if ($manage_zoo_kernel) {

@@ -5,6 +5,7 @@
     Integer $grpc_port,
 
     String $zcfg_path,
+    String $javac_classpath,
     String $services_stub_jar
 | -%>
 # Managed by Puppet
@@ -20,4 +21,5 @@ grpc.port=<%= $grpc_port %>
 
 # ZOO Manager configuration
 ftep.zoomanager.zcfg.path=<%= $zcfg_path %>
+ftep.zoomanager.javac.classpath=<%= $javac_classpath %>
 ftep.zoomanager.stub.jarFile=<%= $services_stub_jar %>

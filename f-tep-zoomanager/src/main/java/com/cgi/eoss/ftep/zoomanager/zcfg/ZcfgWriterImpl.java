@@ -6,9 +6,9 @@ import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import freemarker.template.TemplateExceptionHandler;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.lambda.Unchecked;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -34,13 +34,9 @@ public class ZcfgWriterImpl implements ZcfgWriter {
 
     private final Configuration freemarker;
 
-    public ZcfgWriterImpl() {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
-        cfg.setClassForTemplateLoading(getClass(), "/templates/");
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        cfg.setLogTemplateExceptions(false);
-        this.freemarker = cfg;
+    @Autowired
+    public ZcfgWriterImpl(Configuration freemarker) {
+        this.freemarker = freemarker;
     }
 
     @Override
@@ -71,7 +67,9 @@ public class ZcfgWriterImpl implements ZcfgWriter {
                     .forEach(Unchecked.consumer(Files::delete));
 
             LOG.debug("Copying {} new ZCFG files to {}", services.size(), zcfgBasePath);
-            zcfgs.forEach(Unchecked.consumer(p -> Files.copy(p, zcfgBasePath.resolve(p.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING)));
+            zcfgs.stream()
+                    .peek(p -> LOG.info("Generated ZCFG file, copying to: {}", zcfgBasePath.resolve(p.getFileName().toString())))
+                    .forEach(Unchecked.consumer(p -> Files.copy(p, zcfgBasePath.resolve(p.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING)));
 
             LOG.debug("Cleaning up temporary zcfg files");
             MoreFiles.deleteRecursively(workDir, RecursiveDeleteOption.ALLOW_INSECURE);

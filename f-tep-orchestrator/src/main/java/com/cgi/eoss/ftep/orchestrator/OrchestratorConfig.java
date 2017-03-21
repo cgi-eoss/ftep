@@ -31,7 +31,7 @@ public class OrchestratorConfig {
     @Bean
     public ManagedChannelBuilder localWorkerChannelBuilder(@Value("${ftep.orchestrator.worker.local.grpcHost:f-tep-worker}") String host,
                                                            @Value("${ftep.orchestrator.worker.local.grpcPort:6566}") Integer port) {
-        return ManagedChannelBuilder.forAddress(host, port);
+        return ManagedChannelBuilder.forAddress(host, port).usePlaintext(true);
     }
 
     /**
@@ -40,7 +40,7 @@ public class OrchestratorConfig {
     @Bean
     public ManagedChannelBuilder zooManagerChannelBuilder(@Value("${ftep.orchestrator.zoomanager.grpcHost:f-tep-wps}") String host,
                                                           @Value("${ftep.orchestrator.zoomanager.grpcPort:6567}") Integer port) {
-        return ManagedChannelBuilder.forAddress(host, port);
+        return ManagedChannelBuilder.forAddress(host, port).usePlaintext(true);
     }
 
 }

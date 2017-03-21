@@ -1,6 +1,10 @@
 @import "variable";
 #developer-container {
     padding-left: @sidenav-width !important;
+    .service-content {
+        height: 100%;
+        width: 100%;
+    }
     #reference-container {
         width: 100%;
         #user-references{
@@ -40,6 +44,64 @@
                     text-align: center;
                     width: 100%;
                 }
+            }
+        }
+    }
+    #service-container {
+        height: 100%;
+        width: 100%;
+        .left-container {
+            background-color: @bg;
+            height: 100%;
+            padding: 0;
+            padding-left: @sidenav-width;
+            #sidebar-list {
+                height: 100%;
+                overflow-y: auto;
+            }
+        }
+        .right-container {
+            height: 100%;
+            overflow-y: scroll;
+            padding: 0.5rem 1rem;
+            form {
+                height: 100%;
+                md-input-container {
+                    margin: 4px 0;
+                }
+            }
+            #editor-tabs{
+                height: 80%;
+                padding-left: @sidenav-width;
+                margin: 10px 0;
+                md-tabs-content-wrapper {
+                    md-tab-content {
+                        height: 100%;
+                        md-content {
+                            background-color: transparent;
+                            .border(border-top, @bg);
+                            height: 100%;
+                            padding: 0;
+                            .tab-content {
+                                height: 100%;
+                                .tab-content-container {
+                                    height: 100%;
+                                }
+                            }
+                        }
+                    }
+                }
+                .file-editor textarea.md-input {
+                   font-family: 'Courier';
+                   border: none;
+                }
+            }
+            .save-button {
+                position: absolute;
+                right: 3px;
+            }
+            .service-description {
+                width: 100%;
             }
         }
     }

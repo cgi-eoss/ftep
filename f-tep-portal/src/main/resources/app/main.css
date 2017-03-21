@@ -1107,6 +1107,10 @@
 #developer-container {
   padding-left: 44px !important;
 }
+#developer-container .service-content {
+  height: 100%;
+  width: 100%;
+}
 #developer-container #reference-container {
   width: 100%;
 }
@@ -1145,6 +1149,62 @@
   height: 5rem;
   padding: 1.5rem;
   text-align: center;
+  width: 100%;
+}
+#developer-container #service-container {
+  height: 100%;
+  width: 100%;
+}
+#developer-container #service-container .left-container {
+  background-color: #f8f8f8;
+  height: 100%;
+  padding: 0;
+  padding-left: 44px;
+}
+#developer-container #service-container .left-container #sidebar-list {
+  height: 100%;
+  overflow-y: auto;
+}
+#developer-container #service-container .right-container {
+  height: 100%;
+  overflow-y: scroll;
+  padding: 0.5rem 1rem;
+}
+#developer-container #service-container .right-container form {
+  height: 100%;
+}
+#developer-container #service-container .right-container form md-input-container {
+  margin: 4px 0;
+}
+#developer-container #service-container .right-container #editor-tabs {
+  height: 80%;
+  padding-left: 44px;
+  margin: 10px 0;
+}
+#developer-container #service-container .right-container #editor-tabs md-tabs-content-wrapper md-tab-content {
+  height: 100%;
+}
+#developer-container #service-container .right-container #editor-tabs md-tabs-content-wrapper md-tab-content md-content {
+  background-color: transparent;
+  border-top: #d2d2d2 solid 1px;
+  height: 100%;
+  padding: 0;
+}
+#developer-container #service-container .right-container #editor-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content {
+  height: 100%;
+}
+#developer-container #service-container .right-container #editor-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content .tab-content-container {
+  height: 100%;
+}
+#developer-container #service-container .right-container #editor-tabs .file-editor textarea.md-input {
+  font-family: 'Courier';
+  border: none;
+}
+#developer-container #service-container .right-container .save-button {
+  position: absolute;
+  right: 3px;
+}
+#developer-container #service-container .right-container .service-description {
   width: 100%;
 }
 

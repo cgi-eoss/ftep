@@ -1,0 +1,74 @@
+<form name="serviceForm">
+	<div class="row">
+	    <div class="col-md-3">
+	        <md-input-container md-no-float>
+	            <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
+	        </md-input-container>
+	    </div>
+	    <div class="col-md-3">
+	        <md-input-container md-no-float>
+	            <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag*" required>
+	        </md-input-container>
+	    </div>
+	    <div class="col-md-3">
+	        <md-input-container md-no-float>
+	            <md-checkbox ng-model="serviceParams.selectedService.workflow.executable" aria-label="Executable">
+	                Executable
+	            </md-checkbox>
+	        </md-input-container>
+	    </div>
+	    <div class="col-md-3">
+	        <md-button id="save-service"
+	                       class="save-button md-fab md-mini"
+	                       ng-click="updateService()"
+	                       ng-disabled="serviceForm.$invalid"
+	                       aria-label="Save Service"
+	                       uib-tooltip="Save Service"
+	                       tooltip-placement="top"
+	                       tooltip-trigger="mouseenter"
+	                       tooltip-append-to-body="true">
+	                <i class="material-icons">save</i>
+	        </md-button>
+	    </div>
+	</div>
+	<div class="row">
+	   <div class="col-md-12">
+            <md-input-container md-no-float class="service-description">
+                <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
+            </md-input-container>
+        </div>
+	</div>
+
+	<md-tabs id="editor-tabs" md-selected="serviceParams.selectedServiceFileTab">
+	     <md-tab ng-click="serviceParams.selectedServiceFileTab = 0">
+	        <md-tab-label>
+	            Dockerfile
+	        </md-tab-label>
+	        <md-tab-body>
+	            <md-content class="md-padding">
+	                <div class="tab-content">
+	                    <md-input-container md-no-float class="md-block file-editor">
+				            <textarea name="dockerFile" ng-model="serviceParams.selectedService.dockerfile.content"
+				                    md-select-on-focus placeholder="Add file content.." required></textarea>
+				        </md-input-container>
+	                </div>
+	            </md-content>
+	        </md-tab-body>
+	    </md-tab>
+	    <md-tab ng-click="serviceParams.selectedServiceFileTab = 1">
+	        <md-tab-label>
+	            workflow.sh
+	        </md-tab-label>
+	        <md-tab-body>
+	            <md-content class="md-padding">
+	                <div class="tab-content">
+	                    <md-input-container md-no-float class="md-block file-editor">
+	                        <textarea name="workflowFile" ng-model="serviceParams.selectedService.workflow.content"
+	                               md-select-on-focus placeholder="Add file content.." required></textarea>
+	                    </md-input-container>
+	                </div>
+	            </md-content>
+	        </md-tab-body>
+	    </md-tab>
+	</md-tabs>
+</form>

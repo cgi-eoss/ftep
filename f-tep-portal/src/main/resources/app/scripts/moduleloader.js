@@ -33,6 +33,7 @@ define([
     './controllers/community/share/share',
 
     './controllers/developer/developer',
+    './controllers/developer/service',
 
     './controllers/explorer/explorer',
     './controllers/explorer/map',

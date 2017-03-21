@@ -95,12 +95,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                   if (200 <= document.status && document.status < 300) {
-                        MessageService.addError ('Failed to add User', document);
-                        reject();
-                    } else {
+                    if (200 <= document.status && document.status < 300) {
                         MessageService.addInfo('User successfully added');
                         resolve(document);
+                    } else {
+                        MessageService.addError ('Failed to add User', document);
+                        reject();
                     }
                 }, function (error) {
                     MessageService.addError('Failed to add user to Group', error);

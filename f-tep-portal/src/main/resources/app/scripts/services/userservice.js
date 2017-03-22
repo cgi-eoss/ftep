@@ -23,8 +23,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             displayUserFilters: false
         };
 
-        var currentUser;
-
         this.getCurrentUser = function(){
             var deferred = $q.defer();
             usersAPI.from(ftepProperties.URLv2 + '/currentUser')
@@ -34,7 +32,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Error getting user data', 'Failed to get user data');
+                    MessageService.addError ('Could not get user data',
+                            'Failed to get user data' + ((error.doc && error.doc.message) ? ': ' + error.doc.message : '' ));
                     deferred.reject();
                 });
             return deferred.promise;

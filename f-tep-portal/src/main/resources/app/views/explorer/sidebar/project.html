@@ -27,7 +27,7 @@
             <div class="row no-margin panel-heading-container" ng-click="toggleProjectShow()">
 
                 <div class="col-xs-8 no-padding project-title heading-item">
-                    <h2 class="left">{{activeProject.attributes.name}}</h2>
+                    <h2 class="left">{{projectParams.activeProject.name}}</h2>
                     <i class="material-icons expand-icon"
                        uib-tooltip="View More"
                        tooltip-placement="right"
@@ -64,19 +64,68 @@
             </div>
         </uib-accordion-heading>
 
+        <section class="filter-list">
+            <ul class="list">
+
+                <div class="row list-group filter-list-title">
+
+                    <div class="col-xs-11" ng-click="projectParams.displayFilters = !projectParams.displayFilters">
+                        <label class="md-accent">Filters</label>
+                    </div>
+
+                    <div class="col-xs-1 expander">
+                        <i class="material-icons"
+                           ng-show="!projectParams.displayFilters"
+                           ng-click="toggleFilters()"
+                           aria-label="Show Filters"
+                           uib-tooltip="Show Filters"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                            expand_less
+                        </i>
+                        <i class="material-icons"
+                           ng-show="projectParams.displayFilters"
+                           ng-click="toggleFilters()"
+                           aria-label="Hide Filters"
+                           uib-tooltip="Hide Filters"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                            expand_more
+                        </i>
+                    </div>
+                </div>
+
+                <md-input-container md-no-float ng-show="projectParams.displayFilters">
+                    <input ng-model="projectParams.searchText" type="text" placeholder="Search">
+                </md-input-container>
+
+                <div class="row filter-radiobutton" ng-show="projectParams.displayFilters">
+                    <md-radio-group ng-model="projectParams.selectedOwnerhipFilter">
+                        <div ng-repeat="ownershipFilter in projectOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                            <md-radio-button ng-value="ownershipFilter">
+                                {{ownershipFilter.name}}
+                            </md-radio-button>
+                        </div>
+                    </md-radio-group>
+                </div>
+            </ul>
+        </section>
+
         <ul class="list-group project-list">
             <li class="list-group-item project-item"
-                ng-repeat="project in projects | orderBy: 'attributes.name'"
+                ng-repeat="project in projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText | orderBy: 'name'"
                 ng-click="setActiveProject(project)"
                 ng-dblclick="cacheProject(project); projectEdit = true"
-                ng-class="{active:$first}">
+                ng-class="{active: project.name === projectParams.activeProject.name}">
 
                 <div class="row project-item-row">
 
                     <div class="col-xs-8 no-padding project-item-col">
 
                         <div class="project-name-container" ng-show="!projectEdit || project.id == 0">
-                            <span class="selectable project-name">{{project.attributes.name}}</span>
+                            <span class="selectable project-name">{{project.name}}</span>
                         </div>
 
                         <div class="row project-edit" ng-show="projectEdit && project.id > 0">
@@ -86,7 +135,7 @@
                                     <input type="text"
                                            class="form-control project-rename"
                                            ng-keyup="projectEdit = updateProject($event.keyCode == 13, project)"
-                                           ng-model="project.attributes.name">
+                                           ng-model="project.name">
                                 </div>
                             </div>
 

@@ -5,51 +5,74 @@
  * # ProjectCtrl
  * Controller of the ftepApp
  */
+'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
-    ftepmodules.controller('ProjectCtrl', ['$scope', 'ProjectService', function ($scope, ProjectService) {
+    ftepmodules.controller('ProjectCtrl', ['$scope', '$rootScope', '$mdDialog', 'ProjectService',
+                                               function ($scope, $rootScope, $mdDialog, ProjectService) {
 
-        $scope.projects = [{
-                "type": "project",
-                "id": "0",
-                "attributes": {
-                    "name": "Default Project",
-                    "description": "Default project"
-                }
-            },
-            {
-                "type": "project",
-                "id": "1",
-                "attributes": {
-                    "name": "Test Project",
-                    "description": "Test project"
-                }
-            }];
-
-        $scope.activeProject = $scope.projects[0];
+        $scope.projectParams = ProjectService.params.explorer;
+        $scope.projectOwnershipFilters = ProjectService.projectOwnershipFilters;
 
         $scope.setActiveProject = function (project) {
-            $scope.activeProject = project;
-            $('.project-list').on('click', 'li', function () {
-                $(this).addClass('active').siblings().removeClass('active');
-            });
+            $scope.projectParams.activeProject = project;
         };
 
-        ProjectService.getProjects().then(function (data) {
-            $scope.projects.push.apply($scope.projects, data);
-        });
+        function getProjects(project, setAsActive){
+            ProjectService.getProjects().then(function (data) {
+                $scope.projects = data;
+                if(!$scope.projectParams.activeProject){
+                    $scope.projectParams.activeProject = $scope.projects[0];
+                }
+                else if(setAsActive){
+                    $scope.projectParams.activeProject = project;
+                }
+                else if(project && project.name === $scope.projectParams.activeProject.name){
+                    $scope.projectParams.activeProject = $scope.projects[0];
+                }
+            });
+        }
+        getProjects();
 
         $scope.removeProject = function (project) {
             ProjectService.removeProject(project).then(function () {
-                var i = $scope.projects.indexOf(project);
-                $scope.projects.splice(i, 1);
+                getProjects(project);
             });
         };
 
-        $scope.$on('add.project', function (event, data) {
-            $scope.projects.push(data);
+        $scope.$on('add.project', function (event, project) {
+            getProjects(project, true);
         });
+
+        /** CREATE PROJECT MODAL **/
+        $scope.newProject = {name: undefined, description: undefined};
+        $scope.createProjectDialog = function($event) {
+            $event.stopPropagation();
+            $event.preventDefault();
+            function CreateProjectController($scope, $mdDialog, ProjectService) {
+                $scope.closeDialog = function() {
+                    $mdDialog.hide();
+                };
+                $scope.addProject = function() {
+                    ProjectService.createProject($scope.newProject).then(function(project){
+                        $rootScope.$broadcast('add.project', project);
+                    });
+                    $mdDialog.hide();
+                };
+            }
+            CreateProjectController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
+            $mdDialog.show({
+              controller: CreateProjectController,
+              templateUrl: 'views/explorer/templates/createproject.tmpl.html',
+              parent: angular.element(document.body),
+              targetEvent: $event,
+              clickOutsideToClose: true,
+              locals: {
+                  items: $scope.items
+              }
+           });
+        };
+        /** END OF CREATE PROJECT MODAL **/
 
         var projectCache = {};
 

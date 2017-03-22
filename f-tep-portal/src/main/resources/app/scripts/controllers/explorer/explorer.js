@@ -71,36 +71,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         };
 
-        /** CREATE PROJECT MODAL **/
-        $scope.newProject = {name: undefined, description: undefined};
-        $scope.createProjectDialog = function($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
-            function CreateProjectController($scope, $mdDialog, ProjectService) {
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-                $scope.addProject = function() {
-                    ProjectService.createProject($scope.newProject.name, $scope.newProject.description).then(function(data){
-                        $rootScope.$broadcast('add.project', data);
-                    });
-                    $mdDialog.hide();
-                };
-            }
-            CreateProjectController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
-            $mdDialog.show({
-              controller: CreateProjectController,
-              templateUrl: 'views/explorer/templates/createproject.tmpl.html',
-              parent: angular.element(document.body),
-              targetEvent: $event,
-              clickOutsideToClose: true,
-              locals: {
-                  items: $scope.items
-              }
-           });
-        };
-        /** END OF CREATE PROJECT MODAL **/
-
         /* Show Result Metadata Modal */
         $scope.showMetadata = function($event, data) {
             function MetadataController($scope, $mdDialog, CommonService) {
@@ -139,6 +109,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         /* Share Object Modal */
         $scope.sharedObject = {};
         $scope.shareObjectDialog = function($event, item) {
+            console.log(item);
             function ShareObjectController($scope, $mdDialog, GroupService) {
                 $scope.sharedObject = item;
                 $scope.groups = [];

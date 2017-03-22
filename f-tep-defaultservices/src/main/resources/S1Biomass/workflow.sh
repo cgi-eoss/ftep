@@ -18,10 +18,10 @@ mkdir -p ${PROC_DIR}
 # Input params
 source ${WPS_PROPS}
 AOI="${aoi}"
-DEM=$(find ${IN_DIR} -iname dem*.tif | head -1)
+DEM=$(find -L ${IN_DIR} -iname dem*.tif | head -1)
 TARGET_RESOLUTION="${targetResolution:-10}"
 EPSG="${crs}"
-FOREST_MASK=$(find ${IN_DIR} -iname forestmask*.tif | head -1)
+FOREST_MASK=$(find -L ${IN_DIR} -iname forestmask*.tif | head -1)
 
 # Internal params
 S1_PREPROCESS="${WORKFLOW}/S1_biomass_preprocess.xml"

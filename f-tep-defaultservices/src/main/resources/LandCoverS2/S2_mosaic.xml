@@ -26,8 +26,7 @@
             </variables>
             <combine>OR</combine>
             <crs>${epsg}</crs>
-            <orthorectify>true</orthorectify>
-            <elevationModelName>${dem}</elevationModelName>
+            <orthorectify>false</orthorectify>
             <resampling>Bilinear</resampling>
             <northBound>${northBound}</northBound>
             <southBound>${southBound}</southBound>

@@ -21,7 +21,7 @@ AOI="${aoi}"
 DEM="${dem}"
 TARGET_RESOLUTION="${targetResolution:-10}"
 EPSG="${crs}"
-TRAINING_SHAPEFILE=$(find ${IN_DIR} -name *.shp | head -1)
+TRAINING_SHAPEFILE=$(find -L ${IN_DIR} -name *.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 
 # Internal params

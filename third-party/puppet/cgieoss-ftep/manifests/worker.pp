@@ -1,4 +1,6 @@
 class ftep::worker (
+  $component_name        = 'f-tep-worker',
+
   $install_path          = '/var/f-tep/worker',
   $config_file           = '/var/f-tep/worker/f-tep-worker.conf',
   $logging_config_file   = '/var/f-tep/worker/log4j2.xml',
@@ -54,14 +56,17 @@ class ftep::worker (
     ensure  => 'present',
     owner   => $ftep::globals::user,
     group   => $ftep::globals::group,
-    content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+    content =>
+      'JAVA_OPTS="-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"'
+    ,
     require => Package['f-tep-worker'],
     notify  => Service['f-tep-worker'],
   }
 
   ::ftep::logging::log4j2 { $logging_config_file:
-    require => Package['f-tep-worker'],
-    notify  => Service['f-tep-worker'],
+    ftep_component => $component_name,
+    require        => Package['f-tep-worker'],
+    notify         => Service['f-tep-worker'],
   }
 
   file { $properties_file:

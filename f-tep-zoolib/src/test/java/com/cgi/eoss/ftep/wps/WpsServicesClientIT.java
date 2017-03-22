@@ -131,7 +131,7 @@ public class WpsServicesClientIT {
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
                 .build();
 
-        Multimap<String, String> outputs = ftepServicesClient.launchService(jobId, userId, serviceId, inputs);
+        Multimap<String, String> outputs = ftepServicesClient.launchService(userId, serviceId, jobId, inputs);
         assertThat(outputs, is(notNullValue()));
 
         List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_" + jobId + "/FTEP-WPS-INPUT.properties"));

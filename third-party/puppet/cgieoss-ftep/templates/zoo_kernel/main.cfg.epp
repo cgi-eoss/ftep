@@ -20,6 +20,7 @@
 
     Hash $env_config,
     Hash $ftep_config,
+    Hash $java_config,
     Hash $other_config,
 | -%>
 # Managed by Puppet
@@ -72,6 +73,13 @@ MaxPermSize = 64m
 <% if !$ftep_config.empty { -%>
 [ftep]
 <% $ftep_config.each |$key, $val| { -%>
+<%= $key %> = <%= $val %>
+<% } -%>
+<% } -%>
+
+<% if !$java_config.empty { -%>
+[java]
+<% $java_config.each |$key, $val| { -%>
 <%= $key %> = <%= $val %>
 <% } -%>
 <% } -%>

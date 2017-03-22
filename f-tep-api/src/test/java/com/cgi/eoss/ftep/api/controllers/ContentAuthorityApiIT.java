@@ -2,14 +2,18 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.zoo.ZooManagerClient;
+import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -58,6 +63,9 @@ public class ContentAuthorityApiIT {
 
     @Autowired
     private ServiceDataService serviceDataService;
+
+    @Autowired
+    private JobDataService jobDataService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -163,6 +171,24 @@ public class ContentAuthorityApiIT {
         assertThat(argumentCaptor.getAllValues().get(0).size(), is(DEFAULT_SERVICE_COUNT));
         assertThat(argumentCaptor.getAllValues().get(1).size(), is(DEFAULT_SERVICE_COUNT - 1));
         assertThat(argumentCaptor.getAllValues().get(2).size(), is(DEFAULT_SERVICE_COUNT));
+    }
+
+    @Test
+    public void test() throws Exception {
+
+        mockMvc.perform(post("/api/contentAuthority/services/restoreDefaults").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk());
+
+        Multimap<String, String> inputs = ImmutableMultimap.<String, String>builder()
+                .put("inputfile", "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/10/30/S2A_OPER_PRD_MSIL1C_PDMC_20161030T223944_R083_V20161030T164852_20161030T164852.zip")
+                .put("vegIndex", "GEMI")
+                .put("crs", "EPSG:32615")
+                .put("aoi", "POLYGON((-93.17882537841795 16.29905101458182,-93.17882537841795 16.20082812440876,-92.89867401123045 16.20082812440876,-92.89867401123045 16.29905101458182,-93.17882537841795 16.29905101458182))")
+                .put("targetResolution", "20")
+                .build();
+
+        Job job = jobDataService.buildNew(UUID.randomUUID().toString(), ftepAdmin.getName(), "VegetationIndices", inputs);
+        System.out.println(job.getConfig().getInputs());
     }
 
 }

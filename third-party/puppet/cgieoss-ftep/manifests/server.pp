@@ -1,30 +1,33 @@
 class ftep::server (
-  $install_path               = '/var/f-tep/server',
-  $config_file                = '/var/f-tep/server/f-tep-server.conf',
-  $logging_config_file        = '/var/f-tep/server/log4j2.xml',
-  $properties_file            = '/var/f-tep/server/application.properties',
+  $component_name              = 'f-tep-server',
 
-  $service_enable             = true,
-  $service_ensure             = 'running',
+  $install_path                = '/var/f-tep/server',
+  $config_file                 = '/var/f-tep/server/f-tep-server.conf',
+  $logging_config_file         = '/var/f-tep/server/log4j2.xml',
+  $properties_file             = '/var/f-tep/server/application.properties',
+
+  $service_enable              = true,
+  $service_ensure              = 'running',
 
   # f-tep-server.properties config
-  $application_port           = undef,
-  $grpc_port                  = undef,
+  $application_port            = undef,
+  $grpc_port                   = undef,
 
-  $jdbc_url                   = undef,
-  $jdbc_driver                = 'org.postgresql.Driver',
-  $jdbc_user                  = undef,
-  $jdbc_password              = undef,
-  $jdbc_datasource_class_name = 'org.postgresql.ds.PGSimpleDataSource',
+  $jdbc_url                    = undef,
+  $jdbc_driver                 = 'org.postgresql.Driver',
+  $jdbc_user                   = undef,
+  $jdbc_password               = undef,
+  $jdbc_datasource_class_name  = 'org.postgresql.ds.PGSimpleDataSource',
 
-  $api_base_path              = '/secure/api/v2.0',
-  $api_security_mode          = 'NONE',
+  $api_base_path               = '/secure/api/v2.0',
+  $api_username_request_header = undef,
+  $api_security_mode           = 'NONE',
 
-  $zoomanager_hostname        = undef,
-  $zoomanager_grpc_port       = undef,
+  $zoomanager_hostname         = undef,
+  $zoomanager_grpc_port        = undef,
 
-  $local_worker_hostname      = 'ftep-worker',
-  $local_worker_grpc_port     = undef,
+  $local_worker_hostname       = 'ftep-worker',
+  $local_worker_grpc_port      = undef,
 ) {
 
   require ::ftep::globals
@@ -40,6 +43,8 @@ class ftep::server (
   $real_db_url = pick($jdbc_url, $default_jdbc_url)
   $real_db_user = pick($jdbc_user, $::ftep::globals::ftep_db_username)
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)
+
+  $real_api_username_request_header = pick($api_username_request_header, $ftep::globals::username_request_header)
 
   $real_zoomanager_hostname = pick($zoomanager_hostname, $ftep::globals::wps_hostname)
   $real_zoomanager_grpc_port = pick($zoomanager_grpc_port, $ftep::globals::zoomanager_grpc_port)
@@ -57,14 +62,17 @@ class ftep::server (
     ensure  => 'present',
     owner   => $ftep::globals::user,
     group   => $ftep::globals::group,
-    content => 'JAVA_OPTS=-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+    content =>
+      'JAVA_OPTS="-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"'
+    ,
     require => Package['f-tep-server'],
     notify  => Service['f-tep-server'],
   }
 
   ::ftep::logging::log4j2 { $logging_config_file:
-    require => Package['f-tep-server'],
-    notify  => Service['f-tep-server'],
+    ftep_component => $component_name,
+    require        => Package['f-tep-server'],
+    notify         => Service['f-tep-server'],
   }
 
   file { $properties_file:
@@ -81,6 +89,7 @@ class ftep::server (
       'jdbc_password'               => $real_db_pass,
       'jdbc_data_source_class_name' => $jdbc_datasource_class_name,
       'api_base_path'               => $api_base_path,
+      'api_username_request_header' => $real_api_username_request_header,
       'api_security_mode'           => $api_security_mode,
       'zoomanager_hostname'         => $real_zoomanager_hostname,
       'zoomanager_grpc_port'        => $real_zoomanager_grpc_port,

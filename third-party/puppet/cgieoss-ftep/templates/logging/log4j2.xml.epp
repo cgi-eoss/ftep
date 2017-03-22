@@ -1,18 +1,27 @@
 <%- |
+    String $ftep_component,
+    String $log_level,
+
     String $graylog_server,
     String $graylog_protocol,
     Integer $graylog_port,
     String $graylog_source_hostname,
 
+    Boolean $is_spring_context,
     Boolean $enable_graylog
 | -%>
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
+<% if $is_spring_context { -%>
         <Property name="PID">????</Property>
         <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
         <Property name="LOG_LEVEL_PATTERN">%5p</Property>
         <Property name="CONSOLE_LOG_PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+<% } else { -%>
+        <Property name="CONSOLE_LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%15.15t] %-40.40c{1.} : %m%n</Property>
+<% } -%>
+        <Property name="FTEP_COMPONENT"><%= $ftep_component %></Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT" follow="true">
@@ -20,14 +29,13 @@
         </Console>
 <% if $enable_graylog { -%>
         <GELF name="Graylog" server="<%= $graylog_server %>" protocol="<%= $graylog_protocol %>" port="<%= $graylog_port %>" hostName="<%= $graylog_source_hostname %>">
-            <PatternLayout pattern="%logger{36} - %msg%n"/>
-            <!-- Additional fields -->
-            <KeyValuePair key="jvm" value="${java:vm}"/>
+            <PatternLayout pattern="%msg"/>
+            <KeyValuePair key="ftepComponent" value="${sys:FTEP_COMPONENT}"/>
         </GELF>
 <% } -%>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="<%= $log_level %>">
             <AppenderRef ref="Console" />
 <% if $enable_graylog { -%>
             <AppenderRef ref="Graylog" />

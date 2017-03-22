@@ -1,6 +1,7 @@
 buildscript {
     dependencies {
         classpath pl.shadow
+        classpath pl.shadowLog4j2Transformer
     }
 }
 
@@ -17,6 +18,9 @@ dependencies {
     compile project(':f-tep-rpc')
 
     compile 'com.google.guava:guava'
+    compile 'io.netty:netty-tcnative-boringssl-static'
+    compile 'org.apache.logging.log4j:log4j-jul'
+    compile 'org.graylog2.log4j2:log4j2-gelf'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
 
     testCompile project(':f-tep-model')
@@ -29,6 +33,10 @@ dependencies {
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.mockito:mockito-core'
+}
+
+shadowJar {
+    transform(de.sebastianboegl.gradle.plugins.shadow.transformers.Log4j2PluginsFileTransformer)
 }
 
 sonarqube {

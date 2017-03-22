@@ -40,6 +40,7 @@ class ftep::wps (
 
   $env_config                 = { },
   $ftep_config                = { },
+  $java_config                = { },
   $other_config               = { },
 ) {
 
@@ -48,6 +49,7 @@ class ftep::wps (
   contain ::ftep::common::apache
   contain ::ftep::common::datadir
   contain ::ftep::common::java
+  contain ::ftep::common::user
   require ::apache::mod::cgi
 
   # Extra repos
@@ -84,8 +86,26 @@ class ftep::wps (
     }
 
     $jar_files = concat($classpath_jar_files, [$services_stub_jar])
-    $default_classpath = join($jar_files, ',')
-    $default_env_config = { "CLASSPATH" => $default_classpath }
+    $default_classpath = join($jar_files, ':')
+    $default_env_config = {
+      'CLASSPATH'       => $default_classpath,
+      'LD_LIBRARY_PATH' => $cgi_path,
+    }
+    $default_ftep_config = {
+      'zooConfKeyJobId'          => 'uusid',
+      'zooConfKeyUsernameHeader' => "HTTP_${ftep::globals::username_request_header}",
+      'ftepServerGrpcHost'       => $ftep::globals::server_hostname,
+      'ftepServerGrpcPort'       => $ftep::globals::server_grpc_port,
+    }
+
+    $logging_config_file = "${cgi_path}/log4j2.xml"
+    ::ftep::logging::log4j2 { $logging_config_file:
+      ftep_component    => 'f-tep-zoolib',
+      is_spring_context => false,
+    }
+    $default_java_config = {
+      'log4j.configurationFile' => $logging_config_file,
+    }
 
     file { "${cgi_path}/${main_config_file}":
       ensure  => 'present',
@@ -113,7 +133,8 @@ class ftep::wps (
         'db_pass'        => $real_db_pass,
 
         'env_config'     => merge($default_env_config, $env_config),
-        'ftep_config'    => $ftep_config,
+        'ftep_config'    => merge($default_ftep_config, $ftep_config),
+        'java_config'    => merge($default_java_config, $java_config),
         'other_config'   => $other_config,
       }),
       require => Package['zoo-kernel'],
@@ -146,6 +167,8 @@ class ftep::wps (
     port          => '80',
     servername    => 'ftep-wps',
     docroot       => $cgi_path,
+    docroot_owner => $ftep::globals::user,
+    docroot_group => $ftep::globals::group,
     scriptaliases => [{
       alias => $script_alias,
       path  => "${cgi_path}/${cgi_file}"
@@ -180,16 +203,23 @@ class ftep::wps (
     selinux::module { 'ftep_wps':
       ensure  => 'present',
       content => "
-module ftep_wps 1.0.0;
+module ftep_wps 1.0;
 
 require {
-        type httpd_sys_script_t;
-        type proc_net_t;
-        class file { read open };
+    type sysctl_net_t;
+    type httpd_sys_script_t;
+    type port_t;
+    type proc_net_t;
+    class tcp_socket name_connect;
+    class dir search;
+    class file { read getattr open };
 }
 
 #============= httpd_sys_script_t ==============
-allow httpd_sys_script_t proc_net_t:file { read open };
+allow httpd_sys_script_t port_t:tcp_socket name_connect;
+allow httpd_sys_script_t proc_net_t:file { read getattr open };
+allow httpd_sys_script_t sysctl_net_t:dir search;
+allow httpd_sys_script_t sysctl_net_t:file read;
 ",
     }
   }

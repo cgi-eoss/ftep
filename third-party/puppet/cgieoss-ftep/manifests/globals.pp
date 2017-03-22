@@ -36,6 +36,9 @@ class ftep::globals (
   $ftep_db_zoo_username        = 'ftep-zoo',
   $ftep_db_zoo_password        = 'ftep-zoo-pass',
 
+  # SSO configuration
+  $username_request_header     = 'REMOTE_USER',
+
   # App server port config for HTTP and gRPC
   $server_application_port     = 8090,
   $worker_application_port     = 8091,
@@ -58,6 +61,8 @@ class ftep::globals (
   $graylog_port                = 8087,
   $graylog_context_path        = '/log',
   $graylog_gelf_tcp_port       = 5140,
+
+  $enable_log4j2_graylog       = false,
 
 ) {
 

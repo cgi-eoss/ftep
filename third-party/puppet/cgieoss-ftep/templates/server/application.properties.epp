@@ -11,6 +11,7 @@
     String $jdbc_data_source_class_name,
 
     String $api_base_path,
+    String $api_username_request_header,
     String $api_security_mode,
 
     String $zoomanager_hostname,
@@ -42,6 +43,7 @@ spring.jpa.hibernate.ddl-auto=validate
 
 # API configuration
 ftep.api.basePath=<%= $api_base_path %>
+ftep.api.security.username-request-header=<%= $api_username_request_header %>
 ftep.api.security.mode=<%= $api_security_mode %>
 
 # ZOO Manager configuration

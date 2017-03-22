@@ -37,6 +37,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final int DEFAULT_MAX_WEIGHT = 1024;
     private static final HashFunction HASH_FUNCTION = Hashing.sha1();
 
+    private final DownloaderFactory downloaderFactory;
     private final LoadingCache<URI, Path> loadingCache;
 
     @Autowired
@@ -44,6 +45,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                                    @Qualifier("cacheMaxWeight") Integer maximumWeight,
                                    @Qualifier("cacheRoot") Path cacheRoot,
                                    DownloaderFactory downloaderFactory) {
+        this.downloaderFactory = downloaderFactory;
         this.loadingCache = CacheBuilder.newBuilder()
                 .concurrencyLevel(concurrencyLevel)
                 .maximumWeight(maximumWeight)
@@ -76,6 +78,11 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
         } catch (Exception e) {
             throw new ServiceIoException("Could not construct service context for " + serviceName, e);
         }
+    }
+
+    @Override
+    public boolean isSupportedProtocol(String scheme) {
+        return downloaderFactory.isSupportedProtocol(scheme);
     }
 
     private class UriCacheLoader extends CacheLoader<URI, Path> {

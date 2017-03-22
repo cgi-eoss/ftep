@@ -192,10 +192,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         }
     }
 
-    private static boolean isValidUri(String test) {
+    private boolean isValidUri(String test) {
         try {
             URI uri = URI.create(test);
-            return uri.getScheme() != null;
+            return uri.getScheme() != null && inputOutputManager.isSupportedProtocol(uri.getScheme());
         } catch (Exception unused) {
             return false;
         }

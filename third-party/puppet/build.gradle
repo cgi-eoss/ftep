@@ -36,7 +36,7 @@ def puppetModules = [
         'richardc-datacat', // (v1.2.1)
         'elastic-elasticsearch', // (v5.0.0)
         'maestrodev-wget', // (v1.7.3)
-        'graylog2-graylog2' // (v1.2.1)
+        'graylog-graylog' // (v0.3.0)
 ]
 
 def moduleMetadata = [:]

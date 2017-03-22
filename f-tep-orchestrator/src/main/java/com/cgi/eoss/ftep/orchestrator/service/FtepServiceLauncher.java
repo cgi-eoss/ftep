@@ -28,6 +28,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,9 +67,11 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         String serviceId = request.getServiceId();
 
         Job job = null;
-        try {
+        try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
+                .put("userId", userId).put("serviceId", serviceId).put("zooId", jobId)) {
             // TODO Allow re-use of existing JobConfig
             job = jobDataService.buildNew(jobId, userId, serviceId, inputs);
+            ctc.put("jobId", String.valueOf(job.getId()));
             FtepService service = job.getConfig().getService();
 
             checkCost(job.getConfig());

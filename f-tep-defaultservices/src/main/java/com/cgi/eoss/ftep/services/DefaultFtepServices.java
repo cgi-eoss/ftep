@@ -85,12 +85,16 @@ public class DefaultFtepServices {
                 .filter(Unchecked.predicate(r -> !r.getURI().toString().endsWith("/")))
                 .map(Unchecked.function(r -> FtepServiceContextFile.builder()
                         .service(service)
-                        .filename(baseDir.getURI().relativize(r.getURI()).toString())
-                        .executable(baseDir.getURI().relativize(r.getURI()).toString().endsWith(".sh"))
+                        .filename(getRelativeFilename(r, baseDir))
+                        .executable(r.getFilename().endsWith(".sh"))
                         .content(new String(ByteStreams.toByteArray(r.getInputStream())))
                         .build()
                 ))
                 .collect(Collectors.toSet());
+    }
+
+    private static String getRelativeFilename(Resource resource, Resource baseDir) throws IOException {
+        return resource.getURI().toString().replaceFirst(baseDir.getURI().toString() + "/", "");
     }
 
 }

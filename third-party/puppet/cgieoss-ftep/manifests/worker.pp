@@ -29,7 +29,7 @@ class ftep::worker (
   contain ::ftep::common::java
   # User and group are set up by the RPM if not included here
   contain ::ftep::common::user
-  contain ::docker
+  contain ::ftep::common::docker
 
   $real_application_port = pick($application_port, $ftep::globals::worker_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::worker_grpc_port)

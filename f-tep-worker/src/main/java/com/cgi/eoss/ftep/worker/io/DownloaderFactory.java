@@ -46,4 +46,12 @@ public class DownloaderFactory {
             throw new ServiceIoException(e);
         }
     }
+
+    /**
+     * <p>Return true if a downloader for the given URI scheme (i.e. protocol) is registered.</p>
+     */
+    public boolean isSupportedProtocol(String scheme) {
+        return downloaders.keySet().contains(scheme);
+    }
+
 }

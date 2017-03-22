@@ -30,7 +30,8 @@ Vagrant.configure('2') do |config|
     ftep.vm.box = 'centos/6'
 
     # Expose the container's web server on 8080
-    ftep.vm.network 'forwarded_port', guest: 80, host: 8080
+    ftep.vm.network 'forwarded_port', guest: 80, host: 8080 # apache
+    ftep.vm.network 'forwarded_port', guest: 5140, host: 5140 # graylog gelf tcp
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
@@ -45,11 +46,8 @@ Vagrant.configure('2') do |config|
     # folders (which may be confused by symlinks)
     ftep.vm.provider 'virtualbox' do |vb|
       ftep.vm.synced_folder '.', '/vagrant', type: 'virtualbox'
-    #   # Display the VirtualBox GUI when booting the machine
-    #   vb.gui = true
-    #
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
+      vb.memory = 2048
+      vb.cpus = 2
     end
 
     # Puppet provisioning

@@ -92,7 +92,7 @@ public class FtepServicesClient {
 
             ctc.put("userId", userId);
             ctc.put("serviceId", serviceId);
-            ctc.put("jobId", jobId);
+            ctc.put("zooId", jobId);
 
             LOG.info("F-TEP service requested by user {}: {}, jobId: {}", userId, serviceId, jobId);
 

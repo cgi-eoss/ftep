@@ -27,4 +27,9 @@ public interface ServiceInputOutputManager {
      * name.</p>
      */
     Path getServiceContext(String serviceName);
+
+    /**
+     * <p>Return true if the given URI scheme (i.e. protocol) is supported by this I/O manager.</p>
+     */
+    boolean isSupportedProtocol(String scheme);
 }

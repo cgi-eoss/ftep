@@ -95,12 +95,18 @@ define(['../ftepmodules'], function (ftepmodules) {
                 setCache(response.data.data);
                 deferred.resolve(response.data.data);
 
-                if(!response || !response.data || !response.data.data || !response.data.data[0]){
-                    MessageService.addError('Search failed', 'Search result is empty');
+                if(!response || !response.data || !response.data.data || response.data.data.length === 0){
+                    MessageService.addError('Search failed', 'Server has returned an empty response');
                 }
-                else if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
-                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
-                            +'. Please refine the search parameters to get more precise results.');
+                else{
+                    var totalResults = 0;
+                    for(var i = 0; i < response.data.data.length; i++){
+                        totalResults += parseInt(response.data.data[i].results.totalResults);
+                    }
+                    if(totalResults > MAX_ITEMS_ALLOWED){
+                        MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
+                                +'. Please refine the search parameters to get more precise results.');
+                    }
                 }
             }).
             catch(function(e) {

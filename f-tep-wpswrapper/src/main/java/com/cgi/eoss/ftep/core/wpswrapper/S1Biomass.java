@@ -42,7 +42,7 @@ public class S1Biomass extends AbstractWrapperProc {
     public static final String RESULT_GEOTIFF_FILE_PATTERN = "*.tif";
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static int LandCoverS1(HashMap conf, HashMap inputs, HashMap outputs) {
+    public static int S1Biomass(HashMap conf, HashMap inputs, HashMap outputs) {
 
         S1Biomass processor = new S1Biomass(DOCKER_IMAGE_NAME);
         RequestHandler requestHandler = new RequestHandler(conf, inputs, outputs);

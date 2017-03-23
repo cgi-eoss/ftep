@@ -21,7 +21,7 @@ source ${WPS_PROPS}
 EPSG="${crs}"
 AOI="${aoi}"
 DEM="${dem}"
-TRAINING_SHAPEFILE=$(find ${IN_DIR} -name *.shp | head -1)
+TRAINING_SHAPEFILE=$(find -L ${IN_DIR} -name *.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 TARGET_RESOLUTION="${targetResolution}"
 

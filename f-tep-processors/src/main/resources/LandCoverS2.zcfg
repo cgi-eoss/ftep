@@ -58,17 +58,6 @@ serviceProvider = com/cgi/eoss/ftep/core/wpswrapper/LandCoverS2
             dataType = string
         </Default>
     </LiteralData>
-    [dem]
-    Title = Digital elevation model
-    Abstract = Digital elevation model identifier: SRTM (default) or ASTER
-    minOccurs = 1
-    maxOccurs = 1
-    <LiteralData>
-        <Default>
-            dataType = string
-            value = SRTM 3Sec
-        </Default>
-    </LiteralData>
     [targetResolution]
     Title = Target image resolution
     Abstract = Desired image resolution in metres. Controls resampling of the input data. Example: '10'

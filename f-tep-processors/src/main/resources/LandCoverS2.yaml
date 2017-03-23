@@ -53,16 +53,6 @@ dataInputs:
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
-  - id: "dem"
-    title: "Digital elevation model"
-    description: "Digital elevation model identifier: SRTM (default) or ASTER"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-      value: "SRTM 3Sec"
-    supportedAttrs: []
   - id: "targetResolution"
     title: "Target image resolution"
     description: "Desired image resolution in metres. Controls resampling of the input data. Example: '10'"

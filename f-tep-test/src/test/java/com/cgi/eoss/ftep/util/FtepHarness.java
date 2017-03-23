@@ -90,7 +90,8 @@ public class FtepHarness {
                 .await("Test environment started")
                 .until(this::containersAreUp);
 
-        // Set the browser to the webapp entry point
+        // Maximise the browser window and navigate to the webapp entry point
+        getChromeWebDriver().manage().window().maximize();
         getChromeWebDriver().get(getFtepBaseUrl() + "/app/");
 
         // Just in case, register a general 10s timeout for browser requests
@@ -134,7 +135,8 @@ public class FtepHarness {
     private void containersAreUp() {
         ImmutableMap.of(
                 "/app/", 200,
-                "/secure/wps/zoo_loader.cgi", 400
+                "/secure/wps/zoo_loader.cgi", 400,
+                "/secure/api/v2.0/dev/user/become/test-admin,ADMIN", 200
         ).forEach((path, expectedCode) -> {
             Request webRoot = new Request.Builder().url(getFtepBaseUrl() + path).build();
             try (Response response = httpClient.newCall(webRoot).execute()) {

@@ -1,7 +1,11 @@
 package com.cgi.eoss.ftep.util;
 
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.hamcrest.FeatureMatcher;
@@ -17,13 +21,22 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class FtepWebClient {
+
+    private static final String API_BASE = "/secure/api/v2.0";
+    private static final String BECOME_USER_BASE = API_BASE + "/dev/user/become/";
 
     private final FtepHarness harness;
     private final OkHttpClient httpClient;
@@ -53,7 +66,7 @@ public class FtepWebClient {
     public void loginAs(String username, String role) {
         String previousUrl = getWebDriver().getCurrentUrl();
         // Makes use of the DEVELOPMENT_BECOME_ANY_USER security mode
-        load("/secure/api/v2.0/dev/user/become/" + username + "," + role);
+        load(BECOME_USER_BASE + username + "," + role);
         // Then return to the previous location
         getWebDriver().get(previousUrl);
     }
@@ -125,6 +138,35 @@ public class FtepWebClient {
                 return actual.getText();
             }
         };
+    }
+
+    public void oneShotApiPost(String url) {
+        try {
+            OkHttpClient oneShotClient = httpClient.newBuilder().cookieJar(new InMemoryCookieJar()).build();
+            Request loginRequest = new Request.Builder().url(getUrl(BECOME_USER_BASE + "test-admin,ADMIN")).build();
+            Request postRequest = new Request.Builder().url(getUrl(API_BASE + url)).post(RequestBody.create(null, "")).build();
+            oneShotClient.newCall(loginRequest).execute();
+            oneShotClient.newCall(postRequest).execute();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final class InMemoryCookieJar implements CookieJar {
+        private final Set<Cookie> cookies = new HashSet<>();
+
+        @Override
+        public synchronized void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+            this.cookies.addAll(cookies);
+        }
+
+        @Override
+        public synchronized List<Cookie> loadForRequest(HttpUrl url) {
+            Map<Boolean, List<Cookie>> validCookies = this.cookies.stream()
+                    .collect(partitioningBy(c -> c.expiresAt() >= System.currentTimeMillis()));
+            cookies.removeAll(validCookies.get(false));
+            return validCookies.get(true).stream().filter(c -> c.matches(url)).collect(toList());
+        }
     }
 
 }

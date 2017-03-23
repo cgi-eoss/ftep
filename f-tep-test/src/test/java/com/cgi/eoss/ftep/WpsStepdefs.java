@@ -29,7 +29,10 @@ public class WpsStepdefs implements En {
         Then("^they receive the F-TEP service list$", () -> {
             assertThat(responseBody, allOf(
                     containsString("<ows:Title>Forestry TEP (F-TEP)  WPS Server</ows:Title>"),
-                    containsString("<ows:Identifier>QGIS</ows:Identifier>")
+                    containsString("<ows:Identifier>LandCoverS2</ows:Identifier>"),
+                    containsString("<ows:Identifier>VegetationIndices</ows:Identifier>"),
+                    containsString("<ows:Identifier>QGIS</ows:Identifier>"),
+                    containsString("<ows:Identifier>SNAP</ows:Identifier>")
             ));
         });
     }

@@ -71,14 +71,14 @@ for IN in $(find -L ${IN_DIR} -type d -name 'S2*.SAFE' | head -1); do
     for PRODUCT_EPSG in $COVERED_EPSGS; do
         UTM_ZONE=$(${EPSG2UTM} ${PRODUCT_EPSG#EPSG:})
         FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
-        time gpt -c 6144M ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"
+        time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"
     done
 done
 
 # Preprocess S2 input(s): mosaic multiple CRS values
 AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-time gpt -c 6144M ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -f GeoTIFF-BigTIFF -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
-time gpt -c 6144M BandSelect -t ${TRAINING_INPUT} -f GeoTIFF-BigTIFF -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
+time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -f GeoTIFF-BigTIFF -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
+time gpt BandSelect -t ${TRAINING_INPUT} -f GeoTIFF-BigTIFF -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
 
 # OTB training with "random forest" model + reference data
 time otbcli_TrainImagesClassifier \

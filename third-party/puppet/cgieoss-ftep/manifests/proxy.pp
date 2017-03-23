@@ -42,36 +42,44 @@ class ftep::proxy (
   # Reverse proxied paths
   $default_proxy_pass = [
     {
-      'path' => $context_path_geoserver,
-      'url'  => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}"
+      'path'   => $context_path_geoserver,
+      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_resto,
-      'url'  => "http://${ftep::globals::resto_hostname}"
+      'url'  => "http://${ftep::globals::resto_hostname}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_webapp,
-      'url'  => "http://${ftep::globals::webapp_hostname}"
+      'url'  => "http://${ftep::globals::webapp_hostname}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_wps,
-      'url'  => "http://${ftep::globals::wps_hostname}"
+      'url'  => "http://${ftep::globals::wps_hostname}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_api_v2,
-      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${context_path_api_v2}"
+      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${context_path_api_v2}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => '/download',
-      'url'  => "http://${ftep::globals::wps_hostname}/wps/ftep-output"
+      'url'  => "http://${ftep::globals::wps_hostname}/wps/ftep-output",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_monitor,
-      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}"
+      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}",
+      'params' => { 'retry' => '0' }
     },
     {
       'path' => $context_path_log,
-      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}"
+      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}",
+      'params' => { 'retry' => '0' }
     }
   ]
 
@@ -113,7 +121,8 @@ class ftep::proxy (
     $proxy_pass = concat([{
       'path'         => '/Shibboleth.sso',
       'url'          => '!',
-      'reverse_urls' => []
+      'reverse_urls' => [],
+      'params'       => { 'retry' => '0' }
     }], $default_proxy_pass)
   } else {
     $directories = $default_directories

@@ -63,6 +63,8 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
         FtepService ftepService = service.getService();
         ftepService.setOwner(userDataService.refresh(ftepService.getOwner()));
         save(ftepService);
+        // Fully resync the service context files collection
+        fileDataService.findByService(ftepService).forEach(fileDataService::delete);
         fileDataService.save(service.getFiles());
         return service;
     }

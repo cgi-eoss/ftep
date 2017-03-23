@@ -1,11 +1,5 @@
 rootProject.name = 'f-tep'
 
-include 'f-tep-common'
-include 'f-tep-datamanager'
-include 'f-tep-requesthandler'
-include 'f-tep-wpswrapper'
-include 'f-tep-demoprocessor'
-include 'f-tep-processors'
 include 'f-tep-portal'
 include 'f-tep-model'
 include 'f-tep-persistence'

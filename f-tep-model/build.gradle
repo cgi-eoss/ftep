@@ -19,7 +19,10 @@ compileJava {
 sourceSets {
     generated {
         java {
-            srcDirs += "${buildDir}/generated/java"
+            srcDirs = ["${buildDir}/generated/java"]
+        }
+        resources {
+            srcDirs = []
         }
     }
 }
@@ -31,8 +34,8 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
 
-    compile 'com.github.jasminb:jsonapi-converter'
     compile 'com.google.guava:guava'
+    compile 'com.querydsl:querydsl-core'
     compile 'com.querydsl:querydsl-jpa'
     compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api'
     compile 'com.fasterxml.jackson.core:jackson-annotations'

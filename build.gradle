@@ -52,9 +52,7 @@ allprojects {
                 entry 'jackson-datatype-guava'
             }
             dependency 'com.github.docker-java:docker-java:3.0.8'
-            dependency 'com.github.jasminb:jsonapi-converter:0.3'
             dependency 'com.google.code.findbugs:jsr305:3.0.1'
-            dependency 'com.google.code.gson:gson:2.7'
             dependency 'com.google.guava:guava:21.0'
             dependency 'com.google.jimfs:jimfs:1.1'
             dependency 'com.google.protobuf:protoc:3.2.0'
@@ -62,6 +60,7 @@ allprojects {
             dependency 'com.lmax:disruptor:3.3.6'
             dependencySet(group: 'com.querydsl', version: '4.1.4') {
                 entry 'querydsl-apt'
+                entry 'querydsl-core'
                 entry 'querydsl-jpa'
             }
             dependencySet(group: 'com.squareup.okhttp3', version: '3.6.0') {
@@ -87,7 +86,6 @@ allprojects {
             dependency 'javax.servlet:javax.servlet-api:3.1.0'
             dependency 'junit:junit:4.12'
             dependency 'org.apache.commons:commons-lang3:3.5'
-            dependency 'org.apache.httpcomponents:httpclient:4.5.3'
             dependency 'org.apache.logging.log4j:log4j-jul:2.7'
             dependency 'org.aspectj:aspectjweaver:1.8.10'
             dependency 'org.awaitility:awaitility:2.0.0'

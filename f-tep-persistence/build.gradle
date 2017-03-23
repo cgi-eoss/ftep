@@ -10,7 +10,6 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-rpc')
 
-    compile 'com.google.code.gson:gson'
     compile 'com.google.guava:guava'
     compile 'com.querydsl:querydsl-jpa'
     compile 'com.zaxxer:HikariCP'

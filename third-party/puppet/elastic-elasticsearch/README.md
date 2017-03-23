@@ -33,6 +33,8 @@ This module is actively tested against Elasticsearch 2.x and 5.x.
 * Elasticsearch service.
 * Elasticsearch plugins.
 * Elasticsearch templates.
+* Elasticsearch ingest pipelines.
+* Elasticsearch index settings.
 * Elasticsearch Shield/X-Pack users, roles, and certificates.
 
 ### Requirements
@@ -305,6 +307,71 @@ elasticsearch::template { 'templatename':
 }
 ```
 
+### Ingestion Pipelines
+
+Pipelines behave similar to templates in that their contents can be controlled
+over the Elasticsearch REST API with a custom Puppet resource.
+API parameters follow the same rules as templates (those settings can either be
+controlled at the top-level in the `elasticsearch` class or set per-resource).
+
+#### Adding a new pipeline
+
+This will install and/or replace an ingestion pipeline in Elasticsearch
+(ingestion settings are compared against the present configuration):
+
+```puppet
+elasticsearch::pipeline { 'addfoo':
+  content => {
+    'description' => 'Add the foo field',
+    'processors' => [{
+      'set' => {
+        'field' => 'foo',
+        'value' => 'bar'
+      }
+    }]
+  }
+}
+```
+
+#### Delete a pipeline
+
+```puppet
+elasticsearch::pipeline { 'addfoo':
+  ensure => 'absent'
+}
+```
+
+
+### Index Settings
+
+This module includes basic support for ensuring an index is present or absent
+with optional index settings.
+API access settings follow the pattern previously mentioned for templates.
+
+#### Creating an index
+
+At the time of this writing, only index settings are supported.
+Note that some settings (such as `number_of_shards`) can only be set at index
+creation time.
+
+```puppet
+elasticsearch::index { 'foo':
+  settings => {
+    'index' => {
+      'number_of_replicas' => 0
+    }
+  }
+}
+```
+
+#### Delete an index
+
+```puppet
+elasticsearch::index { 'foo':
+  ensure => 'absent'
+}
+```
+
 ### Bindings/Clients
 
 Install a variety of [clients/bindings](http://www.elasticsearch.org/guide/en/elasticsearch/client/community/current/clients.html):
@@ -512,7 +579,7 @@ For example, to create a role called `myrole`, you could use the following resou
 ```puppet
 elasticsearch::role { 'myrole':
   privileges => {
-    'cluster' => 'monitor',
+    'cluster' => [ 'monitor' ],
     'indices' => [{
       'names'      => [ '*' ],
       'privileges' => [ 'read' ],
@@ -814,15 +881,17 @@ class { 'elasticsearch':
 
 ## Limitations
 
-This module has been built on and tested against Puppet 3.2 and higher.
+This module is built upon and tested against the versions of Puppet listed in
+the metadata.json file (i.e. the listed compatible versions on the Puppet
+Forge).
 
 The module has been tested on:
 
-* Debian 6/7/8
+* Debian 7/8
 * CentOS 6/7
 * OracleLinux 6/7
-* Ubuntu 12.04, 14.04
-* OpenSuSE 13.x
+* Ubuntu 12.04, 14.04, 16.04
+* OpenSuSE 42.x
 * SLES 12
 
 Other distro's that have been reported to work:

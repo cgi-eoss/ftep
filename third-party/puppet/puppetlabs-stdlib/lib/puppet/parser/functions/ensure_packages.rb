@@ -11,9 +11,8 @@ third argument to the ensure_resource() function.
   ) do |arguments|
 
     if arguments.size > 2 or arguments.size == 0
-      raise(Puppet::ParseError, "ensure_packages(): Wrong number of arguments " +
-        "given (#{arguments.size} for 1 or 2)")
-    elsif arguments.size == 2 and !arguments[1].is_a?(Hash) 
+      raise(Puppet::ParseError, "ensure_packages(): Wrong number of arguments given (#{arguments.size} for 1 or 2)")
+    elsif arguments.size == 2 and !arguments[1].is_a?(Hash)
       raise(Puppet::ParseError, 'ensure_packages(): Requires second argument to be a Hash')
     end
 
@@ -25,7 +24,7 @@ third argument to the ensure_resource() function.
       end
 
       Puppet::Parser::Functions.function(:ensure_resources)
-      function_ensure_resources(['package', Hash(arguments[0]), defaults ])
+      function_ensure_resources(['package', arguments[0].dup, defaults ])
     else
       packages = Array(arguments[0])
 
@@ -37,7 +36,9 @@ third argument to the ensure_resource() function.
 
       Puppet::Parser::Functions.function(:ensure_resource)
       packages.each { |package_name|
+      if !findresource("Package[#{package_name}]")
         function_ensure_resource(['package', package_name, defaults ])
+      end
     }
     end
   end

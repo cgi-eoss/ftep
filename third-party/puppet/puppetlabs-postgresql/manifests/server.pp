@@ -3,7 +3,6 @@ class postgresql::server (
   $postgres_password          = undef,
 
   $package_name               = $postgresql::params::server_package_name,
-  $client_package_name        = $postgresql::params::client_package_name,
   $package_ensure             = $postgresql::params::package_ensure,
 
   $plperl_package_name        = $postgresql::params::plperl_package_name,
@@ -49,11 +48,12 @@ class postgresql::server (
 
   $encoding                   = $postgresql::params::encoding,
   $locale                     = $postgresql::params::locale,
+  $timezone                   = $postgresql::params::timezone,
 
   $manage_pg_hba_conf         = $postgresql::params::manage_pg_hba_conf,
   $manage_pg_ident_conf       = $postgresql::params::manage_pg_ident_conf,
   $manage_recovery_conf       = $postgresql::params::manage_recovery_conf,
-
+  $module_workdir             = $postgresql::params::module_workdir,
   #Deprecated
   $version                    = undef,
 ) inherits postgresql::params {

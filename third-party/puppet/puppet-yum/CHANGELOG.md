@@ -1,0 +1,113 @@
+# Changelog
+
+## 2017-01-14 - Release 1.0.0
+
+This is the first release with only Puppet 4.6.1 and newer support!
+- drop centos5 acceptance tests
+- Add Puppet 4 type validation
+- Wrap $ensure in single quotes to allow comma seperated values
+
+## 2017-01-11 - Release 0.10.0
+
+- Last Release with Puppet 3 support!
+- Fix requirements for Beaker tests
+- Add parameter clean_old_kernels that can be used to disable cleaning up of old kernels when installonly_limit is changed
+- Bump min version_requirement for Puppet + deps
+
+## 2016-09-26 - Release 0.9.15
+
+- Remove invalid dependency from metadata
+- Manage yum::versionlock with concat
+- Puppet no longer creates empty files when using Hiera and create_resources()
+  to create Yum keys
+
+## 2016-08-15 - Release 0.9.14
+
+- Release to Forge again
+- Fix module metadata
+
+## 2016-08-13 - Release 0.9.13
+
+- Release to Forge
+
+## 2016-06-25 - Release 0.9.12
+
+- Move to VoxPupuli org
+- Add base modulesync configs
+
+## 2016-05-30 - Release 0.9.8
+
+- YUM group commands can set exec. timeout and respect hidden groups.
+- Fix yum plugins on RHEL 5.x.
+- At least puppetlabs/stdlib 4.2.0 is required.
+- New resource yum::install for installing of local/remote packages.
+
+#### Features
+
+- Tunable exec. timeout for YUM group management commands.
+- New defined resource yum::install for local or remote (URL) packages install.
+
+#### Bugfixes
+
+- Properly detect YUM plugins prefixes on RHEL 5.x
+- Increased requirements on puppetlabs/stdlib to 4.2.0
+- Yum group management respects hidden groups
+
+## 2015-05-29 - Release 0.9.6
+
+Fixed check for installed YUM group on RHEL 7.
+
+#### Bugfixes
+
+- Fixed check for installed YUM group on RHEL/CentOS 7
+
+## 2015-04-07 - Release 0.9.5
+
+New class yum, defined resource yum::config. Trigger old kernels purge.
+
+#### Features
+
+- New defined resource yum::config to allow changes in /etc/yum.conf.
+- New class yum to set common global parameters
+- If installonly\_limit is changed, old kernels above the limit are purged.
+
+## 2014-12-08 - Release 0.9.4
+
+Fix file/directory permissions.
+
+#### Bugfixes
+
+- Fix PF module archive file/directory permissions.
+
+## 2014-11-06 - Release 0.9.3
+
+Enable yum.conf plugins if disabled.
+
+#### Bugfixes
+
+- Enable yum.conf plugins (if disabled) when we
+  install plugin via yum::plugin.
+
+## 2014-09-02 - Release 0.9.2
+
+Fix metadata.json
+
+#### Bugfixes
+
+- Fix metadata.json module dependencies
+
+## 2014-08-20 - Release 0.9.1
+
+### Summary
+
+Fix GPG key import check when key is specified in $content.
+
+#### Bugfixes
+
+- Fix GPG key import check when key is specified in $content.
+
+## 2014-08-07 - Release 0.9.0
+
+### Summary
+
+Initial release.

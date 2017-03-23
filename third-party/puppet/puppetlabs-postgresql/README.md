@@ -323,6 +323,8 @@ The postgresql module comes with many options for configuring the server. While 
 * [postgresql::server::database_grant](#postgresqlserverdatabase_grant)
 * [postgresql::server::db](#postgresqlserverdb)
 * [postgresql::server::extension](#postgresqlserverextension)
+* [postgresql::server::grant](#postgresqlservergrant)
+* [postgresql::server::grant_role](#postgresqlservergrant_role)
 * [postgresql::server::pg_hba_rule](#postgresqlserverpg_hba_rule)
 * [postgresql::server::pg_ident_rule](#postgresqlserverpg_ident_rule)
 * [postgresql::server::recovery](#postgresqlserverrecovery)
@@ -441,6 +443,10 @@ Overrides the default PostgreSQL java package name. Default: OS dependent.
 
 Sets the default database locale for all databases created with this module. On certain operating systems, this is also used during the `template1` initialization, so it becomes a default outside of the module as well. Default: undef, which is effectively `C`. **On Debian, you'll need to ensure that the 'locales-all' package is installed for full functionality of PostgreSQL.**
 
+##### `timezone`
+
+Sets the default timezone of the postgresql server. The postgresql built-in default is taking the systems timezone information.
+
 ##### `logdir`
 
 Overrides the default PostgreSQL log directory. Default: initdb's default path.
@@ -452,6 +458,10 @@ Set a prefix for the server logs. Default: `'%t '`
 ##### `manage_package_repo`
 
 Sets up official PostgreSQL repositories on your host if set to true. Default: false.
+
+##### `module_workdir`
+
+Specifies working directory under which the psql command should be executed. May need to specify if /tmp is on volume mounted with noexec option. Default: /tmp
 
 ##### `needs_initdb`
 
@@ -504,6 +514,10 @@ Path to your `recovery.conf` file.
 ##### `repo_proxy`
 
 Sets the proxy option for the official PostgreSQL yum-repositories only. Debian is currently not supported. This is useful if your server is behind a corporate firewall and needs to use proxy servers for outside connectivity.
+
+##### `repo_baseurl`
+
+Sets the baseurl for the PostgreSQL repository. Useful if you host your own mirror of the repository. Defaults to the official PostgreSQL repository.
 
 ##### `server_package_name`
 
@@ -896,7 +910,7 @@ Specifies the database to which you are granting access.
 
 ##### `privilege`
 
-Specifies which privileges to grant. Valid options: `SELECT`, `TEMPORARY`, `TEMP`, `CONNECT`. `ALL` is used as a synonym for `CREATE`, so if you need to add multiple privileges, you can use a space delimited string.
+Specifies comma-separated list of privileges to grant. Valid options: `ALL`, `CREATE`, `CONNECT`, `TEMPORARY`, `TEMP`.
 
 ##### `psql_db`
 
@@ -970,6 +984,38 @@ Sets the OS user to run `psql`. Default: the default user for the module, usuall
 
 Specifies the role or user whom you are granting access to.
 
+#### postgresql::server::grant_role
+
+Allows you to assign a role to a (group) role. See [PostgreSQL documentation for `Role Membership`](http://www.postgresql.org/docs/current/static/role-membership.html) for more information.
+
+##### `group`
+
+Specifies the group role to which you are assigning a role.
+
+##### `role`
+
+Specifies the role you want to assign to a group.  If left blank, uses the name of the resource.
+
+##### `ensure`
+
+Specifies whether to grant ('present') or revoke ('absent') the membership. Default: 'present'.
+
+##### `port`
+
+Port to use when connecting. Default: undef, which generally defaults to port 5432 depending on your PostgreSQL packaging.
+
+##### `psql_db`
+
+Specifies the database to execute the grant against. _This should not ordinarily be changed from the default_, which is `postgres`.
+
+##### `psql_user`
+
+Sets the OS user to run `psql`. Default: the default user for the module, usually `postgres`.
+
+##### `connect_settings`
+
+Specifies a hash of environment variables used when connecting to a remote server. Default: Connects to the local Postgres instance.
+
 #### postgresql::server::pg_hba_rule
 
 Allows you to create an access rule for `pg_hba.conf`. For more details see the [usage example](#create-an-access-rule-for-pghba.conf) and the [PostgreSQL documentation](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html).
@@ -988,7 +1034,7 @@ For certain `auth_method` settings there are extra options that can be passed. C
 
 ##### `database`
 
-Sets a comma separated list of databases that this rule matches.
+Sets a comma-separated list of databases that this rule matches.
 
 ##### `description`
 
@@ -1154,7 +1200,7 @@ Specifies which database the table is in.
 
 ##### `privilege`
 
-Valid options: `SELECT`, `INSERT`, `UPDATE`, `REFERENCES`. `ALL` is used as a synonym for `CREATE`, so if you need to add multiple privileges, use a space-delimited string.
+Specifies comma-separated list of privileges to grant. Valid options: `ALL`, `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `REFERENCES`, `TRIGGER`.
 
 ##### `psql_db`
 

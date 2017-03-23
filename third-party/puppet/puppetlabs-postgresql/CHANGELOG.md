@@ -1,3 +1,23 @@
+## Supported Release 4.9.0
+### Summary
+This release adds several types and, among other bugs, fixes an issue with the yum URL.
+
+#### Features
+- Modifying ownership of databases and schemas now available (MODULES-3247)
+- Use `module_workdir` to specify a custom directory in which to execute psql commands
+- `grant_role` and `grant` types added!
+- Support for parallel unit testing (parallel_tests)
+- Override download/installation repo URL with `repo_baseurl`
+- Set your timezone with `timezone`
+- Grant privileges on LANGUAGEs
+- Added support for Debian Stretch and Ubuntu Yakkety Yak
+
+#### Bugfixes
+- Usernames and passwords are now converted to strings before password hash is created
+- Specify default database name if it is not the username
+- Update to yum repo
+- Schema name conflicts fix
+
 ## Supported Release 4.8.0
 ### Summary
 This release primarily fixes an issue with `postgresql_conf` values of ipaddresses being considered floats and not getting quoted.
@@ -265,14 +285,6 @@ kind of thing rather than trying to weave it into the main module logic itself.
 - Link pg_config binary into /usr/bin.
 - Fix fedora support by using systemd.
 - Initdb should create xlogdir if set.
-
-##2014-08-27 - Supported Release 3.4.3
-###Summary
-
-This release fixes Ubuntu 10.04 with Facter 2.2.
-
-####Features
-####Bugfixes
 - Use a regular expression to match the major OS version on Ubuntu.
 
 ##2014-07-31 - Supported Release 3.4.2

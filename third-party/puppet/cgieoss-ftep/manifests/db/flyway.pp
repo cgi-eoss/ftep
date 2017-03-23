@@ -21,22 +21,20 @@ class ftep::db::flyway (
   )
 
   $root_dir = "flyway-${version}"
+  $path = "${install_dir}/${root_dir}"
 
   # Download and unpack the standalone platform-independent binary distribution
   $archive = "flyway-commandline-${version}"
-  ::archive { $archive:
-    ensure           => present,
-    url              => $flyway_commandline_url,
-    follow_redirects => true,
-    extension        => $extension,
-    digest_string    => $source_digest,
-    digest_type      => $source_digest_type,
-    user             => 'root',
-    target           => $install_dir,
-    root_dir         => $root_dir,
+  archive { $archive:
+    path             => "/tmp/${archive}.tar.gz",
+    source           => $flyway_commandline_url,
+    checksum         => $source_digest,
+    checksum_type    => $source_digest_type,
+    extract          => true,
+    extract_path     => $install_dir,
+    creates          => $path,
+    cleanup          => true,
   }
-
-  $path = "${install_dir}/${root_dir}"
 
   Class['ftep::db::flyway'] -> Ftep::Db::Flyway_migration<||>
 

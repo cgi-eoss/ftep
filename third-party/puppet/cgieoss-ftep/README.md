@@ -39,10 +39,39 @@ and the processing manager.
 
 The ftep module may be used to install the F-TEP components individually by the
 classes:
-* `ftep::portal` (TBD)
-* `ftep::backend` (in progress)
+* `ftep::db`
+* `ftep::drupal`
+* `ftep::geoserver`
+* `ftep::monitor`
+* `ftep::proxy`
+* `ftep::resto`
+* `ftep::server`
+* `ftep::webapp`
+* `ftep::worker`
+* `ftep::wps`
 
 Configuration parameters shared by these classes may be set via `ftep::globals`.
+
+Interoperability between the components is managed via hostnames, which may be
+resolved at runtime via DNS or manually, by overriding the `ftep::globals::hosts_override`
+hash. See the `ftep::globals` class for available parameters, and the specific
+component classes for how these are used, for example in `apache::vhost`
+resources.
+
+### Manual configuration actions
+
+Some components of F-TEP are not fully instantiated by this Puppet module.
+Following the automated provisioning of an F-TEP environment, some manual steps
+must be carried out to ensure full functionality of some components. These may
+be omitted when some functionality is not required.
+
+The following list describes some of these possible post-installation actions:
+* `ftep::drupal`: Drupal site initialisation &amp; content restoration
+* `ftep::monitor`: Creation of graylog inputs &amp; dashboards
+* `ftep::monitor`: Creation of grafana dashboards
+* `ftep::worker`: Installation of downloader credentials
+* `ftep::wps`: Restoration &amp; publishing of default F-TEP services
+
 
 ## Limitations
 

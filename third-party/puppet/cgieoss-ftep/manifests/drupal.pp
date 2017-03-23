@@ -124,8 +124,8 @@ class ftep::drupal (
     $drush_si_options = "standard install_configure_form.update_status_module='array(FALSE,FALSE)'"
 
     $drupal_site_install_requires = defined(Class["::ftep::db"]) ? {
-      true    => [Class['::ftep::db']],
-      default => []
+      true    => [Class['::ftep::db'], Drupal::Site[$drupal_site]],
+      default => [Drupal::Site[$drupal_site]]
     }
 
     exec { 'drupal-site-install':

@@ -1,3 +1,7 @@
+if (!eossCI.isTriggeredByGerrit()) {
+    properties [[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '30', daysToKeepStr: '', numToKeepStr: '']]]
+}
+
 node {
     dir('.fetch') {
         deleteDir()

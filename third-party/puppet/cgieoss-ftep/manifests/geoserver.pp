@@ -41,17 +41,15 @@ class ftep::geoserver (
 
   # Download and unpack the standalone platform-independent binary distribution
   $archive = "geoserver-${geoserver_version}"
-  ::archive { $archive:
-    ensure           => present,
-    url              => $geoserver_download_url,
-    follow_redirects => true,
-    extension        => $geoserver_extension,
-    digest_string    => $geoserver_digest,
-    digest_type      => $geoserver_digest_type,
-    user             => $user,
-    target           => $user_home,
-    src_target       => $user_home,
-    require          => [User[$user], Package['unzip']],
+  archive { $archive:
+    path          => "${user_home}/${archive}.zip",
+    source        => $geoserver_download_url,
+    checksum      => $geoserver_digest,
+    checksum_type => $geoserver_digest_type,
+    user          => $user,
+    extract       => true,
+    extract_path  => $user_home,
+    require       => [User[$user], Package['unzip']],
   }
 
   file { $geoserver_home:

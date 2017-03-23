@@ -13,7 +13,7 @@ class ftep::common::docker (
   exec { "docker-system-user-${ftep::globals::user}":
     command => "/usr/sbin/usermod -aG ${docker_group} ${ftep::globals::user}",
     unless  => "/bin/cat /etc/group | grep '^${docker_group}:' | grep -qw ${ftep::globals::user}",
-    require => Class['::ftep::common::user']
+    require => [Class['::ftep::common::user'], Class['::docker']],
   }
 
 }

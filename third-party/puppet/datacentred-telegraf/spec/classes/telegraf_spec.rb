@@ -2,15 +2,13 @@ require 'spec_helper'
 
 describe 'telegraf' do
   context 'Supported operating systems' do
-    ['RedHat', ].each do |osfamily|
+    ['RedHat', 'CentOS', 'OracleLinux'].each do |operatingsystem|
       [6,7].each do |releasenum|
-        context "RedHat #{releasenum} release specifics" do
+        context "#{osfamily} #{releasenum} release specifics" do
           let(:facts) {{
-            :osfamily               => 'RedHat',
-            :kernel                 => 'Linux',
-            :operatingsystem        => osfamily,
-            :operatingsystemrelease => releasenum,
-            :role                   => 'telegraf'
+            :operatingsystem           => operatingsystem,
+            :operatingsystemrelease    => releasenum,
+            :operatingsystemmajrelease => releasenum,
           }}
           it { should compile.with_all_deps }
           it { should contain_class('telegraf::config') }
@@ -75,9 +73,25 @@ describe 'telegraf' do
             )
           }
           it { should contain_file('/etc/telegraf/telegraf.conf') }
+          it { should contain_file('/etc/telegraf/telegraf.d')
+            .with_purge(false)
+          }
           it { should contain_package('telegraf') }
           it { should contain_service('telegraf') }
-          it { should contain_yumrepo('influxdata') }
+          it { should contain_yumrepo('influxdata')
+            .with(
+              :baseurl => "https://repos.influxdata.com/#{operatingsystem.downcase}/\$releasever/\$basearch/stable",
+            )
+          }
+
+          describe 'allow custom repo_type' do
+            let(:params) { {:repo_type => 'unstable' } }
+            it { should contain_yumrepo('influxdata')
+              .with(
+                :baseurl => "https://repos.influxdata.com/#{operatingsystem.downcase}/\$releasever/\$basearch/unstable",
+              )
+            }
+          end
         end
       end
     end

@@ -27,7 +27,7 @@ define telegraf::input (
 
   Class['::telegraf::config']
   ->
-  file {"/etc/telegraf/telegraf.d/${name}.conf":
+  file {"${telegraf::config_folder}/${name}.conf":
     content => template('telegraf/input.conf.erb')
   }
   ~>

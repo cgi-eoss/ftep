@@ -19,7 +19,7 @@ dataInputs:
     supportedAttrs: []
   - id: "refDataDem"
     title: "Reference data containing digital elevation model"
-    description: "Expected is a single .tif with filename matching 'DEM_*.tif' (or a .zip containing same)"
+    description: "Expected is a single .tif (or a .zip containing same)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"
@@ -28,7 +28,7 @@ dataInputs:
     supportedAttrs: []
   - id: "refDataForestMask"
     title: "Reference data containing forest mask"
-    description: "Expected is a single .tif with filename matching 'ForestMask_*.tif' (or a .zip containing same)"
+    description: "Expected is a single .tif (or a .zip containing same)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

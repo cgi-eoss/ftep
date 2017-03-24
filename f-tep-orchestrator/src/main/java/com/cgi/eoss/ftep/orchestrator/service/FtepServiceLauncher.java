@@ -33,7 +33,6 @@ import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -102,8 +101,10 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .setJob(rpcJob)
                     .setServiceName(serviceId)
                     .setDockerImage(dockerImageTag)
-                    .addBinds(jobEnvironment.getWorkingDir() + ":" + "/nobody/workDir")
-                    .addBinds(Paths.get(jobEnvironment.getWorkingDir()).getParent().toString() + ":" + Paths.get(jobEnvironment.getWorkingDir()).getParent().toString());
+                    .addBinds("/data:/data:ro")
+                    .addBinds(jobEnvironment.getWorkingDir() + "/FTEP-WPS-INPUT.properties:" + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro")
+                    .addBinds(jobEnvironment.getInputDir() + ":" + "/home/worker/workDir/inDir:ro")
+                    .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw");
             if (service.getType() == ServiceType.APPLICATION) {
                 dockerConfigBuilder.addPorts(GUACAMOLE_PORT);
             }

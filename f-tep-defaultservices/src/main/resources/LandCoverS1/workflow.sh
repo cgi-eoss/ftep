@@ -21,7 +21,7 @@ AOI="${aoi}"
 DEM="${dem}"
 TARGET_RESOLUTION="${targetResolution:-10}"
 EPSG="${crs}"
-TRAINING_SHAPEFILE=$(find -L ${IN_DIR} -name *.shp | head -1)
+TRAINING_SHAPEFILE=$(ls -1 ${IN_DIR}/refDataShapefile/*.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 
 # Internal params
@@ -37,7 +37,7 @@ OUTPUT_FILE="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0
-for IN in $(find -L ${IN_DIR} -type d -name 'S1*.SAFE'); do
+for IN in $(ls -1d ${IN_DIR}/inputfiles/S1*.SAFE); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
     time gpt ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"

@@ -18,10 +18,10 @@ mkdir -p ${PROC_DIR}
 # Input params
 source ${WPS_PROPS}
 AOI="${aoi}"
-DEM=$(find -L ${IN_DIR} -iname dem*.tif | head -1)
+DEM=$(ls -1 ${IN_DIR}/refDataDem/*.tif | head -1)
 TARGET_RESOLUTION="${targetResolution:-10}"
 EPSG="${crs}"
-FOREST_MASK=$(find -L ${IN_DIR} -iname forestmask*.tif | head -1)
+FOREST_MASK=$(ls -1 ${IN_DIR}/refDataForestMask/*.tif | head -1)
 
 # Internal params
 S1_PREPROCESS="${WORKFLOW}/S1_biomass_preprocess.xml"
@@ -37,7 +37,7 @@ OUTPUT_FILE="${OUT_DIR}/FTEP_S1BIOMASS_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0
-for IN in $(find -L ${IN_DIR} -type d -name 'S1*.SAFE'); do
+for IN in $(ls -1d ${IN_DIR}/inputfiles/S1*.SAFE); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
     time gpt ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -PdemFile="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"

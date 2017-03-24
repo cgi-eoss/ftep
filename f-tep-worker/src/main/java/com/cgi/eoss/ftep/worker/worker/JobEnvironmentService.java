@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.worker.worker;
 import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,7 @@ public class JobEnvironmentService {
             Path configFile = environment.getWorkingDir().resolve(JOB_CONFIG_FILENAME);
 
             List<String> configFileLines = jobConfig.keySet().stream()
-                    .map(key -> key + "=" + String.join(",", jobConfig.get(key)))
+                    .map(key -> key + "=" + StringUtils.wrapIfMissing(String.join(",", jobConfig.get(key)), '"'))
                     .collect(Collectors.toList());
             Files.write(configFile, configFileLines, CREATE_NEW);
 

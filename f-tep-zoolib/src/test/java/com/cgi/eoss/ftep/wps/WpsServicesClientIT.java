@@ -136,8 +136,8 @@ public class WpsServicesClientIT {
 
         List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
         assertThat(jobConfigLines, is(ImmutableList.of(
-                "inputKey1=inputVal1",
-                "inputKey2=inputVal2-1,inputVal2-2"
+                "inputKey1=\"inputVal1\"",
+                "inputKey2=\"inputVal2-1,inputVal2-2\""
         )));
     }
 

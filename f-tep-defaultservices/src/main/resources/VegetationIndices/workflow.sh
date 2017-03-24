@@ -43,22 +43,11 @@ if [ "" != "${AOI}" ]; then
     WEST_BOUND=${AOI_EXTENTS[3]}
 fi
 
-# Convert an S2 input product name to its XML metadata filename
-safe2xml() {
-    INPUT=$1
-    IN_PROD=${INPUT/_MSIL1C_/_SAFL1C_}
-    IN_PROD=${IN_PROD/_PRD_/_MTD_}
-    IN_PROD=${IN_PROD/.SAFE/.xml}
-    echo ${IN_PROD}
-}
-
 # Preprocess S2 input(s): extract correct bands and resample
-# TODO (Eventually) figure out how to mosaic from multiple inputs
 I=0
-for IN in $(find -L ${IN_DIR} -type d -name 'S2*.SAFE' | head -1); do
+for IN in $(ls -1d ${IN_DIR}/inputfile/S2*.SAFE | head -1); do
     I=$((I+1))
-    XML=$(safe2xml ${IN#${IN_DIR}/})
-    INPUT_FILE="${IN}/${XML}"
+    INPUT_FILE=$(ls -1 ${IN}/S2*.xml | head -1)
     # Read the product with each possible formatName (UTM zone)
     COVERED_EPSGS=($(${S2PRODUCTZONES} ${IN}/GRANULE/*/S2*.xml))
     for PRODUCT_EPSG in $COVERED_EPSGS; do

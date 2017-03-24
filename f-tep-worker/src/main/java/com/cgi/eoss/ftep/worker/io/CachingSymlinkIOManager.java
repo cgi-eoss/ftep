@@ -14,16 +14,21 @@ import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.jooq.lambda.Unchecked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 
@@ -36,7 +41,9 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final int DEFAULT_CONCURRENCY_LEVEL = 4;
     private static final int DEFAULT_MAX_WEIGHT = 1024;
     private static final HashFunction HASH_FUNCTION = Hashing.sha1();
+    private static final String URI_FILENAME = ".uri";
 
+    private final Path cacheRoot;
     private final DownloaderFactory downloaderFactory;
     private final LoadingCache<URI, Path> loadingCache;
 
@@ -45,6 +52,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                                    @Qualifier("cacheMaxWeight") Integer maximumWeight,
                                    @Qualifier("cacheRoot") Path cacheRoot,
                                    DownloaderFactory downloaderFactory) {
+        this.cacheRoot = cacheRoot;
         this.downloaderFactory = downloaderFactory;
         this.loadingCache = CacheBuilder.newBuilder()
                 .concurrencyLevel(concurrencyLevel)
@@ -57,6 +65,27 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     public CachingSymlinkIOManager(Path cacheRoot,
                                    DownloaderFactory downloaderFactory) {
         this(DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, cacheRoot, downloaderFactory);
+    }
+
+    @PostConstruct
+    public void scanExistingCacheEntries() throws IOException {
+        Files.list(cacheRoot)
+                .map(dir -> dir.resolve(URI_FILENAME))
+                .filter(Files::exists)
+                .map(Unchecked.function(uriFile -> URI.create(new String(Files.readAllBytes(uriFile)).trim())))
+                .peek(uri -> LOG.debug("Registering existing cache path for: {}", uri))
+                .forEach(Unchecked.consumer(loadingCache::get));
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void expireDeletedCachePaths() {
+        loadingCache.invalidateAll(
+                loadingCache.asMap().entrySet().stream()
+                        .filter(e -> Files.notExists(e.getValue()))
+                        .map(Map.Entry::getKey)
+                        .peek(uri -> LOG.debug("Invalidating deleted cache path for: {}", uri))
+                        .collect(Collectors.toSet())
+        );
     }
 
     @Override
@@ -115,7 +144,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                     Files.createDirectories(inProgressDir);
 
                     // Write the source uri to the directory, for backwards resolution if needed
-                    Path urlFile = inProgressDir.resolve(".uri");
+                    Path urlFile = inProgressDir.resolve(URI_FILENAME);
                     Files.write(urlFile, ImmutableList.of(uri.toString()), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE_NEW);
 
                     // Download the file, and unzip it if necessary
@@ -138,7 +167,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                 }
             }
 
-            LOG.info("Returning cached directory for URI {}: {}", uri, resultDir);
+            LOG.debug("Returning cached directory for URI {}: {}", uri, resultDir);
             return resultDir;
         }
 
@@ -184,11 +213,13 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
         @Override
         public void onRemoval(RemovalNotification<URI, Path> notification) {
             LOG.info("Download cache entry {} expired: {}", notification.getKey(), notification.getCause());
-            LOG.info("Removing cached download path: {}", notification.getValue());
-            try {
-                MoreFiles.deleteRecursively(notification.getValue());
-            } catch (IOException e) {
-                LOG.error("Unable to delete expired cache directory {}", notification.getValue(), e);
+            if (Files.exists(notification.getValue())) {
+                LOG.info("Removing cached download path: {}", notification.getValue());
+                try {
+                    MoreFiles.deleteRecursively(notification.getValue());
+                } catch (IOException e) {
+                    LOG.error("Unable to delete expired cache directory {}", notification.getValue(), e);
+                }
             }
         }
     }

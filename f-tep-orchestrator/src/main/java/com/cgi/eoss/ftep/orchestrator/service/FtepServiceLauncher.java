@@ -62,15 +62,15 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
     public void launchService(FtepServiceParams request, StreamObserver<FtepServiceResponse> responseObserver) {
         Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
 
-        String jobId = request.getJobId();
+        String zooId = request.getJobId();
         String userId = request.getUserId();
         String serviceId = request.getServiceId();
 
         Job job = null;
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
-                .put("userId", userId).put("serviceId", serviceId).put("zooId", jobId)) {
+                .put("userId", userId).put("serviceId", serviceId).put("zooId", zooId)) {
             // TODO Allow re-use of existing JobConfig
-            job = jobDataService.buildNew(jobId, userId, serviceId, inputs);
+            job = jobDataService.buildNew(zooId, userId, serviceId, inputs);
             ctc.put("jobId", String.valueOf(job.getId()));
             FtepService service = job.getConfig().getService();
 
@@ -80,8 +80,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
 
             // Prepare inputs
-            LOG.info("Downloading input data for {}", jobId);
-            com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder().setId(jobId).build();
+            LOG.info("Downloading input data for {}", zooId);
+            com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder()
+                .setId(zooId)
+                .setIntJobId(String.valueOf(job.getId()))
+                .setUserId(userId)
+                .setServiceId(serviceId)
+                .build();
             job.setStartTime(LocalDateTime.now());
             job.setStatus(JobStatus.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
@@ -102,25 +107,25 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             if (service.getType() == ServiceType.APPLICATION) {
                 dockerConfigBuilder.addPorts(GUACAMOLE_PORT);
             }
-            LOG.info("Launching docker image {} for {}", dockerImageTag, jobId);
+            LOG.info("Launching docker image {} for {}", dockerImageTag, zooId);
             job.setStage(JobStep.PROCESSING.getText());
             jobDataService.save(job);
             LaunchContainerResponse unused = worker.launchContainer(dockerConfigBuilder.build());
 
             // TODO Implement async service command execution
 
-            LOG.info("Job {} ({}) launched for service: {}", job.getId(), jobId, service.getName());
+            LOG.info("Job {} ({}) launched for service: {}", job.getId(), zooId, service.getName());
 
             // Update GUI endpoint URL for client access
             if (service.getType() == ServiceType.APPLICATION) {
                 PortBinding portBinding = worker.getPortBindings(rpcJob).getBindingsList().stream()
                         .filter(b -> b.getPortDef().equals(GUACAMOLE_PORT))
                         .findFirst()
-                        .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container: " + jobId));
+                        .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container: " + zooId));
 
                 String guiUrl = portBinding.getBinding();
 
-                LOG.info("Updating GUI URL for job {} ({}): {}", jobId, job.getConfig().getService().getName(), guiUrl);
+                LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
                 job.setGuiUrl(guiUrl);
                 jobDataService.save(job);
             }

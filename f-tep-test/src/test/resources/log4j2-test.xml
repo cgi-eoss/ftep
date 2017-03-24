@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.testcontainers.shaded.com.github.dozckerjava" level="INFO"/>
+        <Logger name="org.testcontainers.shaded.com.github.dockerjava" level="INFO"/>
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

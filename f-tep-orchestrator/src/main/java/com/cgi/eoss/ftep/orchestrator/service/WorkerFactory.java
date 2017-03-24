@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
-import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,12 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class WorkerFactory {
 
-    private final ManagedChannel localChannel;
+    private final ManagedChannelBuilder localChannelBuilder;
 
     @Autowired
     public WorkerFactory(@Qualifier("localWorkerChannelBuilder") ManagedChannelBuilder localChannelBuilder) {
         // TODO Use service discovery instead of manual definition + injection
-        this.localChannel = localChannelBuilder.build();
+        this.localChannelBuilder = localChannelBuilder;
     }
 
     /**
@@ -27,7 +26,7 @@ public class WorkerFactory {
     public FtepWorkerGrpc.FtepWorkerBlockingStub getWorker(WorkerEnvironment env) {
         switch (env) {
             case LOCAL:
-                return FtepWorkerGrpc.newBlockingStub(localChannel);
+                return FtepWorkerGrpc.newBlockingStub(localChannelBuilder.build());
             default:
                 throw new UnsupportedOperationException("Unable to launch worker for environment: " + env);
         }

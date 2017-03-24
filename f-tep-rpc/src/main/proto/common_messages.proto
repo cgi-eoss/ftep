@@ -8,6 +8,9 @@ option java_outer_classname = "Messages";
 
 message Job {
     string id = 1;
+    string intJobId = 2;
+    string userId = 3;
+    string serviceId = 4;
 }
 
 message JobParam {

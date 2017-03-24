@@ -35,6 +35,12 @@
 <% } -%>
     </Appenders>
     <Loggers>
+<% if $enable_graylog { -%>
+        <!-- Dedicated graylog-only logger for F-TEP docker container logs, otherwise it just gets dumped on the console -->
+        <Logger name="FTEP_DOCKER_LOGGER" additivity="false">
+            <AppenderRef ref="Graylog" />
+        </Logger>
+<% } -%>
         <Root level="<%= $log_level %>">
             <AppenderRef ref="Console" />
 <% if $enable_graylog { -%>

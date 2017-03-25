@@ -39,6 +39,11 @@ public class CatalogueServiceImpl implements CatalogueService {
     }
 
     @Override
+    public Path provisionNewOutputProduct(OutputProductMetadata outputProduct, String filename) throws IOException {
+        return outputProductService.provision(outputProduct.getJobId(), filename);
+    }
+
+    @Override
     public FtepFile ingestOutputProduct(OutputProductMetadata outputProduct, Path path) throws IOException {
         FtepFile ftepFile = outputProductService.ingest(
                 outputProduct.getOwner(),

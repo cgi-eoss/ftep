@@ -54,7 +54,7 @@ dataInputs:
       dataType: "string"
     supportedAttrs: []
 dataOutputs:
-  - id: "Result"
+  - id: "result"
     title: "GeoTiff image file"
     description: "The requested vegetation index image"
     data: "COMPLEX"

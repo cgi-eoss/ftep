@@ -15,6 +15,7 @@ POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
 S2PRODUCTZONES="python ${WORKFLOW}/s2ProductZones.py"
 
 mkdir -p ${PROC_DIR}
+mkdir -p ${OUT_DIR}/{result,model,confusionMatrix}
 
 # Input params
 source ${WPS_PROPS}
@@ -36,9 +37,9 @@ S2_MOSAIC="${WORKFLOW}/S2_mosaic.xml"
 PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
 MOSAIC_OUTPUT="${PROC_DIR}/mosaic.tif"
 TRAINING_INPUT="${PROC_DIR}/training_input.tif"
-TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}_training_model.txt"
-TRAINING_OUTPUT_CONFUSION_MATRIX_CSV="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}_confusion_matrix.csv"
-OUTPUT_FILE="${OUT_DIR}/FTEP_LANDCOVERS2_${TIMESTAMP}.tif"
+TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/model/FTEP_LANDCOVERS2_${TIMESTAMP}_training_model.txt"
+TRAINING_OUTPUT_CONFUSION_MATRIX_CSV="${OUT_DIR}/confusionMatrix/FTEP_LANDCOVERS2_${TIMESTAMP}_confusion_matrix.csv"
+OUTPUT_FILE="${OUT_DIR}/result/FTEP_LANDCOVERS2_${TIMESTAMP}.tif"
 
 # Bounds of given AOI
 if [ "" != "${AOI}" ]; then

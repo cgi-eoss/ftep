@@ -10,8 +10,10 @@ import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
-import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
+import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.io.ServiceIoException;
 import com.github.dockerjava.api.DockerClient;
@@ -24,6 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
+import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -32,10 +35,17 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +58,7 @@ import java.util.stream.Collectors;
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    private static final String FTEP_SERVICE_CONTEXT = "ftep://serviceContext/${serviceName}";
+    private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final DockerClientFactory dockerClientFactory;
     private final JobEnvironmentService jobEnvironmentService;
@@ -172,8 +182,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID {} does not have a known container ID", request.getJob().getId());
+            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
+            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID %s does not have a known container ID", request.getJob().getId());
 
             DockerClient dockerClient = jobClients.get(request.getJob().getId());
             String containerId = jobContainers.get(request.getJob().getId());
@@ -188,6 +198,52 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 removeContainer(dockerClient, containerId);
                 jobContainers.remove(request.getJob().getId());
                 jobClients.remove(request.getJob().getId());
+            }
+        }
+    }
+
+    @Override
+    public void getOutputFile(OutputFileParam request, StreamObserver<OutputFileResponse> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            String outputId = request.getOutputId();
+            try {
+                Path outputDir = Paths.get(request.getPath()).resolve(outputId);
+                if (Files.list(outputDir).count() != 1) {
+                    throw new ServiceIoException("Found " + Files.list(outputDir).count() + " files in the output directory (1 expected): " + outputDir);
+                }
+                Path outputFile = Files.list(outputDir).findFirst().orElseThrow(FileNotFoundException::new);
+                long outputFileSize = Files.size(outputFile);
+                LOG.info("Returning output file from job {}: {} ({} bytes)", request.getJob().getId(), outputFile, outputFileSize);
+
+                // First message is the metadata
+                OutputFileResponse.FileMeta fileMeta = OutputFileResponse.FileMeta.newBuilder()
+                        .setFilename(outputFile.getFileName().toString())
+                        .setSize(outputFileSize)
+                        .build();
+                responseObserver.onNext(OutputFileResponse.newBuilder().setMeta(fileMeta).build());
+
+                // Then read the file, chunked at 8kB
+                LocalDateTime startTime = LocalDateTime.now();
+                try (SeekableByteChannel channel = Files.newByteChannel(outputFile, StandardOpenOption.READ)) {
+                    ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
+                    int position = 0;
+                    while (channel.read(buffer) > 0) {
+                        int size = buffer.position();
+                        buffer.rewind();
+                        responseObserver.onNext(OutputFileResponse.newBuilder().setChunk(OutputFileResponse.Chunk.newBuilder()
+                                .setPosition(position)
+                                .setData(ByteString.copyFrom(buffer, size))
+                                .build()).build());
+                        position += buffer.position();
+                        buffer.flip();
+                    }
+                }
+                LOG.info("Transferred output file {} ({} bytes) in {}", outputFile.getFileName(), outputFileSize, Duration.between(startTime, LocalDateTime.now()));
+
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                LOG.error("Failed to collect output file: {}", request.toString(), e);
+                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.wps;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
@@ -58,6 +60,9 @@ public class WpsServicesClientIT {
     @Mock
     private JobDataService jobDataService;
 
+    @Mock
+    private CatalogueService catalogueService;
+
     private FileSystem fs;
 
     private FtepServicesClient ftepServicesClient;
@@ -92,7 +97,7 @@ public class WpsServicesClientIT {
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
 
         WorkerFactory workerFactory = new WorkerFactory(channelBuilder);
-        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService);
+        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, catalogueService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
         inProcessServerBuilder.addService(ftepServiceLauncher);
@@ -114,9 +119,11 @@ public class WpsServicesClientIT {
     @Test
     public void launchProcessor() throws Exception {
         FtepService service = mock(FtepService.class);
+        FtepServiceDescriptor serviceDescriptor = mock(FtepServiceDescriptor.class);
         User user = mock(User.class);
 
         when(service.getDockerTag()).thenReturn(TEST_CONTAINER_IMAGE);
+        when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
         when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
             JobConfig config = new JobConfig(user, service);
             config.setInputs(invocation.getArgument(3));

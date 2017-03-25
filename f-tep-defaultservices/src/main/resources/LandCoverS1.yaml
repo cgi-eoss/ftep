@@ -73,7 +73,7 @@ dataInputs:
       dataType: "string"
     supportedAttrs: []
 dataOutputs:
-  - id: "Result"
+  - id: "result"
     title: "GeoTiff image file"
     description: "The requested land cover image"
     data: "COMPLEX"
@@ -82,7 +82,7 @@ dataOutputs:
       extension: "tif"
       asReference: "true"
     supportedAttrs: []
-  - id: "Model"
+  - id: "model"
     title: "Training model"
     description: "The output of the image classification training step"
     data: "COMPLEX"
@@ -91,7 +91,7 @@ dataOutputs:
       extension: "txt"
       asReference: "true"
     supportedAttrs: []
-  - id: "ConfusionMatrix"
+  - id: "confusionMatrix"
     title: "Confusion matrix"
     description: "The CSV confusion matrix output of the image classification training step"
     data: "COMPLEX"

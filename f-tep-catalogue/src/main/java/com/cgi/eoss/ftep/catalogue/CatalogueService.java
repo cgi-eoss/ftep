@@ -28,6 +28,17 @@ public interface CatalogueService {
     FtepFile ingestReferenceData(ReferenceDataMetadata referenceData, MultipartFile file) throws IOException;
 
     /**
+     * <p>Create a path reference suitable for creating a new output product file.</p>
+     * <p>This may be used as a "thin provisioning" method, e.g. to gain access to an output stream to write new output
+     * file contents.</p>
+     *
+     * @param outputProduct
+     * @param filename
+     * @return
+     */
+    Path provisionNewOutputProduct(OutputProductMetadata outputProduct, String filename) throws IOException;
+
+    /**
      * <p>Process an already-existing file, to be treated as an {@link com.cgi.eoss.ftep.model.FtepFileType#OUTPUT_PRODUCT}.</p>
      * <p>This will return a persisted entity.</p>
      *

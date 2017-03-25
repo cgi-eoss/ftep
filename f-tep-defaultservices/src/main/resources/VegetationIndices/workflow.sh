@@ -15,6 +15,7 @@ POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
 S2PRODUCTZONES="python ${WORKFLOW}/s2ProductZones.py"
 
 mkdir -p ${PROC_DIR}
+mkdir -p ${OUT_DIR}/result
 
 # Input params
 source ${WPS_PROPS}
@@ -32,7 +33,7 @@ S2_MOSAIC="${WORKFLOW}/S2_mosaic.xml"
 PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
 MOSAIC_OUTPUT="${PROC_DIR}/mosaic.tif"
 VI_INPUT="${PROC_DIR}/vi_input.tif"
-VI_OUTPUT="${OUT_DIR}/FTEP_VEGETATION_INDICES_${VEG_INDEX}_${TIMESTAMP}.tif"
+VI_OUTPUT="${OUT_DIR}/result/FTEP_VEGETATION_INDICES_${VEG_INDEX}_${TIMESTAMP}.tif"
 
 # Bounds of given AOI
 if [ "" != "${AOI}" ]; then

@@ -40,17 +40,19 @@ public class FilesystemOutputProductService implements OutputProductService {
     }
 
     @Override
-    public FtepFile ingest(User owner, String jobId, String crs, String geometry, Map<String, Object> properties, Path path) throws IOException {
-        String filename = path.getFileName().toString();
+    public FtepFile ingest(User owner, String jobId, String crs, String geometry, Map<String, Object> properties, Path src) throws IOException {
+        String filename = src.getFileName().toString();
         Path dest = outputProductBasedir.resolve(jobId).resolve(filename);
-        LOG.info("Ingesting output product from {} to {}", path, dest);
 
-        if (Files.exists(dest)) {
-            LOG.warn("Found already-existing output product, overwriting: {}", dest);
+        if (!src.equals(dest)) {
+            if (Files.exists(dest)) {
+                LOG.warn("Found already-existing output product, overwriting: {}", dest);
+            }
+
+            Files.createDirectories(dest.getParent());
+            Files.move(src, dest, StandardCopyOption.REPLACE_EXISTING);
         }
-
-        Files.createDirectories(dest.getParent());
-        Files.move(path, dest, StandardCopyOption.REPLACE_EXISTING);
+        LOG.info("Ingesting output at {}", dest);
 
         geoserver.ingest(jobId, dest, crs);
 
@@ -70,6 +72,16 @@ public class FilesystemOutputProductService implements OutputProductService {
         ftepFile.setOwner(owner);
         ftepFile.setFilename(outputProductBasedir.relativize(dest).toString());
         return ftepFile;
+    }
+
+    @Override
+    public Path provision(String jobId, String filename) throws IOException {
+        Path outputPath = outputProductBasedir.resolve(jobId).resolve(filename);
+        if (Files.exists(outputPath)) {
+            LOG.warn("Found already-existing output product, may be overwritten: {}", outputPath);
+        }
+        Files.createDirectories(outputPath.getParent());
+        return outputPath;
     }
 
     @Override

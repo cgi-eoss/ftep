@@ -15,6 +15,7 @@ service FtepWorker {
     rpc StopContainer (Job) returns (StopContainerResponse);
     rpc WaitForContainerExit (ExitParams) returns (ContainerExitCode);
     rpc WaitForContainerExitWithTimeout (ExitWithTimeoutParams) returns (ContainerExitCode);
+    rpc GetOutputFile (OutputFileParam) returns (stream OutputFileResponse);
 }
 
 message JobInputs {
@@ -70,4 +71,25 @@ message ExitWithTimeoutParams {
 
 message ContainerExitCode {
     int32 exitCode = 1;
+}
+
+message OutputFileParam {
+    Job job = 1;
+    string path = 2;
+    string outputId = 3;
+}
+
+message OutputFileResponse {
+    message FileMeta {
+        string filename = 1;
+        int64 size = 2;
+    }
+    message Chunk {
+        int64 position = 1;
+        bytes data = 2;
+    }
+    oneof Payload {
+        FileMeta meta = 1;
+        Chunk chunk = 2;
+    }
 }

@@ -10,4 +10,6 @@ import java.util.Map;
 
 public interface OutputProductService extends FtepFileService {
     FtepFile ingest(User owner, String jobId, String crs, String geometry, Map<String, Object> properties, Path path) throws IOException;
+
+    Path provision(String jobId, String filename) throws IOException;
 }

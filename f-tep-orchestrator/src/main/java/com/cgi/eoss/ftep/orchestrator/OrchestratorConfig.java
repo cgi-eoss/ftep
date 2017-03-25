@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerEnvironment;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
@@ -18,7 +19,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         PropertyPlaceholderAutoConfiguration.class,
-        PersistenceConfig.class
+        PersistenceConfig.class,
+        CatalogueConfig.class
 })
 @ComponentScan(basePackageClasses = OrchestratorConfig.class)
 public class OrchestratorConfig {

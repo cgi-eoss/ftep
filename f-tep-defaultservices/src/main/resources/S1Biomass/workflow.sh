@@ -14,6 +14,7 @@ EPSG2UTM="python ${WORKFLOW}/epsg2utm.py"
 POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
 
 mkdir -p ${PROC_DIR}
+mkdir -p ${OUT_DIR}/result
 
 # Input params
 source ${WPS_PROPS}
@@ -33,7 +34,7 @@ PREPROCESSED_PREFIX="preprocessed"
 TEMPORAL_AVG_OUTPUT="${PROC_DIR}/temporal_average.tif"
 REPROJECTED="${PROC_DIR}/reprojected_average.tif"
 FOREST_VOLUME="${PROC_DIR}/forest_volume.tif"
-OUTPUT_FILE="${OUT_DIR}/FTEP_S1BIOMASS_${TIMESTAMP}.tif"
+OUTPUT_FILE="${OUT_DIR}/result/FTEP_S1BIOMASS_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0

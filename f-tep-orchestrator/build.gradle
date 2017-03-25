@@ -7,10 +7,12 @@ apply plugin: 'jacoco'
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
+    compile project(':f-tep-catalogue')
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
+    compile 'org.jooq:jool'
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'

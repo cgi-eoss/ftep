@@ -1,11 +1,15 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.ServiceType;
+import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
@@ -20,6 +24,8 @@ import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -29,12 +35,24 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.CloseableThreadContext;
+import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
  * <p>Primary entry point for WPS services to launch in F-TEP.</p>
@@ -50,11 +68,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
     private final WorkerFactory workerFactory;
     private final JobDataService jobDataService;
+    private final CatalogueService catalogueService;
 
     @Autowired
-    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService) {
+    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, CatalogueService catalogueService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
+        this.catalogueService = catalogueService;
     }
 
     @Override
@@ -81,11 +101,11 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             // Prepare inputs
             LOG.info("Downloading input data for {}", zooId);
             com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder()
-                .setId(zooId)
-                .setIntJobId(String.valueOf(job.getId()))
-                .setUserId(userId)
-                .setServiceId(serviceId)
-                .build();
+                    .setId(zooId)
+                    .setIntJobId(String.valueOf(job.getId()))
+                    .setUserId(userId)
+                    .setServiceId(serviceId)
+                    .build();
             job.setStartTime(LocalDateTime.now());
             job.setStatus(JobStatus.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
@@ -144,9 +164,42 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
             }
 
-            // TODO Collect outputs
+            // Repatriate output files
+            Set<String> expectedServiceOutputIds = service.getServiceDescriptor().getDataOutputs().stream()
+                    .map(FtepServiceDescriptor.Parameter::getId).collect(Collectors.toSet());
+
             job.setStage(JobStep.OUTPUT_LIST.getText());
             jobDataService.save(job);
+
+            for (String outputId : expectedServiceOutputIds) {
+                Iterator<OutputFileResponse> outputFile = worker.getOutputFile(OutputFileParam.newBuilder()
+                        .setJob(rpcJob)
+                        .setPath(jobEnvironment.getOutputDir())
+                        .setOutputId(outputId)
+                        .build());
+
+                // First message is the file metadata
+                OutputFileResponse.FileMeta fileMeta = outputFile.next().getMeta();
+                LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
+
+                OutputProductMetadata outputProduct = OutputProductMetadata.builder()
+                        .owner(job.getOwner())
+                        .jobId(zooId)
+                        .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
+                        .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
+                        .properties(new HashMap<>())
+                        .build();
+
+                // TODO Configure whether files need to be transferred via RPC or simply copied
+                Path outputPath = catalogueService.provisionNewOutputProduct(outputProduct, fileMeta.getFilename());
+                LOG.info("Writing output file for job {}: {}", zooId, outputPath);
+                try (BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath, CREATE, TRUNCATE_EXISTING, WRITE))) {
+                    outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
+                }
+
+                catalogueService.ingestOutputProduct(outputProduct, outputPath);
+            }
+
             List<JobParam> outputs = ImmutableList.of();
 
             responseObserver.onNext(FtepServiceResponse.newBuilder()
@@ -166,11 +219,19 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             LOG.error("Failed to run processor; notifying gRPC client", e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        } finally {
+            if (job != null) {
+                chargeUser(job.getOwner(), job.getConfig());
+            }
         }
     }
 
     private void checkCost(JobConfig jobConfig) {
         // TODO Determine coin cost of config and compare with user account
+    }
+
+    private void chargeUser(User user, JobConfig config) {
+        // TODO Deduct coins from user account
     }
 
 }

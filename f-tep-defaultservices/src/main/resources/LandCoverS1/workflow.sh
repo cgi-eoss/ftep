@@ -14,6 +14,7 @@ EPSG2UTM="python ${WORKFLOW}/epsg2utm.py"
 POLYGON2NSEW="python ${WORKFLOW}/polygon2nsewBounds.py"
 
 mkdir -p ${PROC_DIR}
+mkdir -p ${OUT_DIR}/{result,model,confusionMatrix}
 
 # Input params
 source ${WPS_PROPS}
@@ -31,9 +32,9 @@ PREPROCESSED_PREFIX="preprocessed"
 TEMPORAL_AVG_OUTPUT="${PROC_DIR}/stack.tif"
 TRAINING_INPUT="${PROC_DIR}/training_input.tif"
 
-TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}_training_model.txt"
-TRAINING_OUTPUT_CONFUSION_MATRIX_CSV="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}_confusion_matrix.csv"
-OUTPUT_FILE="${OUT_DIR}/FTEP_LANDCOVERS1_${TIMESTAMP}.tif"
+TRAINING_OUTPUT_CLASSIFICATION_MODEL="${OUT_DIR}/model/FTEP_LANDCOVERS1_${TIMESTAMP}_training_model.txt"
+TRAINING_OUTPUT_CONFUSION_MATRIX_CSV="${OUT_DIR}/confusionMatrix/FTEP_LANDCOVERS1_${TIMESTAMP}_confusion_matrix.csv"
+OUTPUT_FILE="${OUT_DIR}/result/FTEP_LANDCOVERS1_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0

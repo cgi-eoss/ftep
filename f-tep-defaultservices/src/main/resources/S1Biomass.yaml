@@ -63,7 +63,7 @@ dataInputs:
       dataType: "string"
     supportedAttrs: []
 dataOutputs:
-  - id: "Result"
+  - id: "result"
     title: "GeoTiff image file"
     description: "The requested biomass image"
     data: "COMPLEX"

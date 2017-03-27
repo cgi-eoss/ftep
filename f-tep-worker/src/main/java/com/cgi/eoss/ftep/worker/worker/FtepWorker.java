@@ -17,6 +17,7 @@ import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.io.ServiceIoException;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
@@ -25,6 +26,7 @@ import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
@@ -131,6 +133,11 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
                 createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
                 createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
+
+                // Add proxy vars to the container, if they are set in the environment
+                ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
+                        .filter(var -> System.getenv().containsKey(var))
+                        .forEach(var -> createContainerCmd.withEnv(var + "=" + System.getenv(var)));
 
                 containerId = createContainerCmd.exec().getId();
                 jobContainers.put(request.getJob().getId(), containerId);
@@ -286,11 +293,17 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
             // Build image
             LOG.info("Building Docker image '{}' for service {}", dockerImage, serviceName);
-            String imageId = dockerClient.buildImageCmd()
+            BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
                     .withBaseDirectory(serviceContext.toFile())
                     .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
-                    .withTag(dockerImage)
-                    .exec(new BuildImageResultCallback()).awaitImageId();
+                    .withTag(dockerImage);
+
+            // Add proxy vars to the container, if they are set in the environment
+            ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
+                    .filter(var -> System.getenv().containsKey(var))
+                    .forEach(var -> buildImageCmd.withBuildArg(var, System.getenv(var)));
+
+            String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
 
             // Tag image with desired image name
             LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImage);

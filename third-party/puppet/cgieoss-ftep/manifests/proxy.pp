@@ -43,7 +43,7 @@ class ftep::proxy (
   $default_proxy_pass = [
     {
       'path'   => $context_path_geoserver,
-      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}",
+      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}${context_path_geoserver}",
       'params' => { 'retry' => '0' }
     },
     {

@@ -25,8 +25,11 @@ public class GeoserverServiceImpl implements GeoserverService {
     private final GeoServerRESTPublisher publisher;
     private final GeoServerRESTReader reader;
 
+    @Value("${ftep.catalogue.geoserver.enabled:true}")
+    private boolean geoserverEnabled;
+
     @Autowired
-    public GeoserverServiceImpl(@Value("${ftep.catalogue.geoserver.url:http://ftep-geoserver:9080/}") String url,
+    public GeoserverServiceImpl(@Value("${ftep.catalogue.geoserver.url:http://ftep-geoserver:9080/geoserver/}") String url,
                                 @Value("${ftep.catalogue.geoserver.username:ftepgeoserver}") String username,
                                 @Value("${ftep.catalogue.geoserver.password:ftepgeoserver}") String password) throws MalformedURLException {
         GeoServerRESTManager geoserver = new GeoServerRESTManager(new URL(url), username, password);
@@ -36,16 +39,21 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     @Override
     public void ingest(String workspace, Path path, String crs) {
-        ensureWorkspaceExists(workspace);
         Path fileName = path.getFileName();
+        String datastoreName = MoreFiles.getNameWithoutExtension(fileName);
+        String layerName = MoreFiles.getNameWithoutExtension(fileName);
+
+        if (!geoserverEnabled) {
+            LOG.warn("Geoserver is disabled; 'ingested' file: {}:{}", workspace, layerName);
+            return;
+        }
+
+        ensureWorkspaceExists(workspace);
 
         if (!fileName.toString().toUpperCase().endsWith(".TIF")) {
             // TODO Ingest more filetypes
             throw new UnsupportedOperationException("Unable to ingest a non-GeoTiff product");
         }
-
-        String datastoreName = MoreFiles.getNameWithoutExtension(fileName);
-        String layerName = MoreFiles.getNameWithoutExtension(fileName);
 
         try {
             publisher.publishExternalGeoTIFF(workspace, datastoreName, path.toFile(), layerName, crs, REPROJECT_TO_DECLARED, RASTER_STYLE);
@@ -58,6 +66,11 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     @Override
     public void delete(String workspace, String layerName) {
+        if (!geoserverEnabled) {
+            LOG.warn("Geoserver is disabled; no deletion occurring for {}:{}", workspace, layerName);
+            return;
+        }
+
         publisher.removeLayer(workspace, layerName);
         LOG.info("Deleted layer from geoserver: {}{}", workspace, layerName);
     }

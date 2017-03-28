@@ -28,6 +28,7 @@ import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import io.grpc.Status;
@@ -44,7 +45,6 @@ import java.io.BufferedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -169,6 +169,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .map(FtepServiceDescriptor.Parameter::getId).collect(Collectors.toSet());
 
             job.setStage(JobStep.OUTPUT_LIST.getText());
+            job.setEndTime(LocalDateTime.now()); // End time is when processing ends
             jobDataService.save(job);
 
             for (String outputId : expectedServiceOutputIds) {
@@ -187,7 +188,16 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                         .jobId(zooId)
                         .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
                         .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
-                        .properties(new HashMap<>())
+                        .properties(ImmutableMap.<String, Object>builder()
+                                // TODO Add all these properties to the resto model
+                                // .put("jobId", zooId)
+                                // .put("intJobId", job.getId())
+                                // .put("serviceName", service.getName())
+                                // .put("owner", job.getOwner().getName())
+                                // .put("filename", fileMeta.getFilename())
+                                // .put("startDate", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
+                                // .put("completionDate", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
+                                .build())
                         .build();
 
                 // TODO Configure whether files need to be transferred via RPC or simply copied
@@ -208,7 +218,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             responseObserver.onCompleted();
 
             job.setStatus(JobStatus.COMPLETED);
-            job.setEndTime(LocalDateTime.now());
             jobDataService.save(job);
         } catch (Exception e) {
             if (job != null) {

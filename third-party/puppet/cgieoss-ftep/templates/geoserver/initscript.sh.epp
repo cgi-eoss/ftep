@@ -65,7 +65,7 @@ case "$1" in
             su "$GEOSERVER_USER" -c "touch ${GEOSERVER_DATA_DIR}/serverlog"
             echo `date` >>${GEOSERVER_DATA_DIR}/serverlog
             cd "$GEOSERVER_HOME"
-            su "$GEOSERVER_USER" -c "$JAVA_HOME/bin/java -server -DGEOSERVER_DATA_DIR=$GEOSERVER_DATA_DIR -Djava.awt.headless=true -Djetty.port=$PORT -DSTOP.PORT=$STOPPORT -DSTOP.KEY=geoserver -jar start.jar >>$GEOSERVER_DATA_DIR/serverlog 2>&1 &"
+            su "$GEOSERVER_USER" -c "$JAVA_HOME/bin/java -server -jar start.jar -DGEOSERVER_DATA_DIR=$GEOSERVER_DATA_DIR -Djava.awt.headless=true -Djetty.port=$PORT -DSTOP.PORT=$STOPPORT -DSTOP.KEY=geoserver >>$GEOSERVER_DATA_DIR/serverlog 2>&1 &"
 
             RETVAL=$?
             if [ $RETVAL -eq 0 ]; then

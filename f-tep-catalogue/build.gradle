@@ -24,6 +24,7 @@ dependencies {
     compile 'org.geotools:gt-main'
     compile 'org.geotools:gt-geojson'
     compile 'org.geotools:gt-geometry'
+    compile 'org.jooq:jool'
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-web'

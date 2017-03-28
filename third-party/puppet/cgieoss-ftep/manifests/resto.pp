@@ -79,7 +79,7 @@ class ftep::resto (
     directoryindex   => '/index.php index.php',
     proxy_pass_match => [
       {
-        'path' => '^/(.*\.php(/.*)?)$',
+        'path' => '^/resto/(.*\.php(/.*)?)$',
         'url'  => "fcgi://127.0.0.1:9000${install_dir}/\$1"
       }
     ],

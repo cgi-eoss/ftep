@@ -16,7 +16,7 @@ ospackage {
     release '1'
     arch X86_64
     os LINUX
-    packageDescription 'Resto Earth Observation products search engine'
+    packageDescription 'Resto Earth Observation products search engine (with F-TEP modifications)'
     url 'https://github.com/jjrom/resto'
     license 'Apache License 2.0'
     vendor 'F-TEP'

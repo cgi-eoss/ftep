@@ -11,6 +11,27 @@
             padding-left: 20px;
             margin-top: 0px;
         }
+        .dialog-file-list {
+            &:hover {
+                background-color: @alert;
+            }
+            h4 {
+                background-color: transparent;
+                line-height: 2rem;
+                margin: 0;
+            }
+            .md-avatar {
+                margin: 0;
+                .material-icons {
+                   padding-top: 0.4rem;
+                }
+            }
+            .md-icon-button {
+                padding-bottom: 0;
+                padding-top: 0.2rem;
+            }
+
+        }
         .download-button {
             margin: 0;
             width: 100%;
@@ -32,6 +53,21 @@
         }
         md-dialog {
             min-width: @min-width;
+        }
+        md-list-item {
+            &:hover {
+                background-color: @alert;
+            }
+        }
+        .md-subheader {
+            background-color: transparent;
+            .md-subheader-inner {
+                padding-left: 0;
+            }
+        }
+        .search-container {
+            margin-top: 0;
+            width: 100%;
         }
     }
 }

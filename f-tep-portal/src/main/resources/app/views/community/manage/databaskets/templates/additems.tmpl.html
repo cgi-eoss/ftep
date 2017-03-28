@@ -1,0 +1,74 @@
+<md-dialog id="add-files-dialog" aria-label="Add files dialog">
+
+    <h4>Add Files to {{basketParams.selectedDatabasket.name}}</h4>
+
+    <md-dialog-content>
+        <div class="dialog-content-area">
+
+            <section ng-show="selectedDatasource === undefined">
+                <md-subheader class="md-accent">Select a Datasource</md-subheader>
+                <md-list id="datasource-list" class="datasources">
+                    <md-list-item class="md-2-line"
+                                  ng-repeat="datasource in datasources"
+                                  ng-click="selectDatasource(datasource)"
+                                  aria-label="Select {{datasource.name}}">
+                        <md-icon class="material-icons md-24" ng-bind="datasource.icon" />
+                        <div class="md-list-item-text">
+                            <h3 ng-bind="datasource.name" />
+                            <p ng-bind="datasource.description" />
+                        </div>
+                        <md-divider />
+                    </md-list-item>
+                </md-list>
+                <br>
+            </section>
+
+            <section ng-if="selectedDatasource !== undefined">
+                <md-subheader class="md-accent">Selected Datasource</md-subheader>
+                <md-list-item class="md-2-line" ng-click="deselectDatasource()">
+                    <md-icon class="material-icons md-24" ng-bind="selectedDatasource.icon" />
+                    <div class="md-list-item-text">
+                        <h3 ng-bind="selectedDatasource.name" />
+                        <p ng-bind="selectedDatasource.description" />
+                    </div>
+                    <md-button class="toolbar-button md-secondary"
+                               ng-click="deselectDatasource()"
+                               aria-label="Back"
+                               uib-tooltip="Back"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">close</i>
+                    </md-button>
+                    <md-divider />
+                </md-list-item>
+
+                <md-subheader class="md-accent">Select files to add to Databasket</md-subheader>
+
+                <md-input-container class="search-container" md-no-float>
+                    <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+                </md-input-container>
+
+                <md-list-item class="dialog-file-list md-1-line" ng-repeat="(key, file) in files | orderBy: 'name' | filter: quickSearch">
+                    <div class="md-avatar" alt="access rights">
+                        <i class="material-icons">attach_file</i>
+                    </div>
+                    <div class="md-list-item-text" layout="column">
+                        <h4 ng-bind="file.name" />
+                    </div>
+                    <md-checkbox class="md-secondary" ng-model="file.isChecked" ng-click="file.isChecked = !file.isChecked; selectFile()" aria-label="Select file" />
+                    <md-divider />
+                </md-list-item>
+
+                <div class="note" ng-if="!files.length > 0">There are no files currently available.</div>
+                <br>
+            </section>
+
+        </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="updateDatabasket()" ng-disabled="!submitEnabled" class="md-primary">Add Files</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

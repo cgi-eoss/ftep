@@ -1,0 +1,20 @@
+<md-dialog id="edit-item-dialog" aria-label="Edit {{item}} dialog">
+    <h4>Edit {{itemName}}</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Name</label>
+                <input ng-model="tempItem.name" type="text">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Description</label>
+                <textarea ng-model="tempItem.description" />
+            </md-input-container>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="updateItem()" ng-disabled="!tempItem.name" class="md-primary">Save</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

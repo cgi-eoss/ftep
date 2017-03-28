@@ -1,1 +1,108 @@
-WIP
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-10" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!basketParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="basketParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="basketParams.displayFilters">
+                <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+            </md-input-container>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="!basketParams.databaskets.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">You have no {{item}}s. Create a {{item}} using the + button below.</div>
+        </div>
+    </div>
+
+    <div class="item-list list">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, basket) in basketParams.databaskets | orderBy: 'id' | filter: quickSearch"
+                      ng-click="selectItem(basket); displayRight()"
+                      ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="basket.name" />
+                <span><b>Owner:</b> <span ng-bind="basket.owner.name" /></span>
+                <span><b>Items:</b> <span ng-bind="basket.size" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       aria-label="{{item}} Description"
+                       uib-popover-html="getDescription({{basket}})"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="editItemDialog($event, basket)"
+                       aria-label="Edit"
+                       uib-tooltip="Edit"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">create</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeItem(key, basket)"
+                       aria-label="Delete"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
+
+        </md-list-item>
+
+    </div>
+
+</section>
+
+<section id="create-group">
+    <md-button id="create-group-button"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="createItemDialog($event)"
+               aria-label="Create New {{item}}"
+               uib-tooltip="Create New {{item}}"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add</i>
+    </md-button>
+</section>

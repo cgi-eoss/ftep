@@ -5,11 +5,285 @@
  * # BasketService
  * Service in the ftepApp.
  */
-define(['../ftepmodules'], function (ftepmodules) {
-    'use strict';
+'use strict';
+define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService',
-                                           function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, traverson) {
+
+        traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
+        var rootUri = ftepProperties.URLv2;
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var deleteAPI = traverson.from(rootUri).useAngularHttp();
+
+        var that = this;
+
+        this.dbOwnershipFilters = {
+            ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
+            MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
+            SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
+        };
+
+        UserService.getCurrentUser().then(function(currentUser){
+            that.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
+            that.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+        });
+
+        /** PRESERVE USER SELECTIONS **/
+        this.params = {
+            explorer: {
+                selectedDatabasket: undefined,
+                selectedItems: undefined,
+                searchText: '',
+                displayFilters: false,
+                showBaskets: true,
+                selectedOwnerhipFilter: that.dbOwnershipFilters.ALL_BASKETS
+            },
+            community: {
+                databaskets: undefined,
+                items: undefined,
+                selectedDatabasket: undefined,
+                selectedItems: undefined,
+                searchText: '',
+                displayFilters: false,
+                itemSearchText: '',
+                itemDisplayFilters: false,
+                showBaskets: true
+            }
+        };
+
+        this.pagingData = {
+            dbCurrentPage: 1,
+            dbPageSize: 10,
+            dbTotal: 0
+        };
+        /** END OF PRESERVE USER SELECTIONS **/
+
+        var startPolling = true;
+        var POLLING_FREQUENCY = 20 * 1000;
+        var pollCount = 3;
+
+        var pollDatabasketsV2 = function () {
+            $timeout(function () {
+                halAPI.from(rootUri + '/databaskets/')
+                    .newRequest()
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        $rootScope.$broadcast('refresh.databasketsV2', document._embedded.databaskets);
+                        pollDatabasketsV2();
+                    }, function (error) {
+                        error.retriesLeft = pollCount;
+                        MessageService.addError('Could not poll Databaskets', error);
+                        pollCount -= 1;
+                        if (pollCount >= 0) {
+                            pollDatabasketsV2();
+                        }
+                    });
+            }, POLLING_FREQUENCY);
+        };
+
+        this.getDatabasketsV2 = function () {
+            var deferred = $q.defer();
+                halAPI.from(rootUri + '/databaskets/')
+                         .newRequest()
+                         .getResource()
+                         .result
+                         .then(
+                function (document) {
+                    /* Start polling if not already */
+                    if (startPolling) {
+                        startPolling = false;
+                        pollDatabasketsV2();
+                    }
+                    deferred.resolve(document._embedded.databaskets);
+                }, function (error) {
+                    MessageService.addError ('Could not get Databaskets', error);
+                    deferred.reject();
+                });
+
+            return deferred.promise;
+        };
+
+        this.createDatabasketV2 = function (name, desc) {
+            return $q(function(resolve, reject) {
+                var databasket = {name: name, description: (desc ? desc : '')};
+                halAPI.from(rootUri + '/databaskets/')
+                         .newRequest()
+                         .post(databasket)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('Databasket created', 'New databasket '.concat(name).concat(' created.'));
+                    resolve(document);
+                }, function (error) {
+                    MessageService.addError ('Failed to Create Databasket', error);
+                    reject();
+                });
+            });
+        };
+
+        this.removeDatabasketV2 = function(databasket) {
+            return $q(function(resolve, reject) {
+                deleteAPI.from(rootUri + '/databaskets/' + databasket.id)
+                         .newRequest()
+                         .delete()
+                         .result
+                         .then(
+                function (document) {
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('Databasket deleted', 'Databasket '.concat(databasket.name).concat(' deleted.'));
+                        resolve(databasket);
+                    } else {
+                        MessageService.addError ('Failed to Remove Databasket', document);
+                        reject();
+                    }
+                }, function (error) {
+                    MessageService.addError ('Failed to Remove Databasket', error);
+                    reject();
+                });
+            });
+        };
+
+        this.updateDatabasketV2 = function (databaskets) {
+            var newdatabaskets = {name: databaskets.name, description: databaskets.description};
+            return $q(function(resolve, reject) {
+                halAPI.from(rootUri + '/databaskets/' + databaskets.id)
+                         .newRequest()
+                         .patch(newdatabaskets)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('Databasket successfully updated');
+                    resolve(document);
+                }, function (error) {
+                    MessageService.addError('Failed to update Databasket', error);
+                    reject();
+                });
+            });
+        };
+
+        this.getItemsV2 = function() {
+            var deferred = $q.defer();
+            var databasket = that.params.community.selectedDatabasket;
+            halAPI.from(rootUri + '/databaskets/' + databasket.id)
+                     .newRequest()
+                     .follow('files')
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document._embedded.ftepFiles);
+            }, function (error) {
+                MessageService.addError ('Could not get Databasket contents', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        this.addItemsV2 = function (databasket, files) {
+            return $q(function(resolve, reject) {
+
+                /* Create array of item links */
+                var itemsArray = [];
+                for (var item in databasket.items) {
+                    itemsArray.push(databasket.items[item]._links.self.href);
+                }
+
+                /* Append item to new items array */
+                for (var file in files) {
+                    itemsArray.push(files[file]._links.self.href);
+                }
+
+                /* Set new files object */
+                var updatedItems = {"files": itemsArray};
+
+                /* Patch members with updated member list */
+                halAPI.from(rootUri + '/databaskets/' + databasket.id)
+                         .newRequest()
+                         .patch(updatedItems)
+                         .result
+                         .then(
+                function (document) {
+                   if (200 <= document.status && document.status < 300) {
+                        MessageService.addError ('Failed to add file/s to Databasket', document);
+                        reject();
+                    } else {
+                        MessageService.addInfo('Files successfully added');
+                        resolve(document);
+                    }
+                }, function (error) {
+                    MessageService.addError('Failed to add file/s to Databasket', error);
+                    reject();
+                });
+
+            });
+        };
+
+        this.removeItemV2 = function(databasket, files, file) {
+            return $q(function(resolve, reject) {
+
+                /* Create array of user links */
+                var itemsArray = [];
+                for (var item in files) {
+                    /* Don't add user to updated list */
+                    if (files[item].id !== file.id) {
+                        itemsArray.push(files[item]._links.self.href);
+                    }
+                }
+
+                /* Set list of files to empty array */
+                var updatedItems = {"files": itemsArray};
+
+                /* Patch databasket with empty item list */
+                halAPI.from(rootUri + '/databaskets/' + databasket.id)
+                         .newRequest()
+                         .patch(updatedItems)
+                         .result
+                         .then(
+                function (document) {
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('File removed from Databasket', 'File '.concat(file.name).concat('removed from ').concat(databasket.name));
+                        resolve(databasket);
+                    } else {
+                        MessageService.addError ('Failed to remove item from Databasket', document);
+                        reject();
+                    }
+                }, function (error) {
+                    MessageService.addError ('Failed to remove item from Databasket', error);
+                    reject();
+                });
+            });
+        };
+
+        this.clearDatabasketV2 = function(databasket) {
+            return $q(function(resolve, reject) {
+
+                /* Set list of files to empty array */
+                var updatedItems = {"files": []};
+
+                /* Patch databasket with empty item list */
+                halAPI.from(rootUri + '/databaskets/' + databasket.id)
+                         .newRequest()
+                         .patch(updatedItems)
+                         .result
+                         .then(
+                function (document) {
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('Databasket successfully cleared.');
+                        resolve(databasket);
+                    } else {
+                        MessageService.addError ('Failed to clear Databasket', document);
+                        reject();
+                    }
+                }, function (error) {
+                    MessageService.addError ('Failed to clear Databasket', error);
+                    reject();
+                });
+            });
+        };
+
+
+
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -18,14 +292,14 @@ define(['../ftepmodules'], function (ftepmodules) {
           var pNumber, pSize;
           var basketListCache = { data:[] };
           var is_polling = false;
-          var POLLING_FREQUENCY = 20 * 1000;
+          //var POLLING_FREQUENCY = 20 * 1000;
           var connectionError = false, retriesLeft = 3;
 
           var USE_TEST_DATA = false;
 
           this.getBasketCache = function(){
               return basketListCache;
-          }
+          };
 
           /** GET DATABASKETS & POLL **/
           this.getDatabaskets = function(pageNumber, pageSize, noCache){
@@ -317,44 +591,6 @@ define(['../ftepmodules'], function (ftepmodules) {
               });
           };
           /** END OF UPDATE DATABASKET **/
-
-          this.dbOwnershipFilters = {
-                  ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
-                  MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
-                  SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
-          };
-
-          var that = this; //workaround for now
-          UserService.getCurrentUser().then(function(currentUser){
-              that.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
-              that.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
-          });
-
-          /** PRESERVE USER SELECTIONS **/
-          this.params = {
-              explorer: {
-                  selectedDatabasket: undefined,
-                  selectedItems: undefined,
-                  searchText: '',
-                  displayFilters: false,
-                  showBaskets: true,
-                  selectedOwnerhipFilter: this.dbOwnershipFilters.ALL_BASKETS
-              },
-              community: {
-                  selectedDatabasket: undefined,
-                  selectedItems: undefined,
-                  searchText: '',
-                  displayFilters: false,
-                  showBaskets: true
-              }
-          };
-
-          this.pagingData = {
-                  dbCurrentPage: 1,
-                  dbPageSize: 10,
-                  dbTotal: 0
-          };
-          /** END OF PRESERVE USER SELECTIONS **/
 
           // Initiate the databasket list
           this.getDatabaskets(this.pagingData.dbCurrentPage, this.pagingData.dbPageSize);

@@ -1,1 +1,100 @@
-WIP
+<section id="databasket-title" class="row section-title">
+    <div class="col-xs-10 title-text">
+        <h2 ng-bind="basketParams.selectedDatabasket.name" />
+    </div>
+</section>
+
+<section class="sub-title" ng-bind="basketParams.selectedDatabasket.description" />
+
+<section class="row section-title">
+    <div class="col-xs-6 title-text">
+        <h3>{{item}} List</h3>
+    </div>
+    <div class="col-xs-6 title-button">
+        <h3>
+            <md-button class="right toolbar-button md-secondary"
+                       ng-click="clearDatabasket()"
+                       aria-label="Clear {{item}}"
+                       uib-tooltip="Clear {{item}}"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">remove_shopping_cart</i>
+            </md-button>
+            <md-button class="right toolbar-button md-secondary"
+                       ng-click="addItemsDialog($event)"
+                       aria-label="Add {{item}}"
+                       uib-tooltip="Add {{item}}"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">shopping_basket</i>
+            </md-button>
+        </h3>
+    </div>
+</section>
+
+<section class="filter-list">
+    <ul class="list">
+
+        <div class="row list-group filter-list-title">
+
+            <div class="col-xs-11" ng-click="toggleFilters()">
+                <label class="md-accent">Filters</label>
+            </div>
+
+            <div class="col-xs-1 expander">
+                <i class="material-icons"
+                   ng-show="!basketParams.itemDisplayFilters"
+                   ng-click="toggleFilters()"
+                   aria-label="Show Filters"
+                   uib-tooltip="Show Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_less
+                </i>
+                <i class="material-icons"
+                   ng-show="basketParams.itemDisplayFilters"
+                   ng-click="toggleilters()"
+                   aria-label="Hide Filters"
+                   uib-tooltip="Hide Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_more
+                </i>
+            </div>
+
+        </div>
+
+        <md-input-container md-no-float ng-show="basketParams.itemDisplayFilters">
+            <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+        </md-input-container>
+
+    </ul>
+</section>
+
+<section class="item-list">
+    <md-list-item class="md-1-line" ng-repeat="file in basketParams.items | orderBy: 'name' | filter: quickSearch">
+
+        <div class="md-avatar" alt="access rights">
+            <i class="material-icons">attach_file</i>
+        </div>
+
+        <div class="md-list-item-text" layout="column">
+            <h4 ng-bind="file.name" />
+        </div>
+
+        <md-button class="toolbar-button md-secondary"
+                   ng-click="removeItem(file)"
+                   aria-label="Remove"
+                   uib-tooltip="Remove"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">clear</i>
+        </md-button>
+
+    </md-list-item>
+</section>

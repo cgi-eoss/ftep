@@ -43,7 +43,7 @@
             </section>
 
             <section ng-controller="MessagesCtrl">
-                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.MESSAGES" class="tab-options" ng-include src="'views/common/bottombar/tabs/messagestab.html'" />
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.MESSAGES || navInfo.activeTab != tabs.EXPLORER" class="tab-options" ng-include src="'views/common/bottombar/tabs/messagestab.html'" />
                 <md-tab label="MESSAGES ({{message.count}})" ng-click="navInfo.activeBottomNav = bottomNavTabs.MESSAGES">
                     <md-content>
                         <div class="col-md-8 bottombar-right">

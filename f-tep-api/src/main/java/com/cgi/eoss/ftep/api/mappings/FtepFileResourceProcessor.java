@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api.mappings;
 
-import com.cgi.eoss.ftep.api.controllers.FtepFilesApiImpl;
+import com.cgi.eoss.ftep.api.controllers.FtepFilesApiExtension;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class FtepFileResourceProcessor implements ResourceProcessor<Resource<Fte
         }
 
         // Add download link
-        Method downloadMethod = ReflectionUtils.findMethod(FtepFilesApiImpl.class, "downloadFile", FtepFile.class, HttpServletResponse.class);
+        Method downloadMethod = ReflectionUtils.findMethod(FtepFilesApiExtension.class, "downloadFile", FtepFile.class, HttpServletResponse.class);
         resource.add(linkTo(downloadMethod, resource.getContent().getId()).withRel("download"));
 
         return resource;

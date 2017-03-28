@@ -37,7 +37,7 @@ import java.io.IOException;
 @RequestMapping("/ftepFiles")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
-public class FtepFilesApiImpl {
+public class FtepFilesApiExtension {
 
     private final FtepSecurityService ftepSecurityService;
     private final CatalogueService catalogueService;

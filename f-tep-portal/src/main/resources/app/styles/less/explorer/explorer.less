@@ -1,4 +1,15 @@
 @import "variable";
-
 #explorer-container {
+    @media (max-width: @sm-max-width) {
+        #side-container {
+            overflow: visible !important;
+            #sidebar-left {
+                padding-left: @sidenav-width;
+            }
+        }
+        #bottombar-container {
+            background-color: @bg;
+            padding-left: @sidenav-width !important;
+        }
+    }
 }

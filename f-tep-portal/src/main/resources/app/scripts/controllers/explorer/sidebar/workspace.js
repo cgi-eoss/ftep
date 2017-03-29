@@ -168,14 +168,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             $scope.info = text;
         }
 
-        $scope.getShortName = function(file){
-            var name = getFileName(file);
-            var from = (name.length - 18 > 0) ? name.length - 18: 0;
-            var str = name.substr(from);
-            return '..'.concat(str);
-        };
-
-        function getFileName(file){
+        $scope.getFileName = function(file) {
             var name = '';
             if(file.type === 'files'){
                 name = file.attributes.name;
@@ -187,7 +180,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                 name = file.identifier;
             }
             return name;
-        }
+        };
 
         var popover = {};
         $scope.getDroppedFilePopover = function (file) {

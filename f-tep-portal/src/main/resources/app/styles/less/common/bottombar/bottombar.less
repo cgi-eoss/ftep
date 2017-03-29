@@ -11,6 +11,10 @@
     &.wide {
         padding-left: @sidenav-width !important;
     }
+    @media (max-width: @sm-max-width) {
+        background-color: @bg;
+        padding-left: @sidenav-width !important;
+    }
 }
 
 #bottombar {
@@ -95,8 +99,12 @@
                         padding: 0;
                         .bottombar-left {
                             height: 100%;
+                            overflow-x: hidden;
                             overflow-y: auto;
                             padding: 0;
+                            md-list-item.md-2-line > div:nth-child(1) {
+                                padding-right: 1.4rem;
+                            }
                         }
                         .bottombar-right {
                             .border(border-right, @bg);

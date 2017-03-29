@@ -1,6 +1,6 @@
 <article id="explorer-container" layout="row" class="page-container row">
 
-    <section id="side-container" ng-controller="SidebarCtrl" class="col-md-4 col-xl-3 col-xxl-2 no-padding">
+    <section id="side-container" ng-controller="SidebarCtrl" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 no-padding">
 
         <div id="sidenav" ng-include src="'views/explorer/sidenav.html'" />
 
@@ -16,7 +16,7 @@
     </section>
 
     <section id="bottombar-container"
-         ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
+         ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
          class="explorer-content animationIf no-padding"
          ng-include src="'views/common/bottombar/bottombar.html'"
          ng-controller="BottombarCtrl"

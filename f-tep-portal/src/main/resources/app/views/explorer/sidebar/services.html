@@ -24,11 +24,11 @@
 
             <div class="row list-group">
 
-                <div class="col-md-11" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
+                <div class="col-xs-10 no-padding" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
                     <label>{{serviceType.label}}</label>
                 </div>
 
-                <div class="col-md-1 no-padding expander">
+                <div class="col-xs-2 no-padding expander">
                     <i class="material-icons"
                        ng-show="!isServiceTypeOpened"
                        ng-click="isServiceTypeOpened = !isServiceTypeOpened"
@@ -53,31 +53,32 @@
 
             </div>
 
-        <div class="item-list list">
+            <div class="item-list list">
 
-            <md-list-item class="md-2-line"
-                          ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
-                          ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
-                          ng-click="selectService(service)">
+                <md-list-item class="md-2-line"
+                              ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
+                              ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
+                              ng-click="selectService(service)">
 
-                <div class="md-list-item-text" layout="column">
-                    <h3>{{service.attributes.name}}</h3>
-                    <p>{{getShortDesc(service.attributes.description)}}</p>
-                </div>
+                    <div class="md-list-item-text" layout="column">
+                        <h3>{{service.attributes.name}}</h3>
+                        <p>{{getShortDesc(service.attributes.description)}}</p>
+                    </div>
 
-                <md-button class="toolbar-button md-secondary"
-                            aria-label="Service Info"
-                            uib-popover-html="getServicePopover({{service}})"
-                            popover-placement="right"
-                            popover-trigger="'mouseenter'"
-                            popover-append-to-body="true">
-                    <i class="material-icons">info_outline</i>
-                </md-button>
+                    <md-button class="toolbar-button md-secondary"
+                                aria-label="Service Info"
+                                uib-popover-html="getServicePopover({{service}})"
+                                popover-placement="right"
+                                popover-trigger="'mouseenter'"
+                                popover-append-to-body="true">
+                        <i class="material-icons">info_outline</i>
+                    </md-button>
 
-                <span class="rating md-secondary" ng-bind-html="getRating(service.attributes.rating)"></span>
+                    <span class="rating md-secondary" ng-bind-html="getRating(service.attributes.rating)"></span>
 
-            </md-list-item>
-        </div>
+                </md-list-item>
+            </div>
+
         </ul>
 
     </section>

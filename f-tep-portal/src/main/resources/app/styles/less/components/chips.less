@@ -1,5 +1,8 @@
 @import "variable";
 .ftep {
+    .chip-container {
+        padding: 2px;
+    }
     md-chip {
         background-color: @light-gray;
         border-radius: 16px;
@@ -9,8 +12,8 @@
         font-size: 10px;
         height: 32px;
         line-height: 32px;
-        margin: 2px;
-        padding-left: 12px;
+        padding-left: 6px;
+        width: 100%;
         .md-chip-content {
             float: left;
             height: 32px;
@@ -21,8 +24,8 @@
         .md-chip-close {
             float: right;
             line-height: 22px;
-            padding-right: 12px;
-            padding-top: 4px;
+            padding-right: 6px;
+            padding-top: 5px;
             i {
                 cursor: pointer;
                 font-size: 12px;
@@ -37,4 +40,7 @@
 
         }
     }
+}
+.chip-text {
+    float: right;
 }

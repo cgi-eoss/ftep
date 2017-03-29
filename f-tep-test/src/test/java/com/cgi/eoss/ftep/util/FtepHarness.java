@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
@@ -148,13 +149,16 @@ public class FtepHarness {
     }
 
     private static final class ChromeBrowserContainer extends BrowserWebDriverContainer {
+        private static final int SELENIUM_PORT = 4444;
+        private static final int VNC_PORT = 5900;
+
+        private DesiredCapabilities desiredCapabilities;
+
         ChromeBrowserContainer() {
             super();
 
             try {
-                DesiredCapabilities desiredCapabilities = DesiredCapabilities.chrome();
-                configureProxy(desiredCapabilities);
-                withDesiredCapabilities(desiredCapabilities);
+                this.desiredCapabilities = DesiredCapabilities.chrome();
 
                 Path recordingPath = Paths.get("target/recording").toAbsolutePath();
                 Files.createDirectories(recordingPath);
@@ -165,24 +169,47 @@ public class FtepHarness {
             }
         }
 
-        private void configureProxy(DesiredCapabilities desiredCapabilities) {
+        @Override
+        protected void configure() {
+            checkState(desiredCapabilities != null);
+            super.setDockerImageName("selenium/standalone-chrome-debug:3.3.0");
+
+            String timeZone = System.getProperty("user.timezone");
+
+            if (timeZone == null || timeZone.isEmpty()) {
+                timeZone = "Etc/UTC";
+            }
+
+            addExposedPorts(SELENIUM_PORT, VNC_PORT);
+            addEnv("TZ", timeZone);
+            setCommand("/opt/bin/entry_point.sh");
+
             final boolean[] setProxy = {false};
             Proxy proxy = new Proxy();
             Optional.ofNullable(System.getenv("http_proxy")).ifPresent(httpProxy -> {
                 setProxy[0] = true;
+                withEnv("http_proxy", httpProxy);
                 proxy.setHttpProxy(httpProxy);
             });
             Optional.ofNullable(System.getenv("https_proxy")).ifPresent(sslProxy -> {
                 setProxy[0] = true;
-                proxy.setHttpProxy(sslProxy);
+                withEnv("https_proxy", sslProxy);
+                proxy.setSslProxy(sslProxy);
             });
             Optional.ofNullable(System.getenv("no_proxy")).ifPresent(noProxy -> {
                 setProxy[0] = true;
+                withEnv("no_proxy", getProxyHost() + "," + noProxy);
                 proxy.setNoProxy(getProxyHost() + "," + noProxy);
             });
+
             if (setProxy[0]) {
                 desiredCapabilities.setCapability(CapabilityType.PROXY, proxy);
             }
+
+            withDesiredCapabilities(desiredCapabilities);
+
+            //Some unreliability of the selenium browser containers has been observed, so allow multiple attempts to start.
+            setStartupAttempts(3);
         }
 
         protected void starting(Description description) {

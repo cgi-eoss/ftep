@@ -22,17 +22,18 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
-public class S2CEDADownloader implements Downloader {
+public class S2IPTDownloader implements Downloader {
 
     private static final Pattern S2_PRODUCT_PATTERN = Pattern.compile("/(?<PRODUCT>S2A.*_(?<YEAR>\\d{4})(?<MONTH>\\d{2})(?<DAY>\\d{2})T\\d{6})");
-    private static final String CEDA_FTP_URI_FORMAT = "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/%s/%s/%s/%s.zip";
+    private static final String IPT_S2_URI_FORMAT = "https://static.eocloud.eu/v1/AUTH_8f07679eeb0a43b19b33669a4c888c45/eorepo/Sentinel-2/MSI/L1C/${YEAR}/${MONTH}/${DAY}/${PRODUCT}.zip";
     private static final Set<String> GROUPS = ImmutableSet.of("PRODUCT", "YEAR", "MONTH", "DAY");
 
-    private final FtpDownloader ftpDownloader;
+    private final IptDownloader iptDownloader;
 
     @Override
     public Set<String> getProtocols() {
-        return ImmutableSet.of("s2");
+        // TODO Enable this downloader for s2, when prioritisation is possible
+        return ImmutableSet.of();
     }
 
     @Override
@@ -45,8 +46,8 @@ public class S2CEDADownloader implements Downloader {
         Map<String, String> s2Attrs = GROUPS.stream().collect(Collectors.toMap(Function.identity(), s2Regex::group));
 
         try {
-            URI ftpUri = new URI(StrSubstitutor.replace(CEDA_FTP_URI_FORMAT, s2Attrs));
-            return ftpDownloader.download(targetDir, ftpUri);
+            URI iptUri = new URI(StrSubstitutor.replace(IPT_S2_URI_FORMAT, s2Attrs));
+            return iptDownloader.download(targetDir, iptUri);
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }

@@ -9,7 +9,8 @@
 define(['../../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'MessageService', '$rootScope', '$scope', '$mdDialog', '$sce', function (GroupService, MessageService, $rootScope, $scope, $mdDialog, $sce) {
+    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'CommonService', 'MessageService', '$rootScope', '$scope', '$mdDialog', '$sce',
+                                                   function (GroupService, CommonService, MessageService, $rootScope, $scope, $mdDialog, $sce) {
 
         /* Get stored Groups details */
         $scope.groupParams = GroupService.params;
@@ -54,35 +55,13 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
 
         /* Create Group */
         $scope.createGroupDialog = function ($event) {
-            function CreateGroupController($scope, $mdDialog, GroupService) {
-
-                /* Get Groups and User details */
-                $scope.groupParams = GroupService.params;
-
-                $scope.addGroup = function () {
-                    GroupService.createGroup($scope.newGroup.name, $scope.newGroup.description).then(function (createdGroup) {
-                        /* Update the group list */
-                         GroupService.getGroups().then(function (groups) {
-                            $scope.groupParams.groups = groups;
-                            /* Set created group to the active group */
-                            $scope.groupParams.selectedGroup = groups[groups.length-1];
-                        });
-                    });
-                    $mdDialog.hide();
-                };
-
-                $scope.closeDialog = function () {
-                    $mdDialog.hide();
-                };
-
-            }
-            CreateGroupController.$inject = ['$scope', '$mdDialog', 'GroupService'];
-            $mdDialog.show({
-                controller: CreateGroupController,
-                templateUrl: 'views/community/manage/groups/templates/creategroup.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true
+            CommonService.createItemDialog($event, 'GroupService', 'createGroup').then(function (newGroup) {
+                /* Update the group list */
+                GroupService.getGroups().then(function (groups) {
+                    $scope.groupParams.groups = groups;
+                    /* Set created group to the active group */
+                    $scope.groupParams.selectedGroup = groups[groups.length-1];
+                });
             });
         };
 
@@ -99,41 +78,15 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Edit Group */
-        $scope.editGroupDialog = function ($event, selectedGroup) {
-            function EditGroupController($scope, $mdDialog, GroupService) {
-
-                /* Get Groups and User details */
-                $scope.groupParams = GroupService.params;
-
-                /* Save temporary changes */
-                $scope.tempGroup = angular.copy(selectedGroup);
-
-                /* Patch group and update group list */
-                $scope.updateGroup = function () {
-                    GroupService.updateGroup($scope.tempGroup).then(function (data) {
-                        GroupService.getGroups().then(function (data) {
-                            $scope.groupParams.groups = data;
-                            /* If the modified group is currently selected then update it */
-                            if ($scope.groupParams.selectedGroup.id === $scope.tempGroup.id) {
-                                $scope.groupParams.selectedGroup = $scope.tempGroup;
-                            }
-                        });
-                    });
-                    $mdDialog.hide();
-                };
-
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-
-            }
-            EditGroupController.$inject = ['$scope', '$mdDialog', 'GroupService'];
-            $mdDialog.show({
-                controller: EditGroupController,
-                templateUrl: 'views/community/manage/groups/templates/editgroup.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true
+        $scope.editGroupDialog = function($event, selectedGroup) {
+            CommonService.editItemDialog($event, selectedGroup, 'GroupService', 'updateGroup').then(function(updatedGroup) {
+                /* If the modified group is currently selected then update it */
+                if ($scope.groupParams.selectedGroup && $scope.groupParams.selectedGroup.id === updatedGroup.id) {
+                    $scope.groupParams.selectedGroup = updatedGroup;
+                }
+                GroupService.getGroups().then(function(data) {
+                    $scope.groupParams.groups = data;
+                });
             });
         };
 

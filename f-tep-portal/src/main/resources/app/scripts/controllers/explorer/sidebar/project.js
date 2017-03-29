@@ -8,8 +8,8 @@
 'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ProjectCtrl', ['$scope', '$rootScope', '$mdDialog', 'ProjectService',
-                                               function ($scope, $rootScope, $mdDialog, ProjectService) {
+    ftepmodules.controller('ProjectCtrl', ['$scope', '$rootScope', '$mdDialog', 'ProjectService', 'CommonService',
+                                               function ($scope, $rootScope, $mdDialog, ProjectService, CommonService) {
 
         $scope.projectParams = ProjectService.params.explorer;
         $scope.projectOwnershipFilters = ProjectService.projectOwnershipFilters;
@@ -27,8 +27,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 else if(setAsActive){
                     $scope.projectParams.activeProject = project;
                 }
-                else if(project && project.name === $scope.projectParams.activeProject.name){
-                    $scope.projectParams.activeProject = $scope.projects[0];
+                else if(project && project._links.self.href === $scope.projectParams.activeProject._links.self.href){
+                    $scope.projectParams.activeProject = project;
                 }
             });
         }
@@ -45,59 +45,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         });
 
         /** CREATE PROJECT MODAL **/
-        $scope.newProject = {name: undefined, description: undefined};
         $scope.createProjectDialog = function($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
-            function CreateProjectController($scope, $mdDialog, ProjectService) {
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-                $scope.addProject = function() {
-                    ProjectService.createProject($scope.newProject).then(function(project){
-                        $rootScope.$broadcast('add.project', project);
-                    });
-                    $mdDialog.hide();
-                };
-            }
-            CreateProjectController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
-            $mdDialog.show({
-              controller: CreateProjectController,
-              templateUrl: 'views/explorer/templates/createproject.tmpl.html',
-              parent: angular.element(document.body),
-              targetEvent: $event,
-              clickOutsideToClose: true,
-              locals: {
-                  items: $scope.items
-              }
-           });
+            CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
+                $rootScope.$broadcast('add.project', newProject);
+            });
         };
         /** END OF CREATE PROJECT MODAL **/
 
-        var projectCache = {};
-
-        $scope.cacheProject = function (project) {
-            if (projectCache[project.id] === undefined) {
-                projectCache[project.id] = angular.copy(project);
-            }
-        };
-
-        $scope.getProjectCache = function (project) {
-            var result;
-            if (projectCache[project.id] !== undefined) {
-                result = angular.copy(projectCache[project.id]);
-                projectCache[project.id] = undefined;
-            }
-            return result;
-        };
-
-        $scope.updateProject = function (enterClicked, project) {
-            if (enterClicked) {
-                ProjectService.updateProject(project).then(function () {
-                    projectCache[project.id] = undefined;
-                });
-            }
-            return !enterClicked;
+        $scope.updateProject = function ($event, project) {
+            CommonService.editItemDialog($event, project, 'ProjectService', 'updateProject').then(function(updatedProject) {
+                if($scope.projectParams.activeProject && $scope.projectParams.activeProject.id === updatedProject.id){
+                    $scope.projectParams.activeProject = updatedProject;
+                }
+                getProjects(updatedProject);
+            });
         };
 
         $scope.projectShow = false;

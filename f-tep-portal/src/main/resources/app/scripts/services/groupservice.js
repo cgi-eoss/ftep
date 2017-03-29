@@ -48,7 +48,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     MessageService.addInfo('Group created', 'New group '.concat(name).concat(' created.'));
-                    resolve(document);
+                    resolve(JSON.parse(document.data));
                 }, function (error) {
                     MessageService.addError ('Failed to Create Group', error);
                     reject();
@@ -87,8 +87,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('Group successfully updated');
-                    resolve(document);
+                    MessageService.addInfo('Group successfully updated', 'Group ' + group.name + ' successfully updated.' );
+                    resolve(JSON.parse(document.data));
                 }, function (error) {
                     MessageService.addError('Failed to update Group', error);
                     reject();

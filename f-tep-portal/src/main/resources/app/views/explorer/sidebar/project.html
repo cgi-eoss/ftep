@@ -117,38 +117,14 @@
             <li class="list-group-item project-item"
                 ng-repeat="project in projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText | orderBy: 'name'"
                 ng-click="setActiveProject(project)"
-                ng-dblclick="cacheProject(project); projectEdit = true"
                 ng-class="{active: project.name === projectParams.activeProject.name}">
 
                 <div class="row project-item-row">
 
                     <div class="col-xs-8 no-padding project-item-col">
 
-                        <div class="project-name-container" ng-show="!projectEdit || project.id == 0">
+                        <div class="project-name-container">
                             <span class="selectable project-name">{{project.name}}</span>
-                        </div>
-
-                        <div class="row project-edit" ng-show="projectEdit && project.id > 0">
-
-                            <div class="col-xs-8 no-padding project-item-col">
-                                <div class="input-group">
-                                    <input type="text"
-                                           class="form-control project-rename"
-                                           ng-keyup="projectEdit = updateProject($event.keyCode == 13, project)"
-                                           ng-model="project.name">
-                                </div>
-                            </div>
-
-                            <div class="col-xs-4 no-padding project-item-col">
-                                <md-button class="toolbar-button"
-                                           ng-click="project=getProjectCache(project); projectEdit = !projectEdit"
-                                           uib-tooltip="Cancel"
-                                           tooltip-placement="top"
-                                           tooltip-trigger="mouseenter"
-                                           tooltip-append-to-body="true">
-                                   <i class="material-icons">close</i>
-                                </md-button>
-                            </div>
                         </div>
 
                     </div>
@@ -169,8 +145,8 @@
                     <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
 
                         <md-button class="toolbar-button"
-                                   ng-click="cacheProject(project); projectEdit=!projectEdit"
-                                   aria-label="Edit Project Name"
+                                   ng-click="updateProject($event, project)"
+                                   aria-label="Edit Project"
                                    uib-tooltip="Edit"
                                    tooltip-placement="top"
                                    tooltip-trigger="mouseenter"

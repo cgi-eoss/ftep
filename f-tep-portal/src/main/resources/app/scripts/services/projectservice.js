@@ -41,25 +41,25 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return message;
         }
 
-        this.createProject = function(project){
+        this.createProject = function(name, description){
             return $q(function(resolve, reject) {
                 projectsAPI.from(rootUri + '/projects/')
                          .newRequest()
-                         .post(project)
+                         .post({name: name, description: description})
                          .result
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Project created', 'New project '.concat(project.name).concat(' created.'));
+                        MessageService.addInfo('Project created', 'New project '.concat(name).concat(' created.'));
                         resolve(JSON.parse(document.data));
                     }
                     else {
-                        MessageService.addError ('Could not create a project '.concat(project.name),
-                                'Failed to create a project ' + project.name + getMessage(document));
+                        MessageService.addError ('Could not create a project '.concat(name),
+                                'Failed to create a project ' + name + getMessage(document));
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Could not create a project '.concat(project.name), error.doc.message);
+                    MessageService.addError ('Could not create a project '.concat(name), error.doc.message);
                     reject();
                 });
             });
@@ -76,7 +76,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
                         MessageService.addInfo('Project updated', 'Project ' + project.name + ' successfully updated');
-                        resolve(document);
+                        resolve(JSON.parse(document.data));
                     }
                     else {
                         MessageService.addError('Could not update project '.concat(project.name),

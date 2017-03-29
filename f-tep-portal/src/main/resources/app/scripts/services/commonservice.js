@@ -8,7 +8,8 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('CommonService', [ '$rootScope', 'ftepProperties', '$mdDialog', '$q', function($rootScope, ftepProperties, $mdDialog, $q) {
+    ftepmodules.service('CommonService', [ '$rootScope', 'ftepProperties', '$mdDialog', '$q', '$injector',
+                                           function($rootScope, ftepProperties, $mdDialog, $q, $injector) {
 
                 this.getColor = function(status){
                     if("Succeeded" === status || "approved" === status){
@@ -41,8 +42,80 @@ define(['../ftepmodules'], function (ftepmodules) {
                         deferred.resolve(false);
                     });
                     return deferred.promise;
-                  };
+                };
 
-                return this;
+                this.createItemDialog = function($event, serviceName, serviceMethod){
+                    var deferred = $q.defer();
+                    function CreateItemController($scope, $mdDialog) {
+
+                        $scope.item = serviceName.substring(0, serviceName.indexOf('Service'));
+                        var service = $injector.get(serviceName);
+
+                        $scope.addItem = function () {
+                            service[serviceMethod]($scope.newItem.name, $scope.newItem.description).then(function (createdItem) {
+                                deferred.resolve(createdItem);
+                            },
+                            function(error){
+                                deferred.reject();
+                            });
+                            $mdDialog.hide();
+                        };
+
+                        $scope.closeDialog = function () {
+                            deferred.reject();
+                            $mdDialog.hide();
+                        };
+                    }
+
+                    CreateItemController.$inject = ['$scope', '$mdDialog'];
+                    $mdDialog.show({
+                        controller: CreateItemController,
+                        templateUrl: 'views/common/templates/createitem.tmpl.html',
+                        parent: angular.element(document.body),
+                        targetEvent: $event,
+                        clickOutsideToClose: true
+                    });
+
+                    return deferred.promise;
+                };
+
+                this.editItemDialog = function ($event, item, serviceName, serviceMethod) {
+                    var deferred = $q.defer();
+                    function EditController($scope, $mdDialog) {
+
+                        /* Save temporary changes */
+                        $scope.tempItem = angular.copy(item);
+                        $scope.itemName = item.name;
+                        var service = $injector.get(serviceName);
+
+                        /* Patch databasket and update databasket list */
+                        $scope.updateItem = function () {
+                            service[serviceMethod]($scope.tempItem).then(function(data){
+                                deferred.resolve(data);
+                            },
+                            function(error){
+                                deferred.reject();
+                            });
+                            $mdDialog.hide();
+                        };
+
+                        $scope.closeDialog = function() {
+                            deferred.reject();
+                            $mdDialog.hide();
+                        };
+                    }
+
+                    EditController.$inject = ['$scope', '$mdDialog'];
+                    $mdDialog.show({
+                        controller: EditController,
+                        templateUrl: 'views/common/templates/edititem.tmpl.html',
+                        parent: angular.element(document.body),
+                        targetEvent: $event,
+                        clickOutsideToClose: true
+                    });
+                    return deferred.promise;
+              };
+
+            return this;
       }]);
 });

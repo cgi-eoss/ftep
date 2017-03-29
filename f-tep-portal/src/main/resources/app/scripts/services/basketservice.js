@@ -114,7 +114,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     MessageService.addInfo('Databasket created', 'New databasket '.concat(name).concat(' created.'));
-                    resolve(document);
+                    resolve(JSON.parse(document.data));
                 }, function (error) {
                     MessageService.addError ('Failed to Create Databasket', error);
                     reject();
@@ -144,17 +144,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.updateDatabasketV2 = function (databaskets) {
-            var newdatabaskets = {name: databaskets.name, description: databaskets.description};
+        this.updateDatabasketV2 = function (databasket) {
+            var newdatabasket = {name: databasket.name, description: databasket.description};
             return $q(function(resolve, reject) {
-                halAPI.from(rootUri + '/databaskets/' + databaskets.id)
+                halAPI.from(rootUri + '/databaskets/' + databasket.id)
                          .newRequest()
-                         .patch(newdatabaskets)
+                         .patch(newdatabasket)
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('Databasket successfully updated');
-                    resolve(document);
+                    MessageService.addInfo('Databasket successfully updated', 'Databasket ' + databasket.name + ' successfully updated.');
+                    resolve(JSON.parse(document.data));
                 }, function (error) {
                     MessageService.addError('Failed to update Databasket', error);
                     reject();

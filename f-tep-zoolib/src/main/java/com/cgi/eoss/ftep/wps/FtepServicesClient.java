@@ -4,8 +4,10 @@ import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.log4j.Log4j2;
@@ -105,17 +107,20 @@ public class FtepServicesClient {
 
             for (Map.Entry<String, HashMap<String, Object>> input : ((Map<String, HashMap<String, Object>>) inputs).entrySet()) {
                 if (input.getValue().containsKey("isArray")) {
-                    inputParams.putAll(input.getKey(), (ArrayList<String>)input.getValue().get("value"));
+                    inputParams.putAll(input.getKey(), (ArrayList<String>) input.getValue().get("value"));
                 } else {
                     inputParams.put(input.getKey(), (String) input.getValue().get("value"));
                 }
             }
 
             FtepServicesClient client = new FtepServicesClient(ftepServerHost, ftepServerPort);
+
+            // TODO Translate ftep:// internal URLs for external users
             Multimap<String, String> result = client.launchService(userId, serviceId, jobId, inputParams);
 
-            LOG.info("Received result for job {}: {}", jobId, null);
+            LOG.info("Received result for job {}: {}", jobId, result);
 
+            Multimaps.asMap(result).forEach((k, v) -> outputs.put(k, Joiner.on(',').join(v)));
             return ZOO.SERVICE_SUCCEEDED;
         } catch (Exception e) {
             LOG.error("Service execution failed", e);

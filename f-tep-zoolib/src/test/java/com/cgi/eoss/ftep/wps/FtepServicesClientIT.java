@@ -53,8 +53,8 @@ import static org.mockito.Mockito.when;
  * <p>Integration test for launching WPS services.</p>
  * <p><strong>This uses a real Docker engine to build and run a container!</strong></p>
  */
-public class WpsServicesClientIT {
-    private static final String RPC_SERVER_NAME = WpsServicesClientIT.class.getName();
+public class FtepServicesClientIT {
+    private static final String RPC_SERVER_NAME = FtepServicesClientIT.class.getName();
     private static final String TEST_CONTAINER_IMAGE = "hello-world:latest";
 
     @Mock

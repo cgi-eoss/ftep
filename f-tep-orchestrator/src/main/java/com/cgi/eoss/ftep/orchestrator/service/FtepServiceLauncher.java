@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
@@ -27,10 +28,10 @@ import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -45,14 +46,18 @@ import java.io.BufferedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Multimaps.toMultimap;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static java.util.stream.Collectors.toList;
 
 /**
  * <p>Primary entry point for WPS services to launch in F-TEP.</p>
@@ -172,6 +177,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             job.setEndTime(LocalDateTime.now()); // End time is when processing ends
             jobDataService.save(job);
 
+            Map<String, FtepFile> outputFiles = new HashMap<>(expectedServiceOutputIds.size());
+
             for (String outputId : expectedServiceOutputIds) {
                 Iterator<OutputFileResponse> outputFile = worker.getOutputFile(OutputFileParam.newBuilder()
                         .setJob(rpcJob)
@@ -207,18 +214,23 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
                 }
 
-                catalogueService.ingestOutputProduct(outputProduct, outputPath);
+                outputFiles.put(outputId, catalogueService.ingestOutputProduct(outputProduct, outputPath));
             }
 
-            List<JobParam> outputs = ImmutableList.of();
-
-            responseObserver.onNext(FtepServiceResponse.newBuilder()
-                    .addAllOutputs(outputs)
-                    .build());
-            responseObserver.onCompleted();
-
             job.setStatus(JobStatus.COMPLETED);
+            job.setOutputs(outputFiles.entrySet().stream().collect(toMultimap(
+                    e -> e.getKey(),
+                    e -> e.getValue().getUri().toString(),
+                    MultimapBuilder.hashKeys().hashSetValues()::build)));
             jobDataService.save(job);
+
+            // Transform the results for the WPS response
+            List<JobParam> outputs = job.getOutputs().asMap().entrySet().stream()
+                    .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addAllParamValue(e.getValue()).build())
+                    .collect(toList());
+
+            responseObserver.onNext(FtepServiceResponse.newBuilder().addAllOutputs(outputs).build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             if (job != null) {
                 job.setStatus(JobStatus.ERROR);

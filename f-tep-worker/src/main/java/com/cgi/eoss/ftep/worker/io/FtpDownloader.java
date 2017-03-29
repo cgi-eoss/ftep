@@ -3,10 +3,14 @@ package com.cgi.eoss.ftep.worker.io;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
+import com.google.common.collect.ImmutableSet;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPSClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,7 +18,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
+@Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
 public class FtpDownloader implements Downloader {
     private static final int CONNECT_TIMEOUT = 2000;
@@ -22,8 +29,9 @@ public class FtpDownloader implements Downloader {
 
     private final CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService;
 
-    FtpDownloader(CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService) {
-        this.credentialsService = credentialsService;
+    @Override
+    public Set<String> getProtocols() {
+        return ImmutableSet.of("ftp", "ftps");
     }
 
     @Override

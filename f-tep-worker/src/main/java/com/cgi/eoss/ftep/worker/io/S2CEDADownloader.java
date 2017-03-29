@@ -1,15 +1,22 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
 public class S2CEDADownloader implements Downloader {
     private static final Pattern S2_PRODUCT_PATTERN = Pattern.compile("/(?<PRODUCT>S2A.*_(?<YEAR>\\d{4})(?<MONTH>\\d{2})(?<DAY>\\d{2})T\\d{6})");
@@ -17,8 +24,9 @@ public class S2CEDADownloader implements Downloader {
 
     private final FtpDownloader ftpDownloader;
 
-    S2CEDADownloader(FtpDownloader ftpDownloader) {
-        this.ftpDownloader = ftpDownloader;
+    @Override
+    public Set<String> getProtocols() {
+        return ImmutableSet.of("s2");
     }
 
     @Override

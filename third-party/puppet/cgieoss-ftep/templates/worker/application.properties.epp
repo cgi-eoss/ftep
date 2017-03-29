@@ -10,7 +10,11 @@
     String $cache_basedir,
     Integer $cache_concurrency,
     Integer $cache_maxweight,
-    String $jobs_basedir
+    String $jobs_basedir,
+
+    String $ipt_auth_endpoint,
+    String $ipt_auth_domain,
+    String $ipt_download_base_url
 | -%>
 # Managed by Puppet
 # F-TEP Worker service configuration
@@ -33,3 +37,7 @@ ftep.worker.cache.concurrency=<%= $cache_concurrency %>
 ftep.worker.cache.maxWeight=<%= $cache_maxweight %>
 ftep.worker.jobEnv.baseDir=<%= $jobs_basedir %>
 
+# Downloader configuration
+ftep.worker.downloader.ipt.authEndpoint=<%= $ipt_auth_endpoint %>
+ftep.worker.downloader.ipt.authDomain=<%= $ipt_auth_domain %>
+ftep.worker.downloader.ipt.downloadBaseUrl=<%= $ipt_download_base_url %>

@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.worker.io;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Authenticator;
@@ -11,6 +12,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 @Log4j2
 public class HttpDownloader implements Downloader {
 
@@ -31,10 +36,16 @@ public class HttpDownloader implements Downloader {
 
     private final OkHttpClient client;
 
+    @Autowired
     HttpDownloader(CredentialsServiceGrpc.CredentialsServiceBlockingStub downloaderCredentialsDataService) {
         this.client = new OkHttpClient.Builder()
                 .authenticator(new FtepAuthenticator(downloaderCredentialsDataService))
                 .build();
+    }
+
+    @Override
+    public Set<String> getProtocols() {
+        return ImmutableSet.of("http", "https");
     }
 
     @Override

@@ -91,7 +91,10 @@ public class CachingSymlinkIOManagerIT {
         webServer = buildWebServer();
         webServer.start();
 
-        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(ftepDownloader, CredentialsServiceGrpc.newBlockingStub(channelBuilder.build())));
+        CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
+
+        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(
+                ImmutableList.of(ftepDownloader, new FtpDownloader(credentialsService), new HttpDownloader(credentialsService))));
     }
 
     @After

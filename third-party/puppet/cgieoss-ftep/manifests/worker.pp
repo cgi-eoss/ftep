@@ -21,6 +21,11 @@ class ftep::worker (
   $data_basedir          = '/data',
   $cache_dir             = 'dl',
   $jobs_dir              = 'jobs',
+
+  $ipt_auth_endpoint     = 'https://finder.eocloud.eu/resto/api/authidentity',
+  # These are not undef so they're not mandatory parameters, but must be set correctly if IPT downloads are required
+  $ipt_auth_domain       = '__secret__',
+  $ipt_download_base_url = '__secret__',
 ) {
 
   require ::ftep::globals
@@ -83,6 +88,9 @@ class ftep::worker (
       'cache_concurrency'     => $cache_concurrency,
       'cache_maxweight'       => $cache_maxweight,
       'jobs_basedir'          => "${data_basedir}/$jobs_dir",
+      'ipt_auth_endpoint'     => $ipt_auth_endpoint,
+      'ipt_auth_domain'       => $ipt_auth_domain,
+      'ipt_download_base_url' => $ipt_download_base_url,
     }),
     require => Package['f-tep-worker'],
     notify  => Service['f-tep-worker'],

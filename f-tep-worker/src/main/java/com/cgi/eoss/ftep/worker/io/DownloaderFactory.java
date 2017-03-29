@@ -1,11 +1,12 @@
 package com.cgi.eoss.ftep.worker.io;
 
-import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.google.common.collect.Maps;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,27 +14,21 @@ import java.util.Map;
  * differ depending on configuration, allowing environment-specific handling of a given URI.</p>
  */
 @Service
+@Log4j2
 public class DownloaderFactory {
 
     // TODO Make these handlers configurable for different environments, and allow priority loading
     private final Map<String, Downloader> downloaders = Maps.newHashMap();
 
     @Autowired
-    public DownloaderFactory(FtepDownloader ftepDownloader, CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService) {
-        FtpDownloader ftpDownloader = new FtpDownloader(credentialsService);
-        HttpDownloader httpDownloader = new HttpDownloader(credentialsService);
-        S2CEDADownloader s2CEDADownloader = new S2CEDADownloader(ftpDownloader);
-
-        registerDownloader("ftep", ftepDownloader);
-        registerDownloader("ftp", ftpDownloader);
-        registerDownloader("ftps", ftpDownloader);
-        registerDownloader("http", httpDownloader);
-        registerDownloader("https", httpDownloader);
-        registerDownloader("s2", s2CEDADownloader);
+    public DownloaderFactory(List<Downloader> downloaders) {
+        downloaders.forEach(this::registerDownloader);
     }
 
-    private void registerDownloader(String scheme, Downloader downloader) {
-        downloaders.put(scheme, downloader);
+    private void registerDownloader(Downloader downloader) {
+        downloader.getProtocols().stream()
+                .peek(p -> LOG.info("Registering downloader for protocol '{}': {}", p, downloader))
+                .forEach(p -> downloaders.put(p, downloader));
     }
 
     /**

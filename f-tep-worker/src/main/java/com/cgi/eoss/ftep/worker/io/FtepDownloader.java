@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.cgi.eoss.ftep.rpc.ShortFile;
+import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,11 @@ public class FtepDownloader implements Downloader {
     private static final EnumSet<PosixFilePermission> NON_EXECUTABLE_PERMS = EnumSet.of(OWNER_READ, OWNER_WRITE, GROUP_READ, OTHERS_READ);
 
     private final ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesService;
+
+    @Override
+    public Set<String> getProtocols() {
+        return ImmutableSet.of("ftep");
+    }
 
     @Override
     public Path download(Path targetDir, URI uri) throws IOException {

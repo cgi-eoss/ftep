@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
@@ -32,7 +31,6 @@ import java.util.Set;
  * <p>Downloader for resolving "httpipt" URLs. Uses IPT's token authentication process.</p>
  */
 @Component
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
 public class IptDownloader implements Downloader {
 
@@ -45,8 +43,15 @@ public class IptDownloader implements Downloader {
     private String authDomain;
 
     private final CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService;
-    private final OkHttpClient client = new OkHttpClient.Builder().build();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final OkHttpClient client;
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    IptDownloader(OkHttpClient okHttpClient, CredentialsServiceGrpc.CredentialsServiceBlockingStub downloaderCredentialsDataService) {
+        this.client = okHttpClient;
+        this.credentialsService = downloaderCredentialsDataService;
+        this.objectMapper = new ObjectMapper();
+    }
 
     @Override
     public Set<String> getProtocols() {

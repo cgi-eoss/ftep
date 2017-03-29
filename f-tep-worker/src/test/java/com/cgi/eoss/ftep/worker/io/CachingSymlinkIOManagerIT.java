@@ -14,6 +14,7 @@ import com.google.common.jimfs.Jimfs;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
@@ -94,7 +95,7 @@ public class CachingSymlinkIOManagerIT {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
 
         ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(
-                ImmutableList.of(ftepDownloader, new FtpDownloader(credentialsService), new HttpDownloader(credentialsService))));
+                ImmutableList.of(ftepDownloader, new FtpDownloader(credentialsService), new HttpDownloader(new OkHttpClient.Builder().build(), credentialsService))));
     }
 
     @After
@@ -114,7 +115,7 @@ public class CachingSymlinkIOManagerIT {
 
         for (Map.Entry<String, String> e : inputs.entries()) {
             Path subdirPath = workDir.resolve(e.getKey());
-            ioManager.prepareInput(subdirPath, URI.create(e.getValue()));
+            ioManager.prepareInput(subdirPath, ImmutableSet.of(URI.create(e.getValue())));
         }
 
         Set<String> cacheResult = Files.walk(cacheDir).map(Path::toString).collect(Collectors.toSet());
@@ -156,8 +157,8 @@ public class CachingSymlinkIOManagerIT {
         Path firstTarget = workDir.resolve("httpzip-1");
         Path secondTarget = workDir.resolve("httpzip-2");
 
-        ioManager.prepareInput(firstTarget, uri);
-        ioManager.prepareInput(secondTarget, uri);
+        ioManager.prepareInput(firstTarget, ImmutableSet.of(uri));
+        ioManager.prepareInput(secondTarget, ImmutableSet.of(uri));
 
         assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-1")), is(cacheDir.resolve(hash(uri))));
         assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-2")), is(cacheDir.resolve(hash(uri))));

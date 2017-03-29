@@ -8,6 +8,7 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import io.grpc.ManagedChannelBuilder;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -61,6 +62,11 @@ public class WorkerConfig {
     @Bean
     public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesService(ManagedChannelBuilder channelBuilder) {
         return ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
+    }
+
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient.Builder().build();
     }
 
     @Bean

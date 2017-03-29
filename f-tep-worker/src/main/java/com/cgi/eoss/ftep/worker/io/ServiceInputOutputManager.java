@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.worker.io;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * <p>Service providing input and output file handling for F-TEP jobs.</p>
@@ -18,9 +19,9 @@ public interface ServiceInputOutputManager {
      *
      * @param target The directory to be populated. Will be created by this method if it does not exist, but will not be
      * overwritten if it does.
-     * @param uri The URI to resolve and provision in the target directory.
+     * @param uris The URIs to resolve and provision in the target directory.
      */
-    void prepareInput(Path target, URI uri) throws IOException;
+    void prepareInput(Path target, Set<URI> uris) throws IOException;
 
     /**
      * <p>Return the path to a directory containing all files necessary to build the Docker image for the given service

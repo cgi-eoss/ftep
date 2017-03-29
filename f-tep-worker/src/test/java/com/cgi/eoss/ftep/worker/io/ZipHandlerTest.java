@@ -88,9 +88,8 @@ public class ZipHandlerTest {
         List<String> result = Files.walk(target).map(Path::toString).sorted().collect(Collectors.toList());
         assertThat(result, is(ImmutableList.of(
                 "/target",
-                "/target/subdir1",
-                "/target/subdir1/subdir1File1",
-                "/target/subdir1/subdir1File2"
+                "/target/subdir1File1",
+                "/target/subdir1File2"
         )));
     }
 

@@ -44,9 +44,9 @@ if [ "" != "${AOI}" ]; then
     WEST_BOUND=${AOI_EXTENTS[3]}
 fi
 
-# Preprocess S2 input(s): extract correct bands and resample
+# Preprocess S2 input: extract correct bands and resample
 I=0
-for IN in $(ls -1d ${IN_DIR}/inputfile/S2*.SAFE | head -1); do
+for IN in ${IN_DIR}/inputfile; do
     I=$((I+1))
     INPUT_FILE=$(ls -1 ${IN}/S2*.xml | head -1)
     # Read the product with each possible formatName (UTM zone)

@@ -33,6 +33,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -99,7 +102,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 for (Map.Entry<String, String> e : inputs.entries()) {
                     if (isValidUri(e.getValue())) {
                         Path subdirPath = jobEnv.getInputDir().resolve(e.getKey());
-                        inputOutputManager.prepareInput(subdirPath, URI.create(e.getValue()));
+
+                        // Just hope no one has used a comma in their url...
+                        Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(Collectors.toSet());
+                        inputOutputManager.prepareInput(subdirPath, inputUris);
                     }
                 }
 

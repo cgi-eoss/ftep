@@ -37,8 +37,8 @@ public class HttpDownloader implements Downloader {
     private final OkHttpClient client;
 
     @Autowired
-    HttpDownloader(CredentialsServiceGrpc.CredentialsServiceBlockingStub downloaderCredentialsDataService) {
-        this.client = new OkHttpClient.Builder()
+    HttpDownloader(OkHttpClient okHttpClient, CredentialsServiceGrpc.CredentialsServiceBlockingStub downloaderCredentialsDataService) {
+        this.client = okHttpClient.newBuilder()
                 .authenticator(new FtepAuthenticator(downloaderCredentialsDataService))
                 .build();
     }

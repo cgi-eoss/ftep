@@ -10,6 +10,7 @@ import com.google.common.jimfs.Jimfs;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -65,7 +66,7 @@ public class HttpDownloaderTest {
         inProcessServerBuilder.addService(rpcCredentialsService);
         server = inProcessServerBuilder.build().start();
 
-        this.dl = new HttpDownloader(CredentialsServiceGrpc.newBlockingStub(channelBuilder.build()));
+        this.dl = new HttpDownloader(new OkHttpClient.Builder().build(), CredentialsServiceGrpc.newBlockingStub(channelBuilder.build()));
     }
 
     @After

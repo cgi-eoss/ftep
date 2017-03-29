@@ -8,6 +8,7 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.cache.Weigher;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
@@ -26,8 +27,10 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
@@ -89,11 +92,25 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     }
 
     @Override
-    public void prepareInput(Path link, URI uri) throws IOException {
+    public void prepareInput(Path targetDir, Set<URI> uris) throws IOException {
+        if (uris.size() == 1) {
+            // Single URI, link directly to the targetDir
+            downloadAndSymlink(Iterables.getOnlyElement(uris), targetDir);
+        } else {
+            // Multiple URIs, link to a subdir named after the filename portion of the URI
+            Files.createDirectories(targetDir);
+            for (URI uri : uris) {
+                String linkName = MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()));
+                downloadAndSymlink(uri, targetDir.resolve(linkName));
+            }
+        }
+    }
+
+    private void downloadAndSymlink(URI uri, Path link) {
         try {
-            Path target = loadingCache.get(uri);
-            LOG.debug("Linking {} to {}", link, target);
-            Files.createSymbolicLink(link, target);
+            Path downloadDir = loadingCache.get(uri);
+            LOG.debug("Linking {} to {}", link, downloadDir);
+            Files.createSymbolicLink(link, downloadDir);
         } catch (Exception e) {
             throw new ServiceIoException("Could not populate cache from URI: " + uri, e);
         }

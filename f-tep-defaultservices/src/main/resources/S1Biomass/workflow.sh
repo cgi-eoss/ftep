@@ -38,7 +38,7 @@ OUTPUT_FILE="${OUT_DIR}/result/FTEP_S1BIOMASS_${TIMESTAMP}.tif"
 
 # Preprocess S1 input(s)
 I=0
-for IN in $(ls -1d ${IN_DIR}/inputfiles/S1*.SAFE); do
+for IN in $(ls -1d ${IN_DIR}/inputfiles/S1*); do
     I=$((I+1))
     INPUT_FILE="${IN}/manifest.safe"
     time gpt ${S1_PREPROCESS} -Pifile="${INPUT_FILE}" -PdemFile="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" -Paoi="${AOI}" -Pofile="${PROC_DIR}/${PREPROCESSED_PREFIX}-${I}.tif"

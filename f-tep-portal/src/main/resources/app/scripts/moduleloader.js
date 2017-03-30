@@ -4,6 +4,8 @@ define([
     './controllers/index',
     './controllers/navbar',
 
+    './controllers/admin/admin',
+
     './controllers/account/account',
 
     './controllers/common/messages',

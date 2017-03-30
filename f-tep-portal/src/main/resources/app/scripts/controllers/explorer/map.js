@@ -125,9 +125,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
             var element = document.createElement('div');
             element.className = shape.location + ' ol-unselectable ol-control';
-            var title = document.createAttribute("title");
-            title.value = "Draw " + shape.name;
-            element.setAttributeNode(title);
+            element.setAttribute("title", "Draw " + shape.name);
             element.appendChild(button);
 
             ol.control.Control.call(this, {

@@ -36,6 +36,10 @@
                 <li ng-click="goTo('/helpdesk')" aria-label="Helpdesk" ng-class="{ active: isActive('/helpdesk')}">
                    <p><i class="material-icons">help</i> Helpdesk</p>
                 </li>
+
+                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin" ng-class="{ active: isActive('/admin')}">
+                   <p><i class="material-icons">account_circle</i> Admin</p>
+                </li>
             </ul>
 
         </div>

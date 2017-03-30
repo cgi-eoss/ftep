@@ -78,6 +78,20 @@ define([
                 controller: 'HelpdeskCtrl',
                 controllerAs: 'helpdesk'
             })
+            .when('/admin', {
+                templateUrl: 'views/admin/admin.html',
+                controller: 'AdminCtrl',
+                controllerAs: 'admin',
+                resolve:{
+                    "check":function($location, UserService){
+                        UserService.getCurrentUser().then(function(user){
+                            if(user.role != 'ADMIN'){
+                                $location.path('/');  //redirect to homepage
+                            }
+                        });
+                    }
+                }
+            })
             .otherwise({
                 redirectTo: '/'
             });

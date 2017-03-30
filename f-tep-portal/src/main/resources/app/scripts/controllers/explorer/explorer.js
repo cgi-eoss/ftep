@@ -186,6 +186,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 '            <div class="col-md-4">Stop</div>' +
                 '            <div class="col-md-8">{{item.stop}}</div>' +
                 '        </div>' +
+                '        <div class="row">' +
+                '            <div class="col-md-12">' +
+                '                <img ng-src="{{getQuicklookSrc(item)}}" alt="Quicklook not available" />' +
+                '            </div>' +
+                '        </div>' +
                 '    </div>' +
                 '    <md-button  class = "download-button" aria-label="Download" tooltip-trigger="mouseenter"' +
                 '                tooltip-append-to-body="true" href="{{item.link}}" target="_self">' +
@@ -199,8 +204,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
               }
            });
         }
-       function DialogController($scope, $mdDialog, CommonService) {
+       function DialogController($scope, $mdDialog, ftepProperties) {
          $scope.item = data;
+         $scope.getQuicklookSrc = function(item){
+             return '' + ftepProperties.URL + item.ql;
+         };
          $scope.closeDialog = function() {
              $mdDialog.hide();
          };

@@ -56,6 +56,7 @@ public class HttpDownloader implements Downloader {
         Response response = client.newCall(request).execute();
 
         if (!response.isSuccessful()) {
+            response.close();
             throw new ServiceIoException("Unsuccessful HTTP response: " + response);
         }
 

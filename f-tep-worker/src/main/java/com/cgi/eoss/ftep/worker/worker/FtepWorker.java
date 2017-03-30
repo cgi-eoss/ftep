@@ -127,7 +127,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void launchContainer(JobDockerConfig request, StreamObserver<LaunchContainerResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
+            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
 
             DockerClient dockerClient = jobClients.get(request.getJob().getId());
             String containerId = null;
@@ -141,9 +141,11 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
 
                 // Add proxy vars to the container, if they are set in the environment
-                ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
-                        .filter(var -> System.getenv().containsKey(var))
-                        .forEach(var -> createContainerCmd.withEnv(var + "=" + System.getenv(var)));
+                createContainerCmd.withEnv(
+                        ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
+                                .filter(var -> System.getenv().containsKey(var))
+                                .map(var -> var + "=" + System.getenv(var))
+                                .collect(Collectors.toList()));
 
                 containerId = createContainerCmd.exec().getId();
                 jobContainers.put(request.getJob().getId(), containerId);
@@ -171,8 +173,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID {} is not attached to a DockerClient", request.getJob().getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID {} does not have a known container ID", request.getJob().getId());
+            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
+            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID %s does not have a known container ID", request.getJob().getId());
 
             DockerClient dockerClient = jobClients.get(request.getJob().getId());
             String containerId = jobContainers.get(request.getJob().getId());

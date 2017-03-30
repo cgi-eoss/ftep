@@ -7,6 +7,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
+import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,9 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -66,7 +70,16 @@ public class WorkerConfig {
 
     @Bean
     public OkHttpClient okHttpClient() {
-        return new OkHttpClient.Builder().build();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        // If an http_proxy is set in the current environment, add it to the client
+        String httpProxy = System.getenv("http_proxy");
+        if (!Strings.isNullOrEmpty(httpProxy)) {
+            URI proxyUri = URI.create(httpProxy);
+            builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUri.getHost(), proxyUri.getPort())));
+        }
+
+        return builder.build();
     }
 
     @Bean

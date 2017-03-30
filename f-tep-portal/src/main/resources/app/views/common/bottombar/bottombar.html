@@ -59,4 +59,26 @@
         </md-tabs>
     </div>
 
+    <div id="bottombar-expand">
+        <md-button class="toolbar-button"
+                   ng-show="!bottombarTall"
+                   ng-click="toggleBottombarHeight()"
+                   uib-tooltip="Expand"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">vertical_align_top</i>
+        </md-button>
+
+        <md-button class="toolbar-button"
+                   ng-show="bottombarTall"
+                   ng-click="toggleBottombarHeight()"
+                   uib-tooltip="Shrink"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">vertical_align_bottom</i>
+        </md-button>
+    </div>
+
 </article>

@@ -6,7 +6,7 @@
              ng-show="navInfo.activeDeveloperPage == developerSideNavs.SERVICES" />
 
     <section id="bottombar-container"
-             ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible}"
+             ng-class="{'col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
              class="explorer-content animationIf no-padding"
              ng-include src="'views/common/bottombar/bottombar.html'"
              ng-controller="BottombarCtrl"

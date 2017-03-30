@@ -66,6 +66,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.$broadcast('rebuild:scrollbar');
         };
 
+        $scope.bottombarTall = false;
+        $scope.toggleBottombarHeight = function() {
+            $scope.bottombarTall = !$scope.bottombarTall;
+        };
+
         $scope.getColor = function(status){
             return CommonService.getColor(status);
         };

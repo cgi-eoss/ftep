@@ -1,6 +1,17 @@
 #account-container {
   padding-left: 44px !important;
 }
+#account-container #accountManagement {
+  width: 100%;
+}
+#account-container #accountManagement #accountInfo {
+  height: 100%;
+  padding: 10px;
+  background-color: #f8f8f8;
+}
+#account-container #accountManagement #accountInfo .row div {
+  margin: 8px 0;
+}
 
 #bottombar-container {
   bottom: 0;
@@ -12,6 +23,17 @@
   position: absolute;
   z-index: 2;
 }
+#bottombar-container #bottombar-expand {
+  position: absolute;
+  right: 0.5rem;
+  top: 4px;
+}
+#bottombar-container #bottombar-expand .material-icons {
+  color: #33691e;
+}
+#bottombar-container #bottombar-expand:hover .material-icons {
+  color: #558b2f;
+}
 #bottombar-container.wide {
   padding-left: 44px !important;
 }
@@ -20,6 +42,9 @@
     background-color: #f8f8f8;
     padding-left: 44px !important;
   }
+}
+.bottombar-tall {
+  height: 85vh !important;
 }
 #bottombar {
   background-color: rgba(255, 255, 255, 0.7);

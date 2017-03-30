@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.resto;
 
+import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -114,7 +115,11 @@ public class RestoServiceImpl implements RestoService {
         HttpUrl url = HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections").addPathSegment(collection).build();
         LOG.debug("Creating new Resto catalogue entry in collection: {}", collection);
 
-        restoCollections.getUnchecked(collection);
+        try {
+            restoCollections.get(collection);
+        } catch (Exception e) {
+            throw new IngestionException("Failed to get/create Resto collection", e);
+        }
 
         Request request = new Request.Builder()
                 .url(url)
@@ -128,10 +133,10 @@ public class RestoServiceImpl implements RestoService {
                 return UUID.fromString(uuid);
             } else {
                 LOG.error("Failed to ingest Resto object to collection '{}': {} {}", collection, response.code(), response.message());
-                throw new RuntimeException("Failed to ingest Resto object");
+                throw new IngestionException("Failed to ingest Resto object");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IngestionException(e);
         }
     }
 

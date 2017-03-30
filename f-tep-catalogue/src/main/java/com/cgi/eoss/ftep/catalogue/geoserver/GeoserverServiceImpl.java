@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.geoserver;
 
+import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.google.common.io.MoreFiles;
 import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
@@ -52,7 +53,8 @@ public class GeoserverServiceImpl implements GeoserverService {
 
         if (!fileName.toString().toUpperCase().endsWith(".TIF")) {
             // TODO Ingest more filetypes
-            throw new UnsupportedOperationException("Unable to ingest a non-GeoTiff product");
+            LOG.info("Unable to ingest a non-GeoTiff product");
+            return;
         }
 
         try {
@@ -60,7 +62,7 @@ public class GeoserverServiceImpl implements GeoserverService {
             LOG.info("Ingested GeoTIFF to geoserver with id: {}:{}", workspace, layerName);
         } catch (FileNotFoundException e) {
             LOG.error("Geoserver was unable to publish file: {}", path, e);
-            throw new IllegalArgumentException(e);
+            throw new IngestionException(e);
         }
     }
 

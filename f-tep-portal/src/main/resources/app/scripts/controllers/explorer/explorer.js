@@ -8,7 +8,8 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', '$timeout', function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', '$timeout', 'ftepProperties',
+                                            function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout, ftepProperties) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo;
@@ -73,13 +74,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Show Result Metadata Modal */
         $scope.showMetadata = function($event, data) {
-            function MetadataController($scope, $mdDialog, CommonService) {
+            function MetadataController($scope, $mdDialog, ftepProperties) {
                 $scope.item = data;
+
+                $scope.getQuicklookSrc = function(item){
+                    return '' + ftepProperties.URLv2 + item.ql;
+                };
+
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
                 };
             }
-            MetadataController.$inject = ['$scope', '$mdDialog', 'CommonService'];
+            MetadataController.$inject = ['$scope', '$mdDialog', 'ftepProperties'];
             if(data.type === 'file') {
                 $mdDialog.show({
                     controller: MetadataController,

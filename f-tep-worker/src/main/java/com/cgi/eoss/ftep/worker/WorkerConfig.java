@@ -3,10 +3,12 @@ package com.cgi.eoss.ftep.worker;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
+import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import okhttp3.OkHttpClient;
@@ -90,7 +92,12 @@ public class WorkerConfig {
                 .withDockerHost(dockerHostUrl)
                 .build();
 
+        DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory()
+                .withMaxTotalConnections(100)
+                .withMaxPerRouteConnections(10);
+
         return DockerClientBuilder.getInstance(dockerClientConfig)
+                .withDockerCmdExecFactory(dockerCmdExecFactory)
                 .build();
     }
 

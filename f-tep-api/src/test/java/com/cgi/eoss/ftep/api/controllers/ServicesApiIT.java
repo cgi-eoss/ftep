@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
+import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.ServiceStatus;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
@@ -63,6 +66,9 @@ public class ServicesApiIT {
 
     @Autowired
     private MutableAclService aclService;
+
+    @Autowired
+    private FtepSecurityService securityService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -114,6 +120,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services[0].name").value("service-1"))
                 .andExpect(jsonPath("$._embedded.services[0].dockerTag").value("dockerTag"))
                 .andExpect(jsonPath("$._embedded.services[0].owner.id").value(ftepUser.getId()))
+                .andExpect(jsonPath("$._embedded.services[0].public").value(false))
                 .andExpect(jsonPath("$._embedded.services[0]._links.self.href").value(endsWith("/services/" + service.getId())))
                 .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner")));
     }
@@ -128,6 +135,7 @@ public class ServicesApiIT {
         service3.setStatus(ServiceStatus.IN_DEVELOPMENT);
         dataService.save(ImmutableSet.of(service, service2, service3));
 
+        createAce(new ObjectIdentityImpl(FtepService.class, service.getId()), new GrantedAuthoritySid(FtepPermission.PUBLIC), BasePermission.READ);
         createReadAce(new ObjectIdentityImpl(FtepService.class, service3.getId()), ftepExpertUser.getName());
 
         // service1 is returned as it is AVAILABLE
@@ -139,7 +147,9 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services").isArray())
                 .andExpect(jsonPath("$._embedded.services.length()").value(2))
                 .andExpect(jsonPath("$._embedded.services[0].id").value(service.getId()))
-                .andExpect(jsonPath("$._embedded.services[1].id").value(service3.getId()));
+                .andExpect(jsonPath("$._embedded.services[0].public").value(true))
+                .andExpect(jsonPath("$._embedded.services[1].id").value(service3.getId()))
+                .andExpect(jsonPath("$._embedded.services[1].public").value(false));
     }
 
     @Test

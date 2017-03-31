@@ -20,6 +20,10 @@ class ftep::globals (
   $monitor_hostname            = 'ftep-monitor',
   $resto_hostname              = 'ftep-resto',
 
+  # Hostname/IP for building the URLs to GUI applications; port is ephemeral and found from docker container
+  # If an empty string, will default to the appropriate F-TEP Worker instance gRPC host
+  $gui_default_host            = '',
+
   $hosts_override              = { },
 
   # All classes should share this database config, or override it if necessary
@@ -61,10 +65,9 @@ class ftep::globals (
   $graylog_port                = 8087,
   $graylog_context_path        = '/log',
   $graylog_gelf_tcp_port       = 5140,
-  $graylog_server              = $monitor_hostname
+  $graylog_server              = $monitor_hostname,
 
   $enable_log4j2_graylog       = false,
-
 ) {
 
   # Alias reverse-proxy hosts via hosts file

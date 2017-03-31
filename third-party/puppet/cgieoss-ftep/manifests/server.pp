@@ -28,6 +28,8 @@ class ftep::server (
 
   $local_worker_hostname       = 'ftep-worker',
   $local_worker_grpc_port      = undef,
+
+  $gui_default_host            = undef,
 ) {
 
   require ::ftep::globals
@@ -50,6 +52,8 @@ class ftep::server (
   $real_zoomanager_grpc_port = pick($zoomanager_grpc_port, $ftep::globals::zoomanager_grpc_port)
 
   $real_local_worker_grpc_port = pick($local_worker_grpc_port, $ftep::globals::worker_grpc_port)
+
+  $real_gui_default_host = pick($gui_default_host, $ftep::globals::gui_default_host)
 
   ensure_packages(['f-tep-server'], {
     ensure => 'latest',
@@ -95,6 +99,7 @@ class ftep::server (
       'zoomanager_grpc_port'        => $real_zoomanager_grpc_port,
       'local_worker_hostname'       => $local_worker_hostname,
       'local_worker_grpc_port'      => $real_local_worker_grpc_port,
+      'gui_default_host'            => $real_gui_default_host,
     }),
     require => Package['f-tep-server'],
     notify  => Service['f-tep-server'],

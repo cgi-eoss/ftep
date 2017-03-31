@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
@@ -97,7 +98,7 @@ public class FtepServicesClientIT {
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
 
         WorkerFactory workerFactory = new WorkerFactory(channelBuilder);
-        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, catalogueService);
+        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, new FtepGuiServiceManager(), catalogueService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
         inProcessServerBuilder.addService(ftepServiceLauncher);

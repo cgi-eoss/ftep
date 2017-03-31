@@ -18,7 +18,9 @@
     Integer $zoomanager_grpc_port,
 
     String $local_worker_hostname,
-    Integer $local_worker_grpc_port
+    Integer $local_worker_grpc_port,
+
+    String $gui_default_host
 | -%>
 # Managed by Puppet
 # F-TEP Server service configuration
@@ -53,3 +55,6 @@ ftep.orchestrator.zoomanager.grpcPort=<%= $zoomanager_grpc_port %>
 # LOCAL worker configuration
 ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>
 ftep.orchestrator.worker.local.grpcPort=<%= $local_worker_grpc_port %>
+
+# Hostname/IP to use for building GUI application URLs
+ftep.orchestrator.gui.defaultHost=<%= $gui_default_host %>

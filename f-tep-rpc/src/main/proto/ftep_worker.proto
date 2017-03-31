@@ -54,7 +54,12 @@ message PortBindings {
 
 message PortBinding {
     string portDef = 1;
-    string binding = 2;
+    Binding binding = 2;
+}
+
+message Binding {
+    string ip = 1;
+    int32 port = 2;
 }
 
 message StopContainerResponse {

@@ -12,6 +12,7 @@ dependencies {
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
 
+    compile 'org.awaitility:awaitility'
     compile 'org.jooq:jool'
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'

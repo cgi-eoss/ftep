@@ -17,14 +17,15 @@ dataInputs:
     defaultAttrs:
       dataType: "string"
     supportedAttrs: []
-  - id: "gui-timeout"
-    title: "Timeout in hours before the application automatically shuts down"
-    description: "The maximum time this application can remain open"
+  - id: "timeout"
+    title: "Timeout in minutes before the application automatically shuts down"
+    description: "The maximum time this application can remain open. WARNING: This is a hard limit, not an inactivity timer."
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"
     defaultAttrs:
       dataType: "string"
+      value: "60"
     supportedAttrs: []
 dataOutputs:
   - id: "Result"

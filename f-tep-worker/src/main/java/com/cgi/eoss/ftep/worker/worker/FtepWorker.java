@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
+import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
@@ -12,6 +13,8 @@ import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
+import com.cgi.eoss.ftep.rpc.worker.PortBinding;
+import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
@@ -19,8 +22,11 @@ import com.cgi.eoss.ftep.worker.io.ServiceIoException;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.annotations.VisibleForTesting;
@@ -139,6 +145,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage());
                 createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
                 createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
+                createContainerCmd.withPortBindings(request.getPortsList().stream()
+                        .map(p -> new com.github.dockerjava.api.model.PortBinding(new Ports.Binding(null, null), ExposedPort.parse(p)))
+                        .collect(Collectors.toList()));
 
                 // Add proxy vars to the container, if they are set in the environment
                 createContainerCmd.withEnv(
@@ -164,6 +173,42 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                     removeContainer(dockerClient, containerId);
                     jobContainers.remove(request.getJob().getId());
                     jobClients.remove(request.getJob().getId());
+                }
+                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            }
+        }
+    }
+
+    @Override
+    public void getPortBindings(Job request, StreamObserver<PortBindings> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
+            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
+            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
+
+            DockerClient dockerClient = jobClients.get(request.getId());
+            String containerId = jobContainers.get(request.getId());
+            try {
+                LOG.debug("Inspecting container for port bindings: {}", containerId);
+                InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
+                Map<ExposedPort, Ports.Binding[]> exposedPortMap = inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
+
+                LOG.debug("Returning port map: {}", exposedPortMap);
+                PortBindings.Builder bindingsBuilder = PortBindings.newBuilder();
+                exposedPortMap.entrySet().stream()
+                        .filter(e -> e.getValue() != null)
+                        .map(e -> PortBinding.newBuilder()
+                                .setPortDef(e.getKey().toString())
+                                .setBinding(Binding.newBuilder().setIp(e.getValue()[0].getHostIp()).setPort(Integer.parseInt(e.getValue()[0].getHostPortSpec())).build())
+                                .build())
+                        .forEach(bindingsBuilder::addBindings);
+
+                responseObserver.onNext(bindingsBuilder.build());
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                if (!Strings.isNullOrEmpty(containerId)) {
+                    removeContainer(dockerClient, containerId);
+                    jobContainers.remove(request.getId());
+                    jobClients.remove(request.getId());
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -203,12 +248,19 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             DockerClient dockerClient = jobClients.get(request.getJob().getId());
             String containerId = jobContainers.get(request.getJob().getId());
             try {
-                int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode(request.getTimeout(), TimeUnit.HOURS);
+                int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode(request.getTimeout(), TimeUnit.MINUTES);
                 responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
                 responseObserver.onCompleted();
             } catch (Exception e) {
-                LOG.error("Failed to properly wait for container exit: {}", containerId, e);
-                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+                if (e.getClass().equals(DockerClientException.class) && e.getMessage().equals("Awaiting status code timeout.")) {
+                    LOG.warn("Timed out waiting for application to exit; manually stopping container and treating as 'normal' exit: {}", containerId);
+                    stopContainer(dockerClient, containerId);
+                    responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(0).build());
+                    responseObserver.onCompleted();
+                } else {
+                    LOG.error("Failed to properly wait for container exit: {}", containerId, e);
+                    responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+                }
             } finally {
                 removeContainer(dockerClient, containerId);
                 jobContainers.remove(request.getJob().getId());
@@ -265,6 +317,19 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private WaitContainerResultCallback waitForContainer(DockerClient dockerClient, String containerId) {
         return dockerClient.waitContainerCmd(containerId).exec(new WaitContainerResultCallback());
+    }
+
+    private void stopContainer(DockerClient client, String containerId) {
+        if (client.inspectContainerCmd(containerId).exec().getState().getRunning()) {
+            try {
+                client.stopContainerCmd(containerId).withTimeout(30).exec();
+            } catch (DockerClientException e) {
+                LOG.warn("Received exception trying to stop container; killing: {}", containerId, e);
+                client.killContainerCmd(containerId).exec();
+            }
+        } else {
+            LOG.debug("Container {} appears to already be stopped", containerId);
+        }
     }
 
     private void removeContainer(DockerClient client, String containerId) {

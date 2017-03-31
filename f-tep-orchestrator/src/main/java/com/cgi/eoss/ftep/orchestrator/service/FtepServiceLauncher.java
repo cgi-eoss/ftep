@@ -27,7 +27,6 @@ import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
-import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -68,17 +67,18 @@ import static java.util.stream.Collectors.toList;
 @GRpcService
 public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLauncherImplBase {
 
-    private static final String GUACAMOLE_PORT = "8080/tcp";
     private static final String TIMEOUT_PARAM = "timeout";
 
     private final WorkerFactory workerFactory;
     private final JobDataService jobDataService;
+    private final FtepGuiServiceManager guiService;
     private final CatalogueService catalogueService;
 
     @Autowired
-    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, CatalogueService catalogueService) {
+    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
+        this.guiService = guiService;
         this.catalogueService = catalogueService;
     }
 
@@ -131,9 +131,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .addBinds(jobEnvironment.getInputDir() + ":" + "/home/worker/workDir/inDir:ro")
                     .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw");
             if (service.getType() == ServiceType.APPLICATION) {
-                dockerConfigBuilder.addPorts(GUACAMOLE_PORT);
+                dockerConfigBuilder.addPorts(FtepGuiServiceManager.GUACAMOLE_PORT);
             }
-            LOG.info("Launching docker image {} for {}", dockerImageTag, zooId);
+            LOG.info("Launching docker container for job {}", zooId);
             job.setStage(JobStep.PROCESSING.getText());
             jobDataService.save(job);
             LaunchContainerResponse unused = worker.launchContainer(dockerConfigBuilder.build());
@@ -144,13 +144,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Update GUI endpoint URL for client access
             if (service.getType() == ServiceType.APPLICATION) {
-                PortBinding portBinding = worker.getPortBindings(rpcJob).getBindingsList().stream()
-                        .filter(b -> b.getPortDef().equals(GUACAMOLE_PORT))
-                        .findFirst()
-                        .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container: " + zooId));
-
-                String guiUrl = portBinding.getBinding();
-
+                String guiUrl = guiService.getGuiUrl(worker, rpcJob);
                 LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
                 job.setGuiUrl(guiUrl);
                 jobDataService.save(job);

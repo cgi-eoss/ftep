@@ -76,7 +76,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                     $scope.addUserSuccess = false;
                     /* Check user doesn't belong to group already */
                     if ($scope.validateUser(user)) {
-                        UserService.addUser(group, user).then(function (data) {
+                        UserService.addUser(group, $scope.userParams.groupUsers, user).then(function (data) {
                             /* Display success message and clear form */
                             $scope.addUserSuccess = true;
                             $scope.searchText = null;

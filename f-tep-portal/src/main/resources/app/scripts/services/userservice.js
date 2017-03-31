@@ -72,13 +72,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.addUser = function (group, user) {
+        this.addUser = function (group, groupUsers, user) {
             return $q(function(resolve, reject) {
 
                 /* Create array of user links */
                 var membersArray = [];
-                for (var item in group.users) {
-                    membersArray.push(group.users[item]._links.self.href);
+                for (var item in groupUsers) {
+                    membersArray.push(groupUsers[item]._links.self.href);
                 }
 
                 /* Append user to new members array */

@@ -3,7 +3,6 @@ package com.cgi.eoss.ftep.persistence.service;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
-import com.cgi.eoss.ftep.model.internal.CompleteFtepService;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 import com.querydsl.core.types.Predicate;
@@ -21,15 +20,9 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
 
     private final FtepServiceDao ftepServiceDao;
 
-    private final UserDataService userDataService;
-
-    private final ServiceFileDataService fileDataService;
-
     @Autowired
-    public JpaServiceDataService(FtepServiceDao ftepServiceDao, UserDataService userDataService, ServiceFileDataService fileDataService) {
+    public JpaServiceDataService(FtepServiceDao ftepServiceDao) {
         this.ftepServiceDao = ftepServiceDao;
-        this.userDataService = userDataService;
-        this.fileDataService = fileDataService;
     }
 
     @Override
@@ -55,26 +48,6 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     @Override
     public FtepService getByName(String serviceName) {
         return ftepServiceDao.findOne(ftepService.name.eq(serviceName));
-    }
-
-    @Override
-    @Transactional
-    public CompleteFtepService save(CompleteFtepService service) {
-        FtepService ftepService = service.getService();
-        ftepService.setOwner(userDataService.refresh(ftepService.getOwner()));
-        save(ftepService);
-        // Fully resync the service context files collection
-        fileDataService.findByService(ftepService).forEach(fileDataService::delete);
-        fileDataService.save(service.getFiles());
-        return service;
-    }
-
-    @Override
-    @Transactional
-    public void delete(FtepService service) {
-        // TODO Fix the relationship so we can use orphanRemoval
-        fileDataService.findByService(service).forEach(fileDataService::delete);
-        ftepServiceDao.delete(service);
     }
 
     @Override

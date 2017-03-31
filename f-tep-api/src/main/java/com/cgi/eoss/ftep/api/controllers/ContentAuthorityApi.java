@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.internal.CompleteFtepService;
 import com.cgi.eoss.ftep.orchestrator.zoo.ZooManagerClient;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,12 +40,25 @@ public class ContentAuthorityApi {
     @PostMapping("/services/restoreDefaults")
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
     public void restoreDefaultServices() {
-        Set<CompleteFtepService> defaultServices = DefaultFtepServices.getDefaultServices();
+        Set<FtepService> defaultServices = DefaultFtepServices.getDefaultServices();
 
-        for (CompleteFtepService service : defaultServices) {
-            LOG.info("Restoring default service: {}", service.getService().getName());
+        for (FtepService service : defaultServices) {
+            LOG.info("Restoring default service: {}", service.getName());
+
+            // If the service already exists, synchronise the IDs (and associated file IDs) to avoid constraint errors
+            Optional.ofNullable(serviceDataService.getByName(service.getName())).ifPresent((FtepService existing) -> {
+                service.setId(existing.getId());
+                service.getContextFiles().forEach(newFile ->  {
+                    existing.getContextFiles().stream()
+                            .filter(existingFile -> existingFile.getFilename().equals(newFile.getFilename()))
+                            .findFirst()
+                            .ifPresent(existingFile -> newFile.setId(existingFile.getId()));
+                });
+            });
+
+            service.setOwner(ftepSecurityService.refreshPersistentUser(service.getOwner()));
             serviceDataService.save(service);
-            publishService(service.getService());
+            publishService(service);
         }
     }
 

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -20,11 +21,14 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = {"id", "contextFiles"})
 @Table(name = "ftep_services",
         indexes = {@Index(name = "ftep_services_name_idx", columnList = "name"), @Index(name = "ftep_services_owner_idx", columnList = "owner")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
@@ -96,6 +100,13 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     private FtepServiceDescriptor serviceDescriptor;
 
     /**
+     * <p>The files required to build this service's docker image.</p>
+     */
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<FtepServiceContextFile> contextFiles = new HashSet<>();
+
+    /**
      * <p>Create a new Service with the minimum required parameters.</p>
      *
      * @param name Name of the service.
@@ -110,6 +121,11 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @Override
     public int compareTo(FtepService o) {
         return ComparisonChain.start().compare(name, o.name).result();
+    }
+
+    public void setContextFiles(Set<FtepServiceContextFile> contextFiles) {
+        contextFiles.forEach(f -> f.setService(this));
+        this.contextFiles = contextFiles;
     }
 
 }

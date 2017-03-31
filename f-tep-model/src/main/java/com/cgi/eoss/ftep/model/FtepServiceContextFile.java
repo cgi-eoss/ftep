@@ -44,7 +44,7 @@ public class FtepServiceContextFile implements FtepEntity<FtepServiceContextFile
     /**
      * <p>The service for which this file is used.</p>
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service", nullable = false)
     private FtepService service;
 

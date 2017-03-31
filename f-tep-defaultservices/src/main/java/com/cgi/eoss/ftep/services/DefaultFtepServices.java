@@ -5,22 +5,24 @@ import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.ServiceLicence;
 import com.cgi.eoss.ftep.model.ServiceStatus;
+import com.cgi.eoss.ftep.model.ServiceType;
 import com.cgi.eoss.ftep.model.User;
-import com.cgi.eoss.ftep.model.internal.CompleteFtepService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
-import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.lambda.Unchecked;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,42 +31,36 @@ import java.util.stream.Collectors;
  * <p>The services are read from classpath resources baked in at compile-time, and may be used to install or restore the
  * default service set during runtime.</p>
  */
-@UtilityClass
+@Component
 @Log4j2
 public class DefaultFtepServices {
 
-    private static final Set<String> DEFAULT_SERVICES = ImmutableSet.of(
-            // Processors
-            "LandCoverS1",
-            "LandCoverS2",
-            "S1Biomass",
-            "VegetationIndices",
-            // Graphical applications
-            "Monteverdi",
-            "QGIS",
-            "SNAP"
-    );
+    private static final Map<String, ServiceType> DEFAULT_SERVICES = ImmutableMap.<String, ServiceType>builder()
+            .put("LandCoverS1", ServiceType.PROCESSOR)
+            .put("LandCoverS2", ServiceType.PROCESSOR)
+            .put("S1Biomass", ServiceType.PROCESSOR)
+            .put("VegetationIndices", ServiceType.PROCESSOR)
+            .put("Monteverdi", ServiceType.APPLICATION)
+            .put("QGIS", ServiceType.APPLICATION)
+            .put("SNAP", ServiceType.APPLICATION)
+            .build();
 
     private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
-    public static Set<CompleteFtepService> getDefaultServices() {
-        return DEFAULT_SERVICES.stream().map(DefaultFtepServices::importDefaultService).collect(Collectors.toSet());
+    public static Set<FtepService> getDefaultServices() {
+        return DEFAULT_SERVICES.keySet().stream().map(DefaultFtepServices::importDefaultService).collect(Collectors.toSet());
     }
 
-    private static CompleteFtepService importDefaultService(String serviceId) {
+    private static FtepService importDefaultService(String serviceId) {
         try {
             FtepService service = new FtepService(serviceId, User.DEFAULT, "ftep/" + serviceId.toLowerCase());
             service.setLicence(ServiceLicence.OPEN);
             service.setStatus(ServiceStatus.AVAILABLE);
             service.setServiceDescriptor(getServiceDescriptor(service));
             service.setDescription(service.getServiceDescriptor().getDescription());
-
-            Set<FtepServiceContextFile> files = getServiceContextFiles(service);
-
-            return CompleteFtepService.builder()
-                    .service(service)
-                    .files(files)
-                    .build();
+            service.setType(DEFAULT_SERVICES.get(serviceId));
+            service.setContextFiles(getServiceContextFiles(service));
+            return service;
         } catch (IOException e) {
             throw new RuntimeException("Could not load default F-TEP Service " + serviceId, e);
         }

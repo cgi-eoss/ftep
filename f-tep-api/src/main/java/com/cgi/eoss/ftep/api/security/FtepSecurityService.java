@@ -63,6 +63,10 @@ public class FtepSecurityService {
         return userDataService.getGroups(getCurrentUser());
     }
 
+    public User refreshPersistentUser(User user) {
+        return userDataService.refresh(user);
+    }
+
     /**
      * <p>Create an access control entry granting all users (the PUBLIC authority) READ access to the given object.</p>
      *

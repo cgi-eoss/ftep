@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.zoo.ZooManagerClient;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
+import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
 import com.google.common.collect.ImmutableSet;
@@ -29,6 +30,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,6 +62,9 @@ public class ContentAuthorityApiIT {
     private ServiceDataService serviceDataService;
 
     @Autowired
+    private ServiceFileDataService serviceFileDataService;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private User ftepUser;
@@ -87,8 +92,10 @@ public class ContentAuthorityApiIT {
         assertThat(serviceDataService.getAll().size(), is(DEFAULT_SERVICE_COUNT));
 
         // Remove one of the default services
-        serviceDataService.delete(serviceDataService.getByName(TEST_SERVICE_NAME));
+        FtepService testService = serviceDataService.getByName(TEST_SERVICE_NAME);
+        serviceDataService.delete(testService);
         assertThat(serviceDataService.getByName(TEST_SERVICE_NAME), is(nullValue()));
+        assertThat(serviceFileDataService.findByService(testService), is(empty()));
 
         // Restore default services again
         mockMvc.perform(post("/api/contentAuthority/services/restoreDefaults").header("REMOTE_USER", ftepAdmin.getName()))

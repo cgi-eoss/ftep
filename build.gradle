@@ -37,6 +37,10 @@ allprojects {
     apply plugin: 'io.spring.dependency-management'
 
     dependencyManagement {
+        imports {
+            mavenBom 'org.springframework.data:spring-data-releasetrain:Ingalls-SR1'
+        }
+
         dependencies {
             dependency 'commons-io:commons-io:2.5'
             dependency 'commons-net:commons-net:3.6'
@@ -132,13 +136,6 @@ allprojects {
                 entry 'spring-boot-starter-test'
                 entry 'spring-boot-starter-undertow'
                 entry('spring-boot-starter-web') { exclude 'org.springframework.boot:spring-boot-starter-tomcat' }
-            }
-            dependencySet(group: 'org.springframework.data', version: '1.11.1.RELEASE') {
-                entry 'spring-data-jpa'
-            }
-            dependencySet(group: 'org.springframework.data', version: '2.6.1.RELEASE') {
-                entry 'spring-data-rest-hal-browser'
-                entry 'spring-data-rest-webmv'
             }
             dependencySet(group: 'org.springframework.security', version: '4.2.2.RELEASE') {
                 entry 'spring-security-acl'

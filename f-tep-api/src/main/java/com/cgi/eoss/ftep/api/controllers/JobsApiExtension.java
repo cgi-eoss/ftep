@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,6 +65,7 @@ public class JobsApiExtension {
 
     @GetMapping("/{jobId}/logs")
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#job, 'read')")
+    @ResponseBody
     public List<SimpleMessage> getJobContainerLogs(@ModelAttribute("jobId") Job job) throws IOException {
         Map<String, String> parameters = ImmutableMap.<String, String>builder()
                 .put("range", "0")
@@ -74,7 +76,7 @@ public class JobsApiExtension {
                 .build();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(graylogApiUrl).newBuilder()
-                .addPathSegments("/search/universal/relative");
+                .addPathSegments("search/universal/relative");
 
         parameters.forEach(urlBuilder::addEncodedQueryParameter);
 
@@ -83,6 +85,7 @@ public class JobsApiExtension {
                 .url(urlBuilder.build())
                 .build();
 
+        LOG.debug("Retrieving job {} logs from url: {}", job.getId(), request.url());
         try (Response response = httpClient.newCall(request).execute()) {
             return objectMapper.readValue(response.body().string(), GraylogApiResponse.class).getMessages().stream()
                     .map(GraylogMessage::getMessage)

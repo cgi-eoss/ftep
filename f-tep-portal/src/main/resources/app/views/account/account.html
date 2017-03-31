@@ -8,6 +8,11 @@
 	           <div class="col-xs-8">{{user.name}}</div>
 	        </div>
 
+            <div class="row">
+               <div class="col-xs-4">Role:</div>
+               <div class="col-xs-8">{{user.role}}</div>
+            </div>
+
 	        <div class="row">
 	            <div class="col-xs-4">Email:</div>
 	            <div class="col-xs-8">{{user.email}}</div>
@@ -18,9 +23,17 @@
 	            <div class="col-xs-8">{{accountData.coinBalance}}</div>
 	        </div>
         </div>
-        <div class="col-xl-4">
+        <div id="statistics" class="col-xl-4">
+            <h3>Statistics</h3>
         </div>
-        <div class="col-xl-4">
+        <div id="infoPanel" class="col-xl-4">
+            <div id="accountHelp" class="block md-whiteframe-1dp">
+                <h2>Requesting Coins</h2>
+                    <p>You can ask for more credit by contacting F-TEP administrator using the
+                        <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a>
+                        or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.
+                    </p>
+            </div>
         </div>
     </div>
 

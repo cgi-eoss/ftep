@@ -1,5 +1,32 @@
-#account-container {
-  padding-left: 44px !important;
+#account-container #accountManagement {
+  width: 100%;
+}
+#account-container #accountManagement #accountInfo {
+  height: 100%;
+  padding: 10px;
+  background-color: #f8f8f8;
+}
+#account-container #accountManagement #accountInfo .row div {
+  margin: 8px 0;
+}
+#account-container #accountManagement #statistics {
+  height: 100%;
+  padding: 10px;
+}
+#account-container #accountManagement #statistics .row div {
+  margin: 8px 0;
+}
+#account-container #accountManagement #infoPanel {
+  height: 100%;
+  padding: 10px;
+  background-color: #f8f8f8;
+}
+#account-container #accountManagement #infoPanel #accountHelp {
+  width: 100%;
+  padding: 10px 10px 30px 10px;
+}
+#account-container #accountManagement #infoPanel #accountHelp .row div {
+  margin: 8px 0;
 }
 #account-container #accountManagement {
   width: 100%;

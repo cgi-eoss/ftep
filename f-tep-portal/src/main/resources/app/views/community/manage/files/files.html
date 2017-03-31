@@ -11,7 +11,7 @@
 
                 <div class="col-xs-2 expander">
                     <i class="material-icons"
-                       ng-show="!basketParams.displayFilters"
+                       ng-show="!fileParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Show Filters"
                        uib-tooltip="Show Filters"
@@ -21,7 +21,7 @@
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="basketParams.displayFilters"
+                       ng-show="fileParams.displayFilters"
                        ng-click="toggleFilters()"
                        aria-label="Hide Filters"
                        uib-tooltip="Hide Filters"
@@ -34,52 +34,42 @@
 
             </div>
 
-            <md-input-container md-no-float ng-show="basketParams.displayFilters">
+            <div class="row filter-radiobutton" ng-show="fileParams.displayFilters">
+                <md-radio-group ng-model="fileParams.activeFileType" aria-label="File Type Filter">
+                    <div ng-repeat="filetype in filetypes" class="col-md-12 col-lg-6 no-padding">
+                        <md-radio-button ng-value="filetype.value">
+                            {{filetype.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+            <md-input-container md-no-float ng-show="fileParams.displayFilters">
                 <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
             </md-input-container>
 
         </ul>
     </div>
 
-    <div class="row" ng-if="!basketParams.databaskets.length > 0">
+    <div class="row" ng-if="!fileParams.files.length > 0">
         <div class="col-md-12 no-padding">
-            <div class="note">You have no {{item}}s. Create a {{item}} using the + button below.</div>
+            <div class="note">You have no {{item}}s. Add a Reference {{item}} using the + button below.</div>
         </div>
     </div>
 
     <div class="item-list list">
-        <md-list-item class="md-3-line"
-                      ng-repeat="(key, basket) in basketParams.databaskets | orderBy: 'id' | filter: quickSearch"
-                      ng-click="selectItem(basket)"
-                      ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
+        <md-list-item class="md-2-line"
+                      ng-repeat="(key, file) in fileParams.files | orderBy: 'id' | filter: quickSearch"
+                      ng-click="selectItem(file)"
+                      ng-class="{active: file.id == fileParams.selectedFile.id}">
 
             <div class="md-list-item-text" layout="column">
-                <h3 class="selectable" ng-bind="basket.name" />
-                <span><b>Owner:</b> <span ng-bind="basket.owner.name" /></span>
-                <span><b>Items:</b> <span ng-bind="basket.size" /></span>
+                <h3 class="selectable" ng-bind="file.name" />
+                <span><b>Owner:</b> <span ng-bind="file.owner.name" /></span>
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       aria-label="{{item}} Description"
-                       uib-popover-html="getDescription({{basket}})"
-                       popover-placement="right"
-                       popover-trigger="'mouseenter'"
-                       popover-append-to-body="true">
-                <i class="material-icons">info_outline</i>
-            </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                       ng-click="editItemDialog($event, basket)"
-                       aria-label="Edit"
-                       uib-tooltip="Edit"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">create</i>
-            </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                       ng-click="removeItem(key, basket)"
+                       ng-click="removeItem(key, file)"
                        aria-label="Delete"
                        uib-tooltip="Delete"
                        tooltip-placement="top"
@@ -94,12 +84,12 @@
 
 </section>
 
-<section id="create-databasket">
-    <md-button id="create-databasket-button"
+<section id="add-file">
+    <md-button id="add-file-button"
                class="icon-button md-icon-button md-fab md-mini"
-               ng-click="createItemDialog($event)"
-               aria-label="Create New {{item}}"
-               uib-tooltip="Create New {{item}}"
+               ng-click="addReferenceFileDialog($event)"
+               aria-label="Add New Reference {{item}}"
+               uib-tooltip="Add New Reference {{item}}"
                tooltip-placement="top"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true">

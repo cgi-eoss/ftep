@@ -613,16 +613,48 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
+#file-container #file-details {
+  padding-top: 1rem;
+}
+#file-container .file-field {
+  padding: 1rem;
+  padding-top: 2rem;
+}
+#file-container .file-field md-input-container label {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 1.2rem;
+}
+#file-container md-chip {
+  margin: 0 0.25rem;
+}
+#file-container md-chip .md-chip-content {
+  font-size: 0.8rem;
+  padding: 0 0.5rem;
+}
+#refDataForm h3 {
+  margin: 0;
+}
+#refDataForm md-input-container {
+  margin: 0.5rem 0;
+  width: 100%;
+}
+#refDataForm .drop-box-container {
+  padding: 1rem;
+  padding-bottom: 4rem;
+}
+#refDataForm .drop-box-container .dragover {
+  background-color: #aed581;
+  border: 5px solid #33691e !important;
+}
+#refDataForm .drop-box-container .drop-box {
+  border: 5px dashed lightgray;
+  color: rgba(0, 0, 0, 0.54);
+  cursor: pointer;
+  height: 5rem;
+  padding: 1.5rem;
+  text-align: center;
+  width: 100%;
+}
 
 
 
@@ -772,6 +804,9 @@
 .ftep md-chip:hover {
   background-color: #31708f;
   color: rgba(255, 255, 255, 0.87);
+}
+.ftep md-chip:hover .md-chip-remove-container {
+  filter: brightness(20%) invert(100%);
 }
 
 .ftep .md-dialog-container {

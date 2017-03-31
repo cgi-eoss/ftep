@@ -105,10 +105,11 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Remove User */
         $scope.removeUser = function (key, user) {
              UserService.removeUser($scope.groupParams.selectedGroup, $scope.userParams.groupUsers, user).then(function (data) {
-                /* Update groups list */
-                $scope.groupParams.selectedGroup.size -= 1;
-                /* Update user list */
-                $scope.userParams.groupUsers.splice(key, 1);
+                 /* Update User list and update selected group user count */
+                 UserService.getUsers($scope.groupParams.selectedGroup).then(function (groupUsers) {
+                    $scope.userParams.groupUsers = groupUsers;
+                    $scope.groupParams.selectedGroup.size = $scope.userParams.groupUsers.length;
+                });
             });
         };
 

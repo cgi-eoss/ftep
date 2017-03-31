@@ -85,6 +85,10 @@ require.config({
       deps: ['angular'],
       exports: 'ngAnimate'
     },
+    ngMessages: {
+      deps: ['angular'],
+      exports: 'ngMessages'
+    },
     ngAria: {
       deps: ['angular'],
       exports: 'ngAria'

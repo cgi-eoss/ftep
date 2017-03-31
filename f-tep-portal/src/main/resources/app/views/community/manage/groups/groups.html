@@ -50,7 +50,7 @@
     <div class="item-list list">
         <md-list-item class="md-3-line"
                       ng-repeat="(key, group) in groupParams.groups | orderBy: 'id' | filter: groupQuickSearch"
-                      ng-click="selectGroup(group); displayRight()"
+                      ng-click="selectGroup(group)"
                       ng-class="{active: group.id == groupParams.selectedGroup.id}">
 
             <div class="md-list-item-text" layout="column">

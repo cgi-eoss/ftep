@@ -1,0 +1,80 @@
+<section class="row section-title">
+    <div class="col-xs-6 title-text">
+        <h3>{{item}} Details</h3>
+    </div>
+</section>
+
+<form id="file-details" name="fileForm">
+        <div class="row file-field">
+            <md-input-container md-no-float>
+                <label class="md-title">Filename</label>
+                <input required
+                       name="filename"
+                       ng-model="tempFile.name"
+                       type="text"
+                       placeholder="File name is required *"
+                       aria-label="File Name">
+                <div ng-messages="fileForm.filename.$error" role="alert">
+                    <div ng-message="required">Filename is required!</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div class="row file-field">
+            <md-input-container md-no-float>
+                <label class="md-title">File Description</label>
+                <input required
+                       name="filedesc"
+                       ng-model="tempFile.description"
+                       type="text"
+                       placeholder="File description is required *"
+                       aria-label="File Description">
+                <div ng-messages="fileForm.filedesc.$error" role="alert">
+                    <div ng-message="required">Filename is required!</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div class="row file-field">
+            <md-input-container md-no-float required>
+                <label class="md-title">Geometry</label>
+                <textarea required
+                          name="geometry"
+                          ng-model="tempFile.geometry"
+                          type="text"
+                          rows="3"
+                          placeholder="File name is required *"
+                          aria-label="Geometry "
+                          ng-pattern="/^\s*(\w+)\s*\(\s*(.*)\s*\)\s*$/" />
+                <div ng-messages="fileForm.geometry.$error" role="alert">
+                    <div ng-message="required">Geometry is required!</div>
+                    <div ng-message="pattern">Geometry Is Invalid</div>
+                </div>
+            </md-input-container>
+        </div>
+
+        <div class="row file-field">
+            <md-input-container md-no-float required>
+                <label class="md-title">Tags</label>
+                <md-chips ng-model="tempFile.tags" name="tags" readonly="false" md-removable="true" md-max-chips="10" placeholder=" Enter a tag..." aria-label="Tags">
+                    <md-chip-template>
+                        <strong>{{$chip}}</strong>
+                    </md-chip-template>
+                </md-chips>
+            </md-input-container>
+        </div>
+</form>
+
+<section id="save-file">
+    <md-button id="save-file-button"
+               class="icon-button md-icon-button md-fab md-mini btn-success"
+               type="submit"
+               form="fileForm"
+               ng-disabled="fileForm.$invalid"
+               ng-click="saveFile()"
+               aria-label="Save"
+               uib-tooltip="Save"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">save</i>
+    </md-button>
+</section>

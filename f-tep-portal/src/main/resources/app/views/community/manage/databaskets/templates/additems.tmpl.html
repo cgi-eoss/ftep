@@ -6,7 +6,7 @@
         <div class="dialog-content-area">
 
             <section ng-show="selectedDatasource === undefined">
-                <md-subheader class="md-accent">Select a Datasource</md-subheader>
+                <md-subheader class="md-accent">Select a File Type</md-subheader>
                 <md-list id="datasource-list" class="datasources">
                     <md-list-item class="md-2-line"
                                   ng-repeat="datasource in datasources"
@@ -24,7 +24,7 @@
             </section>
 
             <section ng-if="selectedDatasource !== undefined">
-                <md-subheader class="md-accent">Selected Datasource</md-subheader>
+                <md-subheader class="md-accent">Selected File Type</md-subheader>
                 <md-list-item class="md-2-line" ng-click="deselectDatasource()">
                     <md-icon class="material-icons md-24" ng-bind="selectedDatasource.icon" />
                     <div class="md-list-item-text">

@@ -24,13 +24,5 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        /* Groups right display */
-        $scope.displayRight = function() {
-            if ($scope.groupParams.selectedGroup === undefined) {
-                return false;
-            }
-            return true;
-        };
-
     }]);
 });

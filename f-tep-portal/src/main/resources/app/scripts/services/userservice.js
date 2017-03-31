@@ -94,7 +94,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    if (200 <= document.status && document.status < 300) {
+                   if (200 <= document.status && document.status < 300) {
                         MessageService.addInfo('User successfully added');
                         resolve(document);
                     } else {

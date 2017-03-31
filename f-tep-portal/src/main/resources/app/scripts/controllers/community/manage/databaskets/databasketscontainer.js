@@ -23,13 +23,5 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        /* Databaskets right display */
-        $scope.displayRight = function() {
-            if ($scope.basketParams.selectedDatabasket === undefined) {
-                return false;
-            }
-            return true;
-        };
-
     }]);
 });

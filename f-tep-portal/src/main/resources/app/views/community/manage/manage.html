@@ -64,5 +64,18 @@
             </md-content>
         </md-tab-body>
     </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">attach_file</i> Files
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 5"
+                     ng-include ng-controller="CommunityFilesContainerCtrl"
+                     src="'views/community/manage/files/filescontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
 </md-tabs>
 

@@ -6,7 +6,7 @@
 
      <article id="group-container"
           class="col-md-8 col-xl-9 col-xxl-10 right-container"
-          ng-show="displayRight()"
+          ng-if="groupParams.selectedGroup"
           ng-include ng-controller="CommunityGroupCtrl"
           src="'views/community/manage/groups/group.html'" />
 </div>

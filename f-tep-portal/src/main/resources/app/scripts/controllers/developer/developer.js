@@ -35,12 +35,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.$broadcast('rebuild:scrollbar');
         };
 
-        $scope.newReference = {};
-
-        $scope.addReferenceFile = function () {
-            ReferenceService.uploadFile($scope.newReference);
-        };
-
     }]);
 
 });

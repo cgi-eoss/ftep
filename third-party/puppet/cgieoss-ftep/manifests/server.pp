@@ -13,6 +13,9 @@ class ftep::server (
   $application_port            = undef,
   $grpc_port                   = undef,
 
+  $serviceregistry_host        = undef,
+  $serviceregistry_port        = undef,
+
   $jdbc_url                    = undef,
   $jdbc_driver                 = 'org.postgresql.Driver',
   $jdbc_user                   = undef,
@@ -29,7 +32,9 @@ class ftep::server (
   $local_worker_hostname       = 'ftep-worker',
   $local_worker_grpc_port      = undef,
 
-  $gui_default_host            = undef,
+  # Hostname/IP for building the URLs to GUI applications; port is ephemeral and found from docker container
+  # If an empty string, will default to the appropriate F-TEP Worker instance gRPC host
+  $gui_default_host            = '',
 ) {
 
   require ::ftep::globals
@@ -38,8 +43,14 @@ class ftep::server (
   # User and group are set up by the RPM if not included here
   contain ::ftep::common::user
 
+  # This could potentially be on its own node, but it's easer to encapsulate it here
+  contain ::ftep::serviceregistry
+
   $real_application_port = pick($application_port, $ftep::globals::server_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::server_grpc_port)
+
+  $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
+  $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
 
   $default_jdbc_url = "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_v2_name}?stringtype=unspecified"
   $real_db_url = pick($jdbc_url, $default_jdbc_url)
@@ -47,13 +58,6 @@ class ftep::server (
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)
 
   $real_api_username_request_header = pick($api_username_request_header, $ftep::globals::username_request_header)
-
-  $real_zoomanager_hostname = pick($zoomanager_hostname, $ftep::globals::wps_hostname)
-  $real_zoomanager_grpc_port = pick($zoomanager_grpc_port, $ftep::globals::zoomanager_grpc_port)
-
-  $real_local_worker_grpc_port = pick($local_worker_grpc_port, $ftep::globals::worker_grpc_port)
-
-  $real_gui_default_host = pick($gui_default_host, $ftep::globals::gui_default_host)
 
   ensure_packages(['f-tep-server'], {
     ensure => 'latest',
@@ -87,6 +91,8 @@ class ftep::server (
       'logging_config_file'         => $logging_config_file,
       'server_port'                 => $real_application_port,
       'grpc_port'                   => $real_grpc_port,
+      'serviceregistry_host'        => $real_serviceregistry_host,
+      'serviceregistry_port'        => $real_serviceregistry_port,
       'jdbc_driver'                 => $jdbc_driver,
       'jdbc_url'                    => $real_db_url,
       'jdbc_user'                   => $real_db_user,
@@ -95,11 +101,7 @@ class ftep::server (
       'api_base_path'               => $api_base_path,
       'api_username_request_header' => $real_api_username_request_header,
       'api_security_mode'           => $api_security_mode,
-      'zoomanager_hostname'         => $real_zoomanager_hostname,
-      'zoomanager_grpc_port'        => $real_zoomanager_grpc_port,
-      'local_worker_hostname'       => $local_worker_hostname,
-      'local_worker_grpc_port'      => $real_local_worker_grpc_port,
-      'gui_default_host'            => $real_gui_default_host,
+      'gui_default_host'            => $gui_default_host,
     }),
     require => Package['f-tep-server'],
     notify  => Service['f-tep-server'],

@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.DownloaderCredentials;
 import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.cgi.eoss.ftep.persistence.service.RpcCredentialsService;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -52,6 +53,9 @@ public class CachingSymlinkIOManagerIT {
     private FtepDownloader ftepDownloader;
 
     @Mock
+    private FtepServerClient ftepServerClient;
+
+    @Mock
     private DownloaderCredentialsDataService credentialsDataService;
 
     private FakeFtpServer ftpServer;
@@ -93,9 +97,10 @@ public class CachingSymlinkIOManagerIT {
         webServer.start();
 
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
+        when(ftepServerClient.getCredentialsService()).thenReturn(credentialsService);
 
         ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(
-                ImmutableList.of(ftepDownloader, new FtpDownloader(credentialsService), new HttpDownloader(new OkHttpClient.Builder().build(), credentialsService))));
+                ImmutableList.of(ftepDownloader, new FtpDownloader(ftepServerClient), new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build()))));
     }
 
     @After

@@ -4,6 +4,9 @@
     Integer $server_port,
     Integer $grpc_port,
 
+    String $serviceregistry_host,
+    Integer $serviceregistry_port,
+
     String $zcfg_path,
     String $javac_classpath,
     String $services_stub_jar
@@ -18,6 +21,14 @@ logging.config=<%= $logging_config_file %>
 # Server config
 server.port=<%= $server_port %>
 grpc.port=<%= $grpc_port %>
+
+# Service registry configuration
+eureka.instance.statusPageUrlPath=${management.contextPath}/info
+eureka.instance.healthCheckUrlPath=${management.contextPath}/health
+eureka.instance.metadataMap.grpcPort=${grpc.port}
+
+eureka.client.healthcheck.enabled=true
+eureka.client.serviceUrl.defaultZone=http://<%= $serviceregistry_host %>:<%= $serviceregistry_port %>/eureka/
 
 # ZOO Manager configuration
 ftep.zoomanager.zcfg.path=<%= $zcfg_path %>

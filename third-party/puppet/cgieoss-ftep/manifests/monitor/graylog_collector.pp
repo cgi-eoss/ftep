@@ -1,4 +1,4 @@
-class ftep::monitor::graylog-collector(
+class ftep::monitor::graylog_collector(
   $log_path = '/var/log',
   $log_pattern = '*.log',
   $graylog_server = undef

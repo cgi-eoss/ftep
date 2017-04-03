@@ -4,6 +4,9 @@
     Integer $server_port,
     Integer $grpc_port,
 
+    String $serviceregistry_host,
+    Integer $serviceregistry_port,
+
     String $jdbc_driver,
     String $jdbc_url,
     String $jdbc_user,
@@ -13,12 +16,6 @@
     String $api_base_path,
     String $api_username_request_header,
     String $api_security_mode,
-
-    String $zoomanager_hostname,
-    Integer $zoomanager_grpc_port,
-
-    String $local_worker_hostname,
-    Integer $local_worker_grpc_port,
 
     String $gui_default_host
 | -%>
@@ -32,6 +29,14 @@ logging.config=<%= $logging_config_file %>
 # Server config
 server.port=<%= $server_port %>
 grpc.port=<%= $grpc_port %>
+
+# Service registry configuration
+eureka.instance.statusPageUrlPath=${management.contextPath}/info
+eureka.instance.healthCheckUrlPath=${management.contextPath}/health
+eureka.instance.metadataMap.grpcPort=${grpc.port}
+
+eureka.client.healthcheck.enabled=true
+eureka.client.serviceUrl.defaultZone=http://<%= $serviceregistry_host %>:<%= $serviceregistry_port %>/eureka/
 
 # Database connection
 spring.datasource.url=<%= $jdbc_url %>
@@ -47,14 +52,6 @@ spring.jpa.hibernate.ddl-auto=validate
 ftep.api.basePath=<%= $api_base_path %>
 ftep.api.security.username-request-header=<%= $api_username_request_header %>
 ftep.api.security.mode=<%= $api_security_mode %>
-
-# ZOO Manager configuration
-ftep.orchestrator.zoomanager.grpcHost=<%= $zoomanager_hostname %>
-ftep.orchestrator.zoomanager.grpcPort=<%= $zoomanager_grpc_port %>
-
-# LOCAL worker configuration
-ftep.orchestrator.worker.local.grpcHost=<%= $local_worker_hostname %>
-ftep.orchestrator.worker.local.grpcPort=<%= $local_worker_grpc_port %>
 
 # Hostname/IP to use for building GUI application URLs
 ftep.orchestrator.gui.defaultHost=<%= $gui_default_host %>

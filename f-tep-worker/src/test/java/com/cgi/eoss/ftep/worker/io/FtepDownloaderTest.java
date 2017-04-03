@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.persistence.service.RpcServiceFileService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
@@ -35,6 +36,9 @@ import static org.mockito.Mockito.when;
 /**
  */
 public class FtepDownloaderTest {
+
+    @Mock
+    private FtepServerClient ftepServerClient;
     @Mock
     private ServiceDataService serviceDataService;
     @Mock
@@ -63,7 +67,10 @@ public class FtepDownloaderTest {
         inProcessServerBuilder.addService(rpcServiceFileService);
         server = inProcessServerBuilder.build().start();
 
-        this.dl = new FtepDownloader(ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build()));
+        ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub = ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
+        when(ftepServerClient.getServiceContextFilesService()).thenReturn(serviceContextFilesServiceBlockingStub);
+
+        this.dl = new FtepDownloader(ftepServerClient);
     }
 
     @After

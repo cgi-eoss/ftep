@@ -2,8 +2,8 @@ package com.cgi.eoss.ftep.worker.io;
 
 import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
-import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.cgi.eoss.ftep.rpc.ShortFile;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,7 +37,7 @@ public class FtepDownloader implements Downloader {
     private static final EnumSet<PosixFilePermission> EXECUTABLE_PERMS = EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE, GROUP_READ, GROUP_EXECUTE, OTHERS_READ, OTHERS_EXECUTE);
     private static final EnumSet<PosixFilePermission> NON_EXECUTABLE_PERMS = EnumSet.of(OWNER_READ, OWNER_WRITE, GROUP_READ, OTHERS_READ);
 
-    private final ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesService;
+    private final FtepServerClient ftepServerClient;
 
     @Override
     public Set<String> getProtocols() {
@@ -57,7 +57,8 @@ public class FtepDownloader implements Downloader {
     }
 
     private Path downloadServiceContextFiles(Path targetDir, String serviceName) throws IOException {
-        ServiceContextFiles serviceContextFiles = serviceContextFilesService.getServiceContextFiles(GetServiceContextFilesParams.newBuilder().setServiceName(serviceName).build());
+        ServiceContextFiles serviceContextFiles = ftepServerClient.getServiceContextFilesService()
+                .getServiceContextFiles(GetServiceContextFilesParams.newBuilder().setServiceName(serviceName).build());
 
         for (ShortFile f : serviceContextFiles.getFilesList()) {
             Path targetFile = targetDir.resolve(f.getFilename());

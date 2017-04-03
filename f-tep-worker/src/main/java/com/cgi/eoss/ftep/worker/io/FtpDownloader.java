@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import com.cgi.eoss.ftep.rpc.Credentials;
-import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,7 +27,7 @@ public class FtpDownloader implements Downloader {
     private static final int CONNECT_TIMEOUT = 2000;
     private static final String FTPS_SCHEME = "ftps";
 
-    private final CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService;
+    private final FtepServerClient ftepServerClient;
 
     @Override
     public Set<String> getProtocols() {
@@ -47,7 +47,7 @@ public class FtpDownloader implements Downloader {
             } else {
                 ftpClient.connect(uri.getHost(), uri.getPort());
             }
-            Credentials creds = credentialsService.getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
+            Credentials creds = ftepServerClient.getCredentialsService().getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
             if (creds.getType() == Credentials.Type.BASIC) {
                 ftpClient.login(creds.getUsername(), creds.getPassword());
             }

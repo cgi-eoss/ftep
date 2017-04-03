@@ -1,7 +1,5 @@
 package com.cgi.eoss.ftep.worker;
 
-import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
-import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -10,9 +8,9 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.RemoteApiVersion;
 import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 import com.google.common.base.Strings;
-import io.grpc.ManagedChannelBuilder;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +29,7 @@ import java.nio.file.Paths;
         basePackageClasses = WorkerConfig.class,
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FtepWorkerApplication.class)
 )
+@EnableEurekaClient
 @EnableScheduling
 public class WorkerConfig {
 
@@ -52,22 +51,6 @@ public class WorkerConfig {
     @Bean
     public Path jobEnvironmentRoot(@Value("${ftep.worker.jobEnv.baseDir:/data/cache/jobs}") String jobEnvRoot) {
         return Paths.get(jobEnvRoot);
-    }
-
-    @Bean
-    public ManagedChannelBuilder channelBuilder(@Value("${ftep.worker.server.grpcHost:f-tep-server}") String host,
-                                                @Value("${ftep.worker.server.grpcPort:6565}") Integer port) {
-        return ManagedChannelBuilder.forAddress(host, port).usePlaintext(true);
-    }
-
-    @Bean
-    public CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService(ManagedChannelBuilder channelBuilder) {
-        return CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
-    }
-
-    @Bean
-    public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesService(ManagedChannelBuilder channelBuilder) {
-        return ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
     }
 
     @Bean

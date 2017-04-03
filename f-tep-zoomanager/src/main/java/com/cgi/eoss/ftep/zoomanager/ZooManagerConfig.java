@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.zoomanager;
 
 import freemarker.template.TemplateExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
         basePackageClasses = ZooManagerConfig.class,
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = ZooManagerApplication.class)
 )
+@EnableEurekaClient
 public class ZooManagerConfig {
 
     @Bean

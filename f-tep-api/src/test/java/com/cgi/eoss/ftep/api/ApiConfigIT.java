@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {ApiConfig.class})
+@SpringBootTest(classes = {ApiConfig.class, ApiTestConfig.class})
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:test-api.properties")
 @Transactional

@@ -20,10 +20,6 @@ class ftep::globals (
   $monitor_hostname            = 'ftep-monitor',
   $resto_hostname              = 'ftep-resto',
 
-  # Hostname/IP for building the URLs to GUI applications; port is ephemeral and found from docker container
-  # If an empty string, will default to the appropriate F-TEP Worker instance gRPC host
-  $gui_default_host            = '',
-
   $hosts_override              = { },
 
   # All classes should share this database config, or override it if necessary
@@ -44,6 +40,7 @@ class ftep::globals (
   $username_request_header     = 'REMOTE_USER',
 
   # App server port config for HTTP and gRPC
+  $serviceregistry_application_port = 8761,
   $server_application_port     = 8090,
   $worker_application_port     = 8091,
   $zoomanager_application_port = 8092,

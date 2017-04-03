@@ -1,5 +1,7 @@
-package com.cgi.eoss.ftep.orchestrator;
+package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
+import com.cgi.eoss.ftep.orchestrator.OrchestratorTestConfig;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +16,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {OrchestratorConfig.class})
+@ContextConfiguration(classes = {OrchestratorConfig.class, OrchestratorTestConfig.class})
 @TestPropertySource("classpath:test-orchestrator.properties")
 @Transactional
 public class FtepServiceLauncherIT {

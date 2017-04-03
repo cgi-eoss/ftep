@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import com.cgi.eoss.ftep.rpc.Credentials;
-import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import lombok.extern.log4j.Log4j2;
@@ -34,12 +34,14 @@ public class HttpDownloader implements Downloader {
     private static final String FILENAME_HEADER = "Content-Disposition";
     private static final Pattern FILENAME_PATTERN = Pattern.compile(".*filename=\"(.*)\".*");
 
+    private final FtepServerClient ftepServerClient;
     private final OkHttpClient client;
 
     @Autowired
-    HttpDownloader(OkHttpClient okHttpClient, CredentialsServiceGrpc.CredentialsServiceBlockingStub downloaderCredentialsDataService) {
+    HttpDownloader(FtepServerClient ftepServerClient, OkHttpClient okHttpClient) {
+        this.ftepServerClient = ftepServerClient;
         this.client = okHttpClient.newBuilder()
-                .authenticator(new FtepAuthenticator(downloaderCredentialsDataService))
+                .authenticator(new FtepAuthenticator())
                 .build();
     }
 
@@ -81,13 +83,8 @@ public class HttpDownloader implements Downloader {
                 .orElse(Paths.get(uri.getPath()).getFileName().toString());
     }
 
-    private static final class FtepAuthenticator implements Authenticator {
+    private final class FtepAuthenticator implements Authenticator {
         private static final int MAX_RETRIES = 3;
-        private final CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService;
-
-        private FtepAuthenticator(CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService) {
-            this.credentialsService = credentialsService;
-        }
 
         @Override
         public Request authenticate(Route route, Response response) throws IOException {
@@ -98,7 +95,7 @@ public class HttpDownloader implements Downloader {
                 return null;
             }
 
-            Credentials creds = credentialsService.getCredentials(GetCredentialsParams.newBuilder().setHost(url.host()).build());
+            Credentials creds = ftepServerClient.getCredentialsService().getCredentials(GetCredentialsParams.newBuilder().setHost(url.host()).build());
 
             if (creds.getType() == Credentials.Type.BASIC) {
                 String credHeader = okhttp3.Credentials.basic(creds.getUsername(), creds.getPassword());

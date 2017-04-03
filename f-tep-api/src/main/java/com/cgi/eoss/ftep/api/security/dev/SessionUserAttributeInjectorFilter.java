@@ -28,7 +28,7 @@ public class SessionUserAttributeInjectorFilter extends GenericFilterBean {
         Object userAttribute = httpServletRequest.getSession().getAttribute(usernameRequestAttribute);
         if (userAttribute != null) {
             String username = userAttribute.toString();
-            LOG.info("Found username '{}' in session: {}", username, httpServletRequest.getSession().getId());
+            LOG.debug("Found username '{}' in session: {}", username, httpServletRequest.getSession().getId());
             if (!Strings.isNullOrEmpty(username)) {
                 httpServletRequest.setAttribute(usernameRequestAttribute, username);
             }

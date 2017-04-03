@@ -8,8 +8,10 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
+import com.cgi.eoss.ftep.orchestrator.service.WorkerEnvironment;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
@@ -97,9 +99,12 @@ public class FtepServicesClientIT {
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(RPC_SERVER_NAME).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
 
-        WorkerFactory workerFactory = new WorkerFactory(channelBuilder);
+        WorkerFactory workerFactory = mock(WorkerFactory.class);
+
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, new FtepGuiServiceManager(), catalogueService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
+
+        when(workerFactory.getWorker(WorkerEnvironment.LOCAL)).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
 
         inProcessServerBuilder.addService(ftepServiceLauncher);
         inProcessServerBuilder.addService(ftepWorker);

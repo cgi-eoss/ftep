@@ -22,4 +22,5 @@ include 'third-party/resto'
 
 include 'distribution'
 include 'f-tep-defaultservices'
+include 'f-tep-serviceregistry'
 

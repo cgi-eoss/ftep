@@ -1,4 +1,4 @@
-class ftep::monitor::graylog-server (
+class ftep::monitor::graylog_server (
   $db_secret    = undef,
   $db_sha256    = undef,
   $db_bind_ip   = '127.0.0.1',

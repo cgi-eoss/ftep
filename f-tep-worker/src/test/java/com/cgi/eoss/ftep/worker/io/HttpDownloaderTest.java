@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.DownloaderCredentials;
 import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.cgi.eoss.ftep.persistence.service.RpcCredentialsService;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
+import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -37,6 +38,8 @@ import static org.mockito.Mockito.when;
 
 public class HttpDownloaderTest {
     @Mock
+    private FtepServerClient ftepServerClient;
+    @Mock
     private DownloaderCredentialsDataService credentialsDataService;
 
     private Path targetPath;
@@ -66,7 +69,10 @@ public class HttpDownloaderTest {
         inProcessServerBuilder.addService(rpcCredentialsService);
         server = inProcessServerBuilder.build().start();
 
-        this.dl = new HttpDownloader(new OkHttpClient.Builder().build(), CredentialsServiceGrpc.newBlockingStub(channelBuilder.build()));
+        CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
+        when(ftepServerClient.getCredentialsService()).thenReturn(credentialsService);
+
+        this.dl = new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build());
     }
 
     @After

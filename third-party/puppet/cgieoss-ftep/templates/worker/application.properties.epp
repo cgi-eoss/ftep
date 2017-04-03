@@ -4,8 +4,10 @@
     Integer $server_port,
     Integer $grpc_port,
 
-    String $ftep_server_grpc_host,
-    Integer $ftep_server_grpc_port,
+    String $serviceregistry_host,
+    Integer $serviceregistry_port,
+
+    String $worker_environment,
 
     String $cache_basedir,
     Integer $cache_concurrency,
@@ -27,9 +29,14 @@ logging.config=<%= $logging_config_file %>
 server.port=<%= $server_port %>
 grpc.port=<%= $grpc_port %>
 
-# F-TEP server RPC configuration
-ftep.worker.server.grpcHost=<%= $ftep_server_grpc_host %>
-ftep.worker.server.grpcPort=<%= $ftep_server_grpc_port %>
+# Service registry configuration
+eureka.instance.statusPageUrlPath=${management.contextPath}/info
+eureka.instance.healthCheckUrlPath=${management.contextPath}/health
+eureka.instance.metadataMap.workerEnv=<%= $worker_environment %>
+eureka.instance.metadataMap.grpcPort=${grpc.port}
+
+eureka.client.healthcheck.enabled=true
+eureka.client.serviceUrl.defaultZone=http://<%= $serviceregistry_host %>:<%= $serviceregistry_port %>/eureka/
 
 # Worker configuration
 ftep.worker.cache.baseDir=<%= $cache_basedir %>

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
+import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.ServiceStatus;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {ApiConfig.class})
+@SpringBootTest(classes = {ApiConfig.class, ApiTestConfig.class})
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:test-api.properties")
 @Transactional

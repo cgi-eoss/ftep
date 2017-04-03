@@ -1,0 +1,65 @@
+buildscript {
+    dependencies {
+        classpath pl.osDetector
+        classpath pl.osPackage
+        classpath pl.springBoot
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '0.6.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'nebula.ospackage'
+apply plugin: 'com.google.osdetector'
+
+dependencies {
+    compile 'com.lmax:disruptor'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.boot:spring-boot-starter-undertow'
+    compile 'org.springframework.cloud:spring-cloud-starter-eureka-server'
+}
+
+springBoot {
+    classifier = 'bin'
+    executable = true
+}
+
+// bootRepackage was depending on "archives" and creating a circular dependency
+bootRepackage.dependsOn = [jar]
+buildRpm.dependsOn bootRepackage
+buildDeb.dependsOn bootRepackage
+configurations { pkg }
+artifacts { pkg buildRpm }
+
+ospackage {
+    packageName 'f-tep-serviceregistry'
+    version getRpmVersion(project.version).version
+    release getRpmVersion(project.version).release
+    arch NOARCH
+    os LINUX
+
+    user 'ftep'
+    permissionGroup 'ftep'
+
+    preInstall file('src/ospackage/preinst.sh')
+    postInstall file('src/ospackage/postinst.sh')
+
+    into('/var/f-tep/serviceregistry') {
+        from("${buildDir}/libs") {
+            include '*-bin.jar'
+            rename('f-tep-serviceregistry-.*\\-bin.jar', 'f-tep-serviceregistry.jar')
+            fileMode 0500
+        }
+
+        from("src/ospackage/application.properties") {
+            fileType CONFIG | NOREPLACE
+        }
+    }
+
+    link('/etc/init.d/f-tep-serviceregistry', '/var/f-tep/serviceregistry/f-tep-serviceregistry.jar')
+}

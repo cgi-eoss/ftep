@@ -157,9 +157,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
         var draw; // global so we can remove it later
         function addInteraction() {
-            if(searchAreaLayer){
-                searchAreaLayer.getSource().clear();
-            }
             if(droppedFileLayer){
                 $scope.map.removeLayer(droppedFileLayer);
             }
@@ -184,6 +181,12 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                   type: ($scope.drawType.type) /** @type {ol.geom.GeometryType} */ ,
                   geometryFunction: geometryFunction,
                   maxPoints: maxPoints
+                });
+
+                draw.on('drawstart', function (event) {
+                    if(searchAreaLayer){
+                        searchAreaLayer.getSource().clear();
+                    }
                 });
 
                 draw.on('drawend', function (event) {

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.util;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import cucumber.api.Scenario;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.runner.Description;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testcontainers.DockerClientFactory;
@@ -91,8 +93,7 @@ public class FtepHarness {
                 .await("Test environment started")
                 .until(this::containersAreUp);
 
-        // Maximise the browser window and navigate to the webapp entry point
-        getChromeWebDriver().manage().window().maximize();
+        // Navigate to the webapp entry point
         getChromeWebDriver().get(getFtepBaseUrl() + "/app/");
 
         // Just in case, register a general 10s timeout for browser requests
@@ -205,6 +206,11 @@ public class FtepHarness {
             if (setProxy[0]) {
                 desiredCapabilities.setCapability(CapabilityType.PROXY, proxy);
             }
+
+            ChromeOptions options = new ChromeOptions();
+            options.setExperimentalOption("excludeSwitches", ImmutableList.of("enable-automation"));
+            options.addArguments("start-maximized");
+            desiredCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
 
             withDesiredCapabilities(desiredCapabilities);
 

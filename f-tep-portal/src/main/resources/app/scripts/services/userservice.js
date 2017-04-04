@@ -9,7 +9,8 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', '$rootScope', function (ftepProperties, $q, MessageService, traverson, $rootScope) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson',
+                                         function (ftepProperties, $q, MessageService, traverson) {
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -17,12 +18,16 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.params = {
-            community: {
-                allUsers: [],
-                groupUsers: [],
-                searchText: '',
-                displayUserFilters: false
-            }
+                community: {
+                    allUsers: [],
+                    groupUsers: [],
+                    searchText: '',
+                    displayUserFilters: false
+                },
+                admin: {
+                    selectedUser: undefined,
+                    searchText: ''
+                }
         };
 
         var that = this;

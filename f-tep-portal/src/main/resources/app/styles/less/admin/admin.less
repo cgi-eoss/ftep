@@ -1,0 +1,18 @@
+@import "variable";
+#admin-container {
+    width: 100%;
+    #coins-container {
+        background-color: @bg;
+        .border(border-right, @bg);
+        height: 100%;
+        overflow-y: auto;
+        padding: 0.5rem;
+        padding-bottom: 2rem;
+        .material-label {
+            font-size: 1rem;
+        }
+        md-card-actions {
+            color: @brand;
+        }
+    }
+}

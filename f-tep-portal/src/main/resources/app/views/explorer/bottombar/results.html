@@ -4,9 +4,9 @@
 
 <div class="scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-    <div ng-show="geoResults == undefined && !spinner.loading" class="result-info">No results to display</div>
+    <div ng-show="resultPaging.total === 0 && !spinner.loading" class="result-info">No results to display</div>
 
-    <div id="resultDiv" ng-show="geoResults != undefined">
+    <div id="resultDiv" ng-show="resultPaging.total > 0">
 
         <ul class="products-list product-list-in-box">
             <div ng-repeat="result in geoResults">

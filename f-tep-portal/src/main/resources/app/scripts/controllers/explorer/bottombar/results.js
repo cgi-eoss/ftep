@@ -38,12 +38,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 function setResults(results){
                     $scope.spinner.loading = false;
                     if(results && results.length >0){
-                        if(results[0].results.totalResults > 0){
-                            $scope.geoResults = results;
-                        }
-                        else{
-                            delete $scope.geoResults;
-                        }
+                        $scope.geoResults = results;
 
                         //NB! this is cause we get multiple sets, each from a different datasource.
                         var biggestSetCount = 0, startIndex = 0, elementCount = 0;

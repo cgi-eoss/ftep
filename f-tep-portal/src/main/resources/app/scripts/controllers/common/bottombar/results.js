@@ -38,23 +38,45 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 function setResults(results){
                     $scope.spinner.loading = false;
                     if(results && results.length >0){
-                        if(results[0].results.totalResults > 0){
-                            $scope.geoResults = results;
-                        }
-                        else{
-                            delete $scope.geoResults;
-                        }
-                        if(results[0].results.totalResults > GeoService.getMaxItemsAllowed()){
-                            $scope.resultPaging.total = GeoService.getMaxItemsAllowed();
-                        }
-                        else{
-                            $scope.resultPaging.total = results[0].results.totalResults;
-                        }
+                        $scope.geoResults = results;
 
-                        $scope.pageFrom = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize - $scope.resultPaging.pageSize + 1;
-                        $scope.pageTo = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize;
-                        if ($scope.pageTo > $scope.resultPaging.total) {
-                            $scope.pageTo = $scope.resultPaging.total;
+                        //NB! this is cause we get multiple sets, each from a different datasource.
+                        var biggestSetCount = 0, startIndex = 0, elementCount = 0;
+                        $scope.total = 0;
+                        for(var i = 0; i < results.length; i++){
+                            var currentTotal = parseInt(results[i].results.totalResults);
+
+                            if(currentTotal > 0){
+                                var currentIndex = parseInt(results[i].results.startIndex);
+                                $scope.total += currentTotal;
+
+                                //For the paging to work properly, we need to take the biggest set as our guide
+                                if(biggestSetCount < currentTotal){
+                                    biggestSetCount = currentTotal;
+                                }
+
+                                if(currentIndex > currentTotal){
+                                    startIndex += currentTotal;
+                                }
+                                else {
+                                    startIndex += (currentIndex - 1);
+                                }
+                                elementCount += results[i].results.entities.length;
+                            }
+                        }
+                        $scope.pageFrom = startIndex + 1;
+                        $scope.pageTo = startIndex + elementCount;
+
+//                      //Re-enable this section, once we have only one set of items returned
+//                      $scope.pageFrom = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize - $scope.resultPaging.pageSize + 1;
+//                      $scope.pageTo = $scope.resultPaging.currentPage * $scope.resultPaging.pageSize;
+//                      if ($scope.pageTo > $scope.resultPaging.total) {
+//                          $scope.pageTo = $scope.resultPaging.total;
+//                      }
+
+                        $scope.resultPaging.total = biggestSetCount;
+                        if($scope.resultPaging.total > GeoService.getMaxItemsAllowed()){
+                            $scope.resultPaging.total = GeoService.getMaxItemsAllowed();
                         }
                     }
                     else{

@@ -1157,6 +1157,15 @@
 .ftep .md-dialog-container .md-subheader .md-subheader-inner {
   padding-left: 0;
 }
+.ftep .md-dialog-container .quicklook-cointainer {
+  height: 400px;
+}
+.ftep .md-dialog-container .quicklook-img {
+  max-height: 100%;
+  width: auto;
+  display: block;
+  margin: auto;
+}
 .ftep .md-dialog-container .search-container {
   margin-top: 0;
   width: 100%;

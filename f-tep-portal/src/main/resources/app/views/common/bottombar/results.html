@@ -4,9 +4,9 @@
 
 <div class="scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
 
-    <div ng-if="geoResults == undefined && !spinner.loading" class="result-info">No results to display</div>
+    <div ng-show="resultPaging.total === 0 && !spinner.loading" class="result-info">No results to display</div>
 
-    <div id="resultDiv" ng-if="geoResults != undefined">
+    <div id="resultDiv" ng-show="resultPaging.total > 0">
 
         <ul class="products-list product-list-in-box">
             <div ng-repeat="result in geoResults">
@@ -91,12 +91,12 @@
 
 </div>
 
-<section class="pagination">
+<section class="pagination" ng-show="resultPaging.total > 0">
     <paging page="resultPaging.currentPage"
         page-size="resultPaging.pageSize"
         total="resultPaging.total"
         show-first-last="true"
         paging-action="fetchResultsPage(page)">
     </paging>
-    <div class="paging-details">Showing {{pageFrom}} - {{pageTo}} of {{resultPaging.total}}</div>
+    <div class="paging-details">Showing {{pageFrom}} - {{pageTo}} of {{total}}</div>
 </section>

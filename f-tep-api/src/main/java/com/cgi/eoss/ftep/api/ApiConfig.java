@@ -11,6 +11,8 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import lombok.extern.log4j.Log4j2;
@@ -33,6 +35,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import org.springframework.data.web.config.SpringDataJacksonConfiguration;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
@@ -81,6 +84,11 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 public class ApiConfig {
 
     private static final String ACL_CACHE_NAME = "acls";
+
+    @Bean
+    public GuavaModule jacksonGuavaModule() {
+        return new GuavaModule();
+    }
 
     @Bean
     public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${ftep.api.basePath:/api}") String apiBasePath) {

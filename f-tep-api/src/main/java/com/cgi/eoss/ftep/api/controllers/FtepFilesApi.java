@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.net.URI;
 import java.util.List;
 
 @RepositoryRestResource(
@@ -30,6 +32,9 @@ public interface FtepFilesApi extends CrudRepository<FtepFile, Long> {
 
     @PostFilter("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
     List<FtepFile> findByType(@Param("type") FtepFileType type);
+
+    @PostAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(returnObject, 'read')")
+    FtepFile findOneByUri(@Param("uri") URI uri);
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")

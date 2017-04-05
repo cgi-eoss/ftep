@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.catalogue.geoserver.GeoserverService;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.MoreFiles;
@@ -70,6 +71,7 @@ public class FilesystemOutputProductService implements OutputProductService {
 
         FtepFile ftepFile = new FtepFile(uri, restoId);
         ftepFile.setOwner(owner);
+        ftepFile.setType(FtepFileType.OUTPUT_PRODUCT);
         ftepFile.setFilename(outputProductBasedir.relativize(dest).toString());
         return ftepFile;
     }

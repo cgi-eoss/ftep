@@ -99,7 +99,7 @@ public class FtepFilesApiIT {
     public void testGet() throws Exception {
         mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId()).header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "{?projection}")))
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")));
 
         mockMvc.perform(get("/api/ftepFiles/search/findByType?type=REFERENCE_DATA").header("REMOTE_USER", ftepAdmin.getName()))
@@ -129,7 +129,7 @@ public class FtepFilesApiIT {
         when(catalogueService.ingestReferenceData(any(), any())).thenReturn(testFile1);
         mockMvc.perform(fileUpload("/api/ftepFiles/refData").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "{?projection}")))
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")));
         verify(catalogueService).ingestReferenceData(any(), any());
     }

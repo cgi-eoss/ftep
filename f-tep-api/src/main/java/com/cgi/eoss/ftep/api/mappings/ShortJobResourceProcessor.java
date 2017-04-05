@@ -26,7 +26,7 @@ public class ShortJobResourceProcessor implements ResourceProcessor<Resource<Sho
         }
 
         // TODO Do this properly with a method reference
-        resource.add(new Link(resource.getLink("self").getHref() +"/logs").withRel("logs"));
+        resource.add(new Link(resource.getLink("self").getHref() + "/logs").withRel("logs"));
 
         return resource;
     }

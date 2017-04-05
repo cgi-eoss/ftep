@@ -12,6 +12,8 @@ public interface FtepFileDataService extends
         FtepEntityDataService<FtepFile> {
     FtepFile getByUri(URI uri);
 
+    FtepFile getByUri(String uri);
+
     FtepFile getByRestoId(UUID uuid);
 
     List<FtepFile> findByOwner(User user);

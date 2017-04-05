@@ -43,6 +43,11 @@ public class JpaFtepFileDataService extends AbstractJpaDataService<FtepFile> imp
     }
 
     @Override
+    public FtepFile getByUri(String uri) {
+        return getByUri(URI.create(uri));
+    }
+
+    @Override
     public FtepFile getByRestoId(UUID uuid) {
         return dao.findOneByRestoId(uuid);
     }

@@ -1,7 +1,10 @@
 package com.cgi.eoss.ftep.api.mappings;
 
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
@@ -16,6 +19,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class JobResourceProcessor implements ResourceProcessor<Resource<Job>> {
+
+    private final FtepFileDataService ftepFileDataService;
+
     private final RepositoryEntityLinks entityLinks;
 
     @Override
@@ -25,7 +31,18 @@ public class JobResourceProcessor implements ResourceProcessor<Resource<Job>> {
         }
 
         // TODO Do this properly with a method reference
-        resource.add(new Link(resource.getLink("self").getHref() +"/logs").withRel("logs"));
+        resource.add(new Link(resource.getLink("self").getHref() + "/logs").withRel("logs"));
+
+        // Transform any "ftep://" URIs into relation links
+        Multimap<String, String> outputs = resource.getContent().getOutputs();
+        if (outputs != null && !outputs.isEmpty()) {
+            outputs.entries().stream()
+                    .filter(e -> e.getValue().startsWith("ftep://"))
+                    .forEach(e -> {
+                        FtepFile ftepFile = ftepFileDataService.getByUri(e.getValue());
+                        resource.add(entityLinks.linkToSingleResource(ftepFile).withRel("output-" + e.getKey()).expand());
+                    });
+        }
 
         return resource;
     }

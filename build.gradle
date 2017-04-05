@@ -132,6 +132,7 @@ allprojects {
                 entry 'spring-boot-starter-undertow'
                 entry('spring-boot-starter-web') { exclude 'org.springframework.boot:spring-boot-starter-tomcat' }
             }
+            dependency 'org.springframework.hateoas:spring-hateoas:0.23.0.RELEASE'
             dependencySet(group: 'org.testcontainers', version: '1.2.0') {
                 entry 'selenium'
                 entry 'testcontainers'

@@ -68,7 +68,7 @@ public class FtepDownloaderTest {
         server = inProcessServerBuilder.build().start();
 
         ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub = ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
-        when(ftepServerClient.getServiceContextFilesService()).thenReturn(serviceContextFilesServiceBlockingStub);
+        when(ftepServerClient.serviceContextFilesServiceBlockingStub()).thenReturn(serviceContextFilesServiceBlockingStub);
 
         this.dl = new FtepDownloader(ftepServerClient);
     }

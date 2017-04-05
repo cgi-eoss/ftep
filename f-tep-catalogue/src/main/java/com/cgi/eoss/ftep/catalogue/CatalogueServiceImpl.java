@@ -7,17 +7,35 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
+import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.google.protobuf.ByteString;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import lombok.extern.log4j.Log4j2;
 import org.geojson.GeoJsonObject;
+import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Component
-public class CatalogueServiceImpl implements CatalogueService {
+@GRpcService
+@Log4j2
+public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceImplBase implements CatalogueService {
+
+    private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final FtepFileDataService ftepFileDataService;
     private final OutputProductService outputProductService;
@@ -91,4 +109,41 @@ public class CatalogueServiceImpl implements CatalogueService {
         ftepFileDataService.delete(file);
     }
 
+    @Override
+    public void downloadFtepFile(FtepFileUri request, StreamObserver<FileResponse> responseObserver) {
+        try {
+            FtepFile file = ftepFileDataService.getByUri(request.getUri());
+            Resource fileResource = getAsResource(file);
+
+            // First message is the metadata
+            FileResponse.FileMeta fileMeta = FileResponse.FileMeta.newBuilder()
+                    .setFilename(fileResource.getFilename())
+                    .setSize(fileResource.contentLength())
+                    .build();
+            responseObserver.onNext(FileResponse.newBuilder().setMeta(fileMeta).build());
+
+            // Then read the file, chunked at 8kB
+            LocalDateTime startTime = LocalDateTime.now();
+            try (ReadableByteChannel channel = Channels.newChannel(fileResource.getInputStream())) {
+                ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
+                int position = 0;
+                while (channel.read(buffer) > 0) {
+                    int size = buffer.position();
+                    buffer.rewind();
+                    responseObserver.onNext(FileResponse.newBuilder().setChunk(FileResponse.Chunk.newBuilder()
+                            .setPosition(position)
+                            .setData(ByteString.copyFrom(buffer, size))
+                            .build()).build());
+                    position += buffer.position();
+                    buffer.flip();
+                }
+            }
+            LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), Duration.between(startTime, LocalDateTime.now()));
+
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to serve file download for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
 }

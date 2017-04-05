@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc.catalogue";
+
+service CatalogueService {
+    rpc DownloadFtepFile (FtepFileUri) returns (stream FileResponse);
+}
+
+message FtepFileUri {
+    string uri = 1;
+}
+
+message FileResponse {
+    message FileMeta {
+        string filename = 1;
+        int64 size = 2;
+    }
+    message Chunk {
+        int64 position = 1;
+        bytes data = 2;
+    }
+    oneof Payload {
+        FileMeta meta = 1;
+        Chunk chunk = 2;
+    }
+}

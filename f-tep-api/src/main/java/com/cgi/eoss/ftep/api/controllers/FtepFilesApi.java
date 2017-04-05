@@ -22,6 +22,15 @@ import java.util.List;
         excerptProjection = ShortFtepFile.class)
 public interface FtepFilesApi extends CrudRepository<FtepFile, Long> {
 
+    // TODO Evaluate performance and prefer limiting by query rather than @PostFilter
+    @Override
+    @PostFilter("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
+    List<FtepFile> findAll();
+
+    @Override
+    @PostAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(returnObject, 'read')")
+    FtepFile findOne(Long id);
+
     @Override
     @RestResource(exported = false)
     <S extends FtepFile> Iterable<S> save(Iterable<S> ftepFiles);

@@ -70,7 +70,7 @@ public class HttpDownloaderTest {
         server = inProcessServerBuilder.build().start();
 
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
-        when(ftepServerClient.getCredentialsService()).thenReturn(credentialsService);
+        when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
         this.dl = new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build());
     }

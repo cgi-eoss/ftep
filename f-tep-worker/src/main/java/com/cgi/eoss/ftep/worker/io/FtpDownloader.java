@@ -47,7 +47,7 @@ public class FtpDownloader implements Downloader {
             } else {
                 ftpClient.connect(uri.getHost(), uri.getPort());
             }
-            Credentials creds = ftepServerClient.getCredentialsService().getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
+            Credentials creds = ftepServerClient.credentialsServiceBlockingStub().getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
             if (creds.getType() == Credentials.Type.BASIC) {
                 ftpClient.login(creds.getUsername(), creds.getPassword());
             }

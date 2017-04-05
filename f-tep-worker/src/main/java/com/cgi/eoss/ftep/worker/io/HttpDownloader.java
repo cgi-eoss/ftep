@@ -95,7 +95,7 @@ public class HttpDownloader implements Downloader {
                 return null;
             }
 
-            Credentials creds = ftepServerClient.getCredentialsService().getCredentials(GetCredentialsParams.newBuilder().setHost(url.host()).build());
+            Credentials creds = ftepServerClient.credentialsServiceBlockingStub().getCredentials(GetCredentialsParams.newBuilder().setHost(url.host()).build());
 
             if (creds.getType() == Credentials.Type.BASIC) {
                 String credHeader = okhttp3.Credentials.basic(creds.getUsername(), creds.getPassword());

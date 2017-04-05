@@ -66,7 +66,7 @@ public class IptDownloader implements Downloader {
         //   1. Call an authentication endpoint to get a token
         //   2. Add the token identity to the download operation as a parameter
 
-        Credentials credentials = ftepServerClient.getCredentialsService().getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
+        Credentials credentials = ftepServerClient.credentialsServiceBlockingStub().getCredentials(GetCredentialsParams.newBuilder().setHost(uri.getHost()).build());
 
         HttpUrl downloadUrl = HttpUrl.get(uri).newBuilder()
                 .addQueryParameter("token", getAuthToken(credentials))

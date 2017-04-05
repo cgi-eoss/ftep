@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.worker.rpc;
 
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.google.common.collect.Iterables;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -23,12 +24,16 @@ public class FtepServerClient {
         this.ftepServerServiceId = ftepServerServiceId;
     }
 
-    public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub getServiceContextFilesService() {
+    public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub() {
         return ServiceContextFilesServiceGrpc.newBlockingStub(getChannel());
     }
 
-    public CredentialsServiceGrpc.CredentialsServiceBlockingStub getCredentialsService() {
+    public CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsServiceBlockingStub() {
         return CredentialsServiceGrpc.newBlockingStub(getChannel());
+    }
+
+    public CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueServiceBlockingStub() {
+        return CatalogueServiceGrpc.newBlockingStub(getChannel());
     }
 
     private ManagedChannel getChannel() {

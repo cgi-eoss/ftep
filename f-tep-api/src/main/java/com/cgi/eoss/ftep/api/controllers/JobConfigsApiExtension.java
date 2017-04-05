@@ -9,12 +9,14 @@ import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
@@ -22,7 +24,8 @@ import java.util.UUID;
  * <p>A {@link RepositoryRestController} for interacting with {@link JobConfig}s. Offers additional functionality over
  * the standard CRUD-style {@link JobConfigsApi}.</p>
  */
-@RepositoryRestController
+@RestController
+@BasePathAwareController
 @RequestMapping("/jobConfigs")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2

@@ -3,13 +3,18 @@ package com.cgi.eoss.ftep.worker.io;
 import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
 import com.cgi.eoss.ftep.rpc.ShortFile;
+import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
+import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.lambda.Unchecked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -17,10 +22,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
 import static java.nio.file.attribute.PosixFilePermission.OTHERS_EXECUTE;
@@ -51,13 +58,17 @@ public class FtepDownloader implements Downloader {
         switch (uri.getHost()) {
             case "serviceContext":
                 return downloadServiceContextFiles(targetDir, Paths.get(uri.getPath()).getFileName().toString());
+            case "outputProduct":
+                return downloadFtepFile(targetDir, uri);
+            case "refData":
+                return downloadFtepFile(targetDir, uri);
             default:
                 throw new UnsupportedOperationException("Unrecognised ftep:// URI type: " + uri.getHost());
         }
     }
 
     private Path downloadServiceContextFiles(Path targetDir, String serviceName) throws IOException {
-        ServiceContextFiles serviceContextFiles = ftepServerClient.getServiceContextFilesService()
+        ServiceContextFiles serviceContextFiles = ftepServerClient.serviceContextFilesServiceBlockingStub()
                 .getServiceContextFiles(GetServiceContextFilesParams.newBuilder().setServiceName(serviceName).build());
 
         for (ShortFile f : serviceContextFiles.getFilesList()) {
@@ -70,6 +81,25 @@ public class FtepDownloader implements Downloader {
         }
 
         return targetDir;
+    }
+
+    private Path downloadFtepFile(Path targetDir, URI uri) throws IOException {
+        CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
+
+        Iterator<FileResponse> outputFile = catalogueService.downloadFtepFile(FtepFileUri.newBuilder().setUri(uri.toString()).build());
+
+        // First message is the file metadata
+        FileResponse.FileMeta fileMeta = outputFile.next().getMeta();
+
+        // TODO Configure whether files need to be transferred via RPC or simply copied
+        Path outputPath = targetDir.resolve(fileMeta.getFilename());
+        LOG.info("Transferring FtepFile ({} bytes) to {}", fileMeta.getSize(), outputPath);
+
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath, CREATE, TRUNCATE_EXISTING, WRITE))) {
+            outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
+        }
+
+        return outputPath;
     }
 
 }

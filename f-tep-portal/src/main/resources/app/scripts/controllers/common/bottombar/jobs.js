@@ -58,8 +58,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         if (!category) {
                             $scope.groupedJobs[job.relationships.service.data[0].id] = [];
                         }
-                        if ($scope.jobParams.jobGroupInfo[job.relationships.service.data[0].id] === undefined) {
-                            $scope.jobParams.jobGroupInfo[job.relationships.service.data[0].id] = {
+                        if ($scope.jobParams.jobCategoryInfo[job.relationships.service.data[0].id] === undefined) {
+                            $scope.jobParams.jobCategoryInfo[job.relationships.service.data[0].id] = {
                                 opened: false
                             };
                         }
@@ -70,11 +70,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             groupJobs();
 
             $scope.isJobGroupOpened = function (serviceId) {
-                return $scope.jobParams.jobGroupInfo[serviceId].opened;
+                return $scope.jobParams.jobCategoryInfo[serviceId].opened;
             };
 
             $scope.toggleJobGroup = function (serviceId) {
-                $scope.jobParams.jobGroupInfo[serviceId].opened = !$scope.jobParams.jobGroupInfo[serviceId].opened;
+                $scope.jobParams.jobCategoryInfo[serviceId].opened = !$scope.jobParams.jobCategoryInfo[serviceId].opened;
                 $scope.$broadcast('rebuild:scrollbar');
             };
 

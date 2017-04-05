@@ -10,7 +10,7 @@
 
 define(['../../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityFileCtrl', ['MessageService', 'FileService', 'TabService', 'ReferenceService', '$rootScope', '$scope', '$mdDialog', '$sce', function (MessageService, FileService, TabService, ReferenceService, $rootScope, $scope, $mdDialog, $sce) {
+    ftepmodules.controller('CommunityFileCtrl', ['FileService', '$scope', function (FileService, $scope) {
 
         /* Get stored File details */
         $scope.fileParams = FileService.params.community;
@@ -23,13 +23,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Patch file and update file list */
         $scope.saveFile = function() {
             FileService.updateFtepFile($scope.tempFile).then(function (data) {
-                FileService.getFtepFiles().then(function (data) {
-                    $scope.fileParams.files = data;
-                    /* If the modified item is currently selected then update it */
-                    if ($scope.fileParams.selectedFile.id === $scope.tempFile.id) {
-                        $scope.fileParams.selectedFile = $scope.tempFile;
-                    }
-                });
+                FileService.refreshFtepFilesV2("Community");
             });
         };
 

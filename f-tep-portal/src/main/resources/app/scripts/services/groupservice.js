@@ -6,8 +6,9 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', function (ftepProperties, $q, MessageService, traverson) {
+    ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'UserService', 'MessageService', 'TabService', 'traverson', '$timeout', '$rootScope', function (ftepProperties, $q, UserService, MessageService, TabService, traverson, $timeout, $rootScope) {
 
+        var that = this;
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var groupsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
@@ -15,12 +16,39 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         /** PRESERVE USER SELECTIONS **/
         this.params = {
-            groups: [],
-            selectedGroup: undefined,
-            searchText: '',
-            displayGroupFilters: false
+            community: {
+                groups: [],
+                selectedGroup: undefined,
+                searchText: '',
+                displayGroupFilters: false
+            }
         };
         /** END OF PRESERVE USER SELECTIONS **/
+
+        var POLLING_FREQUENCY = 20 * 1000;
+        var pollCount = 3;
+
+        var pollGroupsV2 = function () {
+            $timeout(function () {
+                groupsAPI.from(rootUri + '/groups/')
+                    .newRequest()
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        $rootScope.$broadcast('poll.groups', document._embedded.groups);
+                        if(TabService.startPolling().groups) {
+                            pollGroupsV2();
+                        }
+                    }, function (error) {
+                        error.retriesLeft = pollCount;
+                        MessageService.addError('Could not poll Groups', error);
+                        pollCount -= 1;
+                        if (pollCount >= 0 && TabService.startPolling().groups) {
+                            pollGroupsV2();
+                        }
+                    });
+            }, POLLING_FREQUENCY);
+        };
 
         this.getGroups = function () {
             var deferred = $q.defer();
@@ -30,6 +58,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                      .result
                      .then(
             function (document) {
+                if(TabService.startPolling().baskets) {
+                    pollGroupsV2();
+                }
                 deferred.resolve(document._embedded.groups);
             }, function (error) {
                 MessageService.addError ('Could not get Groups', error);
@@ -94,6 +125,69 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     reject();
                 });
             });
+        };
+
+        var getGroup = function (group) {
+            var deferred = $q.defer();
+            groupsAPI.from(rootUri + '/groups/' + group.id)
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not get Group', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        this.refreshGroupsV2 = function (service, action, group) {
+
+            if (service === "Community") {
+
+                /* Get group list */
+                this.getGroups().then(function (data) {
+
+                    that.params.community.groups = data;
+
+                    /* Select last group if created */
+                    if (action === "Create") {
+                        that.params.community.selectedGroup = that.params.community.groups[that.params.community.groups.length-1];
+                    }
+
+                    /* Clear group if deleted */
+                    if (action === "Remove") {
+                        if (group && group.id === that.params.community.selectedGroup.id) {
+                            that.params.community.selectedGroup = undefined;
+                            that.params.community.groupUsers = [];
+                        }
+                    }
+
+                    /* Update the selected group */
+                    that.refreshSelectedGroupV2("Community");
+
+                });
+
+            }
+
+        };
+
+        this.refreshSelectedGroupV2 = function (service) {
+
+            if (service === "Community") {
+                /* Get group contents if selected */
+                if (that.params.community.selectedGroup) {
+                    getGroup(that.params.community.selectedGroup).then(function (group) {
+                        that.params.community.selectedGroup = group;
+                        UserService.getUsers(group).then(function (users) {
+                            UserService.params.community.groupUsers = users;
+                        });
+                    });
+                }
+            }
+
         };
 
     return this;

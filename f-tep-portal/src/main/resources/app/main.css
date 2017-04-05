@@ -28,17 +28,6 @@
 #account-container #accountManagement #infoPanel #accountHelp .row div {
   margin: 8px 0;
 }
-#account-container #accountManagement {
-  width: 100%;
-}
-#account-container #accountManagement #accountInfo {
-  height: 100%;
-  padding: 10px;
-  background-color: #f8f8f8;
-}
-#account-container #accountManagement #accountInfo .row div {
-  margin: 8px 0;
-}
 
 #bottombar-container {
   bottom: 0;
@@ -714,6 +703,9 @@
 #community-container .left-container .item-list {
   padding-bottom: 3rem;
 }
+#community-container .left-container .long-string {
+  font-size: 0.6rem;
+}
 #community-container .left-container md-list-item {
   border-bottom: #d2d2d2 solid 1px;
 }
@@ -880,6 +872,72 @@
 }
 
 
+#job-container #job-overview h5 {
+  font-size: 0.7rem;
+  font-weight: bold;
+  line-height: 1rem;
+  margin: 0;
+  padding: 0.3rem 0;
+}
+#job-container #job-overview p {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  margin: 0;
+  padding: 0.3rem 0;
+}
+#job-container #job-details .job-details-tab {
+  padding-top: 0.5rem !important;
+}
+#job-container #job-inputs .download,
+#job-container #job-outputs .download {
+  padding-left: 1rem;
+}
+#job-container #job-inputs .download a,
+#job-container #job-outputs .download a {
+  color: #ff4081;
+}
+#job-container #job-inputs .download a:hover,
+#job-container #job-outputs .download a:hover {
+  color: #c51162;
+}
+#job-container #job-inputs td:first-child,
+#job-container #job-outputs td:first-child {
+  font-weight: bold;
+  padding-right: 1rem;
+}
+#job-container #job-inputs td,
+#job-container #job-outputs td {
+  padding: 0.5rem 0;
+}
+#job-container #job-log {
+  font-family: monospace;
+  font-size: 0.6rem;
+  overflow-x: auto;
+  width: 100%;
+}
+#job-container #job-log table {
+  margin-bottom: 2rem;
+}
+#job-container #job-log table th {
+  padding: 0.4rem;
+  padding-left: 0;
+}
+#job-container #job-log table .job-timestamp {
+  font-weight: bold;
+  padding: 2px 1rem 2px 0;
+  vertical-align: top;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+#job-container #job-log table .job-message {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 2px 0;
+  white-space: pre-wrap;
+}
 
 
 

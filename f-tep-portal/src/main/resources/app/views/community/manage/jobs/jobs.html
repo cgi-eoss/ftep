@@ -1,1 +1,89 @@
-WIP
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-10" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!jobParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="jobParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <div class="col-md-12 col-lg-4 filter-checkboxes"
+                 ng-show="jobParams.displayFilters"
+                 ng-repeat="jobStatus in jobParams.jobStatuses"
+                 ng-click="jobStatus.value = !jobStatus.value; filterJobs()">
+                <md-checkbox ng-model="jobStatus.value"
+                             ng-click="jobStatus.value = !jobStatus.value; filterJobs()"
+                             aria-label="Job Filter">
+                    {{jobStatus.title}}
+                </md-checkbox>
+            </div>
+
+            <md-input-container md-no-float ng-show="jobParams.displayFilters">
+                <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+            </md-input-container>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="!jobParams.jobs.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">You have no {{item}}s.</div>
+        </div>
+    </div>
+
+    <div class="item-list list">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, job) in jobParams.jobs | orderBy: 'id' | filter: quickSearch"
+                      ng-show="filteredJobStatuses.indexOf(job.status) > -1"
+                      ng-click="selectJob(job)"
+                      ng-class="{active: job.id == jobParams.selectedJob.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="'Job: ' + job.id" />
+                <span><b>ID:</b> <span class="long-string" ng-bind="job.extId" /></span>
+                <span><b>Stage:</b> <span ng-bind="job.stage" /></span>
+                <span><b>Status:</b> <span ng-bind="job.status" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeItem(key, job)"
+                       aria-label="Delete"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
+
+        </md-list-item>
+
+    </div>
+
+</section>

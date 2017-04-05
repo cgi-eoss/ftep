@@ -149,6 +149,15 @@ define([
         };
     });
 
+    app.filter("nl2br", function ($filter) {
+        return function (data) {
+            if (!data) {
+                return data;
+            }
+            return data.replace(/\r/g, '<br />');
+        };
+    });
+
     app.directive('hasPermission', function() {
         return {
             link: function(scope, element, attrs, ngModel) {

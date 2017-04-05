@@ -8,14 +8,14 @@
 'use strict';
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, traverson) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, traverson) {
+
+        var that = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
-
-        var that = this;
 
         this.dbOwnershipFilters = {
             ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
@@ -58,7 +58,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
         /** END OF PRESERVE USER SELECTIONS **/
 
-        var startPolling = true;
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
 
@@ -69,35 +68,34 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .getResource()
                     .result
                     .then(function (document) {
-                        $rootScope.$broadcast('refresh.databasketsV2', document._embedded.databaskets);
-                        pollDatabasketsV2();
+                        $rootScope.$broadcast('poll.baskets', document._embedded.databaskets);
+                        if(TabService.startPolling().baskets) {
+                            pollDatabasketsV2();
+                        }
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Databaskets', error);
                         pollCount -= 1;
-                        if (pollCount >= 0) {
+                        if (pollCount >= 0 && TabService.startPolling().baskets) {
                             pollDatabasketsV2();
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        this.getDatabasketsV2 = function () {
+        var getDatabasketsV2 = function () {
             var deferred = $q.defer();
-                halAPI.from(rootUri + '/databaskets/')
-                         .newRequest()
-                         .getResource()
-                         .result
-                         .then(
-                function (document) {
-                    /* Start polling if not already */
-                    if (startPolling) {
-                        startPolling = false;
+            halAPI.from(rootUri + '/databaskets/')
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                    if (TabService.startPolling().baskets) {
                         pollDatabasketsV2();
                     }
                     deferred.resolve(document._embedded.databaskets);
                 }, function (error) {
-                    MessageService.addError ('Could not get Databaskets', error);
+                    MessageService.addError('Could not get Databaskets', error);
                     deferred.reject();
                 });
 
@@ -162,9 +160,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.getItemsV2 = function() {
+        var getDatabasketV2 = function(databasket) {
             var deferred = $q.defer();
-            var databasket = that.params.community.selectedDatabasket;
+            halAPI.from(rootUri + '/databaskets/' + databasket.id)
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not get Databasket contents', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        var getDatabasketContentsV2 = function(databasket) {
+            var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + databasket.id)
                      .newRequest()
                      .follow('files')
@@ -178,6 +191,53 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 deferred.reject();
             });
             return deferred.promise;
+        };
+
+        this.refreshDatabasketsV2 = function (service, action, basket) {
+
+            if (service === "Community") {
+
+                /* Get databasket list */
+                getDatabasketsV2().then(function (data) {
+
+                    that.params.community.databaskets = data;
+
+                    /* Select last databasket if created */
+                    if (action === "Create") {
+                        that.params.community.selectedDatabasket = that.params.community.databaskets[that.params.community.databaskets.length-1];
+                    }
+
+                    /* Clear basket if deleted */
+                    if (action === "Remove") {
+                        if (basket && basket.id === that.params.community.selectedDatabasket.id) {
+                            that.params.community.selectedDatabasket = undefined;
+                            that.params.community.items = [];
+                        }
+                    }
+
+                    /* Update the selected basket */
+                    that.refreshSelectedBasketV2("Community");
+
+                });
+
+            }
+
+        };
+
+        this.refreshSelectedBasketV2 = function (service) {
+
+            if (service === "Community") {
+                /* Get basket contents if selected */
+                if (that.params.community.selectedDatabasket) {
+                    getDatabasketV2(that.params.community.selectedDatabasket).then(function (basket) {
+                        that.params.community.selectedDatabasket = basket;
+                        getDatabasketContentsV2(basket).then(function (data) {
+                            that.params.community.items = data;
+                        });
+                    });
+                }
+            }
+
         };
 
         this.addItemsV2 = function (databasket, files) {
@@ -284,6 +344,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
 
 
+
+
+
+
+
+
+        /** API V1 **/
 
           /** Set the header defaults **/
           $http.defaults.headers.post['Content-Type'] = 'application/json';

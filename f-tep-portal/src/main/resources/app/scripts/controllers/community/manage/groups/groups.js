@@ -9,16 +9,27 @@
 define(['../../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'CommonService', 'MessageService', '$rootScope', '$scope', '$mdDialog', '$sce',
-                                                   function (GroupService, CommonService, MessageService, $rootScope, $scope, $mdDialog, $sce) {
+    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'CommonService', '$scope', '$sce', function (GroupService, CommonService, $scope, $sce) {
 
         /* Get stored Groups details */
-        $scope.groupParams = GroupService.params;
+        $scope.groupParams = GroupService.params.community;
+        $scope.item = "Group";
 
         /* Get Groups */
-         GroupService.getGroups().then(function (data) {
+        GroupService.getGroups().then(function (data) {
             $scope.groupParams.groups = data;
         });
+
+        /* Update Groups when polling */
+        $scope.$on('poll.groups', function (event, data) {
+            $scope.groupParams.groups = data;
+        });
+
+        /* Select a Group */
+        $scope.selectGroup = function (item) {
+            $scope.groupParams.selectedGroup = item;
+            GroupService.refreshSelectedGroupV2("Community");
+        };
 
         /* Filters */
         $scope.toggleGroupFilters = function () {
@@ -56,37 +67,21 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Create Group */
         $scope.createGroupDialog = function ($event) {
             CommonService.createItemDialog($event, 'GroupService', 'createGroup').then(function (newGroup) {
-                /* Update the group list */
-                GroupService.getGroups().then(function (groups) {
-                    $scope.groupParams.groups = groups;
-                    /* Set created group to the active group */
-                    $scope.groupParams.selectedGroup = groups[groups.length-1];
-                });
+                GroupService.refreshGroupsV2("Community", "Create");
             });
         };
 
         /* Remove Group */
         $scope.removeGroup = function (key, group) {
             GroupService.removeGroup(group).then(function (data) {
-                $scope.groupParams.groups.splice(key, 1);
-                $scope.userParams.groupUsers = [];
-                /* If group removed is active clear it */
-                if (group === $scope.groupParams.selectedGroup) {
-                    $scope.groupParams.selectedGroup = undefined;
-                }
+                GroupService.refreshGroupsV2("Community", "Remove");
             });
         };
 
         /* Edit Group */
         $scope.editGroupDialog = function($event, selectedGroup) {
             CommonService.editItemDialog($event, selectedGroup, 'GroupService', 'updateGroup').then(function(updatedGroup) {
-                /* If the modified group is currently selected then update it */
-                if ($scope.groupParams.selectedGroup && $scope.groupParams.selectedGroup.id === updatedGroup.id) {
-                    $scope.groupParams.selectedGroup = updatedGroup;
-                }
-                GroupService.getGroups().then(function(data) {
-                    $scope.groupParams.groups = data;
-                });
+                GroupService.refreshGroupsV2("Community");
             });
         };
 

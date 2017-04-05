@@ -10,9 +10,12 @@
 
 define(['../../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityJobCtrl', ['JobService', 'MessageService', '$rootScope', '$scope', '$mdDialog', function (JobService, MessageService, $rootScope, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityJobCtrl', ['JobService', '$scope', function (JobService, $scope) {
 
-
+        /* Get stored Jobs details */
+        $scope.jobParams = JobService.params.community;
+        $scope.item = "Job";
 
     }]);
 });
+

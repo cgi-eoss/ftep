@@ -11,6 +11,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
     ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'traverson', '$rootScope', '$timeout', function (ftepProperties, $q, MessageService, TabService, traverson, $rootScope, $timeout) {
 
+        var that = this;
+
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
@@ -30,7 +32,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
         /** END OF PRESERVE USER SELECTIONS **/
 
-        var that = this;
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
 
@@ -53,7 +54,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             .getResource()
                             .result
                             .then(function (document) {
-                                $rootScope.$broadcast('refresh.ftepfiles', document._embedded.ftepFiles);
+                                $rootScope.$broadcast('poll.ftepfiles', document._embedded.ftepFiles);
                                 if (TabService.startPolling().files) {
                                     pollFtepFiles();
                                 }
@@ -76,7 +77,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         /* File types: REFERENCE_DATA, OUTPUT_PRODUCT, EXTERNAL_PRODUCT */
-        this.getFtepFiles = function () {
+        this.getFtepFiles = function (fileType) {
             var deferred = $q.defer();
             var request = halAPI.from(rootUri + '/ftepFiles/')
                 .newRequest()
@@ -89,7 +90,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         .follow('findByType')
                         .withRequestOptions({
                             qs: {
-                                type: that.params.community.activeFileType
+                                type: fileType
                             }
                         })
                         .getResource()
@@ -106,22 +107,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 });
             }, function (error) {
                 MessageService.addError('Could not get Files', error);
-                deferred.reject();
-            });
-            return deferred.promise;
-        };
-
-        this.getFileV2 = function (file) {
-            var deferred = $q.defer();
-            halAPI.from(rootUri + '/ftepFiles/' + file.id)
-                     .newRequest()
-                     .getResource()
-                     .result
-                     .then(
-            function (document) {
-                deferred.resolve(document);
-            }, function (error) {
-                MessageService.addError ('Could not get File', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -165,6 +150,57 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     reject();
                 });
             });
+        };
+
+        var getFileV2 = function (file) {
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/ftepFiles/' + file.id)
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not get File', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        this.refreshFtepFilesV2 = function (service, action, file) {
+
+            if(service === "Community") {
+
+                that.getFtepFiles(that.params.community.activeFileType).then(function (data) {
+                    that.params.community.files = data;
+
+                    /* Clear file if deleted */
+                    if (action === "Remove") {
+                        if (file && file.id === that.params.community.selectedFile.id) {
+                            that.params.community.selectedFile = undefined;
+                            that.params.community.fileDetails = undefined;
+                        }
+                    }
+
+                    /* Update the selected file */
+                    that.refreshSelectedFtepFileV2("Community");
+
+                });
+            }
+        };
+
+        this.refreshSelectedFtepFileV2 = function (service) {
+
+            if (service === "Community") {
+                /* Get file contents if selected */
+                if (that.params.community.selectedFile) {
+                    getFileV2(that.params.community.selectedFile).then(function (data) {
+                        that.params.community.fileDetails = data;
+                    });
+                }
+            }
+
         };
 
     return this;

@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', function (ftepProperties, $q, MessageService, traverson) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', '$rootScope', function (ftepProperties, $q, MessageService, traverson, $rootScope) {
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -17,11 +17,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.params = {
-            allUsers: [],
-            groupUsers: [],
-            searchText: '',
-            displayUserFilters: false
+            community: {
+                allUsers: [],
+                groupUsers: [],
+                searchText: '',
+                displayUserFilters: false
+            }
         };
+
+        var that = this;
 
         this.getCurrentUser = function(){
             var deferred = $q.defer();
@@ -77,6 +81,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Create array of user links */
                 var membersArray = [];
+
                 for (var item in groupUsers) {
                     membersArray.push(groupUsers[item]._links.self.href);
                 }

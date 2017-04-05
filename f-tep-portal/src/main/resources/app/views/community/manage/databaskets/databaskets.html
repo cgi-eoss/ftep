@@ -50,7 +50,7 @@
     <div class="item-list list">
         <md-list-item class="md-3-line"
                       ng-repeat="(key, basket) in basketParams.databaskets | orderBy: 'id' | filter: quickSearch"
-                      ng-click="selectItem(basket)"
+                      ng-click="selectBasket(basket)"
                       ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
 
             <div class="md-list-item-text" layout="column">

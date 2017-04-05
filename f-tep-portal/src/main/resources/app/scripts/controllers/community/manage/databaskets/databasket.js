@@ -10,16 +10,11 @@
 
 define(['../../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityDatabasketCtrl', ['BasketService', 'FileService', 'MessageService', '$rootScope', '$scope', '$mdDialog', function (BasketService, FileService, MessageService, $rootScope, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityDatabasketCtrl', ['BasketService', 'FileService', '$scope', '$mdDialog', function (BasketService, FileService, $scope, $mdDialog) {
 
         /* Get stored Databaskets & Files details */
         $scope.basketParams = BasketService.params.community;
         $scope.item = "File";
-
-        /* Get Databaskets */
-        BasketService.getItemsV2().then(function (data) {
-            $scope.basketParams.items = data;
-        });
 
         /* Filters */
         $scope.toggleFilters = function () {
@@ -41,24 +36,14 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Remove file from databasket */
         $scope.removeItem = function() {
             BasketService.removeItemV2($scope.basketParams.selectedDatabasket).then(function (data) {
-                /* Update file list */
-                BasketService.getItemsV2().then(function (baskets) {
-                    $scope.basketParams.items = baskets;
-                    /* Update file count in databaskets view */
-                    $scope.basketParams.selectedDatabasket.size = $scope.basketParams.items.length;
-                });
+                BasketService.refreshDatabasketsV2("Community");
             });
         };
 
         /* Remove all files from databasket */
         $scope.clearDatabasket = function(file) {
             BasketService.clearDatabasketV2($scope.basketParams.selectedDatabasket, $scope.basketParams.items, file).then(function (data) {
-                /* Update file list */
-                BasketService.getItemsV2().then(function (baskets) {
-                    $scope.basketParams.items = baskets;
-                    /* Update file count in databaskets view */
-                    $scope.basketParams.selectedDatabasket.size = $scope.basketParams.items.length;
-                });
+                BasketService.refreshDatabasketsV2("Community");
             });
         };
 
@@ -98,17 +83,16 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                 $scope.selectDatasource = function (datasource) {
                     $scope.selectedDatasource = datasource;
                     $scope.files = [];
-                    var fileType;
 
                     /* Set file type to query */
                     if (datasource.name === "Existing Products") {
-                        fileType = 'OUTPUT_PRODUCT';
+                        FileService.params.community.activeFileType = 'OUTPUT_PRODUCT';
                     } else if (datasource.name === "Reference") {
-                        fileType = 'REFERENCE_DATA';
+                        FileService.params.community.activeFileType = 'REFERENCE_DATA';
                     }
 
                     /* Get correct list of files and filter out existing items */
-                    FileService.getFtepFiles(fileType).then(function (data) {
+                    FileService.getFtepFiles(FileService.params.community.activeFileType).then(function (data) {
                         $scope.files = data.filter(function (item) {
                             for (var i in $scope.basketParams.items) {
                                 if (item.id === $scope.basketParams.items[i].id) {
@@ -157,11 +141,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
 
                     /* Add files to databasket and update selected databasket */
                     BasketService.addItemsV2($scope.basketParams.selectedDatabasket, $scope.addedFiles).then(function (data) {
-                        BasketService.getItemsV2().then(function (data) {
-                            $scope.basketParams.items = data;
-                            /* Update file count in databaskets view */
-                            $scope.basketParams.selectedDatabasket.size = $scope.basketParams.items.length;
-                        });
+                        BasketService.refreshDatabasketsV2("Community");
                         $mdDialog.hide();
                     });
 

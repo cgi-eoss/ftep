@@ -10,26 +10,29 @@
 
 define(['../../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityFilesCtrl', ['MessageService', 'FileService', 'TabService', 'ReferenceService', '$rootScope', '$scope', '$mdDialog', '$sce', function (MessageService, FileService, TabService, ReferenceService, $rootScope, $scope, $mdDialog, $sce) {
+    ftepmodules.controller('CommunityFilesCtrl', ['FileService', 'ReferenceService', '$scope', '$mdDialog', function (FileService, ReferenceService, $scope, $mdDialog) {
 
         /* Get stored Files details */
         $scope.fileParams = FileService.params.community;
-        $scope.files = [];
         $scope.item = "File";
         $scope.filetypes = [
             { name: "Reference Data", value: "REFERENCE_DATA" },
             { name: "Output Products", value: "OUTPUT_PRODUCT" }
         ];
 
-        /* Get files list */
-        FileService.getFtepFiles().then(function (data) {
-            $scope.files = data;
-        });
+        /* Get files */
+        FileService.refreshFtepFilesV2("Community");
 
         /* Update files when polling */
-        $scope.$on('refresh.ftepfiles', function (event, data) {
-            $scope.files = data;
+        $scope.$on('poll.ftepfiles', function (event, data) {
+            $scope.fileParams.files = data;
         });
+
+        /* Select a File */
+        $scope.selectFile = function (item) {
+            $scope.fileParams.selectedFile = item;
+            FileService.refreshSelectedFtepFileV2("Community");
+        };
 
         /* Filters */
         $scope.toggleFilters = function () {
@@ -60,9 +63,7 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
                 $scope.addReferenceFile = function () {
                     ReferenceService.uploadFile($scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
-                        FileService.getFtepFiles().then(function (data) {
-                            $scope.files = data;
-                        });
+                        FileService.refreshFtepFilesV2("Community");
                     });
                 };
 
@@ -84,15 +85,8 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Remove File */
         $scope.removeItem = function (key, item) {
             FileService.removeFtepFile(item).then(function (data) {
-                /* Clear selected file and file details */
-                if (item.id === $scope.fileParams.selectedFile.id) {
-                    $scope.fileParams.selectedFile = undefined;
-                    $scope.fileParams.fileDetails = [];
-                }
                 /* Update list of files */
-                FileService.getFtepFiles().then(function (files) {
-                    $scope.files = files;
-                });
+                FileService.refreshFtepFilesV2("Community", "Remove", item);
             });
         };
 

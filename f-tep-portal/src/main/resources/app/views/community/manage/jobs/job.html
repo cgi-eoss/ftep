@@ -1,1 +1,160 @@
-WIP
+<article ng-if="jobParams.selectedJob" >
+
+    <section id="job-title" class="row section-title">
+        <div class="col-xs-10 title-text">
+            <h2 ng-bind="'Job: ' + jobParams.job.id + ' - ' + jobParams.job.status" />
+        </div>
+    </section>
+
+    <section id="job-overview" class="sub-title row">
+
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'ID:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.extId" />
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Owner:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.owner.name" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Stage:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.stage" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Status:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.status" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Start Time:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.details.startTime" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'End Time:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.details.endTime" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Name:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.config._embedded.service.name" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Description:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.job.config._embedded.service.description" />
+            </div>
+        </div>
+    </section>
+
+
+    <section id="job-details" ng-cloak>
+      <md-content>
+        <md-tabs md-dynamic-height md-border-bottom>
+
+          <md-tab label="Output">
+            <md-content id="job-outputs" class="md-padding job-details-tab">
+                <table ng-show="jobParams.job.outputs">
+                    <tr ng-repeat="(key, file) in jobParams.job.outputs.result">
+                        <td>
+                            <span ng-show="key === 0">Files</span>
+                        </td>
+                        <td ng-bind="file" />
+                        <td class="download">
+                            <a ng-href="{{jobParams.job.outputs.links[key]}}" target="_self">
+                                <i class="material-icons"
+                                   aria-label="Download"
+                                   uib-tooltip="Download"
+                                   tooltip-placement="top"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                                    file_download
+                                </i>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <div ng-show="!jobParams.job.outputs" class="note">
+                    No output files to display.
+                </div>
+            </md-content>
+          </md-tab>
+
+          <md-tab label="Input">
+            <md-content id="job-inputs" class="md-padding job-details-tab">
+                <table>
+                    <tr ng-repeat="(key, file) in jobParams.job.config.inputs.inputfile">
+                        <td>
+                            <span ng-show="key === 0">Files</span>
+                        </td>
+                        <td ng-bind="file" />
+                    </tr>
+                    <tr>
+                        <td>Vegetation Index</td>
+                        <td ng-bind="jobParams.job.config.inputs.vegIndex" />
+                    </tr>
+                    <tr>
+                        <td>Area of Interest</td>
+                        <td ng-bind="jobParams.job.config.inputs.aoi" />
+                    </tr>
+                    <tr>
+                        <td>Target Resolution</td>
+                        <td ng-bind="jobParams.job.config.inputs.targetResolution" />
+                    </tr>
+                    <tr>
+                        <td>Coordinate Reference System</td>
+                        <td ng-bind="jobParams.job.config.inputs.crs" />
+                    </tr>
+                </table>
+            </md-content>
+          </md-tab>
+
+          <md-tab label="Logs">
+            <md-content id="job-log" class="md-padding job-details-tab">
+                <table>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Message</th>
+                    </tr>
+                    <tr ng-repeat="message in jobParams.job.logs">
+                        <td class="job-timestamp" ng-bind="message.timestamp" />
+                        <td>
+                            <pre class="job-message" ng-bind-html="message.message | nl2br" />
+                        </td>
+                    </tr>
+                </table>
+            </md-content>
+          </md-tab>
+        </md-tabs>
+      </md-content>
+    </section>
+
+</article>

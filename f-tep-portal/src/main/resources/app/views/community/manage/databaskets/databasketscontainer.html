@@ -1,13 +1,13 @@
 <div class="tab-content-container row">
 
-    <article id="groups-container"
+    <article id="databaskets-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
              ng-include ng-controller="CommunityDatabasketsCtrl"
              src="'views/community/manage/databaskets/databaskets.html'" />
 
-    <article id="group-container"
+    <article id="databasket-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityDatabasketCtrl"
              src="'views/community/manage/databaskets/databasket.html'"
-             ng-if="basketParams.selectedDatabasket" />
+             ng-show="basketParams.selectedDatabasket" />
 </div>

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -76,7 +79,16 @@ public class FtepSecurityService {
     public void publish(Class<?> objectClass, Long identifier) {
         LOG.info("Publishing entity: {} (id: {})", objectClass, identifier);
 
-        MutableAcl acl = getAcl(new ObjectIdentityImpl(objectClass, identifier));
+        publish(new ObjectIdentityImpl(objectClass, identifier));
+    }
+
+    /**
+     * <p>Create an access control entry granting all users (the PUBLIC authority) READ access to the given object.</p>
+     *
+     * @param objectIdentity The identifier of the entity being published.
+     */
+    public void publish(ObjectIdentity objectIdentity) {
+        MutableAcl acl = getAcl(objectIdentity);
 
         Sid publicSid = new GrantedAuthoritySid(FtepPermission.PUBLIC);
 
@@ -107,6 +119,28 @@ public class FtepSecurityService {
     }
 
     /**
+     * <p>Return the equivalent {@link FtepPermission} level granted to the current user on the given object.</p>
+     *
+     * @param objectClass The class of the entity being tested.
+     * @param identifier The identifier of the entity being tested.
+     * @return The {@link FtepPermission} corresponding to the current access level.
+     */
+    public FtepPermission getCurrentPermission(Class<?> objectClass, Long identifier) {
+        Authentication authentication = getCurrentAuthentication();
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(objectClass, identifier);
+
+        if (hasFtepPermission(authentication, FtepPermission.ADMIN, objectIdentity)) {
+            return FtepPermission.ADMIN;
+        } else if (hasFtepPermission(authentication, FtepPermission.WRITE, objectIdentity)) {
+            return FtepPermission.WRITE;
+        } else if (hasFtepPermission(authentication, FtepPermission.READ, objectIdentity)) {
+            return FtepPermission.READ;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * <p>Verify that the FtepPermission.READ permission is granted on the given object to the static PUBLIC
      * Authentication entity.</p>
      *
@@ -126,8 +160,7 @@ public class FtepSecurityService {
      * @return True if the object is READable by PUBLIC.
      */
     public boolean isPublic(ObjectIdentity objectIdentity) {
-        return FtepPermission.READ.getAclPermissions().stream()
-                .allMatch(p -> aclPermissionEvaluator.hasPermission(PUBLIC_AUTHENTICATION, objectIdentity.getIdentifier(), objectIdentity.getType(), p));
+        return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
     public MutableAcl getAcl(ObjectIdentity objectIdentity, Sid... sids) {
@@ -140,6 +173,18 @@ public class FtepSecurityService {
 
     public void saveAcl(MutableAcl acl) {
         aclService.updateAcl(acl);
+    }
+
+    private List<Sid> getSids(Authentication authentication) {
+        return ImmutableList.<Sid>builder()
+                .add(new PrincipalSid(authentication))
+                .addAll(authentication.getAuthorities().stream().map(GrantedAuthoritySid::new).collect(Collectors.toSet()))
+                .build();
+    }
+
+    private boolean hasFtepPermission(Authentication authentication, FtepPermission permission, ObjectIdentity objectIdentity) {
+        return permission.getAclPermissions().stream()
+                .allMatch(p -> aclPermissionEvaluator.hasPermission(authentication, objectIdentity.getIdentifier(), objectIdentity.getType(), p));
     }
 
     private Authentication getCurrentAuthentication() {

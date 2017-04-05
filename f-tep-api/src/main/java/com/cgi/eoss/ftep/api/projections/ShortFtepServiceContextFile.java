@@ -10,8 +10,6 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name = "shortServiceFile", types = {FtepServiceContextFile.class})
 public interface ShortFtepServiceContextFile extends EmbeddedId {
     ShortFtepService getService();
-
     String getFilename();
-
     boolean isExecutable();
 }

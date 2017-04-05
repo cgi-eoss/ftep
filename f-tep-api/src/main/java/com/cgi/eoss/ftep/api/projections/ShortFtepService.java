@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api.projections;
 
+import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.ServiceLicence;
 import com.cgi.eoss.ftep.model.ServiceStatus;
@@ -21,4 +22,6 @@ public interface ShortFtepService extends EmbeddedId {
     ServiceStatus getStatus();
     @Value("#{@ftepSecurityService.isPublic(target.class, target.id)}")
     boolean isPublic();
+    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
+    FtepPermission getAccessLevel();
 }

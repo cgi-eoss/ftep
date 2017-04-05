@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.api.projections;
 
+import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.time.LocalDateTime;
@@ -18,4 +20,6 @@ public interface ShortJob extends EmbeddedId {
     String getStage();
     LocalDateTime getStartTime();
     LocalDateTime getEndTime();
+    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
+    FtepPermission getAccessLevel();
 }

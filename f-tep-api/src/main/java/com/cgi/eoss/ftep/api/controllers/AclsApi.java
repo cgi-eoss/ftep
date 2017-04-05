@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jooq.lambda.Seq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -38,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * <p>A {@link RestController} for updating and modifying ACLs. There is no direct model mapping, so this is not a
@@ -205,13 +205,14 @@ public class AclsApi {
         LOG.debug("Creating ACL on object {}: {}", objectIdentity, newAces);
 
         MutableAcl acl = ftepSecurityService.getAcl(objectIdentity);
+        boolean published = ftepSecurityService.isPublic(objectIdentity);
 
         // JdbcMutableAclService#saveAcl deletes the entire list before saving
         // So we have to reset the entire desired permission list for the group
 
-        // First delete all existing ACEs...
+        // First delete all existing ACEs in reverse order...
         int aceCount = acl.getEntries().size();
-        IntStream.range(0, aceCount).map(i -> aceCount - i - 1).forEach(acl::deleteAce);
+        Seq.range(0, aceCount - 1).reverse().forEach(acl::deleteAce);
 
         // ... then ensure the owner ACE is present (always ADMIN)
         if (owner != null) {
@@ -228,6 +229,11 @@ public class AclsApi {
         });
 
         ftepSecurityService.saveAcl(acl);
+
+        // ... and finally re-publish if necessary
+        if (published) {
+            ftepSecurityService.publish(objectIdentity);
+        }
     }
 
     @Data

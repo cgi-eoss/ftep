@@ -659,10 +659,28 @@
   border-top: rgba(228, 228, 228, 0.9) solid 1px;
 }
 #sidenav #ftep-nav-wrapper .ftep-nav li:hover {
-  background-color: rgba(50, 50, 50, 0.5);
+  background-color: rgba(85, 139, 47, 0.7);
 }
 #sidenav #ftep-nav-wrapper .ftep-nav li:hover:hover {
-  background-color: rgba(50, 50, 50, 0.9);
+  background-color: #558b2f;
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .active {
+  background-color: rgba(51, 105, 30, 0.7);
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .active:hover {
+  background-color: #33691e;
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .active-bottom {
+  background-color: rgba(36, 82, 105, 0.7);
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .active-bottom:hover {
+  background-color: #245269;
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .bottom-link:hover {
+  background-color: rgba(49, 112, 143, 0.7);
+}
+#sidenav #ftep-nav-wrapper .ftep-nav .bottom-link:hover:hover {
+  background-color: #31708f;
 }
 #sidenav .notification-container {
   position: relative;

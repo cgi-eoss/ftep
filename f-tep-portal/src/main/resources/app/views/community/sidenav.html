@@ -1,15 +1,15 @@
 <nav id="ftep-nav-wrapper">
 
     <ul class="ftep-nav">
-        <li ng-click="togglePage(communityTabs.MANAGE)">
+        <li ng-click="togglePage(communityTabs.MANAGE); selected = 'manage'" ng-class="{'active': selected == 'manage' || !selected}">
             <i class="material-icons" uib-tooltip="Manage" tooltip-placement="right">group</i>
         </li>
 
-        <li ng-click="togglePage(communityTabs.SHARE)">
+        <li ng-click="togglePage(communityTabs.SHARE); selected = 'share'" ng-class="{'active': selected == 'share'}">
             <i class="material-icons" uib-tooltip="Share" tooltip-placement="right">share</i>
         </li>
 
-        <li ng-click="toggleBottomView()" class="notification-container">
+        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': navInfo.bottomViewVisible}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification">{{message.count}}</span>
         </li>

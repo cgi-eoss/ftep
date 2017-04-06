@@ -29,7 +29,18 @@
                     .border-dark(border-top, @bg-dark);
                 }
                 &:hover {
-                    .bg-trans-semi-dark(@bg-dark);
+                    .bg-trans-dark(@brand);
+                }
+            }
+            .active {
+                .bg-trans-dark(@brand-dark);
+            }
+            .active-bottom {
+                .bg-trans-dark(@alert-link);
+            }
+            .bottom-link {
+                 &:hover {
+                    .bg-trans-dark(@alert-text);
                 }
             }
         }

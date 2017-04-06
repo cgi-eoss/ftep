@@ -1,19 +1,23 @@
 <nav id="ftep-nav-wrapper">
 
     <ul class="ftep-nav">
-        <li ng-click="toggleSidebar(sideNavTabs.SEARCH)">
+        <li ng-click="toggleSidebar(sideNavTabs.SEARCH)" ng-class="{'active': navInfo.sideViewVisible && navInfo.activeSideNav == 0}">
             <i class="material-icons" uib-tooltip="Search" tooltip-placement="right">search</i>
         </li>
-        <li ng-click="toggleSidebar(sideNavTabs.SERVICES)">
+        <li ng-click="toggleSidebar(sideNavTabs.SERVICES)" ng-class="{'active': navInfo.sideViewVisible && navInfo.activeSideNav == 1}">
             <i class="material-icons" uib-tooltip="Services" tooltip-placement="right">settings_remote</i>
         </li>
-        <li ng-click="toggleSidebar(sideNavTabs.WORKSPACE)">
+        <li ng-click="toggleSidebar(sideNavTabs.WORKSPACE)" ng-class="{'active': navInfo.sideViewVisible && navInfo.activeSideNav == 2}">
             <i class="material-icons" uib-tooltip="Workspace" tooltip-placement="right">settings_input_component</i>
         </li>
-        <li ng-click="toggleBottomView()">
+        <li ng-click="toggleBottomView()"
+            class="bottom-link"
+            ng-class="{'active-bottom': navInfo.bottomViewVisible && navInfo.activeBottomNav != 3}">
             <i class="material-icons" uib-tooltip="Data-Panel" tooltip-placement="right">visibility</i>
         </li>
-        <li ng-click="displayTab(bottomNavTabs.MESSAGES)" class="notification-container">
+        <li ng-click="displayTab(bottomNavTabs.MESSAGES)"
+            class="notification-container bottom-link"
+            ng-class="{'active-bottom': navInfo.bottomViewVisible && navInfo.activeBottomNav == 3}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification">{{message.count}}</span>
         </li>

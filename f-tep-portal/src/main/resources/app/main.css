@@ -578,9 +578,13 @@
 #navbar .navbar-container .navbar-contents .nav li:hover p {
   color: #33691e;
 }
-@media (max-width: 800px) {
-  #navbar .navbar-container .navbar-contents .nav li {
+@media (max-width: 860px) {
+  #navbar .navbar-container .navbar-contents .nav {
+    font-size: 0.8rem;
     padding: 0 16px;
+  }
+  #navbar .navbar-container .navbar-contents .nav li {
+    padding: 0 0.5rem;
   }
 }
 /** TODO: Remove after pre-realease **/
@@ -916,7 +920,7 @@
   width: 100%;
 }
 #job-container #job-log table {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 #job-container #job-log table th {
   padding: 0.4rem;

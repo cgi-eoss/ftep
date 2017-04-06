@@ -1,0 +1,19 @@
+<div class="tab-content-container row">
+
+    <article id="groups-container"
+             class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
+             ng-include ng-controller="CommunityServicesCtrl"
+             src="'views/community/common/services/services.html'" />
+
+     <article id="group-manage-container"
+              class="col-md-8 col-xl-9 col-xxl-10 right-container"
+              ng-include ng-controller="CommunityManageServiceCtrl"
+              src="'views/community/manage/services/service.html'"
+              ng-show="serviceParams.selectedService && navInfo.activeCommunityPage === 0" />
+
+     <article id="group-share-container"
+              class="col-md-8 col-xl-9 col-xxl-10 right-container"
+              ng-include ng-controller="CommunityShareServiceCtrl"
+              src="'views/community/manage/services/service.html'"
+              ng-show="serviceParams.selectedService && navInfo.activeCommunityPage === 1" />
+</div>

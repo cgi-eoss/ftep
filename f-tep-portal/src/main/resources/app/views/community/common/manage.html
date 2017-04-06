@@ -1,0 +1,75 @@
+<md-tabs id="manage-tabs" md-selected="selectedTab">
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">group</i> Groups
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 0"
+                     ng-include src="'views/community/common/groups/groupscontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">folder_special</i> Projects
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 1"
+                     ng-include src="'views/community/common/projects/projectscontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">shopping_basket</i> Databaskets
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 2"
+                     ng-include src="'views/community/common/databaskets/databasketscontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">assignment</i> Jobs
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 3"
+                     ng-include src="'views/community/common/jobs/jobscontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">settings_remote</i> Services
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 4"
+                     ng-include src="'views/community/common/services/servicescontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label>
+            <i class="material-icons">attach_file</i> Files
+        </md-tab-label>
+        <md-tab-body>
+            <md-content class="md-padding">
+                <div class="tab-content"
+                     ng-if="selectedTab === 5"
+                     ng-include src="'views/community/common/files/filescontainer.html'" />
+            </md-content>
+        </md-tab-body>
+    </md-tab>
+</md-tabs>
+

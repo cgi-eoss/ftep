@@ -1,0 +1,19 @@
+<div class="tab-content-container row">
+
+    <article id="files-container"
+             class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
+             ng-include ng-controller="CommunityFilesCtrl"
+             src="'views/community/common/files/files.html'" />
+
+    <article id="file-manage-container"
+             class="col-md-8 col-xl-9 col-xxl-10 right-container"
+             ng-include ng-controller="CommunityManageFileCtrl"
+             src="'views/community/manage/files/file.html'"
+             ng-show="fileParams.selectedFile && navInfo.activeCommunityPage === 0"/>
+
+    <article id="file-share-container"
+             class="col-md-8 col-xl-9 col-xxl-10 right-container"
+             ng-include ng-controller="CommunityShareFileCtrl"
+             src="'views/community/share/files/file.html'"
+             ng-show="fileParams.selectedFile && navInfo.activeCommunityPage === 1"/>
+</div>

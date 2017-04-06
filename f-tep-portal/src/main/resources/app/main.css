@@ -682,37 +682,30 @@
   z-index: 20;
 }
 
-#community-container #manage-container,
-#community-container #share-container {
+#community-container #manage-container {
   height: 100%;
   width: 100%;
 }
-#community-container #manage-container #manage-tabs,
-#community-container #share-container #manage-tabs {
+#community-container #manage-container #manage-tabs {
   height: 100%;
   padding-left: 44px;
 }
-#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content,
-#community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content {
+#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content {
   height: 100%;
 }
-#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content,
-#community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content {
+#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content {
   background-color: transparent;
   border-top: #d2d2d2 solid 1px;
   height: 100%;
   padding: 0;
 }
-#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content,
-#community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content {
+#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content {
   height: 100%;
 }
-#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content .tab-content-container,
-#community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content .tab-content-container {
+#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content md-content .tab-content .tab-content-container {
   height: 100%;
 }
-#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1),
-#community-container #share-container #manage-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) {
+#community-container #manage-container #manage-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) {
   height: 100%;
 }
 #community-container .left-container {
@@ -850,21 +843,26 @@
 }
 
 
-#file-container #file-details {
+#file-manage-container #file-details,
+#file-share-container #file-details {
   padding-top: 1rem;
 }
-#file-container .file-field {
+#file-manage-container .file-field,
+#file-share-container .file-field {
   padding: 1rem;
   padding-top: 2rem;
 }
-#file-container .file-field md-input-container label {
+#file-manage-container .file-field md-input-container label,
+#file-share-container .file-field md-input-container label {
   color: rgba(0, 0, 0, 0.87);
   font-size: 1.2rem;
 }
-#file-container md-chip {
+#file-manage-container md-chip,
+#file-share-container md-chip {
   margin: 0 0.25rem;
 }
-#file-container md-chip .md-chip-content {
+#file-manage-container md-chip .md-chip-content,
+#file-share-container md-chip .md-chip-content {
   font-size: 0.8rem;
   padding: 0 0.5rem;
 }
@@ -894,57 +892,74 @@
 }
 
 
-#job-container #job-overview h5 {
+#job-manage-container #job-overview h5,
+#job-share-container #job-overview h5 {
   font-size: 0.7rem;
   font-weight: bold;
   line-height: 1rem;
   margin: 0;
   padding: 0.3rem 0;
 }
-#job-container #job-overview p {
+#job-manage-container #job-overview p,
+#job-share-container #job-overview p {
   font-size: 0.7rem;
   line-height: 1rem;
   margin: 0;
   padding: 0.3rem 0;
 }
-#job-container #job-details .job-details-tab {
+#job-manage-container #job-details .job-details-tab,
+#job-share-container #job-details .job-details-tab {
   padding-top: 0.5rem !important;
 }
-#job-container #job-inputs .download,
-#job-container #job-outputs .download {
+#job-manage-container #job-inputs .download,
+#job-share-container #job-inputs .download,
+#job-manage-container #job-outputs .download,
+#job-share-container #job-outputs .download {
   padding-left: 1rem;
 }
-#job-container #job-inputs .download a,
-#job-container #job-outputs .download a {
+#job-manage-container #job-inputs .download a,
+#job-share-container #job-inputs .download a,
+#job-manage-container #job-outputs .download a,
+#job-share-container #job-outputs .download a {
   color: #ff4081;
 }
-#job-container #job-inputs .download a:hover,
-#job-container #job-outputs .download a:hover {
+#job-manage-container #job-inputs .download a:hover,
+#job-share-container #job-inputs .download a:hover,
+#job-manage-container #job-outputs .download a:hover,
+#job-share-container #job-outputs .download a:hover {
   color: #c51162;
 }
-#job-container #job-inputs td:first-child,
-#job-container #job-outputs td:first-child {
+#job-manage-container #job-inputs td:first-child,
+#job-share-container #job-inputs td:first-child,
+#job-manage-container #job-outputs td:first-child,
+#job-share-container #job-outputs td:first-child {
   font-weight: bold;
   padding-right: 1rem;
 }
-#job-container #job-inputs td,
-#job-container #job-outputs td {
+#job-manage-container #job-inputs td,
+#job-share-container #job-inputs td,
+#job-manage-container #job-outputs td,
+#job-share-container #job-outputs td {
   padding: 0.5rem 0;
 }
-#job-container #job-log {
+#job-manage-container #job-log,
+#job-share-container #job-log {
   font-family: monospace;
   font-size: 0.6rem;
   overflow-x: auto;
   width: 100%;
 }
-#job-container #job-log table {
+#job-manage-container #job-log table,
+#job-share-container #job-log table {
   margin-bottom: 1rem;
 }
-#job-container #job-log table th {
+#job-manage-container #job-log table th,
+#job-share-container #job-log table th {
   padding: 0.4rem;
   padding-left: 0;
 }
-#job-container #job-log table .job-timestamp {
+#job-manage-container #job-log table .job-timestamp,
+#job-share-container #job-log table .job-timestamp {
   font-weight: bold;
   padding: 2px 1rem 2px 0;
   vertical-align: top;
@@ -953,7 +968,8 @@
       -ms-user-select: none;
           user-select: none;
 }
-#job-container #job-log table .job-message {
+#job-manage-container #job-log table .job-message,
+#job-share-container #job-log table .job-message {
   background-color: transparent;
   border: none;
   margin: 0;

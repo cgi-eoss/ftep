@@ -5,7 +5,6 @@
         <sources/>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>$ifile</file>
-            <formatName>$formatName</formatName>
         </parameters>
     </node>
     <node id="BandSelect">

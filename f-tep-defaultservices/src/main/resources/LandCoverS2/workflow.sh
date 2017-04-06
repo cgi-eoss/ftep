@@ -53,14 +53,8 @@ fi
 I=0
 for IN in ${IN_DIR}/inputfile; do
     I=$((I+1))
-    INPUT_FILE=$(ls -1 ${IN}/S2*.xml | head -1)
-    # Read the product with each possible formatName (UTM zone)
-    COVERED_EPSGS=($(${S2PRODUCTZONES} ${IN}/GRANULE/*/S2*.xml))
-    for PRODUCT_EPSG in $COVERED_EPSGS; do
-        UTM_ZONE=$(${EPSG2UTM} ${PRODUCT_EPSG#EPSG:})
-        FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
-        time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -PformatName=${FORMAT_NAME} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}-${UTM_ZONE}.tif"
-    done
+    INPUT_FILE=$(ls -1 ${IN}/*.xml | grep -v 'INSPIRE.xml' | head -1)
+    time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"
 done
 
 # Preprocess S2 input(s): mosaic multiple CRS values

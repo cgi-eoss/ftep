@@ -20,6 +20,8 @@ public interface ShortJob extends EmbeddedId {
     String getStage();
     LocalDateTime getStartTime();
     LocalDateTime getEndTime();
+    @Value("#{target.config.service.name}")
+    String getServiceName();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
     FtepPermission getAccessLevel();
 }

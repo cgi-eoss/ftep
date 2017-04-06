@@ -32,8 +32,11 @@ ospackage {
 
     from('src/main/resources') {
         user 'root'
+        exclude 'ftep-backend/ftep_search/vendor/php-curl-class/php-curl-class/tests/PHPCurlClass/index.php'
     }
 
+    link('/opt/f-tep-drupalmodules/ftep-backend/ftep_search/vendor/php-curl-class/php-curl-class/tests/PHPCurlClass/index.php',
+            'server.php')
 }
 
 configurations { pkg }

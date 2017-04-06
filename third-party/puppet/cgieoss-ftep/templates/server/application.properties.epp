@@ -28,6 +28,9 @@ logging.config=<%= $logging_config_file %>
 
 # Server config
 server.port=<%= $server_port %>
+server.compression.enabled=true
+server.compression.mime-types=text/html,text/xml,text/plain,text/css,application/json,application/hal+json
+
 grpc.port=<%= $grpc_port %>
 
 # Service registry configuration

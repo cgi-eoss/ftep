@@ -367,6 +367,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             // Build image
             LOG.info("Building Docker image '{}' for service {}", dockerImage, serviceName);
             BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
+                    .withRemove(true)
                     .withBaseDirectory(serviceContext.toFile())
                     .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
                     .withTag(dockerImage);

@@ -1,94 +1,85 @@
-<div layout="row" class="service-content row" ng-controller="ServiceCtrl">
+<section id="sidebar-list">
 
-	<article id="service-list" class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container">
-		<section id="sidebar-list">
+    <div class="filter-list">
+        <ul class="list">
 
-		    <div class="filter-list">
-		        <ul class="list">
+            <div class="row list-group filter-list-title">
 
-		            <div class="row list-group filter-list-title">
+                <div class="col-xs-10" ng-click="toggleServiceFilter()">
+                    <label class="md-accent">Filters</label>
+                </div>
 
-		                <div class="col-xs-10" ng-click="toggleServiceFilter()">
-		                    <label class="md-accent">Filters</label>
-		                </div>
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!serviceParams.displayFilters"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="serviceParams.displayFilters"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
 
-		                <div class="col-xs-2 expander">
-		                    <i class="material-icons"
-		                       ng-show="!serviceParams.displayFilters"
-		                       aria-label="Show Filters"
-		                       uib-tooltip="Show Filters"
-		                       tooltip-placement="top"
-		                       tooltip-trigger="mouseenter"
-		                       tooltip-append-to-body="true">
-		                        expand_less
-		                    </i>
-		                    <i class="material-icons"
-		                       ng-show="serviceParams.displayFilters"
-		                       aria-label="Hide Filters"
-		                       uib-tooltip="Hide Filters"
-		                       tooltip-placement="top"
-		                       tooltip-trigger="mouseenter"
-		                       tooltip-append-to-body="true">
-		                        expand_more
-		                    </i>
-		                </div>
+            </div>
 
-		            </div>
+            <md-input-container md-no-float ng-show="serviceParams.displayFilters">
+                <input ng-model="serviceParams.searchText" type="text" placeholder="Search">
+            </md-input-container>
 
-		            <md-input-container md-no-float ng-show="serviceParams.displayFilters">
-		                <input ng-model="serviceParams.searchText" type="text" placeholder="Search">
-		            </md-input-container>
+        </ul>
+    </div>
 
-		        </ul>
-		    </div>
+    <div class="row" ng-if="userServices.length === 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">You have no services. Create a service using the + button below.</div>
+        </div>
+    </div>
 
-		    <div class="row" ng-if="userServices.length === 0">
-		        <div class="col-md-12 no-padding">
-		            <div class="note">You have no services. Create a service using the + button below.</div>
-		        </div>
-		    </div>
+    <div class="item-list list">
+        <md-list-item class="md-3-line"
+                      ng-repeat="service in userServices | filter: serviceParams.searchText"
+                      ng-click="selectService(service)"
+                      ng-class="{active: service.name == serviceParams.selectedService.name}">
 
-		    <div class="item-list list">
-		        <md-list-item class="md-3-line"
-		                      ng-repeat="service in userServices | filter: serviceParams.searchText"
-		                      ng-click="selectService(service)">
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable basket-name" ng-bind="service.name" />
+            </div>
 
-		            <div class="md-list-item-text" layout="column">
-		                <h3 class="selectable basket-name" ng-bind="service.name" />
-		            </div>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeService(service)"
+                       aria-label="Delete"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
 
-		            <md-button class="toolbar-button md-secondary"
-		                       ng-click="removeService(service)"
-		                       aria-label="Delete"
-		                       uib-tooltip="Delete"
-		                       tooltip-placement="top"
-		                       tooltip-trigger="mouseenter"
-		                       tooltip-append-to-body="true">
-		                <i class="material-icons">delete</i>
-		            </md-button>
+        </md-list-item>
 
-		        </md-list-item>
+    </div>
 
-		    </div>
+</section>
 
-		</section>
-
-		<section id="create-service">
-		    <md-button id="create-service-button"
-		               class="icon-button md-icon-button md-fab md-mini"
-		               ng-click="createService($event)"
-		               aria-label="Create New Service"
-		               uib-tooltip="Create New Service"
-		               tooltip-placement="top"
-		               tooltip-trigger="mouseenter"
-		               tooltip-append-to-body="true">
-		        <i class="material-icons">add</i>
-		    </md-button>
-	    </section>
-
-	</article>
-
-	<article id="service-editor" class="col-md-8 col-xl-9 col-xxl-10 right-container"
-	    ng-show="serviceParams.displayRight" ng-include src="'views/developer/services/editor.html'"/>
-
-</div>
+<section id="create-service">
+    <md-button id="create-service-button"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="createService($event)"
+               aria-label="Create New Service"
+               uib-tooltip="Create New Service"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add</i>
+    </md-button>
+</section>

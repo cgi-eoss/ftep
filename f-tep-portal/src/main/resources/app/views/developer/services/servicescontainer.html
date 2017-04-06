@@ -1,0 +1,11 @@
+<div class="row content-container" ng-controller="ServiceCtrl">
+
+    <article id="services"
+             class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
+             ng-include src="'views/developer/services/services.html'" />
+
+    <article id="service-editor"
+             class="col-md-8 col-xl-9 col-xxl-10 right-container"
+             ng-include src="'views/developer/services/editor.html'"
+             ng-show="serviceParams.displayRight" />
+</div>

@@ -12,7 +12,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo;
-        $scope.navInfo.sideViewVisible = false;
+        $scope.navInfo.sideViewVisible = true;
         $scope.navInfo.activeTab = TabService.getTabs().DEVELOPER;
 
         /* Active session message count */

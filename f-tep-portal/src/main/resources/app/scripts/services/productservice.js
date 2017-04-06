@@ -57,6 +57,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
               return userServicesCache;
           };
 
+          var that = this;
+
           this.getUserServices = function(){
               var deferred = $q.defer();
               productsAPI.from(rootUri + '/services/')
@@ -115,11 +117,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                       service: service._links.self.href,
                       executable: false
               };
-              addFile(file1);
-              addFile(file2);
+              that.addFile(file1);
+              that.addFile(file2);
           }
 
-          function addFile(file){
+          this.addFile = function(file){
+              var deferred = $q.defer();
               productsAPI.from(rootUri + '/serviceFiles/')
                        .newRequest()
                        .post(file)
@@ -127,10 +130,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                        .then(
                   function (result) {
                       MessageService.addInfo('Service File Added', file.filename + ' added');
+                      deferred.resolve(JSON.parse(result.data));
                   }, function (error) {
                       MessageService.addError ('Could not Add Service File', error);
+                      deferred.reject();
                   });
-          }
+              return deferred.promise;
+          };
 
           this.updateService = function(){
               var selectedService = this.params.development.selectedService;
@@ -144,8 +150,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   function (document) {
                       if (200 <= document.status && document.status < 300) {
                           MessageService.addInfo('Service Updated', 'Service ' + selectedService.name + ' successfully updated');
-                          updateFile(selectedService.dockerfile);
-                          updateFile(selectedService.workflow);
+                          for(var i = 0; i < selectedService.files.length; i++){
+                              updateFile(selectedService.files[i]);
+                          }
                           resolve(document);
                       }
                       else {
@@ -178,31 +185,33 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
           /** Remove service with its related files **/
           this.removeService = function(service){
-              var deferred = $q.defer();
-              getServiceFiles(service).then(function(serviceFiles){
-                  var waitingPromises = [];
-                  if(serviceFiles){
-                      for(var i = 0; i < serviceFiles.length; i++){
-                          waitingPromises.push(removeServiceFile(serviceFiles[i]));
-                      }
-                  }
-                  $q.all(waitingPromises).then(function(data){
-                      removeServiceItself(service, deferred);
-                  },
-                  function(error){
-                      MessageService.addError ('Could not Remove Service', 'Failed to remove service ' + service.name);
-                      deferred.reject();
+              return $q(function(resolve, reject) {
+                  deleteAPI.from(rootUri + '/services/' + service.id)
+                  .newRequest()
+                  .delete()
+                  .result
+                  .then(
+                  function (document) {
+                     if (200 <= document.status && document.status < 300) {
+                         MessageService.addInfo('Service Removed', 'Service '.concat(service.name).concat(' deleted.'));
+                         if(that.params.development.selectedService && service.id === that.params.development.selectedService.id){
+                             that.params.development.selectedService = undefined;
+                             that.params.development.displayRight = false;
+                         }
+                         resolve(service);
+                     } else {
+                         MessageService.addError ('Could not Remove Service', 'Failed to remove service '+
+                                 service.name + getMessage(document));
+                         reject();
+                     }
+                  }, function (error) {
+                     MessageService.addError ('Could not Remove Service', error);
+                     reject();
                   });
-              },
-              function(error){
-                  MessageService.addError ('Could not Remove Service', 'Failed to get service ' + service.name + ' files.');
-                  deferred.reject();
               });
-
-              return deferred.promise;
           };
 
-          function removeServiceFile(file){
+          this.removeServiceFile = function(file){
               return $q(function(resolve, reject) {
                   deleteAPI.from(file._links.self.href)
                            .newRequest()
@@ -211,7 +220,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                            .then(
                   function (document) {
                       if (200 <= document.status && document.status < 300) {
-                          MessageService.addInfo('Service File Removed', 'Service '.concat(file.filename).concat(' deleted.'));
+                          MessageService.addInfo('Service File Removed', 'File '.concat(file.filename).concat(' deleted.'));
                           resolve();
                       } else {
                           MessageService.addError ('Could not Remove Service File', 'Failed to remove service file ' +
@@ -223,37 +232,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                       reject();
                   });
               });
-          }
-
-          var that = this;
-          function removeServiceItself(service, deferred){
-              deleteAPI.from(rootUri + '/services/' + service.id)
-              .newRequest()
-              .delete()
-              .result
-              .then(
-              function (document) {
-                 if (200 <= document.status && document.status < 300) {
-                     MessageService.addInfo('Service Removed', 'Service '.concat(service.name).concat(' deleted.'));
-                     if(that.params.development.selectedService && service.id === that.params.development.selectedService.id){
-                         that.params.development.selectedService = undefined;
-                         that.params.development.displayRight = false;
-                     }
-                     deferred.resolve(service);
-                 } else {
-                     MessageService.addError ('Could not Remove Service', 'Failed to remove service '+
-                             service.name + getMessage(document));
-                     deferred.reject();
-                 }
-              }, function (error) {
-                 MessageService.addError ('Could not Remove Service', error);
-                 deferred.reject();
-              });
-          }
+          };
 
           /** Select a service, and find the associated files **/
           this.selectService = function(service){
               this.params.development.selectedService = angular.copy(service);
+              this.params.development.selectedService.files = [];
               this.params.development.displayRight = true;
 
               getServiceFiles(service).then(function(serviceFiles){
@@ -295,7 +279,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
               return deferred.promise;
           }
 
-          var that = this;
           function getFileDetails(file){
               productsAPI.from(file._links.self.href)
                       .newRequest()
@@ -303,15 +286,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                       .result
                       .then(
              function (document) {
-                 if(document.filename === 'Dockerfile'){
-                     that.params.development.selectedService.dockerfile = document;
-                 }
-                 else if(document.filename === 'workflow.sh'){
-                     that.params.development.selectedService.workflow = document;
-                 }
+                 that.params.development.selectedService.files.push(document);
+                 that.params.development.selectedService.files.sort(sortFiles);
              }, function (error) {
                  MessageService.addError ('Could not Get Service File', error);
              });
+          }
+
+          function sortFiles(a, b){
+              var aId = parseInt(a._links.self.href.substring(a._links.self.href.lastIndexOf('/')+1));
+              var bId = parseInt(b._links.self.href.substring(b._links.self.href.lastIndexOf('/')+1));
+
+              return aId - bId;
           }
 
           var DEFAULT_DOCKERFILE;

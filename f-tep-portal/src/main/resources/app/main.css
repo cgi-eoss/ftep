@@ -1568,6 +1568,9 @@
   -ms-flex: 0 1 auto;
       flex: 0 1 auto;
 }
+#developer-container #service-container .right-container #service-form #service-description {
+  width: 100%;
+}
 #developer-container #service-container .right-container #service-form #editor-tabs {
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;

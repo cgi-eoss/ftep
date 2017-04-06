@@ -40,47 +40,6 @@ define(['../ftepmodules'], function (ftepmodules) {
             return angular.copy(developerSideNavs);
         };
 
-        this.startPolling = function() {
-
-            var polling = {
-                projects: false,
-                jobs: false,
-                services: false,
-                baskets: false,
-                files: false,
-                groups: false,
-                users: false
-            };
-
-            switch (this.navInfo.activeTab) {
-                case tabs.EXPLORER:
-                    polling.projects = true;
-                    polling.jobs = true;
-                    polling.services = true;
-                    polling.baskets = true;
-                    break;
-                case tabs.DEVELOPER:
-                    polling.services = true;
-                    break;
-                case tabs.COMMUNITY:
-                    polling.projects = true;
-                    polling.jobs = true;
-                    polling.services = true;
-                    polling.baskets = true;
-                    polling.files = true;
-                    polling.groups = true;
-                    polling.users = true;
-                    break;
-                case tabs.ACCOUNT:
-                case tabs.HELPDESK:
-                    break;
-            }
-
-            return polling;
-
-        };
-
-
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
                 activeTab: tabs.EXPLORER,

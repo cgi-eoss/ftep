@@ -43,35 +43,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /** END OF BOTTOM BAR **/
 
-        /* Create Databasket Modal */
-        $scope.newBasket = {name: undefined, description: undefined};
-        $scope.createDatabasketDialog = function($event, selectedItems) {
-            function CreateDatabasketController($scope, $mdDialog, BasketService) {
-                $scope.items = selectedItems;
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-                $scope.addBasket = function(items) {
-                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description, items).then(function(data){
-                        $rootScope.$broadcast('add.basket', data);
-                    });
-                    $mdDialog.hide();
-                };
-            }
-            CreateDatabasketController.$inject = ['$scope', '$mdDialog', 'BasketService'];
-            $mdDialog.show({
-              controller: CreateDatabasketController,
-              templateUrl: 'views/explorer/templates/createdatabasket.tmpl.html',
-              parent: angular.element(document.body),
-              targetEvent: $event,
-              clickOutsideToClose: true,
-              locals: {
-                  items: $scope.items
-              }
-           });
-
-        };
-
         /* Show Result Metadata Modal */
         $scope.showMetadata = function($event, data) {
             function MetadataController($scope, $mdDialog, ftepProperties) {

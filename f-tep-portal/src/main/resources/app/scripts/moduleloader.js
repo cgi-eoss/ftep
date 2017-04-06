@@ -60,7 +60,6 @@ define([
     './services/messageservice',
     './services/projectservice',
     './services/productservice',
-    './services/referenceservice',
     './services/tabservice',
     './services/userservice',
     './services/wpsservice'

@@ -8,7 +8,8 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'ReferenceService',function ($scope, TabService, MessageService, ReferenceService) {
+    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService',
+                                             function ($scope, TabService, MessageService) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo;

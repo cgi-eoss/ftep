@@ -26,7 +26,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.quickSearch = function (item) {
-            if (item.name.toLowerCase().indexOf(
+            if (item.filename.toLowerCase().indexOf(
                 $scope.itemSearch.searchText.toLowerCase()) > -1) {
                 return true;
             }
@@ -34,16 +34,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Remove file from databasket */
-        $scope.removeItem = function() {
-            BasketService.removeItemV2($scope.basketParams.selectedDatabasket).then(function (data) {
-                BasketService.refreshDatabasketsV2("Community");
+        $scope.removeItem = function(files, file) {
+            BasketService.removeItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {
+                BasketService.refreshDatabaskets("community");
             });
         };
 
         /* Remove all files from databasket */
-        $scope.clearDatabasket = function(file) {
-            BasketService.clearDatabasketV2($scope.basketParams.selectedDatabasket, $scope.basketParams.items, file).then(function (data) {
-                BasketService.refreshDatabasketsV2("Community");
+        $scope.clearDatabasket = function() {
+            BasketService.clearDatabasket($scope.basketParams.selectedDatabasket).then(function (data) {
+                BasketService.refreshDatabaskets("community");
             });
         };
 
@@ -72,7 +72,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.itemSearch = { searchText: "" };
 
                 $scope.quickSearch = function (item) {
-                    if (item.name.toLowerCase().indexOf(
+                    if (item.filename.toLowerCase().indexOf(
                         $scope.itemSearch.searchText.toLowerCase()) > -1) {
                         return true;
                     }
@@ -140,8 +140,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.submitEnabled = false;
 
                     /* Add files to databasket and update selected databasket */
-                    BasketService.addItemsV2($scope.basketParams.selectedDatabasket, $scope.addedFiles).then(function (data) {
-                        BasketService.refreshDatabasketsV2("Community");
+                    BasketService.addItems($scope.basketParams.selectedDatabasket, $scope.addedFiles).then(function (data) {
+                        BasketService.refreshDatabaskets("community");
                         $mdDialog.hide();
                     });
 

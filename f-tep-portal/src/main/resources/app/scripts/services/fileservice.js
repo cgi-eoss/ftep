@@ -11,7 +11,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
     ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'UserService', 'CommunityService', 'traverson', '$rootScope', '$timeout', function (ftepProperties, $q, MessageService, TabService, UserService, CommunityService, traverson, $rootScope, $timeout) {
 
-        var that = this;
+        var self = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -25,8 +25,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         UserService.getCurrentUser().then(function(currentUser){
-            that.fileOwnershipFilters.MY_FILES.criteria = { owner: {name: currentUser.name } };
-            that.fileOwnershipFilters.SHARED_FILES.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            self.fileOwnershipFilters.MY_FILES.criteria = { owner: {name: currentUser.name } };
+            self.fileOwnershipFilters.SHARED_FILES.criteria = { owner: {name: "!".concat(currentUser.name) } };
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -41,7 +41,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnerhipFilter: that.fileOwnershipFilters.ALL_FILES,
+                selectedOwnerhipFilter: self.fileOwnershipFilters.ALL_FILES,
                 showFiles: true
              }
         };
@@ -49,6 +49,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
+        var startPolling = true;
 
         var pollFtepFiles = function () {
             $timeout(function () {
@@ -63,28 +64,26 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             .follow('findByType')
                             .withRequestOptions({
                                 qs: {
-                                    type: that.params.community.activeFileType
+                                    type: self.params.community.activeFileType
                                 }
                             })
                             .getResource()
                             .result
                             .then(function (document) {
                                 $rootScope.$broadcast('poll.ftepfiles', document._embedded.ftepFiles);
-                                if (TabService.startPolling().files) {
-                                    pollFtepFiles();
-                                }
-                            }, function (error) {
+                                pollFtepFiles();
+                             }, function (error) {
                                 MessageService.addError('Could not get Files', error);
-                                pollCount -= 1;
-                                if (pollCount >= 0 && TabService.startPolling().files) {
+                                if (pollCount > 0) {
+                                    pollCount -= 1;
                                     pollFtepFiles();
                                 }
                             });
                     });
                 }, function (error) {
                     MessageService.addError('Could not get Files', error);
-                    pollCount -= 1;
-                    if (pollCount >= 0 && TabService.startPolling().files) {
+                    if (pollCount > 0) {
+                        pollCount -= 1;
                         pollFtepFiles();
                     }
                 });
@@ -111,8 +110,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         .getResource()
                         .result
                         .then(function (document) {
-                            if (TabService.startPolling().files) {
+                            if (startPolling) {
                                 pollFtepFiles();
+                                startPolling = false;
                             }
                             deferred.resolve(document._embedded.ftepFiles);
                         }, function (error) {
@@ -149,8 +149,32 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
+        this.uploadFile = function (newReference) {
+            var deferred = $q.defer();
+            var file = newReference.file;
+            if (!file.$error) {
+                Upload.upload({
+                    url: ftepProperties.URLv2 + '/ftepFiles/refData',
+                    data: {
+                        file: file,
+                        geometry: newReference.geometry
+                    }
+                }).then(function (resp) {
+                    MessageService.addInfo('File uploaded', 'Success '.concat(resp.config.data.file.name).concat(' uploaded.'));
+                    deferred.resolve(resp);
+                }, function (resp) {
+                    MessageService.addError('Error in file upload', resp.data ? resp.data : resp);
+                    deferred.reject();
+                }, function (evt) {
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            }
+            return deferred.promise;
+        };
+
         this.updateFtepFile = function (file) {
-            var newfile = {name: file.name, description: file.description, geometry: file.geometry, tags: file.tags};
+            var newfile = {name: file.filename, description: file.description, geometry: file.geometry, tags: file.tags};
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/ftepFiles/' + file.id)
                          .newRequest()
@@ -158,8 +182,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('File successfully updated');
-                    resolve(document);
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('File successfully updated');
+                        resolve(document);
+                    } else {
+                        MessageService.addError ('Failed to Update File', document);
+                        reject();
+                    }
                 }, function (error) {
                     MessageService.addError('Failed to update File', error);
                     reject();
@@ -167,9 +196,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        var getFileV2 = function (file) {
+        var getFile = function (file) {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/ftepFiles/' + file.id)
+            halAPI.from(rootUri + '/ftepFiles/' + file.id + "?projection=detailedFtepFile")
                      .newRequest()
                      .getResource()
                      .result
@@ -183,37 +212,37 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshFtepFilesV2 = function (service, action, file) {
+        this.refreshFtepFiles = function (service, action, file) {
 
             if(service === "Community") {
 
-                that.getFtepFiles(that.params.community.activeFileType).then(function (data) {
-                    that.params.community.files = data;
+                self.getFtepFiles(self.params.community.activeFileType).then(function (data) {
+                    self.params.community.files = data;
 
                     /* Clear file if deleted */
                     if (action === "Remove") {
-                        if (file && file.id === that.params.community.selectedFile.id) {
-                            that.params.community.selectedFile = undefined;
-                            that.params.community.fileDetails = undefined;
+                        if (file && file.id === self.params.community.selectedFile.id) {
+                            self.params.community.selectedFile = undefined;
+                            self.params.community.fileDetails = undefined;
                         }
                     }
 
                     /* Update the selected file */
-                    that.refreshSelectedFtepFileV2("Community");
+                    self.refreshSelectedFtepFile("Community");
 
                 });
             }
         };
 
-        this.refreshSelectedFtepFileV2 = function (service) {
+        this.refreshSelectedFtepFile = function (service) {
 
             if (service === "Community") {
                 /* Get file contents if selected */
-                if (that.params.community.selectedFile) {
-                    getFileV2(that.params.community.selectedFile).then(function (file) {
-                        that.params.community.fileDetails = file;
+                if (self.params.community.selectedFile) {
+                    getFile(self.params.community.selectedFile).then(function (file) {
+                        self.params.community.fileDetails = file;
                         CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {
-                            that.params.community.sharedGroups = data;
+                            self.params.community.sharedGroups = data;
                         });
                     });
                 }

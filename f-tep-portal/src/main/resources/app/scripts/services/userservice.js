@@ -30,8 +30,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 }
         };
 
-        var that = this;
-
         this.getCurrentUser = function(){
             var deferred = $q.defer();
             usersAPI.from(ftepProperties.URLv2 + '/currentUser')

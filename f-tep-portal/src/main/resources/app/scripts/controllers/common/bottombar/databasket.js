@@ -8,176 +8,109 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService', 'TabService', function ($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService) {
+    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', 'CommonService', 'BasketService', 'TabService', function ($scope, $rootScope, CommonService, BasketService, TabService) {
 
         $scope.dbPaging = BasketService.pagingData;
         $scope.dbParams = BasketService.params.explorer;
         $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
 
-        $scope.databaskets = BasketService.getBasketCache().data;
-
-        var collectedFiles = {};
-
-        $scope.fetchDbPage = function (page, noCache) {
-            $scope.dbPaging.dbCurrentPage = page;
-            BasketService.getDatabaskets(page, $scope.dbPaging.dbPageSize, noCache).then(function (result) {
-                $scope.databaskets = result.data;
-                $scope.dbPaging.dbTotal = result.meta.total;
-                collectFiles(result.included);
-            });
-        };
-
-        function collectFiles(files) {
-            collectedFiles = {};
-            if(files){
-                for (var i = 0; i < files.length; i++) {
-                    collectedFiles[files[i].id] = files[i];
-                }
-            }
-        }
-
-        $scope.$on('add.basket', function (event, basket) {
-            $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
-        });
-
-        $scope.$on('refresh.databaskets', function (event, result) {
-            $scope.databaskets = result.data;
-            $scope.dbPaging.dbTotal = result.meta.total;
-            collectFiles(result.included);
-        });
-
-        $scope.removeDatabasket = function (event, basket) {
-            CommonService.confirm(event, 'Are you sure you want to delete databasket ' + basket.attributes.name + "?").then(function (confirmed) {
-                if (confirmed === false) {
-                    return;
-                }
-                BasketService.removeBasket(basket).then(function (data) {
-                    if(angular.equals(basket, $scope.dbParams.selectedDatabasket)){
-                        delete $scope.dbParams.selectedDatabasket;
-                    }
-                    if ($scope.databaskets.length === 0) {
-                        $scope.dbPaging.dbCurrentPage = $scope.dbPaging.dbCurrentPage - 1;
-                    }
-                    $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
-                });
-            });
-        };
-
         $scope.toggleFilters = function () {
             $scope.dbParams.displayFilters = !$scope.dbParams.displayFilters;
-            $scope.$broadcast('rebuild:scrollbar');
         };
 
-        $scope.databasketSearch = function (item) {
-            if (item.attributes.name.toLowerCase().indexOf(
+        $scope.databasketSearch = function (basket) {
+            if (basket.name.toLowerCase().indexOf(
                 $scope.dbParams.searchText.toLowerCase()) > -1) {
                 return true;
             }
             return false;
         };
 
+        /* Get Databaskets */
+        BasketService.refreshDatabaskets("explorer");
 
-        /* Show databasket items on map */
-        $scope.dbLoaded = {
-            id: undefined
+        /* Update Databaskets when polling */
+        $scope.$on('poll.baskets', function (event, data) {
+            $scope.dbParams.databaskets = data;
+        });
+
+        /* Edit existing databasket's name and description */
+        $scope.editDatabasket = function($event, basket) {
+            CommonService.editItemDialog($event, basket, 'BasketService', 'updateDatabasket').then(function (updatedBasket) {
+                BasketService.refreshDatabaskets("explorer");
+            });
+        };
+
+        $scope.removeDatabasket = function (event, basket) {
+            CommonService.confirm(event, 'Are you sure you want to delete databasket ' + basket.name + "?").then(function (confirmed) {
+                if (confirmed === false) {
+                    return;
+                }
+                BasketService.removeDatabasket(basket).then(function (data) {
+                    BasketService.refreshDatabaskets("explorer", "Remove", basket);
+                });
+            });
         };
 
         $scope.loadBasket = function (basket) {
-            var basketFiles = [];
-            $scope.dbLoaded.id = basket.id;
-            if (basket.relationships.files && basket.relationships.files.data.length > 0) {
-                for (var i = 0; i < basket.relationships.files.data.length; i++) {
-                    var file = collectedFiles[basket.relationships.files.data[i].id];
-                    basketFiles.push(file);
-                }
-            }
-            $rootScope.$broadcast('upload.basket', basketFiles);
+            BasketService.getDatabasketContents(basket).then(function(files){
+                $rootScope.$broadcast('upload.basket', files);
+            });
         };
 
         /* Hide databasket items on map */
         $scope.unloadBasket = function (basket) {
             $rootScope.$broadcast('unload.basket');
-            $scope.dbLoaded.id = undefined;
-        };
-
-        /* Edit existing databasket's name and description */
-        $scope.editDatabasketDialog = function($event, selectedBasket) {
-            function EditDatabasketController($scope, $mdDialog, BasketService) {
-                $scope.editableBasket = angular.copy(selectedBasket);
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-                $scope.updateDatabasket = function (basket) {
-                    BasketService.updateBasket(basket).then(function () {
-                        $scope.fetchDbPage($scope.dbPaging.dbCurrentPage, true);
-                    });
-                    $mdDialog.hide();
-                };
-            }
-            EditDatabasketController.$inject = ['$scope', '$mdDialog', 'BasketService'];
-            $mdDialog.show({
-                controller: EditDatabasketController,
-                templateUrl: 'views/common/bottombar/templates/editdatabasket.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true
-            });
-
+            $scope.dbParams.databasketOnMap.id = undefined;
         };
 
         $scope.cloneDatabasket = function (event, basket) {
-            BasketService.getItems(basket).then(function (result) {
-                $scope.createDatabasketDialog(event, result.files);
+            CommonService.createItemDialog(event, 'BasketService', 'createDatabasket').then(function (newBasket) {
+                BasketService.getDatabasketContents(basket).then(function(files){
+                    BasketService.addItems(newBasket, files).then(function(data){
+                        BasketService.refreshDatabaskets("explorer");
+                    });
+                });
             });
-        };
-
-        $scope.getBasketDragItems = function (basket) {
-            var files = [];
-            if (basket.relationships.files && basket.relationships.files.data.length > 0) {
-                for (var i = 0; i < basket.relationships.files.data.length; i++) {
-                    var file = collectedFiles[basket.relationships.files.data[i].id];
-                    files.push(file);
-                }
-            }
-            return files;
         };
 
         /* Selected Databasket */
 
         $scope.selectDatabasket = function (basket) {
-            BasketService.getItems(basket).then(function (result) {
-                $scope.dbParams.selectedDatabasket = basket;
-                $scope.dbParams.selectedDatabasket.items= result.files;
-            });
+            $scope.dbParams.selectedDatabasket = basket;
+            BasketService.refreshSelectedBasket("explorer");
         };
 
         $scope.clearDatabasket = function() {
-            BasketService.clearBasket($scope.dbParams.selectedDatabasket);
-            $scope.dbParams.selectedDatabasket.items = [];
+            BasketService.clearDatabasket($scope.basketParams.selectedDatabasket).then(function (data) {
+                BasketService.refreshDatabaskets("explorer");
+            });
         };
 
         $scope.removeItemFromBasket = function(item) {
-            if(item.name){
-                BasketService.removeRelation($scope.dbParams.selectedDatabasket, item).then(function() {
-                    removeFromBasket(item);
-                });
-            }
-            else{
-                removeFromBasket(item);
-            }
+            BasketService.removeItem($scope.basketParams.selectedDatabasket, $scope.basketParams.items, item).then(function (data) {
+                BasketService.refreshDatabaskets("explorer");
+            });
         };
+        /* End of Selected Databasket */
 
-        function removeFromBasket(item){
-            var i = $scope.dbParams.selectedDatabasket.items.indexOf(item);
-            $scope.dbParams.selectedDatabasket.items.splice(i, 1);
-        }
-
+        // Get item for dragging
         $scope.getBasketItem = function(item){
-            if(item.properties){
-                return item.properties.details.file.path;
+            if(item){
+                return item._links.self.href;
             }
             return '';
         };
-        /* End of Selected Databasket */
+
+        // Get all basket items for dragging
+        $scope.getBasketDragItems = function (basket) {
+            BasketService.getDatabasketContents(basket).then(function(files){
+                var links = [];
+                for(var i = 0; i < files.length; i++){
+                    links.push(files[i]._links.self.href);
+                }
+                return links;
+            });
+        };
     }]);
 });

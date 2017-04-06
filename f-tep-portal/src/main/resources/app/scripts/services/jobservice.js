@@ -82,6 +82,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
+        var startPolling = true;
 
         var pollJobsV2 = function () {
             $timeout(function () {
@@ -91,14 +92,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(function (document) {
                         $rootScope.$broadcast('poll.jobsV2', document._embedded.jobs);
-                        if(TabService.startPolling().jobs) {
-                            pollJobsV2();
-                        }
+                        pollJobsV2();
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Jobs', error);
-                        pollCount -= 1;
-                        if (pollCount >= 0 && TabService.startPolling().jobs) {
+                        if (pollCount > 0) {
+                            pollCount -= 1;
                             pollJobsV2();
                         }
                     });
@@ -113,8 +112,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    if(TabService.startPolling().jobs) {
+                    if(startPolling) {
                         pollJobsV2();
+                        startPolling = false;
                     }
                     deferred.resolve(document._embedded.jobs);
                 }, function (error) {

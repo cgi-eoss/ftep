@@ -11,33 +11,36 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
     ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, traverson) {
 
-        var that = this;
+        var self = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
+        /** PRESERVE USER SELECTIONS **/
         this.dbOwnershipFilters = {
-            ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
-            MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
-            SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
+                MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
+                SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
         };
 
         UserService.getCurrentUser().then(function(currentUser){
-            that.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
-            that.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            self.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
+            self.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
         });
 
-        /** PRESERVE USER SELECTIONS **/
         this.params = {
             explorer: {
+                databaskets: undefined,
+                items: undefined,
                 selectedDatabasket: undefined,
                 selectedItems: undefined,
                 searchText: '',
                 displayFilters: false,
                 showBaskets: true,
-                selectedOwnerhipFilter: that.dbOwnershipFilters.ALL_BASKETS
+                databasketOnMap: {id: undefined},
+                selectedOwnerhipFilter: self.dbOwnershipFilters.ALL_BASKETS
             },
             community: {
                 databaskets: undefined,
@@ -51,22 +54,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: that.dbOwnershipFilters.ALL_BASKETS,
+                selectedOwnershipFilter: self.dbOwnershipFilters.ALL_BASKETS,
                 showBaskets: true
             }
         };
 
-        this.pagingData = {
-            dbCurrentPage: 1,
-            dbPageSize: 10,
-            dbTotal: 0
-        };
         /** END OF PRESERVE USER SELECTIONS **/
 
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
+        var startPolling = true;
 
-        var pollDatabasketsV2 = function () {
+        var pollDatabaskets = function () {
             $timeout(function () {
                 halAPI.from(rootUri + '/databaskets/')
                     .newRequest()
@@ -74,29 +73,28 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(function (document) {
                         $rootScope.$broadcast('poll.baskets', document._embedded.databaskets);
-                        if(TabService.startPolling().baskets) {
-                            pollDatabasketsV2();
-                        }
+                        pollDatabaskets();
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Databaskets', error);
-                        pollCount -= 1;
-                        if (pollCount >= 0 && TabService.startPolling().baskets) {
-                            pollDatabasketsV2();
+                        if (pollCount > 0) {
+                            pollCount -= 1;
+                            pollDatabaskets();
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        var getDatabasketsV2 = function () {
+        var getDatabaskets = function () {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/')
                 .newRequest()
                 .getResource()
                 .result
                 .then(function (document) {
-                    if (TabService.startPolling().baskets) {
-                        pollDatabasketsV2();
+                    if (startPolling) {
+                        pollDatabaskets();
+                        startPolling = false;
                     }
                     deferred.resolve(document._embedded.databaskets);
                 }, function (error) {
@@ -107,7 +105,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createDatabasketV2 = function (name, desc) {
+        this.createDatabasket = function (name, desc) {
             return $q(function(resolve, reject) {
                 var databasket = {name: name, description: (desc ? desc : '')};
                 halAPI.from(rootUri + '/databaskets/')
@@ -125,7 +123,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.removeDatabasketV2 = function(databasket) {
+        this.removeDatabasket = function(databasket) {
             return $q(function(resolve, reject) {
                 deleteAPI.from(rootUri + '/databaskets/' + databasket.id)
                          .newRequest()
@@ -147,7 +145,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.updateDatabasketV2 = function (databasket) {
+        this.updateDatabasket = function (databasket) {
             var newdatabasket = {name: databasket.name, description: databasket.description};
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/databaskets/' + databasket.id)
@@ -165,7 +163,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        var getDatabasketV2 = function(databasket) {
+        var getDatabasket = function(databasket) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + databasket.id)
                      .newRequest()
@@ -181,7 +179,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getDatabasketContentsV2 = function(databasket) {
+        this.getDatabasketContents = function(databasket) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + databasket.id)
                      .newRequest()
@@ -198,67 +196,63 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshDatabasketsV2 = function (service, action, basket) {
+        this.refreshDatabaskets = function (page, action, basket) {
 
-            if (service === "Community") {
+            /* Get databasket list */
+            getDatabaskets().then(function (data) {
 
-                /* Get databasket list */
-                getDatabasketsV2().then(function (data) {
+                self.params[page].databaskets = data;
 
-                    that.params.community.databaskets = data;
-
-                    /* Select last databasket if created */
-                    if (action === "Create") {
-                        that.params.community.selectedDatabasket = that.params.community.databaskets[that.params.community.databaskets.length-1];
-                    }
-
-                    /* Clear basket if deleted */
-                    if (action === "Remove") {
-                        if (basket && basket.id === that.params.community.selectedDatabasket.id) {
-                            that.params.community.selectedDatabasket = undefined;
-                            that.params.community.items = [];
-                        }
-                    }
-
-                    /* Update the selected basket */
-                    that.refreshSelectedBasketV2("Community");
-
-                });
-
-            }
-
-        };
-
-        this.refreshSelectedBasketV2 = function (service) {
-
-            if (service === "Community") {
-                /* Get basket contents if selected */
-                if (that.params.community.selectedDatabasket) {
-
-                    getDatabasketV2(that.params.community.selectedDatabasket).then(function (basket) {
-                        that.params.community.selectedDatabasket = basket;
-                        getDatabasketContentsV2(basket).then(function (data) {
-                            that.params.community.items = data;
-                        });
-                        CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
-                            that.params.community.sharedGroups = data;
-                        });
-                    });
+                /* Select last databasket if created */
+                if (action === "Create") {
+                    self.params[page].selectedDatabasket = self.params[page].databaskets[self.params[page].databaskets.length-1];
                 }
-            }
 
+                /* Clear basket if deleted */
+                if (action === "Remove") {
+                    if (basket && self.params[page].selectedDatabasket && basket.id === self.params[page].selectedDatabasket.id) {
+                        self.params[page].selectedDatabasket = undefined;
+                        self.params[page].items = [];
+                    }
+                }
+
+                /* Update the selected basket */
+                self.refreshSelectedBasket(page);
+
+            });
         };
 
-        this.addItemsV2 = function (databasket, files) {
+        this.refreshSelectedBasket = function (page) {
+
+            /* Get basket contents if selected */
+            if (self.params[page].selectedDatabasket) {
+
+                getDatabasket(self.params[page].selectedDatabasket).then(function (basket) {
+                    self.params[page].selectedDatabasket = basket;
+                    self.getDatabasketContents(basket).then(function (data) {
+                        self.params[page].items = data;
+                    });
+
+                    if(page === 'community'){
+                        CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
+                            self.params.community.sharedGroups = data;
+                        });
+                    }
+                });
+            }
+        };
+
+        this.addItems = function (databasket, files) {
             return $q(function(resolve, reject) {
 
-                /* Create array of item links */
                 var itemsArray = [];
+
+                /* Collect links from current items */
                 for (var item in databasket.items) {
                     itemsArray.push(databasket.items[item]._links.self.href);
                 }
 
-                /* Append item to new items array */
+                /* Append links of new items */
                 for (var file in files) {
                     itemsArray.push(files[file]._links.self.href);
                 }
@@ -273,11 +267,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                   if (200 <= document.status && document.status < 300) {
-                        MessageService.addError ('Failed to add file/s to Databasket', document);
+                    if (200 <= document.status && document.status < 300) {
+                        MessageService.addInfo('Files successfully added');
                         reject();
                     } else {
-                        MessageService.addInfo('Files successfully added');
+                        MessageService.addError ('Failed to add file/s to Databasket', document);
                         resolve(document);
                     }
                 }, function (error) {
@@ -288,7 +282,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.removeItemV2 = function(databasket, files, file) {
+        this.removeItem = function(databasket, files, file) {
             return $q(function(resolve, reject) {
 
                 /* Create array of user links */
@@ -311,7 +305,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('File removed from Databasket', 'File '.concat(file.name).concat('removed from ').concat(databasket.name));
+                        MessageService.addInfo('File removed from Databasket', 'File '.concat(file.filename).concat('removed from ').concat(databasket.name));
                         resolve(databasket);
                     } else {
                         MessageService.addError ('Failed to remove item from Databasket', document);
@@ -324,7 +318,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.clearDatabasketV2 = function(databasket) {
+        this.clearDatabasket = function(databasket) {
             return $q(function(resolve, reject) {
 
                 /* Set list of files to empty array */
@@ -351,326 +345,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-
-
-
-
-
-
-
-
-        /** API V1 **/
-
-          /** Set the header defaults **/
-          $http.defaults.headers.post['Content-Type'] = 'application/json';
-          $http.defaults.withCredentials = true;
-
-          var pNumber, pSize;
-          var basketListCache = { data:[] };
-          var is_polling = false;
-          //var POLLING_FREQUENCY = 20 * 1000;
-          var connectionError = false, retriesLeft = 3;
-
-          var USE_TEST_DATA = false;
-
-          this.getBasketCache = function(){
-              return basketListCache;
-          };
-
-          /** GET DATABASKETS & POLL **/
-          this.getDatabaskets = function(pageNumber, pageSize, noCache){
-              if(USE_TEST_DATA){
-                  var deferred = $q.defer();
-                  $timeout(function () {
-                      getTestData(deferred);
-                  }, 100);
-                  return deferred.promise;
-              }
-              else{
-                if(noCache && noCache === true){
-                    return retrieveDatabaskets(pageNumber, pageSize);
-                }
-                else if(is_polling && pNumber === pageNumber){
-                    return $q.when(basketListCache);
-                }
-                else {
-                    pNumber = pageNumber;
-                    pSize = pageSize;
-                    return pollDatabaskets(pageNumber, pageSize);
-                }
-              }
-          };
-
-          //TODO only for prototyping
-          function getTestData(deferred){
-              console.log('USING TEST DATA for databaskets');
-              $.getJSON("temp_data/test_databaskets.json", function(json) {
-                  basketListCache = json;
-                  deferred.resolve(json);
-                  $rootScope.$broadcast('refresh.databaskets', json);
-              })
-              .fail(function(e) {
-                console.log( "error", e );
-              });
-          }
-
-          // fetch the databaskets once
-          function retrieveDatabaskets(pageNumber, pageSize){
-              var deferred = $q.defer();
-              var parameters = {
-                  'page[size]': pageSize,
-                  'page[number]': pageNumber,
-                  include: 'files'
-              };
-
-              $http({
-                      method: 'GET',
-                      url: ftepProperties.URL + '/databaskets',
-                      params: parameters,
-                  })
-                  .then(function (response) {
-                      basketListCache = response.data;
-                      deferred.resolve(response.data);
-                  });
-              return deferred.promise;
-          }
-
-          var pollDatabaskets = function (pageNumber, pageSize) {
-              if (connectionError && retriesLeft === 0) {
-                  retriesLeft = 3;
-                  connectionError = false;
-              } else {
-                  if (pNumber === pageNumber && pSize === pageSize) {
-
-                      var deferred = $q.defer();
-                      var parameters = {
-                          'page[size]': pageSize,
-                          'page[number]': pageNumber,
-                          include: 'files'
-                      };
-
-                      $http({
-                              method: 'GET',
-                              url: ftepProperties.URL + '/databaskets',
-                              params: parameters,
-                          })
-                          .then(function (response) {
-                              if (angular.equals(basketListCache, response.data) == false) {
-                                  basketListCache = response.data;
-                                  $rootScope.$broadcast('refresh.databaskets', response.data);
-                              }
-                              deferred.resolve(response.data);
-                              retriesLeft = 3;
-                              connectionError = false;
-                          })
-                          .catch(function (e) {
-                              connectionError = true;
-                              MessageService.addError(
-                                  'Could not get databaskets',
-                                  'Could not get databaskets. Retries left: ' + retriesLeft
-                              );
-                              retriesLeft--;
-                              deferred.reject();
-                          })
-                          .finally(function () {
-                              is_polling = true;
-                              $timeout(function () {
-                                  pollDatabaskets(pageNumber, pageSize);
-                              }, POLLING_FREQUENCY);
-                          });
-                      return deferred.promise;
-                  }
-              }
-          };
-          /** END OF GET DATABASKETS & POLL **/
-
-          /** GET DATABASKET ITEMS **/
-          this.getItems = function(databasket){
-              var deferred = $q.defer();
-              $http({
-                  method: 'GET',
-                  url: ftepProperties.URL + '/databaskets/' + databasket.id + '/relationships/files'
-              })
-              .then(function(response) {
-                  deferred.resolve(response.data);
-              })
-              .catch(function(e){
-                  MessageService.addError(
-                      'Could not get databasket',
-                      'Could not get databasket items'
-                  );
-                  deferred.reject();
-              });
-              return deferred.promise;
-          };
-
-          /** END OF GET DATABASKET ITEMS **/
-
-          /** POST DATABASKET AND/OR RELATED PRODUCTS **/
-          this.createDatabasket = function(name, desc, items) {
-              return $q(function(resolve, reject) {
-                  var basket = {type: 'databaskets', attributes:{name: name, description: (desc ? desc : ''), databaskettype:'', accesslevel:''}};
-                  $http({
-                      method: 'POST',
-                      url: ftepProperties.URL + '/databaskets',
-                      data: '{"data": ' + JSON.stringify(basket) + '}',
-                  }).
-                  then(function(response) {
-                      if(items){
-                          addItems(response.data.data, items);
-                      }
-                      resolve(response.data.data);
-                      MessageService.addInfo('Databasket created', 'New databasket '.concat(name).concat(' created'));
-                  }).
-                  catch(function(e) {
-                      if(e.status == 409){
-                          MessageService.addError(
-                              'Could not create databasket',
-                              'Conflicts with an already existing one'
-                          );
-                      }
-                      else {
-                          MessageService.addError('Could not create databasket', 'Could not create databasket: '.concat(name));
-                      }
-                      reject();
-                  });
-              });
-          };
-
-          function addItems(databasket, items){
-              var itemsList = [];
-              for(var i = 0; i < items.length; i++){
-                  if(items[i].identifier){ //TODO currently result items only
-                      itemsList.push({"type": "file", "url": items[i].meta, "name": items[i].identifier});
-                  }
-                  else if(items[i].name){ //or cloned from another basket
-                      itemsList.push({"type": "file", "url": items[i].url, "name": items[i].name});
-                  }
-              }
-
-              $http({
-                  method: 'POST',
-                  url: ftepProperties.URL + '/databaskets/' + databasket.id + '/relationships/files',
-                  data: '{"data": ' + JSON.stringify(itemsList) + '}',
-              });
-          }
-
-          this.addBasketItems = function(basket, items){
-              addItems(basket, items);
-          };
-
-          /** END OF POST DATABASKET AND/OR RELATED PRODUCTS **/
-
-          /** DELETE DATABASKET **/
-          this.removeBasket = function(basket){
-              /* First remove relationships */
-              return $q(function(resolve, reject) {
-                  $http({
-                      method: 'PATCH',
-                      url: ftepProperties.URL + '/databaskets/' + basket.id + '/relationships/files',
-                      data: '{"data": ' + JSON.stringify([]) + '}',
-                  }).
-                  then(function(response) {
-                      /* If successful, then the basket itself */
-                      $http({
-                          method: 'DELETE',
-                          url: ftepProperties.URL + '/databaskets/' + basket.id
-                      }).
-                      then(function(response) {
-                          resolve(basket);
-                          MessageService.addInfo('Databasket deleted', 'Databasket '.concat(basket.attributes.name).concat(' deleted'));
-                      }).
-                      catch(function(e) {
-                          MessageService.addError(
-                              'Failed to remove databasket'
-                          );
-                          console.log(e);
-                          reject();
-                      });
-                  }).
-                  catch(function(e) {
-                      MessageService.addError(
-                          'Failed to remove databasket items'
-                      );
-                      console.log(e);
-                      reject();
-                  });
-              });
-          };
-          /** END OF DELETE DATABASKET **/
-
-          /** REMOVE ALL FILES **/
-          this.clearBasket = function(basket){
-              return $q(function(resolve, reject) {
-                  $http({
-                      method: 'PATCH',
-                      url: ftepProperties.URL + '/databaskets/' + basket.id + '/relationships/files',
-                      data: '{"data": ' + JSON.stringify([]) + '}',
-                  }).
-                  catch(function(e) {
-                      MessageService.addError(
-                          'Failed to remove databasket items'
-                      );
-                      console.log(e);
-                      reject();
-                  });
-              });
-          };
-          /** END OF REMOVE ALL FILES **/
-
-          /** REMOVE A SINGLE FILE **/
-
-          this.removeRelation = function(basket, file){
-              var obj = {"type": "files", "name": file.name, "url": file.url, "datasource": null};
-              return $q(function(resolve, reject) {
-                  $http({
-                      method: 'DELETE',
-                      url: ftepProperties.URL + '/databaskets/' + basket.id + '/relationships/files',
-                      data: '{"data": ' + JSON.stringify(obj) + '}',
-                  }).
-                  then(function(response) {
-                      resolve(file);
-                  }).
-                  catch(function(e) {
-                      MessageService.addError(
-                          'Failed to remove databasket item'
-                      );
-                      console.log(e);
-                      reject();
-                  });
-              });
-          };
-
-          /** END OF REMOVE A SINGLE FILE **/
-
-          /** UPDATE DATABASKET **/
-          this.updateBasket = function(basket){
-              return $q(function(resolve, reject) {
-
-                  delete basket.attributes.id;
-                  $http({
-                      method: 'PATCH',
-                      url: ftepProperties.URL + '/databaskets/' + basket.id,
-                      data: '{"data": ' + JSON.stringify(basket) + '}',
-                  }).
-                  then(function(response) {
-                      resolve(basket);
-                      MessageService.addInfo('Databasket updated', 'Databasket '.concat(basket.attributes.name).concat(' updated'));
-                  }).
-                  catch(function(e) {
-                      MessageService.addError(
-                          'Failed to update databasket'
-                      );
-                      console.log(e);
-                      reject();
-                  });
-              });
-          };
-          /** END OF UPDATE DATABASKET **/
-
-          // Initiate the databasket list
-          this.getDatabaskets(this.pagingData.dbCurrentPage, this.pagingData.dbPageSize);
-
-          return this;
-      }]);
+        return this;
+    }]);
 });

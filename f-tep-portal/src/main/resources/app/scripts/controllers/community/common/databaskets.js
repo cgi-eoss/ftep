@@ -18,7 +18,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.item = "Databasket";
 
         /* Get Databaskets */
-        BasketService.refreshDatabasketsV2("Community");
+        BasketService.refreshDatabaskets("community");
 
         /* Update Databaskets when polling */
         $scope.$on('poll.baskets', function (event, data) {
@@ -28,7 +28,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Select a Databasket */
         $scope.selectBasket = function (item) {
             $scope.basketParams.selectedDatabasket = item;
-            BasketService.refreshSelectedBasketV2("Community");
+            BasketService.refreshSelectedBasket("community");
         };
 
         /* Filters */
@@ -65,22 +65,22 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Create Databasket */
         $scope.createItemDialog = function ($event) {
-            CommonService.createItemDialog($event, 'BasketService', 'createDatabasketV2').then(function (newBasket) {
-                BasketService.refreshDatabasketsV2("Community", "Create");
+            CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
+                BasketService.refreshDatabaskets("community", "Create");
             });
         };
 
         /* Remove Databasket */
         $scope.removeItem = function (key, item) {
-             BasketService.removeDatabasketV2(item).then(function (data) {
-                 BasketService.refreshDatabasketsV2("Community", "Remove", item);
+             BasketService.removeDatabasket(item).then(function (data) {
+                 BasketService.refreshDatabaskets("community", "Remove", item);
             });
         };
 
         /* Edit Databasket */
         $scope.editItemDialog = function ($event, item) {
-            CommonService.editItemDialog($event, item, 'BasketService', 'updateDatabasketV2').then(function (updatedBasket) {
-                BasketService.refreshDatabasketsV2("Community");
+            CommonService.editItemDialog($event, item, 'BasketService', 'updateDatabasket').then(function (updatedBasket) {
+                BasketService.refreshDatabaskets("community");
             });
         };
 

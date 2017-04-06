@@ -162,7 +162,7 @@ define([
         return {
             link: function(scope, element, attrs, ngModel) {
 
-                if(!attrs.hasPermission || ['READ', 'EDIT', 'ADMIN'].indexOf(attrs.hasPermission.toUpperCase() ) < 0) {
+                if(!attrs.hasPermission || ['READ', 'WRITE', 'ADMIN'].indexOf(attrs.hasPermission.toUpperCase() ) < 0) {
                     throw 'hasPermission must be set';
                 }
 
@@ -174,7 +174,7 @@ define([
                     var userPermission = 'READ'; //default user permission
                     if(attrs.permissionSource){
                         var permissionSource = JSON.parse(attrs.permissionSource);
-                        userPermission = (permissionSource.attributes.permissionLevel ? permissionSource.attributes.permissionLevel : 'READ');
+                        userPermission = (permissionSource.accessLevel ? permissionSource.accessLevel : 'READ');
                     }
 
                     var allowed = false;
@@ -182,8 +182,8 @@ define([
                         case 'READ':
                             allowed = true;
                             break;
-                        case 'EDIT':
-                            allowed = (['EDIT', 'ADMIN',].indexOf(userPermission.toUpperCase()) > -1);
+                        case 'WRITE':
+                            allowed = (['WRITE', 'ADMIN',].indexOf(userPermission.toUpperCase()) > -1);
                             break;
                         case 'ADMIN':
                             allowed = (['ADMIN'].indexOf(userPermission.toUpperCase()) > -1);
@@ -209,6 +209,8 @@ define([
                 attrs.$observe('permissionSource', function() {
                     checkPermission();
                 });
+
+                element.show();
 
             }
           };

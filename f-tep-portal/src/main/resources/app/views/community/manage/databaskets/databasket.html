@@ -79,18 +79,18 @@
 </section>
 
 <section class="item-list">
-    <md-list-item class="md-1-line" ng-repeat="file in basketParams.items | orderBy: 'name' | filter: quickSearch">
+    <md-list-item class="md-1-line" ng-repeat="file in basketParams.items | orderBy: 'filename' | filter: quickSearch">
 
         <div class="md-avatar" alt="access rights">
             <i class="material-icons">attach_file</i>
         </div>
 
         <div class="md-list-item-text" layout="column">
-            <h4 ng-bind="file.name" />
+            <h4 ng-bind="file.filename" />
         </div>
 
         <md-button class="toolbar-button md-secondary"
-                   ng-click="removeItem(file)"
+                   ng-click="removeItem(basketParams.items, file)"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

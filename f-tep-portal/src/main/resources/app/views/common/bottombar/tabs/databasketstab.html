@@ -13,7 +13,7 @@
                 <md-menu-item>
                      <md-button ng-click="clearDatabasket()"
                                 aria-label="Clear Databasket"
-                                has-permission="EDIT"
+                                has-permission="WRITE"
                                 permission-source="{{dbParams.selectedDatabasket}}"
                                 disable-on-check>
                         <span>
@@ -50,7 +50,7 @@
                     </md-menu>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-click="createNewBasket($event, dbParams.selectedDatabasket ? dbParams.selectedDatabasket.items : [])"
+                    <md-button ng-click="createNewBasket($event)"
                                aria-label="Create New Databasket">
                         <span>
                             <span class="material-icons">add_shopping_cart</span>
@@ -70,14 +70,14 @@
                uib-tooltip="Clear Databasket"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true"
-               has-permission="EDIT"
+               has-permission="WRITE"
                permission-source="{{dbParams.selectedDatabasket}}"
                disable-on-check>
         <i class="material-icons">remove_shopping_cart</i>
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-click="createNewBasket($event, dbParams.selectedDatabasket ? dbParams.selectedDatabasket.items : [])"
+               ng-click="createNewBasket($event)"
                aria-label="Create New Databasket"
                uib-tooltip="Create New Databasket"
                tooltip-trigger="mouseenter"

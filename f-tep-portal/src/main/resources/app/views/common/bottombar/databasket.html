@@ -6,10 +6,10 @@
          rebuild-on="rebuild:scrollbar"
          rebuild-on-resize>
 
-    <h3>{{dbParams.selectedDatabasket.attributes.name}}</h3>
-    <h4>{{dbParams.selectedDatabasket.attributes.description}}</h4>
+    <h3>{{dbParams.selectedDatabasket.name}}</h3>
+    <h4>{{dbParams.selectedDatabasket.description}}</h4>
 
-    <md-list-item class="md-2-line" ng-repeat="item in dbParams.selectedDatabasket.items">
+    <md-list-item class="md-2-line" ng-repeat="item in dbParams.items">
 
         <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
             <i class="material-icons"
@@ -20,7 +20,7 @@
         </div>
 
         <div class="md-list-item-text" layout="column">
-            {{item.identifier}}{{item.attributes.fname}}{{item.name}}
+            {{item.filename}}
         </div>
 
         <md-button class="toolbar-button md-secondary"
@@ -29,7 +29,7 @@
                    tooltip-placement="top"
                    tooltip-trigger="mouseenter"
                    tooltip-append-to-body="true"
-                   has-permission="EDIT"
+                   has-permission="WRITE"
                    permission-source="{{dbParams.selectedDatabasket}}">
             <i class="material-icons">close</i>
         </md-button>

@@ -7,7 +7,8 @@
  */
 'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService', function($scope, $rootScope, CommonService, TabService, BasketService, JobService, GeoService) {
+    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService',
+                                              function($scope, $rootScope, CommonService, TabService, BasketService, JobService, GeoService) {
 
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
         $scope.resultTab = TabService.resultTab;
@@ -21,49 +22,42 @@ define(['../../../ftepmodules'], function (ftepmodules) {
          *  Collects selected items based on active tab, and adds to the new databasket
          */
         $scope.createNewBasket = function($event){
-            var items = [];
-            switch($scope.navInfo.activeBottomNav){
-                case $scope.bottomNavTabs.RESULTS:
-                    items = $scope.resultParams.selectedResultItems;
-                    break;
-                case $scope.bottomNavTabs.JOBS:
-                    items = $scope.jobParams.jobSelectedOutputs;
-                    break;
-            }
-            $scope.createDatabasketDialog($event, items);
+            CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
+                BasketService.refreshDatabaskets("explorer", "Create");
+            });
         };
 
         /**
          * Collects selected items based on active tab, and adds to the selected databasket
          */
         $scope.addToDatabasket = function() {
-            var items = [];
-            switch($scope.navInfo.activeBottomNav){
-                case $scope.bottomNavTabs.RESULTS:
-                    items = $scope.resultParams.selectedResultItems;
-                    break;
-                case $scope.bottomNavTabs.JOBS:
-                    items = $scope.jobParams.jobSelectedOutputs;
-                    break;
-            }
-
-            for (var i = 0; i < items.length; i++) {
-                var found = false;
-                for(var k = 0; k < $scope.dbParams.selectedDatabasket.items.length; k++){
-                    if(angular.equals(items[i], $scope.dbParams.selectedDatabasket.items[k]) ||
-                    ($scope.dbParams.selectedDatabasket.items[k].name &&
-                    $scope.dbParams.selectedDatabasket.items[k].name === items[i].identifier)){
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found){
-                    $scope.dbParams.selectedDatabasket.items.push(items[i]);
-                }
-            }
-
-            BasketService.addBasketItems($scope.dbParams.selectedDatabasket, $scope.dbParams.selectedDatabasket.items);
-            $scope.$broadcast('rebuild:scrollbar');
+//            var items = [];
+//            switch($scope.navInfo.activeBottomNav){
+//                case $scope.bottomNavTabs.RESULTS:
+//                    items = $scope.resultParams.selectedResultItems;
+//                    break;
+//                case $scope.bottomNavTabs.JOBS:
+//                    items = $scope.jobParams.jobSelectedOutputs;
+//                    break;
+//            }
+//
+//            for (var i = 0; i < items.length; i++) {
+//                var found = false;
+//                for(var k = 0; k < $scope.dbParams.selectedDatabasket.items.length; k++){
+//                    if(angular.equals(items[i], $scope.dbParams.selectedDatabasket.items[k]) ||
+//                    ($scope.dbParams.selectedDatabasket.items[k].name &&
+//                    $scope.dbParams.selectedDatabasket.items[k].name === items[i].identifier)){
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if(!found){
+//                    $scope.dbParams.selectedDatabasket.items.push(items[i]);
+//                }
+//            }
+//
+//            BasketService.addBasketItems($scope.dbParams.selectedDatabasket, $scope.dbParams.selectedDatabasket.items);
+//            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.bottombarTall = false;

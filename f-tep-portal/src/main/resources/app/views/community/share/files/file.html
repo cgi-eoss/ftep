@@ -1,6 +1,6 @@
 <md-button id="save-file"
            class="save-button md-fab md-mini right"
-           ng-click="updateGroups(fileParams.selectedFile, 'ftepFile', fileParams.sharedGroups, 'FileService', 'refreshSelectedFtepFileV2')"
+           ng-click="updateGroups(fileParams.selectedFile, 'ftepFile', fileParams.sharedGroups, 'FileService', 'refreshSelectedFtepFile')"
            ng-disabled="serviceForm.$invalid"
            aria-label="Save File"
            uib-tooltip="Save File"
@@ -28,7 +28,7 @@
     <div class="col-xs-1 title-button">
         <h3>
             <md-button class="toolbar-button md-secondary"
-                       ng-click="shareObjectDialog($event, fileParams.selectedFile, 'ftepFile', fileParams.groups, 'FileService', 'refreshSelectedFtepFileV2')"
+                       ng-click="shareObjectDialog($event, fileParams.selectedFile, 'ftepFile', fileParams.groups, 'FileService', 'refreshSelectedFtepFile')"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"
@@ -106,7 +106,7 @@
         </md-input-container>
 
         <md-button class="toolbar-button md-secondary"
-                   ng-click="removeGroup(fileParams.selectedFile, 'ftepFile', ace.group, fileParams.groups, 'FileService', 'refreshSelectedFtepFileV2')"
+                   ng-click="removeGroup(fileParams.selectedFile, 'ftepFile', ace.group, fileParams.groups, 'FileService', 'refreshSelectedFtepFile')"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

@@ -18,12 +18,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.fileTags = ['File', 'Reference', 'testfile'];
 
-        $scope.tempFile = angular.copy($scope.fileParams.selectedFile);
-
         /* Patch file and update file list */
         $scope.saveFile = function() {
-            FileService.updateFtepFile($scope.tempFile).then(function (data) {
-                FileService.refreshFtepFilesV2("Community");
+            FileService.updateFtepFile($scope.fileParams.selectedFile).then(function (data) {
+                FileService.refreshFtepFiles("Community");
             });
         };
 

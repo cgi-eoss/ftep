@@ -11,7 +11,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
     ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'UserService', 'MessageService', 'TabService',  'CommunityService', 'traverson', '$timeout', '$rootScope', function (ftepProperties, $q, UserService, MessageService, TabService, CommunityService, traverson, $timeout, $rootScope) {
 
-        var that = this;
+        var self = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -25,8 +25,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         UserService.getCurrentUser().then(function(currentUser){
-            that.groupOwnershipFilters.MY_GROUPS.criteria = { owner: {name: currentUser.name } };
-            that.groupOwnershipFilters.SHARED_GROUPS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+            self.groupOwnershipFilters.MY_GROUPS.criteria = { owner: {name: currentUser.name } };
+            self.groupOwnershipFilters.SHARED_GROUPS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -39,13 +39,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: that.groupOwnershipFilters.ALL_GROUPS,
+                selectedOwnershipFilter: self.groupOwnershipFilters.ALL_GROUPS,
             }
         };
         /** END OF PRESERVE USER SELECTIONS **/
 
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
+        var startPolling = true;
 
         var pollGroupsV2 = function () {
             $timeout(function () {
@@ -55,14 +56,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(function (document) {
                         $rootScope.$broadcast('poll.groups', document._embedded.groups);
-                        if(TabService.startPolling().groups) {
-                            pollGroupsV2();
-                        }
+                        pollGroupsV2();
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Groups', error);
-                        pollCount -= 1;
-                        if (pollCount >= 0 && TabService.startPolling().groups) {
+                        if (pollCount > 0) {
+                            pollCount -= 1;
                             pollGroupsV2();
                         }
                     });
@@ -77,8 +76,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                      .result
                      .then(
             function (document) {
-                if(TabService.startPolling().baskets) {
+                if(startPolling) {
                     pollGroupsV2();
+                    startPolling = false;
                 }
                 deferred.resolve(document._embedded.groups);
             }, function (error) {
@@ -169,23 +169,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 /* Get group list */
                 this.getGroups().then(function (data) {
 
-                    that.params.community.groups = data;
+                    self.params.community.groups = data;
 
                     /* Select last group if created */
                     if (action === "Create") {
-                        that.params.community.selectedGroup = that.params.community.groups[that.params.community.groups.length-1];
+                        self.params.community.selectedGroup = self.params.community.groups[self.params.community.groups.length-1];
                     }
 
                     /* Clear group if deleted */
                     if (action === "Remove") {
-                        if (group && group.id === that.params.community.selectedGroup.id) {
-                            that.params.community.selectedGroup = undefined;
-                            that.params.community.groupUsers = [];
+                        if (group && group.id === self.params.community.selectedGroup.id) {
+                            self.params.community.selectedGroup = undefined;
+                            self.params.community.groupUsers = [];
                         }
                     }
 
                     /* Update the selected group */
-                    that.refreshSelectedGroupV2("Community");
+                    self.refreshSelectedGroupV2("Community");
 
                 });
 
@@ -197,14 +197,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             if (service === "Community") {
                 /* Get group contents if selected */
-                if (that.params.community.selectedGroup) {
-                    getGroup(that.params.community.selectedGroup).then(function (group) {
-                        that.params.community.selectedGroup = group;
+                if (self.params.community.selectedGroup) {
+                    getGroup(self.params.community.selectedGroup).then(function (group) {
+                        self.params.community.selectedGroup = group;
                         UserService.getUsers(group).then(function (users) {
                             UserService.params.community.groupUsers = users;
                         });
                         CommunityService.getObjectGroups(group, 'group').then(function (data) {
-                            that.params.community.sharedGroups = data;
+                            self.params.community.sharedGroups = data;
                         });
                     });
                 }

@@ -10,7 +10,6 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('CommunityService', ['ftepProperties', 'MessageService', '$http', '$q',  function (ftepProperties, MessageService, $http, $q) {
 
-        var that = this;
         var rootUri = ftepProperties.URLv2;
 
         this.permissionTypes = {

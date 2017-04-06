@@ -53,9 +53,9 @@
 
     <section class="item-list list">
         <md-list-item class="md-2-line"
-                      ng-repeat="basket in databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText | orderBy: 'attributes.name'"
+                      ng-repeat="basket in dbParams.databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText | orderBy: 'attributes.name'"
                       ng-click="selectDatabasket(basket);"
-                      ng-class="{active: basket.attributes.name == dbParams.selectedDatabasket.attributes.name}">
+                      ng-class="{active: basket.name == dbParams.selectedDatabasket.name}">
 
             <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketDragItems(basket)">
                 <i class="material-icons"
@@ -66,9 +66,9 @@
             </div>
 
             <div class="md-list-item-text" layout="column">
-                <h3 class="selectable basket-name">{{basket.attributes.name}}</h3>
+                <h3 class="selectable basket-name">{{basket.name}}</h3>
 
-                <p>Items: {{basket.relationships.files.data.length}}</p>
+                <p>Items: {{basket.size}}</p>
             </div>
 
             <md-button class="toolbar-button md-secondary"
@@ -84,12 +84,12 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-click="editDatabasketDialog($event, basket)"
+                       ng-click="editDatabasket($event, basket)"
                        uib-tooltip="Edit"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true"
-                       has-permission="EDIT"
+                       has-permission="WRITE"
                        permission-source="{{basket}}">
                 <i class="material-icons">create</i>
             </md-button>
@@ -115,7 +115,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="dbLoaded.id != basket.id"
+                       ng-show="dbParams.databasketOnMap.id != basket.id"
                        ng-click="loadBasket(basket)"
                        uib-tooltip="Load"
                        tooltip-placement="top"
@@ -125,7 +125,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="dbLoaded.id == basket.id"
+                       ng-show="dbParams.databasketOnMap.id == basket.id"
                        ng-click="unloadBasket(basket)"
                        uib-tooltip="Unload"
                        tooltip-placement="top"
@@ -139,11 +139,11 @@
 
 </div>
 
-<section class="pagination">
+<!-- <section class="pagination">
     <paging page="dbPaging.dbCurrentPage"
             page-size="dbPaging.dbPageSize"
             total="dbPaging.dbTotal"
             show-first-last="true"
             paging-action="fetchDbPage(page)">
     </paging>
-</section>
+</section> -->

@@ -29,10 +29,9 @@ class FtepResourceJob extends FtepResource {
     public function read($id=null,$relationship=null,$relName=null){
         $user = $this->getUser();
         $params=array(":uid"=> $user->uid) ;
-        if( array_key_exists('fake', $_GET)) { $params=array(":uid"=> 163) ; }
         $parameters = new Parameters($_GET);
         $jid="";
-        if(!is_null($id)){
+        if( !empty( $id) ){
             $jid=" AND (id=:id) ";
             $params[':id' ] = $id;
         }
@@ -138,7 +137,6 @@ class FtepResourceJob extends FtepResource {
                 $resx[] =(object) array(
                     "jobid"=>$aresult[1][0],
                     "fname"=>$aresult[2][0],
-		    // "link" => "/secure/api/v1.0/download?j=".$id."&f=".$aresult[2][0]
 		    "link" => "/download/Job_" . $aresult[1][0] . "/outDir/" . $aresult[2][0]
                 );
             }

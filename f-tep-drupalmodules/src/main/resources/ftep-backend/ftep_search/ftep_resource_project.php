@@ -31,7 +31,7 @@ class FtepResourceProject extends FtepResource {
         $params=array(":uid"=> $user->uid) ;
 
         $jid="";
-        if(!is_null($id)){
+        if( !empty( $id) ){
             $jid=" AND (pid=:pid) ";
             $params[ ':pid' ] = $id;
         }

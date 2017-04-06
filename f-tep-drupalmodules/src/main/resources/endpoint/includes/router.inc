@@ -211,8 +211,14 @@ function endpoint_init_variables($route, $bootstrap, $config) {
  */
 function endpoint_callback_delivery($result, $route, $config) {
   if (!empty($config['debug'])) {
-    $result['timer'] = endpoint_debug_time();
-    $result['memory'] = endpoint_debug_memory();
+      if(!is_object($result)){
+          $result['timer'] = endpoint_debug_time();
+          $result['memory'] = endpoint_debug_memory();
+      } else {
+          $result->timer = endpoint_debug_time();
+          $result->memory = endpoint_debug_memory();
+      }
+
   }
   $data = endpoint_request_data();
   if (isset($data->id) && is_int($data->id)) {

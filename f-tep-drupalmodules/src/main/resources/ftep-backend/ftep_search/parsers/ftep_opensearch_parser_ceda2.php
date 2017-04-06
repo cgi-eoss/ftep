@@ -8,11 +8,10 @@ use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\FlysystemStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use League\Flysystem\Adapter\Local;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 
-class Ceda2ResponseHandler
+require_once  __DIR__.'/OpensearchParserInterface.php';
+
+class Ceda2ResponseHandler implements OpensearchParserInterface
 {
     static protected $namespaces = [
         '' => 'http://www.w3.org/2005/Atom',
@@ -27,18 +26,43 @@ class Ceda2ResponseHandler
         'media' => 'http://search.yahoo.com/mrss/',
         'eop20' => 'http://www.opengis.net/eop/2.0'
     ];
+
     /**
      * @Inject("Psr\Log\LoggerInterface")
      */
     protected $_log;
 
-//    private     $_mode="json";
-    private $_mode = 'xml';
+    /**
+     * @Inject("CacheService");
+     */
+    protected $_cache;
 
-    public function __construct()
+    /**
+     * @Inject("CredentialResolverService")
+     */
+    protected $_credService;
+
+    /**
+     * @Inject("api.version")
+     */
+    protected $_apiVersion;
+
+    protected $_config;
+
+    static protected $alias= [
+        'polarisation' => 'polarisationChannels',
+    ];
+
+    /**
+     * @param mixed $config
+     * @return array
+     */
+    public function setConfig($config)
     {
-        $this->_log = new Logger( basename(__FILE__) );
-        $this->_log->pushHandler(new StreamHandler('/var/log/ftep.log', Logger::DEBUG));
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        $this->_config = $config;
+        return $this->_config;
     }
 
     /**
@@ -46,61 +70,59 @@ class Ceda2ResponseHandler
      * @return array
      * @throws \LogicException
      */
-    public function parse( $data)
+    public function parse(GuzzleHttp\Psr7\Response $data)
     {
-        $response = $data;
-        if ($data instanceof GuzzleHttp\Psr7\Response) {
-            $response = $data->getBody();
-        }
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        $response = $data->getBody()->getContents();
 
         $result = [
             'datasource' => 'CEDA2',
             'totalResults' => 0,
             'startIndex' => 0,
-            'itemsPerPage' => 0,
+            'itemsPerPage' => $this->_config['itemsPerPage'],
             'entities' => []
         ];
 
-        if ($this->_mode === 'json') {
+        if ($this->_config['mode'] === 'json') {
             $response = json_decode($response);
 
             $this->_log->debug(__METHOD__ . ' - ' . __LINE__ . ' - Parsing JSON response ');
 
             $result['totalResults'] = $response->totalResults;
             $result['startIndex'] = $response->startIndex;
-            $result['itemsPerPage'] = 10;
+
             $result['entities'] = array_map(
                 function ($item) {
                     $fname = basename($item->file->filename, '.manifest');
                     $item = [
                         'title' => $item->file->filename,
+                        'identifier' => $fname,
                         'link' => $item->file->directory . '/' . $fname . '.zip',
                         'size' => $item->file->data_file_size,
-                        'type' => 'application/unknown',
                         'meta' => null,
-                        'identifier' => $fname,
+                        'type' => 'application/unknown',
                         'start' => $item->temporal->start_time,
                         'stop' => $item->temporal->end_time,
                         'geo' => $item->spatial->geometries->display,
+                        'ql'  => '/secure/api/v'.$this->_apiVersion.'/ql/ceda2' . $item->file->directory.'/'. $item->file->quicklook_file,
                         'details' => [
-                            'data_format' => ['format' => 'SAFE'],
-                        ],
-                        'temporal' => $item->temporal,
-                        'thumbnail' => $item->file->quicklook_file,
-                        'location' => $item->file->location,
-                        'misc' => $item
+                            'misc' => $item,
+                            'temporal' => $item->temporal,
+                            'spatial' => $item->spatial,
+                            'file' => $item->file,
+                        ]
+
+                    //'thumbnail' => $item->file->quicklook_file,
+                        //'location' => $item->file->location,
                     ];
                     return $item;
                 }
                 , $response->rows
             );
-        }  else {
+        } else {
             $this->_log->debug(__METHOD__ . ' - ' . __LINE__ . ' - Parsing ATOM response ');
-
-            $xml = $response ;
-            if (is_string($response)) {
-                $xml = simplexml_load_string($response);
-            }
+            $xml = simplexml_load_string($response);
 
             $result = array(
                 'datasource' => 'CEDA2',
@@ -112,14 +134,16 @@ class Ceda2ResponseHandler
 
             $namespaces = $xml->getNamespaces(true);
             // register a prefix for the default namespace:
-            isset($namespaces[""]) && $xml->registerXPathNamespace('default', $namespaces['']) ;
+            isset($namespaces[""]) && $xml->registerXPathNamespace('default', $namespaces['']);
 
             $entitiesArray = $result['entities'];
 
             $requests = array();
 
+            $logger = $this->_log;
+
             array_map(
-                function (SimpleXMLElement $entity) use (&$entitiesArray, &$requests) {
+                function (SimpleXMLElement $entity) use (&$entitiesArray, &$requests, $logger) {
                     $namespaces = $entity->getNamespaces(true);
                     // register a prefix for the default namespace:
                     isset($namespaces[""]) && $entity->registerXPathNamespace('default', $namespaces['']);
@@ -137,63 +161,51 @@ class Ceda2ResponseHandler
                         'size' => $this->getTagAttribute('default:link[@rel="enclosure"]', $entity, 'length'),
                         'meta' => $this->getTagAttribute('default:link[@type="application/json"]', $entity, 'href'),
                     ];
+                    // $ent['meta']= str_ireplace("opensearch-test.ceda.ac.uk","forestry-tep.eo.esa.int", $ent['meta']);
 
                     $link_node = $entity->xpath('./default:link[@rel="enclosure" and @title="ftp"]/@href');
                     if ($link_node && $link_node[0]) {
                         $ent['link'] = (string)$link_node[0]->href;
+                    } else {
+                        $ent['link']='xxx';
                     }
-
                     $ent['type'] = $this->getTagAttribute('default:link[@rel="enclosure"]', $entity, 'type');
-//                    $ent['meta']= str_ireplace("opensearch-test.ceda.ac.uk","forestry-tep.eo.esa.int", $ent['meta']);
+
                     $requests[] = new Request('GET', $ent['meta']);
-
                     $entitiesArray[] = $ent;
-
                 }, $xml->xpath('//default:entry')
             );
 
             $result['entities'] = $entitiesArray;
 
-//            // Create default HandlerStack
-//            $stack = HandlerStack::create();
-//            $stack->push(
-//                new CacheMiddleware(
-//                    new PrivateCacheStrategy(
-//                        new FlysystemStorage(
-//                            new Local('/tmp/ceda2')
-//                        ),
-//                        180 // seconds to keep cache
-//                    )
-//                ),
-//                'cache'
-//            );
-            //$stack->push(new CacheMiddleware(), 'cache');
-
             $client = new GuzzleHttp\Client([
-                'timeout' => 10, // seconds
-                'connect_timeout' => 3, // seconds
-                //'handler' => $stack
+                'timeout' => $this->_config['http.timeout'], // seconds
+                'connect_timeout' =>  $this->_config['http.connect_timeout'] , // seconds
             ]);
-
             $pool = new Pool(
                 $client,
                 $requests, [
-                'concurrency' => 10,
-                'fulfilled' => function (GuzzleHttp\Psr7\Response $response, $index) use (&$result) {
+                'concurrency' => $this->_config['http.concurrency'],
+
+                'fulfilled' => function (GuzzleHttp\Psr7\Response $response, $index) use (&$result, $logger) {
                     $details = json_decode($response->getBody());
-                    $result['entities'][$index]['details'] = $details;
-                    $result['entities'][$index]['size'] = $details->file->data_file_size;
-                    $result['entities'][$index]['title'] = $details->misc->product_info->Name;
-                    $result['entities'][$index]['identifier']= $details->misc->product_info->Name;
-                    $result['entities'][$index]['start']= $details->temporal->start_time;
+                    $result['entities'][$index]['start'] = $details->temporal->start_time;
                     $result['entities'][$index]['stop'] = $details->temporal->end_time;
                     $result['entities'][$index]['geo'] = $details->spatial->geometries->display;
+                    $result['entities'][$index]['ql'] = '/secure/api/v1.0/ql/ceda2' . $details->file->directory.'/'.$details->file->quicklook_file;
+                    $result['entities'][$index]['details'] = $details;
 
-                    $result['entities'][$index]['ql'] = '/ql/'.$details->file->quicklook_file;
+                    $result['entities'][$index]['size'] = $details->file->data_file_size;
+                    $result['entities'][$index]['title'] = $details->misc->product_info->Name;
+                    $result['entities'][$index]['identifier'] = $details->misc->product_info->Name;
+
+                    if(empty($details->file->quicklook_file)){
+                        $logger->notice(__METHOD__ . ' - ' . __LINE__ . ' - Missing quicklook file for '.$details->misc->product_info->Name);
+                    }
                 },
-                'rejected' => function ($reason, $index) {
+                'rejected' => function ($reason, $index) use ($logger) {
                     // this is delivered each failed request
-                    $this->_log->err(__METHOD__ . ' - ' . __LINE__ . ' - Failed getting info for item ' . $index . ' . -  ' . $reason);
+                    $logger->err(__METHOD__ . ' - ' . __LINE__ . ' - Failed getting info for item ' . $index . ' . -  ' . $reason);
                 },
             ]);
             $promise = $pool->promise();
@@ -201,6 +213,51 @@ class Ceda2ResponseHandler
         }
         return $result;
     }
+
+
+    public function appendQueryParams(array $data){
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        $result=array('dataOnline'=>'true');
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function appendURL(array $data)
+    {
+        return '';
+    }
+
+    /**
+     * @return array
+     */
+    /**
+     * This function translates parameters received from the F-TEP client into something
+     * accepted (compliant with) the specific datasoruce (view the "/describe.xml")
+     * moreover for some fields it might be necessary to apply and extra 'tewak' e.g. productIdentifier is enclosed in "%"
+     * @param array $params
+     * @return array
+     */
+    public function aliasSearchParameters(array $params){
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        foreach( Ceda2ResponseHandler::$alias as $k=>$v){
+            if( array_key_exists($k, $params) ){
+                $this->_log->debug(__METHOD__.' - '.__LINE__. ' - Aliasing '.$k.' as '.$v );
+                $old=$params[$k];
+                unset( $params[$k] );
+                if(null !== $v ){
+                        $params[$v] = $old;
+                }
+            }
+        }
+        return $params;
+    }
+
+
 
     /**
      * Perform an xpath and returns the value
@@ -219,7 +276,73 @@ class Ceda2ResponseHandler
         }
         return $result;
     }
+    public function quicklook( $quickLook ){
+        $ql = $this->_cache->getItem($quickLook);
 
+        if (!$ql->isHit()) {
+            $fname = $this->_config['qlEndpoint'] . '/' . $quickLook;
+
+            $this->_log->debug(__METHOD__ . ' - ' . __LINE__ . ' - Cache miss .. fetching ' . $fname);
+            $curl_handle = null;
+            try {
+                $curl_handle = curl_init();
+                if (!$curl_handle) {
+                    throw new Exception('Could not initialize cURL.' . curl_errno($curl_handle) . ' - ' . curl_strerror(curl_errno($curl_handle)));
+                }
+                $stream = fopen('php://temp', 'w+');
+                if (!$stream) {
+                    throw new Exception('Could not open php://temp for writing.');
+                }
+                $url = parse_url($fname);
+                $cred = $this->_credService[$url['host']];
+
+
+                $options = array(
+                    CURLOPT_URL => $fname,
+                    // CURLOPT_SSL_VERIFYPEER => false, // don't verify SSL
+                    // CURLOPT_SSL_VERIFYHOST => false,
+                    //CURLOPT_FTP_SSL        => CURLFTPSSL_ALL, // require SSL For both control and data connections
+                    //CURLOPT_FTPSSLAUTH     => CURLFTPAUTH_DEFAULT, // let cURL choose the FTP authentication method (either SSL or TLS)
+//                CURLOPT_UPLOAD         => true,
+                    // CURLOPT_PORT           => $port,
+                    CURLOPT_TIMEOUT => 30,
+                    //CURLOPT_FTPPORT        => '-',
+                    CURLOPT_RETURNTRANSFER => 1,
+                    CURLOPT_FILE => $stream
+                );
+                if($cred){
+                    $options[CURLOPT_USERPWD]=$cred['username'] . ($cred['password'] ? ':' . $cred['password'] : '') ;
+                }
+                foreach ($options as $option_name => $option_value) {
+                    if (!curl_setopt($curl_handle, $option_name, $option_value)) {
+                        throw new Exception(sprintf('Could not set cURL option: %s', $option_name));
+                    }
+                }
+                if (!curl_exec($curl_handle)) {
+                    throw new Exception(sprintf('Could not download file %s - . cURL Error: [%s] - %s', $fname,
+                        curl_errno($curl_handle), curl_error($curl_handle)));
+                }
+                rewind($stream);
+                $ql->set(stream_get_contents($stream));
+                $this->_cache->save($ql);
+            } catch (Exception $e) {
+                $this->_log->error(__METHOD__ . ' - ' . __LINE__ . ' - ' . $e->getMessage());
+                header('HTTP/1.0 404 Not Found', true, 404);
+                die;
+            } finally {
+                if (null !== $curl_handle) {
+                    @curl_close($curl_handle);
+                }
+                if ($stream) {
+                    fclose($stream);
+                }
+            }
+        }
+        $fileinfo = (new finfo())->buffer($ql->get(), FILEINFO_MIME);
+        header('Content-type:' . $fileinfo, true);
+        header('Expires: ' . $ql->getExpirationDate()->format('D, d M Y H:i:s') . ' GMT', true);
+        die($ql->get());
+    }
 
 }
 

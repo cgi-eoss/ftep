@@ -30,7 +30,7 @@ class JobSerializer extends AbstractSerializer {
                 if( $k=='guiendpoint' and strlen($job->$k)>0) {
                     $job->$k = str_replace( "192.168.3" ,"192.171.139", $job->$k );
                     $fragments = explode(":", $job->$k);
-                    $fragments[0]="192.171.139.88";
+                    $fragments[0]="ftep-wps.eoss-cloud.it";
 
                     $job->$k = implode(":", $fragments);
                     $res[$v] = "http://".$job->$k;

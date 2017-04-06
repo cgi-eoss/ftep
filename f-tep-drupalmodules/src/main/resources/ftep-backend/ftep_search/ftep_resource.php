@@ -1,30 +1,20 @@
 <?php
-require_once 'ftep_exception.php';
+require_once __DIR__.'/ftep_exception.php';
+require __DIR__.'/vendor/autoload.php';
 
-use Tobscure\JsonApi\Document;
-use Tobscure\JsonApi\Collection;
-use Tobscure\JsonApi\AbstractSerializer;
-use Tobscure\JsonApi\Relationship;
-use Tobscure\JsonApi\Resource;
-use Tobscure\JsonApi\EmptyResource;
-use Tobscure\JsonApi\EmptyCollection;
-use Tobscure\JsonApi\Parameters;
-
-use JsonSchema\RefResolver;
-use JsonSchema\Uri\UriResolver;
-use JsonSchema\Uri\UriRetriever;
-use Prophecy\Argument;
-
-require dirname(__FILE__).'/vendor/autoload.php';
-
-use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Processor\WebProcessor;
+use Monolog\Logger;
 use Monolog\Processor\MemoryUsageProcessor;
-use Monolog\Formatter\LineFormatter;
+use Monolog\Processor\WebProcessor;
+use Tobscure\JsonApi\Collection;
+use Tobscure\JsonApi\Document;
+use Tobscure\JsonApi\EmptyCollection;
+use Tobscure\JsonApi\EmptyResource;
+use Tobscure\JsonApi\Parameters;
+use Tobscure\JsonApi\Resource;
 
-class FtepResource extends Resource{ 
+
+class FtepResource extends Resource{
     protected $_version;
     protected $_endpoint;
     protected $_log;

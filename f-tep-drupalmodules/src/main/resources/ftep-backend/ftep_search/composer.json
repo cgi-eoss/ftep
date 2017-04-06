@@ -10,6 +10,9 @@
         "kevinrob/guzzle-cache-middleware": "^2.0",
         "league/flysystem": "^1.0",
         "doctrine/annotations": "^1.4",
-        "php-di/php-di": "^5.4"
+        "php-di/php-di": "^5.4",
+        "symfony/yaml": "^3.2",
+        "graylog2/gelf-php": "^1.5",
+        "phpFastCache/phpFastCache": "^5.0"
     }
 }

@@ -383,73 +383,6 @@
         ]
     },
     {
-        "name": "guzzlehttp/psr7",
-        "version": "1.4.1",
-        "version_normalized": "1.4.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/guzzle/psr7.git",
-            "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/guzzle/psr7/zipball/0d6c7ca039329247e4f0f8f8f6506810e8248855",
-            "reference": "0d6c7ca039329247e4f0f8f8f6506810e8248855",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4.0",
-            "psr/http-message": "~1.0"
-        },
-        "provide": {
-            "psr/http-message-implementation": "1.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~4.0"
-        },
-        "time": "2017-02-27T10:51:17+00:00",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.4-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "GuzzleHttp\\Psr7\\": "src/"
-            },
-            "files": [
-                "src/functions_include.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Michael Dowling",
-                "email": "mtdowling@gmail.com",
-                "homepage": "https://github.com/mtdowling"
-            },
-            {
-                "name": "Tobias Schultze",
-                "homepage": "https://github.com/Tobion"
-            }
-        ],
-        "description": "PSR-7 message implementation that also provides common utility methods",
-        "keywords": [
-            "http",
-            "message",
-            "request",
-            "response",
-            "stream",
-            "uri",
-            "url"
-        ]
-    },
-    {
         "name": "guzzlehttp/guzzle",
         "version": "6.2.3",
         "version_normalized": "6.2.3.0",
@@ -863,68 +796,6 @@
         ]
     },
     {
-        "name": "php-di/php-di",
-        "version": "5.4.0",
-        "version_normalized": "5.4.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/PHP-DI/PHP-DI.git",
-            "reference": "e348393488fa909e4bc0707ba5c9c44cd602a1cb"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/e348393488fa909e4bc0707ba5c9c44cd602a1cb",
-            "reference": "e348393488fa909e4bc0707ba5c9c44cd602a1cb",
-            "shasum": ""
-        },
-        "require": {
-            "container-interop/container-interop": "~1.0",
-            "php": ">=5.5.0",
-            "php-di/invoker": "^1.3.2",
-            "php-di/phpdoc-reader": "^2.0.1"
-        },
-        "provide": {
-            "container-interop/container-interop-implementation": "^1.0"
-        },
-        "replace": {
-            "mnapoli/php-di": "*"
-        },
-        "require-dev": {
-            "doctrine/annotations": "~1.2",
-            "doctrine/cache": "~1.4",
-            "mnapoli/phpunit-easymock": "~0.2.0",
-            "ocramius/proxy-manager": "~1.0|~2.0",
-            "phpunit/phpunit": "~4.5"
-        },
-        "suggest": {
-            "doctrine/annotations": "Install it if you want to use annotations (version ~1.2)",
-            "doctrine/cache": "Install it if you want to use the cache (version ~1.4)",
-            "ocramius/proxy-manager": "Install it if you want to use lazy injection (version ~1.0 or ~2.0)"
-        },
-        "time": "2016-08-23T20:18:00+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "DI\\": "src/DI/"
-            },
-            "files": [
-                "src/DI/functions.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "description": "The dependency injection container for humans",
-        "homepage": "http://php-di.org/",
-        "keywords": [
-            "container",
-            "dependency injection",
-            "di"
-        ]
-    },
-    {
         "name": "zendframework/zend-diactoros",
         "version": "1.3.10",
         "version_normalized": "1.3.10.0",
@@ -978,17 +849,17 @@
     },
     {
         "name": "kevinrob/guzzle-cache-middleware",
-        "version": "v2.0.1",
-        "version_normalized": "2.0.1.0",
+        "version": "v2.0.2",
+        "version_normalized": "2.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Kevinrob/guzzle-cache-middleware.git",
-            "reference": "fee3e1dc35c3fe6b51124b6bb3b3520205c35db6"
+            "reference": "fe011566f0ff79219a342f5a70177af321c3fb3d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/fee3e1dc35c3fe6b51124b6bb3b3520205c35db6",
-            "reference": "fee3e1dc35c3fe6b51124b6bb3b3520205c35db6",
+            "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/fe011566f0ff79219a342f5a70177af321c3fb3d",
+            "reference": "fe011566f0ff79219a342f5a70177af321c3fb3d",
             "shasum": ""
         },
         "require": {
@@ -1010,7 +881,7 @@
             "league/flysystem": "To be use with Kevinrob\\GuzzleCache\\Storage\\FlysystemStorage",
             "psr/cache": "To be use with Kevinrob\\GuzzleCache\\Storage\\Psr6CacheStorage"
         },
-        "time": "2017-02-27T07:42:05+00:00",
+        "time": "2017-03-30T13:15:27+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1058,17 +929,17 @@
     },
     {
         "name": "league/flysystem",
-        "version": "1.0.36",
-        "version_normalized": "1.0.36.0",
+        "version": "1.0.37",
+        "version_normalized": "1.0.37.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/flysystem.git",
-            "reference": "d9c1698582dfbfbd092ec9c5c3325f862cdb3297"
+            "reference": "78b5cc4feb61a882302df4fbaf63b7662e5e4ccd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/d9c1698582dfbfbd092ec9c5c3325f862cdb3297",
-            "reference": "d9c1698582dfbfbd092ec9c5c3325f862cdb3297",
+            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/78b5cc4feb61a882302df4fbaf63b7662e5e4ccd",
+            "reference": "78b5cc4feb61a882302df4fbaf63b7662e5e4ccd",
             "shasum": ""
         },
         "require": {
@@ -1097,7 +968,7 @@
             "league/flysystem-webdav": "Allows you to use WebDAV storage",
             "league/flysystem-ziparchive": "Allows you to use ZipArchive adapter"
         },
-        "time": "2017-03-18T16:02:30+00:00",
+        "time": "2017-03-22T15:43:14+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1139,6 +1010,492 @@
             "s3",
             "sftp",
             "storage"
+        ]
+    },
+    {
+        "name": "php-di/php-di",
+        "version": "5.4.2",
+        "version_normalized": "5.4.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHP-DI/PHP-DI.git",
+            "reference": "bbe2ed4b48e5b832436bf50928c30af8aedf61f8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/bbe2ed4b48e5b832436bf50928c30af8aedf61f8",
+            "reference": "bbe2ed4b48e5b832436bf50928c30af8aedf61f8",
+            "shasum": ""
+        },
+        "require": {
+            "container-interop/container-interop": "~1.2",
+            "php": ">=5.5.0",
+            "php-di/invoker": "^1.3.2",
+            "php-di/phpdoc-reader": "^2.0.1",
+            "psr/container": "~1.0"
+        },
+        "provide": {
+            "container-interop/container-interop-implementation": "^1.0",
+            "psr/container-implementation": "^1.0"
+        },
+        "replace": {
+            "mnapoli/php-di": "*"
+        },
+        "require-dev": {
+            "doctrine/annotations": "~1.2",
+            "doctrine/cache": "~1.4",
+            "mnapoli/phpunit-easymock": "~0.2.0",
+            "ocramius/proxy-manager": "~1.0|~2.0",
+            "phpunit/phpunit": "~4.5"
+        },
+        "suggest": {
+            "doctrine/annotations": "Install it if you want to use annotations (version ~1.2)",
+            "doctrine/cache": "Install it if you want to use the cache (version ~1.4)",
+            "ocramius/proxy-manager": "Install it if you want to use lazy injection (version ~1.0 or ~2.0)"
+        },
+        "time": "2017-03-27T19:30:46+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "DI\\": "src/DI/"
+            },
+            "files": [
+                "src/DI/functions.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "The dependency injection container for humans",
+        "homepage": "http://php-di.org/",
+        "keywords": [
+            "container",
+            "dependency injection",
+            "di"
+        ]
+    },
+    {
+        "name": "guzzlehttp/psr7",
+        "version": "1.4.2",
+        "version_normalized": "1.4.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/guzzle/psr7.git",
+            "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+            "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0",
+            "psr/http-message": "~1.0"
+        },
+        "provide": {
+            "psr/http-message-implementation": "1.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.0"
+        },
+        "time": "2017-03-20T17:10:46+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "GuzzleHttp\\Psr7\\": "src/"
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Michael Dowling",
+                "email": "mtdowling@gmail.com",
+                "homepage": "https://github.com/mtdowling"
+            },
+            {
+                "name": "Tobias Schultze",
+                "homepage": "https://github.com/Tobion"
+            }
+        ],
+        "description": "PSR-7 message implementation that also provides common utility methods",
+        "keywords": [
+            "http",
+            "message",
+            "request",
+            "response",
+            "stream",
+            "uri",
+            "url"
+        ]
+    },
+    {
+        "name": "symfony/yaml",
+        "version": "v3.2.7",
+        "version_normalized": "3.2.7.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/yaml.git",
+            "reference": "62b4cdb99d52cb1ff253c465eb1532a80cebb621"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/yaml/zipball/62b4cdb99d52cb1ff253c465eb1532a80cebb621",
+            "reference": "62b4cdb99d52cb1ff253c465eb1532a80cebb621",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.9"
+        },
+        "require-dev": {
+            "symfony/console": "~2.8|~3.0"
+        },
+        "suggest": {
+            "symfony/console": "For validating YAML files using the lint command"
+        },
+        "time": "2017-03-20T09:45:15+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Yaml\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Yaml Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "graylog2/gelf-php",
+        "version": "1.5.3",
+        "version_normalized": "1.5.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/bzikarsky/gelf-php.git",
+            "reference": "0cb872928246bada1b6a5f504a7c3589f1c1174d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/0cb872928246bada1b6a5f504a7c3589f1c1174d",
+            "reference": "0cb872928246bada1b6a5f504a7c3589f1c1174d",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.9",
+            "psr/log": "~1.0"
+        },
+        "provide": {
+            "psr/log-implementation": "~1.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.3",
+            "squizlabs/php_codesniffer": "~2.0"
+        },
+        "time": "2016-11-21T13:31:39+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.4.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Gelf\\": "src/Gelf"
+            },
+            "files": [
+                "src/check_technical_requirements.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Benjamin Zikarsky",
+                "email": "benjamin@zikarsky.de"
+            },
+            {
+                "name": "gelf-php contributors",
+                "homepage": "https://github.com/bzikarsky/gelf-php/contributors"
+            }
+        ],
+        "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2."
+    },
+    {
+        "name": "phpfastcache/phpssdb",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPSocialNetwork/phpssdb.git",
+            "reference": "6755b00200d28ce59cfabde2274d41b045acae98"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPSocialNetwork/phpssdb/zipball/6755b00200d28ce59cfabde2274d41b045acae98",
+            "reference": "6755b00200d28ce59cfabde2274d41b045acae98",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "time": "2016-07-02T12:58:46+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "phpssdb\\": "src/phpssdb/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Khoa Bui",
+                "email": "khoaofgod@gmail.com",
+                "homepage": "http://www.phpfastcache.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Georges.L",
+                "email": "contact@geolim4.com",
+                "homepage": "https://github.com/Geolim4",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP SSDB Driver for phpFastCache",
+        "homepage": "http://www.phpfastcache.com",
+        "keywords": [
+            "cache",
+            "driver",
+            "ssdb"
+        ]
+    },
+    {
+        "name": "predis/predis",
+        "version": "v1.1.1",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nrk/predis.git",
+            "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+            "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.9"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8"
+        },
+        "suggest": {
+            "ext-curl": "Allows access to Webdis when paired with phpiredis",
+            "ext-phpiredis": "Allows faster serialization and deserialization of the Redis protocol"
+        },
+        "time": "2016-06-16T16:22:20+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Predis\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Daniele Alessandri",
+                "email": "suppakilla@gmail.com",
+                "homepage": "http://clorophilla.net"
+            }
+        ],
+        "description": "Flexible and feature-complete Redis client for PHP and HHVM",
+        "homepage": "http://github.com/nrk/predis",
+        "keywords": [
+            "nosql",
+            "predis",
+            "redis"
+        ]
+    },
+    {
+        "name": "psr/cache",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/cache.git",
+            "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/cache/zipball/d11b50ad223250cf17b86e38383413f5a6764bf8",
+            "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2016-08-06T20:24:11+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Cache\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common interface for caching libraries",
+        "keywords": [
+            "cache",
+            "psr",
+            "psr-6"
+        ]
+    },
+    {
+        "name": "phpfastcache/phpfastcache",
+        "version": "5.0.15",
+        "version_normalized": "5.0.15.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPSocialNetwork/phpfastcache.git",
+            "reference": "f9c09668b313dd53a6417be42e4af02649914a89"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPSocialNetwork/phpfastcache/zipball/f9c09668b313dd53a6417be42e4af02649914a89",
+            "reference": "f9c09668b313dd53a6417be42e4af02649914a89",
+            "shasum": ""
+        },
+        "require": {
+            "ext-json": "*",
+            "php": ">=5.5.0",
+            "phpfastcache/phpssdb": "~1.0.0",
+            "predis/predis": "~1.1.0",
+            "psr/cache": "~1.0.0"
+        },
+        "suggest": {
+            "ext-apc": "*",
+            "ext-intl": "*",
+            "ext-mbstring": "*",
+            "ext-memcache": "*",
+            "ext-memcached": "*",
+            "ext-predis": "*",
+            "ext-redis": "*",
+            "ext-sqlite": "*"
+        },
+        "time": "2017-02-04T01:09:40+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "phpFastCache\\": "src/phpFastCache/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Khoa Bui",
+                "email": "khoaofgod@gmail.com",
+                "homepage": "http://www.phpfastcache.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Georges.L",
+                "email": "contact@geolim4.com",
+                "homepage": "https://github.com/Geolim4",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP Cache Class - Reduce your database call using cache system. PhpFastCache handles a lot of drivers such as Apc(u), CouchBase, Mongodb, Files, (P)redis, Leveldb, Memcache(d), Ssdb, Sqlite, Wincache, Xcache, Zend Data Cache.",
+        "homepage": "http://www.phpfastcache.com",
+        "keywords": [
+            "LevelDb",
+            "apc",
+            "apcu",
+            "cache",
+            "cache class",
+            "caching",
+            "cookie",
+            "couchbase",
+            "files cache",
+            "memcache",
+            "memcached",
+            "mongodb",
+            "mysql cache",
+            "pdo cache",
+            "php cache",
+            "predis",
+            "redis",
+            "ssdb",
+            "wincache",
+            "xcache",
+            "zend",
+            "zend data cache",
+            "zend disk cache",
+            "zend memory cache",
+            "zend server"
         ]
     }
 ]

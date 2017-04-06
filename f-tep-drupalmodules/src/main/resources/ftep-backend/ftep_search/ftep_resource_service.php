@@ -32,7 +32,7 @@ class FtepResourceService extends FtepResource {
         $params=array(":sid"=> $id) ;
         $opts=array('fetch'=>PDO::FETCH_ASSOC);
         $opts=array();
-        if(is_null($id)){
+        if( empty( $id) ){
             $result = db_query( sprintf("SELECT *, '%s' as type FROM {%s}", $this->getResourceName(),$this->getEntityName()), $opts);
         } else {
             $result = db_query( sprintf("SELECT *, '%s' as type FROM {%s} WHERE (sid=:sid) ", $this->getResourceName(),$this->getEntityName()) , $params, $opts );

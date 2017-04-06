@@ -1,8 +1,9 @@
 <?php
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+require_once  __DIR__.'/OpensearchParserInterface.php';
 
-class FtepResponseHandler
+class FtepResponseHandler implements OpensearchParserInterface
 {
     static protected $namespaces = array(
         '' => 'http://www.w3.org/2005/Atom',
@@ -17,8 +18,14 @@ class FtepResponseHandler
         'xlink' => 'http://www.w3.org/1999/xlink',
         'media' => 'http://search.yahoo.com/mrss/',
     );
+    /**
+     * @Inject("Psr\Log\LoggerInterface")
+     */
     protected $_log;
-    protected $alias = array(
+
+    protected $_config;
+
+    static protected $alias = array(
         'bbox' => 'box',
         'startDate' => null,
         'endDate' => null,
@@ -26,18 +33,30 @@ class FtepResponseHandler
         'name' => 'identifier',
     );
 
-    public function __construct()
+    /**
+     * @param mixed $config
+     * @return array
+     */
+    public function setConfig($config)
     {
-        $this->_log = new Logger(basename(__FILE__));
-        $this->_log->pushHandler(new StreamHandler('/var/log/ftep.log', Logger::DEBUG));
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        $this->_config = $config;
     }
 
-    public function aliasSearchParameters($params)
-    {
-        foreach ($this->alias as $k => $v) {
 
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function aliasSearchParameters(array $params)
+    {
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
+        foreach (FtepResponseHandler::$alias as $k => $v) {
             if (array_key_exists($k, $params)) {
-                $this->_log->debug(__METHOD__ . ' - ' . __LINE__ . ' - Aliasing $k as $v');
+                $this->_log->debug(__METHOD__ . ' - ' . __LINE__ . ' - Aliasing '.$k.' as '.$v);
                 $old = $params[$k];
                 unset($params[$k]);
                 if (null !== $v) {
@@ -48,9 +67,21 @@ class FtepResponseHandler
         return $params;
     }
 
-    public function parse($data)
+    /**
+     * @param \GuzzleHttp\Psr7\Response $data
+     * @return array
+     * @throws \LogicException
+     */
+    public function parse(GuzzleHttp\Psr7\Response $data)
     {
+        $this->_log->debug(__METHOD__.' - '.__LINE__);
+
         $response = $data->getBody()->getContents();
+
+        if ($this->_config['mode'] === 'json') {
+            throw Exception("Not implemented");
+        }
+
         if (is_string($response)) {
             $xml = simplexml_load_string($response);
         }
@@ -65,12 +96,13 @@ class FtepResponseHandler
         foreach (FtepResponseHandler::$namespaces as $n => $ns) {
             $xml->registerXPathNamespace($n, $ns);
         }
-
-        $result = array(
+        $result = [
+            'datasource' => 'FTEP',
             'totalResults' => (string)$xml->xpath('//os:totalResults')[0],
             'startIndex' => (string)$xml->xpath('//os:startIndex')[0],
             'itemsPerPage' => (string)$xml->xpath('//os:itemsPerPage')[0],
-        );
+            'entities' => []
+        ];
         foreach ($xml->xpath('//default:entry') as $entry) {
             $entry = $this->setupNamespaces($entry);
             $ent['title'] = (string)$entry->title;
@@ -118,6 +150,24 @@ class FtepResponseHandler
             $result = (string)$link_tag[0]->attributes()->{$attribute};
         }
         return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function appendQueryParams(array $data)
+    {
+        return array();
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function appendURL(array $data)
+    {
+        return '';
     }
 }
 

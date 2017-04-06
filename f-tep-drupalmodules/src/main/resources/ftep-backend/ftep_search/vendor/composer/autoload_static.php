@@ -10,10 +10,16 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'f54c9b5e988cab550b89236716b03511' => __DIR__ . '/..' . '/graylog2/gelf-php/src/check_technical_requirements.php',
         'bbf73f3db644d3dced353b837903e74c' => __DIR__ . '/..' . '/php-di/php-di/src/DI/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'p' => 
+        array (
+            'phpssdb\\' => 8,
+            'phpFastCache\\' => 13,
+        ),
         'Z' => 
         array (
             'Zend\\Diactoros\\' => 15,
@@ -22,11 +28,17 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
         array (
             'Tobscure\\JsonApi\\' => 17,
         ),
+        'S' => 
+        array (
+            'Symfony\\Component\\Yaml\\' => 23,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Container\\' => 14,
+            'Psr\\Cache\\' => 10,
+            'Predis\\' => 7,
             'PhpDocReader\\' => 13,
         ),
         'M' => 
@@ -51,6 +63,7 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
+            'Gelf\\' => 5,
         ),
         'D' => 
         array (
@@ -66,6 +79,14 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
     );
 
     public static $prefixDirsPsr4 = array (
+        'phpssdb\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpfastcache/phpssdb/src/phpssdb',
+        ),
+        'phpFastCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpfastcache/phpfastcache/src/phpFastCache',
+        ),
         'Zend\\Diactoros\\' => 
         array (
             0 => __DIR__ . '/..' . '/zendframework/zend-diactoros/src',
@@ -73,6 +94,10 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
         'Tobscure\\JsonApi\\' => 
         array (
             0 => __DIR__ . '/..' . '/tobscure/json-api/src',
+        ),
+        'Symfony\\Component\\Yaml\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/yaml',
         ),
         'Psr\\Log\\' => 
         array (
@@ -85,6 +110,14 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'Psr\\Cache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
+        'Predis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/predis/predis/src',
         ),
         'PhpDocReader\\' => 
         array (
@@ -122,6 +155,10 @@ class ComposerStaticInita54e3e03dcc2acb47c5a7a2340dc9a60
         'GuzzleHttp\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+        'Gelf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/graylog2/gelf-php/src/Gelf',
         ),
         'Doctrine\\Common\\Annotations\\' => 
         array (

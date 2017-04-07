@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import lombok.Builder;
 import lombok.Data;
@@ -31,7 +32,7 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = {@UniqueConstraint(name = "ftep_service_files_filename_service_idx", columnNames = {"filename", "service"})})
 @NoArgsConstructor
 @Entity
-public class FtepServiceContextFile implements FtepEntity<FtepServiceContextFile> {
+public class FtepServiceContextFile implements FtepEntityWithOwner<FtepServiceContextFile> {
 
     /**
      * <p>Unique identifier of the service file.</p>
@@ -90,4 +91,15 @@ public class FtepServiceContextFile implements FtepEntity<FtepServiceContextFile
         return ComparisonChain.start().compare(service, o.service).compare(filename, o.filename).result();
     }
 
+    @Override
+    @JsonIgnore
+    public User getOwner() {
+        return service.getOwner();
+    }
+
+    @Override
+    @JsonIgnore
+    public void setOwner(User owner) {
+        // no-op; service files should not change their owner's service
+    }
 }

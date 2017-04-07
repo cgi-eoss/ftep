@@ -34,6 +34,7 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,18 +56,21 @@ public class ServiceFilesApiIT {
     @Autowired
     private MockMvc mockMvc;
 
+    private User ftepUser;
     private User ftepExpertUser;
     private User ftepContentAuthority;
     private FtepService svc;
 
     @Before
     public void setUp() {
+        ftepUser = new User("ftep-user");
+        ftepUser.setRole(Role.USER);
         ftepExpertUser = new User("ftep-expert-user");
         ftepExpertUser.setRole(Role.EXPERT_USER);
         ftepContentAuthority = new User("ftep-content-authority");
         ftepContentAuthority.setRole(Role.CONTENT_AUTHORITY);
 
-        userDataService.save(ImmutableSet.of(ftepExpertUser, ftepContentAuthority));
+        userDataService.save(ImmutableSet.of(ftepUser, ftepExpertUser, ftepContentAuthority));
 
         svc = new FtepService("service-1", ftepExpertUser, "dockerTag");
         svc.setStatus(ServiceStatus.AVAILABLE);
@@ -75,10 +79,7 @@ public class ServiceFilesApiIT {
 
     @Test
     public void testSave() throws Exception {
-        String svcUrl = JsonPath.compile("$._links.self.href").read(
-                mockMvc.perform(get("/api/services/" + svc.getId()).header("REMOTE_USER", ftepContentAuthority.getName()))
-                        .andReturn().getResponse().getContentAsString()
-        );
+        String svcUrl = getServiceUrl();
 
         byte[] testFile1Bytes = Files.readAllBytes(Paths.get(ServiceFilesApiIT.class.getResource("/testFile1").toURI()));
         String testFile1b64 = BaseEncoding.base64().encode(testFile1Bytes);
@@ -99,6 +100,28 @@ public class ServiceFilesApiIT {
         assertThat(serviceFiles.size(), is(2));
         assertThat(serviceFiles.get(0).getContent(), is(new String(testFile1Bytes)));
         assertThat(serviceFiles.get(1).getContent(), is(new String(testFile2Bytes)));
+    }
+
+    @Test
+    public void testFindByService() throws Exception {
+        // Shortcut to populate data
+        testSave();
+        String svcUrl = getServiceUrl();
+
+        // Results are filtered by ACL
+        mockMvc.perform(get("/api/serviceFiles/search/findByService").param("service", svcUrl).header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/serviceFiles/search/findByService").param("service", svcUrl).header("REMOTE_USER", ftepContentAuthority.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.serviceFiles").isArray())
+                .andExpect(jsonPath("$._embedded.serviceFiles.length()").value(2));
+    }
+
+    private String getServiceUrl() throws Exception {
+        return JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/services/" + svc.getId()).header("REMOTE_USER", ftepContentAuthority.getName()))
+                        .andReturn().getResponse().getContentAsString()
+        );
     }
 
 }

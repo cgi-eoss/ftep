@@ -2,30 +2,36 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Project;
+import com.cgi.eoss.ftep.model.QProject;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.ProjectDao;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class ProjectsApiImpl implements ProjectsApiInferringOwner {
+public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> {
 
-    private final FtepSecurityService ftepSecurityService;
-    private final ProjectDao projectDao;
+    private final FtepSecurityService securityService;
+    private final ProjectDao dao;
 
-    @Autowired
-    public ProjectsApiImpl(FtepSecurityService ftepSecurityService, ProjectDao projectDao) {
-        this.ftepSecurityService = ftepSecurityService;
-        this.projectDao = projectDao;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QProject.project.id;
     }
 
     @Override
-    public <S extends Project> S save(S project) {
-        if (project.getOwner() == null) {
-            ftepSecurityService.updateOwnerWithCurrentUser(project);
-        }
-        return projectDao.save(project);
+    QUser getOwnerPath() {
+        return QProject.project.owner;
+    }
+
+    @Override
+    Class<Project> getEntityClass() {
+        return Project.class;
     }
 
 }

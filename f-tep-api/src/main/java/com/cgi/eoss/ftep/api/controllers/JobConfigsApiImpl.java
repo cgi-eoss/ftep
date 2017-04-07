@@ -2,29 +2,36 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.QJobConfig;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.JobConfigDao;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class JobConfigsApiImpl implements JobConfigsApiInferringOwner {
+public class JobConfigsApiImpl extends BaseRepositoryApiImpl<JobConfig> {
 
-    private final FtepSecurityService ftepSecurityService;
-    private final JobConfigDao jobConfigDao;
+    private final FtepSecurityService securityService;
+    private final JobConfigDao dao;
 
-    @Autowired
-    public JobConfigsApiImpl(FtepSecurityService ftepSecurityService, JobConfigDao jobConfigDao) {
-        this.ftepSecurityService = ftepSecurityService;
-        this.jobConfigDao = jobConfigDao;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QJobConfig.jobConfig.id;
     }
 
     @Override
-    public <S extends JobConfig> S save(S jobConfig) {
-        if (jobConfig.getOwner() == null) {
-            ftepSecurityService.updateOwnerWithCurrentUser(jobConfig);
-        }
-        return jobConfigDao.save(jobConfig);
+    QUser getOwnerPath() {
+        return QJobConfig.jobConfig.owner;
     }
+
+    @Override
+    Class<JobConfig> getEntityClass() {
+        return JobConfig.class;
+    }
+
 }

@@ -40,7 +40,7 @@ public class JobConfigsApiExtension {
      * <p>Service are launched asynchronously; the gRPC response is discarded.</p>
      */
     @PostMapping("/{jobConfigId}/launch")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#jobConfig, 'read')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read')")
     public ResponseEntity launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
         FtepServiceLauncherGrpc.FtepServiceLauncherFutureStub serviceLauncher = FtepServiceLauncherGrpc.newFutureStub(inProcessChannelBuilder.build());
 

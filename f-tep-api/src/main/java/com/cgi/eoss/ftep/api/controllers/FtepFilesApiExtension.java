@@ -95,7 +95,7 @@ public class FtepFilesApiExtension {
     }
 
     @GetMapping(value = "/{fileId}/dl")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#file, 'read')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#file, 'read')")
     public void downloadFile(@ModelAttribute("fileId") FtepFile file, HttpServletResponse response) throws IOException {
         org.springframework.core.io.Resource fileResource = catalogueService.getAsResource(file);
 

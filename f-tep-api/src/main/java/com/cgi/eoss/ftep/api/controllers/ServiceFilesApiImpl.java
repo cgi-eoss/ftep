@@ -1,31 +1,45 @@
 package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
+import com.cgi.eoss.ftep.model.QFtepServiceContextFile;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceContextFileDao;
-import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.google.common.io.BaseEncoding;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class ServiceFilesApiImpl implements ServiceFilesApiCustom {
+public class ServiceFilesApiImpl extends BaseRepositoryApiImpl<FtepServiceContextFile> implements ServiceFilesApiCustom {
 
-    private final FtepServiceContextFileDao contextFileDao;
-    private final ServiceDataService serviceDataService;
+    private final FtepSecurityService securityService;
+    private final FtepServiceContextFileDao dao;
 
-    @Autowired
-    public ServiceFilesApiImpl(FtepServiceContextFileDao contextFileDao, ServiceDataService serviceDataService) {
-        this.contextFileDao = contextFileDao;
-        this.serviceDataService = serviceDataService;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QFtepServiceContextFile.ftepServiceContextFile.id;
+    }
+
+    @Override
+    QUser getOwnerPath() {
+        return QFtepServiceContextFile.ftepServiceContextFile.service.owner;
+    }
+
+    @Override
+    Class<FtepServiceContextFile> getEntityClass() {
+        return FtepServiceContextFile.class;
     }
 
     @Override
     public <S extends FtepServiceContextFile> S save(S serviceFile) {
         // Transform base64 content into real content
         serviceFile.setContent(new String(BaseEncoding.base64().decode(serviceFile.getContent())));
-        return contextFileDao.save(serviceFile);
+        return getDao().save(serviceFile);
     }
+
 }

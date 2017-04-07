@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,6 +120,26 @@ public class FtepFilesApiIT {
                 .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
                 .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
                 .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile2"));
+    }
+
+    @Test
+    public void testFindByOwner() throws Exception {
+        String ftepUserUrl = JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/users/" + ftepUser.getId()).header("REMOTE_USER", ftepAdmin.getName())).andReturn().getResponse().getContentAsString()
+        );
+        String ftepAdminUrl = JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/users/" + ftepAdmin.getId()).header("REMOTE_USER", ftepAdmin.getName())).andReturn().getResponse().getContentAsString()
+        );
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByOwner?owner="+ftepUserUrl).header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(0));
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByOwner?owner="+ftepAdminUrl).header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(2));
     }
 
     @Test

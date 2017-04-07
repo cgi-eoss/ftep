@@ -38,7 +38,7 @@ public class ContentAuthorityApi {
     }
 
     @PostMapping("/services/restoreDefaults")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void restoreDefaultServices() {
         Set<FtepService> defaultServices = DefaultFtepServices.getDefaultServices();
 
@@ -63,7 +63,7 @@ public class ContentAuthorityApi {
     }
 
     @PostMapping("/services/wps/syncAllPublic")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void wpsSyncAllPublic() {
         // Find all ServiceStatus.AVAILABLE, then filter for those visible to PUBLIC
         List<FtepService> publicServices = serviceDataService.findAllAvailable().stream()
@@ -73,13 +73,13 @@ public class ContentAuthorityApi {
     }
 
     @PostMapping("/services/publish/{serviceId}")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void publishService(@ModelAttribute("serviceId") FtepService service) {
         ftepSecurityService.publish(FtepService.class, service.getId());
     }
 
     @PostMapping("/services/unpublish/{serviceId}")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void unpublishService(@ModelAttribute("serviceId") FtepService service) {
         ftepSecurityService.unpublish(FtepService.class, service.getId());
     }

@@ -2,30 +2,36 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.QGroup;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.GroupDao;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class GroupsApiImpl implements GroupsApiInferringOwner {
+public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> {
 
-    private final FtepSecurityService ftepSecurityService;
-    private final GroupDao groupDao;
+    private final FtepSecurityService securityService;
+    private final GroupDao dao;
 
-    @Autowired
-    public GroupsApiImpl(FtepSecurityService ftepSecurityService, GroupDao groupDao) {
-        this.ftepSecurityService = ftepSecurityService;
-        this.groupDao = groupDao;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QGroup.group.id;
     }
 
     @Override
-    public <S extends Group> S save(S group) {
-        if (group.getOwner() == null) {
-            ftepSecurityService.updateOwnerWithCurrentUser(group);
-        }
-        return groupDao.save(group);
+    QUser getOwnerPath() {
+        return QGroup.group.owner;
+    }
+
+    @Override
+    Class<Group> getEntityClass() {
+        return Group.class;
     }
 
 }

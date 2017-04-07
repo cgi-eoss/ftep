@@ -67,7 +67,7 @@ public class JobsApiExtension {
     }
 
     @GetMapping("/{jobId}/logs")
-    @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#job, 'read')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'read')")
     @ResponseBody
     public List<SimpleMessage> getJobContainerLogs(@ModelAttribute("jobId") Job job) throws IOException {
         Map<String, String> parameters = ImmutableMap.<String, String>builder()

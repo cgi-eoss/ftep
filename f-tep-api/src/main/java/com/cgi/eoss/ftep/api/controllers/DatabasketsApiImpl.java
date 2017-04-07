@@ -2,30 +2,36 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Databasket;
+import com.cgi.eoss.ftep.model.QDatabasket;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.DatabasketDao;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class DatabasketsApiImpl implements DatabasketsApiInferringOwner {
+public class DatabasketsApiImpl extends BaseRepositoryApiImpl<Databasket> {
 
-    private final FtepSecurityService ftepSecurityService;
-    private final DatabasketDao databasketDao;
+    private final FtepSecurityService securityService;
+    private final DatabasketDao dao;
 
-    @Autowired
-    public DatabasketsApiImpl(FtepSecurityService ftepSecurityService, DatabasketDao databasketDao) {
-        this.ftepSecurityService = ftepSecurityService;
-        this.databasketDao = databasketDao;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QDatabasket.databasket.id;
     }
 
     @Override
-    public <S extends Databasket> S save(S databasket) {
-        if (databasket.getOwner() == null) {
-            ftepSecurityService.updateOwnerWithCurrentUser(databasket);
-        }
-        return databasketDao.save(databasket);
+    QUser getOwnerPath() {
+        return QDatabasket.databasket.owner;
+    }
+
+    @Override
+    Class<Databasket> getEntityClass() {
+        return Databasket.class;
     }
 
 }

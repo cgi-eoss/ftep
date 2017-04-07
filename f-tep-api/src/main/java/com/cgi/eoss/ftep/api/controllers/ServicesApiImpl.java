@@ -2,29 +2,36 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.QFtepService;
+import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
+import com.querydsl.core.types.dsl.NumberPath;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Getter
 @Component
-public class ServicesApiImpl implements ServicesApiInferringOwner {
+public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> {
 
-    private final FtepSecurityService ftepSecurityService;
-    private final FtepServiceDao ftepServiceDao;
+    private final FtepSecurityService securityService;
+    private final FtepServiceDao dao;
 
-    @Autowired
-    public ServicesApiImpl(FtepSecurityService ftepSecurityService, FtepServiceDao ftepServiceDao) {
-        this.ftepSecurityService = ftepSecurityService;
-        this.ftepServiceDao = ftepServiceDao;
+    @Override
+    NumberPath<Long> getIdPath() {
+        return QFtepService.ftepService.id;
     }
 
     @Override
-    public <S extends FtepService> S save(S ftepService) {
-        if (ftepService.getOwner() == null) {
-            ftepSecurityService.updateOwnerWithCurrentUser(ftepService);
-        }
-        return ftepServiceDao.save(ftepService);
+    QUser getOwnerPath() {
+        return QFtepService.ftepService.owner;
     }
+
+    @Override
+    Class<FtepService> getEntityClass() {
+        return FtepService.class;
+    }
+
 }

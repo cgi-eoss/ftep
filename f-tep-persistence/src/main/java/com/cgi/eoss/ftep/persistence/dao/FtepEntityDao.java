@@ -6,6 +6,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import java.util.List;
@@ -29,5 +30,8 @@ public interface FtepEntityDao<T extends FtepEntity<T>> extends JpaRepository<T,
 
     @Override
     List<T> findAll(OrderSpecifier<?>... orders);
+
+    @Query("select distinct t.id from #{#entityName} t")
+    List<Long> findAllIds();
 
 }

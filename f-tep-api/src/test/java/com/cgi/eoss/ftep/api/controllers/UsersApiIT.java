@@ -80,7 +80,7 @@ public class UsersApiIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
                 .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].name").value("owner-uid2"))
-                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].email").value("owner2@example.com"));
+                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].email").doesNotExist());
 
         mockMvc.perform(get("/api/users/" + owner.getId()).header("REMOTE_USER", "ftep-new-user"))
                 .andExpect(status().isOk())

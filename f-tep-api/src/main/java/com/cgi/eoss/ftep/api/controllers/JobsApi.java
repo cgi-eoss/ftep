@@ -1,30 +1,24 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.model.projections.ShortJob;
 import com.cgi.eoss.ftep.model.Job;
-import org.springframework.data.repository.CrudRepository;
+import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.projections.ShortJob;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.util.List;
-
-@RepositoryRestResource(
-        path = "jobs",
-        itemResourceRel = "job",
-        collectionResourceRel = "jobs",
-        excerptProjection = ShortJob.class)
-public interface JobsApi extends JobsApiInferringOwner, CrudRepository<Job, Long> {
+@RepositoryRestResource(path = "jobs", itemResourceRel = "job", collectionResourceRel = "jobs", excerptProjection = ShortJob.class)
+public interface JobsApi extends BaseRepositoryApi<Job>, PagingAndSortingRepository<Job, Long> {
 
     @Override
-    @PostFilter("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(filterObject, 'read')")
-    List<Job> findAll();
-
-    @Override
-    @PostAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(returnObject, 'read')")
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
     Job findOne(Long id);
 
     // Users cannot create job instances via the API; they are set via the service launch ingest
@@ -38,11 +32,15 @@ public interface JobsApi extends JobsApiInferringOwner, CrudRepository<Job, Long
     <S extends Job> S save(S job);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     void delete(Iterable<? extends Job> jobs);
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasPermission(#job, 'administration')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'administration')")
     void delete(@P("job") Job job);
+
+    @Override
+    @Query("select t from Job t where t.owner=user")
+    Page<Job> findByOwner(@Param("owner") User user, Pageable pageable);
 
 }

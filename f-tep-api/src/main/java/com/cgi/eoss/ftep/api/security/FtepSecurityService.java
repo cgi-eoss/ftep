@@ -2,15 +2,18 @@ package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AclPermissionEvaluator;
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
@@ -26,7 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,6 +43,7 @@ import java.util.stream.IntStream;
 @Log4j2
 public class FtepSecurityService {
 
+    private static final Predicate<GrantedAuthority> SUPERUSER_PREDICATE = a -> Role.CONTENT_AUTHORITY.getAuthority().equals(a.getAuthority()) || Role.ADMIN.getAuthority().equals(a.getAuthority());
     private static final Authentication PUBLIC_AUTHENTICATION = new TestingAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
     private final MutableAclService aclService;
@@ -194,4 +201,33 @@ public class FtepSecurityService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
+    public Set<Long> getVisibleObjectIds(Class<?> objectClass, List<Long> allIds) {
+        List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(Collectors.toList());
+        List<Sid> sids = getSids(getCurrentAuthentication());
+
+        Map<ObjectIdentity, Acl> objectIdentityAclMap = null;
+        try {
+            objectIdentityAclMap = aclService.readAclsById(objectIdentities, sids);
+        } catch (NotFoundException e) {
+            // Manually build up the ACLs one by one with the null-safe getter
+            objectIdentityAclMap = objectIdentities.stream()
+                    .collect(Collectors.toMap(Function.identity(), oid -> this.getAcl(oid, sids.toArray(new Sid[sids.size()]))));
+        }
+
+        return objectIdentityAclMap.entrySet().stream()
+                .filter(e -> {
+                    try {
+                        return e.getValue().isGranted(ImmutableList.of(BasePermission.READ), sids, false);
+                    } catch (NotFoundException ex) {
+                        return false;
+                    }
+                })
+                .map(e -> e.getKey().getIdentifier())
+                .map(Long.class::cast)
+                .collect(Collectors.toSet());
+    }
+
+    public boolean isSuperUser() {
+        return getCurrentAuthorities().stream().anyMatch(SUPERUSER_PREDICATE);
+    }
 }

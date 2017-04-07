@@ -21,7 +21,6 @@ mkdir -p ${OUT_DIR}/{result,model,confusionMatrix}
 source ${WPS_PROPS}
 EPSG="${crs}"
 AOI="${aoi}"
-DEM="${dem}"
 TRAINING_SHAPEFILE=$(ls -1 ${IN_DIR}/refDataShapefile/*.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 TARGET_RESOLUTION="${targetResolution}"
@@ -66,7 +65,7 @@ done
 
 # Preprocess S2 input(s): mosaic multiple CRS values
 AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -f GeoTIFF-BigTIFF -Pepsg="${EPSG}" -Pdem="${DEM}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
+time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -f GeoTIFF-BigTIFF -Pepsg="${EPSG}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
 time gpt BandSelect -t ${TRAINING_INPUT} -f GeoTIFF-BigTIFF -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
 
 # OTB training with "random forest" model + reference data

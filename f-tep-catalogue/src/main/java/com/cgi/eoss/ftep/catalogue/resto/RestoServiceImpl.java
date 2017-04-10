@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.catalogue.resto;
 
 import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepFileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
@@ -103,6 +104,38 @@ public class RestoServiceImpl implements RestoService {
     @Override
     public void deleteReferenceData(UUID restoId) {
         delete(refDataCollection, restoId);
+    }
+
+    @Override
+    public GeoJsonObject getGeoJson(FtepFile ftepFile) {
+        String collection = getCollection(ftepFile);
+
+        HttpUrl url = HttpUrl.parse(restoBaseUrl).newBuilder()
+                .addPathSegment("collections")
+                .addPathSegment(collection)
+                .addPathSegment(ftepFile.getRestoId() + ".json")
+                .build();
+
+        Request request = new Request.Builder().url(url).get().build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return GeoUtil.stringToGeojson(response.body().string());
+        } catch (Exception e) {
+            throw new RestoException(e);
+        }
+    }
+
+    private String getCollection(FtepFile ftepFile) {
+        switch (ftepFile.getType()) {
+            case EXTERNAL_PRODUCT:
+                return externalProductCollection;
+            case OUTPUT_PRODUCT:
+                return outputProductCollection;
+            case REFERENCE_DATA:
+                return refDataCollection;
+            default:
+                throw new UnsupportedOperationException("Unknown FtepFile type: " + ftepFile.getType());
+        }
     }
 
     private UUID ingest(String collection, GeoJsonObject object) {

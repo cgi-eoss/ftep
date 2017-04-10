@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api.projections;
+package com.cgi.eoss.ftep.model.projections;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Project;

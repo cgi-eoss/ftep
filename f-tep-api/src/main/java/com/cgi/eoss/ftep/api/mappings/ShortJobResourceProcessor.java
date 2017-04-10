@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api.mappings;
 
-import com.cgi.eoss.ftep.api.projections.ShortJob;
+import com.cgi.eoss.ftep.model.projections.ShortJob;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

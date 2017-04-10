@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.api.projections.ShortFtepService;
+import com.cgi.eoss.ftep.model.projections.ShortFtepService;
 import com.cgi.eoss.ftep.model.FtepService;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

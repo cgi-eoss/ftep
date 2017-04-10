@@ -93,6 +93,10 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
         this.restoId = restoId;
     }
 
+    public FtepFile(String reference) {
+        // No-op, for SDR https://stackoverflow.com/questions/41324078/spring-data-rest-can-not-update-patch-a-list-of-child-entities-that-have-a-r
+    }
+
     @Override
     public int compareTo(FtepFile o) {
         return ComparisonChain.start().compare(uri, o.uri).result();

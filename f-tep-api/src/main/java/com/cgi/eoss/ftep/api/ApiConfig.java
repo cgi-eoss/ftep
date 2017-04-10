@@ -121,6 +121,7 @@ public class ApiConfig {
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.setRepositoryDetectionStrategy(ANNOTATED);
                 config.setBasePath(apiBasePath);
+
                 // Ensure that the id attribute is returned for all API-mapped types
                 ImmutableList.of(Group.class, JobConfig.class, Job.class, FtepService.class, User.class, FtepFile.class, Databasket.class)
                         .forEach(config::exposeIdsFor);

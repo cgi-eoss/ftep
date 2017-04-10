@@ -86,4 +86,12 @@ public class GeoUtil {
         }
     }
 
+    public static GeoJsonObject stringToGeojson(String geojson) {
+        try {
+            return OBJECT_MAPPER.readValue(geojson, GeoJsonObject.class);
+        } catch (Exception e) {
+            LOG.error("Could not deserialise GeoJsonObject: {}", geojson, e);
+            throw new RuntimeException(e);
+        }
+    }
 }

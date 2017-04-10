@@ -21,6 +21,7 @@ dependencies {
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'it.geosolutions:geoserver-manager'
     compile 'org.apache.commons:commons-lang3'
+    compile 'org.ehcache:ehcache'
     compile 'org.geotools:gt-main'
     compile 'org.geotools:gt-geojson'
     compile 'org.geotools:gt-geometry'
@@ -28,6 +29,7 @@ dependencies {
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-web'
+    compile 'org.springframework.boot:spring-boot-starter-cache'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
 
     testCompile 'junit:junit'

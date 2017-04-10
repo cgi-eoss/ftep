@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api.projections;
+package com.cgi.eoss.ftep.model.projections;
 
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import org.springframework.data.rest.core.config.Projection;

@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.resto;
 
+import com.cgi.eoss.ftep.model.FtepFile;
 import org.geojson.GeoJsonObject;
 
 import java.util.UUID;
@@ -30,4 +31,6 @@ public interface RestoService {
      * <p>Remove the given F-TEP Reference Data product from the Resto catalogue.</p>
      */
     void deleteReferenceData(UUID restoId);
+
+    GeoJsonObject getGeoJson(FtepFile ftepFile);
 }

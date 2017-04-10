@@ -125,7 +125,6 @@ class FtepResourceJob extends FtepResource {
 
         $result = db_query( $sql, $params );
         $res = $result->fetchObject();
-        //file_put_contents('/tmp/test.log', var_export(array($res,$result,$sql, $params),true));
         if(!$res){
             throw new Exception("No result found");
         }
@@ -137,7 +136,7 @@ class FtepResourceJob extends FtepResource {
                 $resx[] =(object) array(
                     "jobid"=>$aresult[1][0],
                     "fname"=>$aresult[2][0],
-		    "link" => "/download/Job_" . $aresult[1][0] . "/outDir/" . $aresult[2][0]
+		            "link" => '/download/' . $aresult[1][0] . '/' . $aresult[2][0]
                 );
             }
         }

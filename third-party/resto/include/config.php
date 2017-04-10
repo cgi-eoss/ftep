@@ -61,12 +61,12 @@ return array(
         /*
          * Debug mode
          */
-        'debug' => false,
+        'debug' => true,
 
         /*
          * Timezone
          */
-        'timezone' => 'Europe/Paris',
+        'timezone' => 'UTC',
 
         /*
          * Protocol :
@@ -161,7 +161,7 @@ return array(
          * Driver name must be associated to a RestoDatabaseDriver class called
          * RestoDatabaseDriver_{driver} (usually located under $RESTO_BUILD/include/resto/Drivers)
          */
-        'driver' => 'PostgreSQL',
+        'driver' => 'FtepPostgreSQL',
 
         /*
          * Cache directory used to store Database queries
@@ -184,6 +184,7 @@ return array(
          * Database host - if not specified connect through unix domain socket (IPC socket) instead of TCP/IP socket
          */
         //'host' => 'localhost',
+        'host' => '127.0.0.1',
 
         /*
          * Database port
@@ -213,7 +214,7 @@ return array(
          * Database user with READ+WRITE privileges (see http://github.com/jjrom/resto/README.md)
          */
         'user' => 'resto',
-        'password' => 'resto'
+        'password' => '12qwas'
     ),
 
     /*

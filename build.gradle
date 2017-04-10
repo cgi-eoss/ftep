@@ -63,6 +63,7 @@ allprojects {
             dependency 'com.google.guava:guava:21.0'
             dependency 'com.google.jimfs:jimfs:1.1'
             dependency 'com.google.protobuf:protoc:3.2.0'
+            dependency 'com.hierynomus:sshj:0.20.0'
             dependency 'com.jayway.jsonpath:json-path:2.2.0'
             dependency 'com.lmax:disruptor:3.3.6'
             dependencySet(group: 'com.querydsl', version: '4.1.4') {
@@ -117,12 +118,15 @@ allprojects {
             dependency 'org.lognet:grpc-spring-boot-starter:2.0.1'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
             dependency 'org.mockito:mockito-core:2.7.11'
+            dependency 'org.pacesys:openstack4j-core:3.0.3'
+            dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.0.3'
             dependency 'org.postgresql:postgresql:42.0.0'
             dependency 'org.projectlombok:lombok:1.16.16'
             dependency 'org.seleniumhq.selenium:selenium-java:3.3.0'
             dependencySet(group: 'org.springframework.boot', version: '1.5.2.RELEASE') {
                 entry 'spring-boot'
                 entry 'spring-boot-autoconfigure'
+                entry 'spring-boot-configuration-processor'
                 entry('spring-boot-starter') { exclude 'org.springframework.boot:spring-boot-starter-logging' }
                 entry 'spring-boot-starter-actuator'
                 entry 'spring-boot-starter-cache'

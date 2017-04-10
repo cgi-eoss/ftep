@@ -13,6 +13,9 @@ include 'f-tep-api'
 include 'f-tep-server'
 include 'f-tep-worker'
 include 'f-tep-catalogue'
+include 'f-tep-defaultservices'
+include 'f-tep-serviceregistry'
+include 'f-tep-clouds'
 
 include 'third-party/cxx/zoo-project'
 include 'third-party/java/docker-java'
@@ -22,6 +25,4 @@ include 'third-party/puppet'
 include 'third-party/resto'
 
 include 'distribution'
-include 'f-tep-defaultservices'
-include 'f-tep-serviceregistry'
 

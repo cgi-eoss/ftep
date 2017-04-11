@@ -88,6 +88,7 @@ public class IptDownloader implements Downloader {
              OutputStream os = Files.newOutputStream(outputFile)) {
             ByteStreams.copy(is, os);
         }
+        response.close();
 
         LOG.info("Successfully downloaded via IPT: {}", outputFile);
         return outputFile;

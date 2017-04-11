@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.worker.docker;
 
-import com.github.dockerjava.api.DockerClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
 
 @Component
 public class DockerClientFactory {

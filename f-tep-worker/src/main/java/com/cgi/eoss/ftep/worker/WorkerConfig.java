@@ -1,12 +1,5 @@
 package com.cgi.eoss.ftep.worker;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.RemoteApiVersion;
-import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 import com.google.common.base.Strings;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +10,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
+import shadow.dockerjava.com.github.dockerjava.api.command.DockerCmdExecFactory;
+import shadow.dockerjava.com.github.dockerjava.core.DefaultDockerClientConfig;
+import shadow.dockerjava.com.github.dockerjava.core.DockerClientBuilder;
+import shadow.dockerjava.com.github.dockerjava.core.DockerClientConfig;
+import shadow.dockerjava.com.github.dockerjava.core.RemoteApiVersion;
+import shadow.dockerjava.com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;

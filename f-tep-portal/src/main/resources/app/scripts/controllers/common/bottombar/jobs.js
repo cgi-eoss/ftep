@@ -14,73 +14,52 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.jobParams = JobService.params.explorer;
             $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
 
-            var jobs = [];
-            $scope.serviceGroups = [];
-
-            function loadJobs() {
-                JobService.getJobs().then(function (result) {
-                    jobs = result.data;
-                    $scope.serviceGroups = result.included;
-                    groupJobs();
-                });
-            }
-            loadJobs();
-
-            $scope.$on('refresh.jobs', function (event, result) {
-                jobs = result.data;
-                $scope.serviceGroups = result.included;
+            JobService.getJobs('explorer').then(function (data) {
+                $scope.jobParams.jobs = data;
                 groupJobs();
-
-                //update selected job
-                if($scope.jobParams.selectedJob){
-                    for(var i = 0; i < result.data.length; i++){
-                        if($scope.jobParams.selectedJob.id == result.data[i].id){
-                            $scope.jobParams.selectedJob = result.data[i];
-                            JobService.getOutputs($scope.jobParams.selectedJob.id).then(function(data){
-                                $scope.jobParams.jobOutputs = data;
-                            });
-                            break;
-                        }
-                    }
-                }
-                $scope.$broadcast('rebuild:scrollbar');
             });
 
-            // Group jobs by their service id
+            $scope.$on('poll.jobs', function (event, data) {
+                $scope.jobParams.jobs = data;
+                groupJobs();
+
+                JobService.refreshSelectedJob('explorer');
+            });
+
+            // Group jobs by their service name
             $scope.groupedJobs = {};
 
             function groupJobs() {
                 $scope.groupedJobs = {};
-                if (jobs) {
-                    for (var i = 0; i < jobs.length; i++) {
-                        var job = jobs[i];
-                        var category = $scope.groupedJobs[job.relationships.service.data[0].id];
-                        if (!category) {
-                            $scope.groupedJobs[job.relationships.service.data[0].id] = [];
+                if ($scope.jobParams.jobs) {
+                    for (var i = 0; i < $scope.jobParams.jobs.length; i++) {
+                        var job = $scope.jobParams.jobs[i];
+
+                        if ($scope.groupedJobs[job.serviceName] === undefined) {
+                            $scope.groupedJobs[job.serviceName] = [];
                         }
-                        if ($scope.jobParams.jobCategoryInfo[job.relationships.service.data[0].id] === undefined) {
-                            $scope.jobParams.jobCategoryInfo[job.relationships.service.data[0].id] = {
+
+                        if ($scope.jobParams.jobCategoryInfo[job.serviceName] === undefined) {
+                            $scope.jobParams.jobCategoryInfo[job.serviceName] = {
                                 opened: false
                             };
                         }
-                        $scope.groupedJobs[job.relationships.service.data[0].id].push(job);
+                        $scope.groupedJobs[job.serviceName].push(job);
                     }
                 }
             }
             groupJobs();
 
-            $scope.isJobGroupOpened = function (serviceId) {
-                return $scope.jobParams.jobCategoryInfo[serviceId].opened;
+            $scope.isJobGroupOpened = function (serviceName) {
+                return $scope.jobParams.jobCategoryInfo[serviceName].opened;
             };
 
-            $scope.toggleJobGroup = function (serviceId) {
-                $scope.jobParams.jobCategoryInfo[serviceId].opened = !$scope.jobParams.jobCategoryInfo[serviceId].opened;
-                $scope.$broadcast('rebuild:scrollbar');
+            $scope.toggleJobGroup = function (serviceName) {
+                $scope.jobParams.jobCategoryInfo[serviceName].opened = !$scope.jobParams.jobCategoryInfo[serviceName].opened;
             };
 
             $scope.toggleFilters = function () {
                 $scope.jobParams.displayFilters = !$scope.jobParams.displayFilters;
-                $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.filteredJobStatuses = [];
@@ -102,92 +81,44 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     }
 
                     JobService.removeJob(job).then(function () {
-                        var i = jobs.indexOf(job);
-                        jobs.splice(i, 1);
-                        groupJobs();
-                        if ($scope.groupedJobs[job.relationships.service.data[0].id] === undefined) {
-                            console.log('last job in the group, remove group');
-                            for (var serviceIndex = 0; serviceIndex < $scope.serviceGroups.length; serviceIndex++) {
-                                if ($scope.serviceGroups[serviceIndex].id === job.relationships.service.data[0].id) {
-                                    $scope.serviceGroups.splice(serviceIndex, 1);
-                                    break;
-                                }
-                            }
-                        }
-                        if(angular.equals(job, $scope.jobParams.selectedJob)){
-                            delete $scope.jobParams.selectedJob;
-                        }
-                        $scope.$broadcast('rebuild:scrollbar');
+                        JobService.refreshJobs('explorer', "Remove");
                     });
                 });
             };
 
             $scope.repeatJob = function(job){
-                $rootScope.$broadcast('rerun.service', job.attributes.inputs, job.relationships.service.data[0].id);
+                JobService.getJobConfig(job).then(function(config){
+                    $rootScope.$broadcast('rerun.service', config.inputs, config._embedded.service);
+                });
             };
 
-            $scope.hasGuiEndPoint = function (endPoint) {
-                if (endPoint && endPoint.includes("http")) {
+            $scope.hasGuiEndPoint = function (job) {
+                if (job._links && job._links.gui && job._links.gui.href && job._links.gui.href.includes("http")) {
                     return true;
                 }
                 return false;
             };
 
-            $scope.isVisible = function(job, service){
-                var jobOwnershipFilter = false;
-                if($scope.jobParams.selectedOwnershipFilter === $scope.jobOwnershipFilters.MY_JOBS){
-                    jobOwnershipFilter = (job.attributes.permissionLevel === 'OWNER');
-                }
-                else if($scope.jobParams.selectedOwnershipFilter === $scope.jobOwnershipFilters.SHARED_JOBS){
-                    jobOwnershipFilter = (job.attributes.permissionLevel !== 'OWNER');
-                }
-                else{
-                    jobOwnershipFilter = true;
-                }
-
-                return $scope.isJobGroupOpened(service.id) && $scope.filteredJobStatuses.indexOf(job.attributes.status) > -1 && jobOwnershipFilter;
-            };
-
-            /* Selected Job */
             $scope.selectJob = function (job) {
                 $scope.jobParams.selectedJob = job;
-                $scope.jobParams.jobSelectedOutputs = [];
-                JobService.getOutputs(job.id).then(function(data){
-                    $scope.jobParams.jobOutputs = data;
-                    $rootScope.$broadcast('show.products', job.id, data);
-                });
+                JobService.refreshSelectedJob('explorer');
+//                    $rootScope.$broadcast('show.products', job.id, data); //TODO
 
-                $scope.$broadcast('rebuild:scrollbar');
                 var container = document.getElementById('bottombar');
                 container.scrollTop = 0;
             };
 
-            $scope.getJobInputs = function(job) {
-
-                $scope.$broadcast('rebuild:scrollbar');
-
-                if (job.attributes.inputs instanceof Object && Object.keys(job.attributes.inputs).length > 0) {
-                    return job.attributes.inputs;
-                }
-                else {
-                    return undefined;
-                }
-            };
-
-            $scope.getOutputLink = function(link){
-                return CommonService.getOutputLink(link);
-            };
-
+            /** FOR DRAGGING JOB OUTPUTS **/
             $scope.getSelectedOutputFiles = function(file) {
 
                 if ($scope.jobParams.jobSelectedOutputs.indexOf(file) < 0) {
                     $scope.jobParams.jobSelectedOutputs.push(file);
                 }
-                $scope.$broadcast('rebuild:scrollbar');
 
                 return $scope.jobParams.jobSelectedOutputs;
             };
 
+            /** FOR HIGHLIGHTING THE SELECTED JOB OUTPUTS **/
             $scope.selectOutputFile = function(item){
                 var index = $scope.jobParams.jobSelectedOutputs.indexOf(item);
                 if (index < 0) {
@@ -199,7 +130,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.selectAllOutputs = function(){
                 $scope.jobParams.jobSelectedOutputs = [];
-                $scope.jobParams.jobSelectedOutputs.push.apply($scope.jobParams.jobSelectedOutputs, $scope.jobParams.jobOutputs);
+                $scope.jobParams.jobSelectedOutputs.push.apply($scope.jobParams.jobSelectedOutputs, $scope.jobParams.selectedJob.outputs.result);
             };
 
             $scope.clearOutputsSelection = function(){
@@ -208,9 +139,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.invertOutputsSelection = function(){
                 var newSelection = [];
-                for(var i = 0; i < $scope.jobParams.jobOutputs.length; i++) {
-                    if($scope.jobParams.jobSelectedOutputs.indexOf($scope.jobParams.jobOutputs[i]) < 0){
-                         newSelection.push($scope.jobParams.jobOutputs[i]);
+                for(var i = 0; i < $scope.jobParams.selectedJob.outputs.result.length; i++) {
+                    if($scope.jobParams.jobSelectedOutputs.indexOf($scope.jobParams.selectedJob.outputs.result[i]) < 0){
+                         newSelection.push($scope.jobParams.selectedJob.outputs.result[i]);
                     }
                 }
                 $scope.jobParams.jobSelectedOutputs = [];
@@ -220,8 +151,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.isOutputSelected = function(item) {
                 return $scope.jobParams.jobSelectedOutputs.indexOf(item) > -1;
             };
-
-            /* End of Selected Job */
 
     }]);
 });

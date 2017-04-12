@@ -1,4 +1,4 @@
-<div class="scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+<div class="scrollme" is-bar-shown="flag" rebuild-on-resize>
 
    <section class="filter-list">
         <ul class="list">
@@ -59,18 +59,18 @@
     </section>
 
     <section class="item-list">
-        <div class="list" ng-repeat="service in serviceGroups">
+        <div class="list" ng-repeat="(serviceName, serviceJobs) in groupedJobs">
 
             <div class="row list-group">
 
-                <div class="col-xs-11" ng-click="toggleJobGroup(service.id)">
-                    <label>{{service.attributes.name}}</label>
+                <div class="col-xs-11" ng-click="toggleJobGroup(serviceName)">
+                    <label>{{serviceName}}</label>
                 </div>
 
                 <div class="col-xs-1 no-padding expander">
                     <i class="material-icons"
-                       ng-show="!isJobGroupOpened(service.id)"
-                       ng-click="toggleJobGroup(service.id)"
+                       ng-show="!isJobGroupOpened(serviceName)"
+                       ng-click="toggleJobGroup(serviceName)"
                        aria-label="Show Job Details"
                        uib-tooltip="Show Job Details"
                        tooltip-placement="top"
@@ -79,8 +79,8 @@
                         expand_less
                     </i>
                     <i class="material-icons"
-                       ng-show="isJobGroupOpened(service.id)"
-                       ng-click="toggleJobGroup(service.id)"
+                       ng-show="isJobGroupOpened(serviceName)"
+                       ng-click="toggleJobGroup(serviceName)"
                        aria-label="Hide Job Details"
                        uib-tooltip="Hide Job Details"
                        tooltip-placement="top"
@@ -93,26 +93,26 @@
             </div>
 
             <md-list-item class="md-3-line"
-                          ng-repeat="job in groupedJobs[service.id] | filter: jobParams.selectedOwnershipFilter.criteria | orderBy: 'id'"
-                          ng-show="isJobGroupOpened(service.id) && filteredJobStatuses.indexOf(job.attributes.status) > -1"
+                          ng-repeat="job in serviceJobs | filter: jobParams.selectedOwnershipFilter.criteria | orderBy: 'id'"
+                          ng-show="isJobGroupOpened(serviceName) && filteredJobStatuses.indexOf(job.status) > -1"
                           ng-click="selectJob(job)"
                           ng-class="{active: job.id == jobParams.selectedJob.id}">
 
-                <div class="md-avatar" alt="{{job.attributes.step}}" style="{{getColor(job.attributes.status)}}">
-                    <i class="material-icons" ng-if="job.attributes.status === 'Succeeded'">done</i>
-                    <i class="material-icons" ng-if="job.attributes.status === 'Failed'">error</i>
-                    <i class="material-icons" ng-if="job.attributes.status === 'Running'">hourglass_empty</i>
+                <div class="md-avatar" alt="{{job.stage}}" style="{{getColor(job.status)}}">
+                    <i class="material-icons" ng-if="job.status === 'COMPLETED'">done</i>
+                    <i class="material-icons" ng-if="job.status === 'ERROR'">error</i>
+                    <i class="material-icons" ng-if="job.status === 'RUNNING'">hourglass_empty</i>
                 </div>
 
                 <div class="md-list-item-text" layout="column">
                     <h3>Job ID: {{job.id}}</h3>
-                    <h4>{{job.attributes.step}}</h4>
-                    <p>{{job.attributes.status}}</p>
+                    <h4>{{job.stage}}</h4>
+                    <p>{{job.status}}</p>
                 </div>
 
                 <md-button class="toolbar-button md-secondary"
-                           ng-show="hasGuiEndPoint(job.attributes.guiEndpoint)"
-                           href="{{job.attributes.guiEndpoint}}"
+                           ng-show="hasGuiEndPoint(job)"
+                           href="{{job._links.gui.href}}"
                            target="_blank"
                            aria-label="Go to GUI"
                            uib-tooltip="Go to GUI"

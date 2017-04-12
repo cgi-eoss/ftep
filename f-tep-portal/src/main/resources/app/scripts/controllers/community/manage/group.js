@@ -19,7 +19,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
          /* Filters */
         $scope.toggleUserFilters = function () {
             $scope.userParams.displayUserFilters = !$scope.userParams.displayUserFilters;
-            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.userSearch = {
@@ -83,7 +82,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             $scope.addUserSuccess = true;
                             $scope.searchText = null;
                             /* Update groups & active group */
-                            GroupService.refreshGroupsV2("Community");
+                            GroupService.refreshGroups("community");
                         });
                     }
                 };
@@ -105,7 +104,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Remove User */
         $scope.removeUser = function (group, users, user) {
              UserService.removeUser(group, users, user).then(function (data) {
-                GroupService.refreshGroupsV2("Community");
+                GroupService.refreshGroups("community");
             });
         };
 

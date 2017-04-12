@@ -7,8 +7,8 @@
  */
 'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService',
-                                              function($scope, $rootScope, CommonService, TabService, BasketService, JobService, GeoService) {
+    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', '$q', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService', 'FileService',
+                                              function($scope, $rootScope, $q, CommonService, TabService, BasketService, JobService, GeoService, FileService) {
 
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
         $scope.resultTab = TabService.resultTab;
@@ -28,37 +28,39 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /**
-         * Collects selected items based on active tab, and adds to the selected databasket
+         * Add the items to the selected databasket
          */
-        $scope.addToDatabasket = function() {
-//            var items = [];
-//            switch($scope.navInfo.activeBottomNav){
-//                case $scope.bottomNavTabs.RESULTS:
-//                    items = $scope.resultParams.selectedResultItems;
-//                    break;
-//                case $scope.bottomNavTabs.JOBS:
-//                    items = $scope.jobParams.jobSelectedOutputs;
-//                    break;
-//            }
-//
-//            for (var i = 0; i < items.length; i++) {
-//                var found = false;
-//                for(var k = 0; k < $scope.dbParams.selectedDatabasket.items.length; k++){
-//                    if(angular.equals(items[i], $scope.dbParams.selectedDatabasket.items[k]) ||
-//                    ($scope.dbParams.selectedDatabasket.items[k].name &&
-//                    $scope.dbParams.selectedDatabasket.items[k].name === items[i].identifier)){
-//                        found = true;
-//                        break;
-//                    }
-//                }
-//                if(!found){
-//                    $scope.dbParams.selectedDatabasket.items.push(items[i]);
-//                }
-//            }
-//
-//            BasketService.addBasketItems($scope.dbParams.selectedDatabasket, $scope.dbParams.selectedDatabasket.items);
-//            $scope.$broadcast('rebuild:scrollbar');
+        $scope.addToDatabasket = function(items, isGeoResult) {
+            if(isGeoResult){
+                var itemLinks = [];
+                var promises = [];
+                for(var index in items){
+                    var partialPromise = $q.defer();
+                    promises.push(partialPromise.promise);
+
+                    var item = items[index];
+                    FileService.createGeoResultFile(item.geo).then(function(result){
+                        itemLinks.push(result.data._links.self.href);
+                        partialPromise.resolve();
+                    },
+                    function(error){
+                        partialPromise.reject();
+                    });
+                }
+                $q.all(promises).then(function(){
+                    addToBasket(itemLinks);
+                });
+            }
+            else{
+                addToBasket(items);
+            }
         };
+
+        function addToBasket(items){
+            BasketService.addItems($scope.dbParams.selectedDatabasket, items).then(function () {
+                BasketService.refreshDatabaskets("explorer");
+            });
+        }
 
         $scope.bottombarTall = false;
         $scope.toggleBottombarHeight = function() {

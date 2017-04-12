@@ -48,7 +48,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var pollCount = 3;
         var startPolling = true;
 
-        var pollGroupsV2 = function () {
+        var pollGroups = function () {
             $timeout(function () {
                 groupsAPI.from(rootUri + '/groups/')
                     .newRequest()
@@ -56,13 +56,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(function (document) {
                         $rootScope.$broadcast('poll.groups', document._embedded.groups);
-                        pollGroupsV2();
+                        pollGroups();
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Groups', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollGroupsV2();
+                            pollGroups();
                         }
                     });
             }, POLLING_FREQUENCY);
@@ -77,7 +77,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                      .then(
             function (document) {
                 if(startPolling) {
-                    pollGroupsV2();
+                    pollGroups();
                     startPolling = false;
                 }
                 deferred.resolve(document._embedded.groups);
@@ -162,49 +162,47 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshGroupsV2 = function (service, action, group) {
+        this.refreshGroups = function (page, action, group) {
 
-            if (service === "Community") {
+            if (self.params[page]) {
 
                 /* Get group list */
                 this.getGroups().then(function (data) {
 
-                    self.params.community.groups = data;
+                    self.params[page].groups = data;
 
                     /* Select last group if created */
                     if (action === "Create") {
-                        self.params.community.selectedGroup = self.params.community.groups[self.params.community.groups.length-1];
+                        self.params[page].selectedGroup = self.params[page].groups[self.params[page].groups.length-1];
                     }
 
                     /* Clear group if deleted */
                     if (action === "Remove") {
-                        if (group && group.id === self.params.community.selectedGroup.id) {
-                            self.params.community.selectedGroup = undefined;
-                            self.params.community.groupUsers = [];
+                        if (group && group.id === self.params[page].selectedGroup.id) {
+                            self.params[page].selectedGroup = undefined;
+                            self.params[page].groupUsers = [];
                         }
                     }
 
                     /* Update the selected group */
-                    self.refreshSelectedGroupV2("Community");
-
+                    self.refreshSelectedGroup(page);
                 });
-
             }
 
         };
 
-        this.refreshSelectedGroupV2 = function (service) {
+        this.refreshSelectedGroup = function (page) {
 
-            if (service === "Community") {
+            if (self.params[page]) {
                 /* Get group contents if selected */
-                if (self.params.community.selectedGroup) {
-                    getGroup(self.params.community.selectedGroup).then(function (group) {
-                        self.params.community.selectedGroup = group;
+                if (self.params[page].selectedGroup) {
+                    getGroup(self.params[page].selectedGroup).then(function (group) {
+                        self.params[page].selectedGroup = group;
                         UserService.getUsers(group).then(function (users) {
-                            UserService.params.community.groupUsers = users;
+                            UserService.params[page].groupUsers = users;
                         });
                         CommunityService.getObjectGroups(group, 'group').then(function (data) {
-                            self.params.community.sharedGroups = data;
+                            self.params[page].sharedGroups = data;
                         });
                     });
                 }

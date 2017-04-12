@@ -11,7 +11,7 @@
             </md-button>
             <md-menu-content>
                 <md-menu-item>
-                     <md-button aria-label="Select All"
+                     <md-button aria-label="Select All Outputs"
                                 ng-click="selectAllOutputs()"
                                 ng-disabled="jobParams.selectedJob == undefined">
                         <span>
@@ -21,7 +21,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button aria-label="Deselect All"
+                    <md-button aria-label="Deselect All Outputs"
                                ng-click="clearOutputsSelection()"
                                ng-disabled="jobParams.selectedJob == undefined">
                         <span>
@@ -31,7 +31,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button aria-label="Invert Selection"
+                    <md-button aria-label="Invert Outputs Selection"
                                ng-click="invertOutputsSelection()"
                                ng-disabled="jobParams.selectedJob == undefined">
                          <span>
@@ -53,6 +53,7 @@
                     <md-menu ng-controller="DatabasketCtrl">
                         <md-button ng-click="$mdOpenMenu($event)"
                                    class="toolbar-button"
+                                   ng-disabled="!dbParams.databaskets || dbParams.databaskets.length === 0"
                                    aria-label="Select Databasket"
                                    uib-tooltip="Select Databasket"
                                    tooltip-trigger="mouseenter"
@@ -63,13 +64,13 @@
                             </span>
                         </md-button>
                         <md-menu-content>
-                            <md-menu-item ng-repeat="basket in databaskets">
+                            <md-menu-item ng-repeat="basket in dbParams.databaskets">
                                  <md-button ng-click="selectDatabasket(basket)"
-                                            ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            ng-class="(basket.name == dbParams.selectedDatabasket.name) ? 'selected' : ''"
                                             aria-label="Databasket">
                                     <span>
                                         <span class="material-icons">shopping_basket</span>
-                                        <span class="menu-text">{{basket.attributes.name}}</span>
+                                        <span class="menu-text">{{basket.name}}</span>
                                     </span>
                                 </md-button>
                             </md-menu-item>
@@ -78,11 +79,11 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-                               ng-click="addToDatabasket()"
+                               ng-click="addToDatabasket([jobParams.selectedJob._links['output-result'].href])"
                                aria-label="Add to Databasket">
                          <span>
                              <span class="material-icons">shopping_basket</span>
-                             <span class="menu-text">Add to {{selectedDatabasket.attributes.name}}</span>
+                             <span class="menu-text">Add to {{selectedDatabasket.name}}</span>
                          </span>
                     </md-button>
                 </md-menu-item>
@@ -95,8 +96,8 @@
 
     <md-button class="toolbar-button"
                ng-click="selectAllOutputs()"
-               aria-label="Select All"
-               uib-tooltip="Select All"
+               aria-label="Select All Outputs"
+               uib-tooltip="Select All Outputs"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true"
                ng-disabled="jobParams.selectedJob == undefined">
@@ -105,8 +106,8 @@
 
     <md-button class="toolbar-button"
                ng-click="clearOutputsSelection()"
-               aria-label="Deselect All"
-               uib-tooltip="Deselect All"
+               aria-label="Deselect All Outputs"
+               uib-tooltip="Deselect All Outputs"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true"
                ng-disabled="jobParams.selectedJob == undefined">
@@ -115,8 +116,8 @@
 
     <md-button class="toolbar-button"
                ng-click="invertOutputsSelection()"
-               aria-label="Invert Selection"
-               uib-tooltip="Invert Selection"
+               aria-label="Invert Outputs Selection"
+               uib-tooltip="Invert Outputs Selection"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true"
                ng-disabled="jobParams.selectedJob == undefined">
@@ -136,6 +137,7 @@
         <md-menu ng-controller="DatabasketCtrl">
             <md-button ng-click="$mdOpenMenu($event)"
                        class="toolbar-button"
+                       ng-disabled="!dbParams.databaskets || dbParams.databaskets.length === 0"
                        aria-label="Select Databasket"
                        uib-tooltip="Select Databasket"
                        tooltip-trigger="mouseenter"
@@ -143,13 +145,13 @@
                 <i class="material-icons">shopping_cart</i>
             </md-button>
             <md-menu-content>
-                <md-menu-item ng-repeat="basket in databaskets">
+                <md-menu-item ng-repeat="basket in dbParams.databaskets">
                      <md-button ng-click="selectDatabasket(basket)"
-                                ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                ng-class="(basket.name == dbParams.selectedDatabasket.name) ? 'selected' : ''"
                                 aria-label="Databasket">
                         <span>
                             <span class="material-icons">shopping_basket</span>
-                            <span class="menu-text">{{basket.attributes.name}}</span>
+                            <span class="menu-text">{{basket.name}}</span>
                         </span>
                     </md-button>
                 </md-menu-item>
@@ -157,11 +159,12 @@
         </md-menu>
     </md-menu-bar>
 
+    <!-- TODO Job._links['output-result'] should be an array? -->
     <md-button class="toolbar-button"
                ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-               ng-click="addToDatabasket()"
+               ng-click="addToDatabasket([jobParams.selectedJob._links['output-result'].href])"
                aria-label="Add to Databasket"
-               uib-tooltip="Add to {{dbParams.selectedDatabasket.attributes.name}}"
+               uib-tooltip="Add to {{dbParams.selectedDatabasket.name}}"
                tooltip-trigger="mouseenter"
                tooltip-append-to-body="true">
         <i class="material-icons">shopping_basket</i>

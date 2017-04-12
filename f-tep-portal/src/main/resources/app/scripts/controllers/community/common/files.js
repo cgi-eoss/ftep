@@ -22,7 +22,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         ];
 
         /* Get files */
-        FileService.refreshFtepFiles("Community");
+        FileService.refreshFtepFiles("community");
 
         /* Update files when polling */
         $scope.$on('poll.ftepfiles', function (event, data) {
@@ -32,7 +32,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Select a File */
         $scope.selectFile = function (item) {
             $scope.fileParams.selectedFile = item;
-            FileService.refreshSelectedFtepFile("Community");
+            FileService.refreshSelectedFtepFile("community");
         };
 
         /* Filters */
@@ -64,7 +64,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.addReferenceFile = function () {
                     FileService.uploadFile($scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
-                        FileService.refreshFtepFiles("Community");
+                        FileService.refreshFtepFiles("community");
                     });
                 };
 
@@ -87,7 +87,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.removeItem = function (key, item) {
             FileService.removeFtepFile(item).then(function (data) {
                 /* Update list of files */
-                FileService.refreshFtepFiles("Community", "Remove", item);
+                FileService.refreshFtepFiles("community", "Remove", item);
             });
         };
 

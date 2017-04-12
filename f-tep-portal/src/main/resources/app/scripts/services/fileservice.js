@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'UserService', 'CommunityService', 'traverson', '$rootScope', '$timeout', function (ftepProperties, $q, MessageService, TabService, UserService, CommunityService, traverson, $rootScope, $timeout) {
+    ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'UserService', 'CommunityService', 'traverson', '$rootScope', '$timeout', 'Upload', function (ftepProperties, $q, MessageService, TabService, UserService, CommunityService, traverson, $rootScope, $timeout, Upload) {
 
         var self = this;
 
@@ -173,6 +173,26 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        // For search items we have to create a respective file first
+        this.createGeoResultFile = function(geojson){
+            return $q(function(resolve, reject) {
+                halAPI.from(rootUri + '/ftepFiles/externalProduct')
+                         .newRequest()
+                         .post(geojson)
+                         .result
+                         .then(
+                function (document) {
+                    if (200 <= document.status && document.status < 300) {
+                        resolve(document);
+                    } else {
+                        reject();
+                    }
+                }, function (error) {
+                    reject();
+                });
+            });
+        };
+
         this.updateFtepFile = function (file) {
             var newfile = {name: file.filename, description: file.description, geometry: file.geometry, tags: file.tags};
             return $q(function(resolve, reject) {
@@ -212,37 +232,36 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshFtepFiles = function (service, action, file) {
+        this.refreshFtepFiles = function (page, action, file) {
 
-            if(service === "Community") {
+            if(self.params[page]){
 
-                self.getFtepFiles(self.params.community.activeFileType).then(function (data) {
-                    self.params.community.files = data;
+                self.getFtepFiles(self.params[page].activeFileType).then(function (data) {
+                    self.params[page].files = data;
 
                     /* Clear file if deleted */
                     if (action === "Remove") {
-                        if (file && file.id === self.params.community.selectedFile.id) {
-                            self.params.community.selectedFile = undefined;
-                            self.params.community.fileDetails = undefined;
+                        if (file && file.id === self.params[page].selectedFile.id) {
+                            self.params[page].selectedFile = undefined;
+                            self.params[page].fileDetails = undefined;
                         }
                     }
 
                     /* Update the selected file */
-                    self.refreshSelectedFtepFile("Community");
-
+                    self.refreshSelectedFtepFile(page);
                 });
             }
         };
 
-        this.refreshSelectedFtepFile = function (service) {
+        this.refreshSelectedFtepFile = function (page) {
 
-            if (service === "Community") {
+            if (self.params[page]) {
                 /* Get file contents if selected */
-                if (self.params.community.selectedFile) {
-                    getFile(self.params.community.selectedFile).then(function (file) {
-                        self.params.community.fileDetails = file;
+                if (self.params[page].selectedFile) {
+                    getFile(self.params[page].selectedFile).then(function (file) {
+                        self.params[page].fileDetails = file;
                         CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {
-                            self.params.community.sharedGroups = data;
+                            self.params[page].sharedGroups = data;
                         });
                     });
                 }

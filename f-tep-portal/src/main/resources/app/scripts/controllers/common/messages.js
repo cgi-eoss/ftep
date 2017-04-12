@@ -18,7 +18,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
             $scope.toggleFilters = function () {
                 $scope.msgParams.displayFilters = !$scope.msgParams.displayFilters;
-                $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.filterMessages = function () {
@@ -33,7 +32,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
             $scope.selectMessage = function (message) {
                 $scope.msgParams.selectedMessage = message;
-                $scope.$broadcast('rebuild:scrollbar');
                 var container = document.getElementById('bottombar');
                 container.scrollTop = 0;
             };

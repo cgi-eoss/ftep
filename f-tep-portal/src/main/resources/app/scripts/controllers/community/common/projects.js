@@ -18,7 +18,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.item = "Project";
 
         /* Get Projects */
-        ProjectService.refreshProjects("Community");
+        ProjectService.refreshProjects("community");
 
         /* Update Projects when polling */
         $scope.$on('poll.projects', function (event, data) {
@@ -28,7 +28,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Select a Project */
         $scope.selectProject = function (item) {
             $scope.projectParams.selectedProject = item;
-            ProjectService.refreshSelectedProject("Community");
+            ProjectService.refreshSelectedProject("community");
         };
 
         /* Filters */
@@ -66,21 +66,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Create Project */
         $scope.createItemDialog = function ($event) {
             CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
-                ProjectService.refreshProjects("Community", "Create");
+                ProjectService.refreshProjects("community", "Create");
             });
         };
 
         /* Remove Project */
         $scope.removeItem = function (key, item) {
              ProjectService.removeProject(item).then(function (data) {
-                 ProjectService.refreshProjects("Community", "Remove", item);
+                 ProjectService.refreshProjects("community", "Remove", item);
             });
         };
 
         /* Edit Project */
         $scope.editItemDialog = function ($event, item) {
             CommonService.editItemDialog($event, item, 'ProjectService', 'updateProject').then(function (updatedProject) {
-                ProjectService.refreshProjects("Community");
+                ProjectService.refreshProjects("community");
             });
         };
 

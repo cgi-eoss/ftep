@@ -198,63 +198,70 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.refreshDatabaskets = function (page, action, basket) {
 
-            /* Get databasket list */
-            getDatabaskets().then(function (data) {
+            if (self.params[page]) {
+                /* Get databasket list */
+                getDatabaskets().then(function (data) {
 
-                self.params[page].databaskets = data;
+                    self.params[page].databaskets = data;
 
-                /* Select last databasket if created */
-                if (action === "Create") {
-                    self.params[page].selectedDatabasket = self.params[page].databaskets[self.params[page].databaskets.length-1];
-                }
-
-                /* Clear basket if deleted */
-                if (action === "Remove") {
-                    if (basket && self.params[page].selectedDatabasket && basket.id === self.params[page].selectedDatabasket.id) {
-                        self.params[page].selectedDatabasket = undefined;
-                        self.params[page].items = [];
+                    /* Select last databasket if created */
+                    if (action === "Create") {
+                        self.params[page].selectedDatabasket = self.params[page].databaskets[self.params[page].databaskets.length-1];
                     }
-                }
 
-                /* Update the selected basket */
-                self.refreshSelectedBasket(page);
-
-            });
-        };
-
-        this.refreshSelectedBasket = function (page) {
-
-            /* Get basket contents if selected */
-            if (self.params[page].selectedDatabasket) {
-
-                getDatabasket(self.params[page].selectedDatabasket).then(function (basket) {
-                    self.params[page].selectedDatabasket = basket;
-                    self.getDatabasketContents(basket).then(function (data) {
-                        self.params[page].items = data;
-                    });
-
-                    if(page === 'community'){
-                        CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
-                            self.params.community.sharedGroups = data;
-                        });
+                    /* Clear basket if deleted */
+                    if (action === "Remove") {
+                        if (basket && self.params[page].selectedDatabasket && basket.id === self.params[page].selectedDatabasket.id) {
+                            self.params[page].selectedDatabasket = undefined;
+                            self.params[page].items = [];
+                        }
                     }
+
+                    /* Update the selected basket */
+                    self.refreshSelectedBasket(page);
                 });
             }
         };
 
-        this.addItems = function (databasket, files) {
+        this.refreshSelectedBasket = function (page) {
+
+            if (self.params[page]) {
+                /* Get basket contents if selected */
+                if (self.params[page].selectedDatabasket) {
+
+                    getDatabasket(self.params[page].selectedDatabasket).then(function (basket) {
+                        self.params[page].selectedDatabasket = basket;
+                        self.getDatabasketContents(basket).then(function (data) {
+                            self.params[page].items = data;
+                        });
+
+                        if(page === 'community'){
+                            CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
+                                self.params.community.sharedGroups = data;
+                            });
+                        }
+                    });
+                }
+            }
+        };
+
+        this.addItems = function (databasket, fileLinks) {
             return $q(function(resolve, reject) {
 
                 var itemsArray = [];
 
                 /* Collect links from current items */
-                for (var item in databasket.items) {
-                    itemsArray.push(databasket.items[item]._links.self.href);
+                if(databasket._embedded){
+                    for (var item in databasket._embedded.files) {
+                        itemsArray.push(databasket._embedded.files[item]._links.self.href);
+                    }
                 }
 
                 /* Append links of new items */
-                for (var file in files) {
-                    itemsArray.push(files[file]._links.self.href);
+                for (var file in fileLinks) {
+                    if(itemsArray.indexOf(fileLinks[file]) < 0){
+                        itemsArray.push(fileLinks[file]);
+                    }
                 }
 
                 /* Set new files object */
@@ -269,10 +276,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
                         MessageService.addInfo('Files successfully added');
-                        reject();
+                        resolve(document);
                     } else {
                         MessageService.addError ('Failed to add file/s to Databasket', document);
-                        resolve(document);
+                        reject();
                     }
                 }, function (error) {
                     MessageService.addError('Failed to add file/s to Databasket', error);

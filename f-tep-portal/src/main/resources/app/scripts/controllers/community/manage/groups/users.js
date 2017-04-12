@@ -19,7 +19,6 @@ define(['../../../../ftepmodules'], function (ftepmodules) {
         /* Filters */
         $scope.toggleUserFilters = function () {
             $scope.userParams.displayUserFilters = !$scope.userParams.displayUserFilters;
-            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.userSearch = {

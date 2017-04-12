@@ -33,7 +33,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.toggleBottomView = function(){
             $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
-            $scope.$broadcast('rebuild:scrollbar');
         };
 
     }]);

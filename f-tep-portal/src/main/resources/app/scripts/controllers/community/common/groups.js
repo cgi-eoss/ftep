@@ -29,13 +29,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Select a Group */
         $scope.selectGroup = function (item) {
             $scope.groupParams.selectedGroup = item;
-            GroupService.refreshSelectedGroupV2("Community");
+            GroupService.refreshSelectedGroup("community");
         };
 
         /* Filters */
         $scope.toggleGroupFilters = function () {
             $scope.groupParams.displayGroupFilters = !$scope.groupParams.displayGroupFilters;
-            $scope.$broadcast('rebuild:scrollbar');
         };
 
         $scope.groupSearch = {
@@ -68,21 +67,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Create Group */
         $scope.createGroupDialog = function ($event) {
             CommonService.createItemDialog($event, 'GroupService', 'createGroup').then(function (newGroup) {
-                GroupService.refreshGroupsV2("Community", "Create");
+                GroupService.refreshGroups("community", "Create");
             });
         };
 
         /* Remove Group */
         $scope.removeGroup = function (key, group) {
             GroupService.removeGroup(group).then(function (data) {
-                GroupService.refreshGroupsV2("Community", "Remove");
+                GroupService.refreshGroups("community", "Remove");
             });
         };
 
         /* Edit Group */
         $scope.editGroupDialog = function($event, selectedGroup) {
             CommonService.editItemDialog($event, selectedGroup, 'GroupService', 'updateGroup').then(function(updatedGroup) {
-                GroupService.refreshGroupsV2("Community");
+                GroupService.refreshGroups("community");
             });
         };
 

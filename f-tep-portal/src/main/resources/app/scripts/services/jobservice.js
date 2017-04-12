@@ -32,19 +32,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /** PRESERVE USER SELECTIONS **/
         this.params = {
             explorer: {
+                jobs: undefined,
                 selectedJob: undefined,
-                jobOutputs: [], //all outputs of the selected job
                 jobSelectedOutputs: [], //selected outputs
                 displayFilters: false, //whether filter section is opened or not
                 jobStatuses: [    //filter options
                     {
-                        name: "Succeeded",
+                        title: "Completed",
+                        name: "COMPLETED",
                         value: true
                     }, {
-                        name: "Failed",
+                        title: "Running",
+                        name: "RUNNING",
                         value: true
                     }, {
-                        name: "Running",
+                        title: "Error",
+                        name: "ERROR",
                         value: true
                     }
                 ],
@@ -53,7 +56,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             },
             community: {
                 jobs: undefined,
-                job: undefined,
                 selectedJob: undefined,
                 searchText: '',
                 displayFilters: false,
@@ -84,27 +86,27 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var pollCount = 3;
         var startPolling = true;
 
-        var pollJobsV2 = function () {
+        var pollJobs = function () {
             $timeout(function () {
                 halAPI.from(rootUri + '/jobs/')
                     .newRequest()
                     .getResource()
                     .result
                     .then(function (document) {
-                        $rootScope.$broadcast('poll.jobsV2', document._embedded.jobs);
-                        pollJobsV2();
+                        $rootScope.$broadcast('poll.jobs', document._embedded.jobs);
+                        pollJobs();
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Jobs', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollJobsV2();
+                            pollJobs();
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        this.getJobsV2 = function () {
+        this.getJobs = function () {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/')
                          .newRequest()
@@ -113,7 +115,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if(startPolling) {
-                        pollJobsV2();
+                        pollJobs();
                         startPolling = false;
                     }
                     deferred.resolve(document._embedded.jobs);
@@ -125,7 +127,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobV2 = function (job) {
+        var getJob = function (job) {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/' + job.id)
                          .newRequest()
@@ -142,7 +144,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobOwnerV2 = function (job) {
+        var getJobOwner = function (job) {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/' + job.id)
                          .newRequest()
@@ -162,7 +164,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getJobRequest;
 
-        var getJobDetailsV2 = function(job) {
+        var getJobDetails = function(job) {
             var deferred = $q.defer();
 
             getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
@@ -179,7 +181,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobLogsV2 = function(job) {
+        var getJobLogs = function(job) {
             var deferred = $q.defer();
 
             getJobRequest.continue().then(function (nextBuilder) {
@@ -199,7 +201,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobConfigV2 = function(job) {
+        this.getJobConfig = function(job) {
             var deferred = $q.defer();
 
             getJobRequest.continue().then(function (nextBuilder) {
@@ -219,7 +221,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobOutputResultV2 = function(job) {
+        var getJobOutputResult = function(job) {
             var deferred = $q.defer();
 
             getJobRequest.continue().then(function (nextBuilder) {
@@ -239,7 +241,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.removeJobV2 = function(job) {
+        this.removeJob = function(job) {
             return $q(function(resolve, reject) {
                 deleteAPI.from(rootUri + '/jobs/' + job.id)
                          .newRequest()
@@ -261,259 +263,99 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.refreshJobsV2 = function (service, action, job) {
+        this.refreshJobs = function (page, action, job) {
 
-            if (service === "Community") {
+            /* Get job list */
+            this.getJobs().then(function (data) {
 
-                /* Get job list */
-                this.getJobsV2().then(function (data) {
+                self.params[page].jobs = data;
 
-                    self.params.community.jobs = data;
+                /* Select last job if created */
+                if (action === "Create") {
+                    self.params[page].selectedJob = self.params[page].jobs[self.params[page].jobs.length-1];
+                }
 
-                    /* Select last job if created */
-                    if (action === "Create") {
-                        self.params.community.selectedJob = self.params.community.jobs[self.params.community.jobs.length-1];
+                /* Clear job if deleted */
+                if (action === "Remove") {
+                    if (job && job.id === self.params[page].selectedJob.id) {
+                        self.params[page].selectedJob = undefined;
                     }
+                }
 
-                    /* Clear job if deleted */
-                    if (action === "Remove") {
-                        if (job && job.id === self.params.community.selectedJob.id) {
-                            self.params.community.selectedJob = undefined;
-                            self.params.community.job = [];
-                        }
-                    }
-
-                    /* Update the selected job */
-                    self.refreshSelectedJobV2("Community");
-
-                });
-
-            }
-
+                /* Update the selected job */
+                self.refreshSelectedJob(page);
+           });
         };
 
-        this.refreshSelectedJobV2 = function (service) {
 
-            if (service === "Community") {
-                /* Get job contents if selected */
-                if (self.params.community.selectedJob) {
-                    getJobV2(self.params.community.selectedJob).then(function (job) {
-                        self.params.community.selectedJob = job;
-                        self.params.community.job = job;
+        this.refreshSelectedJob = function (page) {
 
-                        getJobOwnerV2(job).then(function (owner) {
-                            self.params.community.job.owner = owner;
-                            self.params.community.job.owner.name = owner.name;
+            /* Get job contents if selected */
+            if (self.params[page].selectedJob) {
+                getJob(self.params[page].selectedJob).then(function (job) {
+                    self.params[page].selectedJob = job;
+
+                    getJobOwner(job).then(function (owner) {
+                        self.params[page].selectedJob.owner = owner;
+                    });
+
+                    getJobDetails(job).then(function (data) {
+                        self.params[page].selectedJob.details = data;
+
+                        var startTime = self.params[page].selectedJob.details.startTime;
+                        self.params[page].selectedJob.details.startTime =
+                            moment().year(startTime.year)
+                                    .month(startTime.monthValue)
+                                    .day(startTime.dayOfMonth)
+                                    .hour(startTime.hour)
+                                    .minute(startTime.minute)
+                                    .second(startTime.second)
+                                    .millisecond(startTime.nano)
+                                    .toDate();
+
+                        var endTime = self.params[page].selectedJob.details.endTime;
+                        self.params[page].selectedJob.details.endTime =
+                            moment().year(endTime.year)
+                                    .month(endTime.monthValue)
+                                    .day(endTime.dayOfMonth)
+                                    .hour(endTime.hour)
+                                    .minute(endTime.minute)
+                                    .second(endTime.second)
+                                    .millisecond(endTime.nano)
+                                    .toDate();
+
+                        getJobLogs(job).then(function (logs) {
+                             self.params[page].selectedJob.logs = logs;
+                        });
+                        self.getJobConfig(job).then(function (config) {
+                             self.params[page].selectedJob.config = config;
                         });
 
-                        getJobDetailsV2(job).then(function (data) {
-                            self.params.community.job.details = data;
-
-                            var startTime = self.params.community.job.details.startTime;
-                            self.params.community.job.details.startTime =
-                                moment().year(startTime.year)
-                                        .month(startTime.monthValue)
-                                        .day(startTime.dayOfMonth)
-                                        .hour(startTime.hour)
-                                        .minute(startTime.minute)
-                                        .second(startTime.second)
-                                        .millisecond(startTime.nano)
-                                        .toDate();
-
-                            var endTime = self.params.community.job.details.endTime;
-                            self.params.community.job.details.endTime =
-                                moment().year(endTime.year)
-                                        .month(endTime.monthValue)
-                                        .day(endTime.dayOfMonth)
-                                        .hour(endTime.hour)
-                                        .minute(endTime.minute)
-                                        .second(endTime.second)
-                                        .millisecond(endTime.nano)
-                                        .toDate();
-
-                            getJobLogsV2(job).then(function (logs) {
-                                 self.params.community.job.logs = logs;
-                            });
-                            getJobConfigV2(job).then(function (config) {
-                                 self.params.community.job.config = config;
-                            });
-
-                            if (self.params.community.job.outputs) {
-                                self.params.community.job.outputs.links = [];
-                                for (var result in self.params.community.job.outputs.result) {
-                                    if (self.params.community.job.outputs.result[result].substring(0,7) === "ftep://") {
-                                        getJobOutputResultV2(job).then(function (result) {
-                                            self.params.community.job.outputs.links.push(result._links.download.href);
-                                        });
-                                    } else {
-                                        self.params.community.job.outputs.links.push(null);
-                                    }
+                        if (self.params[page].selectedJob.outputs) {
+                            self.params[page].selectedJob.outputs.links = [];
+                            for (var result in self.params[page].selectedJob.outputs.result) {
+                                if (self.params[page].selectedJob.outputs.result[result].substring(0,7) === "ftep://") {
+                                    getJobOutputResult(job).then(function (result) {
+                                        self.params[page].selectedJob.outputs.links.push(result._links.download.href);
+                                    });
                                 }
                             }
-                        });
+                        }
+                    });
 
+                    if(page === 'community'){
                         CommunityService.getObjectGroups(job, 'job').then(function (data) {
                             self.params.community.sharedGroups = data;
                         });
+                    }
+                    else if(page === 'explorer'){
+                        self.params.explorer.jobSelectedOutputs = [];
+                    }
 
-                    });
-                }
+                });
             }
-
         };
 
-
-
-
-
-        /** API V1 **/
-
-          /** Set the header defaults **/
-          $http.defaults.headers.post['Content-Type'] = 'application/json';
-          $http.defaults.withCredentials = true;
-
-          //var POLLING_FREQUENCY = 4 * 1000;
-          var isPolling = false;
-          var jobListCache;
-          var isJobStillRunning = false; //whether a job exists, self is still running
-          var connectionError = false, retriesLeft = 3;
-          var waitingForNewJob = false;
-
-          var USE_TEST_DATA = false;
-
-          /** Return the jobs for the user **/
-          this.getJobs = function(newJobWasPushed) {
-              if(USE_TEST_DATA){
-                  var deferred = $q.defer();
-                  $timeout(function () {
-                      getTestData(deferred);
-                  }, 100);
-                  return deferred.promise;
-              }
-
-              if(newJobWasPushed){
-                  waitingForNewJob = newJobWasPushed;
-              }
-
-              if(isPolling){
-                  return $q.when(jobListCache);
-              } else {
-                  return pollJobs();
-              }
-          };
-
-          //TODO only for prototyping
-          function getTestData(deferred){
-              console.log('USING TEST DATA for jobs');
-              $.getJSON("temp_data/test_jobs.json", function(json) {
-                  jobListCache = json;
-                  deferred.resolve(json);
-                  $rootScope.$broadcast('refresh.jobs', json);
-              })
-              .fail(function(e) {
-                console.log( "error", e );
-              });
-          }
-
-          /** Polls jobs every 4 sec **/
-          var pollJobs = function () {
-
-              if (connectionError && retriesLeft === 0) {
-                  retriesLeft = 3;
-                  connectionError = false;
-              } else {
-                  var deferred = $q.defer();
-                  $http.get(ftepProperties.URL + '/jobs?include=service&fields[service]=name').then(function (response) {
-                          if (angular.equals(jobListCache, response.data) == false) {
-                              waitingForNewJob = ((jobListCache != undefined) && (jobListCache.meta.total <= response.data.meta.total));
-                              jobListCache = response.data;
-                              $rootScope.$broadcast('refresh.jobs', response.data);
-                              findRunningJob();
-                          }
-                          deferred.resolve(response.data);
-                          retriesLeft = 3;
-                          connectionError = false;
-                      })
-                      .catch(function (e) {
-                          connectionError = true;
-                          MessageService.addError(
-                              'Could not get jobs',
-                              'Could not get jobs. Retries left: ' + retriesLeft
-                          );
-                          retriesLeft--;
-                          deferred.reject();
-                      })
-                      .finally(function () {
-                          if (isJobStillRunning === true || waitingForNewJob === true) {
-                              isPolling = true;
-                              $timeout(pollJobs, POLLING_FREQUENCY);
-                          }
-                          else {
-                              isPolling = false;
-                          }
-                      });
-
-                  return deferred.promise;
-              }
-          };
-
-          var findRunningJob = function () {
-              var statusList = jobListCache.data.filter(isJobRunning);
-              if (statusList.length > 0) {
-                  isJobStillRunning = true;
-              } else {
-                  isJobStillRunning = false;
-              }
-          };
-
-          function isJobRunning(item) {
-              return item.attributes.status === 'Running';
-          }
-
-          /** Deletes a job from database **/
-          this.removeJob = function(job){
-              return $q(function(resolve, reject) {
-                  $http({
-                      method: 'DELETE',
-                      url: ftepProperties.URL + '/jobs/' + job.id
-                  }).
-                  then(function(response) {
-                      resolve(job);
-                      if(jobListCache != undefined){
-                          var i = jobListCache.data.indexOf(job);
-                          jobListCache.data.splice(i, 1);
-                          jobListCache.meta.total = (jobListCache.meta.total - 1);
-                      }
-                      MessageService.addInfo('Job deleted', 'Job '.concat(job.id).concat(' deleted'));
-                  }).
-                  catch(function(e) {
-                      MessageService.addError(
-                          'Failed to remove job'
-                      );
-                      console.log(e);
-                      reject();
-                  });
-              });
-          };
-
-          /** Gets job output files info **/
-          this.getOutputs = function(jobId){
-              var deferred = $q.defer();
-
-              $http.get( ftepProperties.URL + '/jobs/' + jobId + '/getOutputs').then(function(response) {
-                  deferred.resolve(response.data.data);
-              })
-              .catch(function(e){
-                  MessageService.addError(
-                      'Could not get job outputs'
-                  );
-                  deferred.reject();
-              });
-
-              return deferred.promise;
-
-          };
-
-          return this;
-      }]);
+        return this;
+    }]);
 });

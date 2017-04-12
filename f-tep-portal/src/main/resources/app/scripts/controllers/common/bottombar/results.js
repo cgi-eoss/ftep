@@ -101,6 +101,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                    });
                 };
 
+                $scope.clearAll = function(){
+                    $rootScope.$broadcast('update.geoResults');
+                };
+
                 $scope.$on('map.item.toggled', function(event, items) {
                     scrollResults();
                     $scope.resultParams.selectedResultItems = items;

@@ -2,7 +2,7 @@
 
     <section id="job-title" class="row section-title">
         <div class="col-xs-10 title-text">
-            <h2 ng-bind="'Job: ' + jobParams.job.id + ' - ' + jobParams.job.status" />
+            <h2 ng-bind="'Job: ' + jobParams.selectedJob.id + ' - ' + jobParams.selectedJob.status" />
         </div>
     </section>
 
@@ -13,7 +13,7 @@
                 <h5 ng-bind="'ID:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.extId" />
+                <p ng-bind="jobParams.selectedJob.extId" />
             </div>
         </div>
 
@@ -22,7 +22,7 @@
                 <h5 ng-bind="'Owner:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.owner.name" />
+                <p ng-bind="jobParams.selectedJob.owner.name" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -30,7 +30,7 @@
                 <h5 ng-bind="'Stage:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.stage" />
+                <p ng-bind="jobParams.selectedJob.stage" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -38,7 +38,7 @@
                 <h5 ng-bind="'Status:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.status" />
+                <p ng-bind="jobParams.selectedJob.status" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -46,7 +46,7 @@
                 <h5 ng-bind="'Start Time:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.details.startTime" />
+                <p ng-bind="jobParams.selectedJob.details.startTime" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -54,7 +54,7 @@
                 <h5 ng-bind="'End Time:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.details.endTime" />
+                <p ng-bind="jobParams.selectedJob.details.endTime" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -62,7 +62,7 @@
                 <h5 ng-bind="'Name:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.config._embedded.service.name" />
+                <p ng-bind="jobParams.selectedJob.config._embedded.service.name" />
             </div>
         </div>
         <div class="col-xs-12 col-md-6">
@@ -70,7 +70,7 @@
                 <h5 ng-bind="'Description:'" />
             </div>
             <div class="col-xs-12 col-md-9 col-xl-10">
-                <p ng-bind="jobParams.job.config._embedded.service.description" />
+                <p ng-bind="jobParams.selectedJob.config._embedded.service.description" />
             </div>
         </div>
     </section>
@@ -82,14 +82,14 @@
 
           <md-tab label="Output">
             <md-content id="job-outputs" class="md-padding job-details-tab">
-                <table ng-show="jobParams.job.outputs">
-                    <tr ng-repeat="(key, file) in jobParams.job.outputs.result">
+                <table ng-show="jobParams.selectedJob.outputs">
+                    <tr ng-repeat="(key, file) in jobParams.selectedJob.outputs.result">
                         <td>
                             <span ng-show="key === 0">Files</span>
                         </td>
                         <td ng-bind="file" />
                         <td class="download">
-                            <a ng-href="{{jobParams.job.outputs.links[key]}}" target="_self">
+                            <a ng-href="{{jobParams.selectedJob.outputs.links[key]}}" target="_self">
                                 <i class="material-icons"
                                    aria-label="Download"
                                    uib-tooltip="Download"
@@ -102,7 +102,7 @@
                         </td>
                     </tr>
                 </table>
-                <div ng-show="!jobParams.job.outputs" class="note">
+                <div ng-show="!jobParams.selectedJob.outputs" class="note">
                     No output files to display.
                 </div>
             </md-content>
@@ -111,7 +111,7 @@
           <md-tab label="Input">
             <md-content id="job-inputs" class="md-padding job-details-tab">
                 <table>
-                    <tr ng-repeat="(key, file) in jobParams.job.config.inputs.inputfile">
+                    <tr ng-repeat="(key, file) in jobParams.selectedJob.config.inputs.inputfile">
                         <td>
                             <span ng-show="key === 0">Files</span>
                         </td>
@@ -119,19 +119,19 @@
                     </tr>
                     <tr>
                         <td>Vegetation Index</td>
-                        <td ng-bind="jobParams.job.config.inputs.vegIndex" />
+                        <td ng-bind="jobParams.selectedJob.config.inputs.vegIndex" />
                     </tr>
                     <tr>
                         <td>Area of Interest</td>
-                        <td ng-bind="jobParams.job.config.inputs.aoi" />
+                        <td ng-bind="jobParams.selectedJob.config.inputs.aoi" />
                     </tr>
                     <tr>
                         <td>Target Resolution</td>
-                        <td ng-bind="jobParams.job.config.inputs.targetResolution" />
+                        <td ng-bind="jobParams.selectedJob.config.inputs.targetResolution" />
                     </tr>
                     <tr>
                         <td>Coordinate Reference System</td>
-                        <td ng-bind="jobParams.job.config.inputs.crs" />
+                        <td ng-bind="jobParams.selectedJob.config.inputs.crs" />
                     </tr>
                 </table>
             </md-content>
@@ -144,7 +144,7 @@
                         <th>Timestamp</th>
                         <th>Message</th>
                     </tr>
-                    <tr ng-repeat="message in jobParams.job.logs">
+                    <tr ng-repeat="message in jobParams.selectedJob.logs">
                         <td class="job-timestamp" ng-bind="message.timestamp" />
                         <td>
                             <pre class="job-message" ng-bind-html="message.message | nl2br" />

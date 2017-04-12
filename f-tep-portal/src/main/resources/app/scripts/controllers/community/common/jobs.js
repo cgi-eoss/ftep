@@ -18,19 +18,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.item = "Job";
 
         /* Get jobs */
-        JobService.getJobsV2().then(function (data) {
+        JobService.getJobs().then(function (data) {
              $scope.jobParams.jobs = data;
         });
 
         /* Update jobs when polling */
-        $scope.$on('poll.jobsV2', function (event, data) {
+        $scope.$on('poll.jobs', function (event, data) {
             $scope.jobParams.jobs = data;
         });
 
         /* Select a Job */
         $scope.selectJob = function (item) {
             $scope.jobParams.selectedJob = item;
-            JobService.refreshSelectedJobV2("Community");
+            JobService.refreshSelectedJob('community');
         };
 
         /* Filters */

@@ -32,12 +32,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
                 $scope.updateMissionParameters($scope.searchParameters.mission);
                 $scope.updateSlider();
-                $scope.$broadcast('rebuild:scrollbar');
             };
 
             $scope.closeDataSource = function () {
                 $scope.searchParameters = GeoService.resetSearchParameters();
-                $scope.$broadcast('rebuild:scrollbar');
             };
 
             /** ----- DATE PICKERS ----- **/
@@ -120,7 +118,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 // Display polorisation or coverage parameters based on selection
                 $scope.missionDetails.showPolar = isSentinel1(mission);
                 $scope.missionDetails.showCoverage = isSentinel2(mission);
-                $scope.$broadcast('rebuild:scrollbar');
             };
 
             /** ----- POLYGON SELECTION ----- **/

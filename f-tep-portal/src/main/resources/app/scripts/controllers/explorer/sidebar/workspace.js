@@ -31,7 +31,7 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                 $scope.dropLists[fieldId] = [];
             }
             if(items) {
-                var pathStr = getPaths($scope.dropLists[fieldId]);
+                var pathStr = getPaths($scope.dropLists[fieldId]); //TODO
                 for(var i = 0; i < items.length; i++){
                     var path = getFilePath(items[i]);
 
@@ -119,9 +119,9 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             });
         }
 
-        $scope.$on('rerun.service', function(event, inputs, serviceId){
-            var service = ProductService.getServiceById(serviceId);
-            updateService(service);
+        $scope.$on('rerun.service', function(event, inputs, service){
+            var serviceContent = ProductService.getServiceById(service.id);
+            updateService(serviceContent);
             $scope.inputValues = inputs;
         });
 

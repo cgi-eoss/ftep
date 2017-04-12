@@ -126,12 +126,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.updateDatabasket = function () {
 
                     /* Ensure list of files to add is clear */
-                    $scope.addedFiles = [];
+                    var addedFiles = [];
 
                     /* Push list of selected files and delete isChecked property */
                     for (var file in $scope.files) {
                         if ($scope.files[file].isChecked) {
-                            $scope.addedFiles.push($scope.files[file]);
+                            addedFiles.push($scope.files[file]._links.self.href);
                         }
                         delete $scope.files[file].isChecked;
                     }
@@ -140,7 +140,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.submitEnabled = false;
 
                     /* Add files to databasket and update selected databasket */
-                    BasketService.addItems($scope.basketParams.selectedDatabasket, $scope.addedFiles).then(function (data) {
+                    BasketService.addItems($scope.basketParams.selectedDatabasket, addedFiles).then(function (data) {
                         BasketService.refreshDatabaskets("community");
                         $mdDialog.hide();
                     });

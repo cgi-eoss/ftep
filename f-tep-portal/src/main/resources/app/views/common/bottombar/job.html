@@ -13,8 +13,8 @@
         </div>
 
         <div class="col-xs-6 job-title">
-            <div class="job-status" style="{{getColor(jobParams.selectedJob.attributes.status)}}">
-                {{jobParams.selectedJob.attributes.status}}
+            <div class="job-status" style="{{getColor(jobParams.selectedJob.status)}}">
+                {{jobParams.selectedJob.status}}
             </div>
         </div>
 
@@ -38,7 +38,7 @@
     <section class="job-details" ng-if="jobTab == 'INPUTS'">
 
         <ul class="job-files no-margin">
-            <li ng-repeat="(key, value) in getJobInputs(jobParams.selectedJob)" class="job-detail">
+            <li ng-repeat="(key, value) in jobParams.selectedJob.config.inputs" class="job-detail">
                 <div class="row">
                     <div class="col-sm-3 key">{{key}}</div>
                     <div ng-repeat="link in value">
@@ -55,31 +55,32 @@
     </section>
 
     <section class="job-details" ng-if="jobTab == 'OUTPUTS'">
-
-        <ul class="job-files no-margin">
-            <li ng-repeat="outputFile in jobParams.jobOutputs"
+        <ul class="job-files no-margin" ng-show="jobParams.selectedJob.outputs">
+            <li ng-repeat="(key, file) in jobParams.selectedJob.outputs.result"
                 class="job-detail"
-                ng-click="selectOutputFile(outputFile)"
-                ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'"
-                dnd-draggable="getSelectedOutputFiles(outputFile)">
+                ng-click="selectOutputFile(file)"
+                ng-class="isOutputSelected(file) ? 'resulthighlight' : 'resultnormal'"
+                dnd-draggable="getSelectedOutputFiles(file)">
                 <div class="row">
-                    <div class="col-xs-11">{{outputFile.attributes.fname}}</div>
-                    <div class="col-xs-1">
-                        <md-button class="toolbar-button md-secondary"
-                                   href="{{getOutputLink(outputFile.attributes.link)}}"
-                                   target="_self"
-                                   aria-label="Download"
-                                   uib-tooltip="Download"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">file_download</i>
-                        </md-button>
+                    <div class="col-xs-11">{{file}}</div>
+                    <div class="col-xs-1 download">
+                        <a ng-href="{{jobParams.selectedJob.outputs.links[key]}}" target="_self">
+                            <i class="material-icons"
+                               aria-label="Download"
+                               uib-tooltip="Download"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                                file_download
+                            </i>
+                        </a>
                     </div>
                 </div>
             </li>
         </ul>
-
+        <div ng-show="!jobParams.selectedJob.outputs" class="note">
+            No output files to display.
+        </div>
     </section>
 
 </div>

@@ -21,7 +21,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Patch file and update file list */
         $scope.saveFile = function() {
             FileService.updateFtepFile($scope.fileParams.selectedFile).then(function (data) {
-                FileService.refreshFtepFiles("Community");
+                FileService.refreshFtepFiles("community");
             });
         };
 

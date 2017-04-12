@@ -1,6 +1,6 @@
 <md-button id="save-job"
            class="save-button md-fab md-mini right"
-           ng-click="updateGroups(jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+           ng-click="updateGroups(jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJob')"
            ng-disabled="serviceForm.$invalid"
            aria-label="Save Job"
            uib-tooltip="Save Job"
@@ -28,7 +28,7 @@
     <div class="col-xs-1 title-button">
         <h3>
             <md-button class="toolbar-button md-secondary"
-                       ng-click="shareObjectDialog($event, jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+                       ng-click="shareObjectDialog($event, jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJob')"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"
@@ -106,7 +106,7 @@
         </md-input-container>
 
         <md-button class="toolbar-button md-secondary"
-                   ng-click="removeGroup(jobParams.selectedJob, 'job', ace.group, jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+                   ng-click="removeGroup(jobParams.selectedJob, 'job', ace.group, jobParams.sharedGroups, 'JobService', 'refreshSelectedJob')"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

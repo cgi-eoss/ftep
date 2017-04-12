@@ -165,46 +165,44 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshProjects = function (service, action, project) {
+        this.refreshProjects = function (page, action, project) {
 
-            if (service === "Community") {
+            if (self.params[page]) {
 
                 /* Get project list */
                 this.getProjects().then(function (data) {
 
-                    self.params.community.projects = data;
+                    self.params[page].projects = data;
 
                     /* Select last project if created */
                     if (action === "Create") {
-                        self.params.community.selectedProject = self.params.community.projects[self.params.community.projects.length-1];
+                        self.params[page].selectedProject = self.params[page].projects[self.params[page].projects.length-1];
                     }
 
                     /* Clear project if deleted */
                     if (action === "Remove") {
-                        if (project && project.id === self.params.community.selectedProject.id) {
-                            self.params.community.selectedProject = undefined;
-                            self.params.community.contents = [];
+                        if (project && project.id === self.params[page].selectedProject.id) {
+                            self.params[page].selectedProject = undefined;
+                            self.params[page].contents = [];
                         }
                     }
 
                     /* Update the selected group */
-                    self.refreshSelectedProject("Community");
-
+                    self.refreshSelectedProject(page);
                 });
-
             }
 
         };
 
-        this.refreshSelectedProject = function (service) {
+        this.refreshSelectedProject = function (page) {
 
-            if (service === "Community") {
+            if (self.params[page]) {
                 /* Get project contents if selected */
-                if (self.params.community.selectedProject) {
-                    getProject(self.params.community.selectedProject).then(function (project) {
-                        self.params.community.selectedProject = project;
+                if (self.params[page].selectedProject) {
+                    getProject(self.params[page].selectedProject).then(function (project) {
+                        self.params[page].selectedProject = project;
                         CommunityService.getObjectGroups(project, 'project').then(function (data) {
-                            self.params.community.sharedGroups = data;
+                            self.params[page].sharedGroups = data;
                         });
                     });
                 }

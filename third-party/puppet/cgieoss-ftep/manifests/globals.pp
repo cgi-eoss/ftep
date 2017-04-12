@@ -61,9 +61,8 @@ class ftep::globals (
   $graylog_sha256              = 'a7fdfe53e2a13cb602def10146388c65051c67e60ee55c051668a1c709449111', # sha256 of graylogpass
   $graylog_port                = 8087,
   $graylog_api_path            = '/logs/api',
-  $graylog_context_path        = '/log',
+  $graylog_context_path        = '/logs',
   $graylog_gelf_tcp_port       = 12201,
-  $graylog_server              = $monitor_hostname,
 
   $enable_log4j2_graylog       = false,
 ) {

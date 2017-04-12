@@ -6,7 +6,7 @@ class ftep::monitor::graylog_collector(
 
   require ::ftep::globals
 
-  $real_graylog_server = pick($graylog_server, $ftep::globals::graylog_server)
+  $real_graylog_server = pick($graylog_server, $ftep::globals::monitor_hostname)
 
   package { 'graylog-collector':
       ensure => 'installed'

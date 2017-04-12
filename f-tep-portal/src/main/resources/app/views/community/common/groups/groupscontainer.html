@@ -1,19 +1,18 @@
-<div class="tab-content-container row">
+<div class="tab-content-container row" ng-controller="CommunityGroupsCtrl">
 
     <article id="groups-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
-             ng-include ng-controller="CommunityGroupsCtrl"
-             src="'views/community/common/groups/groups.html'" />
+             ng-include src="'views/community/common/groups/groups.html'" />
 
-     <article id="group-manage-container"
-              class="col-md-8 col-xl-9 col-xxl-10 right-container"
-              ng-include ng-controller="CommunityManageGroupCtrl"
-              src="'views/community/manage/groups/group.html'"
-              ng-show="groupParams.selectedGroup && navInfo.activeCommunityPage === 0" />
+    <article id="group-manage-container"
+             class="col-md-8 col-xl-9 col-xxl-10 right-container"
+             ng-include ng-controller="CommunityManageGroupCtrl"
+             src="'views/community/manage/groups/group.html'"
+             ng-if="groupParams.selectedGroup && navInfo.activeCommunityPage === 0" />
 
     <article id="group-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareGroupCtrl"
              src="'views/community/share/groups/group.html'"
-             ng-show="groupParams.selectedGroup && navInfo.activeCommunityPage === 1" />
+             ng-if="groupParams.selectedGroup && navInfo.activeCommunityPage === 1" />
 </div>

@@ -6,9 +6,10 @@
  * Service in the ftepApp.
  */
 'use strict';
+
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, traverson) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, traverson) {
 
         var that = this;
 
@@ -47,6 +48,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 displayFilters: false,
                 itemSearchText: '',
                 itemDisplayFilters: false,
+                sharedGroups: undefined,
+                sharedGroupsSearchText: '',
+                sharedGroupsDisplayFilters: false,
+                selectedOwnershipFilter: that.dbOwnershipFilters.ALL_BASKETS,
                 showBaskets: true
             }
         };
@@ -229,10 +234,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (service === "Community") {
                 /* Get basket contents if selected */
                 if (that.params.community.selectedDatabasket) {
+
                     getDatabasketV2(that.params.community.selectedDatabasket).then(function (basket) {
                         that.params.community.selectedDatabasket = basket;
                         getDatabasketContentsV2(basket).then(function (data) {
                             that.params.community.items = data;
+                        });
+                        CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
+                            that.params.community.sharedGroups = data;
                         });
                     });
                 }

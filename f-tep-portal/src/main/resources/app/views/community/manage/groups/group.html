@@ -4,7 +4,10 @@
     </div>
 </section>
 
-<section class="sub-title" ng-bind="groupParams.selectedGroup.description" />
+<section class="sub-title">
+    <div ng-show="groupParams.selectedGroup.description" ng-bind="groupParams.selectedGroup.description" />
+    <div ng-show="!groupParams.selectedGroup.description" ng-bind="'No Description'" />
+</section>
 
 <section class="row section-title">
     <div class="col-xs-11 title-text">

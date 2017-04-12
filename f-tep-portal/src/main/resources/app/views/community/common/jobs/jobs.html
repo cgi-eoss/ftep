@@ -49,6 +49,16 @@
                 <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
             </md-input-container>
 
+            <div class="row filter-radiobutton" ng-show="jobParams.displayFilters">
+                <md-radio-group ng-model="jobParams.selectedOwnershipFilter">
+                    <div ng-repeat="ownershipFilter in jobOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
         </ul>
     </div>
 
@@ -60,7 +70,7 @@
 
     <div class="item-list list">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, job) in jobParams.jobs | orderBy: 'id' | filter: quickSearch"
+                      ng-repeat="(key, job) in jobParams.jobs | orderBy: 'id' | filter: quickSearch | filter: jobParams.selectedOwnershipFilter.criteria"
                       ng-show="filteredJobStatuses.indexOf(job.status) > -1"
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">
@@ -73,6 +83,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
+                       ng-show="navInfo.activeCommunityPage === 0"
                        ng-click="removeItem(key, job)"
                        aria-label="Delete"
                        uib-tooltip="Delete"
@@ -81,6 +92,12 @@
                        tooltip-append-to-body="true">
                 <i class="material-icons">delete</i>
             </md-button>
+
+            <i class="material-icons"
+               ng-show="navInfo.activeCommunityPage === 1"
+               aria-label="Share">
+                share
+            </i>
 
         </md-list-item>
 

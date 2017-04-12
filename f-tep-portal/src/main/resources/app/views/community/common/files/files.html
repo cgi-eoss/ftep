@@ -48,6 +48,16 @@
                 <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
             </md-input-container>
 
+            <div class="row filter-radiobutton" ng-show="fileParams.displayFilters">
+                <md-radio-group ng-model="fileParams.selectedOwnerhipFilter">
+                    <div ng-repeat="ownershipFilter in fileOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
         </ul>
     </div>
 
@@ -59,7 +69,7 @@
 
     <div class="item-list list">
         <md-list-item class="md-2-line"
-                      ng-repeat="(key, file) in fileParams.files | orderBy: 'id' | filter: quickSearch"
+                      ng-repeat="(key, file) in fileParams.files | orderBy: 'id' | filter: quickSearch | filter: fileParams.selectedOwnershipFilter.criteria"
                       ng-click="selectFile(file)"
                       ng-class="{active: file.id == fileParams.selectedFile.id}">
 
@@ -69,6 +79,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
+                       ng-show="navInfo.activeCommunityPage === 0"
                        ng-click="removeItem(key, file)"
                        aria-label="Delete"
                        uib-tooltip="Delete"
@@ -77,6 +88,12 @@
                        tooltip-append-to-body="true">
                 <i class="material-icons">delete</i>
             </md-button>
+
+            <i class="material-icons"
+               ng-show="navInfo.activeCommunityPage === 1"
+               aria-label="Share">
+                share
+            </i>
 
         </md-list-item>
 

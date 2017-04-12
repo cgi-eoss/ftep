@@ -1,20 +1,19 @@
-<div class="tab-content-container row">
+<div class="tab-content-container row"  ng-controller="CommunityDatabasketsCtrl">
 
     <article id="databaskets-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
-             ng-include ng-controller="CommunityDatabasketsCtrl"
-             src="'views/community/common/databaskets/databaskets.html'" />
+             ng-include src="'views/community/common/databaskets/databaskets.html'" />
 
     <article id="databasket-manage-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageDatabasketCtrl"
              src="'views/community/manage/databaskets/databasket.html'"
-             ng-show="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 0" />
+             ng-if="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 0" />
 
     <article id="databasket-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareDatabasketCtrl"
              src="'views/community/share/databaskets/databasket.html'"
-             ng-show="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 1" />
+             ng-if="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 1" />
 
 </div>

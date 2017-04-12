@@ -6,16 +6,17 @@
  * Service in the ftepApp.
  */
 'use strict';
+
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'TabService', 'traverson', 'moment', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, TabService, traverson, moment) {
+    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', 'moment', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, TabService, CommunityService, traverson, moment) {
+
+        var self = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
-
-        var that = this;
 
         this.jobOwnershipFilters = {
             ALL_JOBS: {id: 0, name: 'All', criteria: ''},
@@ -24,8 +25,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         UserService.getCurrentUser().then(function(currentUser){
-            that.jobOwnershipFilters.MY_JOBS.criteria = { owner: {name: currentUser.name } };
-            that.jobOwnershipFilters.SHARED_JOBS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+            self.jobOwnershipFilters.MY_JOBS.criteria = { owner: {name: currentUser.name } };
+            self.jobOwnershipFilters.SHARED_JOBS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -56,6 +57,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 selectedJob: undefined,
                 searchText: '',
                 displayFilters: false,
+                sharedGroups: undefined,
+                sharedGroupsSearchText: '',
+                sharedGroupsDisplayFilters: false,
+                selectedOwnershipFilter: self.jobOwnershipFilters.ALL_JOBS,
                 jobStatuses: [    //filter options
                     {
                         title: "Completed",
@@ -263,23 +268,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 /* Get job list */
                 this.getJobsV2().then(function (data) {
 
-                    that.params.community.jobs = data;
+                    self.params.community.jobs = data;
 
                     /* Select last job if created */
                     if (action === "Create") {
-                        that.params.community.selectedJob = that.params.community.jobs[that.params.community.jobs.length-1];
+                        self.params.community.selectedJob = self.params.community.jobs[self.params.community.jobs.length-1];
                     }
 
                     /* Clear job if deleted */
                     if (action === "Remove") {
-                        if (job && job.id === that.params.community.selectedJob.id) {
-                            that.params.community.selectedJob = undefined;
-                            that.params.community.job = [];
+                        if (job && job.id === self.params.community.selectedJob.id) {
+                            self.params.community.selectedJob = undefined;
+                            self.params.community.job = [];
                         }
                     }
 
                     /* Update the selected job */
-                    that.refreshSelectedJobV2("Community");
+                    self.refreshSelectedJobV2("Community");
 
                 });
 
@@ -291,21 +296,21 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             if (service === "Community") {
                 /* Get job contents if selected */
-                if (that.params.community.selectedJob) {
-                    getJobV2(that.params.community.selectedJob).then(function (job) {
-                        that.params.community.selectedJob = job;
-                        that.params.community.job = job;
+                if (self.params.community.selectedJob) {
+                    getJobV2(self.params.community.selectedJob).then(function (job) {
+                        self.params.community.selectedJob = job;
+                        self.params.community.job = job;
 
                         getJobOwnerV2(job).then(function (owner) {
-                            that.params.community.job.owner = owner;
-                            that.params.community.job.owner.name = owner.name;
+                            self.params.community.job.owner = owner;
+                            self.params.community.job.owner.name = owner.name;
                         });
 
                         getJobDetailsV2(job).then(function (data) {
-                            that.params.community.job.details = data;
+                            self.params.community.job.details = data;
 
-                            var startTime = that.params.community.job.details.startTime;
-                            that.params.community.job.details.startTime =
+                            var startTime = self.params.community.job.details.startTime;
+                            self.params.community.job.details.startTime =
                                 moment().year(startTime.year)
                                         .month(startTime.monthValue)
                                         .day(startTime.dayOfMonth)
@@ -315,8 +320,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                         .millisecond(startTime.nano)
                                         .toDate();
 
-                            var endTime = that.params.community.job.details.endTime;
-                            that.params.community.job.details.endTime =
+                            var endTime = self.params.community.job.details.endTime;
+                            self.params.community.job.details.endTime =
                                 moment().year(endTime.year)
                                         .month(endTime.monthValue)
                                         .day(endTime.dayOfMonth)
@@ -327,25 +332,30 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                         .toDate();
 
                             getJobLogsV2(job).then(function (logs) {
-                                 that.params.community.job.logs = logs;
+                                 self.params.community.job.logs = logs;
                             });
                             getJobConfigV2(job).then(function (config) {
-                                 that.params.community.job.config = config;
+                                 self.params.community.job.config = config;
                             });
 
-                            if (that.params.community.job.outputs) {
-                                that.params.community.job.outputs.links = [];
-                                for (var result in that.params.community.job.outputs.result) {
-                                    if (that.params.community.job.outputs.result[result].substring(0,7) === "ftep://") {
+                            if (self.params.community.job.outputs) {
+                                self.params.community.job.outputs.links = [];
+                                for (var result in self.params.community.job.outputs.result) {
+                                    if (self.params.community.job.outputs.result[result].substring(0,7) === "ftep://") {
                                         getJobOutputResultV2(job).then(function (result) {
-                                            that.params.community.job.outputs.links.push(result._links.download.href);
+                                            self.params.community.job.outputs.links.push(result._links.download.href);
                                         });
                                     } else {
-                                        that.params.community.job.outputs.links.push(null);
+                                        self.params.community.job.outputs.links.push(null);
                                     }
                                 }
                             }
                         });
+
+                        CommunityService.getObjectGroups(job, 'job').then(function (data) {
+                            self.params.community.sharedGroups = data;
+                        });
+
                     });
                 }
             }
@@ -365,7 +375,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
           //var POLLING_FREQUENCY = 4 * 1000;
           var isPolling = false;
           var jobListCache;
-          var isJobStillRunning = false; //whether a job exists, that is still running
+          var isJobStillRunning = false; //whether a job exists, self is still running
           var connectionError = false, retriesLeft = 3;
           var waitingForNewJob = false;
 

@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'traverson', '$rootScope', '$timeout', function (ftepProperties, $q, MessageService, TabService, traverson, $rootScope, $timeout) {
+    ftepmodules.service('FileService', [ 'ftepProperties', '$q', 'MessageService', 'TabService', 'UserService', 'CommunityService', 'traverson', '$rootScope', '$timeout', function (ftepProperties, $q, MessageService, TabService, UserService, CommunityService, traverson, $rootScope, $timeout) {
 
         var that = this;
 
@@ -17,6 +17,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
+
+        this.fileOwnershipFilters = {
+            ALL_FILES: { id: 0, name: 'All', criteria: ''},
+            MY_FILES: { id: 1, name: 'Mine', criteria: undefined },
+            SHARED_FILES: { id: 2, name: 'Shared', criteria: undefined }
+        };
+
+        UserService.getCurrentUser().then(function(currentUser){
+            that.fileOwnershipFilters.MY_FILES.criteria = { owner: {name: currentUser.name } };
+            that.fileOwnershipFilters.SHARED_FILES.criteria = { owner: {name: "!".concat(currentUser.name) } };
+        });
 
         /** PRESERVE USER SELECTIONS **/
         this.params = {
@@ -27,6 +38,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 activeFileType: "REFERENCE_DATA",
                 searchText: '',
                 displayFilters: false,
+                sharedGroups: undefined,
+                sharedGroupsSearchText: '',
+                sharedGroupsDisplayFilters: false,
+                selectedOwnerhipFilter: that.fileOwnershipFilters.ALL_FILES,
                 showFiles: true
              }
         };
@@ -195,8 +210,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (service === "Community") {
                 /* Get file contents if selected */
                 if (that.params.community.selectedFile) {
-                    getFileV2(that.params.community.selectedFile).then(function (data) {
-                        that.params.community.fileDetails = data;
+                    getFileV2(that.params.community.selectedFile).then(function (file) {
+                        that.params.community.fileDetails = file;
+                        CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {
+                            that.params.community.sharedGroups = data;
+                        });
                     });
                 }
             }

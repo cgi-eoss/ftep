@@ -4,7 +4,10 @@
     </div>
 </section>
 
-<section class="sub-title" ng-bind="basketParams.selectedDatabasket.description" />
+<section class="sub-title">
+    <div ng-show="basketParams.selectedDatabasket.description" ng-bind="basketParams.selectedDatabasket.description" />
+    <div ng-show="!basketParams.selectedDatabasket.description" ng-bind="'No Description'" />
+</section>
 
 <section class="row section-title">
     <div class="col-xs-6 title-text">

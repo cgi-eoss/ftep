@@ -1,18 +1,33 @@
 /**
- * Created by dashi on 03-08-2016.
+ * @ngdoc service
+ * @name ftepApp.GroupService
+ * @description
+ * # GroupService
+ * Service in the ftepApp.
  */
-
-  'use strict';
+'use strict';
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'UserService', 'MessageService', 'TabService', 'traverson', '$timeout', '$rootScope', function (ftepProperties, $q, UserService, MessageService, TabService, traverson, $timeout, $rootScope) {
+    ftepmodules.service('GroupService', [ 'ftepProperties', '$q', 'UserService', 'MessageService', 'TabService',  'CommunityService', 'traverson', '$timeout', '$rootScope', function (ftepProperties, $q, UserService, MessageService, TabService, CommunityService, traverson, $timeout, $rootScope) {
 
         var that = this;
+
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var groupsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
+
+        this.groupOwnershipFilters = {
+            ALL_GROUPS: {id: 0, name: 'All', criteria: ''},
+            MY_GROUPS: {id: 1, name: 'Mine', criteria: undefined},
+            SHARED_GROUPS: {id: 2, name: 'Shared', criteria: undefined}
+        };
+
+        UserService.getCurrentUser().then(function(currentUser){
+            that.groupOwnershipFilters.MY_GROUPS.criteria = { owner: {name: currentUser.name } };
+            that.groupOwnershipFilters.SHARED_GROUPS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+        });
 
         /** PRESERVE USER SELECTIONS **/
         this.params = {
@@ -20,7 +35,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 groups: [],
                 selectedGroup: undefined,
                 searchText: '',
-                displayGroupFilters: false
+                displayGroupFilters: false,
+                sharedGroups: undefined,
+                sharedGroupsSearchText: '',
+                sharedGroupsDisplayFilters: false,
+                selectedOwnershipFilter: that.groupOwnershipFilters.ALL_GROUPS,
             }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -183,6 +202,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         that.params.community.selectedGroup = group;
                         UserService.getUsers(group).then(function (users) {
                             UserService.params.community.groupUsers = users;
+                        });
+                        CommunityService.getObjectGroups(group, 'group').then(function (data) {
+                            that.params.community.sharedGroups = data;
                         });
                     });
                 }

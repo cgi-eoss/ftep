@@ -10,11 +10,28 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityShareJobCtrl', ['JobService', '$scope', function (JobService, $scope) {
+    ftepmodules.controller('CommunityShareJobCtrl', ['JobService', 'CommunityService', '$scope', function (JobService, CommunityService, $scope) {
 
-        /* Get stored Jobs details */
+         /* Get stored Group & Community details */
         $scope.jobParams = JobService.params.community;
-        $scope.item = "Job";
+        $scope.permissions = CommunityService.permissionTypes;
+
+        /* Filters */
+        $scope.toggleFilters = function () {
+            $scope.jobParams.sharedGroupsDisplayFilters = !$scope.jobParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.itemSearch = {
+            searchText: $scope.jobParams.sharedGroupsSearchText
+        };
+
+        $scope.quickSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.itemSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
 
     }]);
 });

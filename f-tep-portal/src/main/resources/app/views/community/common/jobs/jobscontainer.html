@@ -1,19 +1,18 @@
-<div class="tab-content-container row">
+<div class="tab-content-container row" ng-controller="CommunityJobsCtrl">
 
     <article id="jobs-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
-             ng-include ng-controller="CommunityJobsCtrl"
-             src="'views/community/common/jobs/jobs.html'" />
+             ng-include src="'views/community/common/jobs/jobs.html'" />
 
     <article id="job-manage-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageJobCtrl"
              src="'views/community/manage/jobs/job.html'"
-             ng-show="jobParams.selectedJob && navInfo.activeCommunityPage === 0" />
+             ng-if="jobParams.selectedJob && navInfo.activeCommunityPage === 0" />
 
     <article id="job-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareJobCtrl"
              src="'views/community/share/jobs/job.html'"
-             ng-show="jobParams.selectedJob && navInfo.activeCommunityPage === 1" />
+             ng-if="jobParams.selectedJob && navInfo.activeCommunityPage === 1" />
 </div>

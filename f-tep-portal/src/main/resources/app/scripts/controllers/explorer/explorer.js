@@ -134,7 +134,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
             ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
                 controller: ShareObjectController,
-                templateUrl: 'views/explorer/templates/shareobject.tmpl.html',
+                templateUrl: 'views/common/templates/shareitem.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true,

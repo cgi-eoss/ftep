@@ -14,6 +14,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Get stored Databasket details */
         $scope.basketParams = BasketService.params.community;
+        $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
         $scope.item = "Databasket";
 
         /* Get Databaskets */

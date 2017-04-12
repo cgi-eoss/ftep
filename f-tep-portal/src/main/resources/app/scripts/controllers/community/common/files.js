@@ -14,6 +14,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Get stored Files details */
         $scope.fileParams = FileService.params.community;
+        $scope.fileOwnershipFilters = FileService.fileOwnershipFilters;
         $scope.item = "File";
         $scope.filetypes = [
             { name: "Reference Data", value: "REFERENCE_DATA" },

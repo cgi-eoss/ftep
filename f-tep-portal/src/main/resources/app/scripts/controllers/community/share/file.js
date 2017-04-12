@@ -10,21 +10,27 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityShareFileCtrl', ['FileService', '$scope', function (FileService, $scope) {
+    ftepmodules.controller('CommunityShareFileCtrl', ['FileService', 'CommunityService', '$scope', function (FileService, CommunityService, $scope) {
 
-        /* Get stored File details */
+        /* Get stored File & Community details */
         $scope.fileParams = FileService.params.community;
-        $scope.item = "File";
+        $scope.permissions = CommunityService.permissionTypes;
 
-        $scope.fileTags = ['File', 'Reference', 'testfile'];
+        /* Filters */
+        $scope.toggleFilters = function () {
+            $scope.fileParams.sharedGroupsDisplayFilters = !$scope.fileParams.sharedGroupsDisplayFilters;
+        };
 
-        $scope.tempFile = angular.copy($scope.fileParams.selectedFile);
+        $scope.itemSearch = {
+            searchText: $scope.fileParams.sharedGroupsSearchText
+        };
 
-        /* Patch file and update file list */
-        $scope.saveFile = function() {
-            FileService.updateFtepFile($scope.tempFile).then(function (data) {
-                FileService.refreshFtepFilesV2("Community");
-            });
+        $scope.quickSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.itemSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
         };
 
     }]);

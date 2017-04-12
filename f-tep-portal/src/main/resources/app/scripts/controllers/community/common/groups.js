@@ -13,6 +13,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Get stored Groups details */
         $scope.groupParams = GroupService.params.community;
+        $scope.groupOwnershipFilters = GroupService.groupOwnershipFilters;
         $scope.item = "Group";
 
         /* Get Groups */

@@ -14,6 +14,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Get stored Jobs details */
         $scope.jobParams = JobService.params.community;
+        $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
         $scope.item = "Job";
 
         /* Get jobs */

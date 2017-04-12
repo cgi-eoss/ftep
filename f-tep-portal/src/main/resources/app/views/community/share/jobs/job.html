@@ -1,74 +1,120 @@
-<section id="job-title" class="row section-title">
+<md-button id="save-job"
+           class="save-button md-fab md-mini right"
+           ng-click="updateGroups(jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+           ng-disabled="serviceForm.$invalid"
+           aria-label="Save Job"
+           uib-tooltip="Save Job"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+        <i class="material-icons">save</i>
+</md-button>
+
+<section id="databasket-title" class="row section-title">
     <div class="col-xs-10 title-text">
-        <h2 ng-bind="'Job: ' + jobParams.job.id + ' - ' + jobParams.job.status" />
+        <h2 ng-bind="'Job ID: ' + jobParams.selectedJob.name" />
     </div>
 </section>
 
-<section id="job-overview" class="sub-title row">
+<section class="sub-title">
+    <div ng-show="jobParams.selectedJob.description" ng-bind="jobParams.selectedJob.description" />
+    <div ng-show="!jobParams.selectedJob.description" ng-bind="'No Description'" />
+</section>
 
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'ID:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.extId" />
-        </div>
+<section class="row section-title">
+    <div class="col-xs-11 title-text">
+        <h3>Group List</h3>
     </div>
+    <div class="col-xs-1 title-button">
+        <h3>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="shareObjectDialog($event, jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+                       aria-label="Share"
+                       uib-tooltip="Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">share</i>
+            </md-button>
+        </h3>
+    </div>
+</section>
 
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Owner:'" />
+<section class="filter-list">
+    <ul class="list">
+
+        <div class="row list-group filter-list-title">
+
+            <div class="col-xs-11" ng-click="toggleFilters()">
+                <label class="md-accent">Filters</label>
+            </div>
+
+            <div class="col-xs-1 expander">
+                <i class="material-icons"
+                   ng-show="!jobParams.sharedGroupsDisplayFilters"
+                   ng-click="toggleUserFilters()"
+                   aria-label="Show Filters"
+                   uib-tooltip="Show Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_less
+                </i>
+                <i class="material-icons"
+                   ng-show="jobParams.sharedGroupsDisplayFilters"
+                   ng-click="toggleUserFilters()"
+                   aria-label="Hide Filters"
+                   uib-tooltip="Hide Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_more
+                </i>
+            </div>
+
         </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.owner.name" />
+
+        <md-input-container md-no-float ng-show="jobParams.sharedGroupsDisplayFilters">
+            <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+        </md-input-container>
+
+    </ul>
+</section>
+
+<section class="groups-shared item-list">
+
+     <md-list-item class="md-1-line" ng-repeat="ace in jobParams.sharedGroups | orderBy: 'group.name' | filter: quickSearch">
+
+        <div class="md-avatar" alt="access rights">
+            <i class="material-icons">group</i>
         </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Stage:'" />
+
+        <div class="md-list-item-text" layout="column">
+            <h4 ng-bind="ace.group.name" />
         </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.stage" />
+
+        <div class="md-secondary md-list-item-dropdown-label">
+            <label>Permission</label>
         </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Status:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.status" />
-        </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Start Time:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.details.startTime" />
-        </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'End Time:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.details.endTime" />
-        </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Name:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.config._embedded.service.name" />
-        </div>
-    </div>
-    <div class="col-xs-12 col-md-6">
-        <div class="col-xs-12 col-md-3 col-xl-2">
-            <h5 ng-bind="'Description:'" />
-        </div>
-        <div class="col-xs-12 col-md-9 col-xl-10">
-            <p ng-bind="jobParams.job.config._embedded.service.description" />
-        </div>
-    </div>
+
+        <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
+            <md-select ng-model="ace.permission" aria-label="Permission">
+                <md-option ng-repeat="permission in permissions" ng-value="permission">
+                    {{permission}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+
+        <md-button class="toolbar-button md-secondary"
+                   ng-click="removeGroup(jobParams.selectedJob, 'job', ace.group, jobParams.sharedGroups, 'JobService', 'refreshSelectedJobV2')"
+                   aria-label="Remove"
+                   uib-tooltip="Remove"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">clear</i>
+        </md-button>
+
+    </md-list-item>
+
 </section>

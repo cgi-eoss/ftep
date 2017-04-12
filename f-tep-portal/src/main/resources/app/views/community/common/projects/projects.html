@@ -1,1 +1,127 @@
-WIP
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-10" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!projectParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="projectParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="projectParams.displayFilters">
+                <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+            </md-input-container>
+
+            <div class="row filter-radiobutton" ng-show="projectParams.displayFilters">
+                <md-radio-group ng-model="projectParams.selectedOwnershipFilter">
+                    <div ng-repeat="ownershipFilter in projectOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="!projectParams.projects.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">You have no {{item}}s. Create a {{item}} using the + button below.</div>
+        </div>
+    </div>
+
+    <div class="item-list list">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, project) in projectParams.projects | orderBy: 'id' | filter: quickSearch | filter: projectParams.selectedOwnershipFilter.criteria"
+                      ng-click="selectProject(project)"
+                      ng-class="{active: project.id == projectParams.selectedProject.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="project.name" />
+                <span><b>Owner:</b> <span ng-bind="project.owner.name" /></span>
+                <span><b>Items:</b> <span ng-bind="project.size" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="navInfo.activeCommunityPage === 0"
+                       aria-label="{{item}} Description"
+                       uib-popover-html="getDescription({{project}})"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-click="editItemDialog($event, project)"
+                       aria-label="Edit"
+                       uib-tooltip="Edit"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">create</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-click="removeItem(key, project)"
+                       aria-label="Delete"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
+
+            <i class="material-icons"
+               ng-show="navInfo.activeCommunityPage === 1"
+               aria-label="Share">
+                share
+            </i>
+
+        </md-list-item>
+
+    </div>
+
+</section>
+
+<section id="create-project">
+    <md-button id="create-project-button"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="createItemDialog($event)"
+               aria-label="Create New {{item}}"
+               uib-tooltip="Create New {{item}}"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add</i>
+    </md-button>
+</section>

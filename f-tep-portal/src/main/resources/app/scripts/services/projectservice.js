@@ -5,16 +5,53 @@
  * # ProjectService
  * Service in the ftepApp.
  */
+'use strict';
+
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
-    'use strict';
 
-    ftepmodules.service('ProjectService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', 'UserService',
-                                            function (ftepProperties, $q, MessageService, traverson, UserService) {
+    ftepmodules.service('ProjectService', [ 'ftepProperties', 'MessageService', 'CommunityService', 'UserService', 'traverson', '$q', function (ftepProperties, MessageService, CommunityService, UserService, traverson, $q) {
 
+        var self = this; //workaround for now
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var projectsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
+
+        this.projectOwnershipFilters = {
+                ALL_PROJECTS: { id: 0, name: 'All', criteria: ''},
+                MY_PROJECTS: { id: 1, name: 'Mine', criteria: undefined },
+                SHARED_PROJECTS: { id: 2, name: 'Shared', criteria: undefined }
+        };
+
+        UserService.getCurrentUser().then(function(currentUser){
+            self.projectOwnershipFilters.MY_PROJECTS.criteria = { owner: {name: currentUser.name } };
+            self.projectOwnershipFilters.SHARED_PROJECTS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+        });
+
+        /** PRESERVE USER SELECTIONS **/
+        this.params = {
+              explorer: {
+                  showProjects: true,
+                  activeProject: undefined,
+                  displayFilters: false,
+                  searchText: undefined,
+                  selectedOwnerhipFilter: this.projectOwnershipFilters.ALL_PROJECTS
+              },
+              community: {
+                  projects: undefined,
+                  contents: undefined,
+                  selectedProject: undefined,
+                  searchText: '',
+                  displayFilters: false,
+                  contentsSearchText: '',
+                  contentsDisplayFilters: false,
+                  sharedGroups: undefined,
+                  sharedGroupsSearchText: '',
+                  sharedGroupsDisplayFilters: false,
+                  selectedOwnershipFilter: self.projectOwnershipFilters.ALL_PROJECTS,
+                  showProjects: true
+              },
+        };
 
         this.getProjects = function(){
             var deferred = $q.defer();
@@ -112,30 +149,67 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.projectOwnershipFilters = {
-                ALL_PROJECTS: { id: 0, name: 'All', criteria: ''},
-                MY_PROJECTS: { id: 1, name: 'Mine', criteria: undefined },
-                SHARED_PROJECTS: { id: 2, name: 'Shared', criteria: undefined }
+        var getProject = function(project){
+            var deferred = $q.defer();
+            projectsAPI.from(rootUri + '/projects/' + project.id)
+                       .newRequest()
+                       .getResource()
+                       .result
+                       .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not get Project contents', error );
+                deferred.reject();
+            });
+            return deferred.promise;
         };
 
-        var that = this; //workaround for now
-        UserService.getCurrentUser().then(function(currentUser){
-            that.projectOwnershipFilters.MY_PROJECTS.criteria = { owner: {name: currentUser.name } };
-            that.projectOwnershipFilters.SHARED_PROJECTS.criteria = { owner: {name: "!".concat(currentUser.name) } };
-        });
+        this.refreshProjects = function (service, action, project) {
 
-        /** PRESERVE USER SELECTIONS **/
-        this.params = {
-              explorer: {
-                  showProjects: true,
-                  activeProject: undefined,
-                  displayFilters: false,
-                  searchText: undefined,
-                  selectedOwnerhipFilter: this.projectOwnershipFilters.ALL_PROJECTS
-              },
-              community: {
-                  showProjects: true
-              },
+            if (service === "Community") {
+
+                /* Get project list */
+                this.getProjects().then(function (data) {
+
+                    self.params.community.projects = data;
+
+                    /* Select last project if created */
+                    if (action === "Create") {
+                        self.params.community.selectedProject = self.params.community.projects[self.params.community.projects.length-1];
+                    }
+
+                    /* Clear project if deleted */
+                    if (action === "Remove") {
+                        if (project && project.id === self.params.community.selectedProject.id) {
+                            self.params.community.selectedProject = undefined;
+                            self.params.community.contents = [];
+                        }
+                    }
+
+                    /* Update the selected group */
+                    self.refreshSelectedProject("Community");
+
+                });
+
+            }
+
+        };
+
+        this.refreshSelectedProject = function (service) {
+
+            if (service === "Community") {
+                /* Get project contents if selected */
+                if (self.params.community.selectedProject) {
+                    getProject(self.params.community.selectedProject).then(function (project) {
+                        self.params.community.selectedProject = project;
+                        CommunityService.getObjectGroups(project, 'project').then(function (data) {
+                            self.params.community.sharedGroups = data;
+                        });
+                    });
+                }
+            }
+
         };
 
         return this;

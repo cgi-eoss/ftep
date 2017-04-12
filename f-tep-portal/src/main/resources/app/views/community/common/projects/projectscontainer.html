@@ -1,19 +1,18 @@
-<div class="tab-content-container row">
+<div class="tab-content-container row" ng-controller="CommunityProjectsCtrl">
 
-    <article id="groups-container"
+    <article id="projects-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
-             ng-include ng-controller="CommunityProjectsCtrl"
-             src="'views/community/common/projects/projects.html'" />
+             ng-include src="'views/community/common/projects/projects.html'" />
 
-    <article id="group-manage-container"
+    <article id="project-manage-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageProjectCtrl"
              src="'views/community/manage/projects/project.html'"
-             ng-show="projectParams.selectedProject && navInfo.activeCommunityPage === 0"/>
+             ng-if="projectParams.selectedProject && navInfo.activeCommunityPage === 0"/>
 
-    <article id="group-share-container"
+    <article id="project-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareProjectCtrl"
              src="'views/community/share/projects/project.html'"
-             ng-show="projectParams.selectedProject && navInfo.activeCommunityPage === 1" />
+             ng-if="projectParams.selectedProject && navInfo.activeCommunityPage === 1" />
 </div>

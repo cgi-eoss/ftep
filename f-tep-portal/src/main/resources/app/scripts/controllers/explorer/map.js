@@ -246,10 +246,11 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             if(droppedFileLayer){
                 $scope.map.removeLayer(droppedFileLayer);
             }
+            if(searchAreaLayer){
+                searchAreaLayer.getSource().clear();
+            }
             $scope.searchPolygon = { selectedArea: undefined, wkt: undefined };
             $scope.drawType = SHAPE.NONE;
-            $scope.map.removeInteraction(draw);
-            addInteraction();
             $rootScope.$broadcast('polygon.drawn', undefined);
         };
 

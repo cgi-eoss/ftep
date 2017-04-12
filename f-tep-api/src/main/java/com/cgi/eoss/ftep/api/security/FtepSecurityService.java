@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -163,6 +164,7 @@ public class FtepSecurityService {
         return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
+    @Transactional
     public MutableAcl getAcl(ObjectIdentity objectIdentity, Sid... sids) {
         try {
             return (MutableAcl) aclService.readAclById(objectIdentity, Arrays.asList(sids));
@@ -171,6 +173,7 @@ public class FtepSecurityService {
         }
     }
 
+    @Transactional
     public void saveAcl(MutableAcl acl) {
         aclService.updateAcl(acl);
     }

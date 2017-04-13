@@ -4,9 +4,11 @@ import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
@@ -123,7 +125,7 @@ public class ApiConfig {
                 config.setBasePath(apiBasePath);
 
                 // Ensure that the id attribute is returned for all API-mapped types
-                ImmutableList.of(Group.class, JobConfig.class, Job.class, FtepService.class, User.class, FtepFile.class, Databasket.class)
+                ImmutableList.of(Group.class, JobConfig.class, Job.class, FtepService.class, FtepServiceContextFile.class, User.class, FtepFile.class, Databasket.class, Project.class)
                         .forEach(config::exposeIdsFor);
             }
         };

@@ -13,6 +13,7 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -74,6 +75,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         WebMvcAutoConfiguration.EnableWebMvcConfiguration.class,
 
         CatalogueConfig.class,
+        InProcessRpcConfig.class,
         OrchestratorConfig.class,
         PersistenceConfig.class
 })

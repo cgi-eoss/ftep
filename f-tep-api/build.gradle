@@ -12,6 +12,7 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-orchestrator')
     compile project(':f-tep-persistence')
+    compile project(':f-tep-rpc')
 
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.cache:cache-api'

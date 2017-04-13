@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.orchestrator;
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,8 +17,10 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         PropertyPlaceholderAutoConfiguration.class,
-        PersistenceConfig.class,
-        CatalogueConfig.class
+
+        CatalogueConfig.class,
+        InProcessRpcConfig.class,
+        PersistenceConfig.class
 })
 @EnableEurekaClient
 @ComponentScan(basePackageClasses = OrchestratorConfig.class)

@@ -46,6 +46,7 @@ dependencies {
     compile 'io.grpc:grpc-netty'
     compile 'io.grpc:grpc-protobuf'
     compile 'io.grpc:grpc-stub'
+    compile 'org.springframework:spring-context'
 }
 
 sonarqube {

@@ -1,21 +1,21 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
-import com.cgi.eoss.ftep.api.service.InProcessRpc;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import io.grpc.ManagedChannelBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -32,7 +32,7 @@ import java.util.UUID;
 public class JobConfigsApiExtension {
 
     private final FtepSecurityService ftepSecurityService;
-    private final InProcessRpc inProcessRpc;
+    private final ManagedChannelBuilder inProcessChannelBuilder;
 
     /**
      * <p>Provides a direct interface to the service orchestrator, allowing users to launch job configurations without
@@ -41,9 +41,8 @@ public class JobConfigsApiExtension {
      */
     @PostMapping("/{jobConfigId}/launch")
     @PreAuthorize("hasAnyRole('ROLE_CONTENT_AUTHORITY', 'ROLE_ADMIN') or hasPermission(#jobConfig, 'read')")
-    @ResponseBody
-    public void launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
-        FtepServiceLauncherGrpc.FtepServiceLauncherFutureStub serviceLauncher = inProcessRpc.futureFtepServiceLauncher();
+    public ResponseEntity launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
+        FtepServiceLauncherGrpc.FtepServiceLauncherFutureStub serviceLauncher = FtepServiceLauncherGrpc.newFutureStub(inProcessChannelBuilder.build());
 
         FtepServiceParams serviceParams = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
@@ -54,6 +53,7 @@ public class JobConfigsApiExtension {
 
         LOG.info("Launching service via REST API: {}", serviceParams);
         serviceLauncher.launchService(serviceParams);
+        return ResponseEntity.noContent().build();
     }
 
 }

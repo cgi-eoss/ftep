@@ -32,9 +32,10 @@ Vagrant.configure('2') do |config|
     # Expose the container's web server on 8080
     ftep.vm.network 'forwarded_port', guest: 80, host: 8080 # apache
     ftep.vm.network 'forwarded_port', guest: 5432, host: 5432 # postgresql
-    # ftep.vm.network 'forwarded_port', guest: 6565, host: 6565 # f-tep-server grpc
-    # ftep.vm.network 'forwarded_port', guest: 6566, host: 6566 # f-tep-worker grpc
-    # ftep.vm.network 'forwarded_port', guest: 6567, host: 6567 # f-tep-zoomanager grpc
+    #ftep.vm.network 'forwarded_port', guest: 6565, host: 6565 # f-tep-server grpc
+    #ftep.vm.network 'forwarded_port', guest: 6566, host: 6566 # f-tep-worker grpc
+    #ftep.vm.network 'forwarded_port', guest: 6567, host: 6567 # f-tep-zoomanager grpc
+    #ftep.vm.network 'forwarded_port', guest: 8761, host: 8761 # f-tep-serviceregistry http
     ftep.vm.network 'forwarded_port', guest: 12201, host: 12201 # graylog gelf tcp
 
     # Create a private network, which allows host-only access to the machine

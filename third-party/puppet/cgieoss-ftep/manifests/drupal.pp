@@ -28,6 +28,8 @@ class ftep::drupal (
   include ::apache::mod::rewrite
   include ::apache::mod::proxy
 
+  class { '::postgresql::client': }
+
   # apache::mod::proxy_fcgi does not include the package on CentOS 6
   ensure_resource('apache::mod', 'proxy_fcgi', { package => 'mod_proxy_fcgi', require => Class['apache::mod::proxy'] })
 

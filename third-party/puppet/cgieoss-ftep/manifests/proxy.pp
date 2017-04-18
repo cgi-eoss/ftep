@@ -9,7 +9,7 @@ class ftep::proxy (
   $context_path_wps       = '/secure/wps',
   $context_path_api_v2    = '/secure/api/v2.0',
   $context_path_monitor   = '/monitor',
-  $context_path_log       = '/log',
+  $context_path_log       = '/logs',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',

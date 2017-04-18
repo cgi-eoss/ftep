@@ -50,7 +50,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.updateService = function(){
-            ProductService.updateService().then(function(service){
+            ProductService.updateService($scope.serviceParams.selectedService).then(function(service){
                 ProductService.getUserServices().then(function(result){
                     $scope.userServices = result;
                 });

@@ -10,9 +10,28 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityShareServiceCtrl', ['ProductService', 'MessageService', '$rootScope', '$scope', '$mdDialog', function (ProductService, MessageService, $rootScope, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityShareServiceCtrl', ['ProductService', 'CommunityService', '$scope', function (ProductService, CommunityService, $scope) {
 
+        /* Get stored Service & Community details */
+        $scope.serviceParams = ProductService.params.community;
+        $scope.permissions = CommunityService.permissionTypes;
 
+        /* Filters */
+        $scope.toggleFilters = function () {
+            $scope.serviceParams.sharedGroupsDisplayFilters = !$scope.serviceParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.itemSearch = {
+            searchText: $scope.serviceParams.sharedGroupsSearchText
+        };
+
+        $scope.quickSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.itemSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
 
     }]);
 });

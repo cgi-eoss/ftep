@@ -1,1 +1,95 @@
-WIP
+<section id="services-title" class="row section-title">
+    <div class="col-xs-10 title-text">
+        <h2 ng-bind="serviceParams.selectedService.name" />
+    </div>
+</section>
+
+<section class="sub-title">
+    <div ng-show="serviceParams.selectedService.description" ng-bind="serviceParams.selectedService.description" />
+    <div ng-show="!serviceParams.selectedService.description" ng-bind="'No Description'" />
+</section>
+
+<section class="row section-title">
+    <div class="col-xs-11 title-text">
+        <h3>Files</h3>
+    </div>
+    <div class="col-xs-1 title-button">
+        <h3><!--TODO: Set selectedService in Developer -->
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="goTo('/developer')"
+                       aria-label="Add files in Developer"
+                       uib-tooltip="Add files in Developer"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">library_add</i>
+            </md-button>
+        </h3>
+    </div>
+</section>
+
+<section class="filter-list">
+    <ul class="list">
+
+        <div class="row list-group filter-list-title">
+
+            <div class="col-xs-11" ng-click="toggleContentsFilters()">
+                <label class="md-accent">Filters</label>
+            </div>
+
+            <div class="col-xs-1 expander">
+                <i class="material-icons"
+                   ng-show="!serviceParams.displayContentsFilters"
+                   ng-click="toggleContentsFilters()"
+                   aria-label="Show Filters"
+                   uib-tooltip="Show Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_less
+                </i>
+                <i class="material-icons"
+                   ng-show="serviceParams.displayContentsFilters"
+                   ng-click="toggleContentsFilters()"
+                   aria-label="Hide Filters"
+                   uib-tooltip="Hide Filters"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+                    expand_more
+                </i>
+            </div>
+
+        </div>
+
+        <md-input-container md-no-float ng-show="serviceParams.displayContentsFilters">
+            <input ng-model="contentsSearch.searchText" type="text" placeholder="Search">
+        </md-input-container>
+
+    </ul>
+</section>
+
+<section class="item-list">
+    <md-list-item class="md-1-line" ng-repeat="(key, item) in serviceParams.contents | orderBy: 'name' | filter: contentsQuickSearch">
+
+        <div class="md-avatar" alt="access rights">
+            <i class="material-icons">insert_drive_file</i>
+        </div>
+
+        <div class="md-list-item-text" layout="column">
+            <h4 ng-if="item.filename" ng-bind="item.filename" />
+            <h4 ng-if="!item.filename" ng-bind="'Job ID: ' + item.id" />
+        </div>
+
+        <md-button class="toolbar-button md-secondary"
+                   ng-click="removeItem(serviceParams.contents, item)"
+                   aria-label="Remove"
+                   uib-tooltip="Remove"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">clear</i>
+        </md-button>
+
+    </md-list-item>
+</section>

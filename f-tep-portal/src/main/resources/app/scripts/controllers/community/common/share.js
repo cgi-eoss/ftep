@@ -30,7 +30,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.shareObject = function (item) {
                     CommunityService.shareObject($scope.ace, groups).then(function (data) {
-                        service[serviceMethod]('Community');
+                        service[serviceMethod]('community');
                     });
 
                     $mdDialog.hide();

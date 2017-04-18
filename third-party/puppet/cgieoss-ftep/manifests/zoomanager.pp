@@ -13,8 +13,11 @@ class ftep::zoomanager (
   $application_port     = undef,
   $grpc_port            = undef,
 
+  $serviceregistry_user = undef,
+  $serviceregistry_pass = undef,
   $serviceregistry_host = undef,
   $serviceregistry_port = undef,
+  $serviceregistry_url  = undef,
 
   $zcfg_path            = '/var/www/cgi-bin',
   $classpath_jar_files  = [],
@@ -30,8 +33,12 @@ class ftep::zoomanager (
   $real_application_port = pick($application_port, $ftep::globals::zoomanager_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::zoomanager_grpc_port)
 
+  $real_serviceregistry_user = pick($serviceregistry_user, $ftep::globals::serviceregistry_user)
+  $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
   $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
   $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
+  $real_serviceregistry_url = pick($serviceregistry_url,
+    "http://${real_serviceregistry_user}:${real_serviceregistry_pass}@${real_serviceregistry_host}:${real_serviceregistry_port}/eureka/")
 
   # JDK is necessary to compile service stubs
   ensure_packages(['java-1.8.0-openjdk-devel'])
@@ -65,14 +72,13 @@ JAVA_OPTS="-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLogge
     owner   => $ftep::globals::user,
     group   => $ftep::globals::group,
     content => epp('ftep/zoomanager/application.properties.epp', {
-      'logging_config_file'  => $logging_config_file,
-      'server_port'          => $real_application_port,
-      'grpc_port'            => $real_grpc_port,
-      'serviceregistry_host' => $real_serviceregistry_host,
-      'serviceregistry_port' => $real_serviceregistry_port,
-      'zcfg_path'            => $zcfg_path,
-      'javac_classpath'      => join($classpath_jar_files, ':'),
-      'services_stub_jar'    => $services_stub_jar,
+      'logging_config_file' => $logging_config_file,
+      'server_port'         => $real_application_port,
+      'grpc_port'           => $real_grpc_port,
+      'serviceregistry_url' => $real_serviceregistry_url,
+      'zcfg_path'           => $zcfg_path,
+      'javac_classpath'     => join($classpath_jar_files, ':'),
+      'services_stub_jar'   => $services_stub_jar,
     }),
     require => Package['f-tep-zoomanager'],
     notify  => Service['f-tep-zoomanager'],

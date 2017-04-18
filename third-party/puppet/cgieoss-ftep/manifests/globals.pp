@@ -39,6 +39,10 @@ class ftep::globals (
   # SSO configuration
   $username_request_header     = 'REMOTE_USER',
 
+  # Eureka config
+  $serviceregistry_user        = 'ftepeureka',
+  $serviceregistry_pass        = 'ftepeurekapass',
+
   # App server port config for HTTP and gRPC
   $serviceregistry_application_port = 8761,
   $server_application_port     = 8090,

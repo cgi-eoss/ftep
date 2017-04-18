@@ -13,8 +13,11 @@ class ftep::worker (
   $application_port      = undef,
   $grpc_port             = undef,
 
+  $serviceregistry_user  = undef,
+  $serviceregistry_pass  = undef,
   $serviceregistry_host  = undef,
   $serviceregistry_port  = undef,
+  $serviceregistry_url   = undef,
 
   $worker_environment    = 'LOCAL',
 
@@ -41,8 +44,12 @@ class ftep::worker (
   $real_application_port = pick($application_port, $ftep::globals::worker_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::worker_grpc_port)
 
+  $real_serviceregistry_user = pick($serviceregistry_user, $ftep::globals::serviceregistry_user)
+  $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
   $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
   $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
+  $real_serviceregistry_url = pick($serviceregistry_url,
+    "http://${real_serviceregistry_user}:${real_serviceregistry_pass}@${real_serviceregistry_host}:${real_serviceregistry_port}/eureka/")
 
   ensure_packages(['f-tep-worker'], {
     ensure => 'latest',
@@ -85,8 +92,7 @@ class ftep::worker (
       'logging_config_file'   => $logging_config_file,
       'server_port'           => $real_application_port,
       'grpc_port'             => $real_grpc_port,
-      'serviceregistry_host'  => $real_serviceregistry_host,
-      'serviceregistry_port'  => $real_serviceregistry_port,
+      'serviceregistry_url'   => $real_serviceregistry_url,
       'worker_environment'    => $worker_environment,
       'cache_basedir'         => "${data_basedir}/$cache_dir",
       'cache_concurrency'     => $cache_concurrency,

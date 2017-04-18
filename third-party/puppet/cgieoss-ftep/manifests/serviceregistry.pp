@@ -1,16 +1,18 @@
 class ftep::serviceregistry (
-  $component_name      = 'f-tep-serviceregistry',
+  $component_name       = 'f-tep-serviceregistry',
 
-  $install_path        = '/var/f-tep/serviceregistry',
-  $config_file         = '/var/f-tep/serviceregistry/f-tep-serviceregistry.conf',
-  $logging_config_file = '/var/f-tep/serviceregistry/log4j2.xml',
-  $properties_file     = '/var/f-tep/serviceregistry/application.properties',
+  $install_path         = '/var/f-tep/serviceregistry',
+  $config_file          = '/var/f-tep/serviceregistry/f-tep-serviceregistry.conf',
+  $logging_config_file  = '/var/f-tep/serviceregistry/log4j2.xml',
+  $properties_file      = '/var/f-tep/serviceregistry/application.properties',
 
-  $service_enable      = true,
-  $service_ensure      = 'running',
+  $service_enable       = true,
+  $service_ensure       = 'running',
 
   # f-tep-serviceregistry application.properties config
-  $application_port    = undef,
+  $application_port     = undef,
+  $serviceregistry_user = undef,
+  $serviceregistry_pass = undef,
 ) {
 
   require ::ftep::globals
@@ -20,6 +22,8 @@ class ftep::serviceregistry (
   contain ::ftep::common::user
 
   $real_application_port = pick($application_port, $ftep::globals::serviceregistry_application_port)
+  $real_serviceregistry_user = pick($serviceregistry_user, $ftep::globals::serviceregistry_user)
+  $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
 
   # JDK is necessary to compile service stubs
   ensure_packages(['java-1.8.0-openjdk-devel'])
@@ -53,8 +57,10 @@ JAVA_OPTS="-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLogge
     owner   => $ftep::globals::user,
     group   => $ftep::globals::group,
     content => epp('ftep/serviceregistry/application.properties.epp', {
-      'logging_config_file' => $logging_config_file,
-      'server_port'         => $real_application_port,
+      'logging_config_file'  => $logging_config_file,
+      'server_port'          => $real_application_port,
+      'serviceregistry_user' => $real_serviceregistry_user,
+      'serviceregistry_pass' => $real_serviceregistry_pass,
     }),
     require => Package['f-tep-serviceregistry'],
     notify  => Service['f-tep-serviceregistry'],

@@ -2,6 +2,8 @@
     String $logging_config_file,
 
     Integer $server_port,
+    String $serviceregistry_user,
+    String $serviceregistry_pass,
 | -%>
 # Managed by Puppet
 # F-TEP Service Registry service configuration
@@ -12,6 +14,9 @@ logging.config=<%= $logging_config_file %>
 
 # Server config
 server.port=<%= $server_port %>
+security.basic.enabled=true
+security.user.name=<%= $serviceregistry_user %>
+security.user.password=<%= $serviceregistry_pass %>
 
 eureka.client.register-with-eureka=false
 eureka.client.fetch-registry=false

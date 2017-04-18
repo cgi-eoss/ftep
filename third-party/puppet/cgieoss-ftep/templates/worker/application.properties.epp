@@ -4,8 +4,7 @@
     Integer $server_port,
     Integer $grpc_port,
 
-    String $serviceregistry_host,
-    Integer $serviceregistry_port,
+    String $serviceregistry_url,
 
     String $worker_environment,
 
@@ -36,7 +35,7 @@ eureka.instance.metadataMap.workerEnv=<%= $worker_environment %>
 eureka.instance.metadataMap.grpcPort=${grpc.port}
 
 eureka.client.healthcheck.enabled=true
-eureka.client.serviceUrl.defaultZone=http://<%= $serviceregistry_host %>:<%= $serviceregistry_port %>/eureka/
+eureka.client.serviceUrl.defaultZone=<%= $serviceregistry_url %>
 
 # Worker configuration
 ftep.worker.cache.baseDir=<%= $cache_basedir %>

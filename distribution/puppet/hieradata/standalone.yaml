@@ -8,6 +8,7 @@ classes:
 #  - ftep::geoserver
 #  - ftep::monitor
 #  - ftep::proxy
+#  - ftep::resto
 #  - ftep::server
 #  - ftep::webapp
 #  - ftep::worker
@@ -25,6 +26,8 @@ classes:
 #  ftep-monitor:
 #    ip: 127.0.0.1
 #  ftep-proxy:
+#    ip: 127.0.0.1
+#  ftep-resto:
 #    ip: 127.0.0.1
 #  ftep-server:
 #    ip: 127.0.0.1

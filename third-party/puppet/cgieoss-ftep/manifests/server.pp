@@ -13,8 +13,11 @@ class ftep::server (
   $application_port            = undef,
   $grpc_port                   = undef,
 
+  $serviceregistry_user        = undef,
+  $serviceregistry_pass        = undef,
   $serviceregistry_host        = undef,
   $serviceregistry_port        = undef,
+  $serviceregistry_url         = undef,
 
   $jdbc_url                    = undef,
   $jdbc_driver                 = 'org.postgresql.Driver',
@@ -49,10 +52,15 @@ class ftep::server (
   $real_application_port = pick($application_port, $ftep::globals::server_application_port)
   $real_grpc_port = pick($grpc_port, $ftep::globals::server_grpc_port)
 
+  $real_serviceregistry_user = pick($serviceregistry_user, $ftep::globals::serviceregistry_user)
+  $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
   $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
   $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
+  $real_serviceregistry_url = pick($serviceregistry_url,
+    "http://${real_serviceregistry_user}:${real_serviceregistry_pass}@${real_serviceregistry_host}:${real_serviceregistry_port}/eureka/")
 
-  $default_jdbc_url = "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_v2_name}?stringtype=unspecified"
+  $default_jdbc_url =
+    "jdbc:postgresql://${::ftep::globals::db_hostname}/${::ftep::globals::ftep_db_v2_name}?stringtype=unspecified"
   $real_db_url = pick($jdbc_url, $default_jdbc_url)
   $real_db_user = pick($jdbc_user, $::ftep::globals::ftep_db_username)
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)
@@ -91,8 +99,7 @@ class ftep::server (
       'logging_config_file'         => $logging_config_file,
       'server_port'                 => $real_application_port,
       'grpc_port'                   => $real_grpc_port,
-      'serviceregistry_host'        => $real_serviceregistry_host,
-      'serviceregistry_port'        => $real_serviceregistry_port,
+      'serviceregistry_url'         => $real_serviceregistry_url,
       'jdbc_driver'                 => $jdbc_driver,
       'jdbc_url'                    => $real_db_url,
       'jdbc_user'                   => $real_db_user,

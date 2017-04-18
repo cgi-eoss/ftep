@@ -10,6 +10,7 @@ class ftep::proxy (
   $context_path_api_v2    = '/secure/api/v2.0',
   $context_path_monitor   = '/monitor',
   $context_path_log       = '/logs',
+  $context_path_eureka    = '/eureka',
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -79,6 +80,11 @@ class ftep::proxy (
     {
       'path' => $context_path_log,
       'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}",
+      'params' => { 'retry' => '0' }
+    },
+    {
+      'path' => $context_path_eureka,
+      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::serviceregistry_application_port}/eureka",
       'params' => { 'retry' => '0' }
     }
   ]

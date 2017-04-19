@@ -39,6 +39,10 @@ class ftep::server (
   # If an empty string, will default to the appropriate F-TEP Worker instance gRPC host
   $gui_default_host                   = '',
 
+  $graylog_api_url                    = undef,
+  $graylog_api_username               = undef,
+  $graylog_api_password               = undef,
+
   $output_products_dir                = 'outputProducts',
   $refdata_dir                        = 'refData',
 

@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.model.Job;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -89,9 +90,15 @@ public class JobsApiExtension {
 
         LOG.debug("Retrieving job {} logs from url: {}", job.getId(), request.url());
         try (Response response = httpClient.newCall(request).execute()) {
-            return objectMapper.readValue(response.body().string(), GraylogApiResponse.class).getMessages().stream()
-                    .map(GraylogMessage::getMessage)
-                    .collect(Collectors.toList());
+            if (response.isSuccessful()) {
+                return objectMapper.readValue(response.body().string(), GraylogApiResponse.class).getMessages().stream()
+                        .map(GraylogMessage::getMessage)
+                        .collect(Collectors.toList());
+            } else {
+                LOG.error("Failed to retrieve job {} logs: {} -- {}", job.getId(), response.code(), response.message());
+                LOG.debug("Graylog response: {}", response.body());
+                return ImmutableList.of();
+            }
         }
     }
 

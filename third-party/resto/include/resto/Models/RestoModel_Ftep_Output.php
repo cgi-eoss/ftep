@@ -1,136 +1,145 @@
 <?php
 
-class RestoModel_Ftep_Output extends RestoModel {
+/**
+ * Class RestoModel_Ftep_Output
+ *
+ * @property array $extendedProperties
+ */
+class RestoModel_Ftep_Output extends RestoModel
+{
+
+
     /*
      * Properties mapping between RESTo model and input GeoJSON Feature file
+     * 'propertyNameInInputFile' => 'restoPropertyName'
      */
     public $inputMapping = array(
-        'properties.jobid'          => 'jobid',
-        'properties.userid'         => 'userid',
-        //'properties.job_start_time' => 'resource',
-        'properties.servicename'    => 'servicename',
+        'properties.jobId'             => 'jobId',
+        'properties.intJobId'          => 'intJobId',
+        'properties.serviceName'       => 'serviceName',
+        'properties.jobOwner'          => 'jobOwner',
+        'properties.jobStartDate'      => 'jobStartDate',
+        'properties.jobEndDate'        => 'jobEndDate',
+        'properties.filename'          => 'filename',
+        'properties.productIdentifier' => 'productIdentifier',
+        'properties.ftepUrl'           => 'ftepUrl',
+        'properties.wms'               => 'wms',
+        'properties.resource'          => 'resource',
+        'properties.resourceMimeType'  => 'resourceMimeType',
+        'properties.resourceSize'      => 'resourceSize',
+        'properties.resourceChecksum'  => 'resourceChecksum',
     );
-    public $extendedSearchFilters = array(
-//        'eo:description' => array (
-//            'key'           => 'description',
-//            'osKey'         => 'description',
-//            'operation'     => '=',
-//            'htmlFilter'    => false
-//        ),
-//        'ftepparam' => array(
-//            'name'          => 'ftepparam',
-//            'type'          => 'JSONB',
-//            'osKey'         => 'ftepparam',
-//            'key'           => 'ftepparam'
-//        ,'operation'    => '@>',
-//        ),
-//        'fname' => array (
-//            'key'           => 'productIdentifier',
-//            'osKey'         => 'productIdentifier',
-//            'operation'     => '='
-//        ),
-        'jobid' => array(
-            'name'          => 'jobid',
-            'type'          => 'TEXT',
-            'osKey'         => 'jobid',
-            'key'           => 'jobid',
-            'operation'     => '=',
-            'title'         => 'Identifier of the job',
-            //'pattern'       => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[8-9a-bA-B][0-9a-fA-F]{3}-[0-9a-fA-F]{12}',
+
+    public $extendedProperties = array(
+        'jobId'        => array(
+            'name' => 'jobId',
+            'type' => 'TEXT'
         ),
-        'userid' => array(
-            'name'          => 'userid',
-            'type'          => 'TEXT',
-            'osKey'         => 'userid',
-            'key'           => 'userid',
-            'operation'    => '=',
-            'title'         => 'Identifier of the user',
+        'intJobId'     => array(
+            'name' => 'intJobId',
+            'type' => 'INTEGER'
         ),
-        'servicename' => array(
-            'name'          => 'servicename',
-            'type'          => 'TEXT',
-            'osKey'         => 'servicename',
-            'key'           => 'servicename',
-            'operation'    => '=',
-            'title'         => 'Identifier of the servicename',
+        'serviceName'  => array(
+            'name' => 'serviceName',
+            'type' => 'TEXT'
+        ),
+        'jobOwner'     => array(
+            'name' => 'jobOwner',
+            'type' => 'TEXT'
+        ),
+        'jobStartDate' => array(
+            'name' => 'jobStartDate',
+            'type' => 'TIMESTAMP',
+        ),
+        'jobEndDate'   => array(
+            'name' => 'jobEndDate',
+            'type' => 'TIMESTAMP',
+        ),
+        'ftepparam'    => array(
+            'name' => 'ftepparam',
+            'type' => 'JSONB'
         ),
     );
 
-    public $extendedProperties = array (
-        'jobid' => array(
-            'name'      => 'jobid',
+    public $extendedSearchFilters = array(
+        'jobId'        => array(
+            'name'      => 'jobId',
             'type'      => 'TEXT',
-            'operation' => '='
+            'osKey'     => 'jobId',
+            'key'       => 'jobId',
+            'operation' => '=',
+            'title'     => 'Identifier of the job',
         ),
-        'userid' => array(
-            'name'      => 'userid',
+        'intJobId'     => array(
+            'name'      => 'intJobId',
             'type'      => 'INTEGER',
-            'operation' => '='
+            'osKey'     => 'intJobId',
+            'key'       => 'intJobId',
+            'operation' => '=',
+            'title'     => 'Identifier of the job',
         ),
-        'servicename' => array(
-            'name'      => 'servicename',
+        'serviceName'  => array(
+            'name'      => 'serviceName',
             'type'      => 'TEXT',
-            'operation' => '='
-        )
+            'osKey'     => 'serviceName',
+            'key'       => 'serviceName',
+            'operation' => '=',
+            'title'     => 'Identifier of the serviceName',
+        ),
+        'jobOwner'     => array(
+            'name'      => 'jobOwner',
+            'type'      => 'TEXT',
+            'osKey'     => 'jobOwner',
+            'key'       => 'jobOwner',
+            'operation' => '=',
+            'title'     => 'Owner of the job',
+        ),
+        'jobStartDate' => array(
+            'name'  => 'jobStartDate',
+            'type'  => 'TIMESTAMP',
+            'index' => array(
+                'type'      => 'btree',
+                'direction' => 'DESC'
+            )
+        ),
+        'jobEndDate'   => array(
+            'name'  => 'jobEndDate',
+            'type'  => 'TIMESTAMP',
+            'index' => array(
+                'type'      => 'btree',
+                'direction' => 'DESC'
+            )
+        ),
+        'ftepparam'    => array(
+            'name'      => 'ftepparam',
+            'type'      => 'JSONB',
+            'osKey'     => 'ftepparam',
+            'key'       => 'ftepparam',
+            'operation' => '@>',
+        ),
     );
+
     /*
     * Return property database column name
     *
     * @param string $modelKey : RESTo model key
     * @return array
     */
-    public function getDbKey($modelKey) {
-        if (!isset($modelKey,$this->properties[$modelKey]) || !is_array($this->properties[$modelKey])) {
+    public function getDbKey($modelKey)
+    {
+        if (!isset($modelKey, $this->properties[$modelKey]) || !is_array($this->properties[$modelKey])) {
             return null;
         }
         return $this->properties[$modelKey]['name'];
     }
 
     /**
-     * Generate the absolute path for RO products used for download feature
-     *
-     * @param $properties
-     * @return string
-     */
-    public function generateResourcePath($properties) {
-        return "generateResourcePath";
-    }
-    /**
-     * Generate the dynamic relative path for RO quicklooks
-     *
-     * @param $properties
-     * @return string relative
-     */
-    public function generateQuicklookPath($properties) {
-        return "generateQuicklookPath";
-    }
-    /**
-     * Generate the dynamic relative path for RO thumbnails
-     *
-     * @param $properties
-     * @return string relative path in the form of YYYYMMdd/thumbnail_filename with YYYYMMdd is the formated startDate parameter
-     */
-    public function generateThumbnailPath($properties) {
-        return "generateThumbnailPath";
-    }
-
-    /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->searchFilters = array_merge($this->searchFilters, $this->extendedSearchFilters);
-    }
-
-    /**
-     * Add feature to the {collection}.features table following the class model
-     *
-     * @param array $data : array (MUST BE GeoJSON in abstract Model)
-     * @param string $collectionName : collection name
-     * @return RestoFeature  feature
-     */
-    public function storeFeature($data, $collectionName) {
-        return parent::storeFeature( $data, $collectionName);
     }
 
     /**
@@ -139,18 +148,8 @@ class RestoModel_Ftep_Output extends RestoModel {
      * @param $properties
      * @return string
      */
-    public function generateWMSUrl($properties) {
-        return "http://generateWMSUrl";
+    public function generateWMSUrl($properties)
+    {
+        return $properties['wms'];
     }
-    /**
-     * Generate landsat download url
-     *
-     * @param $properties
-     * @return string
-     */
-    public function generateDownloadUrl($properties) {
-        return "http://ftep/".$properties['productIdentifier'];
-    }
-
-
 }

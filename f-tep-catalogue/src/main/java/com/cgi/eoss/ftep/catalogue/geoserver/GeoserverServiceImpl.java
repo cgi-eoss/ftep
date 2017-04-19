@@ -5,11 +5,16 @@ import com.google.common.io.MoreFiles;
 import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
+import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
+import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
+import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
+import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,14 +44,14 @@ public class GeoserverServiceImpl implements GeoserverService {
     }
 
     @Override
-    public void ingest(String workspace, Path path, String crs) {
+    public String ingest(String workspace, Path path, String crs) {
         Path fileName = path.getFileName();
         String datastoreName = MoreFiles.getNameWithoutExtension(fileName);
         String layerName = MoreFiles.getNameWithoutExtension(fileName);
 
         if (!geoserverEnabled) {
             LOG.warn("Geoserver is disabled; 'ingested' file: {}:{}", workspace, layerName);
-            return;
+            return null;
         }
 
         ensureWorkspaceExists(workspace);
@@ -54,12 +59,13 @@ public class GeoserverServiceImpl implements GeoserverService {
         if (!fileName.toString().toUpperCase().endsWith(".TIF")) {
             // TODO Ingest more filetypes
             LOG.info("Unable to ingest a non-GeoTiff product");
-            return;
+            return null;
         }
 
         try {
-            publisher.publishExternalGeoTIFF(workspace, datastoreName, path.toFile(), layerName, crs, REPROJECT_TO_DECLARED, RASTER_STYLE);
+            RESTCoverageStore restCoverageStore = publishExternalGeoTIFF(workspace, datastoreName, path.toFile(), layerName, crs, REPROJECT_TO_DECLARED, RASTER_STYLE);
             LOG.info("Ingested GeoTIFF to geoserver with id: {}:{}", workspace, layerName);
+            return restCoverageStore.getURL();
         } catch (FileNotFoundException e) {
             LOG.error("Geoserver was unable to publish file: {}", path, e);
             throw new IngestionException(e);
@@ -82,6 +88,27 @@ public class GeoserverServiceImpl implements GeoserverService {
             LOG.info("Creating new workspace {}", workspace);
             publisher.createWorkspace(workspace);
         }
+    }
+
+    private RESTCoverageStore publishExternalGeoTIFF(String workspace, String storeName, File geotiff,
+                                                     String coverageName, String srs, GSResourceEncoder.ProjectionPolicy policy, String defaultStyle)
+            throws FileNotFoundException, IllegalArgumentException {
+        if (workspace == null || storeName == null || geotiff == null || coverageName == null
+                || srs == null || policy == null || defaultStyle == null)
+            throw new IllegalArgumentException("Unable to run: null parameter");
+
+        // config coverage props (srs)
+        final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();
+        coverageEncoder.setName(coverageName);
+        coverageEncoder.setTitle(coverageName);
+        coverageEncoder.setSRS(srs);
+        coverageEncoder.setProjectionPolicy(policy);
+
+        // config layer props (style, ...)
+        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setDefaultStyle(defaultStyle);
+
+        return publisher.publishExternalGeoTIFF(workspace, storeName, geotiff, coverageEncoder, layerEncoder);
     }
 
 }

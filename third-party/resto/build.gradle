@@ -32,6 +32,7 @@ ospackage {
         include 'index.php'
         include 'include/**'
         include 'lib/**'
+        include 'vendor/**'
         include '_examples/**'
         include '_flyway_migration/**'
         include '_install/**'

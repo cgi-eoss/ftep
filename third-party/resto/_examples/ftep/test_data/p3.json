@@ -1,0 +1,47 @@
+{
+  "geometry": {
+    "coordinates": [
+      [
+        [
+          34.453125,
+          65.2198939361321
+        ],
+        [
+          29.53125,
+          68.9110048456202
+        ],
+        [
+          18.984375,
+          66.37275500247455
+        ],
+        [
+          21.796875,
+          56.75272287205736
+        ],
+        [
+          49.5703125,
+          55.7765730186677
+        ],
+        [
+          34.453125,
+          65.2198939361321
+        ]
+      ]
+    ],
+    "type": "Polygon"
+  },
+  "properties": {
+    "filename": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+    "jobOwner": "user3",
+    "serviceName": "ServiceYY",
+    "intJobId": 43,
+    "jobId": "789",
+    "id": "789_filename123",
+    "jobStartDate": "2017-02-19T10:10:00.000Z",
+    "jobEndDate": "2017-02-19T10:20:39.000Z",
+    "wmsUrl": "http://wms/ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+    "dowloadUrl": "http://ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ/dl",
+    "ftepparam": "{\"xya\":[9,8,4]}"
+  },
+  "type": "Feature"
+}

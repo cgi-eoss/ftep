@@ -42,6 +42,7 @@ import java.io.BufferedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -186,16 +187,15 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                         .jobId(zooId)
                         .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
                         .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
-                        .properties(ImmutableMap.<String, Object>builder()
-                                // TODO Add all these properties to the resto model
-                                // .put("jobId", zooId)
-                                // .put("intJobId", job.getId())
-                                // .put("serviceName", service.getName())
-                                // .put("owner", job.getOwner().getName())
-                                // .put("filename", fileMeta.getFilename())
-                                // .put("startDate", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
-                                // .put("completionDate", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
-                                .build())
+                        .properties(new HashMap<>(ImmutableMap.<String, Object>builder()
+                                .put("jobId", zooId)
+                                .put("intJobId", job.getId())
+                                .put("serviceName", service.getName())
+                                .put("jobOwner", job.getOwner().getName())
+                                .put("jobStartTime", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
+                                .put("jobEndTime", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
+                                .put("filename", fileMeta.getFilename())
+                                .build()))
                         .build();
 
                 // TODO Configure whether files need to be transferred via RPC or simply copied

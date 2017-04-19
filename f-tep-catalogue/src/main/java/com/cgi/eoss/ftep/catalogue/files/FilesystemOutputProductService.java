@@ -6,7 +6,9 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
@@ -54,7 +56,23 @@ public class FilesystemOutputProductService implements OutputProductService {
         }
         LOG.info("Ingesting output at {}", dest);
 
-        geoserver.ingest(jobId, dest, crs);
+        String geoserverUrl = geoserver.ingest(jobId, dest, crs);
+
+        URI uri = CatalogueUri.OUTPUT_PRODUCT.build(
+                ImmutableMap.of(
+                        "jobId", jobId,
+                        "filename", filename));
+
+        // Add automatically-determined properties
+        properties.put("productIdentifier", jobId + "_" + filename);
+        properties.put("ftepUrl", uri);
+        if (!Strings.isNullOrEmpty(geoserverUrl)) {
+            properties.put("properties.wms", geoserverUrl);
+        }
+        // TODO Get the proper MIME type
+        properties.put("properties.resourceMimeType", "application/unknown");
+        properties.put("properties.resourceSize", Files.size(dest));
+        properties.put("properties.resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
 
         Feature feature = new Feature();
         feature.setId(jobId + "_" + filename);
@@ -62,10 +80,6 @@ public class FilesystemOutputProductService implements OutputProductService {
         feature.setProperties(properties);
 
         UUID restoId = resto.ingestOutputProduct(feature);
-        URI uri = CatalogueUri.OUTPUT_PRODUCT.build(
-                ImmutableMap.of(
-                        "jobId", jobId,
-                        "filename", filename));
         LOG.info("Ingested product with Resto id {} and URI {}", restoId, uri);
 
         FtepFile ftepFile = new FtepFile(uri, restoId);

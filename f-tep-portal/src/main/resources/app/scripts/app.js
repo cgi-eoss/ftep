@@ -149,7 +149,7 @@ define([
         };
     });
 
-    app.filter("nl2br", function ($filter) {
+    app.filter("nl2br", function () {
         return function (data) {
             if (!data) {
                 return data;

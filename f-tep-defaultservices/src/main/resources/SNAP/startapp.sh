@@ -1,3 +1,4 @@
+#!/bin/sh
 
 WORKER_DIR="/home/worker"
 IN_DIR="${WORKER_DIR}/workDir/inDir"

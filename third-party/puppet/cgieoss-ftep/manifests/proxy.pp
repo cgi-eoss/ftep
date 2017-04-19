@@ -3,14 +3,14 @@ class ftep::proxy (
   $enable_ssl             = false,
   $enable_sso             = false,
 
-  $context_path_geoserver = '/geoserver',
-  $context_path_resto     = '/resto',
-  $context_path_webapp    = '/app',
-  $context_path_wps       = '/secure/wps',
-  $context_path_api_v2    = '/secure/api/v2.0',
-  $context_path_monitor   = '/monitor',
-  $context_path_log       = '/logs',
-  $context_path_eureka    = '/eureka',
+  $context_path_geoserver = undef,
+  $context_path_resto     = undef,
+  $context_path_webapp    = undef,
+  $context_path_wps       = undef,
+  $context_path_api_v2    = undef,
+  $context_path_monitor   = undef,
+  $context_path_logs      = undef,
+  $context_path_eureka    = undef,
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -31,59 +31,63 @@ class ftep::proxy (
     proxy_dest => 'http://ftep-drupal', # Drupal is always mounted at the base_url
   }
 
+  $real_context_path_geoserver = pick($context_path_geoserver, $ftep::globals::context_path_geoserver)
+  $real_context_path_resto = pick($context_path_resto, $ftep::globals::context_path_resto)
+  $real_context_path_webapp = pick($context_path_webapp, $ftep::globals::context_path_webapp)
+  $real_context_path_wps = pick($context_path_wps, $ftep::globals::context_path_wps)
+  $real_context_path_api_v2 = pick($context_path_api_v2, $ftep::globals::context_path_api_v2)
+  $real_context_path_monitor = pick($context_path_monitor, $ftep::globals::context_path_monitor)
+  $real_context_path_logs = pick($context_path_logs, $ftep::globals::context_path_logs)
+  $real_context_path_eureka = pick($context_path_eureka, $ftep::globals::context_path_eureka)
+
   # Directory/Location directives - cannot be an empty array...
   $default_directories = [
     {
       'provider' => 'location',
-      'path' => $context_path_log,
-      'custom_fragment' => "RequestHeader set X-Graylog-Server-URL \"${ftep::globals::base_url}${ftep::globals::graylog_context_path}/api\""
+      'path' => $real_context_path_logs,
+      'custom_fragment' => "RequestHeader set X-Graylog-Server-URL \"${ftep::globals::base_url}${ftep::globals::graylog_api_path}\""
     }
   ]
 
   # Reverse proxied paths
   $default_proxy_pass = [
     {
-      'path'   => $context_path_geoserver,
-      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}${context_path_geoserver}",
+      'path'   => $real_context_path_geoserver,
+      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}${real_context_path_geoserver}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_resto,
+      'path' => $real_context_path_resto,
       'url'  => "http://${ftep::globals::resto_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_webapp,
+      'path' => $real_context_path_webapp,
       'url'  => "http://${ftep::globals::webapp_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_wps,
+      'path' => $real_context_path_wps,
       'url'  => "http://${ftep::globals::wps_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_api_v2,
-      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${context_path_api_v2}",
+      'path' => $real_context_path_api_v2,
+      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${real_context_path_api_v2}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => '/download',
-      'url'  => "http://${ftep::globals::wps_hostname}/wps/ftep-output",
-      'params' => { 'retry' => '0' }
-    },
-    {
-      'path' => $context_path_monitor,
+      'path' => $real_context_path_monitor,
       'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_log,
+      'path' => $real_context_path_logs,
       'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $context_path_eureka,
+      'path' => $real_context_path_eureka,
       'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::serviceregistry_application_port}/eureka",
       'params' => { 'retry' => '0' }
     }
@@ -105,7 +109,7 @@ class ftep::proxy (
       },
       {
         'provider'              => 'location',
-        'path'                  => $context_path_webapp,
+        'path'                  => $real_context_path_webapp,
         'auth_type'             => 'shibboleth',
         'shib_use_headers'      => 'On',
         'shib_request_settings' => { 'requireSession' => '1' },

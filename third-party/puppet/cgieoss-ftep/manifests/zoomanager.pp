@@ -37,8 +37,10 @@ class ftep::zoomanager (
   $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
   $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
   $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
+  $serviceregistry_creds = "${real_serviceregistry_user}:${real_serviceregistry_pass}"
+  $serviceregistry_server = "${real_serviceregistry_host}:${real_serviceregistry_port}"
   $real_serviceregistry_url = pick($serviceregistry_url,
-    "http://${real_serviceregistry_user}:${real_serviceregistry_pass}@${real_serviceregistry_host}:${real_serviceregistry_port}/eureka/")
+    "http://${serviceregistry_creds}@${serviceregistry_server}/eureka/")
 
   # JDK is necessary to compile service stubs
   ensure_packages(['java-1.8.0-openjdk-devel'])

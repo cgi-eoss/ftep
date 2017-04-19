@@ -23,7 +23,6 @@ class ftep::worker (
 
   $cache_concurrency     = 4,
   $cache_maxweight       = 1024,
-  $data_basedir          = '/data',
   $cache_dir             = 'dl',
   $jobs_dir              = 'jobs',
 
@@ -48,8 +47,10 @@ class ftep::worker (
   $real_serviceregistry_pass = pick($serviceregistry_pass, $ftep::globals::serviceregistry_pass)
   $real_serviceregistry_host = pick($serviceregistry_host, $ftep::globals::server_hostname)
   $real_serviceregistry_port = pick($serviceregistry_port, $ftep::globals::serviceregistry_application_port)
+  $serviceregistry_creds = "${real_serviceregistry_user}:${real_serviceregistry_pass}"
+  $serviceregistry_server = "${real_serviceregistry_host}:${real_serviceregistry_port}"
   $real_serviceregistry_url = pick($serviceregistry_url,
-    "http://${real_serviceregistry_user}:${real_serviceregistry_pass}@${real_serviceregistry_host}:${real_serviceregistry_port}/eureka/")
+    "http://${serviceregistry_creds}@${serviceregistry_server}/eureka/")
 
   ensure_packages(['f-tep-worker'], {
     ensure => 'latest',
@@ -58,13 +59,13 @@ class ftep::worker (
     notify => Service['f-tep-worker'],
   })
 
-  file { ["${data_basedir}/$cache_dir", "${data_basedir}/$jobs_dir"]:
+  file { ["${ftep::common::datadir::data_basedir}/${cache_dir}", "${ftep::common::datadir::data_basedir}/${jobs_dir}"]:
     ensure  => directory,
     owner   => $ftep::globals::user,
     group   => $ftep::globals::group,
     mode    => '755',
     recurse => false,
-    require => File[$data_basedir],
+    require => File[$ftep::common::datadir::data_basedir],
   }
 
   file { $config_file:
@@ -94,10 +95,10 @@ class ftep::worker (
       'grpc_port'             => $real_grpc_port,
       'serviceregistry_url'   => $real_serviceregistry_url,
       'worker_environment'    => $worker_environment,
-      'cache_basedir'         => "${data_basedir}/$cache_dir",
+      'cache_basedir'         => "${ftep::common::datadir::data_basedir}/${cache_dir}",
       'cache_concurrency'     => $cache_concurrency,
       'cache_maxweight'       => $cache_maxweight,
-      'jobs_basedir'          => "${data_basedir}/$jobs_dir",
+      'jobs_basedir'          => "${ftep::common::datadir::data_basedir}/${jobs_dir}",
       'ipt_auth_endpoint'     => $ipt_auth_endpoint,
       'ipt_auth_domain'       => $ipt_auth_domain,
       'ipt_download_base_url' => $ipt_download_base_url,

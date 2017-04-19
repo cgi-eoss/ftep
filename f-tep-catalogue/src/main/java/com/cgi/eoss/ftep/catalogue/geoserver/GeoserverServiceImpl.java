@@ -32,7 +32,7 @@ public class GeoserverServiceImpl implements GeoserverService {
     @Autowired
     public GeoserverServiceImpl(@Value("${ftep.catalogue.geoserver.url:http://ftep-geoserver:9080/geoserver/}") String url,
                                 @Value("${ftep.catalogue.geoserver.username:ftepgeoserver}") String username,
-                                @Value("${ftep.catalogue.geoserver.password:ftepgeoserver}") String password) throws MalformedURLException {
+                                @Value("${ftep.catalogue.geoserver.password:ftepgeoserverpass}") String password) throws MalformedURLException {
         GeoServerRESTManager geoserver = new GeoServerRESTManager(new URL(url), username, password);
         this.publisher = geoserver.getPublisher();
         this.reader = geoserver.getReader();

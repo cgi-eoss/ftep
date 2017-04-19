@@ -69,7 +69,7 @@ public class RestoServiceImpl implements RestoService {
 
     @Autowired
     public RestoServiceImpl(@Value("${ftep.catalogue.resto.username:ftepresto}") String username,
-                            @Value("${ftep.catalogue.resto.password:ftepresto}") String password) {
+                            @Value("${ftep.catalogue.resto.password:fteprestopass}") String password) {
         this.client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override

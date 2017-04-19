@@ -1,23 +1,32 @@
 <%- |
+    Boolean $enable_syslog_collector,
+    Boolean $enable_apache_collector,
+    String $graylog_api_url,
     String $graylog_server,
-    String $graylog_port,
-    String $graylog_api_path,
-    String $graylog_gelf_tcp_port,
-    String $graylog_context_path,
-    String $log_path,
-    String $log_pattern
+    Integer $graylog_gelf_tcp_port
 | -%>
 
-server-url = "http://<%= $graylog_server%>:<%= $graylog_port %>/<%= $graylog_api_path %>"
-
+server-url = "<%= $graylog_api_url %>"
 collector-id = "file:/etc/graylog/collector/collector-id"
 
 inputs {
-  apache-access {
+<% if $enable_syslog_collector { -%>
+  syslog {
     type = "file"
-    path-glob-root = "<%= $log_path %>"
-    path-glob-pattern = "<%= $log_pattern %>"
+    path-glob-root = "/var/log"
+    path-glob-pattern = "messages"
   }
+<% } -%>
+<% if $enable_apache_collector { -%>
+  httpd-logs {
+    type = "file"
+    path-glob-root = "/var/log/httpd"
+    path-glob-pattern = "*.log"
+    message-fields = {
+      "ftepComponent" = "httpd"
+    }
+  }
+<% } -%>
 }
 
 outputs {
@@ -25,8 +34,5 @@ outputs {
     type = "gelf"
     host = "<%= $graylog_server %>"
     port = <%= $graylog_gelf_tcp_port %>
-  }
-  console {
-    type = "stdout"
   }
 }

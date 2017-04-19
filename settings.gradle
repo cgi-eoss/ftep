@@ -19,6 +19,7 @@ include 'f-tep-clouds'
 
 include 'third-party/cxx/zoo-project'
 include 'third-party/java/docker-java'
+include 'third-party/java/graylog-collector'
 include 'third-party/java/jai_core'
 include 'third-party/pkg'
 include 'third-party/puppet'

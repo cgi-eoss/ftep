@@ -38,7 +38,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
-        $scope.$on('rerun.service', function(event) {
+        $scope.$on('update.selectedService', function(event) {
             $scope.navInfo.activeSideNav = $scope.sideNavTabs.WORKSPACE;
             showSidebarArea();
         });

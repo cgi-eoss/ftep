@@ -356,6 +356,49 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
+
+        this.launchJob = function(service, inputs){
+            var deferred = $q.defer();
+            createJobConfig(service, inputs).then(function(jobConfig){
+                // Launch the jobConfig
+                halAPI.from(jobConfig._links.self.href + '/launch')
+                        .newRequest()
+                        .post()
+                        .result
+                        .then(
+                 function (document) {
+                     MessageService.addInfo ('Job started', service.name + ' job started. Job id: ' + jobConfig.id);
+                     deferred.resolve();
+                 },
+                 function(error){
+                     MessageService.addError ('Could Not Launch Job', error);
+                     deferred.reject();
+                 });
+            });
+
+            return deferred.promise;
+        };
+
+        function createJobConfig(service, inputs){
+            return $q(function(resolve, reject) {
+                    halAPI.from(rootUri + '/jobConfigs/')
+                    .newRequest()
+                    .post({
+                        service: service._links.self.href,
+                        inputs: inputs
+                    })
+                    .result
+                    .then(
+                 function (document) {
+                     console.log('JobConfig created: ', document);
+                     resolve(JSON.parse(document.body));
+                 }, function (error) {
+                     MessageService.addError ('Could Not Launch Job', error);
+                     reject();
+                 });
+            });
+        }
+
         return this;
     }]);
 });

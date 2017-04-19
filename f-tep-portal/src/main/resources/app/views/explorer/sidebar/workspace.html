@@ -8,11 +8,11 @@
         </div>
     </md-toolbar>
 
-    <div class="panel-body scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+    <div class="panel-body scrollme" is-bar-shown="flag" rebuild-on-resize>
 
         <section ng-if="!serviceParams.selectedService">
             <div class="row top-title service-header">
-                <md-subheader class="md-accent md-subheader-top service-title" ng-hide="isWpsLoading">
+                <md-subheader class="md-accent md-subheader-top service-title" ng-hide="isWorkspaceLoading">
                      No Selected Service
                 </md-subheader>
             </div>
@@ -23,27 +23,27 @@
             </div>
         </section>
 
-        <div ng-show="isWpsLoading">Loading...</div>
+        <div ng-show="isWorkspaceLoading">Loading...</div>
 
-        <div id="wps_{{serviceDescription.Identifier1}}" ng-if="serviceParams.selectedService" ng-hide="isWpsLoading">
+        <div ng-if="serviceParams.selectedService" ng-hide="isWorkspaceLoading">
 
             <section class="workspace-header">
 
                 <div class="row service-header">
                     <md-subheader class="md-accent md-subheader-top service-title">
-                        {{serviceParams.selectedService.attributes.name}}
+                        {{serviceParams.selectedService.name}}
                     </md-subheader>
                 </div>
 
                 <div class="row service-description-title">
                     <div class="col-md-12">
-                        <h4 ng-bind="serviceDescription.Title"></h4>
+                        <h4 ng-bind="serviceParams.selectedService.serviceDescriptor.title"></h4>
                     </div>
                 </div>
 
                 <div class="row service-description">
                     <div class="col-md-12">
-                        <h5 ng-bind="serviceDescription.Abstract"></h5>
+                        <h5 ng-bind="serviceParams.selectedService.serviceDescriptor.description"></h5>
                     </div>
                 </div>
 
@@ -53,21 +53,21 @@
 
                 <form id="serviceForm" name="serviceForm">
 
-                    <div class="service-field" ng-repeat="fieldDesc in serviceDescription.DataInputs.Input">
+                    <div class="service-field" ng-repeat="fieldDesc in serviceParams.selectedService.serviceDescriptor.dataInputs">
 
                         <div class="input-container">
 
                             <div class="row input-header">
                                 <md-subheader class="md-accent">
-                                    <span uib-tooltip="{{fieldDesc.Identifier.__text}}"
+                                    <span uib-tooltip="{{fieldDesc.title}}"
                                         tooltip-placement="top"
                                         tooltip-trigger="mouseenter"
-                                        tooltip-append-to-body="true">{{fieldDesc.Title.__text}}</span>
-                                    <span class="required-asterisk" ng-show="!fieldDesc.optional">*</span>
+                                        tooltip-append-to-body="true">{{fieldDesc.title}}</span>
+                                    <span class="required-asterisk" ng-show="fieldDesc.minOccurs > 0">*</span>
                                 <button type="button input-button"
                                         class="btn"
-                                        ng-show="fieldDesc.Identifier.__text == 'aoi'"
-                                        ng-click="pastePolygon(fieldDesc.Identifier.__text)"
+                                        ng-show="fieldDesc.id == 'aoi'"
+                                        ng-click="pastePolygon(fieldDesc.id)"
                                         aria-label="Copy From Map"
                                         uib-tooltip="Copy From Map"
                                         tooltip-placement="right"
@@ -81,19 +81,20 @@
                             <div class="row input-item">
                                <div class="col-md-12 no-padding">
                                     <md-input-container md-no-float>
-                                        <input ng-model="inputValues[fieldDesc.Identifier.__text]"
-                                               type="{{getInputType(fieldDesc)}}"
-                                               ng-required="!fieldDesc.optional"
-                                               dnd-list="dropLists[fieldDesc.Identifier.__text]"
-                                               dnd-drop="onDrop(item, fieldDesc.Identifier.__text)">
-                                        <div class="hint" ng-show="true">{{fieldDesc.Abstract.__text}}</div>
+                                        <input ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                               ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                                               type="{{fieldDesc.defaultAttrs.dataType}}"
+                                               ng-required="fieldDesc.minOccurs > 0"
+                                               dnd-list="serviceParams.dropLists[fieldDesc.id]"
+                                               dnd-drop="onDrop(item, fieldDesc.id)">
+                                        <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
                                     </md-input-container>
                                </div>
                            </div>
 
                             <div class="row drop-items">
                                 <div class="chip-container col-xs-12 col-sm-2 col-md-4 no-padding"
-                                     ng-repeat="item in dropLists[fieldDesc.Identifier.__text]">
+                                     ng-repeat="item in serviceParams.dropLists[fieldDesc.id]">
 
                                     <md-chip uib-popover-html="getDroppedFilePopover({{item}})"
                                              popover-placement="right"
@@ -105,7 +106,7 @@
                                         </div>
                                         <div class="md-chip-close col-xs-3 no-padding">
                                             <i class="material-icons"
-                                               ng-click="removeSelectedItem(fieldDesc.Identifier.__text, item)">
+                                               ng-click="removeSelectedItem(fieldDesc.id, item)">
                                                 close
                                             </i>
                                         </div>
@@ -124,7 +125,7 @@
                            class="icon-button md-icon-button md-fab md-mini btn-success"
                            form="serviceForm"
                            ng-disabled="serviceForm.$invalid"
-                           ng-hide="isWpsLoading"
+                           ng-hide="isWorkspaceLoading"
                            aria-label="Launch"
                            ng-click="displayTab(bottomNavTabs.JOBS); launchProcessing()"
                            uib-tooltip="Launch"
@@ -133,8 +134,6 @@
                            tooltip-append-to-body="true">
                     <i class="material-icons">play_arrow</i>
                 </md-button>
-
-                <div class="info" ng-if="info">{{info}}</div>
 
             </section>
 

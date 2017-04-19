@@ -32,7 +32,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.params = {
             explorer: {
                 selectedService: undefined,
-                searchText: ''
+                searchText: '',
+                inputValues: {},
+                dropLists: {}
             },
             community: {
                 services: undefined,
@@ -58,36 +60,36 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.refreshServices = function (page, action, service) {
 
-            /* Get service list */
-            this.getUserServices().then(function (data) {
+            if(self.params[page]){
+                /* Get service list */
+                this.getUserServices().then(function (data) {
 
-                self.params[page].services = data;
+                    self.params[page].services = data;
 
-                /* Select last service if created */
-                if (action === "Create") {
-                    self.params[page].selectedService = self.params[page].services[self.params[page].services.length-1];
-                }
-
-                /* Clear service if deleted */
-                if (action === "Remove") {
-                    if (service && self.params[page].selectedService && service.id === self.params[page].selectedService.id) {
-                        self.params[page].selectedService = undefined;
-                        self.params[page].contents = [];
+                    /* Select last service if created */
+                    if (action === "Create") {
+                        self.params[page].selectedService = self.params[page].services[self.params[page].services.length-1];
                     }
-                }
 
-                /* Update the selected group */
-                self.refreshSelectedService(page);
+                    /* Clear service if deleted */
+                    if (action === "Remove") {
+                        if (service && self.params[page].selectedService && service.id === self.params[page].selectedService.id) {
+                            self.params[page].selectedService = undefined;
+                            self.params[page].contents = [];
+                        }
+                    }
 
-            });
-
+                    /* Update the selected group */
+                    self.refreshSelectedService(page);
+                });
+            }
         };
 
         this.refreshSelectedService = function (page) {
 
             /* Get service contents if selected */
             if (self.params[page].selectedService) {
-                getUserService(self.params[page].selectedService).then(function (service) {
+                self.getService(self.params[page].selectedService).then(function (service) {
                     self.params[page].selectedService = service;
                     getServiceFiles(service).then(function (data) {
                         self.params[page].contents = data;
@@ -103,63 +105,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         };
 
-        var getUserService = function(service){
-            var deferred = $q.defer();
-            productsAPI.from(rootUri + '/services/' + service.id)
-                       .newRequest()
-                       .getResource()
-                       .result
-                       .then(
-            function (document) {
-                deferred.resolve(document);
-            }, function (error) {
-                MessageService.addError ('Could not get Service', error);
-                deferred.reject();
-            });
-            return deferred.promise;
-        };
-
-          /** ------------------------------- API V1.0 ------------------------------------------- **/
-          /** Set the header defaults **/
-          $http.defaults.headers.post['Content-Type'] = 'application/json';
-          $http.defaults.withCredentials = true;
-
-          var servicesCache;
-
-          this.getServices = function(){
-              var deferred = $q.defer();
-              $http.get( ftepProperties.URL + '/services').then(function(response) {
-                  deferred.resolve(response.data.data);
-                  servicesCache = response.data.data;
-              })
-              .catch(function(e){
-                  MessageService.addError(
-                      'Could not get services'
-                  );
-                  deferred.reject();
-              });
-              return deferred.promise;
-          };
-
-          this.getServiceById = function(id){
-              var service;
-              if(servicesCache){
-                  for(var i = 0; i < servicesCache.length; i++){
-                      if(servicesCache[i].id === id){
-                          service = servicesCache[i];
-                          break;
-                      }
-                  }
-              }
-              return service;
-          };
-          /** ------------------------------- API V1.0 ------------------------------------------- **/
-
         var userServicesCache = [];
         this.getUserServicesCache = function(){
             return userServicesCache;
         };
-
 
         this.getUserServices = function(){
             var deferred = $q.defer();
@@ -178,14 +127,30 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        this.getService = function(serviceId){
+            var deferred = $q.defer();
+            productsAPI.from(rootUri + '/services/' + serviceId + '?projection=detailedFtepService')
+                       .newRequest()
+                       .getResource()
+                       .result
+                       .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not Get Service Details', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
         this.createService = function(name, description){
             return $q(function(resolve, reject) {
-                var service = {
-                    name: name,
-                        description: description,
-                        dockerTag: 'dockerTag' //default tag
-                };
-                productsAPI.from(rootUri + '/services/')
+                  var service = {
+                          name: name,
+                          description: description,
+                          dockerTag: 'dockerTag' //default tag
+                  };
+                  productsAPI.from(rootUri + '/services/')
                            .newRequest()
                            .post(service)
                            .result
@@ -208,24 +173,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         function addDefaultFiles(service){
-            var file1 = {
-                filename: 'Dockerfile',
-                content: btoa(DEFAULT_DOCKERFILE),
-                service: service._links.self.href
-            };
-            var file2 = {
-                filename: 'workflow.sh',
-                content: btoa('# ' + service.name + ' service'),
-                service: service._links.self.href,
-                executable: false
-            };
-            self.addFile(file1);
-            self.addFile(file2);
-        }
+              var file1 = {
+                      filename: 'Dockerfile',
+                      content: btoa(DEFAULT_DOCKERFILE),
+                      service: service._links.self.href
+              };
+              var file2 = {
+                      filename: 'workflow.sh',
+                      content: btoa('# ' + service.name + ' service'),
+                      service: service._links.self.href,
+                      executable: true
+              };
+              self.addFile(file1);
+              self.addFile(file2);
+          }
 
-        this.addFile = function(file){
-            var deferred = $q.defer();
-            productsAPI.from(rootUri + '/serviceFiles/')
+          this.addFile = function(file){
+              var deferred = $q.defer();
+              productsAPI.from(rootUri + '/serviceFiles/')
                        .newRequest()
                        .post(file)
                        .result
@@ -241,7 +206,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         this.updateService = function(selectedService) {
-            //var selectedService = this.params.development.selectedService;
             var editService = {
                 name: selectedService.name,
                 description: selectedService.description,

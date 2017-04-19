@@ -15,6 +15,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.navInfo.sideViewVisible = false;
         $scope.navInfo.activeTab = TabService.getTabs().HELPDESK;
 
+        $scope.applications = ['MonteVerdiAppV2', 'QGIS', 'Sentinel2ToolboxV2'];
+        $scope.processors = ['LandCoverS1', 'LandCoverS2', 'S1Biomass', 'VegetationIndicies'];
+
         $scope.videos = [
                  {
                      url: 'https://forestry-tep.eo.esa.int/manual/search_create_databasket.mp4',
@@ -37,24 +40,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
                      image: 'images/helpdesk/vegind_product_toolbox.jpg'
                  }
         ];
-
-        function setup(){
-            $scope.applications = [];
-            $scope.processors = [];
-            ProductService.getServices().then(function (services) {
-                if(services){
-                    for(var i=0; i<services.length; i++){
-                        if(services[i].attributes.kind === 'application'){
-                            $scope.applications.push(services[i].attributes.name);
-                        }
-                        else if(services[i].attributes.kind === 'processor'){
-                            $scope.processors.push(services[i].attributes.name);
-                        }
-                    }
-                }
-            });
-        }
-        setup();
 
     }]);
 });

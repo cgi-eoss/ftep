@@ -51,8 +51,8 @@
             <md-tab-body>
                 <md-content class="md-padding">
                     <div class="tab-content">
-                        <md-input-container class="executable" md-no-float ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
-                            <md-checkbox ng-model="file.executable" aria-label="Executable">
+                        <md-input-container class="executable" md-no-float>
+                            <md-checkbox ng-model="file.executable" aria-label="Executable" ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
                                 Executable
                             </md-checkbox>
                         </md-input-container>

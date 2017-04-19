@@ -61,7 +61,6 @@ define([
     './services/projectservice',
     './services/productservice',
     './services/tabservice',
-    './services/userservice',
-    './services/wpsservice'
+    './services/userservice'
 
 ], function () {});

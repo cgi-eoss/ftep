@@ -8,16 +8,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             // Service types which services are grouped by
              $scope.serviceTypes = [
                  {
-                    type: "processor",
+                    type: "PROCESSOR",
                     label: "Processors"
                 }, {
-                    type: 'application',
+                    type: 'APPLICATION',
                     label: "GUI Applications"
                 }
             ];
 
             $scope.services = [];
-            ProductService.getServices().then(function (data) {
+            ProductService.getUserServices().then(function (data) {
                 $scope.services = data;
             });
 
@@ -26,14 +26,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.serviceQuickSearch = function (item) {
-                if (item.attributes.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1 || item.attributes.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1) {
+                if (item.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1
+                        || (item.description && item.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1)) {
                     return true;
                 }
                 return false;
             };
 
             $scope.selectService = function (service) {
-                $rootScope.$broadcast('update.selectedService', service);
+                $rootScope.$broadcast('update.selectedService', service.id);
                 TabService.navInfo.activeSideNav = TabService.getSideNavTabs().WORKSPACE;
             };
 
@@ -52,23 +53,23 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     '<div class="metadata">' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Rating:</div>' +
-                            '<div class="col-sm-8">' + $scope.getRating(service.attributes.rating) + '</div>' +
+                            '<div class="col-sm-8">' + $scope.getRating(service.rating) + '</div>' +
                         '</div>' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Name:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.name + '</div>' +
+                            '<div class="col-sm-8">' + service.name + '</div>' +
                         '</div>' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Description:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.description + '</div>' +
+                            '<div class="col-sm-8">' + (service.description ? service.description : '' ) + '</div>' +
                         '</div>' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Type:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.kind + '</div>' +
+                            '<div class="col-sm-8">' + service.type + '</div>' +
                         '</div>' +
                         '<div class="row">' +
-                            '<div class="col-sm-4">License:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.license + '</div>' +
+                            '<div class="col-sm-4">Licence:</div>' +
+                            '<div class="col-sm-8">' + service.licence + '</div>' +
                         '</div>' +
                     '</div>';
                 return popover[html] || (popover[html] = $sce.trustAsHtml(html));

@@ -56,13 +56,13 @@
             <div class="item-list list">
 
                 <md-list-item class="md-2-line"
-                              ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
-                              ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
+                              ng-repeat="service in services | orderBy: 'name' | filter: serviceQuickSearch "
+                              ng-if="isServiceTypeOpened && (serviceType.type === service.type)"
                               ng-click="selectService(service)">
 
                     <div class="md-list-item-text" layout="column">
-                        <h3>{{service.attributes.name}}</h3>
-                        <p>{{getShortDesc(service.attributes.description)}}</p>
+                        <h3>{{service.name}}</h3>
+                        <p>{{getShortDesc(service.description)}}</p>
                     </div>
 
                     <md-button class="toolbar-button md-secondary"
@@ -74,7 +74,7 @@
                         <i class="material-icons">info_outline</i>
                     </md-button>
 
-                    <span class="rating md-secondary" ng-bind-html="getRating(service.attributes.rating)"></span>
+                    <span class="rating md-secondary" ng-bind-html="getRating(service.rating)"></span>
 
                 </md-list-item>
             </div>

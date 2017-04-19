@@ -5,41 +5,67 @@
  * # WorkspaceCtrl
  * Controller of the ftepApp
  */
-define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process'], function (ftepmodules, tpl_describeProcess) {
-    'use strict';
+'use strict';
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', '$document', 'WpsService', 'JobService',
-                                              'ProductService', 'MapService', 'CommonService',
-                                function ($scope, $rootScope, $sce, $document, WpsService, JobService, ProductService, MapService,
-                                        CommonService) {
+define(['../../../ftepmodules'], function (ftepmodules) {
+
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', 'JobService', 'ProductService', 'MapService', 'CommonService',
+                                function ($scope, $rootScope, $sce, JobService, ProductService, MapService, CommonService) {
 
         $scope.serviceParams = ProductService.params.explorer;
-        $scope.serviceDescription = undefined;
-        $scope.isWpsLoading = false;
-        $scope.info = undefined;
-        $scope.outputValues = {};
-        $scope.inputValues = {};
-        $scope.dropLists = {};
+        $scope.isWorkspaceLoading = false;
 
-        $scope.pastePolygon = function(identifier){
-            console.log(MapService.getPolygonWkt());
-            $scope.inputValues[identifier] = MapService.getPolygonWkt();
+        $scope.$on('update.selectedService', function(event, serviceId, inputs) {
+            $scope.isWorkspaceLoading = true;
+            $scope.serviceParams.inputValues = {};
+            $scope.serviceParams.dropLists = {};
+            if(inputs){
+                $scope.serviceParams.inputValues = inputs;
+            }
+
+            ProductService.getService(serviceId).then(function(detailedService){
+                $scope.serviceParams.selectedService = detailedService;
+                $scope.isWorkspaceLoading = false;
+            });
+        });
+
+        $scope.getDefaultValue = function(fieldDesc){
+            return $scope.serviceParams.inputValues[fieldDesc.id] ? $scope.serviceParams.inputValues[fieldDesc.id] : fieldDesc.defaultAttrs.value;
         };
 
+        $scope.launchProcessing = function() {
+            var iparams={};
+
+            for(var key in $scope.serviceParams.inputValues){
+                if ($scope.serviceParams.inputValues.hasOwnProperty(key)) {
+                    iparams[key] = [$scope.serviceParams.inputValues[key]];
+                }
+            }
+
+            JobService.launchJob($scope.serviceParams.selectedService, iparams).then(function(data){
+               JobService.refreshJobs("explorer");
+            });
+        };
+
+        $scope.pastePolygon = function(identifier){
+            $scope.serviceParams.inputValues[identifier] = MapService.getPolygonWkt();
+        };
+
+        /** DRAG-AND-DROP FILES TO THE INPUT FIELD **/
         $scope.onDrop = function(items, fieldId) {
-            if($scope.dropLists[fieldId] === undefined){
-                $scope.dropLists[fieldId] = [];
+            if($scope.serviceParams.dropLists[fieldId] === undefined){
+                $scope.serviceParams.dropLists[fieldId] = [];
             }
             if(items) {
-                var pathStr = getPaths($scope.dropLists[fieldId]); //TODO
+                var pathStr = getPaths($scope.serviceParams.dropLists[fieldId]);
                 for(var i = 0; i < items.length; i++){
                     var path = getFilePath(items[i]);
 
                     if(pathStr.indexOf(path) < 0){
-                        $scope.dropLists[fieldId].push(items[i]);
+                        $scope.serviceParams.dropLists[fieldId].push(items[i]);
                     }
                 }
-                $scope.inputValues[fieldId] = getPaths($scope.dropLists[fieldId]);
+                $scope.serviceParams.inputValues[fieldId] = getPaths($scope.serviceParams.dropLists[fieldId]);
                 return true;
             }
             else {
@@ -70,104 +96,6 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
             return path;
         }
 
-        $scope.removeSelectedItem = function(fieldId, item){
-            var index = $scope.dropLists[fieldId].indexOf(item);
-            $scope.dropLists[fieldId].splice(index, 1);
-            $scope.inputValues[fieldId] = getPaths($scope.dropLists[fieldId]);
-        };
-
-        $scope.getInputType = function(fieldDesc){
-            if(fieldDesc.LiteralData && fieldDesc.LiteralData.DataType.__text === 'integer'){
-                return 'number';
-            }
-            return (fieldDesc.LiteralData && fieldDesc.LiteralData.DataType) ? fieldDesc.LiteralData.DataType.__text : 'string';
-        };
-
-        $scope.$on('update.selectedService', function(event, service) {
-            updateService(service);
-        });
-
-        function updateService(service){
-            $scope.outputValues = {};
-            $scope.inputValues = {};
-            $scope.dropLists = {};
-            delete $scope.info;
-
-            $scope.serviceParams.selectedService = service;
-            $scope.isWpsLoading = true;
-
-            WpsService.getDescription(service.attributes.name).then(function(data){
-
-                data["Identifier1"]=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                data.ProcessDescriptions.ProcessDescription.Identifier1=data.ProcessDescriptions.ProcessDescription.Identifier.__text.replace(/\./g,"__");
-                for(var i = 0; i < data.ProcessDescriptions.ProcessDescription.DataInputs.Input.length; i++){
-                    if(data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i]._minOccurs === "0") {
-                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=true;
-                    } else {
-                        data.ProcessDescriptions.ProcessDescription.DataInputs.Input[i].optional=false;
-                    }
-                }
-                for(var j = 0; j < data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output.length; j++){
-                    var fieldDesc = data.ProcessDescriptions.ProcessDescription.ProcessOutputs.Output[j];
-                    if(fieldDesc.ComplexOutput && fieldDesc.ComplexOutput.Default){
-                        $scope.outputValues[fieldDesc.Identifier] = fieldDesc.ComplexOutput.Default.Format;
-                    }
-                }
-
-                $scope.serviceDescription = data.ProcessDescriptions.ProcessDescription;
-                $scope.isWpsLoading = false;
-            });
-        }
-
-        $scope.$on('rerun.service', function(event, inputs, service){
-            var serviceContent = ProductService.getServiceById(service.id);
-            updateService(serviceContent);
-            $scope.inputValues = inputs;
-        });
-
-        $scope.launchProcessing = function() {
-            console.log('Process..');
-            var aProcess = $scope.serviceParams.selectedService.attributes.name;
-            notify('Running '+aProcess+' service..');
-            var iparams=[];
-
-            for(var key in $scope.inputValues){
-                if ($scope.inputValues.hasOwnProperty(key)) {
-                    iparams.push({
-                        identifier: key,
-                        value: $scope.inputValues[key],
-                        dataType: "string"
-                    });
-                }
-            }
-
-            var oparams=[];
-            for(var keyout in $scope.outputValues){
-                if($scope.outputValues.hasOwnProperty(key)){
-                    oparams.push({
-                        identifier: keyout,
-                        mimeType: $scope.outputValues[keyout],
-                        asReference: "true"
-                    });
-                }
-            }
-
-            console.log("----In ----");
-            console.log(iparams);
-            console.log("----Out ----");
-            console.log(oparams);
-
-            WpsService.execute(aProcess, iparams, oparams).then(function(data){
-               JobService.getJobs(true);
-            }, function(error) {
-                notify(error);
-            });
-        };
-
-        function notify(text){
-            $scope.info = text;
-        }
-
         $scope.getFileName = function(file) {
             var name = '';
             if(file.type === 'files'){
@@ -180,6 +108,12 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                 name = file.identifier;
             }
             return name;
+        };
+
+        $scope.removeSelectedItem = function(fieldId, item){
+            var index = $scope.serviceParams.dropLists[fieldId].indexOf(item);
+            $scope.serviceParams.dropLists[fieldId].splice(index, 1);
+            $scope.inputValues[fieldId] = getPaths($scope.serviceParams.dropLists[fieldId]);
         };
 
         var popover = {};
@@ -233,13 +167,8 @@ define(['../../../ftepmodules', 'hgn!zoo-client/assets/tpl/ftep_describe_process
                 '</div>';
             return popover[html] || (popover[html] = $sce.trustAsHtml(html));
         };
+        /** END OF DRAG-AND-DROP FILES TO THE INPUT FIELD **/
 
-        function setup(){
-            if($scope.serviceParams.selectedService){
-                updateService($scope.serviceParams.selectedService);
-            }
-        }
-        setup();
 
     }]);
 });

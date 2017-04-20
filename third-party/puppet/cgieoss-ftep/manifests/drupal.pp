@@ -1,6 +1,6 @@
 class ftep::drupal (
   $drupal_site      = 'forestry-tep.eo.esa.int',
-  $drupal_version   = '7.43',
+  $drupal_version   = '7.54',
   $www_path         = '/var/www/html/drupal',
   $www_user         = 'apache',
 
@@ -58,6 +58,7 @@ class ftep::drupal (
   ::drupal::site { $drupal_site:
     core_version     => $drupal_version,
     modules          => {
+      'backup_migrate'    => '3.1',
       'ctools'            => '1.9',
       'entity'            => '1.7',
       'entityreference'   => '1.1',

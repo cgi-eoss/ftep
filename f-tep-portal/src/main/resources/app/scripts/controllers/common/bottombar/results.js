@@ -36,7 +36,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
 
                 function setResults(results){
-                    $scope.spinner.loading = false;
                     if(results && results.length >0){
                         $scope.geoResults = results;
 
@@ -89,8 +88,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     TabService.resultTab.nameExtention = GeoService.getResultsNameExtention();
                     $scope.resultParams.selectedResultItems = [];
                     scrollResults();
+                    $scope.spinner.loading = false;
                 }
-                setResults(GeoService.getResultCache());
+
+                if(GeoService.getResultCache()) {
+                    setResults(GeoService.getResultCache());
+                }
 
                 $scope.fetchResultsPage = function(pageNumber){
                     GeoService.getGeoResults(pageNumber).then(function(data) {

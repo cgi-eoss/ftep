@@ -13,13 +13,19 @@
 
     <section class="row">
 
-        <div class="col-xs-6 job-title">
-            <h4>Job ID: {{jobParams.selectedJob.id}}</h4>
+        <div class="col-lg-2 col-md-4 job-title no-padding">
+            <h3 class="left">Job ID:</h3>
+            <h4 class="left">{{jobParams.selectedJob.id}}</h4>
         </div>
 
-        <div class="col-xs-6 job-title">
+        <div class="col-lg-6 col-md-8 job-title no-padding">
+            <h3 class="left">Start Time:</h3>
+            <h4 class="left">{{jobParams.selectedJob.details.startTime}}</h4>
+        </div>
+
+        <div class="col-lg-4 col-md-12 job-title no-padding">
             <div class="job-status" style="{{getColor(jobParams.selectedJob.status)}}">
-                {{jobParams.selectedJob.status}}
+                Status: {{jobParams.selectedJob.status}}
             </div>
         </div>
 

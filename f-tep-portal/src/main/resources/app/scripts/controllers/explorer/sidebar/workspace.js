@@ -43,7 +43,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
 
             JobService.launchJob($scope.serviceParams.selectedService, iparams).then(function(data){
-               JobService.refreshJobs("explorer");
+               JobService.refreshJobs("explorer", "Create");
             });
         };
 

@@ -349,19 +349,18 @@
   background-color: #d9edf7;
 }
 #job .job-status {
-  border-radius: 1.5rem;
   color: rgba(255, 255, 255, 0.87);
   cursor: default;
   font-size: smaller;
   height: 100%;
   line-height: 1.2rem;
   text-align: center;
-  width: 60%;
 }
-#job .job-title {
-  padding: 0.5rem;
+#job .job-title h3 {
+  margin: 0;
 }
 #job .job-title h4 {
+  padding: 0.2rem 0 0 0.8rem;
   margin: 0;
 }
 #job .toolbar-button {

@@ -23,7 +23,7 @@
             </div>
         </section>
 
-        <div ng-show="isWorkspaceLoading">Loading...</div>
+        <div class="info" ng-show="isWpsLoading">Loading...</div>
 
         <div ng-if="serviceParams.selectedService" ng-hide="isWorkspaceLoading">
 
@@ -127,7 +127,7 @@
                            ng-disabled="serviceForm.$invalid"
                            ng-hide="isWorkspaceLoading"
                            aria-label="Launch"
-                           ng-click="displayTab(bottomNavTabs.JOBS); launchProcessing()"
+                           ng-click="displayTab(bottomNavTabs.JOBS, false); launchProcessing()"
                            uib-tooltip="Launch"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"

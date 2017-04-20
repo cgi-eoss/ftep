@@ -100,9 +100,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             checkCost(job.getConfig());
 
-            // TODO Determine WorkerEnvironment from service parameters
-            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
-
             // Prepare inputs
             LOG.info("Downloading input data for {}", zooId);
             com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder()
@@ -115,6 +112,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             job.setStatus(JobStatus.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
             jobDataService.save(job);
+
+            // TODO Determine WorkerEnvironment from service parameters
+            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
             JobEnvironment jobEnvironment = worker.prepareEnvironment(JobInputs.newBuilder()
                     .setJob(rpcJob)
                     .addAllInputs(request.getInputsList())

@@ -20,7 +20,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $mdSidenav('left').open();
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
-            }, 500);
+            }, 50);
         }
 
         $scope.hideSidebarArea = function () {

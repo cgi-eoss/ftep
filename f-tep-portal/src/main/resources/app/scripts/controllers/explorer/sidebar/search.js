@@ -28,7 +28,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.searchParameters.selectedDatasource = dataSource;
                 if(dataSource.fields.mission){
                     // Set the first mission as default
-                    $scope.searchParameters.mission = $scope.missions[0];
+                    $scope.searchParameters.mission = $scope.missions[1];
                 }
                 $scope.updateMissionParameters($scope.searchParameters.mission);
                 $scope.updateSlider();

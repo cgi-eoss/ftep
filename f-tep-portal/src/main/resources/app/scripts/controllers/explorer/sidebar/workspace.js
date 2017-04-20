@@ -113,7 +113,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.removeSelectedItem = function(fieldId, item){
             var index = $scope.serviceParams.dropLists[fieldId].indexOf(item);
             $scope.serviceParams.dropLists[fieldId].splice(index, 1);
-            $scope.inputValues[fieldId] = getPaths($scope.serviceParams.dropLists[fieldId]);
+            $scope.serviceParams.inputValues[fieldId] = getPaths($scope.serviceParams.dropLists[fieldId]);
         };
 
         var popover = {};

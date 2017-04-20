@@ -5,6 +5,7 @@ import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,7 +24,8 @@ import javax.persistence.UniqueConstraint;
  * <p>F-TEP user account. Parameters are expected to be provided by an external SSO IdP.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id", "wallet"})
+@EqualsAndHashCode(of = {"name"})
+@ToString(exclude={"wallet"})
 @Table(name = "ftep_users",
         indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})

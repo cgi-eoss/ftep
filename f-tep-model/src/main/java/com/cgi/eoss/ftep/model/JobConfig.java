@@ -7,6 +7,7 @@ import com.google.common.collect.Multimap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -28,6 +29,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
+@ToString(exclude = {"inputs"})
 @Table(name = "ftep_job_configs",
         indexes = {@Index(name = "ftep_job_configs_service_idx", columnList = "service"), @Index(name = "ftep_job_configs_owner_idx", columnList = "owner")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs"}))

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})
+@ToString(exclude = {"content"})
 @Table(name = "ftep_service_files",
         indexes = {@Index(name = "ftep_service_files_filename_idx", columnList = "filename"), @Index(name = "ftep_service_files_service_idx", columnList = "service")},
         uniqueConstraints = {@UniqueConstraint(name = "ftep_service_files_filename_service_idx", columnNames = {"filename", "service"})})

@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,8 +29,15 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
     @Override
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) {
         Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
+        FtepWebAuthenticationDetails tokenDetails = (FtepWebAuthenticationDetails) token.getDetails();
 
         com.cgi.eoss.ftep.model.User user = userDataService.getOrSave(token.getName());
+
+        // Keep user's SSO details up to date
+        if (!Strings.isNullOrEmpty(tokenDetails.getUserEmail())) {
+            user.setEmail(tokenDetails.getUserEmail());
+        }
+
         Set<Group> userGroups = userDataService.getGroups(user);
 
         // All users have the "PUBLIC" authority, plus their group memberships, plus their role

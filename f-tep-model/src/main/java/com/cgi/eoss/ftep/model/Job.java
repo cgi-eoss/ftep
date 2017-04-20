@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.converters.StringMultimapYamlConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Multimap;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
  * <p>Representation of a single {@link JobConfig} execution.</p>
  */
 @Data
+@EqualsAndHashCode(exclude = {"id"})
 @Table(name = "ftep_jobs",
         indexes = {@Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"), @Index(name = "ftep_jobs_owner_idx", columnList = "owner")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})

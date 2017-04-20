@@ -17,7 +17,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 @Configuration
@@ -29,7 +28,8 @@ public class ApiSecurityConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader) {
+            @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
+            @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -37,13 +37,14 @@ public class ApiSecurityConfig {
                 RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
                 filter.setAuthenticationManager(authenticationManager());
                 filter.setPrincipalRequestHeader(usernameRequestHeader);
+                filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader));
 
                 // Handles any authentication exceptions, and translates to a simple 403
                 // There is no login redirection as we are expecting pre-auth
                 ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
 
                 httpSecurity
-                        .addFilterBefore(exceptionTranslationFilter, RequestAttributeAuthenticationFilter.class)
+                        .addFilterBefore(exceptionTranslationFilter, RequestHeaderAuthenticationFilter.class)
                         .addFilter(filter)
                         .authorizeRequests()
                         .anyRequest().authenticated();

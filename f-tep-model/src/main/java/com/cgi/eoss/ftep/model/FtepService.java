@@ -6,6 +6,7 @@ import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,6 +30,7 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(exclude = {"id", "contextFiles"})
+@ToString(exclude = {"serviceDescriptor", "contextFiles"})
 @Table(name = "ftep_services",
         indexes = {@Index(name = "ftep_services_name_idx", columnList = "name"), @Index(name = "ftep_services_owner_idx", columnList = "owner")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})

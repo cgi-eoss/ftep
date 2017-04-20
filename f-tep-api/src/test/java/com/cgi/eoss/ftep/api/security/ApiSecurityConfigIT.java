@@ -37,7 +37,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -110,6 +114,25 @@ public class ApiSecurityConfigIT {
                 .map(id -> new ObjectIdentityImpl(FtepService.class, id))
                 .forEach(oid -> aclService.deleteAcl(oid, true));
         serviceDataService.deleteAll();
+    }
+
+    @Test
+    public void testUserDetails() throws Exception {
+        mockMvc.perform(get("/api/currentUser").header("REMOTE_USER", alice.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(alice.getId()))
+                .andExpect(jsonPath("$.name").value(alice.getName()))
+                .andExpect(jsonPath("$.email").doesNotExist());
+
+        // Make sure the SSO header updates the email attribute
+        assertThat(alice.getEmail(), is(nullValue()));
+        String aliceEmail = "alice@example.com";
+        mockMvc.perform(get("/api/currentUser").header("REMOTE_USER", alice.getName()).header("REMOTE_EMAIL", aliceEmail))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(alice.getId()))
+                .andExpect(jsonPath("$.name").value(alice.getName()))
+                .andExpect(jsonPath("$.email").value(aliceEmail));
+        assertThat(alice.getEmail(), is(aliceEmail));
     }
 
     @Test

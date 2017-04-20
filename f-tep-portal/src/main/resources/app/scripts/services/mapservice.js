@@ -20,6 +20,11 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
             return angular.copy(this.searchPolygon.wkt);
         };
 
+        this.resetSearchPolygon = function(){
+            this.searchPolygon.selectedArea = undefined;
+            this.searchPolygon.wkt = undefined;
+        };
+
         var selectedStyle = new ol.style.Style({
               fill: new ol.style.Fill({
                 color: 'rgba(0,255,255,0.8)'

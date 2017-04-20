@@ -222,7 +222,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         });
         $scope.map.addLayer(searchAreaLayer);
 
-        function updateSearchPolygon(geom, refit){
+        function updateSearchPolygon(geom, editedWkt, refit){
             var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
             $rootScope.$broadcast('polygon.drawn', polygonWSEN);
             if(refit && refit === true){
@@ -231,8 +231,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
             $scope.searchPolygon.selectedArea = geom.clone();
             var area = angular.copy($scope.searchPolygon.selectedArea);
-            var wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
-            $scope.searchPolygon.wkt = wkt;
+            $scope.searchPolygon.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
         }
 
         // Copy the coordinates to clipboard which can be then pasted to service input fields
@@ -249,7 +248,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             if(searchAreaLayer){
                 searchAreaLayer.getSource().clear();
             }
-            $scope.searchPolygon = { selectedArea: undefined, wkt: undefined };
+            MapService.resetSearchPolygon();
             $scope.drawType = SHAPE.NONE;
             $rootScope.$broadcast('polygon.drawn', undefined);
         };
@@ -258,11 +257,9 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.editPolygonDialog = function($event, polygon) {
             $event.stopPropagation();
             $event.preventDefault();
-            function EditPolygonController($scope, $mdDialog, ProjectService) {
-                $scope.polygon = { wkt: '', valid: false};
+            function EditPolygonController($scope, $mdDialog, MapService) {
+                $scope.polygon = { wkt: angular.copy(MapService.getPolygonWkt()), valid: false};
                 if(polygon.selectedArea) {
-                    var area = angular.copy(polygon.selectedArea);
-                    $scope.polygon.wkt = new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326));
                     $scope.polygon.valid = true;
                 }
                 $scope.closeDialog = function() {
@@ -279,7 +276,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                         });
                         searchAreaLayer.getSource().addFeature(newPol);
 
-                        updateSearchPolygon(newPol.getGeometry(), true);
+                        updateSearchPolygon(newPol.getGeometry(), searchPolygonWkt, true);
                     }
                     $mdDialog.hide();
                 };
@@ -296,7 +293,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     }
                 };
             }
-            EditPolygonController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
+            EditPolygonController.$inject = ['$scope', '$mdDialog', 'MapService'];
             $mdDialog.show({
                 controller: EditPolygonController,
                 templateUrl: 'views/explorer/templates/editpolygon.tmpl.html',

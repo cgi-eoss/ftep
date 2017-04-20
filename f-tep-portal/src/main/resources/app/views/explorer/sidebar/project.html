@@ -27,7 +27,7 @@
             <div class="row no-margin panel-heading-container" ng-click="toggleProjectShow()">
 
                 <div class="col-xs-8 no-padding project-title heading-item">
-                    <h2 class="left">{{projectParams.activeProject.name}}</h2>
+                    <h2 class="left">{{projectParams.selectedProject.name}}</h2>
                     <i class="material-icons expand-icon"
                        uib-tooltip="View More"
                        tooltip-placement="right"
@@ -116,8 +116,8 @@
         <ul class="list-group project-list">
             <li class="list-group-item project-item"
                 ng-repeat="project in projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText | orderBy: 'name'"
-                ng-click="setActiveProject(project)"
-                ng-class="{active: project.name === projectParams.activeProject.name}">
+                ng-click="selectProject(project)"
+                ng-class="{active: project.name === projectParams.selectedProject.name}">
 
                 <div class="row project-item-row">
 
@@ -132,7 +132,7 @@
                     <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
 
                         <md-button class="toolbar-button"
-                                   ng-click="shareObjectDialog($event, project)"
+                                   ng-click="shareObjectDialog($event, project, 'project', 'ProjectService', 'refreshSelectedProject')"
                                    aria-label="Share Project"
                                    uib-tooltip="Share"
                                    tooltip-placement="top"

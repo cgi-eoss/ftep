@@ -8,8 +8,8 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', '$timeout', 'ftepProperties',
-                                            function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout, ftepProperties) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', '$timeout', 'ftepProperties', '$injector',
+                                            function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout, ftepProperties, $injector) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo;
@@ -85,24 +85,36 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Share Object Modal */
         $scope.sharedObject = {};
-        $scope.shareObjectDialog = function($event, item) {
-            console.log(item);
-            function ShareObjectController($scope, $mdDialog, GroupService) {
-                $scope.sharedObject = item;
+        $scope.shareObjectDialog = function($event, item, type, serviceName, serviceMethod) {
+            function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
+
+                var service = $injector.get(serviceName);
+                $scope.permissions = CommunityService.permissionTypes;
+                $scope.ace = item;
+                $scope.ace.type = type;
+                $scope.ace.permission = $scope.permissions.READ;
                 $scope.groups = [];
+
                 GroupService.getGroups().then(function(data){
                     $scope.groups = data;
                 });
+
+                $scope.shareObject = function (item) {
+                    CommunityService.getObjectGroups(item, type).then(function(groups){
+
+                        CommunityService.shareObject($scope.ace, groups).then(function (data) {
+                            service[serviceMethod]('explorer');
+                        });
+                    });
+
+                    $mdDialog.hide();
+                };
+
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
                 };
-                $scope.shareObject = function(item) {
-                    //TODO
-                    console.log('sharing: ', item);
-                    $mdDialog.hide();
-                };
             }
-            ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService'];
+            ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService', 'CommunityService'];
             $mdDialog.show({
                 controller: ShareObjectController,
                 templateUrl: 'views/common/templates/shareitem.tmpl.html',

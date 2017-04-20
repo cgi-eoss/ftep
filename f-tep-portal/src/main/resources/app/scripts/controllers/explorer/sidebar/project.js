@@ -14,21 +14,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.projectParams = ProjectService.params.explorer;
         $scope.projectOwnershipFilters = ProjectService.projectOwnershipFilters;
 
-        $scope.setActiveProject = function (project) {
-            $scope.projectParams.activeProject = project;
+        $scope.selectProject = function (project) {
+            $scope.projectParams.selectedProject = project;
         };
 
         function getProjects(project, setAsActive){
             ProjectService.getProjects().then(function (data) {
                 $scope.projects = data;
-                if(!$scope.projectParams.activeProject){
-                    $scope.projectParams.activeProject = $scope.projects[0];
+                if(!$scope.projectParams.selectedProject){
+                    $scope.projectParams.selectedProject = $scope.projects[0];
                 }
                 else if(setAsActive){
-                    $scope.projectParams.activeProject = project;
+                    $scope.projectParams.selectedProject = project;
                 }
-                else if(project && project._links.self.href === $scope.projectParams.activeProject._links.self.href){
-                    $scope.projectParams.activeProject = project;
+                else if(project && project._links.self.href === $scope.projectParams.selectedProject._links.self.href){
+                    $scope.projectParams.selectedProject = project;
                 }
             });
         }
@@ -54,8 +54,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.updateProject = function ($event, project) {
             CommonService.editItemDialog($event, project, 'ProjectService', 'updateProject').then(function(updatedProject) {
-                if($scope.projectParams.activeProject && $scope.projectParams.activeProject.id === updatedProject.id){
-                    $scope.projectParams.activeProject = updatedProject;
+                if($scope.projectParams.selectedProject && $scope.projectParams.selectedProject.id === updatedProject.id){
+                    $scope.projectParams.selectedProject = updatedProject;
                 }
                 getProjects(updatedProject);
             });

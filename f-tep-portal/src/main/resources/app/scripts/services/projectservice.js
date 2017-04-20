@@ -32,7 +32,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.params = {
               explorer: {
                   showProjects: true,
-                  activeProject: undefined,
+                  selectedProject: undefined,
                   displayFilters: false,
                   searchText: undefined,
                   selectedOwnerhipFilter: this.projectOwnershipFilters.ALL_PROJECTS

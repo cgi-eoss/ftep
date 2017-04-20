@@ -81,6 +81,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             BasketService.refreshSelectedBasket("explorer");
         };
 
+        $scope.deselectDatabasket  = function () {
+            $scope.dbParams.selectedDatabasket = undefined;
+        };
+
         $scope.clearDatabasket = function() {
             BasketService.clearDatabasket($scope.basketParams.selectedDatabasket).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");

@@ -1,0 +1,41 @@
+@import "variable";
+
+@media (max-width: @xs-max-width) {
+  .show, .show-xs {
+    &.hide {
+      display: block !important;
+    }
+  }
+}
+
+@media (max-width: @xs-max-width) and (max-width: @sm-max-width) {
+  .show, .show-sm, .show-gt-xs {
+    &.hide {
+      display: block !important;
+    }
+  }
+}
+
+@media (min-width:  @sm-max-width) and (max-width: @md-max-width) {
+  .show, .show-md, .show-gt-xs, .show-gt-sm {
+    &.hide {
+      display: block !important;
+    }
+  }
+}
+
+@media (min-width: @md-max-width) and (max-width: @lg-max-width) {
+  .show, .show-lg, .show-gt-xs, .show-gt-sm, .show-gt-md {
+    &.hide {
+      display: block !important;
+    }
+  }
+}
+
+@media (min-width: @lg-max-width) {
+  .show, .show-gt-xs, .show-gt-sm, .show-gt-md, .show-gt-lg {
+    &.hide {
+      display: block !important;
+    }
+  }
+}

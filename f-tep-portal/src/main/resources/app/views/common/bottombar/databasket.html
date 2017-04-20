@@ -1,10 +1,15 @@
 <section ng-if="dbParams.selectedDatabasket == undefined" class="note">Please select or create a databasket first</section>
 
-<section ng-if="dbParams.selectedDatabasket != undefined"
-         class="panel-body scrollme"
-         is-bar-shown="flag"
-         rebuild-on="rebuild:scrollbar"
-         rebuild-on-resize>
+<section id="databasket" ng-if="dbParams.selectedDatabasket != undefined" class="panel-body">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="deselectDatabasket()"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
 
     <h3>{{dbParams.selectedDatabasket.name}}</h3>
     <h4>{{dbParams.selectedDatabasket.description}}</h4>

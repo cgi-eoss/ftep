@@ -108,6 +108,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 container.scrollTop = 0;
             };
 
+            $scope.deselectJob  = function () {
+                $scope.jobParams.selectedJob = undefined;
+            };
+
             /** FOR DRAGGING JOB OUTPUTS **/
             $scope.getSelectedOutputFiles = function(file) {
 

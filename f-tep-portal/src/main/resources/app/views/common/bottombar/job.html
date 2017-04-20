@@ -1,10 +1,15 @@
 <section ng-if="jobParams.selectedJob == undefined" class="note">Please select a job first</section>
 
-<div ng-if="jobParams.selectedJob != undefined"
-     class="scrollme"
-     is-bar-shown="flag"
-     rebuild-on="rebuild:scrollbar"
-     rebuild-on-resize>
+<div id="job" ng-if="jobParams.selectedJob != undefined" class="panel-body">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="deselectJob()"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
 
     <section class="row">
 

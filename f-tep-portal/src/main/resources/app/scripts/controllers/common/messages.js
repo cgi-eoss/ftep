@@ -36,6 +36,10 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 container.scrollTop = 0;
             };
 
+            $scope.deselectMessage  = function () {
+                $scope.msgParams.selectedMessage = undefined;
+            };
+
             $scope.$on('refresh.messages', function (event, result) {
                 $scope.messages = result.data;
             });

@@ -216,5 +216,76 @@ define([
           };
         });
 
+    /** Directive for adding specific style-class based on screen size **/
+    app.directive("mediaClass", ["$mdMedia", "$window", "$timeout", function($mdMedia, $window, $timeout) {
+        return {
+            restrict: "A",
+            link: function(scope, element, attrs) {
+
+                function checkMediaClass(){
+                    var styles = attrs.mediaClass.split(',');
+                    for(var i = 0; i < styles.length; i++){
+                        var keyVal = styles[i].split(':');
+
+                        //add specified class based on the screen size, the attribute values should be ordered from smallest to largest
+                        if($mdMedia(keyVal[0])){
+                            element.addClass(keyVal[1]);
+                        }
+                        // remove from elements that are in the gray area between bootstrap and material values
+                        if(keyVal[0] === 'gt-md' && $mdMedia('min-width: 1199px') && $mdMedia('max-width: 1280px')){
+                          element.removeClass(keyVal[1]);
+                        }
+                    }
+                }
+                checkMediaClass();
+
+                angular.element($window).on('resize', function(){
+                    $timeout(function () {
+                        checkMediaClass();
+                    }, 100);
+                });
+            }
+        }
+     }]);
+
+    /** Directive for showing/hiding elements based on screen size **/
+    app.directive('mediaShow', ["$mdMedia", "$window", "$timeout", function($mdMedia, $window, $timeout) {
+        return {
+            link: function(scope, element, attrs) {
+
+                function checkVisibility(){
+                    element.hide();
+
+                    //if the screen size is defined in the media-show list, set the element visible at all times
+                    var showList = attrs.mediaShow.split(',');
+                    for(var i = 0; i < showList.length; i++){
+                        if($mdMedia(showList[i])){
+                            element.show();
+                        }
+                    }
+
+                    // otherwise check if a special case exists for the element
+                    if(element.is(':visible') === false){
+                        if(attrs.mediaShowOn && attrs.mediaShowOn === "true"){
+                            element.show();
+                        }
+                    }
+                }
+                checkVisibility();
+
+                // watch for element updates
+                attrs.$observe('mediaShowOn', function() {
+                    checkVisibility();
+                });
+
+                angular.element($window).on('resize', function(){
+                    $timeout(function () {
+                        checkVisibility();
+                    }, 100);
+                });
+            }
+        }
+    }]);
+
     return app;
 });

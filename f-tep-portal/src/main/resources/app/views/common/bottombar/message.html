@@ -1,10 +1,15 @@
 <section ng-if="msgParams.selectedMessage == undefined" class="note">Please select a message first</section>
 
-<section ng-if="msgParams.selectedMessage !== undefined"
-         class="panel-body scrollme"
-         is-bar-shown="flag"
-         rebuild-on="rebuild:scrollbar"
-         rebuild-on-resize>
+<section id="message" ng-if="msgParams.selectedMessage != undefined" class="panel-body">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="deselectMessage()"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
 
     <h3>{{msgParams.selectedMessage.status}} - {{msgParams.selectedMessage.title}}</h3>
     <h4>{{msgParams.selectedMessage.time}}</h4>

@@ -1362,6 +1362,46 @@
   margin: 0;
 }
 
+@media (max-width: 767px) {
+  .show.hide,
+  .show-xs.hide {
+    display: block !important;
+  }
+}
+@media (max-width: 767px) and (max-width: 991px) {
+  .show.hide,
+  .show-sm.hide,
+  .show-gt-xs.hide {
+    display: block !important;
+  }
+}
+@media (min-width: 991px) and (max-width: 1280px) {
+  .show.hide,
+  .show-md.hide,
+  .show-gt-xs.hide,
+  .show-gt-sm.hide {
+    display: block !important;
+  }
+}
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .show.hide,
+  .show-lg.hide,
+  .show-gt-xs.hide,
+  .show-gt-sm.hide,
+  .show-gt-md.hide {
+    display: block !important;
+  }
+}
+@media (min-width: 1599px) {
+  .show.hide,
+  .show-gt-xs.hide,
+  .show-gt-sm.hide,
+  .show-gt-md.hide,
+  .show-gt-lg.hide {
+    display: block !important;
+  }
+}
+
 .ftep md-menu-bar {
   float: right;
   padding: 0;
@@ -2080,6 +2120,7 @@
   color: rgba(0, 0, 0, 0.87);
   font-size: 1.2rem;
   margin-bottom: 0;
+  padding-top: 0.8rem;
 }
 #workspace-panel .workspace-header .service-header .service-title .md-subheader-inner {
   padding: 0 0 0.2rem 0;

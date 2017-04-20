@@ -1,10 +1,12 @@
 package com.cgi.eoss.ftep.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -20,7 +23,7 @@ import javax.persistence.UniqueConstraint;
  * <p>F-TEP user account. Parameters are expected to be provided by an external SSO IdP.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = {"id", "wallet"})
 @Table(name = "ftep_users",
         indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
@@ -59,6 +62,13 @@ public class User implements FtepEntity<User>, Searchable {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role = Role.GUEST;
+
+    /**
+     * <p>The user's wallet.</p>
+     */
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Wallet wallet = new Wallet(this);
 
     /**
      * Create a new User instance with the minimum required parameters

@@ -13,6 +13,14 @@ CREATE TABLE ftep_users (
 CREATE UNIQUE INDEX ftep_users_name_idx
   ON ftep_users (name);
 
+CREATE TABLE ftep_wallets (
+  id      BIGINT IDENTITY PRIMARY KEY,
+  owner    BIGINT        NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  balance INT DEFAULT 0 NOT NULL
+);
+CREATE UNIQUE INDEX ftep_wallets_owner_idx
+  ON ftep_wallets (owner);
+
 CREATE TABLE ftep_services (
   id             BIGINT IDENTITY PRIMARY KEY,
   description    CHARACTER VARYING(255),

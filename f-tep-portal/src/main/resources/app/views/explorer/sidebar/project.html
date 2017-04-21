@@ -37,7 +37,7 @@
 
                 <div class="col-xs-1 no-padding heading-item">
                     <md-button class="toolbar-button"
-                               ng-click="createProjectDialog($event)"
+                               ng-click="createProjectDialog($event); $event.stopPropagation()"
                                aria-label="Create New Project"
                                uib-tooltip="Create New Project"
                                tooltip-placement="right"
@@ -51,7 +51,7 @@
 
                 <div class="col-xs-1 no-padding heading-item">
                     <md-button class="toolbar-button right toolbar-right"
-                               ng-click="hideSidebarArea()"
+                               ng-click="hideSidebarArea(); $event.stopPropagation()"
                                aria-label="Close Sidebar"
                                uib-tooltip="Close"
                                tooltip-placement="right"

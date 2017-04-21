@@ -64,7 +64,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 deferred.resolve(document._embedded.projects);
             }, function (error) {
                 MessageService.addError ('Could not get projects',
-                        'Failed to get projects' + (error.doc.message ? ': ' + error.doc.message : '' ));
+                        'Failed to get projects: ' + error);
                 deferred.reject();
             });
             return deferred.promise;

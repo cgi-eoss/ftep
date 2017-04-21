@@ -82,17 +82,6 @@
                 <span><b>Status:</b> <span ng-bind="job.status" /></span>
             </div>
 
-            <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeCommunityPage === 0"
-                       ng-click="removeItem(key, job)"
-                       aria-label="Delete"
-                       uib-tooltip="Delete"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">delete</i>
-            </md-button>
-
             <i class="material-icons"
                ng-show="navInfo.activeCommunityPage === 1"
                aria-label="Share">

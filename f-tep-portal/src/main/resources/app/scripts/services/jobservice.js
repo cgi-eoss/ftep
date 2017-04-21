@@ -241,28 +241,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.removeJob = function(job) {
-            return $q(function(resolve, reject) {
-                deleteAPI.from(rootUri + '/jobs/' + job.id)
-                         .newRequest()
-                         .delete()
-                         .result
-                         .then(
-                function (document) {
-                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Job deleted', 'Job '.concat(job.name).concat(' deleted.'));
-                        resolve(job);
-                    } else {
-                        MessageService.addError ('Failed to Remove Job', document);
-                        reject();
-                    }
-                }, function (error) {
-                    MessageService.addError ('Failed to Remove Job', error);
-                    reject();
-                });
-            });
-        };
-
         this.refreshJobs = function (page, action, job) {
 
             /* Get job list */
@@ -273,13 +251,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 /* Select last job if created */
                 if (action === "Create") {
                     self.params[page].selectedJob = self.params[page].jobs[self.params[page].jobs.length-1];
-                }
-
-                /* Clear job if deleted */
-                if (action === "Remove") {
-                    if (job && job.id === self.params[page].selectedJob.id) {
-                        self.params[page].selectedJob = undefined;
-                    }
                 }
 
                 /* Update the selected job */

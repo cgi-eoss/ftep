@@ -135,18 +135,6 @@
                 </md-button>
 
                 <md-button class="toolbar-button md-secondary"
-                           ng-click="removeJob($event, job)"
-                           aria-label="Delete"
-                           uib-tooltip="Delete"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true"
-                           has-permission="ADMIN"
-                           permission-source="{{job}}">
-                    <i class="material-icons">delete</i>
-                </md-button>
-
-                <md-button class="toolbar-button md-secondary"
                            ng-click="repeatJob(job)"
                            aria-label="Re-run"
                            uib-tooltip="Edit and re-run"

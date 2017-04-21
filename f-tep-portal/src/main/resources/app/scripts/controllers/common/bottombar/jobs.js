@@ -74,18 +74,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
             $scope.filterJobs();
 
-            $scope.removeJob = function (event, job) {
-                CommonService.confirm(event, 'Are you sure you want to delete job ' + job.id + "?").then(function (confirmed) {
-                    if (confirmed === false) {
-                        return;
-                    }
-
-                    JobService.removeJob(job).then(function () {
-                        JobService.refreshJobs('explorer', "Remove");
-                    });
-                });
-            };
-
             $scope.repeatJob = function(job){
                 JobService.getJobConfig(job).then(function(config){
                     $rootScope.$broadcast('update.selectedService', config._embedded.service.id, config.inputs);

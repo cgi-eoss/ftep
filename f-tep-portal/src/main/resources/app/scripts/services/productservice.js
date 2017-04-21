@@ -51,9 +51,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 showServices: true
             },
             development: {
+                activeForm: undefined,
                 displayFilters: false,
                 displayRight: false,
                 selectedService: undefined,
+                fieldDefinitions: { inputs: [], outputs: [] },
                 selectedServiceFileTab: 1
             }
         };
@@ -314,6 +316,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             this.params.development.selectedService = angular.copy(service);
             this.params.development.selectedService.files = [];
             this.params.development.displayRight = true;
+            this.params.development.fieldDefinitions= { inputs: [], outputs: [] }; //TODO get descriptor
 
             getServiceFiles(service).then(function(serviceFiles){
                 if(serviceFiles){

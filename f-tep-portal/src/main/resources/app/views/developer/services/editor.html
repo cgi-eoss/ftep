@@ -13,73 +13,121 @@
 <form id="service-form" name="serviceForm">
 
     <section id="service-header" class="row">
-        <div class="service-field col-md-4 no-padding">
+        <div class="service-field col-md-2 no-padding">
             <md-input-container md-no-float>
-                <label>File Name</label>
+                <label>Service Name</label>
                 <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
             </md-input-container>
         </div>
-        <div class="service-field col-md-4 no-padding">
+        <div class="service-field col-md-2 no-padding">
             <md-input-container md-no-float>
                 <label>Docker Tag</label>
                 <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag*" required>
             </md-input-container>
         </div>
-        <div class="col-md-12 service-field no-padding">
+        <div class="col-md-7 service-field no-padding">
             <md-input-container id="service-description" md-no-float>
                 <label>Description</label>
                 <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
             </md-input-container>
         </div>
+        <div class="col-md-1 service-field no-padding">
+        </div>
     </section>
 
-    <md-tabs id="editor-tabs" md-selected="1">
-         <md-tab ng-repeat="file in serviceParams.selectedService.files">
-            <md-tab-label>
-                {{file.filename}}
-                <md-button class="tab-button"
-                           ng-click="deleteFileDialog($event, file)"
-                           ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
-                           aria-label="Delete File"
-                           uib-tooltip="Delete File"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
-                    <i class="material-icons">close</i>
-                </md-button>
-            </md-tab-label>
-            <md-tab-body>
-                <md-content class="md-padding">
-                    <div class="tab-content">
-                        <md-input-container class="executable" md-no-float>
-                            <md-checkbox ng-model="file.executable" aria-label="Executable" ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
-                                Executable
-                            </md-checkbox>
-                        </md-input-container>
-                        <md-input-container md-no-float class="md-block file-editor">
-                            <textarea ng-model="file.content" md-select-on-focus placeholder="Add file content.." rows="14"></textarea>
-                        </md-input-container>
+    <section>
+        <ul id="editor-area-list">
+            <li ng-class="{active: serviceParams.activeArea === formArea}" ng-repeat="formArea in serviceForms" ng-click="serviceParams.activeArea = formArea">
+                {{formArea.title | uppercase}}
+            </li>
+        </ul>
+    </section>
 
-                    </div>
-                </md-content>
-            </md-tab-body>
-        </md-tab>
-        <md-tab ng-click="createFileDialog($event)">
-            <md-tab-label>
-                <md-button class="tab-button add-button"
-                   aria-label="Add File"
-                   uib-tooltip="Add File"
-                   tooltip-placement="top"
+    <section id="editor-tabs" ng-show="serviceParams.activeArea === serviceForms.files">
+        <md-tabs md-selected="1">
+             <md-tab ng-repeat="file in serviceParams.selectedService.files">
+                <md-tab-label>
+                    {{file.filename}}
+                    <md-button class="tab-button"
+                               ng-click="deleteFileDialog($event, file)"
+                               ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
+                               aria-label="Delete File"
+                               uib-tooltip="Delete File"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">close</i>
+                    </md-button>
+                </md-tab-label>
+                <md-tab-body>
+                    <md-content class="md-padding">
+                        <div class="tab-content">
+                            <md-input-container class="executable" md-no-float>
+                                <md-checkbox ng-model="file.executable" aria-label="Executable" ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
+                                    Executable
+                                </md-checkbox>
+                            </md-input-container>
+                            <md-input-container md-no-float class="md-block file-editor">
+                                <textarea ng-model="file.content" md-select-on-focus placeholder="Add file content.." rows="14"></textarea>
+                            </md-input-container>
+                        </div>
+                    </md-content>
+                </md-tab-body>
+            </md-tab>
+            <md-tab ng-click="createFileDialog($event)">
+                <md-tab-label>
+                    <md-button class="tab-button add-button"
+                       aria-label="Add File"
+                       uib-tooltip="Add File"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        <i class="material-icons">add</i>
+                    </md-button>
+                </md-tab-label>
+                <md-tab-body>
+                    <md-content class="md-padding">
+                    </md-content>
+                </md-tab-body>
+            </md-tab>
+        </md-tabs>
+    </section>
+
+    <section class="field-definitions" ng-repeat="(key, defs) in serviceParams.fieldDefinitions" ng-show="serviceParams.activeArea === serviceForms[key]">
+        <div class="row" ng-repeat="input in defs">
+            <div class="col-md-4">
+                <md-input-container md-no-float>
+                    <input ng-model="input.name" type="text" placeholder="Field name*" required>
+                </md-input-container>
+            </div>
+            <div class="col-md-4">
+                <md-input-container class="md-block" flex-gt-sm>
+                    <md-select ng-model="input.type">
+                        <md-option ng-repeat="type in fieldTypes" ng-value="type" ng-selected="$first">
+                            {{type.type}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="col-md-2">
+                <md-button ng-click="removeRow(defs, input)"
+                   class="remove-button"
+                   aria-label="Remove Row"
+                   uib-tooltip="Remove Row"
                    tooltip-trigger="mouseenter"
                    tooltip-append-to-body="true">
-                    <i class="material-icons">add</i>
+                    <i class="material-icons">remove</i>
                 </md-button>
-            </md-tab-label>
-            <md-tab-body>
-                <md-content class="md-padding">
-                </md-content>
-            </md-tab-body>
-        </md-tab>
-    </md-tabs>
+            </div>
+        </div>
+        <md-button ng-click="addNewRow(defs)"
+                   class="add-button"
+                   aria-label="Add New Row"
+                   uib-tooltip="Add New Row"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">add_box</i>
+        </md-button>
+    </section>
 
 </form>

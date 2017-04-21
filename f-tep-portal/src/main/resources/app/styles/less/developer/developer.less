@@ -58,7 +58,47 @@
                 #service-description {
                     width: 100%;
                 }
+                #editor-area-list {
+                    list-style-type: none;
+                    margin: 0px;
+                    padding: 0.5rem;
+                    li {
+                        display: inline;
+                        margin-right: 5px;
+                        padding: 15px;
+                        background-color: @bg;
+                        cursor: pointer;
+                    }
+                    .active {
+                        background-color: @brand-light;
+                        border-color: @brand-light;
+                        color: @text-light;
+                    }
+                }
+                .field-definitions {
+                    margin-top: 15px;
+                    .row {
+                        margin: 10px;
+                        border: @bg 1px solid;
+                    }
+                }
+                .add-button, .remove-button {
+                    &:hover {
+                        background-color: transparent;
+                    }
+                }
+                .add-button .material-icons{
+                    color: @brand-light;
+                }
+                .remove-button .material-icons{
+                    margin: 0px;
+                    font-size: 20px;
+                    color: @white;
+                    background-color:  @brand-light;
+                }
                 #editor-tabs {
+                    margin-top: 20px;
+                    height: 100%;
                     flex: 1 1 auto;
                     .md-tab {
                         border-top-right-radius: 10px;
@@ -83,6 +123,9 @@
                                 color: @dark-gray;
                             }
                         }
+                    }
+                    md-tabs {
+                        height: 100%;
                     }
                     md-tabs-content-wrapper {
                         .border(border, @bg);

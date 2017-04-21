@@ -189,6 +189,16 @@
     height: auto;
   }
 }
+#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .close {
+  color: black;
+  float: right;
+  position: absolute;
+  right: 0.25rem;
+  top: 0;
+}
+#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .close i {
+  font-size: 1.6rem;
+}
 #bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .filter-checkboxes {
   font-size: 0.6rem;
   overflow: hidden;
@@ -1610,7 +1620,43 @@
 #developer-container #service-container .right-container #service-form #service-description {
   width: 100%;
 }
+#developer-container #service-container .right-container #service-form #editor-area-list {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+#developer-container #service-container .right-container #service-form #editor-area-list li {
+  display: inline;
+  margin-right: 5px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+#developer-container #service-container .right-container #service-form #editor-area-list .active {
+  background-color: #aed581;
+  border-color: #aed581;
+  color: rgba(255, 255, 255, 0.87);
+}
+#developer-container #service-container .right-container #service-form .field-definitions {
+  margin-top: 15px;
+}
+#developer-container #service-container .right-container #service-form .field-definitions .row {
+  margin: 10px;
+  border: #f8f8f8 1px solid;
+}
+#developer-container #service-container .right-container #service-form .add-button .material-icons {
+  font-size: 40px;
+  color: #aed581;
+}
+#developer-container #service-container .right-container #service-form .remove-button .material-icons {
+  margin: 0px;
+  font-size: 20px;
+  color: white;
+  background-color: #aed581;
+}
 #developer-container #service-container .right-container #service-form #editor-tabs {
+  margin-top: 20px;
+  height: 100%;
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
 }
@@ -1637,6 +1683,9 @@
 }
 #developer-container #service-container .right-container #service-form #editor-tabs .md-tab .md-button.add-button:hover {
   color: rgba(0, 0, 0, 0.54);
+}
+#developer-container #service-container .right-container #service-form #editor-tabs md-tabs {
+  height: 100%;
 }
 #developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper {
   border: #d2d2d2 solid 1px;
@@ -2137,6 +2186,9 @@
 #workspace-panel .workspace-content {
   font-size: 0.8rem;
   line-height: 1rem;
+}
+#workspace-panel .workspace-content .info {
+  padding: 0.5rem;
 }
 #workspace-panel .workspace-content .service-field {
   padding: 0.5rem;

@@ -12,6 +12,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
                                            function ($scope, ProductService, CommonService, $mdDialog) {
 
         $scope.serviceParams = ProductService.params.development;
+        $scope.serviceForms = {files: {title: 'Files'}, inputs: {title: 'Input Definitions'}, outputs: {title: 'Output Definitions'}};
+        $scope.serviceParams.activeArea = $scope.serviceForms.files;
+        $scope.fieldTypes = [{type: 'string'}, {type: 'integer'}];
 
         $scope.toggleServiceFilter = function(){
             $scope.serviceParams.displayFilters = !$scope.serviceParams.displayFilters;
@@ -98,6 +101,15 @@ define(['../../ftepmodules'], function (ftepmodules) {
                     $scope.serviceParams.selectedService.files.splice(index,1);
                 });
             });
+        };
+
+        $scope.addNewRow = function(list){
+            list.push({});
+        };
+
+        $scope.removeRow = function(list, item){
+            var index = list.indexOf(item);
+            list.splice(index, 1);
         };
 
     }]);

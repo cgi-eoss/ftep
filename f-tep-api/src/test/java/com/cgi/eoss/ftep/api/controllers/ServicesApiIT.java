@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Role;
-import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
@@ -111,7 +110,7 @@ public class ServicesApiIT {
     @Test
     public void testGet() throws Exception {
         FtepService service = new FtepService("service-1", ftepUser, "dockerTag");
-        service.setStatus(ServiceStatus.AVAILABLE);
+        service.setStatus(FtepService.Status.AVAILABLE);
         dataService.save(service);
 
         mockMvc.perform(get("/api/services").header("REMOTE_USER", ftepUser.getName()))
@@ -129,11 +128,11 @@ public class ServicesApiIT {
     @Test
     public void testGetFilter() throws Exception {
         FtepService service = new FtepService("service-1", ftepAdmin, "dockerTag");
-        service.setStatus(ServiceStatus.AVAILABLE);
+        service.setStatus(FtepService.Status.AVAILABLE);
         FtepService service2 = new FtepService("service-2", ftepAdmin, "dockerTag");
-        service2.setStatus(ServiceStatus.IN_DEVELOPMENT);
+        service2.setStatus(FtepService.Status.IN_DEVELOPMENT);
         FtepService service3 = new FtepService("service-3", ftepAdmin, "dockerTag");
-        service3.setStatus(ServiceStatus.IN_DEVELOPMENT);
+        service3.setStatus(FtepService.Status.IN_DEVELOPMENT);
         dataService.save(ImmutableSet.of(service, service2, service3));
 
         createAce(new ObjectIdentityImpl(FtepService.class, service.getId()), new GrantedAuthoritySid(FtepPermission.PUBLIC), BasePermission.READ);

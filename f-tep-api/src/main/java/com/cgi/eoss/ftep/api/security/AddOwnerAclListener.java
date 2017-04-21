@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableSet;
@@ -54,7 +53,7 @@ public class AddOwnerAclListener implements PostInsertEventListener {
 
             // The owner should be User.DEFAULT for EXTERNAL_PRODUCT FtepFiles, otherwise the actual owner may be used
             PrincipalSid ownerSid =
-                    FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFileType.EXTERNAL_PRODUCT
+                    FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT
                             ? new PrincipalSid(User.DEFAULT.getName())
                             : new PrincipalSid(entity.getOwner().getName());
 
@@ -69,7 +68,7 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                 LOG.warn("Existing access control entries found for 'new' object: {} {}", entityClass.getSimpleName(), entity.getId());
             }
 
-            if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFileType.EXTERNAL_PRODUCT) {
+            if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT) {
                 // No one should have ADMIN permission for EXTERNAL_PRODUCT FtepFiles, but they should be PUBLIC to read ...
                 LOG.debug("Adding PUBLIC READ-level ACL for new EXTERNAL_PRODUCT FtepFile with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()

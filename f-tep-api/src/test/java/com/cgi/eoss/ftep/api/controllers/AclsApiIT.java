@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
-import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
@@ -78,7 +77,7 @@ public class AclsApiIT {
         groupDataService.save(defaultGroup);
 
         service1 = new FtepService("service-1", ftepAdmin, "dockerTag");
-        service1.setStatus(ServiceStatus.AVAILABLE);
+        service1.setStatus(FtepService.Status.AVAILABLE);
         serviceDataService.save(service1);
     }
 

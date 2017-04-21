@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortFtepFile;
 import org.springframework.data.domain.Page;
@@ -42,7 +41,7 @@ public interface FtepFilesApi extends BaseRepositoryApi<FtepFile>, FtepFilesApiC
 
     @Override
     @Query("select f from FtepFile f where f.type=type")
-    Page<FtepFile> findByType(@Param("type") FtepFileType type, Pageable pageable);
+    Page<FtepFile> findByType(@Param("type") FtepFile.Type type, Pageable pageable);
 
     @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
     FtepFile findOneByUri(@Param("uri") URI uri);

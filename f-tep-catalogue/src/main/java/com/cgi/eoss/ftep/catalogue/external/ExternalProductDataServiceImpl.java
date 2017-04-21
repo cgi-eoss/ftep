@@ -3,7 +3,6 @@ package com.cgi.eoss.ftep.catalogue.external;
 import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {
             UUID restoId = resto.ingestReferenceData(feature);
             FtepFile ftepFile = new FtepFile(uri, restoId);
-            ftepFile.setType(FtepFileType.EXTERNAL_PRODUCT);
+            ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
             return ftepFileDataService.save(ftepFile);
         });
     }

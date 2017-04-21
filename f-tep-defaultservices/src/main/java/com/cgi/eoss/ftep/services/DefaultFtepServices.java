@@ -3,9 +3,6 @@ package com.cgi.eoss.ftep.services;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
-import com.cgi.eoss.ftep.model.ServiceLicence;
-import com.cgi.eoss.ftep.model.ServiceStatus;
-import com.cgi.eoss.ftep.model.ServiceType;
 import com.cgi.eoss.ftep.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -35,15 +32,15 @@ import java.util.stream.Collectors;
 @Log4j2
 public class DefaultFtepServices {
 
-    private static final Map<String, ServiceType> DEFAULT_SERVICES = ImmutableMap.<String, ServiceType>builder()
-            .put("ForestChangeS2", ServiceType.PROCESSOR)
-            .put("LandCoverS1", ServiceType.PROCESSOR)
-            .put("LandCoverS2", ServiceType.PROCESSOR)
-            .put("S1Biomass", ServiceType.PROCESSOR)
-            .put("VegetationIndices", ServiceType.PROCESSOR)
-            .put("Monteverdi", ServiceType.APPLICATION)
-            .put("QGIS", ServiceType.APPLICATION)
-            .put("SNAP", ServiceType.APPLICATION)
+    private static final Map<String, FtepService.Type> DEFAULT_SERVICES = ImmutableMap.<String, FtepService.Type>builder()
+            .put("ForestChangeS2", FtepService.Type.PROCESSOR)
+            .put("LandCoverS1", FtepService.Type.PROCESSOR)
+            .put("LandCoverS2", FtepService.Type.PROCESSOR)
+            .put("S1Biomass", FtepService.Type.PROCESSOR)
+            .put("VegetationIndices", FtepService.Type.PROCESSOR)
+            .put("Monteverdi", FtepService.Type.APPLICATION)
+            .put("QGIS", FtepService.Type.APPLICATION)
+            .put("SNAP", FtepService.Type.APPLICATION)
             .build();
 
     private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
@@ -55,8 +52,8 @@ public class DefaultFtepServices {
     private static FtepService importDefaultService(String serviceId) {
         try {
             FtepService service = new FtepService(serviceId, User.DEFAULT, "ftep/" + serviceId.toLowerCase());
-            service.setLicence(ServiceLicence.OPEN);
-            service.setStatus(ServiceStatus.AVAILABLE);
+            service.setLicence(FtepService.Licence.OPEN);
+            service.setStatus(FtepService.Status.AVAILABLE);
             service.setServiceDescriptor(getServiceDescriptor(service));
             service.setDescription(service.getServiceDescriptor().getDescription());
             service.setType(DEFAULT_SERVICES.get(serviceId));

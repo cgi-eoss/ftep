@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.model.projections;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Job;
-import com.cgi.eoss.ftep.model.JobStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 public interface ShortJob extends EmbeddedId {
     String getExtId();
     ShortUser getOwner();
-    JobStatus getStatus();
+    Job.Status getStatus();
     String getGuiUrl();
     String getStage();
     LocalDateTime getStartTime();

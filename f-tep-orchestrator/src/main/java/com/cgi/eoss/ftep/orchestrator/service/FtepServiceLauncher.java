@@ -6,9 +6,7 @@ import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
-import com.cgi.eoss.ftep.model.JobStatus;
 import com.cgi.eoss.ftep.model.JobStep;
-import com.cgi.eoss.ftep.model.ServiceType;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
@@ -31,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
@@ -109,7 +106,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .setServiceId(serviceId)
                     .build();
             job.setStartTime(LocalDateTime.now());
-            job.setStatus(JobStatus.RUNNING);
+            job.setStatus(Job.Status.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
             jobDataService.save(job);
 
@@ -130,7 +127,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .addBinds(jobEnvironment.getWorkingDir() + "/FTEP-WPS-INPUT.properties:" + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro")
                     .addBinds(jobEnvironment.getInputDir() + ":" + "/home/worker/workDir/inDir:ro")
                     .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw");
-            if (service.getType() == ServiceType.APPLICATION) {
+            if (service.getType() == FtepService.Type.APPLICATION) {
                 dockerConfigBuilder.addPorts(FtepGuiServiceManager.GUACAMOLE_PORT);
             }
             LOG.info("Launching docker container for job {}", zooId);
@@ -143,7 +140,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             LOG.info("Job {} ({}) launched for service: {}", job.getId(), zooId, service.getName());
 
             // Update GUI endpoint URL for client access
-            if (service.getType() == ServiceType.APPLICATION) {
+            if (service.getType() == FtepService.Type.APPLICATION) {
                 String guiUrl = guiService.getGuiUrl(worker, rpcJob);
                 LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
                 job.setGuiUrl(guiUrl);
@@ -211,7 +208,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 outputFiles.put(outputId, catalogueService.ingestOutputProduct(outputProduct, outputPath));
             }
 
-            job.setStatus(JobStatus.COMPLETED);
+            job.setStatus(Job.Status.COMPLETED);
             job.setOutputs(outputFiles.entrySet().stream().collect(toMultimap(
                     e -> e.getKey(),
                     e -> e.getValue().getUri().toString(),
@@ -227,13 +224,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             responseObserver.onCompleted();
         } catch (Exception e) {
             if (job != null) {
-                job.setStatus(JobStatus.ERROR);
+                job.setStatus(Job.Status.ERROR);
                 job.setEndTime(LocalDateTime.now());
                 jobDataService.save(job);
             }
 
             LOG.error("Failed to run processor; notifying gRPC client", e);
-            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         } finally {
             if (job != null) {
                 chargeUser(job.getOwner(), job.getConfig());

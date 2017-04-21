@@ -39,7 +39,7 @@ public interface CatalogueService {
     Path provisionNewOutputProduct(OutputProductMetadata outputProduct, String filename) throws IOException;
 
     /**
-     * <p>Process an already-existing file, to be treated as an {@link com.cgi.eoss.ftep.model.FtepFileType#OUTPUT_PRODUCT}.</p>
+     * <p>Process an already-existing file, to be treated as an {@link FtepFile.Type#OUTPUT_PRODUCT}.</p>
      * <p>This will return a persisted entity.</p>
      *
      * @param outputProduct

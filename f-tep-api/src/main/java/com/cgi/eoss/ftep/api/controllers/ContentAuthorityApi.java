@@ -65,7 +65,7 @@ public class ContentAuthorityApi {
     @PostMapping("/services/wps/syncAllPublic")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void wpsSyncAllPublic() {
-        // Find all ServiceStatus.AVAILABLE, then filter for those visible to PUBLIC
+        // Find all Status.AVAILABLE, then filter for those visible to PUBLIC
         List<FtepService> publicServices = serviceDataService.findAllAvailable().stream()
                 .filter(s -> ftepSecurityService.isPublic(FtepService.class, s.getId()))
                 .collect(Collectors.toList());

@@ -62,7 +62,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
      */
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ServiceType type = ServiceType.PROCESSOR;
+    private Type type = Type.PROCESSOR;
 
     /**
      * <p>The user owning the service, typically the service creator.</p>
@@ -83,14 +83,14 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
      */
     @Column(name = "licence", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ServiceLicence licence = ServiceLicence.OPEN;
+    private Licence licence = Licence.OPEN;
 
     /**
      * <p>Service availability status.</p>
      */
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ServiceStatus status = ServiceStatus.IN_DEVELOPMENT;
+    private Status status = Status.IN_DEVELOPMENT;
 
     /**
      * <p>The full definition of the WPS service, used to build ZOO-Kernel configuration.</p>
@@ -128,6 +128,18 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     public void setContextFiles(Set<FtepServiceContextFile> contextFiles) {
         contextFiles.forEach(f -> f.setService(this));
         this.contextFiles = contextFiles;
+    }
+
+    public enum Type {
+        PROCESSOR, BULK_PROCESSOR, APPLICATION
+    }
+
+    public enum Status {
+        IN_DEVELOPMENT, AVAILABLE
+    }
+
+    public enum Licence {
+        OPEN, RESTRICTED
     }
 
 }

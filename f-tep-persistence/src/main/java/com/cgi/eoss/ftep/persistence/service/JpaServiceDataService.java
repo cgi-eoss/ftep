@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
@@ -52,7 +51,7 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
 
     @Override
     public List<FtepService> findAllAvailable() {
-        return ftepServiceDao.findByStatus(ServiceStatus.AVAILABLE);
+        return ftepServiceDao.findByStatus(FtepService.Status.AVAILABLE);
     }
 
 }

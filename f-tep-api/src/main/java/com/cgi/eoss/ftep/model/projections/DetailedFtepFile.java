@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.model.projections;
 
 import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -18,7 +17,7 @@ import java.util.UUID;
 public interface DetailedFtepFile extends EmbeddedId {
     URI getUri();
     UUID getRestoId();
-    FtepFileType getType();
+    FtepFile.Type getType();
     ShortUser getOwner();
     String getFilename();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")

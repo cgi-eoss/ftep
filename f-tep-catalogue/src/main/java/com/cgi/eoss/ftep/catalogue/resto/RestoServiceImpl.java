@@ -3,7 +3,6 @@ package com.cgi.eoss.ftep.catalogue.resto;
 import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -222,7 +221,7 @@ public class RestoServiceImpl implements RestoService {
                             .query("ftepOutputs")
                             .build()))
                     .propertiesMapping(ImmutableMap.of(
-                            "ftepFileType", FtepFileType.OUTPUT_PRODUCT.toString())
+                            "ftepFileType", FtepFile.Type.OUTPUT_PRODUCT.toString())
                     );
         } else if (collectionName.equals(refDataCollection)) {
             builder
@@ -235,7 +234,7 @@ public class RestoServiceImpl implements RestoService {
                             .query("ftepRefData")
                             .build()))
                     .propertiesMapping(ImmutableMap.of(
-                            "ftepFileType", FtepFileType.REFERENCE_DATA.toString())
+                            "ftepFileType", FtepFile.Type.REFERENCE_DATA.toString())
                     );
         } else if (collectionName.equals(externalProductCollection)) {
             builder
@@ -248,7 +247,7 @@ public class RestoServiceImpl implements RestoService {
                             .query("ftepInputs")
                             .build()))
                     .propertiesMapping(ImmutableMap.of(
-                            "ftepFileType", FtepFileType.EXTERNAL_PRODUCT.toString())
+                            "ftepFileType", FtepFile.Type.EXTERNAL_PRODUCT.toString())
                     );
         } else {
             builder

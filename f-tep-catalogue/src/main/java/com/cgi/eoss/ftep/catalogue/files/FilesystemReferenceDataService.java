@@ -4,7 +4,6 @@ import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.log4j.Log4j2;
@@ -64,7 +63,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
 
         FtepFile ftepFile = new FtepFile(uri, restoId);
         ftepFile.setOwner(owner);
-        ftepFile.setType(FtepFileType.REFERENCE_DATA);
+        ftepFile.setType(FtepFile.Type.REFERENCE_DATA);
         ftepFile.setFilename(referenceDataBasedir.relativize(dest).toString());
         return ftepFile;
     }

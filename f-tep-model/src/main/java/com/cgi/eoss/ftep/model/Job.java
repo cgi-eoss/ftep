@@ -82,7 +82,7 @@ public class Job implements FtepEntityWithOwner<Job> {
      */
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private JobStatus status = JobStatus.CREATED;
+    private Status status = Status.CREATED;
 
     /**
      * <p>Current stage of execution. Maybe arbitrarily set by service implementations to inform the user of
@@ -92,7 +92,7 @@ public class Job implements FtepEntityWithOwner<Job> {
     private String stage;
 
     /**
-     * <p>URL to the graphical interface if this is a {@link ServiceType#APPLICATION}.</p>
+     * <p>URL to the graphical interface if this is a {@link FtepService.Type#APPLICATION}.</p>
      */
     @Column(name = "gui_url")
     private String guiUrl;
@@ -116,4 +116,7 @@ public class Job implements FtepEntityWithOwner<Job> {
         return ComparisonChain.start().compare(startTime, o.startTime).result();
     }
 
+    public enum Status {
+        CREATED, RUNNING, COMPLETED, ERROR, CANCELLED
+    }
 }

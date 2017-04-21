@@ -5,7 +5,6 @@ import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.Role;
-import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
@@ -73,7 +72,7 @@ public class ServiceFilesApiIT {
         userDataService.save(ImmutableSet.of(ftepUser, ftepExpertUser, ftepContentAuthority));
 
         svc = new FtepService("service-1", ftepExpertUser, "dockerTag");
-        svc.setStatus(ServiceStatus.AVAILABLE);
+        svc.setStatus(FtepService.Status.AVAILABLE);
         serviceDataService.save(svc);
     }
 

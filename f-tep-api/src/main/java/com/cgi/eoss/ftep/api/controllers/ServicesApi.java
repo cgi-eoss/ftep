@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface ServicesApi extends BaseRepositoryApi<FtepService>, JpaRepository<FtepService, Long> {
 
     @Override
-    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (returnObject.status == T(com.cgi.eoss.ftep.model.ServiceStatus).AVAILABLE) or hasPermission(returnObject, 'read')")
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (returnObject.status == T(com.cgi.eoss.ftep.model.FtepService$Status).AVAILABLE) or hasPermission(returnObject, 'read')")
     FtepService findOne(Long id);
 
     @Override

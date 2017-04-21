@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.QFtepFile;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
@@ -42,7 +41,7 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
     }
 
     @Override
-    public Page<FtepFile> findByType(@Param("type") FtepFileType type, Pageable pageable) {
+    public Page<FtepFile> findByType(@Param("type") FtepFile.Type type, Pageable pageable) {
         BooleanExpression isType = QFtepFile.ftepFile.type.eq(type);
 
         if (getSecurityService().isSuperUser()) {

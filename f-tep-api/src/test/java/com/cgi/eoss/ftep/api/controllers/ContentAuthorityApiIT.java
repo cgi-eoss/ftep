@@ -4,7 +4,6 @@ import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Role;
-import com.cgi.eoss.ftep.model.ServiceStatus;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.zoo.ZooManagerClient;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
@@ -135,7 +134,7 @@ public class ContentAuthorityApiIT {
 
         // Set one service to IN_DEVELOPMENT (i.e. not in the "syncAllPublic" collection)
         FtepService snapService = serviceDataService.getByName(TEST_SERVICE_NAME);
-        snapService.setStatus(ServiceStatus.IN_DEVELOPMENT);
+        snapService.setStatus(FtepService.Status.IN_DEVELOPMENT);
         serviceDataService.save(snapService);
 
         mockMvc.perform(post("/api/contentAuthority/services/wps/syncAllPublic").header("REMOTE_USER", ftepAdmin.getName()))

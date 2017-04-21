@@ -4,7 +4,6 @@ import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.cgi.eoss.ftep.model.FtepFileType;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
@@ -80,13 +79,13 @@ public class FtepFilesApiIT {
         testFile1 = new FtepFile(URI.create("ftep://refData/2/testFile1"), fileUuid);
         testFile1.setOwner(ftepAdmin);
         testFile1.setFilename("testFile1");
-        testFile1.setType(FtepFileType.REFERENCE_DATA);
+        testFile1.setType(FtepFile.Type.REFERENCE_DATA);
 
         UUID file2Uuid = UUID.randomUUID();
         testFile2 = new FtepFile(URI.create("ftep://outputProduct/job1/testFile2"), file2Uuid);
         testFile2.setOwner(ftepAdmin);
         testFile2.setFilename("testFile2");
-        testFile2.setType(FtepFileType.OUTPUT_PRODUCT);
+        testFile2.setType(FtepFile.Type.OUTPUT_PRODUCT);
 
         fileDataService.save(ImmutableSet.of(testFile1, testFile2));
     }

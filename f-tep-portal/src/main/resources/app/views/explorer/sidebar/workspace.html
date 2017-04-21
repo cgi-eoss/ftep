@@ -94,19 +94,19 @@
 
                             <div class="row drop-items">
                                 <div class="chip-container col-xs-12 col-sm-2 col-md-4 no-padding"
-                                     ng-repeat="item in serviceParams.dropLists[fieldDesc.id]">
+                                     ng-repeat="inputFile in serviceParams.dropLists[fieldDesc.id]">
 
-                                    <md-chip uib-popover-html="getDroppedFilePopover({{item}})"
+                                    <md-chip uib-popover-html="getDroppedFilePopover({{inputFile}})"
                                              popover-placement="right"
                                              popover-trigger="'mouseenter'"
                                              popover-append-to-body="true"
                                              popover-class="dropped-file-popover">
                                         <div class="md-chip-content  col-xs-9 no-padding">
-                                           <div class="chip-text" ng-bind="getFileName(item)" />
+                                           <div class="chip-text" ng-bind="inputFile.name" />
                                         </div>
                                         <div class="md-chip-close col-xs-3 no-padding">
                                             <i class="material-icons"
-                                               ng-click="removeSelectedItem(fieldDesc.id, item)">
+                                               ng-click="removeSelectedItem(fieldDesc.id, inputFile)">
                                                 close
                                             </i>
                                         </div>

@@ -100,14 +100,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.selectedJob = undefined;
             };
 
-            /** FOR DRAGGING JOB OUTPUTS **/
+            /** GET DRAGGABLE JOB OUTPUTS **/
             $scope.getSelectedOutputFiles = function(file) {
-
                 if ($scope.jobParams.jobSelectedOutputs.indexOf(file) < 0) {
                     $scope.jobParams.jobSelectedOutputs.push(file);
                 }
 
-                return $scope.jobParams.jobSelectedOutputs;
+                var dragObject = {
+                        type: 'outputs',
+                        selectedOutputs: $scope.jobParams.jobSelectedOutputs,
+                        job: $scope.jobParams.selectedJob
+                };
+                return dragObject;
             };
 
             /** FOR HIGHLIGHTING THE SELECTED JOB OUTPUTS **/

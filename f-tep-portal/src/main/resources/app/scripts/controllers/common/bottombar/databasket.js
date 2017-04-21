@@ -98,23 +98,22 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
         /* End of Selected Databasket */
 
-        // Get item for dragging
+        /* GET ITEM FOR DARGGING */
         $scope.getBasketItem = function(item){
-            if(item){
-                return item._links.self.href;
-            }
-            return '';
+            var dragObject = {
+                    type: 'basketItem',
+                    item: item
+            };
+            return dragObject;
         };
 
-        // Get all basket items for dragging
+        /* GET ALL BASKET FILES FOR DRAGGING */
         $scope.getBasketDragItems = function (basket) {
-            BasketService.getDatabasketContents(basket).then(function(files){
-                var links = [];
-                for(var i = 0; i < files.length; i++){
-                    links.push(files[i]._links.self.href);
-                }
-                return links;
-            });
+            var dragObject = {
+                    type: 'databasket',
+                    basket: basket
+            };
+            return dragObject;
         };
     }]);
 });

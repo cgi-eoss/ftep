@@ -131,13 +131,40 @@ define([
 
     app.filter('bytesToGB', function () {
         return function (bytes) {
-            if (isNaN(bytes) || bytes < 1) {
+            if (bytes && isNaN(bytes) || bytes < 1) {
                 return bytes;
-            } else {
+            }
+            else if(bytes){
                 return (bytes / 1073741824).toFixed(2) + ' GB';
+            }
+            else{
+                return '';
             }
         };
     });
+
+    app.filter('formatDateTime', ['moment', function(moment){
+        return function (dateTime) {
+            if(dateTime){
+                if(typeof dateTime === 'string'){
+                    return dateTime;
+                }
+                else {
+                    return moment().year(dateTime.year)
+                        .month(dateTime.monthValue)
+                        .day(dateTime.dayOfMonth)
+                        .hour(dateTime.hour)
+                        .minute(dateTime.minute)
+                        .second(dateTime.second)
+                        .millisecond(dateTime.nano)
+                        .toDate();
+                }
+            }
+            else{
+                return '';
+            }
+        }
+    }]);
 
     app.filter('asSingular', function () {
         return function (name) {

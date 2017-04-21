@@ -273,28 +273,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     getJobDetails(job).then(function (data) {
                         self.params[page].selectedJob.details = data;
 
-                        var startTime = self.params[page].selectedJob.details.startTime;
-                        self.params[page].selectedJob.details.startTime =
-                            moment().year(startTime.year)
-                                    .month(startTime.monthValue)
-                                    .day(startTime.dayOfMonth)
-                                    .hour(startTime.hour)
-                                    .minute(startTime.minute)
-                                    .second(startTime.second)
-                                    .millisecond(startTime.nano)
-                                    .toDate();
-
-                        var endTime = self.params[page].selectedJob.details.endTime;
-                        self.params[page].selectedJob.details.endTime =
-                            moment().year(endTime.year)
-                                    .month(endTime.monthValue)
-                                    .day(endTime.dayOfMonth)
-                                    .hour(endTime.hour)
-                                    .minute(endTime.minute)
-                                    .second(endTime.second)
-                                    .millisecond(endTime.nano)
-                                    .toDate();
-
                         getJobLogs(job).then(function (logs) {
                              self.params[page].selectedJob.logs = logs;
                         });

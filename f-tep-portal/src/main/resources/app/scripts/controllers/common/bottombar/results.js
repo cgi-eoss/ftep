@@ -166,12 +166,17 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $rootScope.$broadcast('results.invert', $scope.resultParams.selectedResultItems);
                 };
 
+                /* GET THE DRAGGABLE OBJECT WITH SELECTED ITEMS */
                 $scope.getSelectedItemsLinks = function(item){
                     if($scope.resultParams.selectedResultItems.indexOf(item) < 0){
                         $scope.toggleSelection(item);
                     }
 
-                    return $scope.resultParams.selectedResultItems;
+                    var dragObject = {
+                            type: 'results',
+                            selectedItems: $scope.resultParams.selectedResultItems
+                    };
+                    return dragObject;
                 };
 
     } ]);

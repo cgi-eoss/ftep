@@ -1,3 +1,14 @@
+<md-button id="update-project"
+           class="save-button md-fab md-mini right"
+           ng-click="refreshProject()"
+           aria-label="Update Project"
+           uib-tooltip="Update Project"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+        <i class="material-icons">update</i>
+</md-button>
+
 <section id="projects-title" class="row section-title">
     <div class="col-xs-10 title-text">
         <h2 ng-bind="projectParams.selectedProject.name" />

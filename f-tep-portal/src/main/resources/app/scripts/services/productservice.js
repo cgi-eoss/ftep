@@ -129,9 +129,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.getService = function(serviceId){
+        this.getService = function(service){
             var deferred = $q.defer();
-            productsAPI.from(rootUri + '/services/' + serviceId + '?projection=detailedFtepService')
+            productsAPI.from(rootUri + '/services/' + service.id + '?projection=detailedFtepService')
                        .newRequest()
                        .getResource()
                        .result

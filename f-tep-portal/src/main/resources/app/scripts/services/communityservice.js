@@ -92,7 +92,7 @@ define(['../ftepmodules'], function (ftepmodules) {
             return $q(function(resolve, reject) {
 
                 var groupArray = [];
-                var itemName = getItemName(ace);
+                var itemName = getItemName(item);
                 var itemType = type.charAt(0).toUpperCase() + type.slice(1);
 
                 for (var i in groups) {

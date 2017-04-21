@@ -1,3 +1,14 @@
+<md-button id="update-group"
+           class="save-button md-fab md-mini right"
+           ng-click="refreshGroup()"
+           aria-label="Update Group"
+           uib-tooltip="Update Group"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+        <i class="material-icons">update</i>
+</md-button>
+
 <section id="groups-title" class="row section-title">
     <div class="col-xs-10 title-text">
         <h2 ng-bind="groupParams.selectedGroup.name" />

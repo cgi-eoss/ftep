@@ -33,6 +33,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshGroup = function() {
+            GroupService.refreshSelectedGroup('community');
+        };
+
          /* Add user to group */
         $scope.addUsersDialog = function($event) {
             function AddUserController($scope, $mdDialog, GroupService) {

@@ -33,6 +33,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshDatabasket = function() {
+            BasketService.refreshSelectedBasket('community');
+        };
+
         /* Remove file from databasket */
         $scope.removeItem = function(files, file) {
             BasketService.removeItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {

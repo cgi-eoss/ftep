@@ -34,7 +34,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.selectService = function (service) {
-                $rootScope.$broadcast('update.selectedService', service.id);
+                $rootScope.$broadcast('update.selectedService', service);
                 TabService.navInfo.activeSideNav = TabService.getSideNavTabs().WORKSPACE;
             };
 

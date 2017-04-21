@@ -1,13 +1,12 @@
-<md-button id="save-databasket"
+<md-button id="update-databasket"
            class="save-button md-fab md-mini right"
-           ng-click="updateGroups(basketParams.selectedDatabasket, 'databasket', basketParams.sharedGroups, 'BasketService', 'refreshSelectedBasket')"
-           ng-disabled="serviceForm.$invalid"
-           aria-label="Save Databasket"
-           uib-tooltip="Save Databasket"
+           ng-click="refreshDatabasket()"
+           aria-label="Update Databasket"
+           uib-tooltip="Update Databasket"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">
-        <i class="material-icons">save</i>
+        <i class="material-icons">update</i>
 </md-button>
 
 <section id="databasket-title" class="row section-title">
@@ -98,7 +97,9 @@
         </div>
 
         <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
-            <md-select ng-model="ace.permission" aria-label="Permission">
+            <md-select ng-model="ace.permission"
+                       ng-change="updateGroups(basketParams.selectedDatabasket, 'databasket', basketParams.sharedGroups, 'BasketService', 'refreshSelectedBasket')"
+                       aria-label="Permission">
                 <md-option ng-repeat="permission in permissions" ng-value="permission">
                     {{permission}}
                 </md-option>

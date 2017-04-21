@@ -33,6 +33,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshService = function() {
+            ProductService.refreshSelectedService('community');
+        };
+
         /* Remove file from service */
         $scope.removeItem = function(files, file) {
             ProductService.removeItem($scope.projectParams.selectedProject, files, file).then(function (data) {

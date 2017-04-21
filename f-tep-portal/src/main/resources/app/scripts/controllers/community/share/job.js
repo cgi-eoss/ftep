@@ -33,6 +33,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshJob = function() {
+            JobService.refreshSelectedJob('community');
+        };
+
     }]);
 });
 

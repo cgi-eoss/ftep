@@ -1,3 +1,14 @@
+<md-button id="update-service"
+           class="save-button md-fab md-mini right"
+           ng-click="refreshService()"
+           aria-label="Update Service"
+           uib-tooltip="Update Service"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+        <i class="material-icons">update</i>
+</md-button>
+
 <section id="services-title" class="row section-title">
     <div class="col-xs-10 title-text">
         <h2 ng-bind="serviceParams.selectedService.name" />

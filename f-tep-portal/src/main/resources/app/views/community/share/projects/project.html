@@ -1,13 +1,12 @@
-<md-button id="save-project"
+<md-button id="update-project"
            class="save-button md-fab md-mini right"
-           ng-click="updateProjects(projectParams.selectedProject, 'project', projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
-           ng-disabled="serviceForm.$invalid"
-           aria-label="Save Project"
-           uib-tooltip="Save Project"
+           ng-click="refreshProject()"
+           aria-label="Update Project"
+           uib-tooltip="Update Project"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">
-        <i class="material-icons">save</i>
+        <i class="material-icons">update</i>
 </md-button>
 
 <section id="project-title" class="row section-title">
@@ -98,7 +97,9 @@
         </div>
 
         <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
-            <md-select ng-model="ace.permission" aria-label="Permission">
+            <md-select ng-model="ace.permission"
+                       ng-change="updateGroups(projectParams.selectedProject, 'project', projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
+                       aria-label="Permission">
                 <md-option ng-repeat="permission in permissions" ng-value="permission">
                     {{permission}}
                 </md-option>

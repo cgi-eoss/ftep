@@ -33,5 +33,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshDatabasket = function() {
+            BasketService.refreshSelectedBasket('community');
+        };
+
     }]);
 });

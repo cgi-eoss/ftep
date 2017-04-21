@@ -1,3 +1,15 @@
+<md-button id="update-databasket"
+           class="save-button md-fab md-mini right"
+           ng-click="refreshDatabasket()"
+           aria-label="Update Databasket"
+           uib-tooltip="Update Databasket"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+        <i class="material-icons">update</i>
+</md-button>
+
+
 <section id="databasket-title" class="row section-title">
     <div class="col-xs-10 title-text">
         <h2 ng-bind="basketParams.selectedDatabasket.name" />

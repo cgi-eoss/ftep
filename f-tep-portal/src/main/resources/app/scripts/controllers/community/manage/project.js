@@ -33,6 +33,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
+        $scope.refreshProject = function() {
+            ProjectService.refreshSelectedProject('community');
+        };
+
         /* Add content to a project */
         $scope.addProjectContentDialog = function($event) {
             function AddProjectContentController($scope, $mdDialog, ProjectService) {

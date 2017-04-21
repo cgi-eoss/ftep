@@ -1,13 +1,12 @@
-<md-button id="save-file"
+<md-button id="update-file"
            class="save-button md-fab md-mini right"
-           ng-click="updateGroups(fileParams.selectedFile, 'ftepFile', fileParams.sharedGroups, 'FileService', 'refreshSelectedFtepFile')"
-           ng-disabled="serviceForm.$invalid"
-           aria-label="Save File"
-           uib-tooltip="Save File"
+           ng-click="refreshFile()"
+           aria-label="Update File"
+           uib-tooltip="Update File"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">
-        <i class="material-icons">save</i>
+        <i class="material-icons">update</i>
 </md-button>
 
 <section id="file-title" class="row section-title">
@@ -98,7 +97,9 @@
         </div>
 
         <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
-            <md-select ng-model="ace.permission" aria-label="Permission">
+            <md-select ng-model="ace.permission"
+                       ng-change="updateGroups(fileParams.selectedFile, 'ftepFile', fileParams.sharedGroups, 'FileService', 'refreshSelectedFtepFile')"
+                       aria-label="Permission">
                 <md-option ng-repeat="permission in permissions" ng-value="permission">
                     {{permission}}
                 </md-option>

@@ -16,6 +16,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.jobParams = JobService.params.community;
         $scope.item = "Job";
 
+        $scope.refreshJob = function() {
+            JobService.refreshSelectedJob('community');
+        };
+
     }]);
 });
 

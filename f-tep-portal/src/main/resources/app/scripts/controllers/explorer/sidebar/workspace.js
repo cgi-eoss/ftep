@@ -15,7 +15,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.serviceParams = ProductService.params.explorer;
         $scope.isWorkspaceLoading = false;
 
-        $scope.$on('update.selectedService', function(event, serviceId, inputs) {
+        $scope.$on('update.selectedService', function(event, service, inputs) {
             $scope.isWorkspaceLoading = true;
             $scope.serviceParams.inputValues = {};
             $scope.serviceParams.dropLists = {};
@@ -23,7 +23,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.serviceParams.inputValues = inputs;
             }
 
-            ProductService.getService(serviceId).then(function(detailedService){
+            ProductService.getService(service).then(function(detailedService){
                 $scope.serviceParams.selectedService = detailedService;
                 $scope.isWorkspaceLoading = false;
             });

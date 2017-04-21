@@ -32,5 +32,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
             return false;
         };
+
+        $scope.refreshGroup = function() {
+            GroupService.refreshSelectedGroup('community');
+        };
+
     }]);
 });

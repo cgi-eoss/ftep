@@ -96,4 +96,9 @@ public class Group implements FtepEntityWithOwner<Group>, Searchable, GrantedAut
         return GROUP_AUTHORITY_PREFIX + id;
     }
 
+    public void setMembers(Set<User> members) {
+        members.forEach(u -> u.addGroup(this));
+        this.members = members;
+    }
+
 }

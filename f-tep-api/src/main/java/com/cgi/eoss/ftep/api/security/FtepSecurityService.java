@@ -71,7 +71,7 @@ public class FtepSecurityService {
     }
 
     public Set<Group> getCurrentGroups() {
-        return userDataService.getGroups(getCurrentUser());
+        return getCurrentUser().getGroups();
     }
 
     public User refreshPersistentUser(User user) {

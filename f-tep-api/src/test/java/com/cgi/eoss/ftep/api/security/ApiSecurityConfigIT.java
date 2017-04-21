@@ -132,7 +132,7 @@ public class ApiSecurityConfigIT {
                 .andExpect(jsonPath("$.id").value(alice.getId()))
                 .andExpect(jsonPath("$.name").value(alice.getName()))
                 .andExpect(jsonPath("$.email").value(aliceEmail));
-        assertThat(alice.getEmail(), is(aliceEmail));
+        assertThat(userDataService.getByName(alice.getName()).getEmail(), is(aliceEmail));
     }
 
     @Test

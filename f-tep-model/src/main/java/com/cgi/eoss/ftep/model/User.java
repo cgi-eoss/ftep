@@ -16,16 +16,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>F-TEP user account. Parameters are expected to be provided by an external SSO IdP.</p>
  */
 @Data
 @EqualsAndHashCode(of = {"name"})
-@ToString(exclude={"wallet"})
+@ToString(exclude={"wallet", "groups"})
 @Table(name = "ftep_users",
         indexes = {@Index(name = "ftep_users_name_idx", columnList = "name")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
@@ -72,6 +75,10 @@ public class User implements FtepEntity<User>, Searchable {
     @JsonIgnore
     private Wallet wallet = new Wallet(this);
 
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private Set<Group> groups = new HashSet<>();
+
     /**
      * Create a new User instance with the minimum required parameters
      *
@@ -84,6 +91,10 @@ public class User implements FtepEntity<User>, Searchable {
     @Override
     public int compareTo(User o) {
         return ComparisonChain.start().compare(name, o.name).result();
+    }
+
+    public void addGroup(Group group) {
+        this.groups.add(group);
     }
 
 }

@@ -38,7 +38,7 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
             user.setEmail(tokenDetails.getUserEmail());
         }
 
-        Set<Group> userGroups = userDataService.getGroups(user);
+        Set<Group> userGroups = user.getGroups();
 
         // All users have the "PUBLIC" authority, plus their group memberships, plus their role
         Collection<? extends GrantedAuthority> grantedAuthorities = ImmutableSet.<GrantedAuthority>builder().add(FtepPermission.PUBLIC).addAll(userGroups).add(user.getRole()).build();

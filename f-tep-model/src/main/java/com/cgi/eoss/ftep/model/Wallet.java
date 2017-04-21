@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,9 +14,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(exclude = {"id"})
@@ -24,7 +28,7 @@ import javax.persistence.UniqueConstraint;
         uniqueConstraints = {@UniqueConstraint(columnNames = "owner")})
 @NoArgsConstructor
 @Entity
-public class Wallet implements FtepEntity<Wallet> {
+public class Wallet implements FtepEntityWithOwner<Wallet> {
 
     /**
      * <p>Unique internal identifier of the wallet.</p>
@@ -47,6 +51,9 @@ public class Wallet implements FtepEntity<Wallet> {
     @Column(name = "balance", nullable = false)
     private Integer balance = 0;
 
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WalletTransaction> transactions = new ArrayList<>();
+
     /**
      * <p>Instantiate a new Wallet for the given User with the default starting balance.</p>
      *
@@ -54,17 +61,6 @@ public class Wallet implements FtepEntity<Wallet> {
      */
     public Wallet(User owner) {
         this.owner = owner;
-    }
-
-    /**
-     * <p>Instantiate a new Wallet for the given User with the given balance.</p>
-     *
-     * @param owner The owner who owns this wallet.
-     * @param balance The starting balance of the wallet.
-     */
-    public Wallet(User owner, int balance) {
-        this.owner = owner;
-        this.balance = balance;
     }
 
     @Override

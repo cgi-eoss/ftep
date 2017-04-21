@@ -26,9 +26,8 @@ public class BecomeAnyUser {
 
     @GetMapping("/become/{username},{role}")
     public String becomeUser(HttpSession session, @PathVariable String username, @PathVariable String role) {
-        User user = new User(username);
+        User user = userDataService.getOrSave(username);
         user.setRole(Role.valueOf(role));
-        userDataService.save(user);
 
         session.setAttribute(usernameRequestAttribute, username);
 

@@ -15,11 +15,22 @@ CREATE UNIQUE INDEX ftep_users_name_idx
 
 CREATE TABLE ftep_wallets (
   id      BIGINT IDENTITY PRIMARY KEY,
-  owner    BIGINT        NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  owner   BIGINT        NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   balance INT DEFAULT 0 NOT NULL
 );
 CREATE UNIQUE INDEX ftep_wallets_owner_idx
   ON ftep_wallets (owner);
+
+CREATE TABLE ftep_wallet_transactions (
+  id               BIGINT IDENTITY PRIMARY KEY,
+  wallet           BIGINT                      NOT NULL FOREIGN KEY REFERENCES ftep_wallets (id),
+  balance_change   INT                         NOT NULL,
+  transaction_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  type             CHARACTER VARYING(255)      NOT NULL CHECK (type IN ('CREDIT', 'JOB', 'DOWNLOAD')),
+  associated_id    BIGINT
+);
+CREATE INDEX ftep_wallet_transactions_wallet_idx
+  ON ftep_wallet_transactions (wallet);
 
 CREATE TABLE ftep_services (
   id             BIGINT IDENTITY PRIMARY KEY,
@@ -169,7 +180,7 @@ CREATE UNIQUE INDEX ftep_project_job_configs_ids_idx
 
 CREATE TABLE ftep_service_files (
   id         BIGINT IDENTITY PRIMARY KEY,
-  service    BIGINT  NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
+  service    BIGINT                NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
   filename   CHARACTER VARYING(255),
   executable BOOLEAN DEFAULT FALSE NOT NULL,
   content    CLOB

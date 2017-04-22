@@ -6,12 +6,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -71,12 +73,14 @@ public class User implements FtepEntity<User>, Searchable {
     /**
      * <p>The user's wallet.</p>
      */
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
+    @RestResource(exported = false)
     private Wallet wallet = new Wallet(this);
 
     @ManyToMany(mappedBy = "members")
     @JsonIgnore
+    @RestResource(exported = false)
     private Set<Group> groups = new HashSet<>();
 
     /**

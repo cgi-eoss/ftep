@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
 import com.google.common.collect.ComparisonChain;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -68,6 +69,15 @@ public class WalletTransaction implements FtepEntityWithOwner<WalletTransaction>
      */
     @Column(name = "associated_id")
     private Long associatedId;
+
+    @Builder
+    public WalletTransaction(Wallet wallet, Integer balanceChange, LocalDateTime transactionTime, Type type, Long associatedId) {
+        this.wallet = wallet;
+        this.balanceChange = balanceChange;
+        this.transactionTime = transactionTime;
+        this.type = type;
+        this.associatedId = associatedId;
+    }
 
     @Override
     public User getOwner() {

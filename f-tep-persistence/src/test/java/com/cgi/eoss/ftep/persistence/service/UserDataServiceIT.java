@@ -39,6 +39,8 @@ public class UserDataServiceIT {
         assertThat(dataService.search("uid2"), is(ImmutableList.of(owner2)));
         assertThat(dataService.getByName("owner-uid"), is(owner));
         assertThat(dataService.getByName("owner-uid2"), is(owner2));
+        assertThat(dataService.getByName("owner-uid").getWallet().getBalance(), is(100));
+        assertThat(dataService.getByName("owner-uid2").getWallet().getBalance(), is(100));
     }
 
 }

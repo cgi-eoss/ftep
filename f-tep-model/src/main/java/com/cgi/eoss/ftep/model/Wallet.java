@@ -4,6 +4,7 @@ import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(exclude = {"id"})
+@ToString(exclude = {"transactions"})
 @Table(name = "ftep_wallets",
         indexes = {@Index(name = "ftep_wallets_owner_idx", columnList = "owner")},
         uniqueConstraints = {@UniqueConstraint(columnNames = "owner")})

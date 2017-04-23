@@ -13,6 +13,10 @@ public interface UsersApi extends PagingAndSortingRepository<User, Long> {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    <S extends User> Iterable<S> save(Iterable<S> users);
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
     <S extends User> S save(@P("user") S user);
 
     @Override

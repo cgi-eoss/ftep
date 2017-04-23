@@ -43,7 +43,9 @@ import java.util.stream.IntStream;
 @Log4j2
 public class FtepSecurityService {
 
-    private static final Predicate<GrantedAuthority> SUPERUSER_PREDICATE = a -> Role.CONTENT_AUTHORITY.getAuthority().equals(a.getAuthority()) || Role.ADMIN.getAuthority().equals(a.getAuthority());
+    private static final Predicate<GrantedAuthority> ADMIN_PREDICATE = a -> Role.ADMIN.getAuthority().equals(a.getAuthority());
+    private static final Predicate<GrantedAuthority> SUPERUSER_PREDICATE = ADMIN_PREDICATE.or(a -> Role.CONTENT_AUTHORITY.getAuthority().equals(a.getAuthority()));
+
     private static final Authentication PUBLIC_AUTHENTICATION = new TestingAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
     private final MutableAclService aclService;
@@ -230,4 +232,9 @@ public class FtepSecurityService {
     public boolean isSuperUser() {
         return getCurrentAuthorities().stream().anyMatch(SUPERUSER_PREDICATE);
     }
+
+    public boolean isAdmin() {
+        return getCurrentAuthorities().stream().anyMatch(ADMIN_PREDICATE);
+    }
+
 }

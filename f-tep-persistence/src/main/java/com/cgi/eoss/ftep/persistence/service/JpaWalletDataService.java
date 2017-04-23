@@ -46,9 +46,10 @@ public class JpaWalletDataService extends AbstractJpaDataService<Wallet> impleme
     @Override
     @Transactional
     public void transact(WalletTransaction transaction) {
-        transactionDao.save(transaction);
+        Wallet wallet = transaction.getWallet();
+        wallet.getTransactions().add(transactionDao.save(transaction));
         int balanceChange = transaction.getBalanceChange();
-        transaction.getWallet().setBalance(transaction.getWallet().getBalance() + balanceChange);
+        wallet.setBalance(wallet.getBalance() + balanceChange);
     }
 
     @Override

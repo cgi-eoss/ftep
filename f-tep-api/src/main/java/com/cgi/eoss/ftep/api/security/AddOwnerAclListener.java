@@ -2,8 +2,11 @@ package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.Wallet;
+import com.cgi.eoss.ftep.model.WalletTransaction;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -24,11 +27,22 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
+import java.util.Set;
 
 @Component
 @Log4j2
 // TODO Replace this with an AOP aspect
 public class AddOwnerAclListener implements PostInsertEventListener {
+
+    /**
+     * <p>Classes which implement {@link FtepEntityWithOwner} but should not be configured with an access control
+     * list.</p>
+     */
+    private static final Set<Class> NON_ACL_CLASSES = ImmutableSet.of(
+            FtepServiceContextFile.class,
+            Wallet.class,
+            WalletTransaction.class
+    );
 
     private final EntityManagerFactory entityManagerFactory;
     private final FtepSecurityService ftepSecurityService;
@@ -47,8 +61,8 @@ public class AddOwnerAclListener implements PostInsertEventListener {
 
     @Override
     public void onPostInsert(PostInsertEvent event) {
-        if (FtepEntityWithOwner.class.isAssignableFrom(event.getEntity().getClass())) {
-            Class<?> entityClass = event.getEntity().getClass();
+        Class<?> entityClass = event.getEntity().getClass();
+        if (FtepEntityWithOwner.class.isAssignableFrom(entityClass) && !NON_ACL_CLASSES.contains(entityClass)) {
             FtepEntityWithOwner entity = (FtepEntityWithOwner) event.getEntity();
 
             // The owner should be User.DEFAULT for EXTERNAL_PRODUCT FtepFiles, otherwise the actual owner may be used

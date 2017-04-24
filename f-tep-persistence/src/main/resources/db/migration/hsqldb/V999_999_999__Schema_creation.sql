@@ -120,7 +120,8 @@ CREATE TABLE ftep_files (
   resto_id BINARY(255)            NOT NULL,
   type     CHARACTER VARYING(255) CHECK (type IN ('REFERENCE_DATA', 'OUTPUT_PRODUCT', 'EXTERNAL_PRODUCT')),
   owner    BIGINT FOREIGN KEY REFERENCES ftep_users (uid),
-  filename CHARACTER VARYING(255)
+  filename CHARACTER VARYING(255),
+  filesize BIGINT
 );
 CREATE UNIQUE INDEX ftep_files_uri_idx
   ON ftep_files (uri);
@@ -192,6 +193,30 @@ CREATE INDEX ftep_service_files_filename_idx
 CREATE INDEX ftep_service_files_service_idx
   ON ftep_service_files (service);
 
+-- Data sources
+
+CREATE TABLE ftep_data_sources (
+  id    BIGINT IDENTITY PRIMARY KEY,
+  name  CHARACTER VARYING(255) NOT NULL,
+  owner BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
+);
+CREATE UNIQUE INDEX ftep_data_sources_name_idx
+  ON ftep_data_sources (name);
+CREATE INDEX ftep_data_sources_owner_idx
+  ON ftep_data_sources (owner);
+
+-- Cost expressions
+
+CREATE TABLE ftep_costing_expressions (
+  id                        BIGINT IDENTITY PRIMARY KEY,
+  type                      CHARACTER VARYING(255) NOT NULL CHECK (type IN ('SERVICE', 'DOWNLOAD')),
+  associated_id             BIGINT                 NOT NULL,
+  cost_expression           CHARACTER VARYING(255) NOT NULL,
+  estimated_cost_expression CHARACTER VARYING(255)
+);
+CREATE UNIQUE INDEX ftep_costing_expressions_type_associated_id_idx
+  ON ftep_costing_expressions (type, associated_id);
+
 -- ACL schema from spring-security-acl
 
 CREATE TABLE acl_sid (
@@ -242,3 +267,8 @@ INSERT INTO ftep_users (name, mail) VALUES ('ftep', 'forestry-tep@esa.int');
 INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid
                                                                     FROM ftep_users
                                                                     WHERE name = 'ftep'));
+
+-- F-TEP datasource
+INSERT INTO ftep_data_sources (name, owner) VALUES ('F-TEP', (SELECT uid
+                                                              FROM ftep_users
+                                                              WHERE name = 'ftep'));

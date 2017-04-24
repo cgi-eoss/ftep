@@ -83,6 +83,12 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
     private String filename;
 
     /**
+     * <p>Size in bytes of the referenced file.</p>
+     */
+    @Column(name = "filesize")
+    private Long filesize;
+
+    /**
      * <p>Construct a new FtepFile instance with the minimum mandatory (and unique) parameters.</p>
      *
      * @param uri

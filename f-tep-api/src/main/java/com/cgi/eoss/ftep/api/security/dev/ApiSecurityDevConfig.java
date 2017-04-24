@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.security.dev;
 
 import com.cgi.eoss.ftep.api.security.FtepUserDetailsService;
+import com.cgi.eoss.ftep.api.security.FtepWebAuthenticationDetailsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,7 +31,8 @@ public class ApiSecurityDevConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute) {
+            @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute,
+            @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -41,6 +43,7 @@ public class ApiSecurityDevConfig {
                 RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
                 filter.setAuthenticationManager(authenticationManager());
                 filter.setPrincipalEnvironmentVariable(usernameRequestAttribute);
+                filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader));
                 filter.setExceptionIfVariableMissing(false);
 
                 ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());

@@ -1623,14 +1623,15 @@
 #developer-container #service-container .right-container #service-form #editor-area-list {
   list-style-type: none;
   margin: 0px;
-  padding: 0.5rem;
+  padding: 0;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list li {
-  display: inline;
-  margin-right: 5px;
-  padding: 15px;
   background-color: #f8f8f8;
   cursor: pointer;
+  display: inline-block;
+  margin: 0.5rem;
+  padding: 0.8rem;
+  white-space: nowrap;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list .active {
   background-color: #aed581;
@@ -1643,6 +1644,10 @@
 #developer-container #service-container .right-container #service-form .field-definitions .row {
   margin: 10px;
   border: #f8f8f8 1px solid;
+}
+#developer-container #service-container .right-container #service-form .add-button,
+#developer-container #service-container .right-container #service-form .remove-button {
+  min-width: 0;
 }
 #developer-container #service-container .right-container #service-form .add-button:hover,
 #developer-container #service-container .right-container #service-form .remove-button:hover {
@@ -1657,8 +1662,23 @@
   color: white;
   background-color: #aed581;
 }
+#developer-container #service-container .right-container #service-form .header {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  padding: 0.25rem;
+}
+#developer-container #service-container .right-container #service-form .header div {
+  display: inline-block;
+  height: 2rem;
+  vertical-align: middle;
+}
+#developer-container #service-container .right-container #service-form .field-definitions md-input-container {
+  width: 100%;
+}
+#developer-container #service-container .right-container #service-form .field-definitions .error-message {
+  color: #a94442;
+}
 #developer-container #service-container .right-container #service-form #editor-tabs {
-  margin-top: 20px;
   height: 100%;
   -ms-flex: 1 1 auto;
       flex: 1 1 auto;
@@ -1712,6 +1732,13 @@
 }
 #developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .executable md-checkbox {
   margin: 0;
+}
+@media (max-width: 991px) {
+  #developer-container #service-container .right-container {
+    height: auto;
+    margin-left: 44px !important;
+    max-height: 50%;
+  }
 }
 
 @media (max-width: 991px) {

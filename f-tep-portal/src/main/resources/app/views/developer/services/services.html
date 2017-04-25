@@ -39,7 +39,7 @@
         </ul>
     </div>
 
-    <div class="row" ng-if="userServices.length === 0">
+    <div class="row" ng-if="serviceParams.services.length === 0">
         <div class="col-md-12 no-padding">
             <div class="note">You have no services. Create a service using the + button below.</div>
         </div>
@@ -47,7 +47,7 @@
 
     <div class="item-list list">
         <md-list-item class="md-3-line"
-                      ng-repeat="service in userServices | filter: serviceParams.searchText"
+                      ng-repeat="service in serviceParams.services | filter: serviceParams.searchText"
                       ng-click="selectService(service)"
                       ng-class="{active: service.name == serviceParams.selectedService.name}">
 

@@ -56,7 +56,7 @@
             <div class="item-list list">
 
                 <md-list-item class="md-2-line"
-                              ng-repeat="service in services | orderBy: 'name' | filter: serviceQuickSearch "
+                              ng-repeat="service in serviceParams.services | orderBy: 'name' | filter: serviceQuickSearch "
                               ng-if="isServiceTypeOpened && (serviceType.type === service.type)"
                               ng-click="selectService(service)">
 

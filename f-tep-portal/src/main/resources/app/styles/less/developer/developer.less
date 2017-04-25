@@ -61,13 +61,14 @@
                 #editor-area-list {
                     list-style-type: none;
                     margin: 0px;
-                    padding: 0.5rem;
+                    padding: 0;
                     li {
-                        display: inline;
-                        margin-right: 5px;
-                        padding: 15px;
                         background-color: @bg;
                         cursor: pointer;
+                        display: inline-block;
+                        margin: 0.5rem;
+                        padding: 0.8rem;
+                        white-space: nowrap;
                     }
                     .active {
                         background-color: @brand-light;
@@ -83,6 +84,7 @@
                     }
                 }
                 .add-button, .remove-button {
+                    min-width: 0;
                     &:hover {
                         background-color: transparent;
                     }
@@ -96,8 +98,25 @@
                     color: @white;
                     background-color:  @brand-light;
                 }
+                .header {
+                    background-color: @bg;
+                    font-weight: bold;
+                    padding: 0.25rem;
+                    div {
+                        display: inline-block;
+                        height: 2rem;
+                        vertical-align: middle;
+                    }
+                }
+                .field-definitions {
+                    md-input-container {
+                        width: 100%;
+                    }
+                    .error-message {
+                        color: @error-text;
+                    }
+                }
                 #editor-tabs {
-                    margin-top: 20px;
                     height: 100%;
                     flex: 1 1 auto;
                     .md-tab {
@@ -153,6 +172,11 @@
                         }
                     }
                 }
+            }
+            @media (max-width: @sm-max-width) {
+                height: auto;
+                margin-left: @sidenav-width !important;
+                max-height: 50%;
             }
         }
     }

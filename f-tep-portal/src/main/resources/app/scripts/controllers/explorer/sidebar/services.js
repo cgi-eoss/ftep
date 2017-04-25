@@ -4,6 +4,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', '$sce', 'ProductService', 'TabService',
                                  function ($scope, $rootScope, $sce, ProductService, TabService) {
 
+            $scope.serviceParams = ProductService.params.explorer;
 
             // Service types which services are grouped by
              $scope.serviceTypes = [
@@ -16,13 +17,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             ];
 
-            $scope.services = [];
-            ProductService.getUserServices().then(function (data) {
-                $scope.services = data;
-            });
+            ProductService.refreshServices('explorer');
 
             $scope.serviceSearch = {
-                searchText: ProductService.params.explorer.searchText
+                searchText: $scope.serviceParams.searchText
             };
 
             $scope.serviceQuickSearch = function (item) {

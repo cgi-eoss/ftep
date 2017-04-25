@@ -31,6 +31,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.params = {
             explorer: {
+                services: undefined,
                 selectedService: undefined,
                 searchText: '',
                 inputValues: {},
@@ -51,11 +52,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 showServices: true
             },
             development: {
+                services: undefined,
                 activeForm: undefined,
                 displayFilters: false,
                 displayRight: false,
                 selectedService: undefined,
-                fieldDefinitions: { inputs: [], outputs: [] },
                 selectedServiceFileTab: 1
             }
         };
@@ -95,6 +96,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     self.params[page].selectedService = service;
                     getServiceFiles(service).then(function (data) {
                         self.params[page].contents = data;
+
+                        if(page === 'development' && data){
+                            self.params[page].selectedService.files = [];
+                            for(var i = 0; i < data.length; i++){
+                                getFileDetails(data[i], page);
+                            }
+                        }
                     });
 
                     if(page === 'community'){
@@ -107,11 +115,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         };
 
-        var userServicesCache = [];
-        this.getUserServicesCache = function(){
-            return userServicesCache;
-        };
-
         this.getUserServices = function(){
             var deferred = $q.defer();
             productsAPI.from(rootUri + '/services/')
@@ -120,7 +123,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                        .result
                        .then(
             function (document) {
-                userServicesCache = document._embedded.service;
                 deferred.resolve(document._embedded.services);
             }, function (error) {
                 MessageService.addError ('Could not Get Services', error);
@@ -150,7 +152,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   var service = {
                           name: name,
                           description: description,
-                          dockerTag: 'dockerTag' //default tag
+                          dockerTag: 'dockerTag', //default tag
                   };
                   productsAPI.from(rootUri + '/services/')
                            .newRequest()
@@ -311,22 +313,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        /** Select a service, and find the associated files **/
-        this.selectService = function(service) {
-            this.params.development.selectedService = angular.copy(service);
-            this.params.development.selectedService.files = [];
-            this.params.development.displayRight = true;
-            this.params.development.fieldDefinitions= { inputs: [], outputs: [] }; //TODO get descriptor
-
-            getServiceFiles(service).then(function(serviceFiles){
-                if(serviceFiles){
-                    for(var i = 0; i < serviceFiles.length; i++){
-                        getFileDetails(serviceFiles[i]);
-                    }
-                }
-            });
-        };
-
         function getServiceFiles(service){
             var deferred = $q.defer();
             var request = productsAPI.from(rootUri + '/serviceFiles/search/')
@@ -359,15 +345,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         }
 
-        function getFileDetails(file){
+        function getFileDetails(file, page){
             productsAPI.from(file._links.self.href)
                        .newRequest()
                        .getResource()
                        .result
                        .then(
                 function (document) {
-                    self.params.development.selectedService.files.push(document);
-                    self.params.development.selectedService.files.sort(sortFiles);
+                    self.params[page].selectedService.files.push(document);
+                    self.params[page].selectedService.files.sort(sortFiles);
                 }, function (error) {
                     MessageService.addError ('Could not Get Service File', error);
                 }

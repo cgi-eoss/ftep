@@ -93,24 +93,54 @@
         </md-tabs>
     </section>
 
-    <section class="field-definitions" ng-repeat="(key, defs) in serviceParams.fieldDefinitions" ng-show="serviceParams.activeArea === serviceForms[key]">
-        <div class="row" ng-repeat="input in defs">
-            <div class="col-md-4">
+    <section class="field-definitions" ng-repeat="key in constants.serviceFields" ng-show="serviceParams.activeArea === serviceForms[key]">
+        <div class="row header">
+            <div class="col-md-2">Id</div>
+            <div class="col-md-2">Title</div>
+            <div class="col-md-3">Description</div>
+            <div class="col-md-2">Type</div>
+            <div class="col-md-1">Min Occurs</div>
+            <div class="col-md-1">Max Occurs</div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="row" ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
+            <div class="col-md-2">
                 <md-input-container md-no-float>
-                    <input ng-model="input.name" type="text" placeholder="Field name*" required>
+                    <input ng-model="input.id" type="text" placeholder="Field id*" required/>
+                    <span class="error-message" ng-show="isValidFieldId(input, key) === false">Field id must be unique!</span>
                 </md-input-container>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
+                <md-input-container md-no-float>
+                    <textarea ng-model="input.title" placeholder="Field title*" required/>
+                </md-input-container>
+            </div>
+            <div class="col-md-3">
+                <md-input-container md-no-float>
+                    <textarea ng-model="input.description" placeholder="Field description"/>
+                </md-input-container>
+            </div>
+            <div class="col-md-2">
                 <md-input-container class="md-block" flex-gt-sm>
-                    <md-select ng-model="input.type">
-                        <md-option ng-repeat="type in fieldTypes" ng-value="type" ng-selected="$first">
+                    <md-select ng-model="input.defaultAttr.dataType" required>
+                        <md-option ng-repeat="type in constants.fieldTypes" ng-value="type" ng-selected="$first">
                             {{type.type}}
                         </md-option>
                     </md-select>
                 </md-input-container>
             </div>
-            <div class="col-md-2">
-                <md-button ng-click="removeRow(defs, input)"
+            <div class="col-md-1">
+                <md-input-container md-no-float>
+                    <input ng-model="input.minOccurs" type="number" min="0" placeholder="Min Occurs"/>
+                </md-input-container>
+            </div>
+            <div class="col-md-1">
+                <md-input-container md-no-float>
+                    <input ng-model="input.maxOccurs" type="number" min="0" placeholder="Max Occurs"/>
+                </md-input-container>
+            </div>
+            <div class="col-md-1">
+                <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input)"
                    class="remove-button"
                    aria-label="Remove Row"
                    uib-tooltip="Remove Row"
@@ -120,7 +150,7 @@
                 </md-button>
             </div>
         </div>
-        <md-button ng-click="addNewRow(defs)"
+        <md-button ng-click="addNewRow(key)"
                    class="add-button"
                    aria-label="Add New Row"
                    uib-tooltip="Add New Row"

@@ -12,51 +12,36 @@ define(['../../ftepmodules'], function (ftepmodules) {
                                            function ($scope, ProductService, CommonService, $mdDialog) {
 
         $scope.serviceParams = ProductService.params.development;
-        $scope.serviceForms = {files: {title: 'Files'}, inputs: {title: 'Input Definitions'}, outputs: {title: 'Output Definitions'}};
+        $scope.serviceForms = {files: {title: 'Files'}, dataInputs: {title: 'Input Definitions'}, dataOutputs: {title: 'Output Definitions'}};
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
-        $scope.fieldTypes = [{type: 'string'}, {type: 'integer'}];
+        $scope.constants = { serviceFields: ['dataInputs', 'dataOutputs'], fieldTypes: [{type: 'string'}, {type: 'integer'}] };
 
         $scope.toggleServiceFilter = function(){
             $scope.serviceParams.displayFilters = !$scope.serviceParams.displayFilters;
         };
 
-        $scope.userServices = ProductService.getUserServicesCache();
-
-        ProductService.getUserServices().then(function(result){
-            $scope.userServices = result;
-        });
+        ProductService.refreshServices('development');
 
         $scope.selectService = function(service){
-            ProductService.selectService(service);
+            $scope.serviceParams.selectedService = service;
+            ProductService.refreshSelectedService('development');
         };
 
         $scope.removeService = function(service){
             ProductService.removeService(service).then(function(){
-                if($scope.serviceParams.selectedService && $scope.serviceParams.selectedService.id === service.id){
-                    $scope.serviceParams.selectedService = undefined;
-                    $scope.serviceParams.displayRight = false;
-                }
-
-                ProductService.getUserServices().then(function(result){
-                    $scope.userServices = result;
-                });
+                ProductService.refreshServices('development', 'Remove', service);
             });
         };
 
         $scope.createService = function($event) {
             CommonService.createItemDialog($event, 'ProductService', 'createService').then(function (newService) {
-                ProductService.selectService(newService);
-                ProductService.getUserServices().then(function(result){
-                    $scope.userServices = result;
-                });
+                ProductService.refreshServices('development', 'Create');
             });
         };
 
         $scope.updateService = function(){
             ProductService.updateService($scope.serviceParams.selectedService).then(function(service){
-                ProductService.getUserServices().then(function(result){
-                    $scope.userServices = result;
-                });
+                ProductService.refreshServices('development');
             });
         };
 
@@ -103,13 +88,47 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.addNewRow = function(list){
-            list.push({});
+        $scope.addNewRow = function(key){
+            // Create a descriptor if none exists
+            if(!$scope.serviceParams.selectedService.serviceDescriptor){
+                $scope.serviceParams.selectedService.serviceDescriptor = {
+                        id: $scope.serviceParams.selectedService.name,
+                        description: $scope.serviceParams.selectedService.description,
+                        version: '1.0',
+                        serviceProvider: $scope.serviceParams.selectedService.name
+                        //TODO ...
+                };
+            }
+
+            // Initialize the Input/Output array if none exists
+            if(!$scope.serviceParams.selectedService.serviceDescriptor[key]){
+                $scope.serviceParams.selectedService.serviceDescriptor[key] = [];
+            }
+
+            $scope.serviceParams.selectedService.serviceDescriptor[key].push({
+                data: 'LITERAL',
+                defaultAttrs: {
+                    "dataType" : "string"
+                }
+            });
         };
 
         $scope.removeRow = function(list, item){
             var index = list.indexOf(item);
             list.splice(index, 1);
+        };
+
+        /* Check that field id is unique*/
+        $scope.isValidFieldId = function(field, key){
+            var isValid = true;
+            for(var i = 0; i < $scope.serviceParams.selectedService.serviceDescriptor[key].length; i++){
+                if(field !== $scope.serviceParams.selectedService.serviceDescriptor[key][i] &&
+                   field.id === $scope.serviceParams.selectedService.serviceDescriptor[key][i].id){
+                    isValid = false;
+                    break;
+                }
+            }
+            return isValid;
         };
 
     }]);

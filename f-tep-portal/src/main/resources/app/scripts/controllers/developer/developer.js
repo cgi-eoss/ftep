@@ -11,10 +11,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService',
                                              function ($scope, TabService, MessageService) {
 
-        /* Set active page */
-        $scope.navInfo = TabService.navInfo;
-        $scope.navInfo.sideViewVisible = true;
-        $scope.navInfo.activeTab = TabService.getTabs().DEVELOPER;
+        $scope.developerSideNavs = TabService.getDeveloperSideNavs();
+        $scope.navInfo = TabService.navInfo.developer;
+        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
         /* Active session message count */
         $scope.message = {};
@@ -23,16 +22,12 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.message.count = MessageService.countMessages();
         });
 
-        /* Sidebar navigation */
-        $scope.developerSideNavs = TabService.getDeveloperSideNavs();
-        $scope.navInfo = TabService.navInfo;
-
         $scope.toggleDevPage = function (tab) {
-            $scope.navInfo.activeDeveloperPage = tab;
+            $scope.navInfo.activeSideNav = tab;
         };
 
         $scope.toggleBottomView = function(){
-            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
         };
 
     }]);

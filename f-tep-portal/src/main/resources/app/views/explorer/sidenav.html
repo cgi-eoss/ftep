@@ -12,12 +12,12 @@
         </li>
         <li ng-click="toggleBottomView()"
             class="bottom-link"
-            ng-class="{'active-bottom': navInfo.bottomViewVisible && navInfo.activeBottomNav != 3}">
+            ng-class="{'active-bottom': getOpenedBottombar() != undefined && getOpenedBottombar() != bottomNavTabs.MESSAGES }">
             <i class="material-icons" uib-tooltip="Data-Panel" tooltip-placement="right">visibility</i>
         </li>
         <li ng-click="displayTab(bottomNavTabs.MESSAGES)"
             class="notification-container bottom-link"
-            ng-class="{'active-bottom': navInfo.bottomViewVisible && navInfo.activeBottomNav == 3}">
+            ng-class="{'active-bottom': getOpenedBottombar() === bottomNavTabs.MESSAGES}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification">{{message.count}}</span>
         </li>

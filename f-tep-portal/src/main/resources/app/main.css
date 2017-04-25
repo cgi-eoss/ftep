@@ -1623,7 +1623,7 @@
 #developer-container #service-container .right-container #service-form #editor-area-list {
   list-style-type: none;
   margin: 0px;
-  padding: 0px;
+  padding: 0.5rem;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list li {
   display: inline;
@@ -1644,8 +1644,11 @@
   margin: 10px;
   border: #f8f8f8 1px solid;
 }
+#developer-container #service-container .right-container #service-form .add-button:hover,
+#developer-container #service-container .right-container #service-form .remove-button:hover {
+  background-color: transparent;
+}
 #developer-container #service-container .right-container #service-form .add-button .material-icons {
-  font-size: 40px;
   color: #aed581;
 }
 #developer-container #service-container .right-container #service-form .remove-button .material-icons {

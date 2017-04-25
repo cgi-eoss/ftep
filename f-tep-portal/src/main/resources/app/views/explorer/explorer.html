@@ -9,7 +9,7 @@
                     md-component-id="left"
                     md-disable-backdrop
                     md-whiteframe="4"
-                    ng-show="navInfo.sideViewVisible">
+                    md-is-open="navInfo.sideViewVisible">
              <div class="sidebar-container" ng-include src="'views/explorer/sidebar/sidebar.html'"></div>
         </md-sidenav>
 
@@ -21,7 +21,7 @@
          class="explorer-content animationIf no-padding"
          ng-include src="'views/common/bottombar/bottombar.html'"
          ng-controller="BottombarCtrl"
-         ng-if="navInfo.bottomViewVisible"/>
+         ng-if="bottombarNavInfo.bottomViewVisible"/>
 
     <section id="map-container" ng-include src="'views/explorer/map.html'" />
 

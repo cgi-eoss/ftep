@@ -5,7 +5,7 @@
 
             <section ng-controller="ResultsCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
                 <div ng-if="navInfo.activeBottomNav == bottomNavTabs.RESULTS" class="tab-options" ng-include src="'views/common/bottombar/tabs/resultstab.html'" />
-                <md-tab label="RESULTS{{resultTab.nameExtention}}" ng-click="navInfo.activeBottomNav = bottomNavTabs.RESULTS">
+                <md-tab label="RESULTS{{navInfo.resultTabNameExtention}}" ng-click="navInfo.activeBottomNav = bottomNavTabs.RESULTS">
                     <md-content>
                         <div id="results" ng-include src="'views/common/bottombar/results.html'" />
                     </md-content>

@@ -11,10 +11,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('CommunityCtrl', ['$scope', 'GroupService', 'UserService', 'MessageService', 'TabService', function ($scope, GroupService, UserService, MessageService, TabService) {
 
-        /* Set active page */
-        $scope.navInfo = TabService.navInfo;
-        $scope.navInfo.sideViewVisible = true;
-        $scope.navInfo.activeTab = TabService.getTabs().COMMUNITY;
+        $scope.navInfo = TabService.navInfo.community;
+        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
         /* Active session message count */
         $scope.message = {};
@@ -25,19 +23,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Sidebar navigation */
         $scope.communityTabs = TabService.getCommunityNavTabs();
-        $scope.navInfo = TabService.navInfo;
         $scope.togglePage = function (tab) {
-            $scope.navInfo.activeCommunityPage = tab;
+            $scope.navInfo.activeSideNav = tab;
         };
 
         /** Bottom bar **/
         $scope.displayTab = function(tab){
-            $scope.navInfo.bottomViewVisible = true;
-            $scope.navInfo.activeBottomNav = tab;
+            $scope.bottombarNavInfo.bottomViewVisible = true;
+            $scope.bottombarNavInfo.activeBottomNav = tab;
         };
 
         $scope.toggleBottomView = function(){
-            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
         };
 
     }]);

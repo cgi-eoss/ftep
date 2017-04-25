@@ -10,14 +10,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('SidebarCtrl', ['$scope', '$timeout', '$mdSidenav', 'TabService', function ($scope, $timeout, $mdSidenav, TabService) {
 
-        $scope.sideViewVisible = TabService.sideViewVisible;
-        $scope.sideNavTabs = TabService.getSideNavTabs();
+        $scope.sideNavTabs = TabService.getExplorerSideNavs();
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
-        $scope.navInfo = TabService.navInfo;
+        $scope.navInfo = TabService.navInfo.explorer;
 
         function showSidebarArea() {
             $scope.navInfo.sideViewVisible = true;
-            $mdSidenav('left').open();
             $timeout(function () {
                 $scope.$broadcast('rzSliderForceRender');
             }, 50);
@@ -26,7 +24,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.hideSidebarArea = function () {
             $scope.navInfo.activeSideNav = undefined;
             $scope.navInfo.sideViewVisible = false;
-            $mdSidenav('left').close();
         };
 
         $scope.toggleSidebar = function (tab) {

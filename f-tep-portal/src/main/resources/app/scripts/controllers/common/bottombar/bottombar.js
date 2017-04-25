@@ -11,9 +11,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                               function($scope, $rootScope, $q, CommonService, TabService, BasketService, JobService, GeoService, FileService) {
 
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
-        $scope.resultTab = TabService.resultTab;
-        $scope.navInfo = TabService.navInfo;
         $scope.tabs = TabService.getTabs();
+
         $scope.dbParams = BasketService.params.explorer;
         $scope.jobParams = JobService.params.explorer;
         $scope.resultParams = GeoService.params;

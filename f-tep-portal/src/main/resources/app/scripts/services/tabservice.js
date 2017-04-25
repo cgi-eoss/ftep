@@ -12,11 +12,11 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         var tabs = { EXPLORER: 0, DEVELOPER: 1, COMMUNITY: 2, ACCOUNT: 3, HELPDESK: 4 };
 
-        var sideNavTabs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
-
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
 
         var communityTabs = { MANAGE: 0, SHARE: 1};
+
+        var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
 
         var developerSideNavs = { SERVICES: 0 };
 
@@ -24,8 +24,8 @@ define(['../ftepmodules'], function (ftepmodules) {
             return angular.copy(tabs);
         };
 
-        this.getSideNavTabs = function(){
-            return angular.copy(sideNavTabs);
+        this.getExplorerSideNavs = function(){
+            return angular.copy(explorerSideNavs);
         };
 
         this.getBottomNavTabs = function(){
@@ -42,18 +42,31 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
-                activeTab: tabs.EXPLORER,
-                activeSideNav: undefined,
-                activeBottomNav: bottomNavTabs.RESULTS,
-                bottomViewVisible: false,
-                sideViewVisible: false,
-                activeCommunityPage: communityTabs.MANAGE,
-                activeDeveloperPage: developerSideNavs.SERVICES
+                explorer: {
+                    activeTab: tabs.EXPLORER,
+                    sideViewVisible: false,
+                    activeSideNav: undefined,
+                    activeBottomNav: bottomNavTabs.RESULTS,
+                    resultTabNameExtention: ''
+                },
+                developer: {
+                    activeTab: tabs.DEVELOPER,
+                    sideViewVisible: true,
+                    activeSideNav: developerSideNavs.SERVICES,
+                    activeBottomNav: undefined
+                },
+                community: {
+                    activeTab: tabs.COMMUNITY,
+                    sideViewVisible: true,
+                    activeSideNav: communityTabs.MANAGE,
+                    activeBottomNav: undefined
+                },
+                bottombar: {
+                    bottomViewVisible: false
+                }
         };
 
         /** END OF PRESERVE USER SELECTIONS **/
-
-        this.resultTab = { nameExtention: '' };
 
         return this;
     }]);

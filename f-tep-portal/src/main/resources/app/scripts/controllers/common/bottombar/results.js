@@ -84,8 +84,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         $scope.resultPaging.total = 0;
                     }
 
-                    TabService.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
-                    TabService.resultTab.nameExtention = GeoService.getResultsNameExtention();
+                    TabService.navInfo.explorer.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
+                    TabService.navInfo.explorer.resultTabNameExtention = GeoService.getResultsNameExtention();
                     $scope.resultParams.selectedResultItems = [];
                     scrollResults();
                     $scope.spinner.loading = false;

@@ -12,9 +12,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
                                             function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout, ftepProperties, $injector) {
 
         /* Set active page */
-        $scope.navInfo = TabService.navInfo;
-        $scope.navInfo.sideViewVisible = false;
-        $scope.navInfo.activeTab = TabService.getTabs().EXPLORER;
+        $scope.navInfo = TabService.navInfo.explorer;
+        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
+        $scope.bottomNavTabs = TabService.getBottomNavTabs();
 
         /* Active session message count */
         $scope.message = {};
@@ -24,20 +24,26 @@ define(['../../ftepmodules'], function (ftepmodules) {
         });
 
         /** BOTTOM BAR **/
-        $scope.displayTab = function(tab, close) {
-            if ($scope.navInfo.activeBottomNav === tab && close !== false) {
+        $scope.displayTab = function(tab, allowedToClose) {
+            if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
                 $scope.toggleBottomView();
             } else {
-                $scope.toggleBottomView(true);
+                $scope.bottombarNavInfo.bottomViewVisible = true;
                 $scope.navInfo.activeBottomNav = tab;
             }
+            console.log($scope.bottombarNavInfo.bottomViewVisible && $scope.navInfo.activeBottomNav === $scope.bottomNavTabs.MESSAGES);
         };
 
-        $scope.toggleBottomView = function (openBottombar) {
-            if (openBottombar === true) {
-                 $scope.navInfo.bottomViewVisible = true;
-            } else {
-                $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+        $scope.toggleBottomView = function () {
+            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+
+        $scope.getOpenedBottombar = function(){
+            if($scope.bottombarNavInfo.bottomViewVisible){
+                return $scope.navInfo.activeBottomNav;
+            }
+            else {
+                return undefined;
             }
         };
 

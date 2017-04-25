@@ -10,11 +10,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('HelpdeskCtrl', ['$scope', '$http', 'ProductService', 'TabService', function ($scope, $http, ProductService, TabService) {
 
-        /* Set active page */
-        $scope.navInfo = TabService.navInfo;
-        $scope.navInfo.sideViewVisible = false;
-        $scope.navInfo.activeTab = TabService.getTabs().HELPDESK;
-
         $scope.applications = ['MonteVerdiAppV2', 'QGIS', 'Sentinel2ToolboxV2'];
         $scope.processors = ['LandCoverS1', 'LandCoverS2', 'S1Biomass', 'VegetationIndicies'];
 

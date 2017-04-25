@@ -5,13 +5,13 @@
     <section id="service-container"
              class="row"
              ng-include src="'views/developer/services/servicescontainer.html'"
-             ng-show="navInfo.activeDeveloperPage == developerSideNavs.SERVICES" />
+             ng-show="navInfo.activeSideNav == developerSideNavs.SERVICES" />
 
     <section id="bottombar-container"
              ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
              class="explorer-content animationIf no-padding"
              ng-include src="'views/common/bottombar/bottombar.html'"
              ng-controller="BottombarCtrl"
-             ng-if="navInfo.bottomViewVisible"/>
+             ng-if="bottombarNavInfo.bottomViewVisible"/>
 
 </article>

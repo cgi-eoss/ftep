@@ -13,6 +13,7 @@
   String $metadata_subdir,
   String $sp_key,
   String $sp_cert,
+  String $idp_keyname,
 | -%>
 <?xml version="1.0" encoding="UTF-8"?>
 <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
@@ -30,34 +31,23 @@
                          <% } -%>>
 
         <Sessions exportLocation="/GetAssertion" lifetime="<%= $session_lifetime %>" timeout="<%= $session_timeout %>"
-                  relayState="ss:mem" checkAddress="false" consistentAddress="true"
+                  checkAddress="false" consistentAddress="true" handlerURL="/Shibboleth.sso"
                   handlerSSL="true" cookieProps="https" idpHistory="true" idpHistoryDays="7">
 
-            <SSO entityID="<%= $idp_id %>">
-              SAML2 SAML1
-            </SSO>
-
-            <!-- SAML and local-only logout. -->
-            <Logout>SAML2 Local</Logout>
-
-            <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+            <SessionInitiator type="SAML2" entityID="<%= $idp_id %>" forceAuthn="false" Location="/Login" template="/etc/shibboleth/bindingTemplate.html"/>
+            <md:AssertionConsumerService Location="/SAML2/Artifact" index="1" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"/>
+            <md:SingleLogoutService Location="/SLO/Redirect" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" conf:template="/etc/shibboleth/bindingTemplate.html"/>
+            <LogoutInitiator type="Local" Location="/Logout" template="/etc/shibboleth/bindingTemplate.html"/>
+            <LogoutInitiator type="SAML2" Location="/SLogout" template="/etc/shibboleth/bindingTemplate.html"/>
             <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
-
-            <!-- Status reporting service. -->
             <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
-
-            <!-- Session diagnostic service. -->
             <Handler type="Session" Location="/Session" showAttributeValues="false"/>
-
-            <!-- JSON feed of discovery information. -->
             <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
         </Sessions>
 
-        <Errors supportContact="<%= $support_contact %>"
-            logoLocation="/shibboleth-sp/logo.jpg"
-            styleSheet="/shibboleth-sp/main.css"/>
+        <Errors supportContact="<%= $support_contact %>" logoLocation="/shibboleth-sp/logo.jpg" styleSheet="/shibboleth-sp/main.css"/>
 
-        <RelyingParty Name="<%= $idp_id %>" keyName="defcreds"/>
+        <RelyingParty Name="<%= $idp_id %>" keyName="<%= $idp_keyname %>"/>
 
         <MetadataProvider type="Folder" path="<%= $metadata_subdir %>"/>
 
@@ -67,7 +57,7 @@
 
         <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
 
-        <CredentialResolver type="File" key="<%= $sp_key %>" certificate="<%= $sp_cert %>"/>
+        <CredentialResolver type="File" key="<%= $sp_key %>" certificate="<%= $sp_cert %>" keyName="<%= $idp_keyname %>"/>
     </ApplicationDefaults>
 
     <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>

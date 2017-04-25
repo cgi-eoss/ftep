@@ -29,7 +29,7 @@
     </KeyDescriptor>
 
 <% $artifact_resolution_services.each | $idx, $ars | { %>
-    <ArtifactResolutionService index="<%= $idx %>"
+    <ArtifactResolutionService index="<%= $idx + 1 %>"
       Binding="<%= $ars['binding'] %>"
       Location="<%= $ars['location'] %>"/>
 <% } -%>

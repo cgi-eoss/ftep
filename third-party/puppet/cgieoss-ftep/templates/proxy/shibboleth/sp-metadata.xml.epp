@@ -28,7 +28,7 @@
     </KeyDescriptor>
 
 <% $assertion_consumer_services.each | $idx, $acs | { %>
-    <AssertionConsumerService index="<%= $idx %>"
+    <AssertionConsumerService index="<%= $idx + 1 %>"
       Binding="<%= $acs['binding'] %>"
       Location="<%= $acs['location'] %>"/>
 <% } -%>

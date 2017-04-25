@@ -28,6 +28,7 @@ public class BecomeAnyUser {
     public String becomeUser(HttpSession session, @PathVariable String username, @PathVariable String role) {
         User user = userDataService.getOrSave(username);
         user.setRole(Role.valueOf(role));
+        userDataService.save(user);
 
         session.setAttribute(usernameRequestAttribute, username);
 

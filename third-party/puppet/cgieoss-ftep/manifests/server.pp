@@ -27,6 +27,7 @@ class ftep::server (
 
   $api_base_path                      = '/secure/api/v2.0',
   $api_username_request_header        = undef,
+  $api_email_request_header           = undef,
   $api_security_mode                  = 'NONE',
 
   $zoomanager_hostname                = undef,
@@ -92,6 +93,7 @@ class ftep::server (
   $real_db_pass = pick($jdbc_password, $::ftep::globals::ftep_db_password)
 
   $real_api_username_request_header = pick($api_username_request_header, $ftep::globals::username_request_header)
+  $real_api_email_request_header = pick($api_email_request_header, $ftep::globals::email_request_header)
 
   $real_geoserver_url = pick($geoserver_url, "${ftep::globals::base_url}${ftep::globals::context_path_geoserver}/")
   $real_geoserver_username = pick($geoserver_username, $ftep::globals::geoserver_ftep_username)
@@ -155,6 +157,7 @@ class ftep::server (
       'jdbc_data_source_class_name'        => $jdbc_datasource_class_name,
       'api_base_path'                      => $api_base_path,
       'api_username_request_header'        => $real_api_username_request_header,
+      'api_email_request_header'           => $real_api_email_request_header,
       'api_security_mode'                  => $api_security_mode,
       'graylog_api_url'                    => $real_graylog_api_url,
       'graylog_api_username'               => $real_graylog_api_username,

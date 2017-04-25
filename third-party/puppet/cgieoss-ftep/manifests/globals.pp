@@ -48,6 +48,7 @@ class ftep::globals (
 
   # SSO configuration
   $username_request_header          = 'REMOTE_USER',
+  $email_request_header             = 'REMOTE_EMAIL',
 
   # Eureka config
   $serviceregistry_user             = 'ftepeureka',

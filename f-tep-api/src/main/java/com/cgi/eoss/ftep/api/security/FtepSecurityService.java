@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AclPermissionEvaluator;
@@ -204,8 +205,12 @@ public class FtepSecurityService {
     }
 
     public Set<Long> getVisibleObjectIds(Class<?> objectClass, List<Long> allIds) {
-        List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(Collectors.toList());
+        if (allIds.isEmpty()) {
+            return ImmutableSet.of();
+        }
+
         List<Sid> sids = getSids(getCurrentAuthentication());
+        List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(Collectors.toList());
 
         Map<ObjectIdentity, Acl> objectIdentityAclMap = null;
         try {

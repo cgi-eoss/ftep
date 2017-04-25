@@ -14,6 +14,7 @@
 
     String $api_base_path,
     String $api_username_request_header,
+    String $api_email_request_header,
     String $api_security_mode,
 
     String $graylog_api_url,
@@ -76,6 +77,7 @@ spring.jpa.hibernate.ddl-auto=validate
 # API configuration
 ftep.api.basePath=<%= $api_base_path %>
 ftep.api.security.username-request-header=<%= $api_username_request_header %>
+ftep.api.security.email-request-header=<%= $api_email_request_header %>
 ftep.api.security.mode=<%= $api_security_mode %>
 
 # Graylog access configuration

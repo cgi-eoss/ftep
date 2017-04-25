@@ -36,6 +36,7 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
         // Keep user's SSO details up to date
         if (!Strings.isNullOrEmpty(tokenDetails.getUserEmail())) {
             user.setEmail(tokenDetails.getUserEmail());
+            userDataService.save(user);
         }
 
         Set<Group> userGroups = user.getGroups();

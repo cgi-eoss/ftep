@@ -97,10 +97,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     getServiceFiles(service).then(function (data) {
                         self.params[page].contents = data;
 
-                        if(page === 'development' && data){
+                        if(page === 'development'){
                             self.params[page].selectedService.files = [];
-                            for(var i = 0; i < data.length; i++){
-                                getFileDetails(data[i], page);
+                            self.params[page].fieldDefinitions= { inputs: [], outputs: [] }; //TODO get descriptor
+                            if(data){
+                                for(var i = 0; i < data.length; i++){
+                                    getFileDetails(page, data[i]);
+                                }
                             }
                         }
                     });
@@ -345,7 +348,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         }
 
-        function getFileDetails(file, page){
+        function getFileDetails(page, file){
             productsAPI.from(file._links.self.href)
                        .newRequest()
                        .getResource()

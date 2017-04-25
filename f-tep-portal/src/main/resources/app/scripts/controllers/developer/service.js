@@ -6,6 +6,22 @@
  * Controller of the ftepApp
  */
 'use strict';
+require([
+         "codemirror",
+         "codemirror/lib/codemirror",
+         "codemirror/mode/dockerfile/dockerfile",
+         "codemirror/mode/javascript/javascript",
+         "codemirror/mode/perl/perl",
+         "codemirror/mode/php/php",
+         "codemirror/mode/properties/properties",
+         "codemirror/mode/python/python",
+         "codemirror/mode/shell/shell",
+         "codemirror/mode/xml/xml",
+         "codemirror/mode/yaml/yaml"
+       ], function(CodeMirror) {
+           window.CodeMirror = CodeMirror;
+});
+
 define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('ServiceCtrl', ['$scope', 'ProductService', 'CommonService', '$mdDialog',
@@ -23,8 +39,63 @@ define(['../../ftepmodules'], function (ftepmodules) {
         ProductService.refreshServices('development');
 
         $scope.selectService = function(service){
+            $scope.serviceParams.displayRight = true;
             $scope.serviceParams.selectedService = service;
             ProductService.refreshSelectedService('development');
+        };
+
+        // The modes
+        $scope.modes = ['Scheme', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];
+        $scope.mode = {};
+
+        $scope.selectDefaultMode = function(file){
+            $scope.mode.active = $scope.modes[7];
+
+            if(!file){
+                file = $scope.serviceParams.selectedService.files[0];
+            }
+
+            if(file && file.filename.toLowerCase() === 'dockerfile'){
+                $scope.mode.active = $scope.modes[1];
+            }
+            else if(file && file.filename.toLowerCase() === 'workflow.sh'){
+                $scope.mode.active = $scope.modes[7];
+            }
+        };
+
+        $scope.refreshMirror = function(){
+            if($scope.editor) {
+                $scope.editor.setOption("mode", $scope.mode.active.toLowerCase());
+            }
+        };
+
+        $scope.editorOptions = {
+            lineWrapping: true,
+            lineNumbers: true,
+            autofocus: true
+        };
+
+        $scope.codemirrorLoaded = function (editor) {
+            // Editor part
+            var doc = editor.getDoc();
+            editor.focus();
+
+            // Apply mode to editor
+            $scope.editor = editor;
+            editor.setOption("mode", $scope.mode.active.toLowerCase());
+
+            // Options
+            editor.setOption('firstLineNumber', 1);
+            doc.markClean();
+
+            editor.on("scrollCursorIntoView", function(){
+                $scope.editor = editor;
+                editor.setOption("mode", $scope.mode.active.toLowerCase());
+            });
+            editor.on("focus", function(){
+                $scope.editor = editor;
+                editor.setOption("mode", $scope.mode.active.toLowerCase());
+            });
         };
 
         $scope.removeService = function(service){

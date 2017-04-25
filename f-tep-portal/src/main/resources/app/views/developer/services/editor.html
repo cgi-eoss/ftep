@@ -45,7 +45,7 @@
 
     <section id="editor-tabs" ng-show="serviceParams.activeArea === serviceForms.files">
         <md-tabs md-selected="1">
-             <md-tab ng-repeat="file in serviceParams.selectedService.files">
+             <md-tab ng-repeat="file in serviceParams.selectedService.files" ng-click="selectDefaultMode(file)">
                 <md-tab-label>
                     {{file.filename}}
                     <md-button class="tab-button"
@@ -62,13 +62,37 @@
                 <md-tab-body>
                     <md-content class="md-padding">
                         <div class="tab-content">
-                            <md-input-container class="executable" md-no-float>
-                                <md-checkbox ng-model="file.executable" aria-label="Executable" ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
-                                    Executable
-                                </md-checkbox>
-                            </md-input-container>
                             <md-input-container md-no-float class="md-block file-editor">
-                                <textarea ng-model="file.content" md-select-on-focus placeholder="Add file content.." rows="14"></textarea>
+
+                                <div class="row file-settings">
+                                    <div class="col-md-4 no-padding">
+                                        <label class="input-label">File Language:</label>
+                                        <select class="form-control"
+                                                ng-model="mode.active"
+                                                ng-options="m for m in modes"
+                                                ng-change="modeChanged()"
+                                                ng-init="selectDefaultMode()" />
+                                    </div>
+                                    <div class="col-md-4 no-padding" />
+                                    <div class="col-md-4 no-padding">
+                                        <label class="input-label">Executable:</label>
+                                        <md-checkbox class="executable"
+                                                     ng-model="file.executable"
+                                                     aria-label="Executable"
+                                                     ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
+                                        </md-checkbox>
+                                    </div>
+                                </div>
+
+                                <textarea class="file-contents"
+                                      ui-codemirror="{ onLoad : codemirrorLoaded }"
+                                      ui-codemirror-opts="editorOptions"
+                                      ui-refresh="refreshMirror()"
+                                      ng-change="refreshMirror()"
+                                      ng-model="file.content"
+                                      md-select-on-focus
+                                      placeholder="Add file content..">Loading...</textarea >
+
                             </md-input-container>
                         </div>
                     </md-content>

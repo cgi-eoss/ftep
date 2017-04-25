@@ -153,20 +153,43 @@
                             md-content {
                                 background-color: transparent;
                                 padding: 0;
+                                .CodeMirror {
+                                    height: 100%;
+                                }
                                 .file-editor {
+                                    margin-top: 0;
                                     textarea.md-input {
                                         background-color: @white;
                                         font-family: 'Courier';
                                         border: none;
                                     }
                                 }
+                                .file-settings {
+                                    padding: 0.5rem;
+                                }
+                                .form-control {
+                                    display: inline-block;
+                                    font-size: 0.7rem;
+                                    //height: 1.2rem;
+                                    padding-bottom: 0;
+                                    padding-top: 0;
+                                    vertical-align: top;
+                                    width: auto;
+                                }
                                 .executable {
                                     margin: 0;
-                                    padding: 0.8rem;
+                                    padding: 0.6rem;
                                     padding-bottom: 0;
                                     md-checkbox {
                                         margin: 0;
                                     }
+                                }
+                                .input-label {
+                                    font-size: 1rem;
+                                    margin: 0;
+                                    position: inherit;
+                                    vertical-align: top;
+                                    width: auto;
                                 }
                             }
                         }

@@ -33,13 +33,14 @@ define([
     'traversonAngular',
     'traversonHal',
     'ngFileUpload',
+    'uiCodeMirror',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
                                          'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload']);
+                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload', 'ui.codemirror']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {

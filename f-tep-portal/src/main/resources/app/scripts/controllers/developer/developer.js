@@ -6,10 +6,10 @@
  * Controller of the ftepApp
  */
 'use strict';
+
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService',
-                                             function ($scope, TabService, MessageService) {
+    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', function ($scope, TabService, MessageService) {
 
         $scope.developerSideNavs = TabService.getDeveloperSideNavs();
         $scope.navInfo = TabService.navInfo.developer;

@@ -21,17 +21,9 @@ class ftep::drupal (
   require ::ftep::globals
   require ::epel
 
-  contain ::ftep::common::apache
   contain ::ftep::common::php
 
-  include ::apache::mod::proxy_http
-  include ::apache::mod::rewrite
-  include ::apache::mod::proxy
-
   class { '::postgresql::client': }
-
-  # apache::mod::proxy_fcgi does not include the package on CentOS 6
-  ensure_resource('apache::mod', 'proxy_fcgi', { package => 'mod_proxy_fcgi', require => Class['apache::mod::proxy'] })
 
   $real_db_host = pick($db_host, $::ftep::globals::db_hostname)
   $real_db_name = pick($db_name, $::ftep::globals::ftep_db_name)
@@ -95,24 +87,8 @@ class ftep::drupal (
 
   $site_path = "${www_path}/${drupal_site}"
 
-  ::apache::vhost { 'ftep-drupal':
-    port             => '80',
-    servername       => 'ftep-drupal',
-    docroot          => "${site_path}",
-    override         => ['All'],
-    directoryindex   => '/index.php index.php',
-    proxy_pass_match => [
-      {
-        'path' => '^/(.*\.php(/.*)?)$',
-        'url'  => "fcgi://127.0.0.1:9000${site_path}/\$1"
-      }
-    ],
-    rewrites         => [
-      { rewrite_rule => [
-        '^/api/v1.0/(.*) /api.php?q=api/$1 [L,PT,QSA]',
-        '^/secure/api/v1.0/(.*) /api.php?q=api/$1 [L,PT,QSA]'
-      ] },
-    ]
+  class { ::ftep::drupal::apache:
+    site_path => $site_path
   }
 
   file { "${site_path}/api.php":

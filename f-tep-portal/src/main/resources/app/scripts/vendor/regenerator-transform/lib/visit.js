@@ -114,7 +114,10 @@ exports.visitor = {
       var didRenameArguments = renameArguments(path, argsId);
       if (didRenameArguments) {
         vars = vars || t.variableDeclaration("var", []);
-        vars.declarations.push(t.variableDeclarator(argsId, t.identifier("arguments")));
+        var argumentIdentifier = t.identifier("arguments");
+        // we need to do this as otherwise arguments in arrow functions gets hoisted
+        argumentIdentifier._shadowedFunctionLiteral = path;
+        vars.declarations.push(t.variableDeclarator(argsId, argumentIdentifier));
       }
 
       var emitter = new _emit.Emitter(contextId);

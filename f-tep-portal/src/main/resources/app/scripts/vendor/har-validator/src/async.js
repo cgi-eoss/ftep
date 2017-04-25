@@ -1,85 +1,96 @@
-import * as schemas from './schemas'
+import * as schemas from 'har-schema'
+import Ajv from 'ajv'
 import HARError from './error'
-import JSONValidator from 'is-my-json-valid'
 
-export function validator (schema, data = {}, cb) {
-  // default value
-  let valid = false
+let ajv
 
+export function validate (name, data = {}, next) {
   // validator config
-  let validate = JSONValidator(schema, {
-    greedy: true,
-    verbose: true,
+  ajv = ajv || new Ajv({
+    allErrors: true,
     schemas: schemas
   })
 
-  // execute is-my-json-valid
-  valid = validate(data)
+  let validate = ajv.getSchema(name + '.json')
+
+  let valid = validate(data)
 
   // callback?
-  if (typeof cb === 'function') {
-    return cb(validate.errors ? new HARError(validate.errors) : null, valid)
+  if (typeof next === 'function') {
+    return next(!valid ? new HARError(validate.errors) : null, valid)
   }
 
   return valid
 }
 
-export default function har (data, cb) {
-  return validator(schemas.har, data, cb)
+export function afterRequest (data, next) {
+  return validate('afterRequest', data, next)
 }
 
-export function cache (data, cb) {
-  return validator(schemas.cache, data, cb)
+export function beforeRequest (data, next) {
+  return validate('beforeRequest', data, next)
 }
 
-export function cacheEntry (data, cb) {
-  return validator(schemas.cacheEntry, data, cb)
+export function browser (data, next) {
+  return validate('browser', data, next)
 }
 
-export function content (data, cb) {
-  return validator(schemas.content, data, cb)
+export function cache (data, next) {
+  return validate('cache', data, next)
 }
 
-export function cookie (data, cb) {
-  return validator(schemas.cookie, data, cb)
+export function content (data, next) {
+  return validate('content', data, next)
 }
 
-export function creator (data, cb) {
-  return validator(schemas.creator, data, cb)
+export function cookie (data, next) {
+  return validate('cookie', data, next)
 }
 
-export function entry (data, cb) {
-  return validator(schemas.entry, data, cb)
+export function creator (data, next) {
+  return validate('creator', data, next)
 }
 
-export function log (data, cb) {
-  return validator(schemas.log, data, cb)
+export function entry (data, next) {
+  return validate('entry', data, next)
 }
 
-export function page (data, cb) {
-  return validator(schemas.page, data, cb)
+export function har (data, next) {
+  return validate('har', data, next)
 }
 
-export function pageTimings (data, cb) {
-  return validator(schemas.pageTimings, data, cb)
+export function header (data, next) {
+  return validate('header', data, next)
 }
 
-export function postData (data, cb) {
-  return validator(schemas.postData, data, cb)
+export function log (data, next) {
+  return validate('log', data, next)
 }
 
-export function record (data, cb) {
-  return validator(schemas.record, data, cb)
+export function page (data, next) {
+  return validate('page', data, next)
 }
 
-export function request (data, cb) {
-  return validator(schemas.request, data, cb)
+export function pageTimings (data, next) {
+  return validate('pageTimings', data, next)
 }
 
-export function response (data, cb) {
-  return validator(schemas.response, data, cb)
+export function postData (data, next) {
+  return validate('postData', data, next)
 }
 
-export function timings (data, cb) {
-  return validator(schemas.timings, data, cb)
+export function query (data, next) {
+  return validate('query', data, next)
+}
+
+export function request (data, next) {
+  return validate('request', data, next)
+}
+
+export function response (data, next) {
+  return validate('response', data, next)
+}
+
+export function timings (data, next) {
+  return validate('timings', data, next)
 }

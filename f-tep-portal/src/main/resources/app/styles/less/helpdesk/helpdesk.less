@@ -1,63 +1,63 @@
 @import "variable";
 #helpdesk-container {
-    .block {
-        background-color: @bg;
-        border-radius: 4px;
+    background-color: @bg;
+    md-card {
         margin: 0.8rem;
-        padding: 1rem;
-        h2 {
+        md-card-title, md-card-actions {
             color: @brand;
+            padding-top: 0;
+        }
+        md-card-actions {
+            a:hover, a:visited {
+                color: @brand-dark;
+            }
+        }
+    }
+    #helpdesk-info {
+        #supported-services {
+            margin-top: 1rem;
+            #services-list {
+                padding-top: 0.5rem;
+            }
+        }
+    }
+    #links {
+        blockquote {
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        .img-container {
+            align-items: center;
+            display: flex;
+            img {
+                height: auto;
+                max-width: 240px;
+                width: 100%;
+                vertical-align: middle;
+            }
+        }
+        md-card-content {
+            padding-bottom: 0;
+        }
+        md-card-actions {
             margin-top: 0;
         }
     }
-    #left-column {
-        #helpdesk-info {
-            #supported-services {
-                margin-top: 1rem;
-                #services-list {
+    #videoclips {
+        img {
+            transform: scale(1);
+            transition: .3s ease-in-out;
+            width: 100%;
+            &:hover {
+                transform: scale(1.1);
+            }
+        }
+        .video {
+            padding: 0.5rem;
+            figure {
+                margin: 0;
+                figcaption {
                     padding-top: 0.5rem;
-                }
-            }
-        }
-        #contact {}
-    }
-    #right-column {
-        #links {
-            img {
-                max-width: 240px;
-                width: 100%;
-            }
-            ul {
-                list-style-type: none;
-                li {
-                    padding: 0.25rem 0;
-                    a {
-                        color: @brand;
-                        font-weight: 900;
-                        text-decoration: none;
-                        &:hover {
-                            color: @brand-light;
-                        }
-                    }
-                }
-            }
-        }
-        #videoclips {
-            img {
-                transform: scale(1);
-                transition: .3s ease-in-out;
-                width: 100%;
-                &:hover {
-                    transform: scale(1.1);
-                }
-            }
-            .video {
-                padding: 0.5rem;
-                figure {
-                    margin: 0;
-                    figcaption {
-                        padding-top: 0.5rem;
-                    }
                 }
             }
         }

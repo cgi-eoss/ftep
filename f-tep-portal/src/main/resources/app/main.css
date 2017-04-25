@@ -1,32 +1,36 @@
-#account-container #accountManagement {
-  width: 100%;
+#account-container md-card {
+  margin: 0.8rem;
 }
-#account-container #accountManagement #accountInfo {
+#account-container md-card md-card-title,
+#account-container md-card md-card-actions {
+  color: #558b2f;
+  padding-top: 0;
+}
+#account-container md-card md-card-actions a:hover,
+#account-container md-card md-card-actions a:visited {
+  color: #33691e;
+}
+#account-container #account-panel,
+#account-container #statistics-panel,
+#account-container #info-panel {
+  background-color: lightgray;
   height: 100%;
-  padding: 10px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+@media (max-width: 1199px) {
+  #account-container #account-panel,
+  #account-container #statistics-panel,
+  #account-container #info-panel {
+    max-height: 50%;
+  }
+}
+#account-container #account-panel,
+#account-container #info-panel {
   background-color: #f8f8f8;
 }
-#account-container #accountManagement #accountInfo .row div {
-  margin: 8px 0;
-}
-#account-container #accountManagement #statistics {
-  height: 100%;
-  padding: 10px;
-}
-#account-container #accountManagement #statistics .row div {
-  margin: 8px 0;
-}
-#account-container #accountManagement #infoPanel {
-  height: 100%;
-  padding: 10px;
-  background-color: #f8f8f8;
-}
-#account-container #accountManagement #infoPanel #accountHelp {
-  width: 100%;
-  padding: 10px 10px 30px 10px;
-}
-#account-container #accountManagement #infoPanel #accountHelp .row div {
-  margin: 8px 0;
+#account-container #account-info .row {
+  padding: 0.25rem;
 }
 
 #admin-container {
@@ -1384,7 +1388,7 @@
     display: block !important;
   }
 }
-@media (min-width: 991px) and (max-width: 1280px) {
+@media (min-width: 991px) and (max-width: 1199px) {
   .show.hide,
   .show-md.hide,
   .show-gt-xs.hide,
@@ -1392,7 +1396,7 @@
     display: block !important;
   }
 }
-@media (min-width: 1280px) and (max-width: 1599px) {
+@media (min-width: 1199px) and (max-width: 1599px) {
   .show.hide,
   .show-lg.hide,
   .show-gt-xs.hide,
@@ -2335,55 +2339,64 @@
   font-feature-settings: 'liga';
 }
 
-#helpdesk-container .block {
+#helpdesk-container {
   background-color: #f8f8f8;
-  border-radius: 4px;
+}
+#helpdesk-container md-card {
   margin: 0.8rem;
-  padding: 1rem;
 }
-#helpdesk-container .block h2 {
+#helpdesk-container md-card md-card-title,
+#helpdesk-container md-card md-card-actions {
   color: #558b2f;
-  margin-top: 0;
+  padding-top: 0;
 }
-#helpdesk-container #left-column #helpdesk-info #supported-services {
+#helpdesk-container md-card md-card-actions a:hover,
+#helpdesk-container md-card md-card-actions a:visited {
+  color: #33691e;
+}
+#helpdesk-container #helpdesk-info #supported-services {
   margin-top: 1rem;
 }
-#helpdesk-container #left-column #helpdesk-info #supported-services #services-list {
+#helpdesk-container #helpdesk-info #supported-services #services-list {
   padding-top: 0.5rem;
 }
-#helpdesk-container #right-column #links img {
+#helpdesk-container #links blockquote {
+  font-size: 0.8rem;
+  margin-left: 1rem;
+}
+#helpdesk-container #links .img-container {
+  -ms-flex-align: center;
+      align-items: center;
+  display: -ms-flexbox;
+  display: flex;
+}
+#helpdesk-container #links .img-container img {
+  height: auto;
   max-width: 240px;
   width: 100%;
+  vertical-align: middle;
 }
-#helpdesk-container #right-column #links ul {
-  list-style-type: none;
+#helpdesk-container #links md-card-content {
+  padding-bottom: 0;
 }
-#helpdesk-container #right-column #links ul li {
-  padding: 0.25rem 0;
+#helpdesk-container #links md-card-actions {
+  margin-top: 0;
 }
-#helpdesk-container #right-column #links ul li a {
-  color: #558b2f;
-  font-weight: 900;
-  text-decoration: none;
-}
-#helpdesk-container #right-column #links ul li a:hover {
-  color: #aed581;
-}
-#helpdesk-container #right-column #videoclips img {
+#helpdesk-container #videoclips img {
   transform: scale(1);
   transition: 0.3s ease-in-out;
   width: 100%;
 }
-#helpdesk-container #right-column #videoclips img:hover {
+#helpdesk-container #videoclips img:hover {
   transform: scale(1.1);
 }
-#helpdesk-container #right-column #videoclips .video {
+#helpdesk-container #videoclips .video {
   padding: 0.5rem;
 }
-#helpdesk-container #right-column #videoclips .video figure {
+#helpdesk-container #videoclips .video figure {
   margin: 0;
 }
-#helpdesk-container #right-column #videoclips .video figure figcaption {
+#helpdesk-container #videoclips .video figure figcaption {
   padding-top: 0.5rem;
 }
 

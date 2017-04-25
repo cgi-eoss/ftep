@@ -1,33 +1,32 @@
 @import "variable";
 #account-container {
-    #accountManagement{
-        width: 100%;
-        #accountInfo{
-            height: 100%;
-            padding: 10px;
-            background-color: @lighter-gray;
-            .row div{
-                margin: 8px 0;
+     md-card {
+        margin: 0.8rem;
+        md-card-title, md-card-actions {
+            color: @brand;
+            padding-top: 0;
+        }
+        md-card-actions {
+            a:hover, a:visited {
+                color: @brand-dark;
             }
         }
-        #statistics{
-            height: 100%;
-            padding: 10px;
-            .row div{
-                margin: 8px 0;
-            }
+    }
+    #account-panel, #statistics-panel, #info-panel {
+        background-color: @light-gray;
+        height: 100%;
+        overflow-y: auto;
+        padding: 0.5rem;
+        @media (max-width: @md-max-width) {
+            max-height: 50%;
         }
-        #infoPanel{
-            height: 100%;
-            padding: 10px;
-            background-color: @lighter-gray;
-            #accountHelp{
-                width: 100%;
-                padding: 10px 10px 30px 10px;
-                .row div{
-                    margin: 8px 0;
-                }
-            }
+    }
+    #account-panel, #info-panel {
+        background-color: @bg;
+    }
+    #account-info {
+        .row {
+            padding: 0.25rem;
         }
     }
 }

@@ -1,40 +1,60 @@
-<article id="account-container" layout="row" class="page-container row" ng-controller="AccountCtrl">
+<article id="account-container" class="page-container row" ng-controller="AccountCtrl">
 
-    <div id="accountManagement">
-        <div id="accountInfo" class="col-xl-4">
-	        <h3>Account Info</h3>
-	        <div class="row">
-	           <div class="col-xs-4">Username:</div>
-	           <div class="col-xs-8">{{user.name}}</div>
-	        </div>
+    <div id="account-panel" class="col-md-12 col-lg-4">
+       <md-card id="account-info" md-theme-watch >
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Account Info</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div class="row">
+                   <b class="col-md-4">Username:</b>
+                   <div class="col-md-8">{{user.name}}</div>
+                </div>
+                <div class="row">
+                   <b class="col-md-4">Role:</b>
+                   <div class="col-md-8">{{user.role}}</div>
+                </div>
+                <div class="row">
+                    <b class="col-md-4">Email:</b>
+                    <div class="col-md-8">{{user.email}}</div>
+                </div>
+                <div class="row">
+                    <b class="col-md-4">Coin Balance:</b>
+                    <div class="col-md-8">{{accountData.coinBalance}}</div>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
 
-            <div class="row">
-               <div class="col-xs-4">Role:</div>
-               <div class="col-xs-8">{{user.role}}</div>
-            </div>
+    <div id="statistics-panel" class="col-md-12 col-lg-4">
+        <md-card id="statistics" md-theme-watch >
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Statistics</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+              ...
+            </md-card-content>
+        </md-card>
+    </div>
 
-	        <div class="row">
-	            <div class="col-xs-4">Email:</div>
-	            <div class="col-xs-8">{{user.email}}</div>
-	        </div>
-
-	        <div class="row">
-	            <div class="col-xs-4">Coin Balance:</div>
-	            <div class="col-xs-8">{{accountData.coinBalance}}</div>
-	        </div>
-        </div>
-        <div id="statistics" class="col-xl-4">
-            <h3>Statistics</h3>
-        </div>
-        <div id="infoPanel" class="col-xl-4">
-            <div id="accountHelp" class="block md-whiteframe-1dp">
-                <h2>Requesting Coins</h2>
-                    <p>You can ask for more credit by contacting F-TEP administrator using the
+    <div id="info-panel" class="col-md-12 col-lg-4">
+        <md-card id="request-coins" md-theme-watch >
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Requesting Coins</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <p>You can ask for more credit by contacting F-TEP administrator using the
                         <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a>
                         or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.
                     </p>
-            </div>
-        </div>
+            </md-card-content>
+        </md-card>
     </div>
 
 </article>

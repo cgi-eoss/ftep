@@ -2,91 +2,109 @@
 
     <article id="left-column" class="col-md-7 col-sm-12 no-padding">
 
-        <section id="helpdesk-info" class="block md-whiteframe-5dp">
-            <h2>Helpdesk</h2>
+        <md-card id="helpdesk-info" md-theme-watch>
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Helpdesk</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <p>Forestry-TEP Explorer page enables the platform user to search data and services, create custom databaskets, run services, and track their jobs.</p>
 
-            <p>Forestry-TEP Explorer page enables the platform user to search data and services, create custom databaskets, run services, and track their jobs.</p>
+                <p>The pre-release version of the portal exposes a first set of functionalities and processes that can be run on a growing set of data. In this initial phase the platform can leverage a limited amount of resources and data: in the upcoming releases both the data and the reources will be increased.</p>
 
-            <p>The pre-release version of the portal exposes a first set of functionalities and processes that can be run on a growing set of data. In this initial phase the platform can leverage a limited amount of resources and data: in the upcoming releases both the data and the reources will be increased.</p>
-
-            <div id="supported-services">
-                <b>The list of services and applications available in the pre-release version includes the following:</b>
-                <div id="services-list" class="row">
-                    <div class="col-md-6 no-padding">
-                        <h4>Applications:</h4>
-                        <ul>
-                            <li ng-repeat="app in applications" ng-bind="app" />
-                        </ul>
-                    </div>
-                    <div class="col-md-6 no-padding">
-                        <h4>Processors/Algorithms:</h4>
-                        <ul>
-                            <li ng-repeat="processor in processors" ng-bind="processor" />
-                        </ul>
+                <div id="supported-services">
+                    <b>The list of services and applications available in the pre-release version includes the following:</b>
+                    <div id="services-list" class="row">
+                        <div class="col-md-6 no-padding">
+                            <h4>Applications:</h4>
+                            <ul>
+                                <li ng-repeat="app in applications" ng-bind="app" />
+                            </ul>
+                        </div>
+                        <div class="col-md-6 no-padding">
+                            <h4>Processors/Algorithms:</h4>
+                            <ul>
+                                <li ng-repeat="processor in processors" ng-bind="processor" />
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </md-card-content>
+        </md-card>
 
-        <section id="contact" class="block md-whiteframe-5dp">
-            <h2>Contact and feedback</h2>
+        <md-card id="contact" md-theme-watch>
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Contact and Feedback</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <p>Forestry TEP welcomes feedback from you on our project and portal. For help and support on how to use Forestry TEP, please contact us using the <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a> or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.</p>
 
-            <p>Forestry TEP welcomes feedback from you on our project and portal. For help and support on how to use Forestry TEP, please contact us using the <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a> or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.</p>
+                <br/>
 
-            <br/>
-
-            <p>Support is provided via email and an initial response to all queries should be received within two business days.</p>
-        </section>
+                <p>Support is provided via email and an initial response to all queries should be received within two business days.</p>
+            </md-card-content>
+        </md-card>
 
     </article>
 
     <article id="right-column" class="col-md-5 col-sm-12 no-padding">
 
-        <section id="links" class="block md-whiteframe-5dp">
+        <md-card id="links" md-theme-watch>
+            <md-card-content>
             <div layout="row" class="row">
-                <div class="col-md-4 no-padding">
+                <div class="img-container col-md-4 no-padding">
                     <img src="images/logo.png" alt="Forestry TEP Logo">
                 </div>
                 <div class="col-md-8 no-padding">
-                    <ul>
-                        <li>
-                            <a href="https://forestry-tep.eo.esa.int" target="_blank">Forestry TEP website</a>
-                        </li>
-                        <li>
-                            <a href="https://forestry-tep.eo.esa.int/?q=content/user-manual-pre-release-version" target="_blank">
-                                User Manual
-                           </a>
-                        </li>
-                    </ul>
+                    <blockquote>"One-stop shop for forestry remote sensing services for the academic, public and commercial sectors."</blockquote>
                 </div>
             </div>
-        </section>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center">
+                <md-button href="https://forestry-tep.eo.esa.int"
+                           target="_blank">
+                    <span>Forestry TEP website</span>
+                </md-button>
+                <md-button href="https://forestry-tep.eo.esa.int/?q=content/user-manual-pre-release-version"
+                           target="_blank">
+                    <span>User Manual</span>
+                </md-button>
+            </md-card-actions>
+        </md-card>
 
-        <section flex id="videoclips" class="block md-whiteframe-5dp">
-            <h2>Tutorial Videos</h2>
-
-            <div layout="row" class="row">
-                <div class="video col-md-6 no-padding" ng-repeat="video in videos.slice(0,2)">
-                    <figure>
-                        <a href="{{video.url}}" target="_blank">
-                            <img src="{{video.image}}" />
-                        </a>
-                        <figcaption ng-bind="video.description" />
-                    </figure>
+        <md-card id="videoclips" md-theme-watch>
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Tutorial Videos</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div layout="row" class="row">
+                    <div class="video col-md-6 no-padding" ng-repeat="video in videos.slice(0,2)">
+                        <figure>
+                            <a href="{{video.url}}" target="_blank">
+                                <img src="{{video.image}}" />
+                            </a>
+                            <figcaption ng-bind="video.description" />
+                        </figure>
+                    </div>
                 </div>
-            </div>
 
-            <div layout="row">
-                <div class="video col-md-6 no-padding" ng-repeat="video in videos.slice(2,4)">
-                    <figure>
-                        <a href="{{video.url}}" target="_blank">
-                            <img src="{{video.image}}" />
-                        </a>
-                        <figcaption ng-bind="video.description" />
-                    </figure>
+                <div layout="row">
+                    <div class="video col-md-6 no-padding" ng-repeat="video in videos.slice(2,4)">
+                        <figure>
+                            <a href="{{video.url}}" target="_blank">
+                                <img src="{{video.image}}" />
+                            </a>
+                            <figcaption ng-bind="video.description" />
+                        </figure>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </md-card-content>
+        </md-card>
 
     </article>
 

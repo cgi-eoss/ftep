@@ -86,7 +86,7 @@ define([
                 resolve:{
                     "check":function($location, UserService){
                         UserService.getCurrentUser().then(function(user){
-                            if(user.role != 'ADMIN'){
+                            if(user.role !== 'ADMIN'){
                                 $location.path('/');  //redirect to homepage
                             }
                         });
@@ -163,7 +163,7 @@ define([
             else{
                 return '';
             }
-        }
+        };
     }]);
 
     app.filter('asSingular', function () {
@@ -272,7 +272,7 @@ define([
                     }, 100);
                 });
             }
-        }
+        };
      }]);
 
     /** Directive for showing/hiding elements based on screen size **/
@@ -311,7 +311,7 @@ define([
                     }, 100);
                 });
             }
-        }
+        };
     }]);
 
     return app;

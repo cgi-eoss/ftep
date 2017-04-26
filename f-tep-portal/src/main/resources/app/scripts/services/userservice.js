@@ -9,25 +9,25 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson',
-                                         function (ftepProperties, $q, MessageService, traverson) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', function (ftepProperties, $q, MessageService, traverson) {
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var usersAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
+        var timeout = false;
 
         this.params = {
-                community: {
-                    allUsers: [],
-                    groupUsers: [],
-                    searchText: '',
-                    displayUserFilters: false
-                },
-                admin: {
-                    selectedUser: undefined,
-                    searchText: ''
-                }
+            community: {
+                allUsers: [],
+                groupUsers: [],
+                searchText: '',
+                displayUserFilters: false
+            },
+            admin: {
+                selectedUser: undefined,
+                searchText: ''
+            }
         };
 
         this.getCurrentUser = function(){
@@ -39,8 +39,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get user data',
-                            'Failed to get user data' + ((error.doc && error.doc.message) ? ': ' + error.doc.message : '' ));
+                    if (!timeout) {
+                        window.alert("Your session has expired. Please log in.");
+                        MessageService.addError ('No User Detected',
+                                          'Failed to get user data. Access to the server is restricted so the portal will not function correctly. Please login to regain functionality. Server Error Message: '.concat((error.doc && error.doc.message) ? ': ' + error.doc.message : '' ));
+                        timeout = true;
+                    }
                     deferred.reject();
                 });
             return deferred.promise;

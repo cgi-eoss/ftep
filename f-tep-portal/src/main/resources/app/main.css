@@ -32,6 +32,9 @@
 #account-container #account-info .row {
   padding: 0.25rem;
 }
+#login-container .note {
+  padding: 2rem;
+}
 
 #admin-container {
   width: 100%;
@@ -608,6 +611,10 @@
 }
 #navbar .navbar-container .navbar-contents .nav li:hover p {
   color: #33691e;
+}
+#navbar .navbar-container .navbar-contents .nav .login {
+  background-color: #558b2f;
+  color: rgba(255, 255, 255, 0.87);
 }
 @media (max-width: 860px) {
   #navbar .navbar-container .navbar-contents .nav {
@@ -1754,13 +1761,6 @@
 #developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .executable md-checkbox {
   margin: 0;
 }
-@media (max-width: 991px) {
-  #developer-container #service-container .right-container {
-    height: auto;
-    margin-left: 44px !important;
-    max-height: 50%;
-  }
-}
 #developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .input-label {
   font-size: 1rem;
   margin: 0;
@@ -1768,6 +1768,14 @@
   vertical-align: top;
   width: auto;
 }
+@media (max-width: 991px) {
+  #developer-container #service-container .right-container {
+    height: auto;
+    margin-left: 44px !important;
+    max-height: 50%;
+  }
+}
+
 @media (max-width: 991px) {
   #explorer-container #side-container {
     overflow: visible !important;

@@ -29,16 +29,20 @@
                     <p><i class="material-icons">person</i> Manage / Share</p>
                 </li>
 
-                <li ng-click="goTo('/account')" aria-label="Account" ng-class="{ active: isActive('/account')}">
-                   <p><i class="material-icons">settings</i> My Account</p>
-                </li>
-
                 <li ng-click="goTo('/helpdesk')" aria-label="Helpdesk" ng-class="{ active: isActive('/helpdesk')}">
                    <p><i class="material-icons">help</i> Helpdesk</p>
                 </li>
 
+                <li ng-click="goTo('/account')" ng-if="user" aria-label="Account" ng-class="{ active: isActive('/account')}">
+                   <p><i class="material-icons">account_circle</i> My Account</p>
+                </li>
+
+                <li ng-click="reloadRoute()"  ng-if="!user" class="login" aria-label="Login">
+                   <p><i class="material-icons">account_circle</i> Login</p>
+                </li>
+
                 <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin" ng-class="{ active: isActive('/admin')}">
-                   <p><i class="material-icons">account_circle</i> Admin</p>
+                   <p><i class="material-icons">settings</i> Admin</p>
                 </li>
             </ul>
 

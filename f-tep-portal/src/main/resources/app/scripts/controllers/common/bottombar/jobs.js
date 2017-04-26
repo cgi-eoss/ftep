@@ -23,7 +23,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.jobs = data;
                 groupJobs();
 
-                JobService.refreshSelectedJob('explorer');
+                // Refresh active job if running
+                if ($scope.jobParams.selectedJob.status === "RUNNING") {
+                    JobService.refreshSelectedJob('explorer');
+                }
+
             });
 
             // Group jobs by their service name

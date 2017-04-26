@@ -20,7 +20,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.serviceParams.inputValues = {};
             $scope.serviceParams.dropLists = {};
             if(inputs){
-                $scope.serviceParams.inputValues = inputs;
+                for (var key in inputs) {
+                    $scope.serviceParams.inputValues[key] = inputs[key][0]; //First value is the actual input
+                }
             }
 
             ProductService.getService(service).then(function(detailedService){

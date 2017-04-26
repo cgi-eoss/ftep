@@ -8,7 +8,7 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', 'CommonService', 'BasketService', 'TabService', function ($scope, $rootScope, CommonService, BasketService, TabService) {
+    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService', 'TabService', function ($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService) {
 
         $scope.dbPaging = BasketService.pagingData;
         $scope.dbParams = BasketService.params.explorer;
@@ -64,13 +64,38 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.dbParams.databasketOnMap.id = undefined;
         };
 
-        $scope.cloneDatabasket = function (event, basket) {
-            CommonService.createItemDialog(event, 'BasketService', 'createDatabasket').then(function (newBasket) {
+        $scope.cloneDatabasket = function($event, basket){
+            function CloneController($scope, $mdDialog) {
+
                 BasketService.getDatabasketContents(basket).then(function(files){
-                    BasketService.addItems(newBasket, files).then(function(data){
-                        BasketService.refreshDatabaskets("explorer");
-                    });
+                    $scope.files = files;
                 });
+
+                $scope.cloneBasket= function() {
+                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description).then(function (newBasket) {
+                        var fileLinks = [];
+                        for (var file in $scope.files) {
+                            fileLinks.push($scope.files[file]._links.self.href);
+                        }
+                        BasketService.addItems(newBasket, fileLinks).then(function(data){
+                            BasketService.refreshDatabaskets("explorer");
+                        });
+                    });
+                    $mdDialog.hide();
+                };
+
+                $scope.closeDialog = function () {
+                    $mdDialog.hide();
+                };
+            }
+
+            CloneController.$inject = ['$scope', '$mdDialog'];
+            $mdDialog.show({
+                controller: CloneController,
+                templateUrl: 'views/explorer/templates/createdatabasket.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
             });
         };
 

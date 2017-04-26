@@ -41,6 +41,11 @@
                 ng-click="jobTab = 'OUTPUTS'">
                 <a>OUTPUTS</a>
             </li>
+            <li role="presentation"
+                ng-class="(jobTab == 'LOGS') ? 'active' : ''"
+                ng-click="jobTab = 'LOGS'">
+                <a>OUTPUTS</a>
+            </li>
         </ul>
     </section>
 
@@ -90,6 +95,21 @@
         <div ng-show="!jobParams.selectedJob.outputs" class="note">
             No output files to display.
         </div>
+    </section>
+
+    <section class="job-log" ng-if="jobTab == 'LOGS'">
+        <table>
+            <tr>
+                <th>Timestamp</th>
+                <th>Message</th>
+            </tr>
+            <tr ng-repeat="message in jobParams.selectedJob.logs">
+                <td class="job-timestamp" ng-bind="message.timestamp" />
+                <td>
+                    <pre class="job-message" ng-bind-html="message.message | nl2br" />
+                </td>
+            </tr>
+        </table>
     </section>
 
 </div>

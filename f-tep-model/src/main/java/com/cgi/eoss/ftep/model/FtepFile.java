@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
 import com.cgi.eoss.ftep.model.converters.UriStringConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -87,6 +88,14 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
      */
     @Column(name = "filesize")
     private Long filesize;
+
+    /**
+     * <p>The optional F-TEP datasource to which this file is associated.</p>
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "datasource")
+    @JsonIgnore
+    private DataSource dataSource;
 
     /**
      * <p>Construct a new FtepFile instance with the minimum mandatory (and unique) parameters.</p>

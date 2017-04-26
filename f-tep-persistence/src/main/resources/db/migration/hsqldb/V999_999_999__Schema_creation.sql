@@ -112,16 +112,29 @@ CREATE INDEX ftep_jobs_job_config_idx
 CREATE INDEX ftep_jobs_owner_idx
   ON ftep_jobs (owner);
 
+-- Data sources
+
+CREATE TABLE ftep_data_sources (
+  id    BIGINT IDENTITY PRIMARY KEY,
+  name  CHARACTER VARYING(255) NOT NULL,
+  owner BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
+);
+CREATE UNIQUE INDEX ftep_data_sources_name_idx
+  ON ftep_data_sources (name);
+CREATE INDEX ftep_data_sources_owner_idx
+  ON ftep_data_sources (owner);
+
 -- FtepFile and Databasket tables
 
 CREATE TABLE ftep_files (
-  id       BIGINT IDENTITY PRIMARY KEY,
-  uri      CHARACTER VARYING(255) NOT NULL,
-  resto_id BINARY(255)            NOT NULL,
-  type     CHARACTER VARYING(255) CHECK (type IN ('REFERENCE_DATA', 'OUTPUT_PRODUCT', 'EXTERNAL_PRODUCT')),
-  owner    BIGINT FOREIGN KEY REFERENCES ftep_users (uid),
-  filename CHARACTER VARYING(255),
-  filesize BIGINT
+  id         BIGINT IDENTITY PRIMARY KEY,
+  uri        CHARACTER VARYING(255) NOT NULL,
+  resto_id   BINARY(255)            NOT NULL,
+  type       CHARACTER VARYING(255) CHECK (type IN ('REFERENCE_DATA', 'OUTPUT_PRODUCT', 'EXTERNAL_PRODUCT')),
+  owner      BIGINT FOREIGN KEY REFERENCES ftep_users (uid),
+  filename   CHARACTER VARYING(255),
+  filesize   BIGINT,
+  datasource BIGINT FOREIGN KEY REFERENCES ftep_data_sources (id)
 );
 CREATE UNIQUE INDEX ftep_files_uri_idx
   ON ftep_files (uri);
@@ -192,18 +205,6 @@ CREATE INDEX ftep_service_files_filename_idx
   ON ftep_service_files (filename);
 CREATE INDEX ftep_service_files_service_idx
   ON ftep_service_files (service);
-
--- Data sources
-
-CREATE TABLE ftep_data_sources (
-  id    BIGINT IDENTITY PRIMARY KEY,
-  name  CHARACTER VARYING(255) NOT NULL,
-  owner BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
-);
-CREATE UNIQUE INDEX ftep_data_sources_name_idx
-  ON ftep_data_sources (name);
-CREATE INDEX ftep_data_sources_owner_idx
-  ON ftep_data_sources (owner);
 
 -- Cost expressions
 

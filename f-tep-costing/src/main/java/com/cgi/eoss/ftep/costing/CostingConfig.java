@@ -1,6 +1,9 @@
 package com.cgi.eoss.ftep.costing;
 
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.cgi.eoss.ftep.persistence.service.CostingExpressionDataService;
+import com.cgi.eoss.ftep.persistence.service.WalletDataService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,8 +25,12 @@ public class CostingConfig {
     }
 
     @Bean
-    public CostingService costingService(ExpressionParser costingExpressionParser) {
-        return new CostingServiceImpl(costingExpressionParser);
+    public CostingService costingService(ExpressionParser costingExpressionParser,
+                                         CostingExpressionDataService costingDataService,
+                                         WalletDataService walletDataService,
+                                         @Value("${ftep.costing.defaultJobCostExpression:1}") String defaultJobCostExpression,
+                                         @Value("${ftep.costing.defaultDownloadCostExpression:1}") String defaultDownloadCostExpression) {
+        return new CostingServiceImpl(costingExpressionParser, costingDataService, walletDataService, defaultJobCostExpression, defaultDownloadCostExpression);
     }
 
 }

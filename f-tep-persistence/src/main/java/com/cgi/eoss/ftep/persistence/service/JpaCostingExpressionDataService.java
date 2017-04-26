@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.CostingExpression;
+import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.persistence.dao.CostingExpressionDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.querydsl.core.types.Predicate;
@@ -29,6 +31,23 @@ public class JpaCostingExpressionDataService extends AbstractJpaDataService<Cost
     @Override
     Predicate getUniquePredicate(CostingExpression entity) {
         return costingExpression.type.eq(entity.getType()).and(costingExpression.associatedId.eq(entity.getAssociatedId()));
+    }
+
+    @Override
+    public CostingExpression getServiceCostingExpression(FtepService service) {
+        return costingExpressionDao.findOne(
+                costingExpression.type.eq(CostingExpression.Type.SERVICE)
+                        .and(costingExpression.associatedId.eq(service.getId())));
+    }
+
+    @Override
+    public CostingExpression getDownloadCostingExpression(FtepFile ftepFile) {
+        if (ftepFile.getDataSource() != null) {
+            return costingExpressionDao.findOne(
+                    costingExpression.type.eq(CostingExpression.Type.DOWNLOAD)
+                            .and(costingExpression.associatedId.eq(ftepFile.getDataSource().getId())));
+        }
+        return null;
     }
 
 }

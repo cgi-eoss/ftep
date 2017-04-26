@@ -27,8 +27,8 @@ class ftep::drupal::apache(
     ],
     rewrites         => [
       { rewrite_rule => [
-        '^/api/v1.0/(.*) /api.php?q=api/$1 [L,PT,QSA]',
-        '^/secure/api/v1.0/(.*) /api.php?q=api/$1 [L,PT,QSA]'
+        '^/api/(.*) /api.php?q=api/$1 [L,PT,QSA]',
+        '^/secure/api/(.*) /api.php?q=api/$1 [L,PT,QSA]'
       ] },
     ]
   }

@@ -57,6 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -84,6 +85,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 })
 @EnableCaching
 @EnableJpaRepositories(basePackageClasses = ApiConfig.class)
+@EnableWebMvc
 @ComponentScan(basePackageClasses = ApiConfig.class)
 @Log4j2
 public class ApiConfig {

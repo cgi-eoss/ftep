@@ -173,7 +173,7 @@ public class FtepHarness {
         @Override
         protected void configure() {
             checkState(desiredCapabilities != null);
-            super.setDockerImageName("selenium/standalone-chrome-debug:3.3.0");
+            super.setDockerImageName("selenium/standalone-chrome-debug:3.4.0");
 
             String timeZone = System.getProperty("user.timezone");
 

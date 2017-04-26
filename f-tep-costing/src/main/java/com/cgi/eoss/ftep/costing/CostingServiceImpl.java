@@ -43,13 +43,18 @@ public class CostingServiceImpl implements CostingService {
                 ? costingExpression.getCostExpression()
                 : costingExpression.getEstimatedCostExpression();
 
-        return (Integer) expressionParser.parseExpression(expression).getValue(jobConfig);
+        return ((Number) expressionParser.parseExpression(expression).getValue(jobConfig)).intValue();
     }
 
     @Override
     public Integer estimateDownloadCost(FtepFile ftepFile) {
         CostingExpression costingExpression = getCostingExpression(ftepFile);
-        return null;
+
+        String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
+                ? costingExpression.getCostExpression()
+                : costingExpression.getEstimatedCostExpression();
+
+        return ((Number) expressionParser.parseExpression(expression).getValue(ftepFile)).intValue();
     }
 
     @Override
@@ -58,7 +63,7 @@ public class CostingServiceImpl implements CostingService {
 
         String expression = costingExpression.getCostExpression();
 
-        int cost = (Integer) expressionParser.parseExpression(expression).getValue(job);
+        int cost = ((Number) expressionParser.parseExpression(expression).getValue(job)).intValue();
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .wallet(wallet)
                 .balanceChange(-cost)
@@ -70,8 +75,20 @@ public class CostingServiceImpl implements CostingService {
     }
 
     @Override
-    public void chargeForDownload(Wallet wallet, FtepFile download) {
+    public void chargeForDownload(Wallet wallet, FtepFile ftepFile) {
+        CostingExpression costingExpression = getCostingExpression(ftepFile);
 
+        String expression = costingExpression.getCostExpression();
+
+        int cost = ((Number) expressionParser.parseExpression(expression).getValue(ftepFile)).intValue();
+        WalletTransaction walletTransaction = WalletTransaction.builder()
+                .wallet(wallet)
+                .balanceChange(-cost)
+                .type(WalletTransaction.Type.DOWNLOAD)
+                .associatedId(ftepFile.getId())
+                .transactionTime(LocalDateTime.now())
+                .build();
+        walletDataService.transact(walletTransaction);
     }
 
     private CostingExpression getCostingExpression(FtepService ftepService) {

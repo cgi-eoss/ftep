@@ -61,6 +61,9 @@ define(['../ftepmodules'], function (ftepmodules) {
                     activeSideNav: communityTabs.MANAGE,
                     activeBottomNav: undefined
                 },
+                admin: {
+                    sideViewVisible: false
+                },
                 bottombar: {
                     bottomViewVisible: false
                 }

@@ -36,21 +36,35 @@
   padding: 2rem;
 }
 
-#admin-container {
-  width: 100%;
-}
-#admin-container #coins-container {
-  background-color: #f8f8f8;
-  border-right: #d2d2d2 solid 1px;
+#admin-container #management-container {
   height: 100%;
+  width: 100%;
+  padding-left: 44px;
+}
+#admin-container #management-container #user-selection {
+  width: 100%;
+  padding: 0.5rem;
+  border: #f8f8f8 1px solid;
+}
+#admin-container #management-container #management-container {
+  height: 100%;
+  padding: 0.5rem;
+}
+#admin-container #management-container #coins-container,
+#admin-container #management-container #role-container {
   overflow-y: auto;
   padding: 0.5rem;
   padding-bottom: 2rem;
 }
-#admin-container #coins-container .material-label {
+#admin-container #management-container #coins-container .material-label,
+#admin-container #management-container #role-container .material-label {
   font-size: 1rem;
 }
-#admin-container #coins-container md-card-actions {
+#admin-container #management-container #coins-container {
+  background-color: #f8f8f8;
+  border-right: #d2d2d2 solid 1px;
+}
+#admin-container #management-container #coins-container md-card-actions {
   color: #558b2f;
 }
 
@@ -613,7 +627,7 @@
   color: #33691e;
 }
 #navbar .navbar-container .navbar-contents .nav .login {
-  background-color: #558b2f;
+  background-color: #f2dede;
   color: rgba(255, 255, 255, 0.87);
 }
 @media (max-width: 860px) {

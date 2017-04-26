@@ -8,13 +8,16 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AccountCtrl', ['$scope', 'UserService', function ($scope, UserService) {
+    ftepmodules.controller('AccountCtrl', ['$scope', 'UserService', 'WalletService', function ($scope, UserService, WalletService) {
 
         $scope.user = undefined;
-        $scope.accountData = { coinBalance: 0 }; //TODO
+        $scope.wallet = undefined;
 
-        UserService.getCurrentUser().then(function(data){
-            $scope.user = data;
+        UserService.getCurrentUser().then(function(user){
+            $scope.user = user;
+            WalletService.getUserWalletByUserId(user.id).then(function(wallet){
+                $scope.wallet = wallet;
+            });
         });
 
     }]);

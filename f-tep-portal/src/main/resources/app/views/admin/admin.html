@@ -1,57 +1,15 @@
 <article id="admin-container" layout="row" class="page-container row" ng-controller="AdminCtrl">
 
-    <section id="coins-container" class="col-md-4 col-xl-3 col-xxl-2 no-padding">
-        <h2>Endorse Coins</h2>
+    <section id="sidenav" ng-include src="'views/admin/sidenav.html'" />
 
-        <form id="addCoinsForm" name ="addCoinsForm">
-            <label for="find-user" class="material-label">Select user</label>
-            <md-autocomplete id="find-user"
-                             flex required
-                             aria-label="Find user by name"
-                             md-items="user in searchUsers()"
-                             md-item-text="user.name"
-                             md-selected-item="userParams.selectedUser"
-                             md-search-text="userParams.searchText"
-                             md-require-match="true"
-                             md-match-case-insensitive="true"
-                             placeholder="Find user by name">
-                <md-item-template>
-                    <span md-highlight-text="userParams.searchText">{{user.name}}</span>
-                </md-item-template>
-                <md-not-found>
-                    <span>No users matching "{{userParams.searchText}}" were found.</span>
-                </md-not-found>
-            </md-autocomplete>
+    <section id="management-container"
+             class= "row"
+             ng-include src="'views/admin/usermanagement.html'"/>
 
-            <md-card md-theme-watch ng-show="userParams.selectedUser">
-                <md-card-title>
-                    <md-card-title-text>
-                        <span class="md-headline" ng-bind="userParams.selectedUser.name" />
-                        <span class="md-subhead" ng-bind="'Coin Balance: ' + selectedUser.accountData.coinBalance" />
-                    </md-card-title-text>
-                </md-card-title>
-                <md-card-content>
-                    <md-input-container class="md-block">
-                        <label ng-class="{hidden: coins < 0}">Add Coins</label>
-                        <label ng-class="{hidden: coins > -1}">Subtract Coins</label>
-                        <input id="user-coins" ng-model="coins" type="number" step="1">
-                    </md-input-container>
-                </md-card-content>
-                <md-card-actions layout="row" layout-align="end center">
-                    <md-button id="add-coins"
-                               type="submit"
-                               aria-label="Endorse"
-                               ng-disabled="addCoinsForm.$invalid || coins === 0 || (selectedUser.accountData.coinBalance + coins) < 0"
-                               ng-click="addCoins()">
-                        <span ng-class="{hidden: coins < 0}"> Endorse Coins</span>
-                        <span ng-class="{hidden: coins > -1}">Subtract Coins</span>
-                    </md-button>
-                </md-card-actions>
-            </md-card>
-        </form>
-    </section>
-
-    <section class="col-md-4 col-xl-3 col-xxl-2 no-padding"></section>
-    <section class="col-md-4 col-xl-3 col-xxl-2 no-padding"></section>
-
+    <section id="bottombar-container"
+             ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+             class="explorer-content animationIf no-padding"
+             ng-include src="'views/common/bottombar/bottombar.html'"
+             ng-controller="BottombarCtrl"
+             ng-if="bottombarNavInfo.bottomViewVisible"/>
 </article>

@@ -2,33 +2,33 @@
 
     <session id="account-container" ng-if="user">
 
-        <div id="account-panel" class="col-md-12 col-lg-4">
-           <md-card id="account-info" md-theme-watch >
-                <md-card-title>
-                    <md-card-title-text>
-                        <h2>Account Info</h2>
-                    </md-card-title-text>
-                </md-card-title>
-                <md-card-content>
-                    <div class="row">
-                       <b class="col-md-4">Username:</b>
-                       <div class="col-md-8">{{user.name}}</div>
-                    </div>
-                    <div class="row">
-                       <b class="col-md-4">Role:</b>
-                       <div class="col-md-8">{{user.role}}</div>
-                    </div>
-                    <div class="row">
-                        <b class="col-md-4">Email:</b>
-                        <div class="col-md-8">{{user.email}}</div>
-                    </div>
-                    <div class="row">
-                        <b class="col-md-4">Coin Balance:</b>
-                        <div class="col-md-8">{{accountData.coinBalance}}</div>
-                    </div>
-                </md-card-content>
-            </md-card>
-        </div>
+	    <div id="account-panel" class="col-md-12 col-lg-4">
+	       <md-card id="account-info" md-theme-watch >
+	            <md-card-title>
+	                <md-card-title-text>
+	                    <h2>Account Info</h2>
+	                </md-card-title-text>
+	            </md-card-title>
+	            <md-card-content>
+	                <div class="row">
+	                   <b class="col-md-4">Username:</b>
+	                   <div class="col-md-8">{{user.name}}</div>
+	                </div>
+	                <div class="row">
+	                   <b class="col-md-4">Role:</b>
+	                   <div class="col-md-8">{{user.role}}</div>
+	                </div>
+	                <div class="row">
+	                    <b class="col-md-4">Email:</b>
+	                    <div class="col-md-8">{{user.email}}</div>
+	                </div>
+	                <div class="row">
+	                    <b class="col-md-4">Coin Balance:</b>
+	                    <div class="col-md-8">{{wallet.balance}}</div>
+	                </div>
+	            </md-card-content>
+	        </md-card>
+	    </div>
 
         <div id="statistics-panel" class="col-md-12 col-lg-4">
             <md-card id="statistics" md-theme-watch >

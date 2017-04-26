@@ -18,19 +18,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var timeout = false;
 
         this.params = {
-            community: {
-                allUsers: [],
-                groupUsers: [],
-                searchText: '',
-                displayUserFilters: false
-            },
-            admin: {
-                selectedUser: undefined,
-                searchText: ''
-            }
+                community: {
+                    allUsers: [],
+                    groupUsers: [],
+                    searchText: '',
+                    displayUserFilters: false
+                },
+                admin: {
+                    selectedUser: undefined,
+                    userDetails: undefined,
+                    newRole: undefined,
+                    wallet: undefined,
+                    coins: 0,
+                    searchText: ''
+                }
         };
 
-        this.getCurrentUser = function(){
+        this.getCurrentUser = function(withDetails){
             var deferred = $q.defer();
             usersAPI.from(ftepProperties.URLv2 + '/currentUser')
                 .newRequest()
@@ -83,6 +87,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        this.getUserByLink = function(userUrl){
+            var deferred = $q.defer();
+            usersAPI.from(userUrl)
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError ('Could not get User', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
         this.addUser = function (group, groupUsers, user) {
             return $q(function(resolve, reject) {
 
@@ -118,6 +138,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     reject();
                 });
 
+            });
+        };
+
+        this.updateUser = function(user){
+            var newUser = {name: user.name, id: user.id, email: user.email, role: user.role};
+            return $q(function(resolve, reject) {
+                usersAPI.from(rootUri + '/users/' + user.id)
+                         .newRequest()
+                         .patch(newUser)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('User successfully updated', 'User ' + user.name + ' successfully updated.');
+                    resolve(JSON.parse(document.data));
+                }, function (error) {
+                    MessageService.addError('Failed to update User', error);
+                    reject();
+                });
             });
         };
 

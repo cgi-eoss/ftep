@@ -8,11 +8,11 @@
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageProjectCtrl"
              src="'views/community/manage/projects/project.html'"
-             ng-if="projectParams.selectedProject && navInfo.activeCommunityPage === 0"/>
+             ng-if="projectParams.selectedProject && navInfo.activeSideNav === 0"/>
 
     <article id="project-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareProjectCtrl"
              src="'views/community/share/projects/project.html'"
-             ng-if="projectParams.selectedProject && navInfo.activeCommunityPage === 1" />
+             ng-if="projectParams.selectedProject && navInfo.activeSideNav === 1" />
 </div>

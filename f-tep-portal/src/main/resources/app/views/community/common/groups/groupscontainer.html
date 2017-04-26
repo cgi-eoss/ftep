@@ -8,11 +8,11 @@
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageGroupCtrl"
              src="'views/community/manage/groups/group.html'"
-             ng-if="groupParams.selectedGroup && navInfo.activeCommunityPage === 0" />
+             ng-if="groupParams.selectedGroup && navInfo.activeSideNav === 0" />
 
     <article id="group-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareGroupCtrl"
              src="'views/community/share/groups/group.html'"
-             ng-if="groupParams.selectedGroup && navInfo.activeCommunityPage === 1" />
+             ng-if="groupParams.selectedGroup && navInfo.activeSideNav === 1" />
 </div>

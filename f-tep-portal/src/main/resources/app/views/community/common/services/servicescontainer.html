@@ -8,11 +8,11 @@
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageServiceCtrl"
              src="'views/community/manage/services/service.html'"
-             ng-if="serviceParams.selectedService && navInfo.activeCommunityPage === 0"/>
+             ng-if="serviceParams.selectedService && navInfo.activeSideNav === 0"/>
 
     <article id="service-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareServiceCtrl"
              src="'views/community/share/services/service.html'"
-             ng-if="serviceParams.selectedService && navInfo.activeCommunityPage === 1" />
+             ng-if="serviceParams.selectedService && navInfo.activeSideNav === 1" />
 </div>

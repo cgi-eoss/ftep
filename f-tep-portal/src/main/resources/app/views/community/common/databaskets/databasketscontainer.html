@@ -8,12 +8,12 @@
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageDatabasketCtrl"
              src="'views/community/manage/databaskets/databasket.html'"
-             ng-if="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 0" />
+             ng-if="basketParams.selectedDatabasket && navInfo.activeSideNav === 0" />
 
     <article id="databasket-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareDatabasketCtrl"
              src="'views/community/share/databaskets/databasket.html'"
-             ng-if="basketParams.selectedDatabasket && navInfo.activeCommunityPage === 1" />
+             ng-if="basketParams.selectedDatabasket && navInfo.activeSideNav === 1" />
 
 </div>

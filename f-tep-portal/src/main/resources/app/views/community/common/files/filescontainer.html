@@ -8,11 +8,11 @@
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityManageFileCtrl"
              src="'views/community/manage/files/file.html'"
-             ng-if="fileParams.selectedFile && navInfo.activeCommunityPage === 0"/>
+             ng-if="fileParams.selectedFile && navInfo.activeSideNav === 0"/>
 
     <article id="file-share-container"
              class="col-md-8 col-xl-9 col-xxl-10 right-container"
              ng-include ng-controller="CommunityShareFileCtrl"
              src="'views/community/share/files/file.html'"
-             ng-if="fileParams.selectedFile && navInfo.activeCommunityPage === 1"/>
+             ng-if="fileParams.selectedFile && navInfo.activeSideNav === 1"/>
 </div>

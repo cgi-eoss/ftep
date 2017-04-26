@@ -55,7 +55,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.item = data;
 
                 $scope.getQuicklookSrc = function(item){
-                    return '' + ftepProperties.URLv2 + item.ql;
+                    return item.ql;
                 };
 
                 $scope.closeDialog = function() {

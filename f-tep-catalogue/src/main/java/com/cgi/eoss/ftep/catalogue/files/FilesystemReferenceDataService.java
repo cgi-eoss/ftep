@@ -48,18 +48,26 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
         Files.createDirectories(dest.getParent());
         Files.copy(multipartFile.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
 
+        URI uri = CatalogueUri.REFERENCE_DATA.build(
+                ImmutableMap.of(
+                        "ownerId", owner.getId().toString(),
+                        "filename", filename));
+
         Feature feature = new Feature();
         feature.setId(owner.getName() + "_" + filename);
         feature.setGeometry(GeoUtil.getGeoJsonGeometry(geometry));
         // TODO Add internally-generated properties?
         feature.setProperties(userProperties);
 
-        UUID restoId = resto.ingestReferenceData(feature);
-        URI uri = CatalogueUri.REFERENCE_DATA.build(
-                ImmutableMap.of(
-                        "ownerId", owner.getId().toString(),
-                        "filename", filename));
-        LOG.info("Ingested product with Resto id {} and URI {}", restoId, uri);
+        UUID restoId;
+        try {
+            restoId = resto.ingestReferenceData(feature);
+            LOG.info("Ingested reference data with Resto id {} and URI {}", restoId, uri);
+        } catch (Exception e) {
+            LOG.error("Failed to ingest reference data to Resto, continuing...", e);
+            // TODO Add GeoJSON to FtepFile model
+            restoId = UUID.randomUUID();
+        }
 
         FtepFile ftepFile = new FtepFile(uri, restoId);
         ftepFile.setOwner(owner);

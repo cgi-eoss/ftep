@@ -56,7 +56,12 @@ public class FilesystemOutputProductService implements OutputProductService {
         }
         LOG.info("Ingesting output at {}", dest);
 
-        String geoserverUrl = geoserver.ingest(jobId, dest, crs);
+        String geoserverUrl = null;
+        try {
+            geoserverUrl = geoserver.ingest(jobId, dest, crs);
+        } catch (Exception e) {
+            LOG.error("Failed to ingest output product to GeoServer, continuing...", e);
+        }
 
         URI uri = CatalogueUri.OUTPUT_PRODUCT.build(
                 ImmutableMap.of(
@@ -79,8 +84,15 @@ public class FilesystemOutputProductService implements OutputProductService {
         feature.setGeometry(GeoUtil.getGeoJsonGeometry(geometry));
         feature.setProperties(properties);
 
-        UUID restoId = resto.ingestOutputProduct(feature);
-        LOG.info("Ingested product with Resto id {} and URI {}", restoId, uri);
+        UUID restoId;
+        try {
+            restoId = resto.ingestOutputProduct(feature);
+            LOG.info("Ingested output product with Resto id {} and URI {}", restoId, uri);
+        } catch (Exception e) {
+            LOG.error("Failed to ingest output product to Resto, continuing...", e);
+            // TODO Add GeoJSON to FtepFile model
+            restoId = UUID.randomUUID();
+        }
 
         FtepFile ftepFile = new FtepFile(uri, restoId);
         ftepFile.setOwner(owner);

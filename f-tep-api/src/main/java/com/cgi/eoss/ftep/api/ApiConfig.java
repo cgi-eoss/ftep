@@ -15,6 +15,7 @@ import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import lombok.extern.log4j.Log4j2;
@@ -90,6 +91,11 @@ public class ApiConfig {
     @Bean
     public GuavaModule jacksonGuavaModule() {
         return new GuavaModule();
+    }
+
+    @Bean
+    public Hibernate5Module jacksonHibernateModule() {
+        return new Hibernate5Module();
     }
 
     @Bean

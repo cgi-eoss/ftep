@@ -38,7 +38,15 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         URI uri = CatalogueUri.valueOf(feature.getProperty("type")).build(ImmutableMap.of("productId", productId));
 
         return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {
-            UUID restoId = resto.ingestReferenceData(feature);
+            UUID restoId;
+            try {
+                restoId = resto.ingestExternalProduct("external_" + feature.getProperty("type"), feature);
+                LOG.info("Ingested external product with Resto id {} and URI {}", restoId, uri);
+            } catch (Exception e) {
+                LOG.error("Failed to ingest external product to Resto, continuing...", e);
+                // TODO Add GeoJSON to FtepFile model
+                restoId = UUID.randomUUID();
+            }
             FtepFile ftepFile = new FtepFile(uri, restoId);
             ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
             return ftepFileDataService.save(ftepFile);

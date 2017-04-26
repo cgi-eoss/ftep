@@ -20,6 +20,21 @@ public class JobConfigsApiImpl extends BaseRepositoryApiImpl<JobConfig> {
     private final JobConfigDao dao;
 
     @Override
+    public <S extends JobConfig> S save(S entity) {
+        if (entity.getOwner() == null) {
+            getSecurityService().updateOwnerWithCurrentUser(entity);
+        }
+
+        JobConfig existing = getDao().findOne(QJobConfig.jobConfig.owner.eq(entity.getOwner())
+                .and(QJobConfig.jobConfig.service.eq(entity.getService()))
+                .and(QJobConfig.jobConfig.inputs.eq(entity.getInputs())));
+        if (existing != null) {
+            entity.setId(existing.getId());
+        }
+        return getDao().save(entity);
+    }
+
+    @Override
     NumberPath<Long> getIdPath() {
         return QJobConfig.jobConfig.id;
     }

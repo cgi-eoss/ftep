@@ -65,30 +65,15 @@
                             <md-input-container md-no-float class="md-block file-editor">
 
                                 <div class="row file-settings">
-                                    <div class="col-md-4 no-padding">
-                                        <label class="input-label">File Language:</label>
-                                        <select class="form-control"
-                                                ng-model="mode.active"
-                                                ng-options="m for m in modes"
-                                                ng-change="modeChanged()"
-                                                ng-init="selectDefaultMode()" />
-                                    </div>
-                                    <div class="col-md-4 no-padding" />
-                                    <div class="col-md-4 no-padding">
                                         <label class="input-label">Executable:</label>
                                         <md-checkbox class="executable"
                                                      ng-model="file.executable"
                                                      aria-label="Executable"
                                                      ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
                                         </md-checkbox>
-                                    </div>
                                 </div>
 
                                 <textarea class="file-contents"
-                                      ui-codemirror="{ onLoad : codemirrorLoaded }"
-                                      ui-codemirror-opts="editorOptions"
-                                      ui-refresh="refreshMirror()"
-                                      ng-change="refreshMirror()"
                                       ng-model="file.content"
                                       md-select-on-focus
                                       placeholder="Add file content..">Loading...</textarea >

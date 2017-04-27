@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * <p>Functionality for users with the CONTENT_AUTHORITY Role.</p>
  */
 @RestController
+@BasePathAwareController
 @RequestMapping("/contentAuthority")
 @Log4j2
 public class ContentAuthorityApi {

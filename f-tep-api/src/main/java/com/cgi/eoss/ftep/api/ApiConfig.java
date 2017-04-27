@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
+import com.cgi.eoss.ftep.costing.CostingConfig;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
@@ -76,6 +77,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         WebMvcAutoConfiguration.EnableWebMvcConfiguration.class,
 
         CatalogueConfig.class,
+        CostingConfig.class,
         InProcessRpcConfig.class,
         OrchestratorConfig.class,
         PersistenceConfig.class

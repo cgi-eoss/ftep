@@ -98,7 +98,6 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @Lob
     @Convert(converter = FtepServiceDescriptorYamlConverter.class)
     @Column(name = "wps_descriptor")
-    @JsonIgnore
     private FtepServiceDescriptor serviceDescriptor;
 
     /**

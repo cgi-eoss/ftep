@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
@@ -25,7 +26,6 @@ import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -138,7 +138,7 @@ public class AclsApiIT {
     }
 
     private MutableAcl getAcl(ObjectIdentity objectIdentity) {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(ftepAdmin.getName(), "N/A", "ROLE_ADMIN"));
+        SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
         try {
             return (MutableAcl) aclService.readAclById(objectIdentity);
         } catch (NotFoundException nfe) {

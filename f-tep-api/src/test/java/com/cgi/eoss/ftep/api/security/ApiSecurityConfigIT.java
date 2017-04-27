@@ -27,7 +27,6 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
@@ -216,7 +215,7 @@ public class ApiSecurityConfigIT {
     }
 
     private void createAce(ObjectIdentity oi, Sid sid, Permission p) {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(ftepAdmin.getName(), "N/A", "ROLE_ADMIN"));
+        SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
 
         MutableAcl acl;
         try {

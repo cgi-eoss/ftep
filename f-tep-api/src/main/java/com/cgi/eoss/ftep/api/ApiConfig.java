@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api;
 
+import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.costing.CostingConfig;
 import com.cgi.eoss.ftep.model.Databasket;
@@ -10,7 +11,6 @@ import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Project;
-import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
@@ -191,7 +191,7 @@ public class ApiConfig {
 
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy() {
-        return new AclAuthorizationStrategyImpl(Role.ADMIN);
+        return new AclAuthorizationStrategyImpl(FtepPermission.PUBLIC);
     }
 
     @Bean

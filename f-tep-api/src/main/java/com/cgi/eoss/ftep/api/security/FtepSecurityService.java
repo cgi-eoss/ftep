@@ -20,10 +20,10 @@ import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,11 +43,10 @@ import java.util.stream.IntStream;
 @Component
 @Log4j2
 public class FtepSecurityService {
+    public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A",ImmutableList.of(FtepPermission.PUBLIC));
 
     private static final Predicate<GrantedAuthority> ADMIN_PREDICATE = a -> Role.ADMIN.getAuthority().equals(a.getAuthority());
     private static final Predicate<GrantedAuthority> SUPERUSER_PREDICATE = ADMIN_PREDICATE.or(a -> Role.CONTENT_AUTHORITY.getAuthority().equals(a.getAuthority()));
-
-    private static final Authentication PUBLIC_AUTHENTICATION = new TestingAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
     private final MutableAclService aclService;
     private final AclPermissionEvaluator aclPermissionEvaluator;
@@ -144,7 +143,7 @@ public class FtepSecurityService {
             return FtepPermission.ADMIN;
         } else if (hasFtepPermission(authentication, FtepPermission.WRITE, objectIdentity)) {
             return FtepPermission.WRITE;
-        } else if (hasFtepPermission(authentication, FtepPermission.READ, objectIdentity)) {
+        } else if (hasFtepPermission(authentication, FtepPermission.READ, objectIdentity) || isPublic(objectIdentity)) {
             return FtepPermission.READ;
         } else {
             return null;

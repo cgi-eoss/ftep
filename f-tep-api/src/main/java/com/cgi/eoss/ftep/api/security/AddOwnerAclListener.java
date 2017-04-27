@@ -3,7 +3,6 @@ package com.cgi.eoss.ftep.api.security;
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
-import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.model.WalletTransaction;
@@ -20,9 +19,7 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -71,12 +68,13 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                             ? new PrincipalSid(User.DEFAULT.getName())
                             : new PrincipalSid(entity.getOwner().getName());
 
-            // Use the ownerSid to override the current security context, so that the ACL is owned correctly
-            Authentication token = new PreAuthenticatedAuthenticationToken(ownerSid.getPrincipal(), "N/A", ImmutableSet.of(Role.ADMIN));
-            SecurityContextHolder.getContext().setAuthentication(token);
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
+            }
 
             ObjectIdentity objectIdentity = new ObjectIdentityImpl(entityClass, entity.getId());
             MutableAcl acl = ftepSecurityService.getAcl(objectIdentity);
+            acl.setOwner(ownerSid);
 
             if (acl.getEntries().size() > 0) {
                 LOG.warn("Existing access control entries found for 'new' object: {} {}", entityClass.getSimpleName(), entity.getId());

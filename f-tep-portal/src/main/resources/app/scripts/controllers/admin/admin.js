@@ -49,7 +49,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         }
 
         $scope.addCoins = function() {
-            WalletService.makeTransaction($scope.userParams.wallet, $scope.userParams.coins).then(function(data){
+            WalletService.makeTransaction($scope.userParams.selectedUser, $scope.userParams.wallet, $scope.userParams.coins).then(function(){
                 $scope.userParams.coins = 0;
                 $scope.getUserData();
             });

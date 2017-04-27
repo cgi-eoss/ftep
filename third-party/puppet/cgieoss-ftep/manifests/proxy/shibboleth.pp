@@ -11,7 +11,7 @@ class ftep::proxy::shibboleth (
   $home_url                         = 'https://forestry-tep.eo.esa.int/',
   $app_defaults_signing             = 'false',
   $app_defaults_encryption          = 'false',
-  $app_defaults_remote_user         = 'eppn persistent-id targeted-id',
+  $app_defaults_remote_user         = 'Eosso-Person-commonName',
   $app_defaults_extra_attrs         = { },
   $session_lifetime                 = 7200,
   $session_timeout                  = 3600,

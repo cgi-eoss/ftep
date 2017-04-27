@@ -167,10 +167,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJobDetails = function(job) {
             var deferred = $q.defer();
 
-            getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                            .newRequest()
-                            .follow('job')
-                            .getResource();
+            if(!getJobRequest){
+                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
+                                .newRequest()
+                                .follow('job')
+                                .getResource();
+            }
+
             getJobRequest.result.then(
             function (document) {
                 deferred.resolve(document);
@@ -183,6 +186,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getJobLogs = function(job) {
             var deferred = $q.defer();
+
+            if(!getJobRequest){
+                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
+                                .newRequest()
+                                .follow('job')
+                                .getResource();
+            }
 
             getJobRequest.continue().then(function (nextBuilder) {
                 var nextRequest = nextBuilder.newRequest();
@@ -203,6 +213,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getJobConfig = function(job) {
             var deferred = $q.defer();
+
+            if(!getJobRequest){
+                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
+                                .newRequest()
+                                .follow('job')
+                                .getResource();
+            }
 
             getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
             .newRequest()
@@ -227,6 +244,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getJobOutputResult = function(job) {
             var deferred = $q.defer();
+
+            if(!getJobRequest){
+                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
+                                .newRequest()
+                                .follow('job')
+                                .getResource();
+            }
 
             getJobRequest.continue().then(function (nextBuilder) {
                 var nextRequest = nextBuilder.newRequest();

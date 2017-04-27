@@ -259,6 +259,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Update the selected job */
                 self.refreshSelectedJob(page);
+
+                if(page === 'explorer'){
+                    $rootScope.$broadcast('update.jobGroups');
+                }
            });
         };
 
@@ -276,6 +280,26 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     getJobDetails(job).then(function (data) {
                         self.params[page].selectedJob.details = data;
+
+                        var startTime = self.params[page].selectedJob.details.startTime;
+                        self.params[page].selectedJob.details.startTime =
+                            new Date(startTime.year + "-" +
+                                    getTwoDigitNumber(startTime.monthValue) + "-" +
+                                    getTwoDigitNumber(startTime.dayOfMonth) + "T" +
+                                    getTwoDigitNumber(startTime.hour) + ":" +
+                                    getTwoDigitNumber(startTime.minute) + ":" +
+                                    getTwoDigitNumber(startTime.second) + "." +
+                                    getThreeDigitNumber(startTime.nano/1000000) + "Z").toISOString();
+
+                        var endTime = self.params[page].selectedJob.details.endTime;
+                        self.params[page].selectedJob.details.endTime =
+                            new Date(endTime.year + "-" +
+                                    getTwoDigitNumber(endTime.monthValue) + "-" +
+                                    getTwoDigitNumber(endTime.dayOfMonth) + "T" +
+                                    getTwoDigitNumber(endTime.hour) + ":" +
+                                    getTwoDigitNumber(endTime.minute) + ":" +
+                                    getTwoDigitNumber(endTime.second) + "." +
+                                    getThreeDigitNumber(endTime.nano/1000000) + "Z").toISOString();
 
                         getJobLogs(job).then(function (logs) {
                              self.params[page].selectedJob.logs = logs;
@@ -309,6 +333,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
+        function getTwoDigitNumber(num){
+            return (num > 9 ? num : '0'+num);
+        }
+
+        function getThreeDigitNumber(num){
+            return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
+        }
 
         this.launchJob = function(service, inputs){
             var deferred = $q.defer();
@@ -320,7 +351,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         .result
                         .then(
                  function (document) {
-                     MessageService.addInfo ('Job started', service.name + ' job started. Job id: ' + jobConfig.id);
+                     MessageService.addInfo ('Job started', 'A new ' + service.name + ' job started.');
                      deferred.resolve();
                  },
                  function(error){
@@ -343,7 +374,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
                  function (document) {
-                     console.log('JobConfig created: ', document);
                      resolve(JSON.parse(document.body));
                  }, function (error) {
                      MessageService.addError ('Could Not Launch Job', error);

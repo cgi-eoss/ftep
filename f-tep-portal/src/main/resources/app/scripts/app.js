@@ -151,14 +151,13 @@ define([
                     return dateTime;
                 }
                 else {
-                    return moment().year(dateTime.year)
-                        .month(dateTime.monthValue)
-                        .day(dateTime.dayOfMonth)
-                        .hour(dateTime.hour)
-                        .minute(dateTime.minute)
-                        .second(dateTime.second)
-                        .millisecond(dateTime.nano)
-                        .toDate();
+                    return new Date(endTime.year + "-" +
+                            getTwoDigitNumber(endTime.monthValue) + "-" +
+                            getTwoDigitNumber(endTime.dayOfMonth) + "T" +
+                            getTwoDigitNumber(endTime.hour) + ":" +
+                            getTwoDigitNumber(endTime.minute) + ":" +
+                            getTwoDigitNumber(endTime.second) + "." +
+                            getThreeDigitNumber(endTime.nano/1000000) + "Z").toISOString();;
                 }
             }
             else{
@@ -166,6 +165,14 @@ define([
             }
         };
     }]);
+
+    function getTwoDigitNumber(num){
+        return (num > 9 ? num : '0'+num);
+    }
+
+    function getThreeDigitNumber(num){
+        return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
+    }
 
     app.filter('asSingular', function () {
         return function (name) {

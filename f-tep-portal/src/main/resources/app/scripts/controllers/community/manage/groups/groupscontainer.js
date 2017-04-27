@@ -10,7 +10,7 @@
 
 define(['../../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityGroupsContainerCtrl', ['GroupService', 'UserService', 'MessageService', '$rootScope', '$scope', '$sce', function (GroupService, UserService, MessageService, $rootScope, $scope, $sce) {
+    ftepmodules.controller('CommunityGroupsContainerCtrl', ['GroupService', 'UserService', '$scope', function (GroupService, UserService, $scope) {
 
         /* Get stored Groups details */
         $scope.groupParams = GroupService.params;

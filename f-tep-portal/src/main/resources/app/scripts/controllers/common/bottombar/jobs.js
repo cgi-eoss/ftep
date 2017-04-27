@@ -24,7 +24,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 groupJobs();
 
                 // Refresh active job if running
-                if ($scope.jobParams.selectedJob.status === "RUNNING") {
+                if ($scope.jobParams.selectedJob && $scope.jobParams.selectedJob.status === "RUNNING") {
                     JobService.refreshSelectedJob('explorer');
                 }
 
@@ -53,6 +53,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             }
             groupJobs();
+
+            $scope.$on('update.jobGroups', function (event, data) {
+                groupJobs();
+            });
 
             $scope.isJobGroupOpened = function (serviceName) {
                 return $scope.jobParams.jobCategoryInfo[serviceName].opened;

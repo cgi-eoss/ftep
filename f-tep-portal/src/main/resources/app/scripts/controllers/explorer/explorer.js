@@ -8,8 +8,8 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', '$timeout', 'ftepProperties', '$injector',
-                                            function ($scope, $rootScope, $mdDialog, TabService, MessageService, $mdSidenav, $timeout, ftepProperties, $injector) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', 'ftepProperties', '$injector',
+                                            function ($scope, $mdDialog, TabService, MessageService, $mdSidenav, ftepProperties, $injector) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -31,7 +31,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.bottombarNavInfo.bottomViewVisible = true;
                 $scope.navInfo.activeBottomNav = tab;
             }
-            console.log($scope.bottombarNavInfo.bottomViewVisible && $scope.navInfo.activeBottomNav === $scope.bottomNavTabs.MESSAGES);
         };
 
         $scope.toggleBottomView = function () {

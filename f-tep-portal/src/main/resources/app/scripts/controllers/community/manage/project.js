@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageProjectCtrl', ['ProjectService', 'MessageService', '$rootScope', '$scope', '$mdDialog', function (ProjectService, MessageService, $rootScope, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityManageProjectCtrl', ['ProjectService', '$scope', '$mdDialog', function (ProjectService, $scope, $mdDialog) {
 
         /* Get stored Projects & Contents details */
         $scope.projectParams = ProjectService.params.community;

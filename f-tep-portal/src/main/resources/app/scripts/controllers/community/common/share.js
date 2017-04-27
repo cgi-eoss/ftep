@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityShareCtrl', ['MessageService', 'CommunityService', '$rootScope', '$scope', '$mdDialog', '$sce', '$injector', function (MessageService, CommunityService, $rootScope, $scope, $mdDialog, $sce, $injector) {
+    ftepmodules.controller('CommunityShareCtrl', ['MessageService', 'CommunityService', '$scope', '$mdDialog', '$injector', function (MessageService, CommunityService, $scope, $mdDialog, injector) {
 
         /* Share Object Modal */
         $scope.ace = {};

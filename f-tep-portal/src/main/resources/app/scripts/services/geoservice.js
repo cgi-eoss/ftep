@@ -8,8 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.service('GeoService', [ '$http', '$rootScope', 'ftepProperties', '$q', 'MessageService',
-                                        function ($http, $rootScope, ftepProperties, $q, MessageService) {
+    ftepmodules.service('GeoService', [ '$http', '$rootScope', 'ftepProperties', '$q', 'MessageService', 'MapService', function ($http, $rootScope, ftepProperties, $q, MessageService, MapService) {
 
         /** Set the header defaults **/
         $http.defaults.headers.post['Content-Type'] = 'application/json';
@@ -67,10 +66,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                     ref: this.dataSources[2].id === this.searchParameters.selectedDatasource.id
             }; //TODO ref data
 
-            if(this.searchParameters.polygon){
+            var searchAOI = MapService.getSearchAOI();
+            if(searchAOI){
                 var bboxVal = [];
-                for(var i = 0; i < this.searchParameters.polygon.length; i++){
-                    bboxVal[i] = this.searchParameters.polygon[i].toFixed(0);
+                for(var i = 0; i < searchAOI.length; i++){
+                    bboxVal[i] = searchAOI[i].toFixed(2);
                 }
                 params.bbox = bboxVal.toString();
             }
@@ -137,7 +137,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                 selectedDatasource: undefined,
                 startTime: defaultStartTime,
                 endTime: new Date(),
-                polygon: undefined,
                 text: undefined,
                 mission: undefined,
                 polarisation: undefined,
@@ -145,12 +144,10 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.resetSearchParameters = function(){
-            var polygonCopy = this.searchParameters.polygon;
             this.searchParameters = {
                     selectedDatasource: undefined,
                     startTime: defaultStartTime,
                     endTime: new Date(),
-                    polygon: polygonCopy,
                     text: undefined,
                     mission: undefined,
                     polarisation: undefined,

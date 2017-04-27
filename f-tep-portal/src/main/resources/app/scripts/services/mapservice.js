@@ -10,7 +10,7 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
 
     ftepmodules.service('MapService', [function () {
 
-        this.searchPolygon = { selectedArea: undefined, wkt: undefined };
+        this.searchPolygon = { selectedArea: undefined, wkt: undefined, searchAoi: undefined };
         this.mapType = {active: 'MapBox'};
         this.searchLayerFeatures = new ol.Collection();
         this.resultLayerFeatures = new ol.Collection();
@@ -20,9 +20,14 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
             return angular.copy(this.searchPolygon.wkt);
         };
 
+        this.getSearchAOI = function(){
+            return angular.copy(this.searchPolygon.searchAoi);
+        };
+
         this.resetSearchPolygon = function(){
             this.searchPolygon.selectedArea = undefined;
             this.searchPolygon.wkt = undefined;
+            this.searchPolygon.searchAoi = undefined;
         };
 
         var selectedStyle = new ol.style.Style({

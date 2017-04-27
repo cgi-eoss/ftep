@@ -120,17 +120,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.missionDetails.showCoverage = isSentinel2(mission);
             };
 
-            /** ----- POLYGON SELECTION ----- **/
-
-            // Set search area to match polygon selection when drawn
-            $scope.$on('polygon.drawn', function (event, polygon) {
-                if (polygon) {
-                    $scope.searchParameters.polygon = polygon;
-                } else {
-                    delete $scope.searchParameters.polygon;
-                }
-            });
-
             /** ----- SEARCH BUTTON ----- **/
 
             // Send search parameters to GeoService to process

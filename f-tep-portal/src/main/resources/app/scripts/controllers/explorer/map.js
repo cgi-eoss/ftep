@@ -223,15 +223,20 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
         $scope.map.addLayer(searchAreaLayer);
 
         function updateSearchPolygon(geom, editedWkt, refit){
+            $scope.searchPolygon.selectedArea = geom.clone();
+
+            //set the AOI value for search parameters
             var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-            $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+            $scope.searchPolygon.searchAoi = polygonWSEN;
+
+            //set the WKT when editing AOI manually
+            var area = angular.copy($scope.searchPolygon.selectedArea);
+            $scope.searchPolygon.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
+
+            // re-fit when user has edited AOI manually
             if(refit && refit === true){
                 $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
             }
-
-            $scope.searchPolygon.selectedArea = geom.clone();
-            var area = angular.copy($scope.searchPolygon.selectedArea);
-            $scope.searchPolygon.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
         }
 
         // Copy the coordinates to clipboard which can be then pasted to service input fields
@@ -250,7 +255,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             }
             MapService.resetSearchPolygon();
             $scope.drawType = SHAPE.NONE;
-            $rootScope.$broadcast('polygon.drawn', undefined);
         };
 
         //Dialog to enable editing the polygon coordinates manually (coordinates shown in EPSG_4326 projection)
@@ -331,7 +335,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
               $scope.map.addLayer(droppedFileLayer);
               $scope.map.getView().fit(polyExtent, /** @type {ol.Size} */ ($scope.map.getSize()));
 
-              $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+              $scope.searchPolygon.searchAoi = polygonWSEN;
           }
         };
 
@@ -361,7 +365,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 $scope.map.addLayer(droppedFileLayer);
                 $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
                 var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-                $rootScope.$broadcast('polygon.drawn', polygonWSEN);
+                $scope.searchPolygon.searchAoi = polygonWSEN;
             }
         });
 

@@ -67,7 +67,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var pollDatabaskets = function () {
             $timeout(function () {
-                halAPI.from(rootUri + '/databaskets/')
+                halAPI.from(rootUri + '/databaskets/?size=100') //TODO implement paging
                     .newRequest()
                     .getResource()
                     .result
@@ -87,7 +87,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getDatabaskets = function () {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/databaskets/')
+            halAPI.from(rootUri + '/databaskets/?size=100') //TODO implement paging
                 .newRequest()
                 .getResource()
                 .result

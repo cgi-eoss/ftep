@@ -88,7 +88,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var pollJobs = function () {
             $timeout(function () {
-                halAPI.from(rootUri + '/jobs/')
+                halAPI.from(rootUri + '/jobs/?size=100') //TODO implement paging
                     .newRequest()
                     .getResource()
                     .result
@@ -108,7 +108,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getJobs = function () {
             var deferred = $q.defer();
-                halAPI.from(rootUri + '/jobs/')
+                halAPI.from(rootUri + '/jobs/?size=100') //TODO implement paging
                          .newRequest()
                          .getResource()
                          .result

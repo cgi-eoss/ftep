@@ -120,6 +120,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     public Path getServiceContext(String serviceName) {
         try {
             URI uri = URI.create(StrSubstitutor.replace(FTEP_SERVICE_CONTEXT, ImmutableMap.of("serviceName", serviceName)));
+            loadingCache.invalidate(uri);
             return loadingCache.get(uri);
         } catch (Exception e) {
             throw new ServiceIoException("Could not construct service context for " + serviceName, e);

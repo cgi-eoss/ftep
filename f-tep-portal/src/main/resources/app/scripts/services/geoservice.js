@@ -70,7 +70,7 @@ define(['../ftepmodules'], function (ftepmodules) {
             if(searchAOI){
                 var bboxVal = [];
                 for(var i = 0; i < searchAOI.length; i++){
-                    bboxVal[i] = searchAOI[i].toFixed(2);
+                    bboxVal[i] = searchAOI[i].toFixed(0);
                 }
                 params.bbox = bboxVal.toString();
             }

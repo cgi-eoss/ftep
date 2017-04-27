@@ -401,6 +401,35 @@
 #job .toolbar-button .material-icons {
   color: #ff4081;
 }
+#job .job-log {
+  font-family: monospace;
+  font-size: 0.6rem;
+  overflow-x: auto;
+  width: 100%;
+}
+#job .job-log table {
+  margin-bottom: 0.5rem;
+}
+#job .job-log table th {
+  padding: 0.4rem;
+  padding-left: 0;
+}
+#job .job-log table .job-timestamp {
+  font-weight: bold;
+  padding: 2px 1rem 2px 0;
+  vertical-align: top;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+#job .job-log table .job-message {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 2px 0;
+  white-space: pre-wrap;
+}
 
 #jobs {
   display: -ms-flexbox;
@@ -1667,25 +1696,34 @@
   margin-top: 15px;
 }
 #developer-container #service-container .right-container #service-form .field-definitions .row {
-  margin: 10px;
   border: #f8f8f8 1px solid;
 }
+#developer-container #service-container .right-container #service-form .field-definitions .row .centre {
+  text-align: center;
+}
 #developer-container #service-container .right-container #service-form .add-button,
-#developer-container #service-container .right-container #service-form .remove-button {
+#developer-container #service-container .right-container #service-form .remove-button,
+#developer-container #service-container .right-container #service-form .type-button {
   min-width: 0;
 }
 #developer-container #service-container .right-container #service-form .add-button:hover,
-#developer-container #service-container .right-container #service-form .remove-button:hover {
+#developer-container #service-container .right-container #service-form .remove-button:hover,
+#developer-container #service-container .right-container #service-form .type-button:hover {
   background-color: transparent;
 }
 #developer-container #service-container .right-container #service-form .add-button .material-icons {
   color: #aed581;
 }
-#developer-container #service-container .right-container #service-form .remove-button .material-icons {
-  margin: 0px;
+#developer-container #service-container .right-container #service-form .remove-button .material-icons,
+#developer-container #service-container .right-container #service-form .type-button .material-icons {
+  margin: 20px 0px 0px 0px;
   font-size: 20px;
   color: white;
   background-color: #aed581;
+}
+#developer-container #service-container .right-container #service-form .type-button {
+  margin-left: 0px !important;
+  padding-left: 2px !important;
 }
 #developer-container #service-container .right-container #service-form .header {
   background-color: #f8f8f8;
@@ -1788,6 +1826,21 @@
     margin-left: 44px !important;
     max-height: 50%;
   }
+}
+#edit-type-dialog {
+  min-height: 400px;
+}
+#edit-type-dialog md-dialog-actions {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
+#edit-type-dialog md-dialog-actions md-button {
+  position: absolute;
+  right: 0px;
+}
+#edit-type-dialog .complex-type {
+  margin-top: 60px;
 }
 
 @media (max-width: 991px) {

@@ -1,0 +1,56 @@
+<md-dialog id="edit-type-dialog" aria-label="Edit type dialog">
+
+    <h4>Edit type for {{input.id}}</h4>
+    <md-dialog-content>
+        <form name="typeForm" class="dialog-content-area">
+
+            <section>
+               <md-input-container class="md-block" flex-gt-sm>
+                   <md-select ng-model="input.data" ng-change="updateAttrs()" required>
+                       <md-option ng-repeat="type in constants.fieldTypes" ng-value="type.type">
+                           {{type.type}}
+                       </md-option>
+                   </md-select>
+               </md-input-container>
+            </section>
+
+            <section class="literal-type" ng-if="input.data === 'LITERAL'">
+               <md-input-container class="md-block" flex-gt-sm>
+                   <md-select ng-model="input.defaultAttrs.dataType" required>
+                       <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType">
+                           {{type.dataType}}
+                       </md-option>
+                   </md-select>
+               </md-input-container>
+            </section>
+
+            <section class="complex-type" ng-if="input.data === 'COMPLEX'">
+               <md-input-container class="md-block" flex-gt-sm>
+                    <label>mimeType</label>
+                    <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType*" required>
+               </md-input-container>
+
+               <md-input-container class="md-block" flex-gt-sm>
+                    <label>extension</label>
+                    <input ng-model="input.defaultAttrs.extension" type="text" placeholder="extension*" required>
+                </md-input-container>
+
+	            <div class="row">
+	                <div class="col-md-5">
+	                    <label class="input-label">asReference:</label>
+	                </div>
+                    <div class="col-md-1">
+                        <md-checkbox ng-model="input.defaultAttrs.asReference"></md-checkbox>
+                    </div>
+                    <div class="col-md-6"></div>
+                </div>
+            </section>
+
+        </form>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog(false)" class="md-primary">Cancel</md-button>
+        <md-button ng-click="closeDialog(true)" class="md-primary" ng-disabled="typeForm.$invalid">Done</md-button>
+    </md-dialog-actions>
+</md-dialog>

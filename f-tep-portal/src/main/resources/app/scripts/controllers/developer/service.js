@@ -30,7 +30,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceParams = ProductService.params.development;
         $scope.serviceForms = {files: {title: 'Files'}, dataInputs: {title: 'Input Definitions'}, dataOutputs: {title: 'Output Definitions'}};
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
-        $scope.constants = { serviceFields: ['dataInputs', 'dataOutputs'], fieldTypes: [{type: 'string'}, {type: 'integer'}] };
+        $scope.constants = {
+                serviceFields: ['dataInputs', 'dataOutputs'],
+                fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}],
+                literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
+        };
 
         $scope.toggleServiceFilter = function(){
             $scope.serviceParams.displayFilters = !$scope.serviceParams.displayFilters;
@@ -164,10 +168,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
             if(!$scope.serviceParams.selectedService.serviceDescriptor){
                 $scope.serviceParams.selectedService.serviceDescriptor = {
                         id: $scope.serviceParams.selectedService.name,
-                        description: $scope.serviceParams.selectedService.description,
-                        version: '1.0',
                         serviceProvider: $scope.serviceParams.selectedService.name
-                        //TODO ...
                 };
             }
 
@@ -180,13 +181,59 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 data: 'LITERAL',
                 defaultAttrs: {
                     "dataType" : "string"
-                }
+                },
+                minOccurs: 0,
+                maxOccurs: 0
             });
         };
 
         $scope.removeRow = function(list, item){
             var index = list.indexOf(item);
             list.splice(index, 1);
+        };
+
+        $scope.editTypeDialog = function($event, fieldDescriptor, constants){
+
+            function EditTypeController($scope, $mdDialog) {
+                var backupCopy = angular.copy(fieldDescriptor);
+
+                $scope.input = fieldDescriptor;
+                $scope.constants = constants;
+
+                $scope.updateAttrs = function(){
+                    if($scope.input.data === 'LITERAL'){
+                        delete $scope.input.defaultAttrs.mimeType;
+                        delete $scope.input.defaultAttrs.extension;
+                        delete $scope.input.defaultAttrs.asReference;
+                    }
+                    else if($scope.input.data === 'COMPLEX'){
+                        delete $scope.input.defaultAttrs.dataType;
+                        $scope.input.defaultAttrs.asReference = false;
+                    }
+                };
+
+                $scope.setAsReference = function(str){
+                    $scope.input.defaultAttrs.asReference = (str === 'true');
+                };
+
+                $scope.closeDialog = function (save) {
+                    // When user clicked Cancel, revert the changes
+                    if(!save){
+                        fieldDescriptor.data = backupCopy.data;
+                        fieldDescriptor.defaultAttrs = backupCopy.defaultAttrs;
+                    }
+                    $mdDialog.hide();
+                };
+            }
+
+            EditTypeController.$inject = ['$scope', '$mdDialog'];
+            $mdDialog.show({
+                controller: EditTypeController,
+                templateUrl: 'views/developer/templates/edittype.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: false
+            });
         };
 
         /* Check that field id is unique*/

@@ -99,11 +99,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                         if(page === 'development'){
                             self.params[page].selectedService.files = [];
-                            self.params[page].fieldDefinitions= { inputs: [], outputs: [] }; //TODO get descriptor
                             if(data){
                                 for(var i = 0; i < data.length; i++){
                                     getFileDetails(page, data[i]);
                                 }
+                                self.params[page].selectedService.files.sort(sortFiles);
                             }
                         }
                     });
@@ -213,10 +213,16 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         this.updateService = function(selectedService) {
+            //Some descriptor fields are a copy from service itself
+            selectedService.serviceDescriptor.description = selectedService.description;
+            selectedService.serviceDescriptor.id = selectedService.name;
+            selectedService.serviceDescriptor.serviceProvider = selectedService.name;
+
             var editService = {
                 name: selectedService.name,
                 description: selectedService.description,
-                dockerTag: selectedService.dockerTag
+                dockerTag: selectedService.dockerTag,
+                serviceDescriptor: selectedService.serviceDescriptor
             };
             return $q(function(resolve, reject) {
                 productsAPI.from(rootUri + '/services/' + selectedService.id)
@@ -356,7 +362,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                        .then(
                 function (document) {
                     self.params[page].selectedService.files.push(document);
-                    self.params[page].selectedService.files.sort(sortFiles);
                 }, function (error) {
                     MessageService.addError ('Could not get Service File details', error);
                 }

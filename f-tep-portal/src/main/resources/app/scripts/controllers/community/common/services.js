@@ -63,13 +63,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return popover[html] || (popover[html] = $sce.trustAsHtml(html));
         };
 
-        /* Create Service */
-        $scope.createItemDialog = function ($event) {
-            CommonService.createItemDialog($event, 'ProductService', 'createService').then(function (newService) {
-                ProductService.refreshServices("community", "Create");
-            });
-        };
-
         /* Remove Service */
         $scope.removeItem = function (key, item) {
              ProductService.removeService(item).then(function (data) {

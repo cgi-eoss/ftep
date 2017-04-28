@@ -7,7 +7,7 @@
  * Main module of the application.
  */
 
-require(['bootstrap', 'notify']);
+require(['bootstrap']);
 
 define([
     'ftepConfig',
@@ -47,7 +47,6 @@ define([
         "URL_PREFIX": ftepConfig.urlPrefix,
         "URL": ftepConfig.apiUrl,
         "URLv2": ftepConfig.apiUrlv2,
-        "ZOO_URL": ftepConfig.zooUrl,
         "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });

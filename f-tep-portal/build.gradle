@@ -80,14 +80,12 @@ javascript.source {
             srcDir "${projectDir}/src/main/resources/app/scripts"
             include "**/*.js"
             exclude "vendor/**/*"
-            exclude "zoo-client/**/*"
         }
     }
     vendor {
         js {
             srcDir "${projectDir}/src/main/resources/app/scripts"
             include "vendor/**/*.js"
-            include "zoo-client/**/*.js"
         }
     }
 }
@@ -198,7 +196,7 @@ artifacts { pkg buildRpm }
 sonarqube {
     properties {
         property "sonar.sources", "src/main/resources/app"
-        property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*,src/main/resources/app/scripts/zoo-client/**/*"
+        property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*"
     }
 }
 

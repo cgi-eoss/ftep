@@ -9,8 +9,8 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', '$filter', 'JobService', 'ProductService', 'MapService', 'BasketService',
-                                function ($scope, $rootScope, $sce, $filter, JobService, ProductService, MapService, BasketService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', '$filter', 'JobService', 'ProductService', 'MapService', 'BasketService', 'CommonService',
+                                function ($scope, $rootScope, $sce, $filter, JobService, ProductService, MapService, BasketService, CommonService) {
 
         $scope.serviceParams = ProductService.params.explorer;
         $scope.isWorkspaceLoading = false;
@@ -35,7 +35,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return $scope.serviceParams.inputValues[fieldDesc.id] ? $scope.serviceParams.inputValues[fieldDesc.id] : fieldDesc.defaultAttrs.value;
         };
 
-        $scope.launchProcessing = function() {
+        $scope.launchProcessing = function($event) {
             var iparams={};
 
             for(var key in $scope.serviceParams.inputValues){
@@ -44,8 +44,26 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             }
 
-            JobService.launchJob($scope.serviceParams.selectedService, iparams).then(function(data){
-               JobService.refreshJobs("explorer", "Create");
+            JobService.createJobConfig($scope.serviceParams.selectedService, iparams).then(function(jobConfig){
+                JobService.estimateJob(jobConfig).then(function(estimation){
+                    if(estimation.currentWalletBalance < estimation.estimatedCost){
+                        CommonService.infoBulletin($event, 'The cost of this job exceeds Your balance. This job cannot be run.' +
+                                '\nYour balance: ' + estimation.currentWalletBalance +
+                                '\nCost estimation: ' + estimation.estimatedCost);
+                    }
+                    else {
+                        var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
+                        CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
+                                '\nAre you sure you want to continue?').then(function (confirmed) {
+                            if (confirmed === false) {
+                                return;
+                            }
+                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                                JobService.refreshJobs("explorer", "Create");
+                            });
+                        });
+                    }
+                });
             });
         };
 

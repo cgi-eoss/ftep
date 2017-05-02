@@ -226,22 +226,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobOutputResult = function(job) {
+        var getJobOutput = function(outputLink) {
             var deferred = $q.defer();
 
-            getJobRequest.continue().then(function (nextBuilder) {
-                var nextRequest = nextBuilder.newRequest();
-                nextRequest
-                .follow('output-result')
+            halAPI.from(outputLink)
+                .newRequest()
                 .getResource()
                 .result
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get Job Output Results', error);
+                    MessageService.addError('Could not get Job Output', error);
                     deferred.reject();
                 });
-             });
 
             return deferred.promise;
         };
@@ -281,7 +278,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     getJobDetails(job).then(function (data) {
                         self.params[page].selectedJob.details = data;
-                        console.log(data);
 
                         var startTime = self.params[page].selectedJob.details.startTime;
                         self.params[page].selectedJob.details.startTime =
@@ -313,10 +309,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         if (self.params[page].selectedJob.outputs) {
                             self.params[page].selectedJob.outputs.links = [];
                             for (var itemKey in self.params[page].selectedJob.outputs) {
-                                console.log(itemKey);
                                 if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
-                                    getJobOutputResult(job).then(function (result) {
-                                        self.params[page].selectedJob.outputs.links.push(self.params[page].selectedJob['output-' + itemKey].href);
+                                    getJobOutput(self.params[page].selectedJob['output-' + itemKey].href).then(function (result) {
+                                        self.params[page].selectedJob.outputs.links.push(result._links.download.href);
                                     });
                                 }
                             }

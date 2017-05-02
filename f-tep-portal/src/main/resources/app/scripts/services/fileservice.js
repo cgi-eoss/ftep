@@ -139,11 +139,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('File removed', 'File '.concat(file.name).concat(' deleted.'));
                         resolve(file);
                     } else {
-                        MessageService.addError ('Failed to Remove File', document);
+                        MessageService.addError ('Failed to remove File', document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to Remove File', error);
+                    MessageService.addError ('Failed to remove File', error);
                     reject();
                 });
             });
@@ -163,7 +163,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addInfo('File uploaded', 'Success '.concat(resp.config.data.file.name).concat(' uploaded.'));
                     deferred.resolve(resp);
                 }, function (resp) {
-                    MessageService.addError('Error in file upload', resp.data ? resp.data : resp);
+                    MessageService.addError('Error uploading File', resp.data ? resp.data : resp);
                     deferred.reject();
                 }, function (evt) {
                     var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
@@ -206,7 +206,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('File successfully updated');
                         resolve(document);
                     } else {
-                        MessageService.addError ('Failed to Update File', document);
+                        MessageService.addError ('Failed to update File', document);
                         reject();
                     }
                 }, function (error) {

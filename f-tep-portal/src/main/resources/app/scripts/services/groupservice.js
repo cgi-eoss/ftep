@@ -100,7 +100,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addInfo('Group created', 'New group '.concat(name).concat(' created.'));
                     resolve(JSON.parse(document.data));
                 }, function (error) {
-                    MessageService.addError ('Failed to Create Group', error);
+                    MessageService.addError ('Failed to create Group', error);
                     reject();
                 });
             });
@@ -118,11 +118,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('Group deleted', 'Group '.concat(group.name).concat(' deleted.'));
                         resolve(group);
                     } else {
-                        MessageService.addError ('Failed to Remove Group', document);
+                        MessageService.addError ('Failed to remove Group', document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to Remove Group', error);
+                    MessageService.addError ('Failed to remove Group', error);
                     reject();
                 });
             });

@@ -145,11 +145,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                     data: aclsObject,
                 }).
                 then(function (response) {
-                    MessageService.addInfo(itemType + ' removed from group', (itemName).concat(' removed from ').concat(group.name));
+                    MessageService.addInfo(itemType + ' removed from Group', (itemName).concat(' removed from ').concat(group.name));
                     resolve(response);
                 }).
                 catch(function (e) {
-                    MessageService.addError('Could not remove ' + itemName + ' from group', e);
+                    MessageService.addError('Could not remove ' + itemName + ' from Group', e);
                     reject();
                 });
 

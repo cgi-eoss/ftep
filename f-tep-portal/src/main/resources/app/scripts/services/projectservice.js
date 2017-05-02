@@ -63,8 +63,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.projects);
             }, function (error) {
-                MessageService.addError ('Could not get projects',
-                        'Failed to get projects: ' + error);
+                MessageService.addError ('Could not get Projects', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -91,12 +90,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         resolve(JSON.parse(document.data));
                     }
                     else {
-                        MessageService.addError ('Could not create a project '.concat(name),
+                        MessageService.addError ('Could not create a Project '.concat(name),
                                 'Failed to create a project ' + name + getMessage(document));
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Could not create a project '.concat(name), error.doc.message);
+                    MessageService.addError ('Could not create a Project '.concat(name), error);
                     reject();
                 });
             });
@@ -116,12 +115,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         resolve(JSON.parse(document.data));
                     }
                     else {
-                        MessageService.addError('Could not update project '.concat(project.name),
+                        MessageService.addError('Could not update Project '.concat(project.name),
                                 'Failed to update project ' + project.name + getMessage(document));
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to update project '.concat(project.name), error.doc.message);
+                    MessageService.addError('Failed to update Project '.concat(project.name), error);
                     reject();
                 });
             });
@@ -139,11 +138,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('Project deleted', 'Project '.concat(project.name).concat(' deleted.'));
                         resolve(project);
                     } else {
-                        MessageService.addError ('Could not remove project '.concat(project.name), getMessage(document));
+                        MessageService.addError ('Could not remove Project '.concat(project.name), getMessage(document));
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Could not remove project '.concat(project.name), error.doc.message);
+                    MessageService.addError ('Could not remove Project '.concat(project.name), error);
                     reject();
                 });
             });

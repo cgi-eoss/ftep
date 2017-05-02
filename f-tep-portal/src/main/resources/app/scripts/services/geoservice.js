@@ -103,8 +103,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                     MessageService.addError('Search failed', 'Search result is empty');
                 }
                 else if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
-                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
-                            +'. Please refine the search parameters to get more precise results.');
+                    MessageService.addWarning('Too many results', 'Search results limited to ' +
+                        MAX_ITEMS_ALLOWED + '. Please refine the search parameters to get more precise results.');
                 }
             }).
             catch(function(e) {

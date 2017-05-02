@@ -134,7 +134,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to add user to Group', error);
+                    MessageService.addError('Failed to add User to Group', error);
                     reject();
                 });
 
@@ -185,11 +185,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('User deleted', 'User '.concat(user.name).concat(' deleted.'));
                         resolve(group);
                     } else {
-                        MessageService.addError ('Failed to Remove User', document);
+                        MessageService.addError ('Failed to remove User', document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to Remove User', error);
+                    MessageService.addError ('Failed to remove User', error);
                     reject();
                 });
 

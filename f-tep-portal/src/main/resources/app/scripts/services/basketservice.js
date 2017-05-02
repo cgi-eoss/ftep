@@ -117,7 +117,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addInfo('Databasket created', 'New databasket '.concat(name).concat(' created.'));
                     resolve(JSON.parse(document.data));
                 }, function (error) {
-                    MessageService.addError ('Failed to Create Databasket', error);
+                    MessageService.addError ('Failed to create Databasket', error);
                     reject();
                 });
             });
@@ -135,11 +135,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         MessageService.addInfo('Databasket deleted', 'Databasket '.concat(databasket.name).concat(' deleted.'));
                         resolve(databasket);
                     } else {
-                        MessageService.addError ('Failed to Remove Databasket', document);
+                        MessageService.addError ('Failed to remove Databasket', document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to Remove Databasket', error);
+                    MessageService.addError ('Failed to remove Databasket', error);
                     reject();
                 });
             });
@@ -173,7 +173,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Databasket contents', error);
+                MessageService.addError ('Could not get Databasket', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -339,7 +339,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Databasket successfully cleared.');
+                        MessageService.addInfo('Databasket successfully cleared');
                         resolve(databasket);
                     } else {
                         MessageService.addError ('Failed to clear Databasket', document);

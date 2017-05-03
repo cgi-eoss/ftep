@@ -50,10 +50,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 var html =
                     '<div class="metadata">' +
                         '<div class="row">' +
-                            '<div class="col-sm-4">Rating:</div>' +
-                            '<div class="col-sm-8">' + $scope.getRating(service.rating) + '</div>' +
-                        '</div>' +
-                        '<div class="row">' +
                             '<div class="col-sm-4">Name:</div>' +
                             '<div class="col-sm-8">' + service.name + '</div>' +
                         '</div>' +
@@ -71,18 +67,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         '</div>' +
                     '</div>';
                 return popover[html] || (popover[html] = $sce.trustAsHtml(html));
-            };
-
-            $scope.getRating = function (rating) {
-                var stars = '';
-                for (var i = 0; i < 5; i++) {
-                    if (rating > i) {
-                        stars = stars + '<i class="material-icons star-full">star</i>';
-                    } else {
-                        stars = stars + '<i class="material-icons star-empty">star_border</i>';
-                    }
-                }
-                return stars;
             };
 
     }]);

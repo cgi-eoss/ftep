@@ -8,10 +8,17 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'WalletService', 'TabService', function ($scope, UserService, WalletService, TabService) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', function ($scope, UserService, MessageService, WalletService, TabService) {
 
         $scope.navInfo = TabService.navInfo.admin;
         $scope.bottombarNavInfo = TabService.navInfo.bottombar;
+
+        /* Active session message count */
+        $scope.message = {};
+        $scope.message.count = MessageService.countMessages();
+        $scope.$on('update.messages', function(event, job) {
+            $scope.message.count = MessageService.countMessages();
+        });
 
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];

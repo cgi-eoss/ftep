@@ -57,10 +57,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('User Coin Balance Updated', coins + ' added to user '.concat(user.name));
+                    MessageService.addInfo('User Coin Balance updated', coins + ' coins added to user '.concat(user.name));
                     resolve();
                 }, function (error) {
-                    MessageService.addError ('Failed to Update Coin Balance', error);
+                    MessageService.addError ('Failed to update Coin Balance', error);
                     reject();
                 });
             });

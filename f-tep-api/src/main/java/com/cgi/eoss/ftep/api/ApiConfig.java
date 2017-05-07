@@ -53,6 +53,7 @@ import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -169,6 +170,9 @@ public class ApiConfig {
                         .csrf().disable();
                 httpSecurity
                         .cors();
+                httpSecurity
+                        .sessionManagement()
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }
         };
     }

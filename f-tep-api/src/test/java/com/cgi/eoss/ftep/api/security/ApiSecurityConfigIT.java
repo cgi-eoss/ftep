@@ -10,6 +10,7 @@ import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableSet;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -35,10 +37,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -198,6 +205,42 @@ public class ApiSecurityConfigIT {
         getServiceFromApi(service3.getId(), bob).andExpect(status().isForbidden());
         getServiceFromApi(service3.getId(), chuck).andExpect(status().isForbidden());
         getServiceFromApi(service3.getId(), ftepAdmin).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUserGrantedAuthorities() throws Exception {
+        mockMvc.perform(get("/api/currentUser/grantedAuthorities").header("REMOTE_USER", alice.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(alpha, beta, FtepPermission.PUBLIC, Role.USER))));
+        mockMvc.perform(get("/api/currentUser/grantedAuthorities").header("REMOTE_USER", bob.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(alpha, FtepPermission.PUBLIC, Role.USER))));
+        MockHttpSession chuckSession = (MockHttpSession) mockMvc.perform(get("/api/currentUser/grantedAuthorities").header("REMOTE_USER", chuck.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(FtepPermission.PUBLIC, Role.GUEST))))
+                .andReturn().getRequest().getSession();
+
+        mockMvc.perform(patch("/api/groups/"+beta.getId()).content("{\"members\":[\"" +
+                getUserUrl(alice) + getUserUrl(chuck) + "\"]}").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isNoContent());
+
+        // Prove the existing session is updated
+        mockMvc.perform(get("/api/currentUser/grantedAuthorities").header("REMOTE_USER", chuck.getName()).session(chuckSession))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(beta, FtepPermission.PUBLIC, Role.GUEST))));
+    }
+
+    private String getUserUrl(User user) throws Exception {
+        String jsonResult = mockMvc.perform(
+                get("/api/users/" + user.getId()).header("REMOTE_USER", ftepAdmin.getName()))
+                .andReturn().getResponse().getContentAsString();
+        return JsonPath.compile("$._links.self.href").read(jsonResult);
+    }
+
+    private String[] authoritiesToStrings(GrantedAuthority... authorities) {
+        return Arrays.stream(authorities)
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()).toArray(new String[]{});
     }
 
     private ResultActions getServiceFromApi(Long serviceId, User user) throws Exception {

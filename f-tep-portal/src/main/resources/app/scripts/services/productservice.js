@@ -128,7 +128,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.services);
             }, function (error) {
-                MessageService.addError ('Could not get Services', error);
+                MessageService.addError('Could not get Services', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -144,7 +144,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Service details', error);
+                MessageService.addError('Could not get details for Service ' + service.name, error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -164,15 +164,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                            .then(
                     function (document) {
                         if (200 <= document.status && document.status < 300) {
-                            MessageService.addInfo('Service added', 'New service '.concat(service.name).concat(' added.'));
+                            MessageService.addInfo('Service added', 'New Service ' + name + ' added.');
                             resolve(JSON.parse(document.data));
                             addDefaultFiles(JSON.parse(document.data));
                         } else {
-                            MessageService.addError ('Could not add Service', 'Failed to create service ' + name + getMessage(document));
+                            MessageService.addError('Could not create Service ' + name, document);
                             reject();
                         }
                     }, function (error) {
-                        MessageService.addError ('Could not add Service', error);
+                        MessageService.addError('Could not add Service ' + name, error);
                         reject();
                     }
                 );
@@ -206,7 +206,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addInfo('Service File added', file.filename + ' added');
                     deferred.resolve(JSON.parse(result.data));
                 }, function (error) {
-                    MessageService.addError ('Could not add Service File', error);
+                    MessageService.addError('Could not add Service File ' + file.filename, error);
                     deferred.reject();
                 });
             return deferred.promise;
@@ -240,13 +240,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             }
                             resolve(document);
                         } else {
-                            MessageService.addError('Could not update Service',
-                                'Failed to update service ' + selectedService.name + getMessage(document));
+                            MessageService.addError('Could not update Service ' + selectedService.name, document);
                             reject();
                         }
                     }, function (error) {
-                        MessageService.addError('Could not update Service '.concat(selectedService.name),
-                            (error.doc && error.doc.message ? error.doc.message : undefined));
+                        MessageService.addError('Could not update Service ' + selectedService.name, error);
                         reject();
                     }
                 );
@@ -264,7 +262,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (result) {
                     MessageService.addInfo('Service File updated', file.filename + ' updated');
                 }, function (error) {
-                    MessageService.addError ('Could not update Service File', error);
+                    MessageService.addError('Could not update Service File ' + file.name, error);
                 }
             );
         }
@@ -279,19 +277,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                     function (document) {
                         if (200 <= document.status && document.status < 300) {
-                            MessageService.addInfo('Service removed', 'Service '.concat(service.name).concat(' deleted.'));
+                            MessageService.addInfo('Service removed', 'Service ' + service.name + ' deleted.');
                             if(self.params.development.selectedService && service.id === self.params.development.selectedService.id){
                                 self.params.development.selectedService = undefined;
                                 self.params.development.displayRight = false;
                             }
                             resolve(service);
                         } else {
-                            MessageService.addError ('Could not remove Service', 'Failed to remove service '+
-                                service.name + getMessage(document));
+                            MessageService.addError('Could not remove Service ' + service.name, document);
                             reject();
                         }
                     }, function (error) {
-                        MessageService.addError ('Could not remove Service', error);
+                        MessageService.addError('Could not remove Service ' + service.name, error);
                         reject();
                     }
                 );
@@ -307,15 +304,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                     function (document) {
                         if (200 <= document.status && document.status < 300) {
-                            MessageService.addInfo('Service File removed', 'File '.concat(file.filename).concat(' deleted.'));
+                            MessageService.addInfo('Service File removed', 'File ' + file.filename + ' deleted.');
                             resolve();
                         } else {
-                            MessageService.addError ('Could not remove Service File', 'Failed to remove service file ' +
-                                file.filename + getMessage(document));
+                            MessageService.addError('Could not remove Service File ' + file.filename, document);
                             reject();
                         }
                     }, function (error) {
-                        MessageService.addError ('Could not remove Service File', error);
+                        MessageService.addError('Could not remove Service File ' + file.filename, error);
                         reject();
                     }
                 );
@@ -341,13 +337,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             function (document) {
                                 deferred.resolve(document._embedded.serviceFiles);
                             }, function (error) {
-                                MessageService.addError ('Could not get Service Files', error);
+                                MessageService.addError('Could not get Service Files', error);
                                 deferred.reject();
                             }
                         );
                     });
                 }, function (error) {
-                    MessageService.addError ('Could not get Service Files', error);
+                    MessageService.addError('Could not get Service Files', error);
                     deferred.reject();
                 }
             );
@@ -363,7 +359,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     self.params[page].selectedService.files.push(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get Service File details', error);
+                    MessageService.addError('Could not get Service File details', error);
                 }
             );
         }
@@ -382,7 +378,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 DEFAULT_DOCKERFILE = data;
             })
             .error(function(error) {
-                MessageService.addError ('Could not get Docker Template', error);
+                MessageService.addError('Could not get Docker Template', error);
             });
         }
 

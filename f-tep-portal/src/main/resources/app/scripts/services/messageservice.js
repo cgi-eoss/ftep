@@ -13,20 +13,41 @@ define(['../ftepmodules'], function (ftepmodules) {
         var messages = [];
         var id = 0;
 
-        function addMessage(status, title, description) {
+        function getErrorMessage (error) {
+            var message = '';
+            if (typeof error === 'string') {
+               message = error;
+            } else if (error.data && error.data.indexOf('message') > 0) {
+                message = JSON.parse(error.data).message;
+            } else if (error.doc && error.doc.message) {
+                 message = error.doc.message;
+            }
+            return message;
+        }
+
+        function addMessage(status, title, description, response) {
             var message = {};
             id = id + 1;
             message.id = id;
             message.status = status;
             message.title = title;
             message.time = new Date().toUTCString();
-            message.description = description ? description : title;
+            message.description = description ? description : null;
+
+            if (response) {
+                message.response = JSON.stringify(response, null, 4);
+
+                if (message.response.indexOf('403') > 0) {
+                    message.description = 'Access Denied. Please ensure your session has not timed out and that you have the correct access rights.';
+                }
+            }
+
             messages.push(message);
             $rootScope.$broadcast('update.messages');
         }
 
-        this.addError = function(title, description){
-            addMessage('Error', title, description);
+        this.addError = function(title, error){
+            addMessage('Error', title, getErrorMessage(error), error);
         };
 
         this.addWarning = function(title, description){
@@ -59,22 +80,22 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.params = {
-                messageStatuses: [
-                    {
-                         name: "Error",
-                         value: true
-                    },
-                    {
-                         name: "Warning",
-                         value: true
-                    },
-                    {
-                         name: "Info",
-                         value: true
-                    }
-                ],
-                selectedMessage: undefined,
-                displayFilters: false
+            messageStatuses: [
+                {
+                    name: "Error",
+                    value: true
+                },
+                {
+                    name: "Warning",
+                    value: true
+                },
+                {
+                    name: "Info",
+                    value: true
+                }
+            ],
+            selectedMessage: undefined,
+            displayFilters: false
         };
 
         return this;

@@ -45,8 +45,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 }, function (error) {
                     if (!timeout) {
                         window.alert("Your session has expired. Please log in.");
-                        MessageService.addError ('No User Detected',
-                                          'Failed to get user data. Access to the server is restricted so the portal will not function correctly. Please login to regain functionality. Server Error Message: '.concat((error.doc && error.doc.message) ? ': ' + error.doc.message : '' ));
+                        MessageService.addError('No User Detected', error);
                         timeout = true;
                     }
                     deferred.reject();
@@ -64,7 +63,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.users);
             }, function (error) {
-                MessageService.addError ('Could not get Users', error);
+                MessageService.addError('Could not get Users', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -81,7 +80,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.users);
             }, function (error) {
-                MessageService.addError ('Could not get Users', error);
+                MessageService.addError('Could not get Users', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -97,7 +96,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get User', error);
+                MessageService.addError('Could not get User', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -127,14 +126,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('User successfully added');
+                        MessageService.addInfo('User successfully added', 'User added to ' + group.name);
                         resolve(document);
                     } else {
-                        MessageService.addError ('Failed to add User', document);
+                        MessageService.addError('Could not add User to ' + group.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to add User to Group', error);
+                    MessageService.addError('Could not add User to ' + group.name, error);
                     reject();
                 });
 
@@ -153,7 +152,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addInfo('User successfully updated', 'User ' + user.name + ' successfully updated.');
                     resolve(JSON.parse(document.data));
                 }, function (error) {
-                    MessageService.addError('Failed to update User', error);
+                    MessageService.addError('Could not update User ' + user.name, error);
                     reject();
                 });
             });
@@ -182,14 +181,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('User deleted', 'User '.concat(user.name).concat(' deleted.'));
+                        MessageService.addInfo('User deleted', 'User ' + user.name + ' deleted.');
                         resolve(group);
                     } else {
-                        MessageService.addError ('Failed to remove User', document);
+                        MessageService.addError('Could not remove User ' + user.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to remove User', error);
+                    MessageService.addError('Could not remove User ' + user.name, error);
                     reject();
                 });
 

@@ -120,7 +120,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     }
                     deferred.resolve(document._embedded.jobs);
                 }, function (error) {
-                    MessageService.addError ('Could not get Jobs', error);
+                    MessageService.addError('Could not get Jobs', error);
                     deferred.reject();
                 });
 
@@ -137,7 +137,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get Job', error);
+                    MessageService.addError('Could not get Job ' + job.id, error);
                     deferred.reject();
                 });
 
@@ -155,7 +155,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get Job', error);
+                    MessageService.addError('Could not get Job ' + job.id + ' owner', error);
                     deferred.reject();
                 });
 
@@ -176,7 +176,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Job contents', error);
+                MessageService.addError('Could not get contents of Job ' + job.id, error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -194,7 +194,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get Job logs', error);
+                    MessageService.addError('Could not get logs for Job ' + job.id, error);
                     deferred.reject();
                 });
              });
@@ -218,7 +218,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .then(function (document) {
                         deferred.resolve(document);
                     }, function (error) {
-                        MessageService.addError('Could not get Job config', error);
+                        MessageService.addError('Could not get contents of Job ' + job.id, error);
                         deferred.reject();
                     });
                  });
@@ -236,7 +236,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get Job output', error);
+                    MessageService.addError('Could not get output results for Job ' + job.id, error);
                     deferred.reject();
                 });
 
@@ -348,11 +348,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
              function (document) {
-                 MessageService.addInfo ('Job started', 'A new ' + service.name + ' job started.');
+                 MessageService.addInfo('Job started', 'A new ' + service.name + ' job started.');
                  deferred.resolve();
              },
              function(error){
-                 MessageService.addError ('Could not launch Job', error);
+                 MessageService.addError('Could not launch Job', error);
                  deferred.reject();
              });
 
@@ -372,7 +372,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                  function (document) {
                      resolve(JSON.parse(document.body));
                  }, function (error) {
-                     MessageService.addError ('Could not start Job', error);
+                     MessageService.addError('Could not create JobConfig', error);
                      reject();
                  });
             });
@@ -387,7 +387,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                      resolve(document);
                  }, function (error) {
-                     MessageService.addError ('Could not get Job estimation', error);
+                     MessageService.addError('Could not get Job cost estimation', error);
                      reject();
                  });
             });

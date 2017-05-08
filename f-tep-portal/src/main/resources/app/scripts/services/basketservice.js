@@ -114,10 +114,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('Databasket created', 'New databasket '.concat(name).concat(' created.'));
+                     MessageService.addInfo('Databasket created', 'New databasket ' + name + ' created.');
                     resolve(JSON.parse(document.data));
                 }, function (error) {
-                    MessageService.addError ('Failed to create Databasket', error);
+                    MessageService.addError('Could not create Databasket ' + name, error);
                     reject();
                 });
             });
@@ -132,14 +132,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Databasket deleted', 'Databasket '.concat(databasket.name).concat(' deleted.'));
+                        MessageService.addInfo('Databasket deleted', 'Databasket ' + databasket.name + ' deleted.');
                         resolve(databasket);
                     } else {
-                        MessageService.addError ('Failed to remove Databasket', document);
+                         MessageService.addError('Could not remove Databasket ' + databasket.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to remove Databasket', error);
+                    MessageService.addError('Could not remove Databasket ' + databasket.name, error);
                     reject();
                 });
             });
@@ -154,10 +154,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .result
                          .then(
                 function (document) {
-                    MessageService.addInfo('Databasket successfully updated', 'Databasket ' + databasket.name + ' successfully updated.');
+                    MessageService.addInfo('Databasket successfully updated', 'Databasket ' + databasket.name + ' updated.');
                     resolve(JSON.parse(document.data));
                 }, function (error) {
-                    MessageService.addError('Failed to update Databasket', error);
+                    MessageService.addError('Could not update Databasket ' + databasket.name, error);
                     reject();
                 });
             });
@@ -173,7 +173,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Databasket', error);
+                MessageService.addError('Could not get Databasket' + databasket.name, error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -190,7 +190,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.ftepFiles);
             }, function (error) {
-                MessageService.addError ('Could not get Databasket contents', error);
+                MessageService.addError('Could not get contents of Databasket ' + databasket.name, error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -275,14 +275,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Files successfully added');
+                        MessageService.addInfo('Files successfully added', 'Files added to ' + databasket.name);
                         resolve(document);
                     } else {
-                        MessageService.addError ('Failed to add file/s to Databasket', document);
+                        MessageService.addError('Could not add file/s to Databasket ' + databasket.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to add file/s to Databasket', error);
+                    MessageService.addError('Could not add file/s to Databasket ' + databasket.name, error);
                     reject();
                 });
 
@@ -312,14 +312,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('File removed from Databasket', 'File '.concat(file.filename).concat('removed from ').concat(databasket.name));
+                        MessageService.addInfo('File removed from Databasket', 'File ' + file.filename + ' removed from ' + databasket.name);
                         resolve(databasket);
                     } else {
-                        MessageService.addError ('Failed to remove item from Databasket', document);
+                        MessageService.addError('Could not remove item from Databasket ' + databasket.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to remove item from Databasket', error);
+                    MessageService.addError('Could not remove item from Databasket ' + databasket.name, error);
                     reject();
                 });
             });
@@ -339,14 +339,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Databasket successfully cleared');
+                        MessageService.addInfo('Databasket successfully cleared', 'Databasket ' + databasket.name + ' has been cleared');
                         resolve(databasket);
                     } else {
-                        MessageService.addError ('Failed to clear Databasket', document);
+                        MessageService.addError('Could not clear Databasket ' + databasket.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to clear Databasket', error);
+                    MessageService.addError('Could not clear Databasket ' + databasket.name, error);
                     reject();
                 });
             });

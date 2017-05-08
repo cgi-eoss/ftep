@@ -63,7 +63,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document._embedded.projects);
             }, function (error) {
-                MessageService.addError ('Could not get Projects', error);
+                MessageService.addError('Could not get Projects', error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -86,16 +86,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Project created', 'New project '.concat(name).concat(' created.'));
+                        MessageService.addInfo('Project created', 'New project ' + name + (' created.'));
                         resolve(JSON.parse(document.data));
                     }
                     else {
-                        MessageService.addError ('Could not create a Project '.concat(name),
-                                'Failed to create a project ' + name + getMessage(document));
+                        MessageService.addError('Could not create a Project ' + name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Could not create a Project '.concat(name), error);
+                    MessageService.addError('Could not create a Project ' + name, error);
                     reject();
                 });
             });
@@ -115,12 +114,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         resolve(JSON.parse(document.data));
                     }
                     else {
-                        MessageService.addError('Could not update Project '.concat(project.name),
-                                'Failed to update project ' + project.name + getMessage(document));
+                        MessageService.addError('Could not update Project ' + project.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to update Project '.concat(project.name), error);
+                    MessageService.addError('Could not update Project ' + project.name, error);
                     reject();
                 });
             });
@@ -135,14 +133,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Project deleted', 'Project '.concat(project.name).concat(' deleted.'));
+                        MessageService.addInfo('Project deleted', 'Project ' + project.name + ' deleted.');
                         resolve(project);
                     } else {
-                        MessageService.addError ('Could not remove Project '.concat(project.name), getMessage(document));
+                        MessageService.addError('Could not remove Project ' + project.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Could not remove Project '.concat(project.name), error);
+                    MessageService.addError('Could not remove Project ' + project.name, error);
                     reject();
                 });
             });
@@ -158,7 +156,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Project contents', error );
+                MessageService.addError('Could not get Project contents', error);
                 deferred.reject();
             });
             return deferred.promise;

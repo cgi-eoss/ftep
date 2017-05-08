@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
+import com.cgi.eoss.ftep.costing.CostingConfig;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Import;
         PropertyPlaceholderAutoConfiguration.class,
 
         CatalogueConfig.class,
+        CostingConfig.class,
         InProcessRpcConfig.class,
         PersistenceConfig.class
 })

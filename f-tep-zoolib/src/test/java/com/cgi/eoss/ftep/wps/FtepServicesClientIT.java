@@ -1,11 +1,13 @@
 package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerEnvironment;
@@ -48,8 +50,10 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -65,6 +69,9 @@ public class FtepServicesClientIT {
 
     @Mock
     private CatalogueService catalogueService;
+
+    @Mock
+    private CostingService costingService;
 
     private FileSystem fs;
 
@@ -101,7 +108,7 @@ public class FtepServicesClientIT {
 
         WorkerFactory workerFactory = mock(WorkerFactory.class);
 
-        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, new FtepGuiServiceManager(), catalogueService);
+        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, new FtepGuiServiceManager(), catalogueService, costingService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
         when(workerFactory.getWorker(WorkerEnvironment.LOCAL)).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
@@ -127,6 +134,9 @@ public class FtepServicesClientIT {
         FtepService service = mock(FtepService.class);
         FtepServiceDescriptor serviceDescriptor = mock(FtepServiceDescriptor.class);
         User user = mock(User.class);
+        Wallet wallet = mock(Wallet.class);
+        when(user.getWallet()).thenReturn(wallet);
+        when(wallet.getBalance()).thenReturn(100);
 
         when(service.getDockerTag()).thenReturn(TEST_CONTAINER_IMAGE);
         when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
@@ -144,6 +154,8 @@ public class FtepServicesClientIT {
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
                 .build();
 
+        when(costingService.estimateJobCost(any())).thenReturn(20);
+
         Multimap<String, String> outputs = ftepServicesClient.launchService(userId, serviceId, jobId, inputs);
         assertThat(outputs, is(notNullValue()));
 
@@ -152,6 +164,8 @@ public class FtepServicesClientIT {
                 "inputKey1=\"inputVal1\"",
                 "inputKey2=\"inputVal2-1,inputVal2-2\""
         )));
+
+        verify(costingService).chargeForJob(eq(wallet), any());
     }
 
 }

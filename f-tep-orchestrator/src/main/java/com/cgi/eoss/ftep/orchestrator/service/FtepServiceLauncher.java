@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
@@ -71,13 +72,15 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
     private final JobDataService jobDataService;
     private final FtepGuiServiceManager guiService;
     private final CatalogueService catalogueService;
+    private final CostingService costingService;
 
     @Autowired
-    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService) {
+    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService, CostingService costingService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
         this.catalogueService = catalogueService;
+        this.costingService = costingService;
     }
 
     @Override
@@ -96,7 +99,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             ctc.put("jobId", String.valueOf(job.getId()));
             FtepService service = job.getConfig().getService();
 
-            checkCost(job.getConfig());
+            checkCost(job.getOwner(), job.getConfig());
 
             // Prepare inputs
             LOG.info("Downloading input data for {}", zooId);
@@ -215,6 +218,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     MultimapBuilder.hashKeys().hashSetValues()::build)));
             jobDataService.save(job);
 
+            chargeUser(job.getOwner(), job);
+
             // Transform the results for the WPS response
             List<JobParam> outputs = job.getOutputs().asMap().entrySet().stream()
                     .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addAllParamValue(e.getValue()).build())
@@ -231,19 +236,19 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             LOG.error("Failed to run processor; notifying gRPC client", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
-        } finally {
-            if (job != null) {
-                chargeUser(job.getOwner(), job.getConfig());
-            }
         }
     }
 
-    private void checkCost(JobConfig jobConfig) {
-        // TODO Determine coin cost of config and compare with user account
+    private void checkCost(User user, JobConfig jobConfig) {
+        int estimatedCost = costingService.estimateJobCost(jobConfig);
+        if (estimatedCost > user.getWallet().getBalance()) {
+            throw new ServiceExecutionException("Estimated cost (" + estimatedCost + " coins) exceeds current wallet balance");
+        }
+        // TODO Should estimated balance be "locked" in the wallet?
     }
 
-    private void chargeUser(User user, JobConfig config) {
-        // TODO Deduct coins from user account
+    private void chargeUser(User user, Job job) {
+        costingService.chargeForJob(user.getWallet(), job);
     }
 
 }

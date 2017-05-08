@@ -603,6 +603,7 @@
   padding-left: 0.3rem;
 }
 #navbar .navbar-container .navbar-header {
+  cursor: pointer;
   margin: 0;
   padding-right: 1rem;
 }

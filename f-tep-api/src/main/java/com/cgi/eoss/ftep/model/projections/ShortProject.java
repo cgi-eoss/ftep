@@ -12,6 +12,8 @@ public interface ShortProject extends EmbeddedId {
     ShortUser getOwner();
     @Value("#{target.databaskets.size()}")
     Integer getDatabasketsCount();
+    @Value("#{target.services.size()}")
+    Integer getServicesCount();
     @Value("#{target.jobConfigs.size()}")
     Integer getJobConfigsCount();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")

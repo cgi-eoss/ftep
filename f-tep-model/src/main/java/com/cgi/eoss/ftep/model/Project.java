@@ -76,6 +76,16 @@ public class Project implements FtepEntityWithOwner<Project>, Searchable {
     private Set<Databasket> databaskets = Sets.newHashSet();
 
     /**
+     * <p>Services belonging to this project.</p>
+     */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "ftep_project_services",
+            joinColumns = @JoinColumn(name = "project_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id", referencedColumnName = "id"),
+            uniqueConstraints = @UniqueConstraint(name = "ftep_project_services_ids_idx", columnNames = {"project_id", "service_id"}))
+    private Set<FtepService> services = Sets.newHashSet();
+
+    /**
      * <p>Job configurations belonging to this project.</p>
      */
     @ManyToMany(fetch = FetchType.EAGER)

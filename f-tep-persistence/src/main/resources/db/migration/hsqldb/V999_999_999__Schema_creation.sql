@@ -183,6 +183,13 @@ CREATE TABLE ftep_project_databaskets (
 CREATE UNIQUE INDEX ftep_project_databaskets_ids_idx
   ON ftep_project_databaskets (project_id, databasket_id);
 
+CREATE TABLE ftep_project_services (
+  project_id BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
+  service_id BIGINT FOREIGN KEY REFERENCES ftep_services (id)
+);
+CREATE UNIQUE INDEX ftep_project_services_ids_idx
+  ON ftep_project_services (project_id, service_id);
+
 CREATE TABLE ftep_project_job_configs (
   project_id    BIGINT FOREIGN KEY REFERENCES ftep_projects (id),
   job_config_id BIGINT FOREIGN KEY REFERENCES ftep_job_configs (id)

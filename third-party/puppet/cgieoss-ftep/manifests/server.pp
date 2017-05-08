@@ -62,6 +62,8 @@ class ftep::server (
   $resto_output_products_model        = 'RestoModel_Ftep_Output',
   $resto_username                     = undef,
   $resto_password                     = undef,
+
+  $custom_config_properties           = { },
 ) {
 
   require ::ftep::globals
@@ -179,6 +181,7 @@ class ftep::server (
       'resto_output_products_model'        => $resto_output_products_model,
       'resto_username'                     => $real_resto_username,
       'resto_password'                     => $real_resto_password,
+      'custom_properties'                  => $custom_config_properties,
     }),
     require => Package['f-tep-server'],
     notify  => Service['f-tep-server'],

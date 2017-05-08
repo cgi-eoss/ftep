@@ -8,7 +8,9 @@
 
     String $zcfg_path,
     String $javac_classpath,
-    String $services_stub_jar
+    String $services_stub_jar,
+
+    Hash $custom_properties
 | -%>
 # Managed by Puppet
 # F-TEP ZOO Manager service configuration
@@ -33,3 +35,8 @@ eureka.client.serviceUrl.defaultZone=<%= $serviceregistry_url %>
 ftep.zoomanager.zcfg.path=<%= $zcfg_path %>
 ftep.zoomanager.javac.classpath=<%= $javac_classpath %>
 ftep.zoomanager.stub.jarFile=<%= $services_stub_jar %>
+
+# Custom manually-appended configuration properties
+<% $custom_properties.each | $key, $value | { %>
+<%= $key %>=<%= $value %>
+<% } -%>

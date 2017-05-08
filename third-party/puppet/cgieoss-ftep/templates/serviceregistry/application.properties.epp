@@ -4,6 +4,8 @@
     Integer $server_port,
     String $serviceregistry_user,
     String $serviceregistry_pass,
+
+    Hash $custom_properties
 | -%>
 # Managed by Puppet
 # F-TEP Service Registry service configuration
@@ -23,3 +25,8 @@ eureka.client.fetch-registry=false
 
 logging.level.com.netflix.eureka=OFF
 logging.level.com.netflix.discovery=OFF
+
+# Custom manually-appended configuration properties
+<% $custom_properties.each | $key, $value | { %>
+<%= $key %>=<%= $value %>
+<% } -%>

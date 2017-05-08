@@ -34,7 +34,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.refreshFile = function() {
-            FileService.refreshSelectedFtepFile('community')
+            FileService.refreshSelectedFtepFile('community');
         };
 
     }]);

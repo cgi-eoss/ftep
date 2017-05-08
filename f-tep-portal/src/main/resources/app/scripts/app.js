@@ -7,7 +7,7 @@
  * Main module of the application.
  */
 
-require(['bootstrap', 'notify']);
+require(['bootstrap']);
 
 define([
     'ftepConfig',
@@ -33,21 +33,19 @@ define([
     'traversonAngular',
     'traversonHal',
     'ngFileUpload',
-    'uiCodeMirror',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
                                          'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload', 'ui.codemirror']);
+                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
         "URL_PREFIX": ftepConfig.urlPrefix,
         "URL": ftepConfig.apiUrl,
         "URLv2": ftepConfig.apiUrlv2,
-        "ZOO_URL": ftepConfig.zooUrl,
         "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
@@ -151,13 +149,13 @@ define([
                     return dateTime;
                 }
                 else {
-                    return new Date(endTime.year + "-" +
-                            getTwoDigitNumber(endTime.monthValue) + "-" +
-                            getTwoDigitNumber(endTime.dayOfMonth) + "T" +
-                            getTwoDigitNumber(endTime.hour) + ":" +
-                            getTwoDigitNumber(endTime.minute) + ":" +
-                            getTwoDigitNumber(endTime.second) + "." +
-                            getThreeDigitNumber(endTime.nano/1000000) + "Z").toISOString();;
+                    return new Date(dateTime.year + "-" +
+                            getTwoDigitNumber(dateTime.monthValue) + "-" +
+                            getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
+                            getTwoDigitNumber(dateTime.hour) + ":" +
+                            getTwoDigitNumber(dateTime.minute) + ":" +
+                            getTwoDigitNumber(dateTime.second) + "." +
+                            getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
                 }
             }
             else{

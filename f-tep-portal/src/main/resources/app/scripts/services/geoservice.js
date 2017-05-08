@@ -100,25 +100,16 @@ define(['../ftepmodules'], function (ftepmodules) {
                 deferred.resolve(response.data.data);
 
                 if(!response || !response.data || !response.data.data || !response.data.data[0]){
-                    MessageService.addError('Search failed', 'Search result is empty');
+                    MessageService.addError('Search failed', 'Search result is empty.');
                 }
                 else if(response.data.data[0].results.totalResults > MAX_ITEMS_ALLOWED){
-                    MessageService.addWarning('Too many results', 'Search results limited to ' + MAX_ITEMS_ALLOWED
-                            +'. Please refine the search parameters to get more precise results.');
+                    MessageService.addWarning('Too many results','Search results limited to ' +
+                        MAX_ITEMS_ALLOWED + '. Please refine the search parameters to get more precise results.');
                 }
             }).
-            catch(function(e) {
+            catch(function(error) {
                 deferred.reject();
-                var errorMsg = '';
-                switch(e.status){
-                    case -1:
-                        errorMsg = 'Session expired';
-                        break;
-                    default:
-                        errorMsg = e.statusText;
-                        break;
-                }
-                MessageService.addError('Search failed', errorMsg);
+                MessageService.addError('Search failed', error);
             });
 
             return deferred.promise;

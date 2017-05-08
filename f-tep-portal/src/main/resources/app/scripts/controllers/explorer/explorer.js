@@ -8,8 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', 'ftepProperties', '$injector',
-                                            function ($scope, $mdDialog, TabService, MessageService, $mdSidenav, ftepProperties, $injector) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', 'ftepProperties', '$injector', function ($scope, $mdDialog, TabService, MessageService, $mdSidenav, ftepProperties, $injector) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -128,6 +127,27 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 clickOutsideToClose: true,
                 locals: {}
             });
+        };
+
+
+        $scope.hideContent = true;
+        var map, sidenav, navbar;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'map':
+                    map = true;
+                    break;
+                case 'sidenav':
+                    sidenav = true;
+                    break;
+                case 'navbar':
+                    navbar = true;
+                    break;
+            }
+
+            if (map && sidenav && navbar) {
+                $scope.hideContent = false;
+            }
         };
 
     }]);

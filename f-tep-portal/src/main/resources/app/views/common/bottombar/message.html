@@ -4,6 +4,7 @@
 
     <md-button class="close toolbar-button md-secondary"
                ng-click="deselectMessage()"
+               aria-label="Close"
                uib-tooltip="Close"
                tooltip-placement="top"
                tooltip-trigger="mouseenter"
@@ -11,8 +12,18 @@
         <i class="material-icons">close</i>
     </md-button>
 
-    <h3>{{msgParams.selectedMessage.status}} - {{msgParams.selectedMessage.title}}</h3>
-    <h4>{{msgParams.selectedMessage.time}}</h4>
-    <pre>{{msgParams.selectedMessage.description|json}}</pre>
+    <h3 ng-bind="msgParams.selectedMessage.status + ' - ' + msgParams.selectedMessage.title" />
+    <h4 ng-bind="msgParams.selectedMessage.time" />
+    <h5 ng-if="msgParams.selectedMessage.description" ng-bind="msgParams.selectedMessage.description" />
+
+    <div ng-show="msgParams.selectedMessage.response" >
+        <md-button ng-show="msgParams.selectedMessage.response"
+                   class="md-primary"
+                   data-toggle="collapse"
+                   data-target="#response"
+                   aria-label="Close"
+                   ng-bind="'See HTTP Response'" />
+        <pre id="response" class="collapse" ng-bind-html="msgParams.selectedMessage.response" />
+    </div>
 
 </section>

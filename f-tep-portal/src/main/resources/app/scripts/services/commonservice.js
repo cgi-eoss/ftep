@@ -29,20 +29,52 @@ define(['../ftepmodules'], function (ftepmodules) {
 
                 this.confirm = function(event, message) {
                     var deferred = $q.defer();
-                    var confirm = $mdDialog.confirm()
+                    var dialog = $mdDialog.confirm()
                           .title('Confirmation needed')
-                          .textContent(message)
                           .targetEvent(event)
                           .ok('Confirm')
                           .cancel('Cancel');
 
-                    $mdDialog.show(confirm).then(function() {
+                    if(message.indexOf('\n') > -1){
+                        dialog.htmlContent(getHtml(message));
+                    }
+                    else{
+                        dialog.textContent(message);
+                    }
+
+                    $mdDialog.show(dialog).then(function() {
                         deferred.resolve(true);
                     }, function() {
                         deferred.resolve(false);
                     });
                     return deferred.promise;
                 };
+
+                this.infoBulletin = function(event, message) {
+                    var dialog = $mdDialog.alert()
+                          .title('Info')
+                          .targetEvent(event)
+                          .ok('Ok');
+
+                    if(message.indexOf('\n') > -1){
+                        dialog.htmlContent(getHtml(message));
+                    }
+                    else{
+                        dialog.textContent(message);
+                    }
+
+                    $mdDialog.show(dialog);
+                };
+
+                /* Split the message into separate paragraphs if it includes end of line. */
+                function getHtml(message){
+                    var paragraphs = message.split('\n');
+                    var html = '';
+                    for(var i=0; i<paragraphs.length; i++){
+                        html += '<p>' + paragraphs[i] + '</p>';
+                    }
+                    return html;
+                }
 
                 this.createItemDialog = function($event, serviceName, serviceMethod){
                     var deferred = $q.defer();

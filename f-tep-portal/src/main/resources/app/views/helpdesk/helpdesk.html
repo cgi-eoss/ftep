@@ -1,3 +1,17 @@
-<article id="helpdesk-container" ng-controller="HelpdeskCtrl" class="page-container row">
-     <section ng-include src="'views/helpdesk/tutorials.html'" />
-</article>
+<div class="page" ng-controller="HelpdeskCtrl">
+
+    <div class="spinner-container" ng-class="{hidden: !hideContent}">
+        <div class="spinner" />
+    </div>
+
+    <div id="navbar-container"
+         ng-include src="'views/navbar.html'"
+         onload="finishLoading('navbar')"
+         ng-class="{hidden: hideContent}"/>
+
+    <article id="helpdesk-container" class="page-container row" ng-class="{hidden: hideContent}">
+        <section ng-include src="'views/helpdesk/tutorials.html'" onload="finishLoading('tutorials')"/>
+    </article>
+
+</div>
+

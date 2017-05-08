@@ -16,10 +16,13 @@ html {
     overflow: hidden;
     margin: 0px;
     #portal-container {
-        .border(border-top, @bg);
         height: 100%;
         width: 100%;
+        .page {
+            height: 100%;
+        }
         .page-container {
+            .border(border-top, @bg);
             height: calc(100% ~'-' @navbar-height);
             margin: 0;
             overflow-y: auto;
@@ -161,4 +164,8 @@ pre {
 .animationIf.ng-leave,
 .animationIf.ng-enter.ng-enter-active {
   opacity: 1;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }

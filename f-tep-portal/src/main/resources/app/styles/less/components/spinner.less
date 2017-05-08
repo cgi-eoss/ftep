@@ -1,0 +1,21 @@
+@import "variable";
+.spinner-container {
+    background-color: @disabled-trans;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    position: absolute;
+    width: 100%;
+    z-index: 20;
+    .spinner {
+        animation: spin 1s linear infinite;
+        border: 12px solid @text-light;
+        border-top: 12px solid @spinner;
+        border-radius: 50%;
+        height: 80px;
+        margin:auto;
+        width: 80px;
+        z-index: 10;
+    }
+}

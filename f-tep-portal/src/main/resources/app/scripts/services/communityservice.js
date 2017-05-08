@@ -35,8 +35,8 @@ define(['../ftepmodules'], function (ftepmodules) {
                 then(function (response) {
                     resolve(response.data.permissions);
                 }).
-                catch(function (e) {
-                    MessageService.addError('Could not get ' + item.name + ' shared groups', e);
+                catch(function (error) {
+                    MessageService.addError('Could not get ' + item.name + ' shared groups', error);
                     reject();
                 });
             });
@@ -77,10 +77,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                 }).
                 then(function (response) {
                     resolve(response);
-                    MessageService.addInfo(itemType + ' shared', (itemName).concat(' shared to ').concat(ace.group.name));
+                    MessageService.addInfo(itemType + ' shared', itemName + ' shared to ' + ace.group.name);
                 }).
-                catch(function (e) {
-                    MessageService.addError('Could not share ' + itemName, e);
+                catch(function (error) {
+                    MessageService.addError('Could not share ' + itemName, error);
                     reject();
                 });
 
@@ -111,10 +111,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                 }).
                 then(function (response) {
                     resolve(response);
-                    MessageService.addInfo(itemType + ' updated', (itemName).concat(' has been saved.'));
+                    MessageService.addInfo(itemType + ' updated', itemName + ' has been saved.');
                 }).
-                catch(function (e) {
-                    MessageService.addError('Could not save ' + itemName, e);
+                catch(function (error) {
+                    MessageService.addError('Could not save ' + itemName, error);
                     reject();
                 });
 
@@ -145,11 +145,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                     data: aclsObject,
                 }).
                 then(function (response) {
-                    MessageService.addInfo(itemType + ' removed from group', (itemName).concat(' removed from ').concat(group.name));
+                    MessageService.addInfo(itemType + ' removed from Group', itemName + ' removed from ' + group.name);
                     resolve(response);
                 }).
-                catch(function (e) {
-                    MessageService.addError('Could not remove ' + itemName + ' from group', e);
+                catch(function (error) {
+                    MessageService.addError('Could not remove ' + itemName + ' from Group', error);
                     reject();
                 });
 

@@ -136,14 +136,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('File removed', 'File '.concat(file.name).concat(' deleted.'));
+                        MessageService.addInfo('File removed', 'File ' + file.name + ' deleted.');
                         resolve(file);
                     } else {
-                        MessageService.addError ('Failed to Remove File', document);
+                        MessageService.addError('Could not remove File ' + file.name, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError ('Failed to Remove File', error);
+                    MessageService.addError('Could not remove File ' + file.name, error);
                     reject();
                 });
             });
@@ -160,10 +160,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         geometry: newReference.geometry
                     }
                 }).then(function (resp) {
-                    MessageService.addInfo('File uploaded', 'Success '.concat(resp.config.data.file.name).concat(' uploaded.'));
+                    MessageService.addInfo('File uploaded', 'Success ' + resp.config.data.file.name + ' uploaded.');
                     deferred.resolve(resp);
                 }, function (resp) {
-                    MessageService.addError('Error in file upload', resp.data ? resp.data : resp);
+                    MessageService.addError('Error uploading File', resp);
                     deferred.reject();
                 }, function (evt) {
                     var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
@@ -203,14 +203,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('File successfully updated');
+                        MessageService.addInfo('File successfully updated', 'File ' + file.filename + ' has been updated.');
                         resolve(document);
                     } else {
-                        MessageService.addError ('Failed to Update File', document);
+                        MessageService.addError('Could not update File ' + file.filename, document);
                         reject();
                     }
                 }, function (error) {
-                    MessageService.addError('Failed to update File', error);
+                    MessageService.addError('Could not update File ' + file.filename, error);
                     reject();
                 });
             });
@@ -226,7 +226,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get File', error);
+                MessageService.addError('Could not get File ' + file.filename, error);
                 deferred.reject();
             });
             return deferred.promise;

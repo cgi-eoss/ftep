@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.catalogue.CatalogueUri;
+import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
@@ -51,6 +52,7 @@ public class FtepFilesApiExtension {
     private final FtepSecurityService ftepSecurityService;
     private final FtepFileDataService ftepFileDataService;
     private final CatalogueService catalogueService;
+    private final CostingService costingService;
 
     @PostMapping("/externalProduct")
     @ResponseBody
@@ -97,6 +99,18 @@ public class FtepFilesApiExtension {
     @GetMapping(value = "/{fileId}/dl")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#file, 'read')")
     public void downloadFile(@ModelAttribute("fileId") FtepFile file, HttpServletResponse response) throws IOException {
+        User user = ftepSecurityService.getCurrentUser();
+
+        int estimatedCost = costingService.estimateDownloadCost(file);
+        if (estimatedCost > user.getWallet().getBalance()) {
+            response.setStatus(HttpStatus.PAYMENT_REQUIRED.value());
+            String message = "Estimated download cost (" + estimatedCost + " coins) exceeds current wallet balance";
+            response.getOutputStream().write(message.getBytes());
+            response.flushBuffer();
+            return;
+        }
+        // TODO Should estimated cost be "locked" in the wallet?
+
         org.springframework.core.io.Resource fileResource = catalogueService.getAsResource(file);
 
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -104,6 +118,8 @@ public class FtepFilesApiExtension {
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"");
         ByteStreams.copy(fileResource.getInputStream(), response.getOutputStream());
         response.flushBuffer();
+
+        costingService.chargeForDownload(user.getWallet(), file);
     }
 
 }

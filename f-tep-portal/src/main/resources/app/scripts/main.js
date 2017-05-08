@@ -42,18 +42,7 @@ require.config({
     ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
     //codeMirror: 'vendor/codemirror/lib/codemirror',
     uiCodeMirror: 'vendor/angular-ui-codemirror/src/ui-codemirror',
-
-    // ZOO-Client and dependencies
-    hogan: 'zoo-client/lib/hogan/hogan-3.0.2',
-    xml2json: 'zoo-client/lib/xml2json/xml2json.min',
-    queryString: 'zoo-client/lib/query-string/query-string',
-    text: 'zoo-client/lib/require-text-2.0.12',
-    notify: 'zoo-client/lib/bootstrap-notify',
-    wpsPayloads: 'zoo-client/lib/zoo/payloads',
-    wpsPayload: 'zoo-client/lib/zoo/wps-payload',
-    utils: 'zoo-client/lib/zoo/utils',
-    zoo: 'zoo-client/lib/zoo/zoo',
-    hgn: 'zoo-client/lib/require-hgn-0.3.0',
+    xml2json: 'vendor/x2js/xml2json',
 
     // F-TEP modules
     ftepConfig: 'ftepConfig',
@@ -131,28 +120,6 @@ require.config({
     bootstrap: {
       deps: ['jquery']
     },
-    notify: {
-      deps: ['jquery']
-    },
-    wpsPayloads: {
-      deps: ['hogan']
-    },
-    wpsPayload: {
-      deps: ['wpsPayloads'],
-      exports: 'wpsPayload'
-    },
-    hogan: {
-      exports: 'Hogan'
-    },
-    xml2json: {
-      exports: 'X2JS'
-    },
-    queryString: {
-      exports: 'queryString'
-    },
-    zoo: {
-      deps: ['queryString', 'xml2json', 'utils']
-    },
     clipboard: {
       exports: 'clipboard'
     },
@@ -185,6 +152,9 @@ require.config({
     uiCodeMirror: {
         deps: ['angular', 'codemirror'],
         exports: 'uiCodeMirror'
+    },
+    xml2json: {
+        exports: 'xml2json'
     },
     ftepConfig: {
       exports: 'ftepConfig'

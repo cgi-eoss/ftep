@@ -36,6 +36,20 @@ define(['../../ftepmodules'], function (ftepmodules) {
                  }
         ];
 
+        $scope.hideContent = true;
+        var tutorials;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'tutorials':
+                    tutorials = true;
+                    break;
+            }
+
+            if (tutorials) {
+                $scope.hideContent = false;
+            }
+        };
+
     }]);
 });
 

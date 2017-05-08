@@ -8,10 +8,17 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'WalletService', 'TabService', function ($scope, UserService, WalletService, TabService) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', function ($scope, UserService, MessageService, WalletService, TabService) {
 
         $scope.navInfo = TabService.navInfo.admin;
         $scope.bottombarNavInfo = TabService.navInfo.bottombar;
+
+        /* Active session message count */
+        $scope.message = {};
+        $scope.message.count = MessageService.countMessages();
+        $scope.$on('update.messages', function(event, job) {
+            $scope.message.count = MessageService.countMessages();
+        });
 
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];
@@ -46,10 +53,10 @@ define(['../../ftepmodules'], function (ftepmodules) {
                    $scope.userParams.wallet = wallet;
                 });
             }
-        }
+        };
 
         $scope.addCoins = function() {
-            WalletService.makeTransaction($scope.userParams.wallet, $scope.userParams.coins).then(function(data){
+            WalletService.makeTransaction($scope.userParams.selectedUser, $scope.userParams.wallet, $scope.userParams.coins).then(function(){
                 $scope.userParams.coins = 0;
                 $scope.getUserData();
             });
@@ -64,6 +71,26 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.toggleBottomView = function(){
             $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+
+        $scope.hideContent = true;
+        var navbar, sidenav, management;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'navbar':
+                    navbar = true;
+                    break;
+                case 'sidenav':
+                    sidenav = true;
+                    break;
+                case 'management':
+                    management = true;
+                    break;
+            }
+
+            if (navbar && sidenav && management) {
+                $scope.hideContent = false;
+            }
         };
 
     }]);

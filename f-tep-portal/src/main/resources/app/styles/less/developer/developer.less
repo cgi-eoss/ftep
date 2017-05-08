@@ -79,11 +79,13 @@
                 .field-definitions {
                     margin-top: 15px;
                     .row {
-                        margin: 10px;
                         border: @bg 1px solid;
+                        .centre {
+                            text-align: center;
+                        }
                     }
                 }
-                .add-button, .remove-button {
+                .add-button, .remove-button, .type-button {
                     min-width: 0;
                     &:hover {
                         background-color: transparent;
@@ -92,11 +94,15 @@
                 .add-button .material-icons{
                     color: @brand-light;
                 }
-                .remove-button .material-icons{
-                    margin: 0px;
+                .remove-button .material-icons, .type-button .material-icons {
+                    margin: 20px 0px 0px 0px;
                     font-size: 20px;
                     color: @white;
                     background-color:  @brand-light;
+                }
+                .type-button {
+                    margin-left: 0px !important;
+                    padding-left: 2px !important;
                 }
                 .header {
                     background-color: @bg;
@@ -204,3 +210,20 @@
         }
     }
 }
+#edit-type-dialog {
+    min-height: 400px;
+    md-dialog-actions {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        md-button {
+            position: absolute;
+            right: 0px;
+        }
+    }
+    .complex-type {
+        margin-top: 60px;
+    }
+}
+
+

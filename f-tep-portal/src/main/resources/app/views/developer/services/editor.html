@@ -12,26 +12,50 @@
 
 <form id="service-form" name="serviceForm">
 
-    <section id="service-header" class="row">
-        <div class="service-field col-md-2 no-padding">
-            <md-input-container md-no-float>
-                <label>Service Name</label>
-                <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
-            </md-input-container>
+    <section id="service-header">
+        <div class="row">
+	        <div class="service-field col-md-2 no-padding">
+	            <md-input-container md-no-float>
+	                <label>Service Name</label>
+	                <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
+	            </md-input-container>
+	        </div>
+	        <div class="service-field col-md-2 no-padding">
+	            <md-input-container md-no-float>
+	                <label>Docker Tag</label>
+	                <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag*" required>
+	            </md-input-container>
+	        </div>
+	        <div class="col-md-7 service-field no-padding">
+	            <md-input-container id="service-description" md-no-float>
+	                <label>Description</label>
+	                <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
+	            </md-input-container>
+	        </div>
+	        <div class="col-md-1 service-field no-padding">
+	        </div>
         </div>
-        <div class="service-field col-md-2 no-padding">
-            <md-input-container md-no-float>
-                <label>Docker Tag</label>
-                <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag*" required>
-            </md-input-container>
-        </div>
-        <div class="col-md-7 service-field no-padding">
-            <md-input-container id="service-description" md-no-float>
-                <label>Description</label>
-                <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
-            </md-input-container>
-        </div>
-        <div class="col-md-1 service-field no-padding">
+        <div class="row">
+            <div class="service-field col-md-2 no-padding">
+                <md-input-container md-no-float>
+                    <label>Version</label>
+                    <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version">
+                </md-input-container>
+            </div>
+            <div class="service-field col-md-2 no-padding">
+                <md-input-container md-no-float>
+                    <label>Service Type</label>
+                    <input ng-model="serviceParams.selectedService.serviceDescriptor.serviceType" type="text" placeholder="Service Type">
+                </md-input-container>
+            </div>
+            <div class="col-md-7 service-field no-padding">
+                <md-input-container id="service-description" md-no-float>
+                    <label>Summary</label>
+                    <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Summary">
+                </md-input-container>
+            </div>
+            <div class="col-md-1 service-field no-padding">
+            </div>
         </div>
     </section>
 
@@ -104,51 +128,67 @@
 
     <section class="field-definitions" ng-repeat="key in constants.serviceFields" ng-show="serviceParams.activeArea === serviceForms[key]">
         <div class="row header">
-            <div class="col-md-2">Id</div>
-            <div class="col-md-2">Title</div>
-            <div class="col-md-3">Description</div>
-            <div class="col-md-2">Type</div>
-            <div class="col-md-1">Min Occurs</div>
-            <div class="col-md-1">Max Occurs</div>
-            <div class="col-md-1"></div>
+            <div class="col-md-2 no-padding">Id</div>
+            <div class="col-md-2 no-padding">Title</div>
+            <div class="col-md-3 no-padding">Description</div>
+            <div class="col-md-2 no-padding">Type</div>
+            <div class="col-md-1 no-padding">Min Occurs</div>
+            <div class="col-md-1 no-padding">Max Occurs</div>
+            <div class="col-md-1 no-padding"></div>
         </div>
         <div class="row" ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
-            <div class="col-md-2">
+            <div class="col-md-2 no-padding">
                 <md-input-container md-no-float>
                     <input ng-model="input.id" type="text" placeholder="Field id*" required/>
                     <span class="error-message" ng-show="isValidFieldId(input, key) === false">Field id must be unique!</span>
                 </md-input-container>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 no-padding">
                 <md-input-container md-no-float>
                     <textarea ng-model="input.title" placeholder="Field title*" required/>
                 </md-input-container>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 no-padding">
                 <md-input-container md-no-float>
                     <textarea ng-model="input.description" placeholder="Field description"/>
                 </md-input-container>
             </div>
             <div class="col-md-2">
-                <md-input-container class="md-block" flex-gt-sm>
-                    <md-select ng-model="input.defaultAttr.dataType" required>
-                        <md-option ng-repeat="type in constants.fieldTypes" ng-value="type" ng-selected="$first">
-                            {{type.type}}
-                        </md-option>
-                    </md-select>
-                </md-input-container>
+                    <div class="col-md-10 no-padding">
+		                <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
+		                    <md-select ng-model="input.defaultAttrs.dataType" required>
+		                        <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType" ng-selected="$first">
+		                            {{type.dataType}}
+		                        </md-option>
+		                    </md-select>
+		                </md-input-container>
+
+                        <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'">
+                            <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType" required/>
+                        </md-input-container>
+	                </div>
+	                <div class="col-md-2 no-padding">
+	                   <md-button ng-click="editTypeDialog($event, input, constants)"
+		                   class="type-button"
+		                   aria-label="More"
+		                   uib-tooltip="More"
+		                   tooltip-trigger="mouseenter"
+		                   tooltip-append-to-body="true">
+		                    <i class="material-icons">edit</i>
+		                </md-button>
+	                </div>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-1 no-padding">
                 <md-input-container md-no-float>
                     <input ng-model="input.minOccurs" type="number" min="0" placeholder="Min Occurs"/>
                 </md-input-container>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-1 no-padding">
                 <md-input-container md-no-float>
                     <input ng-model="input.maxOccurs" type="number" min="0" placeholder="Max Occurs"/>
                 </md-input-container>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-1 no-padding centre">
                 <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input)"
                    class="remove-button"
                    aria-label="Remove Row"

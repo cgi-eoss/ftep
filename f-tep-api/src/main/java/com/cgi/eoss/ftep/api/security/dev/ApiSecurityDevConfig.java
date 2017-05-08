@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
@@ -59,6 +60,10 @@ public class ApiSecurityDevConfig {
                         .csrf().disable();
                 httpSecurity
                         .cors();
+                // TODO Make DEV security mode STATELESS for consistency with SSO
+                httpSecurity
+                        .sessionManagement()
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
             }
         };
     }

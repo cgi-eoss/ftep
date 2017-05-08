@@ -15,7 +15,9 @@
 
     String $ipt_auth_endpoint,
     String $ipt_auth_domain,
-    String $ipt_download_base_url
+    String $ipt_download_base_url,
+
+    Hash $custom_properties
 | -%>
 # Managed by Puppet
 # F-TEP Worker service configuration
@@ -47,3 +49,8 @@ ftep.worker.jobEnv.baseDir=<%= $jobs_basedir %>
 ftep.worker.downloader.ipt.authEndpoint=<%= $ipt_auth_endpoint %>
 ftep.worker.downloader.ipt.authDomain=<%= $ipt_auth_domain %>
 ftep.worker.downloader.ipt.downloadBaseUrl=<%= $ipt_download_base_url %>
+
+# Custom manually-appended configuration properties
+<% $custom_properties.each | $key, $value | { %>
+<%= $key %>=<%= $value %>
+<% } -%>

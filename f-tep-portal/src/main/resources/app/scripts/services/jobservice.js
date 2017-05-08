@@ -120,7 +120,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     }
                     deferred.resolve(document._embedded.jobs);
                 }, function (error) {
-                    MessageService.addError ('Could not get Jobs', error);
+                    MessageService.addError('Could not get Jobs', error);
                     deferred.reject();
                 });
 
@@ -137,7 +137,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get Job', error);
+                    MessageService.addError('Could not get Job ' + job.id, error);
                     deferred.reject();
                 });
 
@@ -155,7 +155,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError ('Could not get Job', error);
+                    MessageService.addError('Could not get Job ' + job.id + ' owner', error);
                     deferred.reject();
                 });
 
@@ -167,18 +167,16 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJobDetails = function(job) {
             var deferred = $q.defer();
 
-            if(!getJobRequest){
-                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                                .newRequest()
-                                .follow('job')
-                                .getResource();
-            }
+            getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
+                .newRequest()
+                .follow('job')
+                .getResource();
 
             getJobRequest.result.then(
             function (document) {
                 deferred.resolve(document);
             }, function (error) {
-                MessageService.addError ('Could not get Job contents', error);
+                MessageService.addError('Could not get contents of Job ' + job.id, error);
                 deferred.reject();
             });
             return deferred.promise;
@@ -186,13 +184,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getJobLogs = function(job) {
             var deferred = $q.defer();
-
-            if(!getJobRequest){
-                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                                .newRequest()
-                                .follow('job')
-                                .getResource();
-            }
 
             getJobRequest.continue().then(function (nextBuilder) {
                 var nextRequest = nextBuilder.newRequest();
@@ -203,7 +194,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get Job contents', error);
+                    MessageService.addError('Could not get logs for Job ' + job.id, error);
                     deferred.reject();
                 });
              });
@@ -214,57 +205,40 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.getJobConfig = function(job) {
             var deferred = $q.defer();
 
-            if(!getJobRequest){
-                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                                .newRequest()
-                                .follow('job')
-                                .getResource();
-            }
-
-            getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-            .newRequest()
-            .follow('job')
-            .getResource()
-            .continue().then(function (nextBuilder) {
-                var nextRequest = nextBuilder.newRequest();
-                nextRequest
-                .follow('config')
+            halAPI.from(rootUri + '/jobs/' + job.id)
+                .newRequest()
+                .follow('job')
                 .getResource()
-                .result
-                .then(function (document) {
-                    deferred.resolve(document);
-                }, function (error) {
-                    MessageService.addError('Could not get Job contents', error);
-                    deferred.reject();
-                });
-             });
+                .continue().then(function (nextBuilder) {
+                    var nextRequest = nextBuilder.newRequest();
+                    nextRequest
+                    .follow('config')
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        deferred.resolve(document);
+                    }, function (error) {
+                        MessageService.addError('Could not get contents of Job ' + job.id, error);
+                        deferred.reject();
+                    });
+                 });
 
             return deferred.promise;
         };
 
-        var getJobOutputResult = function(job) {
+        var getJobOutput = function(outputLink) {
             var deferred = $q.defer();
 
-            if(!getJobRequest){
-                getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                                .newRequest()
-                                .follow('job')
-                                .getResource();
-            }
-
-            getJobRequest.continue().then(function (nextBuilder) {
-                var nextRequest = nextBuilder.newRequest();
-                nextRequest
-                .follow('output-result')
+            halAPI.from(outputLink)
+                .newRequest()
                 .getResource()
                 .result
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get Job Output Results', error);
+                    MessageService.addError('Could not get output results for Job ' + job.id, error);
                     deferred.reject();
                 });
-             });
 
             return deferred.promise;
         };
@@ -334,9 +308,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                         if (self.params[page].selectedJob.outputs) {
                             self.params[page].selectedJob.outputs.links = [];
-                            for (var result in self.params[page].selectedJob.outputs.result) {
-                                if (self.params[page].selectedJob.outputs.result[result].substring(0,7) === "ftep://") {
-                                    getJobOutputResult(job).then(function (result) {
+                            for (var itemKey in self.params[page].selectedJob.outputs) {
+                                if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
+                                    getJobOutput(self.params[page].selectedJob['output-' + itemKey].href).then(function (result) {
                                         self.params[page].selectedJob.outputs.links.push(result._links.download.href);
                                     });
                                 }
@@ -365,29 +339,27 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
         }
 
-        this.launchJob = function(service, inputs){
+        this.launchJob = function(jobConfig, service){
             var deferred = $q.defer();
-            createJobConfig(service, inputs).then(function(jobConfig){
-                // Launch the jobConfig
-                halAPI.from(jobConfig._links.self.href + '/launch')
-                        .newRequest()
-                        .post()
-                        .result
-                        .then(
-                 function (document) {
-                     MessageService.addInfo ('Job started', 'A new ' + service.name + ' job started.');
-                     deferred.resolve();
-                 },
-                 function(error){
-                     MessageService.addError ('Could Not Launch Job', error);
-                     deferred.reject();
-                 });
-            });
+            // Launch the jobConfig
+            halAPI.from(jobConfig._links.self.href + '/launch')
+                    .newRequest()
+                    .post()
+                    .result
+                    .then(
+             function (document) {
+                 MessageService.addInfo('Job started', 'A new ' + service.name + ' job started.');
+                 deferred.resolve();
+             },
+             function(error){
+                 MessageService.addError('Could not launch Job', error);
+                 deferred.reject();
+             });
 
             return deferred.promise;
         };
 
-        function createJobConfig(service, inputs){
+        this.createJobConfig = function(service, inputs){
             return $q(function(resolve, reject) {
                     halAPI.from(rootUri + '/jobConfigs/')
                     .newRequest()
@@ -400,11 +372,26 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                  function (document) {
                      resolve(JSON.parse(document.body));
                  }, function (error) {
-                     MessageService.addError ('Could Not Launch Job', error);
+                     MessageService.addError('Could not create JobConfig', error);
                      reject();
                  });
             });
-        }
+        };
+
+        this.estimateJob = function(jobConfig){
+            return $q(function(resolve, reject) {
+                halAPI.from(rootUri + '/estimateCost/jobConfig/' + jobConfig.id)
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                     resolve(document);
+                 }, function (error) {
+                     MessageService.addError('Could not get Job cost estimation', error);
+                     reject();
+                 });
+            });
+        };
 
         return this;
     }]);

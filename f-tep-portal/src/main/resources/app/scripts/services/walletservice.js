@@ -48,8 +48,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.makeTransaction = function(wallet, coins){
-           //TODO
+        this.makeTransaction = function(user, wallet, coins){
+            return $q(function(resolve, reject) {
+                var credit = {amount: coins};
+                traverson.from(rootUri).json().useAngularHttp().from(wallet._links.self.href + '/credit')
+                         .newRequest()
+                         .post(credit)
+                         .result
+                         .then(
+                function (document) {
+                    MessageService.addInfo('User Coin Balance updated', coins + ' coins added to user '.concat(user.name));
+                    resolve();
+                }, function (error) {
+                    MessageService.addError('Failed to update Coin Balance', error);
+                    reject();
+                });
+            });
         };
 
     }]);

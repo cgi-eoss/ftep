@@ -1,18 +1,20 @@
 class ftep::serviceregistry (
-  $component_name       = 'f-tep-serviceregistry',
+  $component_name           = 'f-tep-serviceregistry',
 
-  $install_path         = '/var/f-tep/serviceregistry',
-  $config_file          = '/var/f-tep/serviceregistry/f-tep-serviceregistry.conf',
-  $logging_config_file  = '/var/f-tep/serviceregistry/log4j2.xml',
-  $properties_file      = '/var/f-tep/serviceregistry/application.properties',
+  $install_path             = '/var/f-tep/serviceregistry',
+  $config_file              = '/var/f-tep/serviceregistry/f-tep-serviceregistry.conf',
+  $logging_config_file      = '/var/f-tep/serviceregistry/log4j2.xml',
+  $properties_file          = '/var/f-tep/serviceregistry/application.properties',
 
-  $service_enable       = true,
-  $service_ensure       = 'running',
+  $service_enable           = true,
+  $service_ensure           = 'running',
 
   # f-tep-serviceregistry application.properties config
-  $application_port     = undef,
-  $serviceregistry_user = undef,
-  $serviceregistry_pass = undef,
+  $application_port         = undef,
+  $serviceregistry_user     = undef,
+  $serviceregistry_pass     = undef,
+
+  $custom_config_properties = { },
 ) {
 
   require ::ftep::globals
@@ -61,6 +63,7 @@ JAVA_OPTS="-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLogge
       'server_port'          => $real_application_port,
       'serviceregistry_user' => $real_serviceregistry_user,
       'serviceregistry_pass' => $real_serviceregistry_pass,
+      'custom_properties'    => $custom_config_properties,
     }),
     require => Package['f-tep-serviceregistry'],
     notify  => Service['f-tep-serviceregistry'],

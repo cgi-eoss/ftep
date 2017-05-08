@@ -36,36 +36,54 @@
   padding: 2rem;
 }
 
+#admin-container md-card {
+  margin: 0.8rem;
+}
+#admin-container md-card md-card-title,
+#admin-container md-card md-card-actions {
+  color: #558b2f;
+  padding-top: 0;
+}
+#admin-container md-card md-card-actions a:hover,
+#admin-container md-card md-card-actions a:visited {
+  color: #33691e;
+}
 #admin-container #management-container {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
   height: 100%;
-  width: 100%;
   padding-left: 44px;
+  width: 100%;
 }
 #admin-container #management-container #user-selection {
+  border-bottom: #d2d2d2 solid 1px;
+  min-height: 3.2rem;
+  padding: 0.5rem;
   width: 100%;
-  padding: 0.5rem;
-  border: #f8f8f8 1px solid;
 }
-#admin-container #management-container #management-container {
+#admin-container #management-container #user-details {
   height: 100%;
-  padding: 0.5rem;
 }
-#admin-container #management-container #coins-container,
-#admin-container #management-container #role-container {
+#admin-container #management-container .column-container {
+  background-color: #f8f8f8;
+  height: 100%;
   overflow-y: auto;
   padding: 0.5rem;
   padding-bottom: 2rem;
 }
-#admin-container #management-container #coins-container .material-label,
-#admin-container #management-container #role-container .material-label {
+#admin-container #management-container .column-container h3 {
+  margin-top: 0;
+}
+#admin-container #management-container .column-container h4 {
+  padding-bottom: 1rem;
+}
+#admin-container #management-container .column-container .material-label {
   font-size: 1rem;
 }
-#admin-container #management-container #coins-container {
-  background-color: #f8f8f8;
-  border-right: #d2d2d2 solid 1px;
-}
-#admin-container #management-container #coins-container md-card-actions {
-  color: #558b2f;
+#admin-container #management-container #role-container {
+  background-color: lightgray;
 }
 
 #bottombar-container {
@@ -401,6 +419,35 @@
 #job .toolbar-button .material-icons {
   color: #ff4081;
 }
+#job .job-log {
+  font-family: monospace;
+  font-size: 0.6rem;
+  overflow-x: auto;
+  width: 100%;
+}
+#job .job-log table {
+  margin-bottom: 0.5rem;
+}
+#job .job-log table th {
+  padding: 0.4rem;
+  padding-left: 0;
+}
+#job .job-log table .job-timestamp {
+  font-weight: bold;
+  padding: 2px 1rem 2px 0;
+  vertical-align: top;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+#job .job-log table .job-message {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 2px 0;
+  white-space: pre-wrap;
+}
 
 #jobs {
   display: -ms-flexbox;
@@ -574,6 +621,7 @@
   padding-left: 0.3rem;
 }
 #navbar .navbar-container .navbar-header {
+  cursor: pointer;
   margin: 0;
   padding-right: 1rem;
 }
@@ -1552,6 +1600,29 @@
   background-color: transparent;
 }
 
+.spinner-container {
+  background-color: rgba(180, 180, 180, 0.95);
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  -ms-flex-pack: center;
+      justify-content: center;
+  margin: 0 auto;
+  position: absolute;
+  width: 100%;
+  z-index: 20;
+}
+.spinner-container .spinner {
+  animation: spin 1s linear infinite;
+  border: 12px solid rgba(255, 255, 255, 0.87);
+  border-top: 12px solid #54ace0;
+  border-radius: 50%;
+  height: 80px;
+  margin: auto;
+  width: 80px;
+  z-index: 10;
+}
+
 .ftep .nav-pills li a {
   background-color: transparent;
   border-radius: 0;
@@ -1667,25 +1738,34 @@
   margin-top: 15px;
 }
 #developer-container #service-container .right-container #service-form .field-definitions .row {
-  margin: 10px;
   border: #f8f8f8 1px solid;
 }
+#developer-container #service-container .right-container #service-form .field-definitions .row .centre {
+  text-align: center;
+}
 #developer-container #service-container .right-container #service-form .add-button,
-#developer-container #service-container .right-container #service-form .remove-button {
+#developer-container #service-container .right-container #service-form .remove-button,
+#developer-container #service-container .right-container #service-form .type-button {
   min-width: 0;
 }
 #developer-container #service-container .right-container #service-form .add-button:hover,
-#developer-container #service-container .right-container #service-form .remove-button:hover {
+#developer-container #service-container .right-container #service-form .remove-button:hover,
+#developer-container #service-container .right-container #service-form .type-button:hover {
   background-color: transparent;
 }
 #developer-container #service-container .right-container #service-form .add-button .material-icons {
   color: #aed581;
 }
-#developer-container #service-container .right-container #service-form .remove-button .material-icons {
-  margin: 0px;
+#developer-container #service-container .right-container #service-form .remove-button .material-icons,
+#developer-container #service-container .right-container #service-form .type-button .material-icons {
+  margin: 20px 0px 0px 0px;
   font-size: 20px;
   color: white;
   background-color: #aed581;
+}
+#developer-container #service-container .right-container #service-form .type-button {
+  margin-left: 0px !important;
+  padding-left: 2px !important;
 }
 #developer-container #service-container .right-container #service-form .header {
   background-color: #f8f8f8;
@@ -1788,6 +1868,21 @@
     margin-left: 44px !important;
     max-height: 50%;
   }
+}
+#edit-type-dialog {
+  min-height: 400px;
+}
+#edit-type-dialog md-dialog-actions {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
+#edit-type-dialog md-dialog-actions md-button {
+  position: absolute;
+  right: 0px;
+}
+#edit-type-dialog .complex-type {
+  margin-top: 60px;
 }
 
 @media (max-width: 991px) {
@@ -2542,11 +2637,14 @@ html {
   margin: 0px;
 }
 .ftep #portal-container {
-  border-top: #d2d2d2 solid 1px;
   height: 100%;
   width: 100%;
 }
+.ftep #portal-container .page {
+  height: 100%;
+}
 .ftep #portal-container .page-container {
+  border-top: #d2d2d2 solid 1px;
   height: calc(100% - 50px);
   margin: 0;
   overflow-y: auto;
@@ -2659,6 +2757,14 @@ pre {
 .animationIf.ng-leave,
 .animationIf.ng-enter.ng-enter-active {
   opacity: 1;
+}
+[ng\:cloak],
+[ng-cloak],
+[data-ng-cloak],
+[x-ng-cloak],
+.ng-cloak,
+.x-ng-cloak {
+  display: none !important;
 }
 
 

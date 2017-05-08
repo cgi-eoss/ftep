@@ -1,11 +1,23 @@
-<article id="community-container" layout="row" class="page-container row" ng-controller="CommunityCtrl">
+<div class="page" ng-controller="CommunityCtrl">
 
-    <section id="sidenav" ng-include src="'views/community/sidenav.html'" />
+    <div class="spinner-container" ng-class="{hidden: !hideContent}">
+        <div class="spinner" />
+    </div>
+
+    <div id="navbar-container"
+         ng-include src="'views/navbar.html'"
+         onload="finishLoading('navbar')"
+         ng-class="{hidden: hideContent}"/>
+
+<article id="community-container" layout="row" class="page-container row" ng-class="{hidden: hideContent}">
+
+    <section id="sidenav" ng-include src="'views/community/sidenav.html'" onload="finishLoading('sidenav')" />
 
     <section id="manage-container"
              class= "row"
              ng-controller="CommunityShareCtrl"
-             ng-include src="'views/community/common/manage.html'"/>
+             ng-include src="'views/community/common/manage.html'"
+             onload="finishLoading('manage')" />
 
     <section id="bottombar-container"
              ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
@@ -15,3 +27,6 @@
              ng-if="bottombarNavInfo.bottomViewVisible"/>
 
 </article>
+
+
+</div>

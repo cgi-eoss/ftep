@@ -24,8 +24,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
 
             $scope.serviceQuickSearch = function (item) {
-                if (item.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1
-                        || (item.description && item.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1)) {
+                if (item.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1||
+                    (item.description && item.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1)) {
                     return true;
                 }
                 return false;

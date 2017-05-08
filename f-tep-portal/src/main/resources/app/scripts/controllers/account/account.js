@@ -20,5 +20,19 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         });
 
+        $scope.hideContent = true;
+        var navbar;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'navbar':
+                    navbar = true;
+                    break;
+            }
+
+            if (navbar) {
+                $scope.hideContent = false;
+            }
+        };
+
     }]);
 });

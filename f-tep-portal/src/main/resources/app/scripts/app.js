@@ -149,13 +149,13 @@ define([
                     return dateTime;
                 }
                 else {
-                    return new Date(endTime.year + "-" +
-                            getTwoDigitNumber(endTime.monthValue) + "-" +
-                            getTwoDigitNumber(endTime.dayOfMonth) + "T" +
-                            getTwoDigitNumber(endTime.hour) + ":" +
-                            getTwoDigitNumber(endTime.minute) + ":" +
-                            getTwoDigitNumber(endTime.second) + "." +
-                            getThreeDigitNumber(endTime.nano/1000000) + "Z").toISOString();;
+                    return new Date(dateTime.year + "-" +
+                            getTwoDigitNumber(dateTime.monthValue) + "-" +
+                            getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
+                            getTwoDigitNumber(dateTime.hour) + ":" +
+                            getTwoDigitNumber(dateTime.minute) + ":" +
+                            getTwoDigitNumber(dateTime.second) + "." +
+                            getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
                 }
             }
             else{

@@ -15,6 +15,6 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.version = document.getElementById("version").content;
-      }]);
 
+    }]);
 });

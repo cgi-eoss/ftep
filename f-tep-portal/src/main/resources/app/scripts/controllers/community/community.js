@@ -37,5 +37,25 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
         };
 
+        $scope.hideContent = true;
+        var navbar, sidenav, manage;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'navbar':
+                    navbar = true;
+                    break;
+                case 'sidenav':
+                    sidenav = true;
+                    break;
+                case 'manage':
+                    manage = true;
+                    break;
+            }
+
+            if (navbar && sidenav && manage) {
+                $scope.hideContent = false;
+            }
+        };
+
     }]);
 });

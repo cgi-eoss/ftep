@@ -1,15 +1,29 @@
-<article id="admin-container" layout="row" class="page-container row" ng-controller="AdminCtrl">
+<div class="page" ng-controller="AdminCtrl">
 
-    <section id="sidenav" ng-include src="'views/admin/sidenav.html'" />
+    <div class="spinner-container" ng-class="{hidden: !hideContent}">
+        <div class="spinner" />
+    </div>
 
-    <section id="management-container"
-             class= "row"
-             ng-include src="'views/admin/usermanagement.html'"/>
+    <div id="navbar-container"
+         ng-include src="'views/navbar.html'"
+         onload="finishLoading('navbar')"
+         ng-class="{hidden: hideContent}"/>
 
-    <section id="bottombar-container"
-             ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
-             class="explorer-content animationIf no-padding"
-             ng-include src="'views/common/bottombar/bottombar.html'"
-             ng-controller="BottombarCtrl"
-             ng-if="bottombarNavInfo.bottomViewVisible"/>
-</article>
+    <article id="admin-container" layout="row" class="page-container row" ng-class="{hidden: hideContent}">
+
+        <section id="sidenav" ng-include src="'views/admin/sidenav.html'" onload="finishLoading('sidenav')" />
+
+        <section id="management-container"
+                 class="row"
+                 ng-include src="'views/admin/usermanagement.html'"
+                 onload="finishLoading('management')"/>
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="bottombarNavInfo.bottomViewVisible"/>
+    </article>
+
+</div>

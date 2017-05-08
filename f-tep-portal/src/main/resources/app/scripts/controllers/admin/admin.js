@@ -53,7 +53,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                    $scope.userParams.wallet = wallet;
                 });
             }
-        }
+        };
 
         $scope.addCoins = function() {
             WalletService.makeTransaction($scope.userParams.selectedUser, $scope.userParams.wallet, $scope.userParams.coins).then(function(){
@@ -71,6 +71,26 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.toggleBottomView = function(){
             $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+
+        $scope.hideContent = true;
+        var navbar, sidenav, management;
+        $scope.finishLoading = function(component) {
+            switch(component) {
+                case 'navbar':
+                    navbar = true;
+                    break;
+                case 'sidenav':
+                    sidenav = true;
+                    break;
+                case 'management':
+                    management = true;
+                    break;
+            }
+
+            if (navbar && sidenav && management) {
+                $scope.hideContent = false;
+            }
         };
 
     }]);

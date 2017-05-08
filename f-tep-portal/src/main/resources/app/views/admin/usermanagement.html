@@ -1,103 +1,100 @@
-<div layout="column" class="page-container">
+<article id="user-selection" class="col-md-12 no-padding">
+    <md-autocomplete id="find-user"
+                     required
+                     aria-label="Select a user by name"
+                     md-items="user in searchUsers()"
+                     md-item-text="user.name"
+                     md-selected-item="userParams.selectedUser"
+                     md-selected-item-change="getUserData()"
+                     md-search-text="userParams.searchText"
+                     md-require-match="true"
+                     md-match-case-insensitive="true"
+                     placeholder="Select a user by name">
+        <md-item-template>
+            <span md-highlight-text="userParams.searchText">{{user.name}}</span>
+        </md-item-template>
+        <md-not-found>
+            <span>No users matching "{{userParams.searchText}}" were found.</span>
+        </md-not-found>
+    </md-autocomplete>
+</article>
 
-    <section id="user-selection">
-        <div class="col-md-3"></div>
-        <label class="col-md-1" for="find-user">Select user</label>
-        <div class="col-md-4">
-            <md-autocomplete id="find-user"
-                             flex required
-                             aria-label="Find user by name"
-                             md-items="user in searchUsers()"
-                             md-item-text="user.name"
-                             md-selected-item="userParams.selectedUser"
-                             md-selected-item-change="getUserData()"
-                             md-search-text="userParams.searchText"
-                             md-require-match="true"
-                             md-match-case-insensitive="true"
-                             placeholder="Find user by name">
-                <md-item-template>
-                    <span md-highlight-text="userParams.searchText">{{user.name}}</span>
-                </md-item-template>
-                <md-not-found>
-                    <span>No users matching "{{userParams.searchText}}" were found.</span>
-                </md-not-found>
-            </md-autocomplete>
-        </div>
-        <div class="col-md-3"></div>
+<article id="user-details">
+
+    <section id="coins-container" class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding">
+
+        <md-card md-theme-watch>
+        <md-card-title>
+            <md-card-title-text>
+                <h2>Endorse Coins</h2>
+            </md-card-title-text>
+        </md-card-title>
+            <md-card-content>
+                <div ng-show="!userParams.selectedUser && !userParams.wallet">
+                    <p>No user selected.</p>
+                </div>
+                <div ng-show="userParams.selectedUser && !userParams.wallet">
+                    <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
+                    <p>User {{userParams.selectedUser.name}} has no wallet.</p>
+                </div>
+                <form id="addCoinsForm" name ="addCoinsForm" ng-show="userParams.selectedUser && userParams.wallet">
+                    <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
+                    <h4 class="md-subhead" ng-bind="'Coin Balance: ' + userParams.wallet.balance" />
+                    <md-input-container class="md-block">
+                        <label ng-class="{hidden: userParams.coins < 0}">Add Coins</label>
+                        <label ng-class="{hidden: userParams.coins > -1}">Subtract Coins</label>
+                        <input id="user-coins" ng-model="userParams.coins" type="number" step="1">
+                    </md-input-container>
+                </form>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center" ng-show="userParams.selectedUser && userParams.wallet">
+                <md-button id="add-coins"
+                           type="submit"
+                           form="addCoinsForm"
+                           aria-label="Endorse"
+                           ng-disabled="addCoinsForm.$invalid || userParams.coins === 0 || (userParams.wallet.balance + userParams.coins) < 0"
+                           ng-click="addCoins()">
+                    <span ng-class="{hidden: userParams.coins < 0}"> Endorse Coins</span>
+                    <span ng-class="{hidden: userParams.coins > -1}">Subtract Coins</span>
+                </md-button>
+            </md-card-actions>
+        </md-card>
+
     </section>
 
-    <div layout="row" class="management-container" flex>
-        <section id="coins-container" class="col-md-4 col-xl-3 col-xxl-2 no-padding">
-            <h2>Endorse Coins</h2>
-            <form id="addCoinsForm" name ="addCoinsForm">
-                <md-card md-theme-watch ng-show="userParams.selectedUser && !userParams.wallet">
-                    <md-card-title>
-                        <md-card-title-text>
-                            <span class="md-headline" ng-bind="userParams.selectedUser.name" />
-                        </md-card-title-text>
-                    </md-card-title>
-                    <md-card-content>
-                        User {{userParams.selectedUser.name}} has no wallet.
-                    </md-card-content>
-                </md-card>
+    <section id="role-container" class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding">
 
-                <md-card md-theme-watch ng-show="userParams.selectedUser && userParams.wallet">
-                    <md-card-title>
-                        <md-card-title-text>
-                            <span class="md-headline" ng-bind="userParams.selectedUser.name" />
-                            <span class="md-subhead" ng-bind="'Coin Balance: ' + userParams.wallet.balance" />
-                        </md-card-title-text>
-                    </md-card-title>
-                    <md-card-content>
-                        <md-input-container class="md-block">
-                            <label ng-class="{hidden: userParams.coins < 0}">Add Coins</label>
-                            <label ng-class="{hidden: userParams.coins > -1}">Subtract Coins</label>
-                            <input id="user-coins" ng-model="userParams.coins" type="number" step="1">
-                        </md-input-container>
-                    </md-card-content>
-                    <md-card-actions layout="row" layout-align="end center" ng-show="userParams.wallet">
-                        <md-button id="add-coins"
-                                   type="submit"
-                                   aria-label="Endorse"
-                                   ng-disabled="addCoinsForm.$invalid || userParams.coins === 0 || (userParams.wallet.balance + userParams.coins) < 0"
-                                   ng-click="addCoins()">
-                            <span ng-class="{hidden: userParams.coins < 0}"> Endorse Coins</span>
-                            <span ng-class="{hidden: userParams.coins > -1}">Subtract Coins</span>
-                        </md-button>
-                    </md-card-actions>
-                </md-card>
-            </form>
-        </section>
+        <md-card md-theme-watch>
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Change User Role</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div ng-show="!userParams.selectedUser && !userParams.wallet">
+                    <p>No user selected.</p>
+                </div>
+                <form id="editRoleForm" name ="editRoleForm" ng-show="userParams.selectedUser">
+                    <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
+                    <h4 class="md-subhead" ng-bind="'Role: ' + userParams.userDetails.role" />
+                    <md-input-container class="md-block">
+                        <select class="form-control" ng-model="userParams.newRole" ng-options="role for role in roles"/>
+                    </md-input-container>
+               </form>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center" ng-show="userParams.selectedUser">
+                <md-button id="update-role"
+                           type="submit"
+                           form="editRoleForm"
+                           aria-label="Save"
+                           ng-disabled="!userParams.newRole || userParams.newRole === userParams.userDetails.role"
+                           ng-click="updateRole(userParams.newRole)">Save</md-button>
+            </md-card-actions>
+        </md-card>
 
-         <section id="role-container" class="col-md-4 col-xl-3 col-xxl-2 no-padding">
-            <h2>Change User Role</h2>
-            <form id="editRoleForm" name ="editRoleForm">
-                <md-card md-theme-watch ng-show="userParams.selectedUser">
-                    <md-card-title>
-                        <md-card-title-text>
-                            <span class="md-headline" ng-bind="userParams.selectedUser.name" />
-                            <span class="md-subhead" ng-bind="'Role: ' + userParams.userDetails.role" />
-                        </md-card-title-text>
-                    </md-card-title>
-                    <md-card-content>
-                        <md-input-container class="md-block">
-                            <select class="form-control"
-                                ng-model="userParams.newRole"
-                                ng-options="role for role in roles"/>
-                        </md-input-container>
-                    </md-card-content>
-                    <md-card-actions layout="row" layout-align="end center">
-                        <md-button id="update-role"
-                                   type="submit"
-                                   aria-label="Save"
-                                   ng-disabled="!userParams.newRole || userParams.newRole === userParams.userDetails.role"
-                                   ng-click="updateRole(userParams.newRole)">Save</md-button>
-                    </md-card-actions>
-                </md-card>
-            </form>
-        </section>
+    </section>
 
-        <section class="col-md-4 col-xl-3 col-xxl-2 no-padding"></section>
-    </div>
+    <section class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding"></section>
 
-</div>
+</article>
+

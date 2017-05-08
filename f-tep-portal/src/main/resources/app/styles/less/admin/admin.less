@@ -1,32 +1,50 @@
 @import "variable";
 #admin-container {
+    md-card {
+        margin: 0.8rem;
+        md-card-title, md-card-actions {
+            color: @brand;
+            padding-top: 0;
+        }
+        md-card-actions {
+            a:hover, a:visited {
+                color: @brand-dark;
+            }
+        }
+    }
     #management-container{
+        display: flex;
+        flex-flow: column;
         height: 100%;
-        width: 100%;
         padding-left: @sidenav-width;
+        width: 100%;
         #user-selection {
+            .border(border-bottom, @bg);
+            min-height: 3.2rem;
+            padding: 0.5rem;
             width: 100%;
-            padding: 0.5rem;
-            border: @bg 1px solid;
         }
-        #management-container {
+        #user-details {
+              height: 100%;
+        }
+        .column-container {
+            background-color: @bg;
             height: 100%;
-            padding: 0.5rem;
-        }
-        #coins-container, #role-container {
             overflow-y: auto;
             padding: 0.5rem;
             padding-bottom: 2rem;
+            h3 {
+                margin-top: 0;
+            }
+            h4 {
+                padding-bottom: 1rem;
+            }
             .material-label {
                 font-size: 1rem;
             }
         }
-        #coins-container {
-            background-color: @bg;
-            .border(border-right, @bg);
-            md-card-actions {
-                color: @brand;
-            }
+        #role-container {
+            background-color: @light-gray;
         }
     }
 }

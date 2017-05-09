@@ -102,12 +102,21 @@ class ftep::proxy (
     }
     contain ::ftep::proxy::shibboleth
 
-    # Add the /Shibboleth.sso SP callback location and secured paths
+    # Add the /Shibboleth.sso SP callback location, enable the minimal support for the root, and add secured paths
     $directories = concat([
       {
         'provider'   => 'location',
         'path'       => '/Shibboleth.sso',
         'sethandler' => 'shib'
+      },
+      {
+        'provider'              => 'location',
+        'path'                  => '/',
+        'auth_type'             => 'shibboleth',
+        'shib_use_headers'      => 'On',
+        'shib_request_settings' => { 'requireSession' => '0' },
+        'custom_fragment'       => 'ShibCompatWith24 On',
+        'auth_require'          => 'shibboleth',
       },
       {
         'provider'              => 'location',

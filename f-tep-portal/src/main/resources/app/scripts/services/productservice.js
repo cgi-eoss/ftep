@@ -155,7 +155,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   var service = {
                           name: name,
                           description: description,
-                          dockerTag: 'dockerTag', //default tag
+                          dockerTag: 'ftep/' + name.replace(/[^a-zA-Z0-9-_.]/g,'_').toLowerCase(),
                   };
                   productsAPI.from(rootUri + '/services/')
                            .newRequest()

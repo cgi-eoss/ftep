@@ -13,7 +13,7 @@
 #account-container #account-panel,
 #account-container #statistics-panel,
 #account-container #info-panel {
-  background-color: lightgray;
+  background-color: darkgray;
   height: 100%;
   overflow-y: auto;
   padding: 0.5rem;
@@ -83,7 +83,7 @@
   font-size: 1rem;
 }
 #admin-container #management-container #role-container {
-  background-color: lightgray;
+  background-color: darkgray;
 }
 
 #bottombar-container {
@@ -643,15 +643,35 @@
   background-color: #f8f8f8;
   cursor: pointer;
   height: 50px;
-  padding: 0 1rem;
   border-right: #d2d2d2 solid 1px;
 }
+@media (max-width: 1100px) and (min-width: 767px) {
+  #navbar .navbar-container .navbar-contents .nav li:hover span {
+    display: block;
+  }
+  #navbar .navbar-container .navbar-contents .nav li:hover .material-icons {
+    display: none;
+  }
+}
+#navbar .navbar-container .navbar-contents .nav li a {
+  color: rgba(0, 0, 0, 0.87);
+  padding: 0;
+}
 #navbar .navbar-container .navbar-contents .nav li p {
+  padding: 14px 1rem 0 1rem;
   padding-top: 14px;
   vertical-align: middle;
 }
 #navbar .navbar-container .navbar-contents .nav li p .material-icons {
   font-size: 1.1rem;
+}
+@media (max-width: 1100px) and (min-width: 767px) {
+  #navbar .navbar-container .navbar-contents .nav li p .material-icons {
+    font-size: 1.4rem;
+  }
+  #navbar .navbar-container .navbar-contents .nav li p span {
+    display: none;
+  }
 }
 #navbar .navbar-container .navbar-contents .nav li.active {
   border-bottom: #558b2f solid 4px;
@@ -677,15 +697,6 @@
 #navbar .navbar-container .navbar-contents .nav .login {
   background-color: #f2dede;
   color: rgba(255, 255, 255, 0.87);
-}
-@media (max-width: 860px) {
-  #navbar .navbar-container .navbar-contents .nav {
-    font-size: 0.8rem;
-    padding: 0 16px;
-  }
-  #navbar .navbar-container .navbar-contents .nav li {
-    padding: 0 0.5rem;
-  }
 }
 /** TODO: Remove after pre-realease **/
 .ribbon {

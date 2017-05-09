@@ -1,10 +1,10 @@
-<div class="spinner-container" ng-class="{hidden: !hideContent}">
+<div class="spinner-container" ng-class="{'hidden': !hideContent}">
     <div class="spinner" />
 </div>
 
-<div id="navbar-container" ng-include src="'views/navbar.html'" ng-class="{hidden: hideContent}" onload="finishLoading('navbar')" />
+<div id="navbar-container" ng-include src="'views/navbar.html'" ng-class="{'hidden': hideContent}" onload="finishLoading('navbar')" />
 
-<article id="explorer-container" layout="row" class="page-container row" ng-class="{hidden: hideContent}">
+<article id="explorer-container" layout="row" class="page-container row" ng-class="{'hidden': hideContent}">
 
     <section id="side-container" ng-controller="SidebarCtrl" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 no-padding">
 

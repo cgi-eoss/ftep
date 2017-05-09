@@ -21,7 +21,7 @@
 
 <article id="user-details">
 
-    <section id="coins-container" class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding">
+    <section id="coins-container" class="column-container col-md-4 no-padding">
 
         <md-card md-theme-watch>
         <md-card-title>
@@ -41,8 +41,8 @@
                     <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
                     <h4 class="md-subhead" ng-bind="'Coin Balance: ' + userParams.wallet.balance" />
                     <md-input-container class="md-block">
-                        <label ng-class="{hidden: userParams.coins < 0}">Add Coins</label>
-                        <label ng-class="{hidden: userParams.coins > -1}">Subtract Coins</label>
+                        <label ng-class="{'hidden': userParams.coins < 0}">Add Coins</label>
+                        <label ng-class="{'hidden': userParams.coins > -1}">Subtract Coins</label>
                         <input id="user-coins" ng-model="userParams.coins" type="number" step="1">
                     </md-input-container>
                 </form>
@@ -54,15 +54,15 @@
                            aria-label="Endorse"
                            ng-disabled="addCoinsForm.$invalid || userParams.coins === 0 || (userParams.wallet.balance + userParams.coins) < 0"
                            ng-click="addCoins()">
-                    <span ng-class="{hidden: userParams.coins < 0}"> Endorse Coins</span>
-                    <span ng-class="{hidden: userParams.coins > -1}">Subtract Coins</span>
+                    <span ng-class="{'hidden': userParams.coins < 0}"> Endorse Coins</span>
+                    <span ng-class="{'hidden': userParams.coins > -1}">Subtract Coins</span>
                 </md-button>
             </md-card-actions>
         </md-card>
 
     </section>
 
-    <section id="role-container" class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding">
+    <section id="role-container" class="column-container col-md-4 no-padding">
 
         <md-card md-theme-watch>
             <md-card-title>
@@ -94,7 +94,7 @@
 
     </section>
 
-    <section class="column-container col-md-4 col-xl-3 col-xxl-2 no-padding"></section>
+    <section class="column-container col-md-4 no-padding"></section>
 
 </article>
 

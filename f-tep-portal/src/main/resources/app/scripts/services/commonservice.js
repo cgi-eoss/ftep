@@ -148,6 +148,43 @@ define(['../ftepmodules'], function (ftepmodules) {
                     return deferred.promise;
               };
 
+              this.shareObjectDialog = function($event, item, type, groups, serviceName, serviceMethod, page) {
+                  function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
+
+                      var service = $injector.get(serviceName);
+                      $scope.permissions = CommunityService.permissionTypes;
+                      $scope.ace = item;
+                      $scope.ace.type = type;
+                      $scope.ace.permission = $scope.permissions.READ;
+                      $scope.groups = [];
+
+                      GroupService.getGroups().then(function(data){
+                          $scope.groups = data;
+                      });
+
+                      $scope.shareObject = function (item) {
+                          CommunityService.shareObject($scope.ace, groups).then(function (data) {
+                              service[serviceMethod](page);
+                          });
+
+                          $mdDialog.hide();
+                      };
+
+                      $scope.closeDialog = function() {
+                          $mdDialog.hide();
+                      };
+                  }
+                  ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService', 'CommunityService'];
+                  $mdDialog.show({
+                      controller: ShareObjectController,
+                      templateUrl: 'views/common/templates/shareitem.tmpl.html',
+                      parent: angular.element(document.body),
+                      targetEvent: $event,
+                      clickOutsideToClose: true,
+                      locals: {}
+                  });
+              };
+
             return this;
       }]);
 });

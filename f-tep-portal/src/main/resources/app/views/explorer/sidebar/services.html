@@ -18,47 +18,17 @@
        </div>
     </section>
 
-    <section class="panel-body scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
-
-        <ul class="list" ng-repeat="serviceType in serviceTypes" ng-init="isServiceTypeOpened = true">
-
-            <div class="row list-group">
-
-                <div class="col-xs-10 no-padding" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
-                    <label>{{serviceType.label}}</label>
-                </div>
-
-                <div class="col-xs-2 no-padding expander">
-                    <i class="material-icons"
-                       ng-show="!isServiceTypeOpened"
-                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
-                       aria-label="Show {{serviceType.label}}"
-                       uib-tooltip="Show {{serviceType.label}}"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_less
-                    </i>
-                    <i class="material-icons"
-                       ng-show="isServiceTypeOpened"
-                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
-                       aria-label="Hide {{serviceType.label}}"
-                       uib-tooltip="Hide {{serviceType.label}}"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_more
-                    </i>
-                </div>
-
-            </div>
+    <section class="panel-body scrollme" rebuild-on-resize>
 
             <div class="item-list list">
 
                 <md-list-item class="md-2-line"
-                              ng-repeat="service in serviceParams.services | orderBy: 'name' | filter: serviceQuickSearch "
-                              ng-if="isServiceTypeOpened && (serviceType.type === service.type)"
+                              ng-repeat="service in serviceParams.services | filter: serviceQuickSearch "
                               ng-click="selectService(service)">
+
+                    <div class="service-type">
+                        {{service.type.substring(0,1)}}
+                    </div>
 
                     <div class="md-list-item-text" layout="column">
                         <h3>{{service.name}}</h3>
@@ -75,9 +45,10 @@
                     </md-button>
 
                 </md-list-item>
-            </div>
 
-        </ul>
+                <div id="paging" ftep-paging="{{serviceParams.pagingData}}"></div>
+
+            </div>
 
     </section>
 

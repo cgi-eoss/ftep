@@ -1,0 +1,33 @@
+<md-button ng-disabled="pagingData.page.number === 0"
+   ng-click="getPage(pagingData._links.first.href)"
+   uib-tooltip="First Page"
+   tooltip-placement="top"
+   tooltip-trigger="mouseenter"
+   tooltip-append-to-body="true">
+   <i class="material-icons">first_page</i>
+</md-button>
+<md-button ng-disabled="pagingData.page.number === 0"
+    ng-click="getPage(pagingData._links.prev.href)"
+    uib-tooltip="Previous Page"
+    tooltip-placement="top"
+    tooltip-trigger="mouseenter"
+    tooltip-append-to-body="true">
+    <i class="material-icons">chevron_left</i>
+</md-button>
+    {{getPageText(pagingData)}}
+<md-button ng-disabled="pagingData.page.number + 1 === pagingData.page.totalPages"
+    ng-click="getPage(pagingData._links.next.href)"
+    uib-tooltip="Next Page"
+    tooltip-placement="top"
+    tooltip-trigger="mouseenter"
+    tooltip-append-to-body="true">
+    <i class="material-icons">chevron_right</i>
+</md-button>
+<md-button ng-disabled="pagingData.page.number + 1 === pagingData.page.totalPages"
+    ng-click="getPage(pagingData._links.last.href)"
+    uib-tooltip="Last Page"
+    tooltip-placement="top"
+    tooltip-trigger="mouseenter"
+    tooltip-append-to-body="true">
+    <i class="material-icons">last_page</i>
+</md-button>

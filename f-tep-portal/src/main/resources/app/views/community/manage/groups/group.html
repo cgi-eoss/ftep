@@ -81,7 +81,7 @@
 </section>
 
 <section class="item-list">
-    <md-list-item class="md-1-line" ng-repeat="(key, user) in userParams.groupUsers | orderBy: 'name' | filter: userQuickSearch">
+    <md-list-item class="md-1-line" ng-repeat="(key, user) in userParams.groupUsers | filter: userQuickSearch">
 
         <div class="md-avatar" alt="access rights">
             <i class="material-icons">person</i>

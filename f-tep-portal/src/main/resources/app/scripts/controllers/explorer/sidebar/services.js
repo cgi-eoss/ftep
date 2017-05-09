@@ -6,18 +6,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.serviceParams = ProductService.params.explorer;
 
-            // Service types which services are grouped by
-             $scope.serviceTypes = [
-                 {
-                    type: "PROCESSOR",
-                    label: "Processors"
-                }, {
-                    type: 'APPLICATION',
-                    label: "GUI Applications"
-                }
-            ];
-
             ProductService.refreshServices('explorer');
+
+            $scope.getPage = function(url){
+                ProductService.getServicesPage('explorer', url);
+            };
+
+            /* Update Services when polling */
+            $scope.$on('poll.services', function (event, data) {
+                $scope.serviceParams.services = data;
+            });
+
+            $scope.$on("$destroy", function() {
+                ProductService.stopPolling();
+            });
 
             $scope.serviceSearch = {
                 searchText: $scope.serviceParams.searchText

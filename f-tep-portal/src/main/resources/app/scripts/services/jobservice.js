@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', 'moment', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, TabService, CommunityService, traverson, moment) {
+    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, TabService, CommunityService, traverson) {
 
         var self = this;
 
@@ -33,6 +33,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.params = {
             explorer: {
                 jobs: undefined,
+                pollingUrl: rootUri + '/jobs?sort=id,DESC',
+                pagingData: {},
                 selectedJob: undefined,
                 jobSelectedOutputs: [], //selected outputs
                 displayFilters: false, //whether filter section is opened or not
@@ -56,6 +58,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             },
             community: {
                 jobs: undefined,
+                pollingUrl: rootUri + '/jobs?sort=id,DESC',
+                pagingData: {},
                 selectedJob: undefined,
                 searchText: '',
                 displayFilters: false,
@@ -85,39 +89,53 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
         var startPolling = true;
+        var pollingTimer;
 
-        var pollJobs = function () {
-            $timeout(function () {
-                halAPI.from(rootUri + '/jobs/?size=100') //TODO implement paging
+        var pollJobs = function (page) {
+            pollingTimer = $timeout(function () {
+                halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
                     .getResource()
                     .result
                     .then(function (document) {
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
                         $rootScope.$broadcast('poll.jobs', document._embedded.jobs);
-                        pollJobs();
+                        pollJobs(page);
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Jobs', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollJobs();
+                            pollJobs(page);
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        this.getJobs = function () {
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
+        function getJobs(page) {
             var deferred = $q.defer();
-                halAPI.from(rootUri + '/jobs/?size=100') //TODO implement paging
+                halAPI.from(self.params[page].pollingUrl)
                          .newRequest()
                          .getResource()
                          .result
                          .then(
                 function (document) {
                     if(startPolling) {
-                        pollJobs();
+                        pollJobs(page);
                         startPolling = false;
                     }
+                    self.params[page].pagingData._links = document._links;
+                    self.params[page].pagingData.page = document.page;
+
                     deferred.resolve(document._embedded.jobs);
                 }, function (error) {
                     MessageService.addError('Could not get Jobs', error);
@@ -125,6 +143,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 });
 
             return deferred.promise;
+        }
+
+        /* Fetch a new page */
+        this.getJobsPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get jobs list */
+                getJobs(page).then(function (data) {
+                    self.params[page].jobs = data;
+                });
+            }
         };
 
         var getJob = function (job) {
@@ -226,7 +256,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobOutput = function(outputLink) {
+        var getJobOutput = function(job, outputLink) {
             var deferred = $q.defer();
 
             halAPI.from(outputLink)
@@ -236,7 +266,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
-                    MessageService.addError('Could not get output results for Job ' + job.id, error);
+                    MessageService.addError('Could not get output for Job ' + job.id, error);
                     deferred.reject();
                 });
 
@@ -246,7 +276,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.refreshJobs = function (page, action, job) {
 
             /* Get job list */
-            this.getJobs().then(function (data) {
+            getJobs(page).then(function (data) {
 
                 self.params[page].jobs = data;
 
@@ -257,10 +287,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Update the selected job */
                 self.refreshSelectedJob(page);
-
-                if(page === 'explorer'){
-                    $rootScope.$broadcast('update.jobGroups');
-                }
            });
         };
 
@@ -310,7 +336,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             self.params[page].selectedJob.outputs.links = [];
                             for (var itemKey in self.params[page].selectedJob.outputs) {
                                 if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
-                                    getJobOutput(self.params[page].selectedJob['output-' + itemKey].href).then(function (result) {
+                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob['output-' + itemKey].href).then(function (result) {
                                         self.params[page].selectedJob.outputs.links.push(result._links.download.href);
                                     });
                                 }

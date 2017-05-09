@@ -9,12 +9,12 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('ProjectService', [ 'ftepProperties', 'MessageService', 'CommunityService', 'UserService', 'traverson', '$q', function (ftepProperties, MessageService, CommunityService, UserService, traverson, $q) {
+    ftepmodules.service('ProjectService', [ 'ftepProperties', 'MessageService', 'CommunityService', 'UserService', 'traverson', '$q', '$rootScope', '$timeout', function (ftepProperties, MessageService, CommunityService, UserService, traverson, $q, $rootScope, $timeout) {
 
         var self = this; //workaround for now
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
-        var projectsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.projectOwnershipFilters = {
@@ -31,7 +31,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /** PRESERVE USER SELECTIONS **/
         this.params = {
               explorer: {
-                  showProjects: true,
+                  projects: undefined,
+                  pollingUrl: rootUri + '/projects/?sort=name',
+                  pagingData: {},
                   selectedProject: undefined,
                   displayFilters: false,
                   searchText: undefined,
@@ -41,6 +43,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   projects: undefined,
                   contents: undefined,
                   selectedProject: undefined,
+                  pollingUrl: rootUri + '/projects/?sort=name',
+                  pagingData: {},
                   searchText: '',
                   displayFilters: false,
                   contentsSearchText: '',
@@ -48,26 +52,67 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   sharedGroups: undefined,
                   sharedGroupsSearchText: '',
                   sharedGroupsDisplayFilters: false,
-                  selectedOwnershipFilter: self.projectOwnershipFilters.ALL_PROJECTS,
-                  showProjects: true
+                  selectedOwnershipFilter: self.projectOwnershipFilters.ALL_PROJECTS
               },
         };
 
-        this.getProjects = function(){
+        var POLLING_FREQUENCY = 20 * 1000;
+        var pollCount = 3;
+        var startPolling = true;
+        var pollingTimer;
+
+        var pollProjects = function (page) {
+            pollingTimer = $timeout(function () {
+                halAPI.from(self.params[page].pollingUrl)
+                    .newRequest()
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
+                        $rootScope.$broadcast('poll.projects', document._embedded.projects);
+                        pollProjects(page);
+                    }, function (error) {
+                        error.retriesLeft = pollCount;
+                        MessageService.addError('Could not poll Projects', error);
+                        if (pollCount > 0) {
+                            pollCount -= 1;
+                            pollProjects(page);
+                        }
+                    });
+            }, POLLING_FREQUENCY);
+        };
+
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
+        function getProjects(page){
             var deferred = $q.defer();
-            projectsAPI.from(rootUri + '/projects/')
+            halAPI.from(self.params[page].pollingUrl)
                      .newRequest()
                      .getResource()
                      .result
                      .then(
             function (document) {
+                if (startPolling) {
+                    pollProjects(page);
+                    startPolling = false;
+                }
+                self.params[page].pagingData._links = document._links;
+                self.params[page].pagingData.page = document.page;
+
                 deferred.resolve(document._embedded.projects);
             }, function (error) {
                 MessageService.addError('Could not get Projects', error);
                 deferred.reject();
             });
             return deferred.promise;
-        };
+        }
 
         function getMessage(document){
             var message = '';
@@ -79,7 +124,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.createProject = function(name, description){
             return $q(function(resolve, reject) {
-                projectsAPI.from(rootUri + '/projects/')
+                halAPI.from(rootUri + '/projects/')
                          .newRequest()
                          .post({name: name, description: description})
                          .result
@@ -103,7 +148,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.updateProject = function(project){
             var editProject = {name: project.name, description: project.description};
             return $q(function(resolve, reject) {
-                projectsAPI.from(rootUri + '/projects/' + project.id)
+                halAPI.from(rootUri + '/projects/' + project.id)
                          .newRequest()
                          .patch(editProject)
                          .result
@@ -148,7 +193,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getProject = function(project){
             var deferred = $q.defer();
-            projectsAPI.from(rootUri + '/projects/' + project.id)
+            halAPI.from(rootUri + '/projects/' + project.id)
                        .newRequest()
                        .getResource()
                        .result
@@ -162,12 +207,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        /* Fetch a new page */
+        this.getProjectsPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get databasket list */
+                getProjects(page).then(function (data) {
+                    self.params[page].projects = data;
+                });
+            }
+        };
+
         this.refreshProjects = function (page, action, project) {
 
             if (self.params[page]) {
 
                 /* Get project list */
-                this.getProjects().then(function (data) {
+                getProjects(page).then(function (data) {
 
                     self.params[page].projects = data;
 
@@ -194,6 +251,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.refreshSelectedProject = function (page) {
 
             if (self.params[page]) {
+                if(page === 'explorer' && self.params[page].selectedProject === undefined && self.params[page].projects){
+                    self.params[page].selectedProject = self.params[page].projects[0];
+                }
+
                 /* Get project contents if selected */
                 if (self.params[page].selectedProject) {
                     getProject(self.params[page].selectedProject).then(function (project) {

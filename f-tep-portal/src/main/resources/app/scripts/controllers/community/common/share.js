@@ -10,45 +10,12 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityShareCtrl', ['CommunityService', '$scope', '$mdDialog', '$injector', function (CommunityService, $scope, $mdDialog, $injector) {
+    ftepmodules.controller('CommunityShareCtrl', ['CommonService', 'CommunityService', '$scope', '$injector', function (CommonService, CommunityService, $scope, $injector) {
 
         /* Share Object Modal */
         $scope.ace = {};
         $scope.shareObjectDialog = function($event, item, type, groups, serviceName, serviceMethod) {
-            function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
-
-                var service = $injector.get(serviceName);
-                $scope.permissions = CommunityService.permissionTypes;
-                $scope.ace = item;
-                $scope.ace.type = type;
-                $scope.ace.permission = $scope.permissions.READ;
-                $scope.groups = [];
-
-                GroupService.getGroups().then(function(data){
-                    $scope.groups = data;
-                });
-
-                $scope.shareObject = function (item) {
-                    CommunityService.shareObject($scope.ace, groups).then(function (data) {
-                        service[serviceMethod]('community');
-                    });
-
-                    $mdDialog.hide();
-                };
-
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-            }
-            ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService', 'CommunityService'];
-            $mdDialog.show({
-                controller: ShareObjectController,
-                templateUrl: 'views/common/templates/shareitem.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true,
-                locals: {}
-            });
+            CommonService.shareObjectDialog($event, item, type, groups, serviceName, serviceMethod, 'community');
         };
 
         $scope.updateGroups = function (item, type, groups, serviceName, serviceMethod) {

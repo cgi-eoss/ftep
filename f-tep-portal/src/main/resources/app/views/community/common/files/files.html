@@ -67,9 +67,9 @@
         </div>
     </div>
 
-    <div class="item-list list">
+    <div class="item-list list" ng-if="fileParams.files.length > 0">
         <md-list-item class="md-2-line"
-                      ng-repeat="(key, file) in fileParams.files | orderBy: 'id' | filter: quickSearch | filter: fileParams.selectedOwnershipFilter.criteria"
+                      ng-repeat="(key, file) in fileParams.files | filter: quickSearch | filter: fileParams.selectedOwnershipFilter.criteria"
                       ng-click="selectFile(file)"
                       ng-class="{active: file.id == fileParams.selectedFile.id}">
 
@@ -79,7 +79,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-show="navInfo.activeSideNav === 0"
                        ng-click="removeItem(key, file)"
                        aria-label="Delete"
                        uib-tooltip="Delete"
@@ -90,12 +90,14 @@
             </md-button>
 
             <i class="material-icons"
-               ng-show="navInfo.activeCommunityPage === 1"
+               ng-show="navInfo.activeSideNav === 1"
                aria-label="Share">
                 share
             </i>
 
         </md-list-item>
+
+        <div id="paging" ftep-paging="{{fileParams.pagingData}}"></div>
 
     </div>
 

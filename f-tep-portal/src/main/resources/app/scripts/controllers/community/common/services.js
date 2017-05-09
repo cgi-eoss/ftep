@@ -25,6 +25,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.serviceParams.services = data;
         });
 
+        /* Paging */
+        $scope.getPage = function(url){
+            ProductService.getServicesPage('community', url);
+        };
+
+        $scope.$on("$destroy", function() {
+            ProductService.stopPolling();
+        });
+
         /* Select a Service */
         $scope.selectService = function (item) {
             $scope.serviceParams.selectedService = item;

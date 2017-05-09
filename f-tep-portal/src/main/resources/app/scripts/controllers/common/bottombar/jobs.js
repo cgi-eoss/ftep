@@ -14,57 +14,27 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.jobParams = JobService.params.explorer;
             $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
 
-            JobService.getJobs('explorer').then(function (data) {
-                $scope.jobParams.jobs = data;
-                groupJobs();
-            });
+            /* Get jobs */
+            JobService.refreshJobs('explorer');
 
             $scope.$on('poll.jobs', function (event, data) {
                 $scope.jobParams.jobs = data;
-                groupJobs();
 
                 // Refresh active job if running
                 if ($scope.jobParams.selectedJob && $scope.jobParams.selectedJob.status === "RUNNING") {
                     JobService.refreshSelectedJob('explorer');
                 }
-
             });
 
-            // Group jobs by their service name
-            $scope.groupedJobs = {};
+            /* Paging */
+            $scope.getPage = function(url){
+                JobService.getJobsPage('explorer', url);
+            };
 
-            function groupJobs() {
-                $scope.groupedJobs = {};
-                if ($scope.jobParams.jobs) {
-                    for (var i = 0; i < $scope.jobParams.jobs.length; i++) {
-                        var job = $scope.jobParams.jobs[i];
-
-                        if ($scope.groupedJobs[job.serviceName] === undefined) {
-                            $scope.groupedJobs[job.serviceName] = [];
-                        }
-
-                        if ($scope.jobParams.jobCategoryInfo[job.serviceName] === undefined) {
-                            $scope.jobParams.jobCategoryInfo[job.serviceName] = {
-                                opened: false
-                            };
-                        }
-                        $scope.groupedJobs[job.serviceName].push(job);
-                    }
-                }
-            }
-            groupJobs();
-
-            $scope.$on('update.jobGroups', function (event, data) {
-                groupJobs();
+            /* Stop Polling */
+            $scope.$on("$destroy", function() {
+                JobService.stopPolling();
             });
-
-            $scope.isJobGroupOpened = function (serviceName) {
-                return $scope.jobParams.jobCategoryInfo[serviceName].opened;
-            };
-
-            $scope.toggleJobGroup = function (serviceName) {
-                $scope.jobParams.jobCategoryInfo[serviceName].opened = !$scope.jobParams.jobCategoryInfo[serviceName].opened;
-            };
 
             $scope.toggleFilters = function () {
                 $scope.jobParams.displayFilters = !$scope.jobParams.displayFilters;
@@ -81,6 +51,24 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             };
             $scope.filterJobs();
+
+            $scope.formatDateTime = function(dateTime){
+                return new Date(dateTime.year + "-" +
+                        getTwoDigitNumber(dateTime.monthValue) + "-" +
+                        getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
+                        getTwoDigitNumber(dateTime.hour) + ":" +
+                        getTwoDigitNumber(dateTime.minute) + ":" +
+                        getTwoDigitNumber(dateTime.second) + "." +
+                        getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
+            };
+
+            function getTwoDigitNumber(num){
+                return (num > 9 ? num : '0'+num);
+            }
+
+            function getThreeDigitNumber(num){
+                return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
+            }
 
             $scope.repeatJob = function(job){
                 JobService.getJobConfig(job).then(function(config){

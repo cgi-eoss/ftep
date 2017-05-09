@@ -115,7 +115,7 @@
 
         <ul class="list-group project-list">
             <li class="list-group-item project-item"
-                ng-repeat="project in projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText | orderBy: 'name'"
+                ng-repeat="project in projectParams.projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText"
                 ng-click="selectProject(project)"
                 ng-class="{active: project.name === projectParams.selectedProject.name}">
 
@@ -172,6 +172,8 @@
                 </div>
             </li>
         </ul>
+
+        <div id="paging" ftep-paging="{{projectParams.pagingData}}"></div>
 
     </div>
 </uib-accordion>

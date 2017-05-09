@@ -57,9 +57,9 @@
         </div>
     </div>
 
-    <div class="item-list list">
+    <div class="item-list list" ng-if="basketParams.databaskets.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, basket) in basketParams.databaskets | orderBy: 'id' | filter: quickSearch | filter: basketParams.selectedOwnershipFilter.criteria"
+                      ng-repeat="(key, basket) in basketParams.databaskets | filter: quickSearch | filter: basketParams.selectedOwnershipFilter.criteria"
                       ng-click="selectBasket(basket)"
                       ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
 
@@ -70,7 +70,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-show="navInfo.activeSideNav === 0"
                        aria-label="{{item}} Description"
                        uib-popover-html="getDescription({{basket}})"
                        popover-placement="right"
@@ -80,7 +80,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-show="navInfo.activeSideNav === 0"
                        ng-click="editItemDialog($event, basket)"
                        aria-label="Edit"
                        uib-tooltip="Edit"
@@ -91,7 +91,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeCommunityPage === 0"
+                       ng-show="navInfo.activeSideNav === 0"
                        ng-click="removeItem(key, basket)"
                        aria-label="Delete"
                        uib-tooltip="Delete"
@@ -102,13 +102,14 @@
             </md-button>
 
             <i class="material-icons"
-               ng-show="navInfo.activeCommunityPage === 1"
+               ng-show="navInfo.activeSideNav === 1"
                aria-label="Share">
                 share
             </i>
 
         </md-list-item>
 
+        <div id="paging" ftep-paging="{{basketParams.pagingData}}"></div>
     </div>
 
 </section>

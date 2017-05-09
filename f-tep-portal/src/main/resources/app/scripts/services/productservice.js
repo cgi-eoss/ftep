@@ -10,12 +10,12 @@
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
 
-    ftepmodules.service('ProductService', [ 'CommunityService', 'UserService', 'MessageService', '$http', 'ftepProperties', '$q', 'traverson', function ( CommunityService, UserService, MessageService, $http, ftepProperties, $q, traverson) {
+    ftepmodules.service('ProductService', ['$rootScope', 'CommunityService', 'UserService', 'MessageService', '$http', 'ftepProperties', '$q', 'traverson', '$timeout', function ( $rootScope, CommunityService, UserService, MessageService, $http, ftepProperties, $q, traverson, $timeout) {
 
         var self = this;
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
-        var productsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.serviceOwnershipFilters = {
@@ -32,6 +32,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.params = {
             explorer: {
                 services: undefined,
+                pollingUrl: rootUri + '/services?sort=type,name',
+                pagingData: {},
                 selectedService: undefined,
                 searchText: '',
                 inputValues: {},
@@ -39,6 +41,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             },
             community: {
                 services: undefined,
+                pollingUrl: rootUri + '/services?sort=type,name',
+                pagingData: {},
                 contents: undefined,
                 selectedService: undefined,
                 searchText: '',
@@ -53,6 +57,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             },
             development: {
                 services: undefined,
+                pollingUrl: rootUri + '/services?sort=type,name',
+                pagingData: {},
                 activeForm: undefined,
                 displayFilters: false,
                 displayRight: false,
@@ -65,7 +71,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             if(self.params[page]){
                 /* Get service list */
-                this.getUserServices().then(function (data) {
+                getUserServices(page).then(function (data) {
 
                     self.params[page].services = data;
 
@@ -115,28 +121,81 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     }
                 });
             }
-
         };
 
-        this.getUserServices = function(){
+        var POLLING_FREQUENCY = 20 * 1000;
+        var pollCount = 3;
+        var startPolling = true;
+        var pollingTimer;
+
+        var pollServices = function (page) {
+            pollingTimer = $timeout(function () {
+                halAPI.from(self.params[page].pollingUrl)
+                    .newRequest()
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
+                        $rootScope.$broadcast('poll.services', document._embedded.services);
+                        pollServices(page);
+                    }, function (error) {
+                        error.retriesLeft = pollCount;
+                        MessageService.addError('Could not poll Services', error);
+                        if (pollCount > 0) {
+                            pollCount -= 1;
+                            pollServices(page);
+                        }
+                    });
+            }, POLLING_FREQUENCY);
+        };
+
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
+        function getUserServices(page){
             var deferred = $q.defer();
-            productsAPI.from(rootUri + '/services/')
+            halAPI.from(self.params[page].pollingUrl)
                        .newRequest()
                        .getResource()
                        .result
                        .then(
             function (document) {
+                if (startPolling) {
+                    pollServices(page);
+                    startPolling = false;
+                }
+                self.params[page].pagingData._links = document._links;
+                self.params[page].pagingData.page = document.page;
+
                 deferred.resolve(document._embedded.services);
             }, function (error) {
                 MessageService.addError('Could not get Services', error);
                 deferred.reject();
             });
             return deferred.promise;
+        }
+
+        /* Fetch a new page */
+        this.getServicesPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get databasket list */
+                getUserServices(page).then(function (data) {
+                    self.params[page].services = data;
+                });
+            }
         };
 
         this.getService = function(service){
             var deferred = $q.defer();
-            productsAPI.from(rootUri + '/services/' + service.id + '?projection=detailedFtepService')
+            halAPI.from(rootUri + '/services/' + service.id + '?projection=detailedFtepService')
                        .newRequest()
                        .getResource()
                        .result
@@ -157,7 +216,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                           description: description,
                           dockerTag: 'ftep/' + name.replace(/[^a-zA-Z0-9-_.]/g,'_').toLowerCase(),
                   };
-                  productsAPI.from(rootUri + '/services/')
+                  halAPI.from(rootUri + '/services/')
                            .newRequest()
                            .post(service)
                            .result
@@ -197,7 +256,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
           this.addFile = function(file){
               var deferred = $q.defer();
-              productsAPI.from(rootUri + '/serviceFiles/')
+              halAPI.from(rootUri + '/serviceFiles/')
                        .newRequest()
                        .post(file)
                        .result
@@ -225,7 +284,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 serviceDescriptor: selectedService.serviceDescriptor
             };
             return $q(function(resolve, reject) {
-                productsAPI.from(rootUri + '/services/' + selectedService.id)
+                halAPI.from(rootUri + '/services/' + selectedService.id)
                            .newRequest()
                            .patch(editService)
                            .result
@@ -254,7 +313,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function updateFile(file){
             var editedFile = angular.copy(file);
             editedFile.content =  btoa(file.content);
-            productsAPI.from(file._links.self.href)
+            halAPI.from(file._links.self.href)
                        .newRequest()
                        .patch(editedFile)
                        .result
@@ -320,7 +379,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         function getServiceFiles(service){
             var deferred = $q.defer();
-            var request = productsAPI.from(rootUri + '/serviceFiles/search/')
+            var request = halAPI.from(rootUri + '/serviceFiles/search/')
                                      .newRequest()
                                      .getResource();
 
@@ -351,7 +410,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         }
 
         function getFileDetails(page, file){
-            productsAPI.from(file._links.self.href)
+            halAPI.from(file._links.self.href)
                        .newRequest()
                        .getResource()
                        .result

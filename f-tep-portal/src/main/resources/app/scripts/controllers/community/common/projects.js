@@ -25,6 +25,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.projectParams.projects = data;
         });
 
+        $scope.getPage = function(url){
+            ProjectService.getProjectsPage('community', url);
+        };
+
+        $scope.$on("$destroy", function() {
+            ProjectService.stopPolling();
+        });
+
         /* Select a Project */
         $scope.selectProject = function (item) {
             $scope.projectParams.selectedProject = item;

@@ -31,7 +31,7 @@
 
     <section id="map-container" >
         <div id="map"  ng-controller="MapCtrl">
-            <div ng-include src="'views/explorer/map.html'" onload="finishLoading('map')"></div>
+            <div ng-include src="'views/explorer/map.html'" onload="finishLoading('map'); updateMap()"></div>
         </div>
     </section>
 

@@ -22,7 +22,7 @@
   #account-container #account-panel,
   #account-container #statistics-panel,
   #account-container #info-panel {
-    max-height: 50%;
+    height: auto;
   }
 }
 #account-container #account-panel,
@@ -81,6 +81,11 @@
 }
 #admin-container #management-container .column-container .material-label {
   font-size: 1rem;
+}
+@media (max-width: 1199px) {
+  #admin-container #management-container .column-container {
+    height: auto;
+  }
 }
 #admin-container #management-container #role-container {
   background-color: darkgray;

@@ -66,5 +66,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
+        return this;
     }]);
 });

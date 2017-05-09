@@ -1,15 +1,15 @@
 <div class="page" ng-controller="AccountCtrl">
 
-    <div class="spinner-container" ng-class="{hidden: !hideContent}">
+    <div class="spinner-container" ng-class="{'hidden': !hideContent}">
         <div class="spinner" />
     </div>
 
     <div id="navbar-container"
          ng-include src="'views/navbar.html'"
          onload="finishLoading('navbar')"
-         ng-class="{hidden: hideContent}"/>
+         ng-class="{'hidden': hideContent}"/>
 
-    <article id="account" class="page-container row" ng-class="{hidden: hideContent}">
+    <article id="account" class="page-container row" ng-class="{'hidden': hideContent}">
 
         <session id="account-container" ng-if="user">
 

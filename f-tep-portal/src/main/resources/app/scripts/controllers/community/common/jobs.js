@@ -18,13 +18,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.item = "Job";
 
         /* Get jobs */
-        JobService.getJobs().then(function (data) {
-             $scope.jobParams.jobs = data;
-        });
+        JobService.refreshJobs('community');
 
         /* Update jobs when polling */
         $scope.$on('poll.jobs', function (event, data) {
             $scope.jobParams.jobs = data;
+        });
+
+        /* Paging */
+        $scope.getPage = function(url){
+            JobService.getJobsPage('community', url);
+        };
+
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            JobService.stopPolling();
         });
 
         /* Select a Job */
@@ -43,7 +51,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.quickSearch = function (item) {
-            if (item.extId.toLowerCase().indexOf(
+            if (item.id.toLowerCase().indexOf(
                 $scope.itemSearch.searchText.toLowerCase()) > -1) {
                 return true;
             }

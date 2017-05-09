@@ -18,46 +18,30 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.projectParams.selectedProject = project;
         };
 
-        function getProjects(project, setAsActive){
-            ProjectService.getProjects().then(function (data) {
-                $scope.projects = data;
-                if(!$scope.projectParams.selectedProject){
-                    $scope.projectParams.selectedProject = $scope.projects[0];
-                }
-                else if(setAsActive){
-                    $scope.projectParams.selectedProject = project;
-                }
-                else if(project && project._links.self.href === $scope.projectParams.selectedProject._links.self.href){
-                    $scope.projectParams.selectedProject = project;
-                }
-            });
-        }
-        getProjects();
+        ProjectService.refreshProjects('explorer');
 
         $scope.removeProject = function (project) {
             ProjectService.removeProject(project).then(function () {
-                getProjects(project);
+                ProjectService.refreshProjects('explorer', 'Remove');
             });
         };
 
-        $scope.$on('add.project', function (event, project) {
-            getProjects(project, true);
-        });
+        $scope.getPage = function(url){
+            ProjectService.getProjectsPage('explorer', url);
+        };
+
 
         /** CREATE PROJECT MODAL **/
         $scope.createProjectDialog = function($event) {
             CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
-                $rootScope.$broadcast('add.project', newProject);
+                ProjectService.refreshProjects('explorer', 'Create');
             });
         };
         /** END OF CREATE PROJECT MODAL **/
 
         $scope.updateProject = function ($event, project) {
             CommonService.editItemDialog($event, project, 'ProjectService', 'updateProject').then(function(updatedProject) {
-                if($scope.projectParams.selectedProject && $scope.projectParams.selectedProject.id === updatedProject.id){
-                    $scope.projectParams.selectedProject = updatedProject;
-                }
-                getProjects(updatedProject);
+                ProjectService.refreshProjects('explorer');
             });
         };
 

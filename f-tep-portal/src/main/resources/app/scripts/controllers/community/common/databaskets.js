@@ -25,6 +25,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.basketParams.databaskets = data;
         });
 
+        $scope.getPage = function(url){
+            BasketService.getDatabasketsPage('community', url);
+        };
+
+        $scope.$on("$destroy", function() {
+            BasketService.stopPolling();
+        });
+
         /* Select a Databasket */
         $scope.selectBasket = function (item) {
             $scope.basketParams.selectedDatabasket = item;

@@ -51,9 +51,9 @@
         </ul>
     </section>
 
-    <section class="item-list list">
+    <section class="item-list list" ng-if="dbParams.databaskets.length > 0">
         <md-list-item class="md-2-line"
-                      ng-repeat="basket in dbParams.databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText | orderBy: 'attributes.name'"
+                      ng-repeat="basket in dbParams.databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText"
                       ng-click="selectDatabasket(basket);"
                       ng-class="{active: basket.name == dbParams.selectedDatabasket.name}">
 
@@ -135,15 +135,8 @@
             </md-button>
 
         </md-list-item>
+
+        <div id="paging" ftep-paging="{{dbParams.pagingData}}"></div>
     </section>
 
 </div>
-
-<!-- <section class="pagination">
-    <paging page="dbPaging.dbCurrentPage"
-            page-size="dbPaging.dbPageSize"
-            total="dbPaging.dbTotal"
-            show-first-last="true"
-            paging-action="fetchDbPage(page)">
-    </paging>
-</section> -->

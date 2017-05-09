@@ -13,7 +13,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
-        var usersAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
         var timeout = false;
 
@@ -36,7 +36,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getCurrentUser = function(withDetails){
             var deferred = $q.defer();
-            usersAPI.from(ftepProperties.URLv2 + '/currentUser')
+            halAPI.from(ftepProperties.URLv2 + '/currentUser')
                 .newRequest()
                 .getResource()
                 .result
@@ -69,7 +69,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getAllUsers = function () {
             var deferred = $q.defer();
-            usersAPI.from(rootUri + '/users/')
+            halAPI.from(rootUri + '/users/')
                      .newRequest()
                      .getResource()
                      .result
@@ -85,7 +85,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getUsers = function (group) {
             var deferred = $q.defer();
-            usersAPI.from(rootUri + '/groups/' + group.id)
+            halAPI.from(rootUri + '/groups/' + group.id)
                      .newRequest()
                      .follow('members')
                      .getResource()
@@ -102,7 +102,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getUserByLink = function(userUrl){
             var deferred = $q.defer();
-            usersAPI.from(userUrl)
+            halAPI.from(userUrl)
                      .newRequest()
                      .getResource()
                      .result
@@ -133,7 +133,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 var updatedMembers = {"members": membersArray};
 
                 /* Patch members with updated member list */
-                usersAPI.from(rootUri + '/groups/' + group.id)
+                halAPI.from(rootUri + '/groups/' + group.id)
                          .newRequest()
                          .patch(updatedMembers)
                          .result
@@ -157,7 +157,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.updateUser = function(user){
             var newUser = {name: user.name, id: user.id, email: user.email, role: user.role};
             return $q(function(resolve, reject) {
-                usersAPI.from(rootUri + '/users/' + user.id)
+                halAPI.from(rootUri + '/users/' + user.id)
                          .newRequest()
                          .patch(newUser)
                          .result
@@ -188,7 +188,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 var updatedMembers = {"members": membersArray};
 
                 /* Patch members with updated member list */
-                usersAPI.from(rootUri + '/groups/' + group.id)
+                halAPI.from(rootUri + '/groups/' + group.id)
                          .newRequest()
                          .patch(updatedMembers)
                          .result

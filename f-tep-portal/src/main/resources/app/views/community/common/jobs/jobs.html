@@ -68,9 +68,9 @@
         </div>
     </div>
 
-    <div class="item-list list">
+    <div class="item-list list" ng-if="jobParams.jobs.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, job) in jobParams.jobs | orderBy: 'id' | filter: quickSearch | filter: jobParams.selectedOwnershipFilter.criteria"
+                      ng-repeat="(key, job) in jobParams.jobs | filter: quickSearch | filter: jobParams.selectedOwnershipFilter.criteria"
                       ng-show="filteredJobStatuses.indexOf(job.status) > -1"
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">
@@ -83,12 +83,14 @@
             </div>
 
             <i class="material-icons"
-               ng-show="navInfo.activeCommunityPage === 1"
+               ng-show="navInfo.activeSideNav === 1"
                aria-label="Share">
                 share
             </i>
 
         </md-list-item>
+
+        <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>
 
     </div>
 

@@ -320,5 +320,30 @@ define([
         };
     }]);
 
+    app.directive('ftepPaging', function () {
+        return {
+            restrict: 'EA',
+            templateUrl: 'views/common/templates/paging.tmpl.html',
+            link: function ($scope, element, attrs) {
+
+                $scope.pagingData = JSON.parse(attrs.ftepPaging);
+
+                $scope.getPageText = function(){
+                    var txt = 'Page 1 of 1';
+                    if($scope.pagingData.page){
+                        var currentPage = $scope.pagingData.page.number + 1;
+                        txt = 'Page ' + currentPage + ' of ' + $scope.pagingData.page.totalPages;
+                    }
+                    return txt;
+                };
+
+                attrs.$observe('ftepPaging', function() {
+                    $scope.pagingData = JSON.parse(attrs.ftepPaging);
+                });
+
+            }
+        };
+    });
+
     return app;
 });

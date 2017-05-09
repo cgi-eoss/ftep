@@ -34,6 +34,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.dbParams.databaskets = data;
         });
 
+        /* Paging */
+        $scope.getPage = function(url){
+            BasketService.getDatabasketsPage('explorer', url);
+        };
+
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            BasketService.stopPolling();
+        });
+
         /* Edit existing databasket's name and description */
         $scope.editDatabasket = function($event, basket) {
             CommonService.editItemDialog($event, basket, 'BasketService', 'updateDatabasket').then(function (updatedBasket) {

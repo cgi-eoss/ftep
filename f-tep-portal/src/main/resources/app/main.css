@@ -1594,6 +1594,28 @@
   float: right;
   padding-top: 0.4rem;
 }
+.ftep #paging {
+  display: inline-block;
+  padding: 0.8rem 0 0.2rem 0;
+  text-align: center;
+  width: 100%;
+}
+.ftep #paging .md-button {
+  min-height: 1rem !important;
+  min-width: 1rem !important;
+  margin: 0 0.2rem;
+}
+.ftep #paging .md-button:hover {
+  color: #558b2f;
+}
+.ftep #paging .md-button[disabled]:hover {
+  color: #BBB;
+}
+.ftep #paging #current-page {
+  cursor: auto;
+  border: none;
+  margin: 0.2rem;
+}
 
 .ftep .rzslider .rz-bubble {
   color: rgba(0, 0, 0, 0.7);
@@ -2215,6 +2237,14 @@
 
 #services .list-group .expander {
   padding: 0 !important;
+}
+#services .item-list .service-type {
+  background-color: #558b2f;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.87);
+  line-height: 0.5rem;
+  margin-right: 0.5rem;
+  padding: 0.4rem;
 }
 #services .item-list h3 {
   font-size: 0.8rem;

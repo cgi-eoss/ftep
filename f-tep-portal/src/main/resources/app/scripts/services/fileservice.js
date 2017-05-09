@@ -32,6 +32,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /** PRESERVE USER SELECTIONS **/
         this.params = {
             community: {
+                pollingUrl: undefined,
+                pagingData: {},
                 files: undefined,
                 fileDetails: undefined,
                 selectedFile: undefined,
@@ -41,8 +43,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnerhipFilter: self.fileOwnershipFilters.ALL_FILES,
-                showFiles: true
+                selectedOwnerhipFilter: self.fileOwnershipFilters.ALL_FILES
              }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -50,80 +51,67 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
         var startPolling = true;
+        var pollingTimer;
 
-        var pollFtepFiles = function () {
-            $timeout(function () {
-                var request = halAPI.from(rootUri + '/ftepFiles/')
+        var pollFtepFiles = function (page) {
+            pollingTimer = $timeout(function () {
+                var request = halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
-                    .follow('search')
-                    .getResource();
-                request.result.then(function (document) {
-                    request.continue().then(function (nextBuilder) {
-                        var nextRequest = nextBuilder.newRequest();
-                        nextRequest
-                            .follow('findByType')
-                            .withRequestOptions({
-                                qs: {
-                                    type: self.params.community.activeFileType
-                                }
-                            })
-                            .getResource()
-                            .result
-                            .then(function (document) {
-                                $rootScope.$broadcast('poll.ftepfiles', document._embedded.ftepFiles);
-                                pollFtepFiles();
-                             }, function (error) {
-                                MessageService.addError('Could not get Files', error);
-                                if (pollCount > 0) {
-                                    pollCount -= 1;
-                                    pollFtepFiles();
-                                }
-                            });
+                    .getResource()
+                    .result
+                    .then(function (document) {
+                        self.params[page].pollingUrl = document._links.self.href;
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
+                        $rootScope.$broadcast('poll.ftepfiles', document._embedded.ftepFiles);
+                        pollFtepFiles(page);
+                     }, function (error) {
+                        MessageService.addError('Could not get Files', error);
+                        if (pollCount > 0) {
+                            pollCount -= 1;
+                            pollFtepFiles(page);
+                        }
                     });
-                }, function (error) {
-                    MessageService.addError('Could not get Files', error);
-                    if (pollCount > 0) {
-                        pollCount -= 1;
-                        pollFtepFiles();
-                    }
-                });
             }, POLLING_FREQUENCY);
         };
 
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
         /* File types: REFERENCE_DATA, OUTPUT_PRODUCT, EXTERNAL_PRODUCT */
-        this.getFtepFiles = function (fileType) {
+        this.getFtepFiles = function (page, fileType, url) {
+            if(url){
+                self.params[page].pollingUrl = url;
+            }
+            else {
+                self.params[page].pollingUrl = rootUri + '/ftepFiles/search/findByType' + '?type=' + fileType;
+            }
+
             var deferred = $q.defer();
-            var request = halAPI.from(rootUri + '/ftepFiles/')
+            var request = /* Get files list */
+                halAPI.from(self.params[page].pollingUrl)
                 .newRequest()
-                .follow('search')
-                .getResource();
-            request.result.then(function (document) {
-                request.continue().then(function (nextBuilder) {
-                    var nextRequest = nextBuilder.newRequest();
-                    nextRequest
-                        .follow('findByType')
-                        .withRequestOptions({
-                            qs: {
-                                type: fileType
-                            }
-                        })
-                        .getResource()
-                        .result
-                        .then(function (document) {
-                            if (startPolling) {
-                                pollFtepFiles();
-                                startPolling = false;
-                            }
-                            deferred.resolve(document._embedded.ftepFiles);
-                        }, function (error) {
-                            MessageService.addError('Could not get Files', error);
-                            deferred.reject();
-                        });
-                });
-            }, function (error) {
-                MessageService.addError('Could not get Files', error);
-                deferred.reject();
-            });
+                .getResource()
+                .result
+                .then(function (document) {
+                        if (startPolling) {
+                            pollFtepFiles(page);
+                            startPolling = false;
+                        }
+
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
+                        deferred.resolve(document._embedded.ftepFiles);
+                    }, function (error) {
+                        MessageService.addError('Could not get Files', error);
+                        deferred.reject();
+                    });
             return deferred.promise;
         };
 
@@ -232,11 +220,27 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        /* Fetch a new page */
+        this.getFtepFilesPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get files list */
+                self.getFtepFiles(page, self.params[page].activeFileType, url).then(function (data) {
+                    self.params[page].files = data;
+                });
+
+                //the selected file will not exist on the new page
+                self.params[page].selectedFile = undefined;
+                self.params[page].fileDetails = undefined;
+            }
+        };
+
         this.refreshFtepFiles = function (page, action, file) {
 
             if(self.params[page]){
 
-                self.getFtepFiles(self.params[page].activeFileType).then(function (data) {
+                self.getFtepFiles(page, self.params[page].activeFileType).then(function (data) {
                     self.params[page].files = data;
 
                     /* Clear file if deleted */

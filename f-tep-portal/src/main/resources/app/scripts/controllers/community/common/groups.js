@@ -17,13 +17,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.item = "Group";
 
         /* Get Groups */
-        GroupService.getGroups().then(function (data) {
-            $scope.groupParams.groups = data;
-        });
+        GroupService.refreshGroups('community');
 
         /* Update Groups when polling */
         $scope.$on('poll.groups', function (event, data) {
             $scope.groupParams.groups = data;
+        });
+
+        $scope.getPage = function(url){
+            GroupService.getGroupsPage('community', url);
+        };
+
+        $scope.$on("$destroy", function() {
+            GroupService.stopPolling();
         });
 
         /* Select a Group */

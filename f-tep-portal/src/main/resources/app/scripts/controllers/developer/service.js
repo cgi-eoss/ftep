@@ -48,6 +48,20 @@ define(['../../ftepmodules'], function (ftepmodules) {
             ProductService.refreshSelectedService('development');
         };
 
+        /* Update Services when polling */
+        $scope.$on('poll.services', function (event, data) {
+            $scope.serviceParams.services = data;
+        });
+
+        /* Paging */
+        $scope.getPage = function(url){
+            ProductService.getServicesPage('development', url);
+        };
+
+        $scope.$on("$destroy", function() {
+            ProductService.stopPolling();
+        });
+
 //        // The modes
 //        $scope.modes = ['Scheme', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];
 //        $scope.mode = {};

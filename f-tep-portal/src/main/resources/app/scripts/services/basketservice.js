@@ -32,17 +32,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.params = {
             explorer: {
+                pollingUrl: rootUri + '/databaskets/?sort=name',
+                pagingData: {},
                 databaskets: undefined,
                 items: undefined,
                 selectedDatabasket: undefined,
                 selectedItems: undefined,
                 searchText: '',
                 displayFilters: false,
-                showBaskets: true,
                 databasketOnMap: {id: undefined},
                 selectedOwnerhipFilter: self.dbOwnershipFilters.ALL_BASKETS
             },
             community: {
+                pollingUrl: rootUri + '/databaskets/?sort=name',
+                pagingData: {},
                 databaskets: undefined,
                 items: undefined,
                 selectedDatabasket: undefined,
@@ -54,8 +57,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: self.dbOwnershipFilters.ALL_BASKETS,
-                showBaskets: true
+                selectedOwnershipFilter: self.dbOwnershipFilters.ALL_BASKETS
             }
         };
 
@@ -64,38 +66,52 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
         var startPolling = true;
+        var pollingTimer;
 
-        var pollDatabaskets = function () {
-            $timeout(function () {
-                halAPI.from(rootUri + '/databaskets/?size=100') //TODO implement paging
+        var pollDatabaskets = function (page) {
+            pollingTimer = $timeout(function () {
+                halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
                     .getResource()
                     .result
                     .then(function (document) {
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
                         $rootScope.$broadcast('poll.baskets', document._embedded.databaskets);
-                        pollDatabaskets();
+                        pollDatabaskets(page);
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Databaskets', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollDatabaskets();
+                            pollDatabaskets(page);
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        var getDatabaskets = function () {
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
+        var getDatabaskets = function (page) {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/databaskets/?size=100') //TODO implement paging
+            halAPI.from(self.params[page].pollingUrl)
                 .newRequest()
                 .getResource()
                 .result
                 .then(function (document) {
                     if (startPolling) {
-                        pollDatabaskets();
+                        pollDatabaskets(page);
                         startPolling = false;
                     }
+                    self.params[page].pagingData._links = document._links;
+                    self.params[page].pagingData.page = document.page;
+
                     deferred.resolve(document._embedded.databaskets);
                 }, function (error) {
                     MessageService.addError('Could not get Databaskets', error);
@@ -200,7 +216,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             if (self.params[page]) {
                 /* Get databasket list */
-                getDatabaskets().then(function (data) {
+                getDatabaskets(page).then(function (data) {
 
                     self.params[page].databaskets = data;
 
@@ -219,6 +235,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     /* Update the selected basket */
                     self.refreshSelectedBasket(page);
+                });
+            }
+        };
+
+        /* Fetch a new page */
+        this.getDatabasketsPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get databasket list */
+                getDatabaskets(page).then(function (data) {
+                    self.params[page].databaskets = data;
                 });
             }
         };

@@ -29,6 +29,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.fileParams.files = data;
         });
 
+        /* Paging */
+        $scope.getPage = function(url){
+            FileService.getFtepFilesPage('community', url);
+        };
+
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            FileService.stopPolling();
+        });
+
         /* Select a File */
         $scope.selectFile = function (item) {
             $scope.fileParams.selectedFile = item;

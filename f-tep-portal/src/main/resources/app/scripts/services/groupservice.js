@@ -15,7 +15,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
-        var groupsAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.groupOwnershipFilters = {
@@ -33,6 +33,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.params = {
             community: {
                 groups: [],
+                pollingUrl: rootUri + '/groups/?sort=name',
+                pagingData: {},
                 selectedGroup: undefined,
                 searchText: '',
                 displayGroupFilters: false,
@@ -47,39 +49,70 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var POLLING_FREQUENCY = 20 * 1000;
         var pollCount = 3;
         var startPolling = true;
+        var pollingTimer;
 
-        var pollGroups = function () {
-            $timeout(function () {
-                groupsAPI.from(rootUri + '/groups/')
+        var pollGroups = function (page) {
+            pollingTimer = $timeout(function () {
+                halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
                     .getResource()
                     .result
                     .then(function (document) {
+                        self.params[page].pagingData._links = document._links;
+                        self.params[page].pagingData.page = document.page;
+
                         $rootScope.$broadcast('poll.groups', document._embedded.groups);
-                        pollGroups();
+                        pollGroups(page);
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Groups', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollGroups();
+                            pollGroups(page);
                         }
                     });
             }, POLLING_FREQUENCY);
         };
 
-        this.getGroups = function () {
+        this.stopPolling = function(){
+            if(pollingTimer){
+                $timeout.cancel(pollingTimer);
+            }
+            startPolling = true;
+        };
+
+        function getGroups(page) {
             var deferred = $q.defer();
-            groupsAPI.from(rootUri + '/groups/')
+            halAPI.from(self.params[page].pollingUrl)
                      .newRequest()
                      .getResource()
                      .result
                      .then(
             function (document) {
                 if(startPolling) {
-                    pollGroups();
+                    pollGroups(page);
                     startPolling = false;
                 }
+                self.params[page].pagingData._links = document._links;
+                self.params[page].pagingData.page = document.page;
+
+                deferred.resolve(document._embedded.groups);
+            }, function (error) {
+                MessageService.addError ('Could not get Groups', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        }
+
+        /* Get Groups for share functionality to fill the combobox */
+        this.getGroups = function(){
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/groups/?sort=name&size=100')
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
                 deferred.resolve(document._embedded.groups);
             }, function (error) {
                 MessageService.addError('Could not get Groups', error);
@@ -88,10 +121,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        /* Fetch a new page */
+        this.getGroupsPage = function(page, url){
+            if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get groups list */
+                getGroups(page).then(function (data) {
+                    self.params[page].groups = data;
+                });
+            }
+        };
+
         this.createGroup = function(name, desc) {
             return $q(function(resolve, reject) {
                 var group = {name: name, description: (desc ? desc : '')};
-                groupsAPI.from(rootUri + '/groups/')
+                halAPI.from(rootUri + '/groups/')
                          .newRequest()
                          .post(group)
                          .result
@@ -131,7 +176,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.updateGroup = function (group) {
             var newgroup = {name: group.name, description: group.description};
             return $q(function(resolve, reject) {
-                groupsAPI.from(rootUri + '/groups/' + group.id)
+                halAPI.from(rootUri + '/groups/' + group.id)
                          .newRequest()
                          .patch(newgroup)
                          .result
@@ -148,7 +193,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getGroup = function (group) {
             var deferred = $q.defer();
-            groupsAPI.from(rootUri + '/groups/' + group.id)
+            halAPI.from(rootUri + '/groups/' + group.id)
                      .newRequest()
                      .getResource()
                      .result
@@ -167,7 +212,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (self.params[page]) {
 
                 /* Get group list */
-                this.getGroups().then(function (data) {
+                getGroups(page).then(function (data) {
 
                     self.params[page].groups = data;
 

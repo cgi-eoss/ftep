@@ -81,7 +81,7 @@
 </section>
 
 <section class="item-list">
-    <md-list-item class="md-1-line" ng-repeat="(key, item) in serviceParams.contents | orderBy: 'name' | filter: contentsQuickSearch">
+    <md-list-item class="md-1-line" ng-repeat="(key, item) in serviceParams.contents | filter: contentsQuickSearch">
 
         <div class="md-avatar" alt="access rights">
             <i class="material-icons">insert_drive_file</i>

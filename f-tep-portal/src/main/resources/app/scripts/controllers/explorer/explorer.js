@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', '$mdSidenav', 'ftepProperties', '$injector', function ($scope, $mdDialog, TabService, MessageService, $mdSidenav, ftepProperties, $injector) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -90,42 +90,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
         /* Share Object Modal */
         $scope.sharedObject = {};
         $scope.shareObjectDialog = function($event, item, type, serviceName, serviceMethod) {
-            function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
-
-                var service = $injector.get(serviceName);
-                $scope.permissions = CommunityService.permissionTypes;
-                $scope.ace = item;
-                $scope.ace.type = type;
-                $scope.ace.permission = $scope.permissions.READ;
-                $scope.groups = [];
-
-                GroupService.getGroups().then(function(data){
-                    $scope.groups = data;
-                });
-
-                $scope.shareObject = function (item) {
-                    CommunityService.getObjectGroups(item, type).then(function(groups){
-
-                        CommunityService.shareObject($scope.ace, groups).then(function (data) {
-                            service[serviceMethod]('explorer');
-                        });
-                    });
-
-                    $mdDialog.hide();
-                };
-
-                $scope.closeDialog = function() {
-                    $mdDialog.hide();
-                };
-            }
-            ShareObjectController.$inject = ['$scope', '$mdDialog', 'GroupService', 'CommunityService'];
-            $mdDialog.show({
-                controller: ShareObjectController,
-                templateUrl: 'views/common/templates/shareitem.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true,
-                locals: {}
+            CommunityService.getObjectGroups(item, type).then(function(groups){
+                CommonService.shareObjectDialog($event, item, type, groups, serviceName, serviceMethod, 'explorer');
             });
         };
 

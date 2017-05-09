@@ -58,95 +58,66 @@
         </ul>
     </section>
 
-    <section class="item-list">
-        <div class="list" ng-repeat="(serviceName, serviceJobs) in groupedJobs">
+    <section class="item-list" ng-if="jobParams.jobs.length > 0">
 
-            <div class="row list-group">
+        <md-list-item class="md-3-line"
+                      ng-repeat="job in jobParams.jobs | filter: jobParams.selectedOwnershipFilter.criteria "
+                      ng-show="filteredJobStatuses.indexOf(job.status) > -1"
+                      ng-click="selectJob(job)"
+                      ng-class="{active: job.id == jobParams.selectedJob.id}">
 
-                <div class="col-xs-11" ng-click="toggleJobGroup(serviceName)">
-                    <label>{{serviceName}}</label>
-                </div>
-
-                <div class="col-xs-1 no-padding expander">
-                    <i class="material-icons"
-                       ng-show="!isJobGroupOpened(serviceName)"
-                       ng-click="toggleJobGroup(serviceName)"
-                       aria-label="Show Job Details"
-                       uib-tooltip="Show Job Details"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_less
-                    </i>
-                    <i class="material-icons"
-                       ng-show="isJobGroupOpened(serviceName)"
-                       ng-click="toggleJobGroup(serviceName)"
-                       aria-label="Hide Job Details"
-                       uib-tooltip="Hide Job Details"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_more
-                    </i>
-                </div>
-
+            <div class="md-avatar" alt="{{job.stage}}" style="{{getColor(job.status)}}" ng-click="selectJob(job)">
+                <i class="material-icons" ng-if="job.status === 'COMPLETED'">done</i>
+                <i class="material-icons" ng-if="job.status === 'ERROR'">error</i>
+                <i class="material-icons" ng-if="job.status === 'RUNNING'">hourglass_empty</i>
             </div>
 
-            <md-list-item class="md-3-line"
-                          ng-repeat="job in serviceJobs | filter: jobParams.selectedOwnershipFilter.criteria | orderBy: '-id'"
-                          ng-show="isJobGroupOpened(serviceName) && filteredJobStatuses.indexOf(job.status) > -1"
-                          ng-click="selectJob(job)"
-                          ng-class="{active: job.id == jobParams.selectedJob.id}">
-
-                <div class="md-avatar" alt="{{job.stage}}" style="{{getColor(job.status)}}">
-                    <i class="material-icons" ng-if="job.status === 'COMPLETED'">done</i>
-                    <i class="material-icons" ng-if="job.status === 'ERROR'">error</i>
-                    <i class="material-icons" ng-if="job.status === 'RUNNING'">hourglass_empty</i>
+            <div class="md-list-item-text" layout="row" ng-click="selectJob(job)">
+                <div class="col-md-12 no-padding">
+                    <h3>Job ID: {{job.id}} ({{job.serviceName}})</h3>
+                    <h4>Start: {{formatDateTime(job.startTime)}}</h4>
+                    <p>{{job.status}} - {{job.stage}}</p>
                 </div>
+            </div>
 
-                <div class="md-list-item-text" layout="column">
-                    <h3>Job ID: {{job.id}}</h3>
-                    <h4>{{job.stage}}</h4>
-                    <p>{{job.status}}</p>
-                </div>
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="hasGuiEndPoint(job)"
+                       href="{{job._links.gui.href}}"
+                       target="_blank"
+                       aria-label="Go to GUI"
+                       uib-tooltip="Go to GUI"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">exit_to_app</i>
+            </md-button>
 
-                <md-button class="toolbar-button md-secondary"
-                           ng-show="hasGuiEndPoint(job)"
-                           href="{{job._links.gui.href}}"
-                           target="_blank"
-                           aria-label="Go to GUI"
-                           uib-tooltip="Go to GUI"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
-                    <i class="material-icons">exit_to_app</i>
-                </md-button>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="shareObjectDialog($event, job, 'job', 'JobService', 'refreshSelectedJob')"
+                       aria-label="Share"
+                       uib-tooltip="Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true"
+                       has-permission="ADMIN"
+                       permission-source="{{job}}">
+                <i class="material-icons">share</i>
+            </md-button>
 
-                <md-button class="toolbar-button md-secondary"
-                           ng-click="shareObjectDialog($event, job, 'job', 'JobService', 'refreshSelectedJob')"
-                           aria-label="Share"
-                           uib-tooltip="Share"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true"
-                           has-permission="ADMIN"
-                           permission-source="{{job}}">
-                    <i class="material-icons">share</i>
-                </md-button>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="repeatJob(job)"
+                       aria-label="Re-run"
+                       uib-tooltip="Edit and re-run"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">replay</i>
+            </md-button>
 
-                <md-button class="toolbar-button md-secondary"
-                           ng-click="repeatJob(job)"
-                           aria-label="Re-run"
-                           uib-tooltip="Edit and re-run"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
-                    <i class="material-icons">replay</i>
-                </md-button>
+        </md-list-item>
 
-            </md-list-item>
+        <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>
 
-        </div>
     </section>
 
 </div>

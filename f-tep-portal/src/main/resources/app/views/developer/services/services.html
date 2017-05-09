@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <div class="item-list list">
+    <div class="item-list list" ng-if="serviceParams.services.length > 0">
         <md-list-item class="md-3-line"
                       ng-repeat="service in serviceParams.services | filter: serviceParams.searchText"
                       ng-click="selectService(service)"
@@ -66,6 +66,8 @@
             </md-button>
 
         </md-list-item>
+
+        <div id="paging" ftep-paging="{{serviceParams.pagingData}}"></div>
 
     </div>
 

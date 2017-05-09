@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', function (ftepProperties, $q, MessageService, traverson) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', function (ftepProperties, $q, MessageService, traverson, $mdDialog, $window) {
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -44,7 +44,21 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     deferred.resolve(document);
                 }, function (error) {
                     if (!timeout) {
-                        window.alert("Your session has expired. Please log in.");
+
+                        $mdDialog.show({
+                            controller: function ($scope, $window) {
+                                $scope.reloadRoute = function() {
+                                   $window.location.reload();
+                                };
+                                $scope.closeDialog = function() {
+                                    $mdDialog.hide();
+                                };
+                            },
+                            templateUrl: 'views/common/templates/timeout.tmpl.html',
+                            parent: angular.element(document.body),
+                            clickOutsideToClose: true
+                        });
+
                         MessageService.addError('No User Detected', error);
                         timeout = true;
                     }

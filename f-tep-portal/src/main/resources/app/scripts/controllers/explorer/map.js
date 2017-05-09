@@ -8,8 +8,8 @@
 define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
-    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService',
-                                    function($scope, $rootScope, $mdDialog, ftepProperties, MapService) {
+    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', '$timeout',
+                                    function($scope, $rootScope, $mdDialog, ftepProperties, MapService, $timeout) {
 
         var EPSG_3857 = "EPSG:3857", //Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
             EPSG_4326 = "EPSG:4326"; //Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
@@ -536,6 +536,13 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
 
         window.onresize = function() {
             $scope.map.updateSize();
+        };
+
+        /* Fixes map not loading on slow connection speeds */
+        $scope.updateMap = function() {
+            $timeout(function () {
+                $scope.map.updateSize();
+            }, 1000);
         };
 
 

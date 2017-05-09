@@ -14,26 +14,26 @@
 
     <section id="service-header">
         <div class="row">
-	        <div class="service-field col-md-2 no-padding">
-	            <md-input-container md-no-float>
-	                <label>Service Name</label>
-	                <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
-	            </md-input-container>
-	        </div>
-	        <div class="service-field col-md-2 no-padding">
-	            <md-input-container md-no-float>
-	                <label>Docker Tag</label>
-	                <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag*" required>
-	            </md-input-container>
-	        </div>
-	        <div class="col-md-7 service-field no-padding">
-	            <md-input-container id="service-description" md-no-float>
-	                <label>Description</label>
-	                <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
-	            </md-input-container>
-	        </div>
-	        <div class="col-md-1 service-field no-padding">
-	        </div>
+            <div class="service-field col-md-2 no-padding">
+                <md-input-container md-no-float>
+                    <label>Service Name</label>
+                    <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
+                </md-input-container>
+            </div>
+            <div class="service-field col-md-2 no-padding">
+                <md-input-container md-no-float>
+                    <label>Docker Tag</label>
+                    <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" disabled>
+                </md-input-container>
+            </div>
+            <div class="col-md-7 service-field no-padding">
+                <md-input-container id="service-description" md-no-float>
+                    <label>Description</label>
+                    <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
+                </md-input-container>
+            </div>
+            <div class="col-md-1 service-field no-padding">
+            </div>
         </div>
         <div class="row">
             <div class="service-field col-md-2 no-padding">
@@ -155,28 +155,28 @@
             </div>
             <div class="col-md-2">
                     <div class="col-md-10 no-padding">
-		                <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
-		                    <md-select ng-model="input.defaultAttrs.dataType" required>
-		                        <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType" ng-selected="$first">
-		                            {{type.dataType}}
-		                        </md-option>
-		                    </md-select>
-		                </md-input-container>
+                        <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
+                            <md-select ng-model="input.defaultAttrs.dataType" required>
+                                <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType" ng-selected="$first">
+                                    {{type.dataType}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
 
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'">
                             <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType" required/>
                         </md-input-container>
-	                </div>
-	                <div class="col-md-2 no-padding">
-	                   <md-button ng-click="editTypeDialog($event, input, constants)"
-		                   class="type-button"
-		                   aria-label="More"
-		                   uib-tooltip="More"
-		                   tooltip-trigger="mouseenter"
-		                   tooltip-append-to-body="true">
-		                    <i class="material-icons">edit</i>
-		                </md-button>
-	                </div>
+                    </div>
+                    <div class="col-md-2 no-padding">
+                       <md-button ng-click="editTypeDialog($event, input, constants)"
+                           class="type-button"
+                           aria-label="More"
+                           uib-tooltip="More"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                            <i class="material-icons">edit</i>
+                        </md-button>
+                    </div>
             </div>
             <div class="col-md-1 no-padding">
                 <md-input-container md-no-float>

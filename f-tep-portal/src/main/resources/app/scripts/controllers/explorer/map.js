@@ -384,10 +384,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             resultLayerFeatures.clear();
             if(results){
                 for(var folderNr = 0; folderNr < results.length; folderNr++){
-                    var isLONLAT = true;
-                    if(results[folderNr].datasource == 'CEDA2'){
-                        isLONLAT = false;
-                    }
                     if(results[folderNr].results && results[folderNr].results.entities && results[folderNr].results.entities.length > 0){
                         for(var i = 0; i < results[folderNr].results.entities.length; i++){
                             var item = results[folderNr].results.entities[i];
@@ -395,9 +391,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                             for(var k = 0; k < item.geo.coordinates.length; k++){
                                 for(var m = 0; m < item.geo.coordinates[k].length; m++){
                                     var p = item.geo.coordinates[k][m];
-                                    if(isLONLAT === false){
-                                        p = p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed.
-                                    }
                                     lonlatPoints.push(p);
                                 }
                             }
@@ -488,7 +481,6 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                         for(var k = 0; k < item.geometry.length; k++){
                            for(var m = 0; m < item.geometry[k].length; m++){
                               var p = angular.copy(item.geometry[k][m]);
-                              p.reverse(); //We get the coordinates as LAT,LON, but ol3 needs LON,LAT - so reverse is needed. // TODO still needed?
                               lonlatPoints.push(p);
                            }
                         }

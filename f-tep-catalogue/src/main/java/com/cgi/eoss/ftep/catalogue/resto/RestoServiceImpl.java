@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +81,7 @@ public class RestoServiceImpl implements RestoService {
                         return chain.proceed(authenticatedRequest);
                     }
                 })
+                .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
 
         this.restoCollections = CacheBuilder.newBuilder().build(new CollectionCacheLoader());
@@ -153,9 +155,11 @@ public class RestoServiceImpl implements RestoService {
             throw new IngestionException("Failed to get/create Resto collection", e);
         }
 
+        String geojson = GeoUtil.geojsonToString(object);
+        LOG.debug("Ingesting GeoJSON to {}: {}", geojson);
         Request request = new Request.Builder()
                 .url(url)
-                .post(RequestBody.create(MediaType.parse(APPLICATION_JSON_VALUE), GeoUtil.geojsonToString(object)))
+                .post(RequestBody.create(MediaType.parse(APPLICATION_JSON_VALUE), geojson))
                 .build();
 
         try (Response response = client.newCall(request).execute()) {

@@ -16,6 +16,8 @@ dependencies {
     compile project(':f-tep-rpc')
 
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+    compile 'com.squareup.okhttp3:okhttp'
+    compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.cache:cache-api'
     compile 'javax.servlet:javax.servlet-api'

@@ -18,6 +18,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind'
     compile 'com.jayway.jsonpath:json-path'
     compile 'com.squareup.okhttp3:okhttp'
+    compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'it.geosolutions:geoserver-manager'
     compile 'org.apache.commons:commons-lang3'

@@ -73,6 +73,7 @@ allprojects {
                 entry 'querydsl-jpa'
             }
             dependencySet(group: 'com.squareup.okhttp3', version: '3.7.0') {
+                entry 'logging-interceptor'
                 entry 'mockwebserver'
                 entry 'okhttp'
             }

@@ -24,11 +24,11 @@
     <section id="coins-container" class="column-container col-md-12 col-lg-4 no-padding">
 
         <md-card md-theme-watch>
-        <md-card-title>
-            <md-card-title-text>
-                <h2>Endorse Coins</h2>
-            </md-card-title-text>
-        </md-card-title>
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Endorse Coins</h2>
+                </md-card-title-text>
+            </md-card-title>
             <md-card-content>
                 <div ng-show="!userParams.selectedUser && !userParams.wallet">
                     <p>No user selected.</p>
@@ -37,7 +37,7 @@
                     <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
                     <p>User {{userParams.selectedUser.name}} has no wallet.</p>
                 </div>
-                <form id="addCoinsForm" name ="addCoinsForm" ng-show="userParams.selectedUser && userParams.wallet">
+                <form id="addCoinsForm" name="addCoinsForm" ng-show="userParams.selectedUser && userParams.wallet">
                     <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
                     <h4 class="md-subhead" ng-bind="'Coin Balance: ' + userParams.wallet.balance" />
                     <md-input-container class="md-block">
@@ -74,13 +74,13 @@
                 <div ng-show="!userParams.selectedUser && !userParams.wallet">
                     <p>No user selected.</p>
                 </div>
-                <form id="editRoleForm" name ="editRoleForm" ng-show="userParams.selectedUser">
+                <form id="editRoleForm" name="editRoleForm" ng-show="userParams.selectedUser">
                     <h3 class="md-headline" ng-bind="userParams.selectedUser.name" />
                     <h4 class="md-subhead" ng-bind="'Role: ' + userParams.userDetails.role" />
                     <md-input-container class="md-block">
                         <select class="form-control" ng-model="userParams.newRole" ng-options="role for role in roles"/>
                     </md-input-container>
-               </form>
+                </form>
             </md-card-content>
             <md-card-actions layout="row" layout-align="end center" ng-show="userParams.selectedUser">
                 <md-button id="update-role"

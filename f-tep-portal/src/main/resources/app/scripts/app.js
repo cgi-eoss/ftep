@@ -83,13 +83,13 @@ define([
                 controller: 'AdminCtrl',
                 controllerAs: 'admin',
                 resolve:{
-                    "check":function($location, UserService){
+                    "check": ['$location', 'UserService', function($location, UserService) {
                         UserService.getCurrentUser().then(function(user){
                             if(user.role !== 'ADMIN'){
                                 $location.path('/');  //redirect to homepage
                             }
                         });
-                    }
+                    }]
                 }
             })
             .otherwise({

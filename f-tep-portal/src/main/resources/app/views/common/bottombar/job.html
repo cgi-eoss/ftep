@@ -69,16 +69,16 @@
     </section>
 
     <section class="job-details" ng-if="jobTab == 'OUTPUTS'">
-        <ul class="job-files no-margin" ng-show="jobParams.selectedJob.outputs">
-            <li ng-repeat="(key, file) in jobParams.selectedJob.outputs.result"
+        <ul class="job-files no-margin" ng-show="jobParams.selectedJob.downloadLinks">
+            <li ng-repeat="(key, fileUrl) in jobParams.selectedJob.downloadLinks"
                 class="job-detail"
-                ng-click="selectOutputFile(file)"
-                ng-class="isOutputSelected(file) ? 'resulthighlight' : 'resultnormal'"
-                dnd-draggable="getSelectedOutputFiles(file)">
+                ng-click="selectOutputFile(fileUrl)"
+                ng-class="isOutputSelected(fileUrl) ? 'resulthighlight' : 'resultnormal'"
+                dnd-draggable="getSelectedOutputFiles(fileUrl)">
                 <div class="row">
-                    <div class="col-xs-11">{{file}}</div>
+                    <div class="col-xs-11">{{key}}</div>
                     <div class="col-xs-1 download">
-                        <a ng-href="{{jobParams.selectedJob.outputs.links[key]}}" target="_self">
+                        <a ng-href="{{fileUrl}}" target="_self">
                             <i class="material-icons"
                                aria-label="Download"
                                uib-tooltip="Download"

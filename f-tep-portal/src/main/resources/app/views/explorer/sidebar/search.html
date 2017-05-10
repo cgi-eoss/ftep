@@ -109,16 +109,13 @@
                 </div>
 
                 <div class="row">
-                    <md-radio-group ng-model="searchParameters.mission">
-                        <div class="radio-item col-xs-12 col-sm-6 col-md-6 no-padding" ng-repeat="mission in missions">
-                            <md-radio-button ng-required="missionValidator()"
-                                             ng-click="updateMissionParameters(mission)"
-                                             ng-value="mission"
-                                             aria-label="{{mission.name}}">
-                                {{mission.name}}
-                            </md-radio-button>
-                        </div>
-                    </md-radio-group>
+	                <div class="col-xs-12">
+	                    <md-select ng-model="searchParameters.mission" ng-change="updateMissionParameters(searchParameters.mission)">
+		                    <md-option ng-repeat="mission in missions" ng-value="mission">
+		                        {{mission.name}}
+		                    </md-option>
+	                    </md-select>
+                    </div>
                 </div>
             </div>
 

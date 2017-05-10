@@ -72,12 +72,17 @@ define(['../ftepmodules'], function (ftepmodules) {
             }
 
             if (this.searchParameters.mission) {
-                params.mission = this.searchParameters.mission.name;
+                if(['Sentinel-1', 'Sentinel-2'].indexOf(this.searchParameters.mission.name) > -1){
+                    params.mission = this.searchParameters.mission.name;
+                }
+                else {
+                    params.platform = this.searchParameters.mission.name;
+                }
 
-                if (this.searchParameters.mission.name.indexOf('1') > -1 && this.searchParameters.polarisation) {
+                if (this.searchParameters.mission.name === 'Sentinel-1' && this.searchParameters.polarisation) {
                     params.polarisation = this.searchParameters.polarisation.label;
                 }
-                else if (this.searchParameters.mission.name.indexOf('2') > -1) {
+                else if (['Sentinel-2', 'Landsat-5', 'Landsat-7', 'Landsat-8'].indexOf(this.searchParameters.mission.name) > -1) {
                     params.maxCloudCoverPercentage = this.searchParameters.maxCloudCover;
                 }
             }
@@ -184,6 +189,15 @@ define(['../ftepmodules'], function (ftepmodules) {
             }, {
                 name: "Sentinel-2",
                 id: 1
+            }, {
+                name: "Landsat-5",
+                id: 2
+            }, {
+                name: "Landsat-7",
+                id: 3
+            }, {
+                name: "Landsat-8",
+                id: 4
             }
         ];
 

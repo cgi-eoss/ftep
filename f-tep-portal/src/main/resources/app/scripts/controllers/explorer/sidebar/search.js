@@ -92,32 +92,17 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             /** ----- MISSIONS ----- **/
 
-            function isSentinel1(mission){
-                if(mission && mission.name){
-                    return mission.name.indexOf('1') > -1 ? true : false;
-                } else {
-                    return false;
-                }
-            }
-
-            function isSentinel2(mission){
-                if(mission && mission.name){
-                    return mission.name.indexOf('2') > -1 ? true : false;
-                } else {
-                    return false;
-                }
-            }
-
             // Display additional parameters based on mission selection
             $scope.missionDetails = {
-                showPolar: isSentinel1($scope.searchParameters.mission),
-                showCoverage: isSentinel2($scope.searchParameters.mission)
+                showPolar: ($scope.searchParameters.mission && $scope.searchParameters.mission.name === 'Sentinel-1' ? true : false),
+                showCoverage: ($scope.searchParameters.mission &&
+                        ['Sentinel-2', 'Landsat-5', 'Landsat-7', 'Landsat-8'].indexOf($scope.searchParameters.mission.name) > -1 ? true : false)
             };
 
             $scope.updateMissionParameters = function (mission) {
                 // Display polorisation or coverage parameters based on selection
-                $scope.missionDetails.showPolar = isSentinel1(mission);
-                $scope.missionDetails.showCoverage = isSentinel2(mission);
+                $scope.missionDetails.showPolar = (mission && mission.name === 'Sentinel-1' ? true : false);
+                $scope.missionDetails.showCoverage = (mission && ['Sentinel-2', 'Landsat-5', 'Landsat-7', 'Landsat-8'].indexOf(mission.name) > -1 ? true : false);
             };
 
             /** ----- SEARCH BUTTON ----- **/

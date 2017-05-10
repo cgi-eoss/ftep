@@ -15,14 +15,16 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         function getErrorMessage (error) {
             var message = '';
-            if (typeof error === 'string') {
-               message = error;
-            } else if (error.data && error.data.errors && error.data.errors.length > 0) {
-                 message = error.data.errors[0].title;
-            } else if (error.data && typeof error.data === 'string' && error.data.indexOf('message') > 0) {
-                message = JSON.parse(error.data).message;
-            } else if (error.doc && error.doc.message) {
-                 message = error.doc.message;
+            if(error){
+                if (typeof error === 'string') {
+                   message = error;
+                } else if (error.data && error.data.errors && error.data.errors.length > 0) {
+                     message = error.data.errors[0].title;
+                } else if (error.data && typeof error.data === 'string' && error.data.indexOf('message') > 0) {
+                    message = JSON.parse(error.data).message;
+                } else if (error.doc && error.doc.message) {
+                     message = error.doc.message;
+                }
             }
             return message;
         }

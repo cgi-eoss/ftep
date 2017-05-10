@@ -64,15 +64,11 @@ define(['../ftepmodules'], function (ftepmodules) {
                     sat: this.dataSources[0].id === this.searchParameters.selectedDatasource.id,
                     tep: this.dataSources[1].id === this.searchParameters.selectedDatasource.id,
                     ref: this.dataSources[2].id === this.searchParameters.selectedDatasource.id
-            }; //TODO ref data
+            };
 
-            var searchAOI = MapService.getSearchAOI();
+            var searchAOI = MapService.getPolygonWkt();
             if(searchAOI){
-                var bboxVal = [];
-                for(var i = 0; i < searchAOI.length; i++){
-                    bboxVal[i] = searchAOI[i].toFixed(0);
-                }
-                params.bbox = bboxVal.toString();
+                params.geometry = searchAOI;
             }
 
             if (this.searchParameters.mission) {

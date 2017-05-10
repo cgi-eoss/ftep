@@ -39,4 +39,8 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, JpaReposito
     @Query("select t from FtepService t where t.owner=user")
     Page<FtepService> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from FtepService t where not t.owner=user")
+    Page<FtepService> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

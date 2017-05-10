@@ -49,4 +49,8 @@ public interface FtepFilesApi extends BaseRepositoryApi<FtepFile>, FtepFilesApiC
     @Override
     @Query("select t from FtepFile t where t.owner=user")
     Page<FtepFile> findByOwner(@Param("owner") User user, Pageable pageable);
+
+    @Override
+    @Query("select t from FtepFile t where not t.owner=user")
+    Page<FtepFile> findByNotOwner(@Param("owner") User user, Pageable pageable);
 }

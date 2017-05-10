@@ -38,6 +38,11 @@ public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> im
         return getFilteredResults(getOwnerPath().eq(user), pageable);
     }
 
+    @Override
+    public Page<T> findByNotOwner(User user, Pageable pageable) {
+        return getFilteredResults(getOwnerPath().ne(user), pageable);
+    }
+
     Page<T> getFilteredResults(BooleanExpression expression, Pageable pageable) {
         if (getSecurityService().isSuperUser()) {
             return getDao().findAll(expression, pageable);

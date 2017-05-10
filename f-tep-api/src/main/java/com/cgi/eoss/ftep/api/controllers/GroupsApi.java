@@ -35,4 +35,8 @@ public interface GroupsApi extends BaseRepositoryApi<Group>, PagingAndSortingRep
     @Query("select t from Group t where t.owner=user")
     Page<Group> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from Group t where not t.owner=user")
+    Page<Group> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

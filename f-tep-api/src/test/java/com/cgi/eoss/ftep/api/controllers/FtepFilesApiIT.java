@@ -142,6 +142,26 @@ public class FtepFilesApiIT {
     }
 
     @Test
+    public void testFindByNotOwner() throws Exception {
+        String ftepUserUrl = JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/users/" + ftepUser.getId()).header("REMOTE_USER", ftepAdmin.getName())).andReturn().getResponse().getContentAsString()
+        );
+        String ftepAdminUrl = JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/users/" + ftepAdmin.getId()).header("REMOTE_USER", ftepAdmin.getName())).andReturn().getResponse().getContentAsString()
+        );
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByNotOwner?owner="+ftepUserUrl).header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(2));
+
+        mockMvc.perform(get("/api/ftepFiles/search/findByNotOwner?owner="+ftepAdminUrl).header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
+                .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(0));
+    }
+
+    @Test
     public void testSaveRefData() throws Exception {
         Resource fileResource = new ClassPathResource("/testFile1", FtepFilesApiIT.class);
         MockMultipartFile uploadFile = new MockMultipartFile("file", "testFile1", "text/plain", fileResource.getInputStream());

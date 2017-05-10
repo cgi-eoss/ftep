@@ -39,4 +39,8 @@ public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, PagingAnd
     @Query("select t from Databasket t where t.owner=user")
     Page<Databasket> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from Databasket t where not t.owner=user")
+    Page<Databasket> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

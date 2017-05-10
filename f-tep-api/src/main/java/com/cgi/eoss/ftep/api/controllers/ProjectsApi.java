@@ -39,4 +39,8 @@ public interface ProjectsApi extends BaseRepositoryApi<Project>, PagingAndSortin
     @Query("select t from Project t where t.owner=user")
     Page<Project> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from Project t where not t.owner=user")
+    Page<Project> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

@@ -80,14 +80,12 @@ javascript.source {
             srcDir "${projectDir}/src/main/resources/app/scripts"
             include "**/*.js"
             exclude "vendor/**/*"
-            exclude "zoo-client/**/*"
         }
     }
     vendor {
         js {
             srcDir "${projectDir}/src/main/resources/app/scripts"
             include "vendor/**/*.js"
-            include "zoo-client/**/*.js"
         }
     }
 }

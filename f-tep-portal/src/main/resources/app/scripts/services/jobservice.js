@@ -333,11 +333,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         });
 
                         if (self.params[page].selectedJob.outputs) {
-                            self.params[page].selectedJob.outputs.links = [];
+                            self.params[page].selectedJob.downloadLinks = {};
                             for (var itemKey in self.params[page].selectedJob.outputs) {
                                 if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
-                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob['output-' + itemKey].href).then(function (result) {
-                                        self.params[page].selectedJob.outputs.links.push(result._links.download.href);
+                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob._links['output-' + itemKey].href).then(function (result) {
+                                        var str = self.params[page].selectedJob.outputs[itemKey][0];
+                                        self.params[page].selectedJob.downloadLinks[self.params[page].selectedJob.outputs[itemKey][0]] =  result._links.download.href;;
                                     });
                                 }
                             }

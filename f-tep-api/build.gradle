@@ -16,12 +16,15 @@ dependencies {
     compile project(':f-tep-rpc')
 
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+    compile 'com.squareup.okhttp3:okhttp'
+    compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.cache:cache-api'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.ehcache:ehcache'
     compile 'org.springframework:spring-context'
+    compile 'org.springframework:spring-webmvc'
     compile 'org.springframework.boot:spring-boot-starter-cache'
     compile 'org.springframework.boot:spring-boot-starter-data-rest'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'

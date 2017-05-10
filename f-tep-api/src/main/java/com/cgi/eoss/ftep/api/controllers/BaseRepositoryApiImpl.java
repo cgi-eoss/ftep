@@ -35,13 +35,21 @@ public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> im
 
     @Override
     public Page<T> findByOwner(User user, Pageable pageable) {
-        BooleanExpression hasOwner = getOwnerPath().eq(user);
+        return getFilteredResults(getOwnerPath().eq(user), pageable);
+    }
+
+    @Override
+    public Page<T> findByNotOwner(User user, Pageable pageable) {
+        return getFilteredResults(getOwnerPath().ne(user), pageable);
+    }
+
+    Page<T> getFilteredResults(BooleanExpression expression, Pageable pageable) {
         if (getSecurityService().isSuperUser()) {
-            return getDao().findAll(hasOwner, pageable);
+            return getDao().findAll(expression, pageable);
         } else {
             Set<Long> visibleIds = getSecurityService().getVisibleObjectIds(getEntityClass(), getDao().findAllIds());
             BooleanExpression isVisible = getIdPath().in(visibleIds);
-            return getDao().findAll(hasOwner.and(isVisible), pageable);
+            return getDao().findAll(isVisible.and(expression), pageable);
         }
     }
 

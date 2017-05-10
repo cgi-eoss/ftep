@@ -43,4 +43,8 @@ public interface JobsApi extends BaseRepositoryApi<Job>, PagingAndSortingReposit
     @Query("select t from Job t where t.owner=user")
     Page<Job> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from Job t where not t.owner=user")
+    Page<Job> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

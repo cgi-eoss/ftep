@@ -52,4 +52,8 @@ public interface ServiceFilesApi extends BaseRepositoryApi<FtepServiceContextFil
     @Query("select t from FtepServiceContextFile t where t.service.owner=user")
     Page<FtepServiceContextFile> findByOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @Query("select t from FtepServiceContextFile t where not t.service.owner=user")
+    Page<FtepServiceContextFile> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
 }

@@ -40,22 +40,22 @@ allprojects {
         imports {
             mavenBom 'org.springframework:spring-framework-bom:4.3.8.RELEASE'
             mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Dalston.RELEASE'
-            mavenBom 'org.springframework.data:spring-data-releasetrain:Ingalls-SR1'
+            mavenBom 'org.springframework.data:spring-data-releasetrain:Ingalls-SR3'
             mavenBom 'org.springframework.security:spring-security-bom:4.2.2.RELEASE'
         }
 
         dependencies {
             dependency 'commons-io:commons-io:2.5'
             dependency 'commons-net:commons-net:3.6'
-            dependencySet(group: 'com.fasterxml.jackson.core', version: '2.8.7') {
+            dependencySet(group: 'com.fasterxml.jackson.core', version: '2.8.8') {
                 entry 'jackson-annotations'
                 entry 'jackson-core'
                 entry 'jackson-databind'
             }
-            dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.8.7') {
+            dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.8.8') {
                 entry 'jackson-dataformat-yaml'
             }
-            dependencySet(group: 'com.fasterxml.jackson.datatype', version: '2.8.7') {
+            dependencySet(group: 'com.fasterxml.jackson.datatype', version: '2.8.8') {
                 entry 'jackson-datatype-guava'
                 entry 'jackson-datatype-hibernate5'
             }
@@ -63,8 +63,8 @@ allprojects {
             dependency 'com.google.code.findbugs:jsr305:3.0.1'
             dependency 'com.google.guava:guava:21.0'
             dependency 'com.google.jimfs:jimfs:1.1'
-            dependency 'com.google.protobuf:protoc:3.2.0'
-            dependency 'com.hierynomus:sshj:0.21.0'
+            dependency 'com.google.protobuf:protoc:3.3.0'
+            dependency 'com.hierynomus:sshj:0.21.1'
             dependency 'com.jayway.jsonpath:json-path:2.2.0'
             dependency 'com.lmax:disruptor:3.3.6'
             dependencySet(group: 'com.querydsl', version: '4.1.4') {
@@ -73,6 +73,7 @@ allprojects {
                 entry 'querydsl-jpa'
             }
             dependencySet(group: 'com.squareup.okhttp3', version: '3.7.0') {
+                entry 'logging-interceptor'
                 entry 'mockwebserver'
                 entry 'okhttp'
             }
@@ -83,13 +84,13 @@ allprojects {
                 entry 'cucumber-junit'
                 entry 'cucumber-picocontainer'
             }
-            dependencySet(group: 'io.grpc', version: '1.2.0') {
+            dependencySet(group: 'io.grpc', version: '1.3.0') {
                 entry 'grpc-netty'
                 entry 'grpc-protobuf'
                 entry 'grpc-stub'
                 entry 'protoc-gen-grpc-java'
             }
-            dependency 'io.netty:netty-tcnative-boringssl-static:2.0.0.Final'
+            dependency 'io.netty:netty-tcnative-boringssl-static:2.0.1.Final'
             dependency 'it.geosolutions:geoserver-manager:1.7.0'
             dependency 'javax.cache:cache-api:1.0.0'
             dependency 'javax.servlet:javax.servlet-api:3.1.0'
@@ -99,7 +100,7 @@ allprojects {
             dependency 'org.aspectj:aspectjweaver:1.8.10'
             dependency 'org.awaitility:awaitility:2.0.0'
             dependency 'org.ehcache:ehcache:3.3.1'
-            dependency 'org.flywaydb:flyway-core:4.1.0'
+            dependency 'org.flywaydb:flyway-core:4.2.0'
             dependency 'org.freemarker:freemarker:2.3.26-incubating'
             dependencySet(group: 'org.geotools', version: '17.0') {
                 // project(':third-party/java/jai_core') must be manually included
@@ -116,15 +117,15 @@ allprojects {
             dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
             dependency 'org.hsqldb:hsqldb:2.4.0'
             dependency 'org.jooq:jool:0.9.12'
-            dependency 'org.lognet:grpc-spring-boot-starter:2.0.1'
+            dependency 'org.lognet:grpc-spring-boot-starter:2.0.3'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
-            dependency 'org.mockito:mockito-core:2.7.22'
+            dependency 'org.mockito:mockito-core:2.8.8'
             dependency 'org.pacesys:openstack4j-core:3.0.3'
             dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.0.3'
-            dependency 'org.postgresql:postgresql:42.0.0'
+            dependency 'org.postgresql:postgresql:42.1.1'
             dependency 'org.projectlombok:lombok:1.16.16'
-            dependency 'org.seleniumhq.selenium:selenium-java:3.3.0'
-            dependencySet(group: 'org.springframework.boot', version: '1.5.2.RELEASE') {
+            dependency 'org.seleniumhq.selenium:selenium-java:3.4.0'
+            dependencySet(group: 'org.springframework.boot', version: '1.5.3.RELEASE') {
                 entry 'spring-boot'
                 entry 'spring-boot-autoconfigure'
                 entry 'spring-boot-configuration-processor'
@@ -156,7 +157,7 @@ def depVersions = [
         protobufPlugin               : '0.8.1',
         shadowPlugin                 : '1.2.4',
         shadowLog4j2TransformerPlugin: '1.0.1',
-        springBootPlugin             : '1.5.2.RELEASE'
+        springBootPlugin             : '1.5.3.RELEASE'
 ]
 
 ext.pl = [

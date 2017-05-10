@@ -90,14 +90,14 @@
 
       <md-tab label="Output">
         <md-content id="job-outputs" class="md-padding job-details-tab">
-            <table ng-show="jobParams.selectedJob.outputs">
-                <tr ng-repeat="(key, file) in jobParams.selectedJob.outputs.result">
+            <table ng-show="jobParams.selectedJob.downloadLinks">
+                <tr ng-repeat="(key, file) in jobParams.selectedJob.downloadLinks">
                     <td>
                         <span ng-show="key === 0">Files</span>
                     </td>
-                    <td ng-bind="file" />
+                    <td ng-bind="key" />
                     <td class="download">
-                        <a ng-href="{{jobParams.selectedJob.outputs.links[key]}}" target="_self">
+                        <a ng-href="{{file}}" target="_self">
                             <i class="material-icons"
                                aria-label="Download"
                                uib-tooltip="Download"

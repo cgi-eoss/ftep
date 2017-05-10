@@ -5,7 +5,6 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.QFtepFile;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
@@ -42,15 +39,7 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
 
     @Override
     public Page<FtepFile> findByType(@Param("type") FtepFile.Type type, Pageable pageable) {
-        BooleanExpression isType = QFtepFile.ftepFile.type.eq(type);
-
-        if (getSecurityService().isSuperUser()) {
-            return getDao().findAll(isType, pageable);
-        } else {
-            Set<Long> visibleIds = getSecurityService().getVisibleObjectIds(getEntityClass(), getDao().findAllIds());
-            BooleanExpression isVisible = QFtepFile.ftepFile.id.in(visibleIds);
-            return getDao().findAll(isType.and(isVisible), pageable);
-        }
+        return getFilteredResults(QFtepFile.ftepFile.type.eq(type), pageable);
     }
 
 }

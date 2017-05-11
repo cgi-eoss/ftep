@@ -119,27 +119,18 @@
       <md-tab label="Input">
         <md-content id="job-inputs" class="md-padding job-details-tab">
             <table>
-                <tr ng-repeat="(key, file) in jobParams.selectedJob.config.inputs.inputfile">
+                <tr ng-repeat="(key, value) in jobParams.selectedJob.config.inputs">
+                    <td ng-bind="key" />
                     <td>
-                        <span ng-show="key === 0">Files</span>
+                        <div ng-repeat="link in value">
+                            <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
+                            <div ng-if="link.includes('ftp')">
+                                <div ng-repeat="file in splitInputFiles(link)">
+                                    <a href="file" ng-bind="file" />
+                                </div>
+                            </div>
+                        </div>
                     </td>
-                    <td ng-bind="file" />
-                </tr>
-                <tr>
-                    <td>Vegetation Index</td>
-                    <td ng-bind="jobParams.selectedJob.config.inputs.vegIndex" />
-                </tr>
-                <tr>
-                    <td>Area of Interest</td>
-                    <td ng-bind="jobParams.selectedJob.config.inputs.aoi" />
-                </tr>
-                <tr>
-                    <td>Target Resolution</td>
-                    <td ng-bind="jobParams.selectedJob.config.inputs.targetResolution" />
-                </tr>
-                <tr>
-                    <td>Coordinate Reference System</td>
-                    <td ng-bind="jobParams.selectedJob.config.inputs.crs" />
                 </tr>
             </table>
         </md-content>

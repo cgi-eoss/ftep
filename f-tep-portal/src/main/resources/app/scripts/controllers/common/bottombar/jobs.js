@@ -144,5 +144,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 return $scope.jobParams.jobSelectedOutputs.indexOf(item) > -1;
             };
 
+            /* Split files for input tab */
+            $scope.splitInputFiles = function(link) {
+                return link.split(',');
+            };
+
     }]);
 });

@@ -398,6 +398,11 @@
 }
 #job .job-details .job-files .job-detail .key {
   font-weight: bold;
+  vertical-align: top;
+}
+#job .job-details .job-files .job-detail .key,
+#job .job-details .job-files .job-detail .value {
+  padding: 0 0.5rem;
 }
 #job .job-details .job-files .job-detail:hover {
   background-color: #d9edf7;

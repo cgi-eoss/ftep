@@ -47,6 +47,9 @@
                                 <div class="col-md-2">
                                     <p>Size: {{item.size | bytesToGB}}</p>
                                 </div>
+                                <div class="col-md-3" ng-if="hasCloudCoverage(item)">
+                                    <p>Cloud Coverage: {{item.details.misc.quality_info['Cloud Coverage Assessment']}}</p>
+                                </div>
 
                             </div>
 

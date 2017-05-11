@@ -8,26 +8,25 @@
 class RestoModel_Ftep_Output extends RestoModel
 {
 
-
     /*
      * Properties mapping between RESTo model and input GeoJSON Feature file
      * 'propertyNameInInputFile' => 'restoPropertyName'
      */
     public $inputMapping = array(
+        'properties.productIdentifier' => 'productIdentifier',
         'properties.jobId'             => 'jobId',
         'properties.intJobId'          => 'intJobId',
         'properties.serviceName'       => 'serviceName',
         'properties.jobOwner'          => 'jobOwner',
-        'properties.jobStartDate'      => 'jobStartDate',
-        'properties.jobEndDate'        => 'jobEndDate',
+        'properties.jobStartTime'      => 'jobStartDate',
+        'properties.jobEndTime'        => 'jobEndDate',
         'properties.filename'          => 'filename',
-        'properties.productIdentifier' => 'productIdentifier',
         'properties.ftepUrl'           => 'ftepUrl',
-        'properties.wms'               => 'wms',
         'properties.resource'          => 'resource',
         'properties.resourceMimeType'  => 'resourceMimeType',
         'properties.resourceSize'      => 'resourceSize',
         'properties.resourceChecksum'  => 'resourceChecksum',
+        'properties.extraParams'       => 'ftepparam'
     );
 
     public $extendedProperties = array(
@@ -142,14 +141,4 @@ class RestoModel_Ftep_Output extends RestoModel
         $this->searchFilters = array_merge($this->searchFilters, $this->extendedSearchFilters);
     }
 
-    /**
-     * Generate WMS url
-     *
-     * @param $properties
-     * @return string
-     */
-    public function generateWMSUrl($properties)
-    {
-        return $properties['wms'];
-    }
 }

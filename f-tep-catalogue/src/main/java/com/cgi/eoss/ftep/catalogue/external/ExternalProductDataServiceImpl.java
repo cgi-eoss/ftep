@@ -34,13 +34,18 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         // TODO Handle non-feature objects?
         Feature feature = (Feature) geoJson;
 
-        String productId = feature.getProperty("productId");
-        URI uri = CatalogueUri.valueOf(feature.getProperty("type")).build(ImmutableMap.of("productId", productId));
+        String productSource = feature.getProperty("productSource");
+        String productId = feature.getProperty("productIdentifier");
+
+        URI uri = getUri(productSource, productId);
+
+        // The F-TEP internal URI is the only generated property
+        feature.getProperties().put("ftepUrl", uri);
 
         return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {
             UUID restoId;
             try {
-                restoId = resto.ingestExternalProduct("external_" + feature.getProperty("type"), feature);
+                restoId = resto.ingestExternalProduct("external_" + feature.getProperty("productSource"), feature);
                 LOG.info("Ingested external product with Resto id {} and URI {}", restoId, uri);
             } catch (Exception e) {
                 LOG.error("Failed to ingest external product to Resto, continuing...", e);
@@ -51,6 +56,18 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
             ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
             return ftepFileDataService.save(ftepFile);
         });
+    }
+
+    private URI getUri(String productSource, String productId) {
+        URI uri;
+        try {
+            CatalogueUri productSourceUrl = CatalogueUri.valueOf(productSource);
+            uri = productSourceUrl.build(ImmutableMap.of("productId", productId));
+        } catch (IllegalArgumentException e) {
+            uri = URI.create(productSource + ":///" + productId);
+            LOG.debug("Could not build a well-designed F-TEP URI handler, returning automatic: {}", uri, e);
+        }
+        return uri;
     }
 
     @Override

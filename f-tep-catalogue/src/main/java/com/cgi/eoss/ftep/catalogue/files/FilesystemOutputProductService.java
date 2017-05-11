@@ -6,7 +6,7 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
-import com.google.common.base.Strings;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
@@ -33,12 +33,14 @@ public class FilesystemOutputProductService implements OutputProductService {
     private final Path outputProductBasedir;
     private final RestoService resto;
     private final GeoserverService geoserver;
+    private final ObjectMapper jsonMapper;
 
     @Autowired
-    public FilesystemOutputProductService(@Qualifier("outputProductBasedir") Path outputProductBasedir, RestoService resto, GeoserverService geoserver) {
+    public FilesystemOutputProductService(@Qualifier("outputProductBasedir") Path outputProductBasedir, RestoService resto, GeoserverService geoserver, ObjectMapper jsonMapper) {
         this.outputProductBasedir = outputProductBasedir;
         this.resto = resto;
         this.geoserver = geoserver;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -71,13 +73,12 @@ public class FilesystemOutputProductService implements OutputProductService {
         // Add automatically-determined properties
         properties.put("productIdentifier", jobId + "_" + filename);
         properties.put("ftepUrl", uri);
-        if (!Strings.isNullOrEmpty(geoserverUrl)) {
-            properties.put("properties.wms", geoserverUrl);
-        }
         // TODO Get the proper MIME type
-        properties.put("properties.resourceMimeType", "application/unknown");
-        properties.put("properties.resourceSize", Files.size(dest));
-        properties.put("properties.resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
+        properties.put("resourceMimeType", "application/unknown");
+        properties.put("resourceSize", Files.size(dest));
+        properties.put("resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
+        // TODO Add extra properties if needed
+        properties.put("extraParams", jsonMapper.writeValueAsString(ImmutableMap.of()));
 
         Feature feature = new Feature();
         feature.setId(jobId + "_" + filename);

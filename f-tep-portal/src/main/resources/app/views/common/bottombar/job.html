@@ -72,9 +72,9 @@
         <ul class="job-files no-margin" ng-show="jobParams.selectedJob.downloadLinks">
             <li ng-repeat="(key, fileUrl) in jobParams.selectedJob.downloadLinks"
                 class="job-detail"
-                ng-click="selectOutputFile(fileUrl)"
-                ng-class="isOutputSelected(fileUrl) ? 'resulthighlight' : 'resultnormal'"
-                dnd-draggable="getSelectedOutputFiles(fileUrl)">
+                ng-click="selectOutputFile(key)"
+                ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'"
+                dnd-draggable="getSelectedOutputFiles(key)">
                 <div class="row">
                     <div class="col-xs-11">{{key}}</div>
                     <div class="col-xs-1 download">

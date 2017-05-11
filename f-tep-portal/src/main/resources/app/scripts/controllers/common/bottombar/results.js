@@ -179,5 +179,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     return dragObject;
                 };
 
+                $scope.hasCloudCoverage = function(item){
+                    return item.details && item.details.misc && item.details.misc.quality_info && item.details.misc.quality_info['Cloud Coverage Assessment'];
+                };
+
     } ]);
 });

@@ -35,11 +35,11 @@
             </div>
 
             <md-input-container md-no-float ng-show="groupParams.displayGroupFilters">
-                <input ng-model="groupSearch.searchText" type="text" placeholder="Search">
+                <input ng-model="groupParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="groupParams.displayGroupFilters">
-                <md-radio-group ng-model="groupParams.selectedOwnershipFilter">
+                <md-radio-group ng-model="groupParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in groupOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
                         <md-radio-button ng-value="ownershipFilter">
                             {{ownershipFilter.name}}
@@ -53,13 +53,13 @@
 
     <div class="row" ng-if="!groupParams.groups.length > 0">
         <div class="col-md-12 no-padding">
-            <div class="note">You have no groups. Create a group using the + button below.</div>
+            <div class="note">No groups found. To create a group use the + button below.</div>
         </div>
     </div>
 
     <div class="item-list list" ng-if="groupParams.groups.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, group) in groupParams.groups | filter: groupQuickSearch | filter: groupParams.selectedOwnershipFilter.criteria"
+                      ng-repeat="(key, group) in groupParams.groups"
                       ng-click="selectGroup(group)"
                       ng-class="{active: group.id == groupParams.selectedGroup.id}">
 

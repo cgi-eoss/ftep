@@ -34,15 +34,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.dbParams.databaskets = data;
         });
 
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            BasketService.stopPolling();
+        });
+
         /* Paging */
         $scope.getPage = function(url){
             BasketService.getDatabasketsPage('explorer', url);
         };
 
-        /* Stop Polling */
-        $scope.$on("$destroy", function() {
-            BasketService.stopPolling();
-        });
+        $scope.filter = function(){
+            BasketService.getDatabasketsByFilter('explorer');
+        };
 
         /* Edit existing databasket's name and description */
         $scope.editDatabasket = function($event, basket) {

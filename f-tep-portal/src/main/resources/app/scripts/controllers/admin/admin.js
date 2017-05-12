@@ -23,24 +23,14 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];
 
-        var allUsers;
-        UserService.getAllUsers().then(function (data) {
-            allUsers = data;
-        });
-
         $scope.searchUsers = function() {
             //reset data
             $scope.userParams.coins = 0;
             $scope.userParams.wallet = undefined;
 
-            var filteredItems = [];
-            var queryLower = angular.copy($scope.userParams.searchText).toLowerCase();
-
-            filteredItems = allUsers.filter(function(user) {
-                return (user.name.toLowerCase()).indexOf(queryLower) > -1;
+            return UserService.getUsersByFilter($scope.userParams.searchText).then(function(users){
+                return users;
             });
-
-            return filteredItems;
         };
 
         $scope.getUserData = function(){

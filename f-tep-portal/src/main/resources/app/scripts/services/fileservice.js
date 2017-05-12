@@ -19,14 +19,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.fileOwnershipFilters = {
-            ALL_FILES: { id: 0, name: 'All', criteria: ''},
-            MY_FILES: { id: 1, name: 'Mine', criteria: undefined },
-            SHARED_FILES: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_FILES: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_FILES: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_FILES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.fileOwnershipFilters.MY_FILES.criteria = { owner: {name: currentUser.name } };
-            self.fileOwnershipFilters.SHARED_FILES.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -43,7 +43,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnerhipFilter: self.fileOwnershipFilters.ALL_FILES
+                selectedOwnershipFilter: self.fileOwnershipFilters.ALL_FILES
              }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -247,8 +247,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
-        this.refreshFtepFiles = function (page, action, file) {
+        this.getFtepFilesByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/ftepFiles/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=filename&filter=' + (self.params[page].searchText ? self.params[page].searchText : '') +
+                    '&type=' + self.params[page].activeFileType;
 
+                if(self.params[page].selectedOwnershipFilter !== self.fileOwnershipFilters.ALL_FILES){
+                    url += '&owner=' + userUrl;
+                }
+
+                /* Get databasket list */
+                self.getFtepFiles(page, self.params[page].activeFileType, url).then(function (data) {
+                    self.params[page].files = data;
+                });
+            }
+        };
+
+        this.refreshFtepFiles = function (page, action, file) {
             if(self.params[page]){
 
                 self.getFtepFiles(page, self.params[page].activeFileType).then(function (data) {

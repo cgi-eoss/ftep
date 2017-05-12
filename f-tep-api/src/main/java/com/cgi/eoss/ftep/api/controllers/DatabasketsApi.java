@@ -9,15 +9,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @RepositoryRestResource(
         path = "databaskets",
         itemResourceRel = "databasket",
         collectionResourceRel = "databaskets",
         excerptProjection = ShortDatabasket.class)
-public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, PagingAndSortingRepository<Databasket, Long> {
+public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, DatabasketsApiCustom, PagingAndSortingRepository<Databasket, Long> {
 
     @Override
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
@@ -42,5 +46,20 @@ public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, PagingAnd
     @Override
     @Query("select t from Databasket t where not t.owner=user")
     Page<Databasket> findByNotOwner(@Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
+    @Query("select t from Databasket t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable);
+
+    @Override
+    @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
+    @Query("select t from Databasket t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
+    @Query("select t from Databasket t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
 }

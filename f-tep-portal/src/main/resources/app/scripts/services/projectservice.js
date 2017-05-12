@@ -18,14 +18,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.projectOwnershipFilters = {
-                ALL_PROJECTS: { id: 0, name: 'All', criteria: ''},
-                MY_PROJECTS: { id: 1, name: 'Mine', criteria: undefined },
-                SHARED_PROJECTS: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_PROJECTS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_PROJECTS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_PROJECTS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.projectOwnershipFilters.MY_PROJECTS.criteria = { owner: {name: currentUser.name } };
-            self.projectOwnershipFilters.SHARED_PROJECTS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -37,7 +37,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                   selectedProject: undefined,
                   displayFilters: false,
                   searchText: undefined,
-                  selectedOwnerhipFilter: this.projectOwnershipFilters.ALL_PROJECTS
+                  selectedOwnershipFilter: self.projectOwnershipFilters.ALL_PROJECTS
               },
               community: {
                   projects: undefined,
@@ -212,7 +212,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (self.params[page]) {
                 self.params[page].pollingUrl = url;
 
-                /* Get databasket list */
+                /* Get projects list */
+                getProjects(page).then(function (data) {
+                    self.params[page].projects = data;
+                });
+            }
+        };
+
+        this.getProjectsByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/projects/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.projectOwnershipFilters.ALL_PROJECTS){
+                    url += '&owner=' + userUrl;
+                }
+                self.params[page].pollingUrl = url;
+
+                /* Get projects list */
                 getProjects(page).then(function (data) {
                     self.params[page].projects = data;
                 });

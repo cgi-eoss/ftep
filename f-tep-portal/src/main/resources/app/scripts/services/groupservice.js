@@ -19,14 +19,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.groupOwnershipFilters = {
-            ALL_GROUPS: {id: 0, name: 'All', criteria: ''},
-            MY_GROUPS: {id: 1, name: 'Mine', criteria: undefined},
-            SHARED_GROUPS: {id: 2, name: 'Shared', criteria: undefined}
+            ALL_GROUPS: {id: 0, name: 'All',  searchUrl: 'search/findByFilterOnly'},
+            MY_GROUPS: {id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+            SHARED_GROUPS: {id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.groupOwnershipFilters.MY_GROUPS.criteria = { owner: {name: currentUser.name } };
-            self.groupOwnershipFilters.SHARED_GROUPS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         /** PRESERVE USER SELECTIONS **/
@@ -124,6 +124,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /* Fetch a new page */
         this.getGroupsPage = function(page, url){
             if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get groups list */
+                getGroups(page).then(function (data) {
+                    self.params[page].groups = data;
+                });
+            }
+        };
+
+        this.getGroupsByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/groups/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.groupOwnershipFilters.ALL_GROUPS){
+                    url += '&owner=' + userUrl;
+                }
                 self.params[page].pollingUrl = url;
 
                 /* Get groups list */

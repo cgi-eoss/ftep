@@ -29,15 +29,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.fileParams.files = data;
         });
 
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            FileService.stopPolling();
+        });
+
         /* Paging */
         $scope.getPage = function(url){
             FileService.getFtepFilesPage('community', url);
         };
 
-        /* Stop Polling */
-        $scope.$on("$destroy", function() {
-            FileService.stopPolling();
-        });
+        $scope.filter = function(){
+            FileService.getFtepFilesByFilter('community');
+        };
 
         /* Select a File */
         $scope.selectFile = function (item) {
@@ -48,18 +52,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Filters */
         $scope.toggleFilters = function () {
             $scope.fileParams.displayFilters = !$scope.fileParams.displayFilters;
-        };
-
-        $scope.itemSearch = {
-            searchText: $scope.fileParams.searchText
-        };
-
-        $scope.quickSearch = function (item) {
-            if (item.filename.toLowerCase().indexOf(
-                $scope.itemSearch.searchText.toLowerCase()) > -1) {
-                return true;
-            }
-            return false;
         };
 
         /* Add reference data */

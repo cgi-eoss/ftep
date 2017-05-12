@@ -13,6 +13,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                                            function ($scope, ProductService, CommonService, $mdDialog) {
 
         $scope.serviceParams = ProductService.params.development;
+        $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
         $scope.serviceForms = {files: {title: 'Files'}, dataInputs: {title: 'Input Definitions'}, dataOutputs: {title: 'Output Definitions'}};
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
         $scope.constants = {
@@ -38,14 +39,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.serviceParams.services = data;
         });
 
+        $scope.$on("$destroy", function() {
+            ProductService.stopPolling();
+        });
+
         /* Paging */
         $scope.getPage = function(url){
             ProductService.getServicesPage('development', url);
         };
 
-        $scope.$on("$destroy", function() {
-            ProductService.stopPolling();
-        });
+        $scope.filter = function(){
+            ProductService.getServicesByFilter('development');
+        };
 
         // The modes
         $scope.modes = ['Scheme', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];

@@ -24,13 +24,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.groupParams.groups = data;
         });
 
-        $scope.getPage = function(url){
-            GroupService.getGroupsPage('community', url);
-        };
-
+        /* Stop polling */
         $scope.$on("$destroy", function() {
             GroupService.stopPolling();
         });
+
+        $scope.filter = function(){
+            GroupService.getGroupsByFilter('community');
+        };
+
+        $scope.getPage = function(url){
+            GroupService.getGroupsPage('community', url);
+        };
 
         /* Select a Group */
         $scope.selectGroup = function (item) {
@@ -41,18 +46,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Filters */
         $scope.toggleGroupFilters = function () {
             $scope.groupParams.displayGroupFilters = !$scope.groupParams.displayGroupFilters;
-        };
-
-        $scope.groupSearch = {
-            searchText: $scope.groupParams.searchText
-        };
-
-        $scope.groupQuickSearch = function (group) {
-            if (group.name.toLowerCase().indexOf(
-                $scope.groupSearch.searchText.toLowerCase()) > -1) {
-                return true;
-            }
-            return false;
         };
 
         /* Create Group */

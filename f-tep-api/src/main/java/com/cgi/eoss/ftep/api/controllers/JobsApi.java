@@ -1,8 +1,13 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.Job.Status;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortJob;
+
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +20,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(path = "jobs", itemResourceRel = "job", collectionResourceRel = "jobs", excerptProjection = ShortJob.class)
-public interface JobsApi extends BaseRepositoryApi<Job>, PagingAndSortingRepository<Job, Long> {
+public interface JobsApi extends BaseRepositoryApi<Job>, JobsApiCustom, PagingAndSortingRepository<Job, Long> {
 
     @Override
     @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
@@ -47,4 +52,21 @@ public interface JobsApi extends BaseRepositoryApi<Job>, PagingAndSortingReposit
     @Query("select t from Job t where not t.owner=user")
     Page<Job> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
+    @Query("select t from Job t where t.id like filter and t.status in (status)")
+    Page<Job> findByIdContainsAndStatus(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
+            Pageable pageable);
+
+    @Override
+    @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
+    @Query("select t from Job t where t.id like filter and t.status in (status) and t.owner=user")
+    Page<Job> findByIdContainsAndStatusAndOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
+            @Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
+    @Query("select t from Job t where t.id like filter and t.status in (status) and not t.owner=user")
+    Page<Job> findByIdContainsAndStatusAndNotOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
+            @Param("owner") User user, Pageable pageable);
 }

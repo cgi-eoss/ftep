@@ -27,7 +27,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.contentsQuickSearch = function (item) {
             if (item.filename.toLowerCase().indexOf(
-                $scope.itemSearch.searchText.toLowerCase()) > -1) {
+                $scope.contentsSearch.searchText.toLowerCase()) > -1) {
                 return true;
             }
             return false;

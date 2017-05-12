@@ -30,6 +30,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             ProjectService.getProjectsPage('explorer', url);
         };
 
+        $scope.filter = function(){
+            ProjectService.getProjectsByFilter('explorer');
+        };
+
 
         /** CREATE PROJECT MODAL **/
         $scope.createProjectDialog = function($event) {

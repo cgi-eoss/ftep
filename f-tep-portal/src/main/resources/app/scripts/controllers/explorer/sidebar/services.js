@@ -5,11 +5,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                                  function ($scope, $rootScope, $sce, ProductService, TabService) {
 
             $scope.serviceParams = ProductService.params.explorer;
+            $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
 
             ProductService.refreshServices('explorer');
 
             $scope.getPage = function(url){
                 ProductService.getServicesPage('explorer', url);
+            };
+
+            $scope.filter = function(){
+                ProductService.getServicesByFilter('explorer');
             };
 
             /* Update Services when polling */
@@ -20,18 +25,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.$on("$destroy", function() {
                 ProductService.stopPolling();
             });
-
-            $scope.serviceSearch = {
-                searchText: $scope.serviceParams.searchText
-            };
-
-            $scope.serviceQuickSearch = function (item) {
-                if (item.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1||
-                    (item.description && item.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1)) {
-                    return true;
-                }
-                return false;
-            };
 
             $scope.selectService = function (service) {
                 $rootScope.$broadcast('update.selectedService', service);

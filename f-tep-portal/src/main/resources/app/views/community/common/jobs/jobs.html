@@ -37,20 +37,20 @@
             <div class="col-md-12 col-lg-4 filter-checkboxes"
                  ng-show="jobParams.displayFilters"
                  ng-repeat="jobStatus in jobParams.jobStatuses"
-                 ng-click="jobStatus.value = !jobStatus.value; filterJobs()">
+                 ng-click="jobStatus.value = !jobStatus.value; filter()">
                 <md-checkbox ng-model="jobStatus.value"
-                             ng-click="jobStatus.value = !jobStatus.value; filterJobs()"
+                             ng-click="jobStatus.value = !jobStatus.value; filter()"
                              aria-label="Job Filter">
                     {{jobStatus.title}}
                 </md-checkbox>
             </div>
 
             <md-input-container md-no-float ng-show="jobParams.displayFilters">
-                <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+                <input ng-model="jobParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="jobParams.displayFilters">
-                <md-radio-group ng-model="jobParams.selectedOwnershipFilter">
+                <md-radio-group ng-model="jobParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in jobOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
                         <md-radio-button ng-value="ownershipFilter">
                             {{ownershipFilter.name}}
@@ -64,14 +64,13 @@
 
     <div class="row" ng-if="!jobParams.jobs.length > 0">
         <div class="col-md-12 no-padding">
-            <div class="note">You have no {{item}}s.</div>
+            <div class="note">No jobs found.</div>
         </div>
     </div>
 
     <div class="item-list list" ng-if="jobParams.jobs.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, job) in jobParams.jobs | filter: quickSearch | filter: jobParams.selectedOwnershipFilter.criteria"
-                      ng-show="filteredJobStatuses.indexOf(job.status) > -1"
+                      ng-repeat="(key, job) in jobParams.jobs"
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">
 

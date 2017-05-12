@@ -25,13 +25,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.projectParams.projects = data;
         });
 
+        /* Stop polling */
+        $scope.$on("$destroy", function() {
+            ProjectService.stopPolling();
+        });
+
         $scope.getPage = function(url){
             ProjectService.getProjectsPage('community', url);
         };
 
-        $scope.$on("$destroy", function() {
-            ProjectService.stopPolling();
-        });
+        $scope.filter = function(){
+            ProjectService.getProjectsByFilter('community');
+        };
 
         /* Select a Project */
         $scope.selectProject = function (item) {
@@ -42,18 +47,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Filters */
         $scope.toggleFilters = function () {
             $scope.projectParams.displayFilters = !$scope.projectParams.displayFilters;
-        };
-
-        $scope.itemSearch = {
-            searchText: $scope.projectParams.searchText
-        };
-
-        $scope.quickSearch = function (item) {
-            if (item.name.toLowerCase().indexOf(
-                $scope.itemSearch.searchText.toLowerCase()) > -1) {
-                return true;
-            }
-            return false;
         };
 
         /* Create Project */

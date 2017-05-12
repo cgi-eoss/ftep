@@ -19,14 +19,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.serviceOwnershipFilters = {
-                ALL_SERVICES: { id: 0, name: 'All', criteria: ''},
-                MY_SERVICES: { id: 1, name: 'Mine', criteria: undefined },
-                SHARED_SERVICES: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_SERVICES: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_SERVICES: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_SERVICES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.serviceOwnershipFilters.MY_SERVICES.criteria = { owner: {name: currentUser.name } };
-            self.serviceOwnershipFilters.SHARED_SERVICES.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         this.params = {
@@ -35,6 +35,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pollingUrl: rootUri + '/services?sort=type,name',
                 pagingData: {},
                 selectedService: undefined,
+                selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
                 searchText: '',
                 inputValues: {},
                 dropLists: {}
@@ -63,6 +64,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 displayFilters: false,
                 displayRight: false,
                 selectedService: undefined,
+                selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
                 selectedServiceFileTab: 1
             }
         };
@@ -186,7 +188,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (self.params[page]) {
                 self.params[page].pollingUrl = url;
 
-                /* Get databasket list */
+                /* Get services list */
+                getUserServices(page).then(function (data) {
+                    self.params[page].services = data;
+                });
+            }
+        };
+
+        this.getServicesByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/services/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=type,name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.serviceOwnershipFilters.ALL_SERVICES){
+                    url += '&owner=' + userUrl;
+                }
+                self.params[page].pollingUrl = url;
+
+                /* Get services list */
                 getUserServices(page).then(function (data) {
                     self.params[page].services = data;
                 });

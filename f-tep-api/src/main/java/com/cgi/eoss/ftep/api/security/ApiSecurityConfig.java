@@ -51,7 +51,6 @@ public class ApiSecurityConfig {
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();
-                // No cors() allowed in SSO context
                 httpSecurity
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

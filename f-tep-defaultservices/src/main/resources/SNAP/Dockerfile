@@ -46,7 +46,7 @@ ENV \
 
 RUN wget $STB_URL/$TBX && chmod +x $TBX
 
-COPY snap.varfile /tmp/snap.varfile
+RUN echo -e "deleteAllSnapEngineDir\$Boolean=false\ndeleteOnlySnapDesktopDir\$Boolean=false\nexecuteLauncherWithPythonAction\$Boolean=false\nforcePython\$Boolean=false\npythonExecutable=/usr/bin/python\nsys.adminRights\$Boolean=true\nsys.component.RSTB\$Boolean=true\nsys.component.S1TBX\$Boolean=true\nsys.component.S2TBX\$Boolean=true\nsys.component.S3TBX\$Boolean=true\nsys.component.SNAP\$Boolean=true\nsys.installationDir=/opt/snap\nsys.languageId=en\nsys.programGroupDisabled\$Boolean=false\nsys.symlinkDir=/usr/local/bin" >/tmp/snap.varfile
 
 RUN ./$TBX -q -varfile /tmp/snap.varfile
 

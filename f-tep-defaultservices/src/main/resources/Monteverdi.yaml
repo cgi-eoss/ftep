@@ -1,7 +1,7 @@
 ---
 id: "Monteverdi"
 title: "Start the Orfeo Toolbox Monteverdi Desktop Application"
-description: "Graphical Application"
+description: "The Monteverdi Image Processing Graphical User Application (GUI)"
 version: "1.0"
 storeSupported: true
 statusSupported: true

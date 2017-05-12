@@ -27,7 +27,7 @@ LABEL snap.version="${SNAP_MAJ_VER}.${SNAP_MIN_VER}.${SNAP_POINT_VER}"
 RUN curl -sL "${SNAP_BASE_URL}/${SNAP_INSTALLER}" >/var/tmp/${SNAP_INSTALLER}
 
 # Install SNAP
-COPY SNAP_install.varfile /var/tmp/SNAP_install.varfile
+RUN echo -e "deleteAllSnapEngineDir\$Boolean=false\ndeleteOnlySnapDesktopDir\$Boolean=false\nexecuteLauncherWithPythonAction\$Boolean=false\nforcePython\$Boolean=false\npythonExecutable=/usr/bin/python\nsys.adminRights\$Boolean=true\nsys.component.RSTB\$Boolean=false\nsys.component.S1TBX\$Boolean=true\nsys.component.S2TBX$Boolean=true\nsys.component.S3TBX\$Boolean=false\nsys.component.SNAP\$Boolean=false\nsys.installationDir=/opt/snap\nsys.languageId=en\nsys.programGroupDisabled\$Boolean=false\nsys.symlinkDir=/usr/local/bin" >/var/tmp/SNAP_install.varfile
 RUN sh /var/tmp/${SNAP_INSTALLER} -q -varfile /var/tmp/SNAP_install.varfile
 
 ##########################

@@ -1,7 +1,7 @@
 ---
 id: "LandCoverS1"
 title: "Calculate land coverage (a forest map) from Sentinel-1 SAR data"
-description: "Land cover map, with image classification trained by Random Forest model"
+description: "Land cover mapping of Sentinel-1 images, with image classification trained by Random Forest model"
 version: "1.0"
 storeSupported: true
 statusSupported: true

@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -110,6 +111,17 @@ public class FilesystemOutputProductService implements OutputProductService {
         }
         Files.createDirectories(outputPath.getParent());
         return outputPath;
+    }
+
+    @Override
+    public HttpUrl getWmsUrl(String jobId, String filename) {
+        return geoserver.getExternalUrl().newBuilder()
+                .addPathSegment(jobId)
+                .addPathSegment("wms")
+                .addQueryParameter("service", "WMS")
+                .addQueryParameter("version", "1.1.1")
+                .addQueryParameter("layers", jobId + ":" + filename)
+                .build();
     }
 
     @Override

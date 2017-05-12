@@ -49,6 +49,7 @@ class ftep::server (
 
   $geoserver_enabled                  = true,
   $geoserver_url                      = undef,
+  $geoserver_external_url             = undef,
   $geoserver_username                 = undef,
   $geoserver_password                 = undef,
 
@@ -98,6 +99,8 @@ class ftep::server (
   $real_api_email_request_header = pick($api_email_request_header, $ftep::globals::email_request_header)
 
   $real_geoserver_url = pick($geoserver_url, "${ftep::globals::base_url}${ftep::globals::context_path_geoserver}/")
+  $real_geoserver_external_url = pick($geoserver_external_url, "${ftep::globals::base_url}${
+    ftep::globals::context_path_geoserver}/")
   $real_geoserver_username = pick($geoserver_username, $ftep::globals::geoserver_ftep_username)
   $real_geoserver_password = pick($geoserver_username, $ftep::globals::geoserver_ftep_password)
 
@@ -169,6 +172,7 @@ class ftep::server (
       'refdata_dir'                        => "${ftep::common::datadir::data_basedir}/${refdata_dir}",
       'geoserver_enabled'                  => $geoserver_enabled,
       'geoserver_url'                      => $real_geoserver_url,
+      'geoserver_external_url'             => $real_geoserver_external_url,
       'geoserver_username'                 => $real_geoserver_username,
       'geoserver_password'                 => $real_geoserver_password,
       'resto_enabled'                      => $resto_enabled,

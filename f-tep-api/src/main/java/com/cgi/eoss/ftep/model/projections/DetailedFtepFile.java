@@ -22,6 +22,6 @@ public interface DetailedFtepFile extends EmbeddedId {
     String getFilename();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
     FtepPermission getAccessLevel();
-    @Value("#{@restoServiceImpl.getGeoJson(target)}")
+    @Value("#{@restoServiceImpl.getGeoJsonSafe(target)}")
     GeoJsonObject getMetadata();
 }

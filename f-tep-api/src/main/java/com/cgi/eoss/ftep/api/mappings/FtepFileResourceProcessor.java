@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.api.mappings;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
@@ -16,16 +18,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FtepFileResourceProcessor implements ResourceProcessor<Resource<FtepFile>> {
     private final RepositoryEntityLinks entityLinks;
+    private final CatalogueService catalogueService;
 
     @Override
     public Resource<FtepFile> process(Resource<FtepFile> resource) {
+        FtepFile ftepFile = resource.getContent();
+
         if (resource.getLink("self") == null) {
-            resource.add(entityLinks.linkToSingleResource(resource.getContent()).withSelfRel().expand());
-            resource.add(entityLinks.linkToSingleResource(resource.getContent()));
+            resource.add(entityLinks.linkToSingleResource(ftepFile).withSelfRel().expand());
+            resource.add(entityLinks.linkToSingleResource(ftepFile));
         }
 
         // TODO Do this properly with a method reference
         resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
+
+        String wmsLink = catalogueService.getWmsUrl(ftepFile);
+        if (!Strings.isNullOrEmpty(wmsLink)) {
+            resource.add(new Link(wmsLink).withRel("wms"));
+        }
 
         return resource;
     }

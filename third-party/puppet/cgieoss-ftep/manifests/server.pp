@@ -99,8 +99,8 @@ class ftep::server (
   $real_api_email_request_header = pick($api_email_request_header, $ftep::globals::email_request_header)
 
   $real_geoserver_url = pick($geoserver_url, "${ftep::globals::base_url}${ftep::globals::context_path_geoserver}/")
-  $real_geoserver_external_url = pick($geoserver_external_url, "${ftep::globals::base_url}${
-    ftep::globals::context_path_geoserver}/")
+  $real_geoserver_external_url = pick($geoserver_external_url,
+    "${ftep::globals::base_url}${ftep::globals::context_path_geoserver}/")
   $real_geoserver_username = pick($geoserver_username, $ftep::globals::geoserver_ftep_username)
   $real_geoserver_password = pick($geoserver_username, $ftep::globals::geoserver_ftep_password)
 

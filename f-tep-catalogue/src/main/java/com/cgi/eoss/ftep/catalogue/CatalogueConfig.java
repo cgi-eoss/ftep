@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue;
 
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,11 @@ public class CatalogueConfig {
     @Bean
     public Path referenceDataBasedir(@Value("${ftep.catalogue.refData.baseDir:/data/refData}") String baseDir) {
         return Paths.get(baseDir);
+    }
+
+    @Bean
+    public ObjectMapper jsonMapper() {
+        return new ObjectMapper();
     }
 
 }

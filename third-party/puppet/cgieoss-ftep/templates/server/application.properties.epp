@@ -28,6 +28,7 @@
 
     Boolean $geoserver_enabled,
     String $geoserver_url,
+    String $geoserver_external_url,
     String $geoserver_username,
     String $geoserver_password,
 
@@ -97,6 +98,7 @@ ftep.catalogue.outputProducts.baseDir=<%= $output_products_dir %>
 ftep.catalogue.refData.baseDir=<%= $refdata_dir %>
 ftep.catalogue.geoserver.enabled=<%= $geoserver_enabled %>
 ftep.catalogue.geoserver.url=<%= $geoserver_url %>
+ftep.catalogue.geoserver.externalUrl=<%= $geoserver_external_url %>
 ftep.catalogue.geoserver.username=<%= $geoserver_username %>
 ftep.catalogue.geoserver.password=<%= $geoserver_password %>
 ftep.catalogue.resto.enabled=<%= $resto_enabled %>

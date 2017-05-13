@@ -1,7 +1,7 @@
 ---
 id: "QGIS"
 title: "Start the QGIS Desktop Application"
-description: "Graphical Application"
+description: "Quantum GIS - A GUI Geographical Information Package"
 version: "1.0"
 storeSupported: true
 statusSupported: true

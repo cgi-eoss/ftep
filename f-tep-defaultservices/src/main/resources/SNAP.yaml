@@ -1,7 +1,7 @@
 ---
 id: "SNAP"
 title: "Start the SNAP Desktop Application"
-description: "Graphical Application"
+description: "The Sentinel Applications Platform v5.0 - A Graphical User Application"
 version: "1.0"
 storeSupported: true
 statusSupported: true

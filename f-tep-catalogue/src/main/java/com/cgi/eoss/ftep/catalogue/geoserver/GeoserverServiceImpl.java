@@ -9,7 +9,9 @@ import it.geosolutions.geoserver.rest.decoder.RESTCoverageStore;
 import it.geosolutions.geoserver.rest.encoder.GSLayerEncoder;
 import it.geosolutions.geoserver.rest.encoder.GSResourceEncoder;
 import it.geosolutions.geoserver.rest.encoder.coverage.GSCoverageEncoder;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,8 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     private static final String RASTER_STYLE = "raster";
 
+    @Getter
+    private final HttpUrl externalUrl;
     private final GeoServerRESTPublisher publisher;
     private final GeoServerRESTReader reader;
 
@@ -36,8 +40,10 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     @Autowired
     public GeoserverServiceImpl(@Value("${ftep.catalogue.geoserver.url:http://ftep-geoserver:9080/geoserver/}") String url,
+                                @Value("${ftep.catalogue.geoserver.externalUrl:http://ftep-geoserver:9080/geoserver/}") String externalUrl,
                                 @Value("${ftep.catalogue.geoserver.username:ftepgeoserver}") String username,
                                 @Value("${ftep.catalogue.geoserver.password:ftepgeoserverpass}") String password) throws MalformedURLException {
+        this.externalUrl = HttpUrl.parse(externalUrl);
         GeoServerRESTManager geoserver = new GeoServerRESTManager(new URL(url), username, password);
         this.publisher = geoserver.getPublisher();
         this.reader = geoserver.getReader();

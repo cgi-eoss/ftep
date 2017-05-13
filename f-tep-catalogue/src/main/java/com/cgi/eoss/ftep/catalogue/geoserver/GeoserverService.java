@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.catalogue.geoserver;
 
+import okhttp3.HttpUrl;
+
 import java.nio.file.Path;
 
 /**
@@ -15,4 +17,7 @@ public interface GeoserverService {
      * <p>Delete the layer with the given name from the selected workspace.</p>
      */
     void delete(String workspace, String layerName);
+
+    HttpUrl getExternalUrl();
+
 }

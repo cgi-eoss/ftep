@@ -71,4 +71,13 @@ public interface CatalogueService {
      * @param file
      */
     void delete(FtepFile file) throws IOException;
+
+    /**
+     * <p>Generate an appropriate WMS URL for the given file.</p>
+     *
+     * @param ftepFile
+     * @return
+     */
+    String getWmsUrl(FtepFile ftepFile);
+
 }

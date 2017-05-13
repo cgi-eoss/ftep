@@ -20,6 +20,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             JobService.refreshSelectedJob('community');
         };
 
+        $scope.splitInputFiles = function(link) {
+            return link.split(',');
+        };
+
     }]);
 });
 

@@ -5,7 +5,7 @@ ipt: &IPT
   <<: *datasource_defaults
   parserClass: IPTResponseHandler
   endpoint: https://finder.eocloud.eu/resto/api/collections/
-  enabled: false
+  # enabled: false
   source_type: external
   config:
     mode: json
@@ -25,7 +25,7 @@ cems: &CEMS
     http.connect_timeout: 10,
     http.concurrency: 20
 
-    qlEndpoint: ftp://ftp.ceda.ac.uk
+    qlEndpoint: http://data.ceda.ac.uk
 
 ftep_products: &FTEP_PROD
   <<: *datasource_defaults

@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -169,12 +170,16 @@ public class ApiConfig {
                 httpSecurity
                         .csrf().disable();
                 httpSecurity
-                        .cors();
-                httpSecurity
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }
         };
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "ftep.api.security.cors", havingValue = "enabled", matchIfMissing = true)
+    public WebSecurityConfigurerAdapter corsWebSecurityConfigurerAdapter() {
+        return new CorsSecurityConfigurerAdapter();
     }
 
     @Bean
@@ -226,6 +231,15 @@ public class ApiConfig {
     @Bean
     public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
         return new AclPermissionEvaluator(aclService);
+    }
+
+    @Order(101)
+    private static class CorsSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity httpSecurity) throws Exception {
+            httpSecurity
+                    .cors();
+        }
     }
 
 }

@@ -32,5 +32,14 @@ public interface RestoService {
      */
     void deleteReferenceData(UUID restoId);
 
+    /**
+     * @return The Resto catalogue GeoJSON data for the given FtepFile.
+     */
     GeoJsonObject getGeoJson(FtepFile ftepFile);
+
+    /**
+     * @return The Resto catalogue GeoJSON data for the given FtepFile, or null if any exception is encountered.
+     */
+    GeoJsonObject getGeoJsonSafe(FtepFile ftepFile);
+
 }

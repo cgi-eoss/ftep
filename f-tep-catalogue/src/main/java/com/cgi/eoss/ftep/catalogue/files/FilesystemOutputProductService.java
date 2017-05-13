@@ -6,11 +6,12 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
-import com.google.common.base.Strings;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,12 +34,14 @@ public class FilesystemOutputProductService implements OutputProductService {
     private final Path outputProductBasedir;
     private final RestoService resto;
     private final GeoserverService geoserver;
+    private final ObjectMapper jsonMapper;
 
     @Autowired
-    public FilesystemOutputProductService(@Qualifier("outputProductBasedir") Path outputProductBasedir, RestoService resto, GeoserverService geoserver) {
+    public FilesystemOutputProductService(@Qualifier("outputProductBasedir") Path outputProductBasedir, RestoService resto, GeoserverService geoserver, ObjectMapper jsonMapper) {
         this.outputProductBasedir = outputProductBasedir;
         this.resto = resto;
         this.geoserver = geoserver;
+        this.jsonMapper = jsonMapper;
     }
 
     @Override
@@ -71,13 +74,12 @@ public class FilesystemOutputProductService implements OutputProductService {
         // Add automatically-determined properties
         properties.put("productIdentifier", jobId + "_" + filename);
         properties.put("ftepUrl", uri);
-        if (!Strings.isNullOrEmpty(geoserverUrl)) {
-            properties.put("properties.wms", geoserverUrl);
-        }
         // TODO Get the proper MIME type
-        properties.put("properties.resourceMimeType", "application/unknown");
-        properties.put("properties.resourceSize", Files.size(dest));
-        properties.put("properties.resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
+        properties.put("resourceMimeType", "application/unknown");
+        properties.put("resourceSize", Files.size(dest));
+        properties.put("resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
+        // TODO Add extra properties if needed
+        properties.put("extraParams", jsonMapper.writeValueAsString(ImmutableMap.of()));
 
         Feature feature = new Feature();
         feature.setId(jobId + "_" + filename);
@@ -109,6 +111,17 @@ public class FilesystemOutputProductService implements OutputProductService {
         }
         Files.createDirectories(outputPath.getParent());
         return outputPath;
+    }
+
+    @Override
+    public HttpUrl getWmsUrl(String jobId, String filename) {
+        return geoserver.getExternalUrl().newBuilder()
+                .addPathSegment(jobId)
+                .addPathSegment("wms")
+                .addQueryParameter("service", "WMS")
+                .addQueryParameter("version", "1.1.1")
+                .addQueryParameter("layers", jobId + ":" + filename)
+                .build();
     }
 
     @Override

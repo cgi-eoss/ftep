@@ -398,6 +398,11 @@
 }
 #job .job-details .job-files .job-detail .key {
   font-weight: bold;
+  vertical-align: top;
+}
+#job .job-details .job-files .job-detail .key,
+#job .job-details .job-files .job-detail .value {
+  padding: 0 0.5rem;
 }
 #job .job-details .job-files .job-detail:hover {
   background-color: #d9edf7;
@@ -1935,6 +1940,20 @@
     padding-left: 44px !important;
   }
 }
+#explorer-container #footer {
+  bottom: 0.5rem;
+  font-size: 0.6rem;
+  position: absolute;
+  right: 2rem;
+  z-index: 1;
+}
+#explorer-container #footer a {
+  color: #33691e;
+}
+#explorer-container #footer img {
+  height: 1rem;
+  margin-left: 0.5rem;
+}
 
 #map-container {
   height: 100%;
@@ -2016,6 +2035,9 @@
 #map-container #map .map-type:hover {
   background-color: rgba(50, 50, 50, 0.8);
 }
+#map-container #map .ol-logo-only {
+  margin-bottom: 0.5rem;
+}
 #map-container #map .ol-zoom {
   top: 110px;
 }
@@ -2043,6 +2065,9 @@
 }
 #map-container #map .polygon-copy {
   top: 326px;
+}
+#map-container #map .polygon-copy .material-icons {
+  font-size: 1rem;
 }
 #map-container #map .polygon-edit {
   top: 366px;

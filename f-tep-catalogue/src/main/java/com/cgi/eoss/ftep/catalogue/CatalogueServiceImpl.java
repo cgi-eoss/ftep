@@ -110,6 +110,20 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
+    public String getWmsUrl(FtepFile ftepFile) {
+        switch (ftepFile.getType()) {
+            case OUTPUT_PRODUCT:
+                // TODO Use the CatalogueUri pattern to determine file attributes
+                String[] pathComponents = ftepFile.getUri().getPath().split("/");
+                String jobId = pathComponents[1];
+                String filename = pathComponents[2];
+                return outputProductService.getWmsUrl(jobId, filename).toString();
+            default:
+                return "";
+        }
+    }
+
+    @Override
     public void downloadFtepFile(FtepFileUri request, StreamObserver<FileResponse> responseObserver) {
         try {
             FtepFile file = ftepFileDataService.getByUri(request.getUri());

@@ -51,20 +51,21 @@
 
     <section class="job-details" ng-if="jobTab == 'INPUTS'">
 
-        <ul class="job-files no-margin">
-            <li ng-repeat="(key, value) in jobParams.selectedJob.config.inputs" class="job-detail">
-                <div class="row">
-                    <div class="col-sm-3 key">{{key}}</div>
+        <table class="job-files no-margin">
+            <tr ng-repeat="(key, value) in jobParams.selectedJob.config.inputs" class="job-detail">
+                <td class="key" ng-bind="key" />
+                <td class="value">
                     <div ng-repeat="link in value">
-                        <div class="col-sm-3 key" ng-show="$index > 0"></div>
-                        <div class="col-sm-9 break-word">
-                            <a ng-if="link.includes('ftp')" href="{{link}}">{{link}}</a>
+                        <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
+                        <div ng-if="link.includes('ftp')">
+                            <div ng-repeat="file in splitInputFiles(link)">
+                                <a href="file" ng-bind="file" />
+                            </div>
                         </div>
-                        <div class="col-sm-9 break-word" ng-if="!link.includes('ftp')">{{link}}</div>
                     </div>
-                </div>
-            </li>
-        </ul>
+                </td>
+            </tr>
+        </table>
 
     </section>
 
@@ -78,7 +79,7 @@
                 <div class="row">
                     <div class="col-xs-11">{{key}}</div>
                     <div class="col-xs-1 download">
-                        <a ng-href="{{fileUrl}}" target="_self">
+                        <a ng-href="{{fileUrl}}" target="_blank">
                             <i class="material-icons"
                                aria-label="Download"
                                uib-tooltip="Download"

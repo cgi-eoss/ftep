@@ -30,7 +30,7 @@ public interface ServiceFilesApi extends BaseRepositoryApi<FtepServiceContextFil
     List<FtepServiceContextFile> findAll();
 
     @Override
-    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject.service, 'read')")
     FtepServiceContextFile findOne(Long id);
 
     @Override

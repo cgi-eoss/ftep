@@ -126,6 +126,15 @@ public class RestoServiceImpl implements RestoService {
         }
     }
 
+    @Override
+    public GeoJsonObject getGeoJsonSafe(FtepFile ftepFile) {
+        try {
+            return getGeoJson(ftepFile);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String getCollection(FtepFile ftepFile) {
         switch (ftepFile.getType()) {
             case EXTERNAL_PRODUCT:

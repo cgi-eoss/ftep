@@ -30,8 +30,7 @@ public class GeoUtil {
 
     private static final WKTParser WKT_PARSER = new WKTParser(new GeometryBuilder(DefaultGeographicCRS.WGS84));
 
-    // London
-    private static final String DEFAULT_POINT = "POINT(-0.1275 51.507222)";
+    private static final String DEFAULT_POINT = "POINT(0 0)";
 
     public static org.geojson.Point defaultPoint() {
         return wktToGeojsonPoint(DEFAULT_POINT);

@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
@@ -83,7 +84,7 @@ public class FilesystemOutputProductService implements OutputProductService {
 
         Feature feature = new Feature();
         feature.setId(jobId + "_" + filename);
-        feature.setGeometry(GeoUtil.getGeoJsonGeometry(geometry));
+        feature.setGeometry(Strings.isNullOrEmpty(geometry) ? GeoUtil.defaultPoint() : GeoUtil.getGeoJsonGeometry(geometry));
         feature.setProperties(properties);
 
         UUID restoId;

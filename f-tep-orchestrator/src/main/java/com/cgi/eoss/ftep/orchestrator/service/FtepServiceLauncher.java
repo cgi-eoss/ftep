@@ -160,8 +160,18 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setJob(rpcJob).build());
             }
 
-            if (exitCode.getExitCode() != 0) {
-                throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
+            switch (exitCode.getExitCode()) {
+                case 0:
+                    // Normal exit
+                    break;
+                case 137:
+                    LOG.info("Docker container terminated via SIGKILL (exit code 137)");
+                    break;
+                case 143:
+                    LOG.info("Docker container terminated via SIGTERM (exit code 143)");
+                    break;
+                default:
+                    throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
             }
 
             // Repatriate output files

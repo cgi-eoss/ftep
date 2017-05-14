@@ -323,6 +323,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         if (client.inspectContainerCmd(containerId).exec().getState().getRunning()) {
             try {
                 client.stopContainerCmd(containerId).withTimeout(30).exec();
+                if (client.inspectContainerCmd(containerId).exec().getState().getRunning()) {
+                    LOG.warn("Reached timeout trying to stop container safely; killing: {}", containerId);
+                    client.killContainerCmd(containerId).exec();
+                }
             } catch (DockerClientException e) {
                 LOG.warn("Received exception trying to stop container; killing: {}", containerId, e);
                 client.killContainerCmd(containerId).exec();

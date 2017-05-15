@@ -46,6 +46,7 @@
 
                 if (!eossCI.isTriggeredByGerrit()) {
                     stage('SonarQube Analysis') {
+                        sh "${gradle} aggregateCoverage"
                         eossCI.sonarqubeGradle("", gradle)
                     }
                 }

@@ -185,6 +185,7 @@ buildscript {
     }
 }
 
+apply plugin: 'jacoco'
 apply plugin: 'org.sonarqube'
 apply plugin: 'com.github.ben-manes.versions'
 
@@ -195,4 +196,23 @@ def getRpmVersion(version) {
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
             release: version.endsWith('-SNAPSHOT') ? "SNAPSHOT${snapshotRpmQualifier}" : '1'
     ]
+}
+
+task aggregateCoverage(type: JacocoMerge) {
+    def jacocoReports = []
+    doFirst {
+        subprojects.each { p ->
+            def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
+            if (new File(coverageFileLocation).exists()) {
+                jacocoReports.add(file(coverageFileLocation))
+            }
+        }
+    }
+    executionData = files(jacocoReports)
+}
+
+sonarqube {
+    properties {
+        property "sonar.jacoco.reportPath", "${buildDir}/target/jacoco/*.exec, ${rootDir}/target/jacoco/*.exec"
+    }
 }

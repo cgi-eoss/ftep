@@ -29,14 +29,14 @@ cems: &CEMS
 
 ftep_products: &FTEP_PROD
   <<: *datasource_defaults
-  endpoint: http://ftep-resto.eoss-cloud.it/resto/api/collections/ftep/search.atom
+  endpoint: http://ftep-resto/api/collections/ftepOutputs/search.atom
   parserClass: FtepResponseHandler
   #  enabled:     false
   source_type: internal
 
 ftep_reference: &FTEP_REF
   <<: *datasource_defaults
-  endpoint: http://ftep-resto.eoss-cloud.it/resto/api/collections/ftepref/search.atom
+  endpoint: http://ftep-resto/api/collections/ftepRefData/search.atom
   parserClass: FtepResponseHandler
   #  enabled:     false
   source_type: reference

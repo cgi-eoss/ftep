@@ -147,6 +147,18 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate { project ->
+        if (!project.sonarqube.skipProject) {
+            sonarqube {
+                properties {
+                    property 'sonar.jacoco.reportPaths', "${project.buildDir}/jacoco/test.exec, ${rootProject.buildDir}/jacoco/aggregateCoverage.exec"
+                }
+            }
+        }
+    }
+}
+
 def depVersions = [
         // Build plugin versions
         clientDependenciesPlugin     : '1.3.2',
@@ -209,10 +221,4 @@ task aggregateCoverage(type: JacocoMerge) {
         }
     }
     executionData = files(jacocoReports)
-}
-
-sonarqube {
-    properties {
-        property "sonar.jacoco.reportPaths", "${buildDir}/target/jacoco/test.exec, ${rootDir}/target/jacoco/collectCoverage.exec"
-    }
 }

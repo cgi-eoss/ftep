@@ -37,7 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, basketParams.selectedDatabasket, 'databasket', basketParams.sharedGroups, 'BasketService', 'refreshSelectedBasket')"
-                       has-permission="ADMIN" permission-source="{{basketPermission}}"
+                       has-permission="ADMIN" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

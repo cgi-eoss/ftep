@@ -35,7 +35,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Databasket */
         $scope.selectBasket = function (item) {
-            $scope.basketPermission = item;
             $scope.basketParams.selectedDatabasket = item;
             BasketService.refreshSelectedBasket("community");
         };

@@ -37,7 +37,7 @@
         <h3>
             <md-button class="right toolbar-button md-secondary"
                        ng-click="clearDatabasket()"
-                       has-permission="WRITE" permission-source="{{basketPermission}}"
+                       has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Clear {{item}}"
                        uib-tooltip="Clear {{item}}"
                        tooltip-placement="top"
@@ -47,7 +47,7 @@
             </md-button>
             <md-button class="right toolbar-button md-secondary"
                        ng-click="addItemsDialog($event)"
-                       has-permission="WRITE" permission-source="{{basketPermission}}"
+                       has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Add {{item}}"
                        uib-tooltip="Add {{item}}"
                        tooltip-placement="top"
@@ -113,7 +113,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeDatabasketItem(basketParams.items, file)"
-                   has-permission="WRITE" permission-source="{{basketPermission}}"
+                   has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

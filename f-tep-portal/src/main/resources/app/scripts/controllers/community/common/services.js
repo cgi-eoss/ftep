@@ -36,7 +36,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Service */
         $scope.selectService = function (item) {
-            $scope.servicePermission = item;
             $scope.serviceParams.selectedService = item;
             ProductService.refreshSelectedService("community");
         };

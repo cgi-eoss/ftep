@@ -34,7 +34,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Group */
         $scope.selectGroup = function (item) {
-            $scope.groupPermission = item;
             $scope.groupParams.selectedGroup = item;
             GroupService.refreshSelectedGroup("community");
         };

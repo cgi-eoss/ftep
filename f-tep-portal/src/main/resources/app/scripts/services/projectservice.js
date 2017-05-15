@@ -193,7 +193,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getProject = function(project){
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/projects/' + project.id)
+            halAPI.from(rootUri + '/projects/' + project.id + "?projection=detailedProject")
                        .newRequest()
                        .getResource()
                        .result

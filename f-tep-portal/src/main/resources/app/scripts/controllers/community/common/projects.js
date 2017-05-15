@@ -35,7 +35,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Project */
         $scope.selectProject = function (item) {
-            $scope.projectPermission = item;
             $scope.projectParams.selectedProject = item;
             ProjectService.refreshSelectedProject("community");
         };

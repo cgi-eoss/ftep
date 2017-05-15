@@ -41,7 +41,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a File */
         $scope.selectFile = function (item) {
-            $scope.filePermission = item;
             $scope.fileParams.selectedFile = item;
             FileService.refreshSelectedFtepFile("community");
         };

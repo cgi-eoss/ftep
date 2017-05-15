@@ -103,7 +103,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeServiceItem(serviceParams.contents, item)"
-                   has-permission="WRITE" permission-source="{{servicePermission}}"
+                   has-permission="WRITE" permission-source="{{serviceParams.selectedService}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

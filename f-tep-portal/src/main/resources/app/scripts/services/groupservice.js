@@ -193,7 +193,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getGroup = function (group) {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/groups/' + group.id)
+            halAPI.from(rootUri + '/groups/' + group.id + "?projection=detailedGroup")
                      .newRequest()
                      .getResource()
                      .result

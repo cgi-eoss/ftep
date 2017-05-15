@@ -37,7 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, groupParams.selectedGroup, 'group', groupParams.sharedGroups, 'GroupService', 'refreshSelectedGroupV2')"
-                       has-permission="ADMIN" permission-source="{{groupPermission}}"
+                       has-permission="ADMIN" permission-source="{{groupParams.selectedGroup}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

@@ -37,7 +37,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Job */
         $scope.selectJob = function (item) {
-            $scope.jobPermission = item;
             $scope.jobParams.selectedJob = item;
             JobService.refreshSelectedJob('community');
         };

@@ -75,6 +75,10 @@
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">
 
+            <div class="md-avatar" ng-show="navInfo.activeSideNav === 1">
+                <i class="material-icons" aria-label="Share">share</i>
+            </div>
+
             <div class="md-list-item-text" layout="column">
                 <h3 class="selectable" ng-bind="'Job: ' + job.id" />
                 <span><b>ID:</b> <span class="long-string" ng-bind="job.extId" /></span>
@@ -82,11 +86,14 @@
                 <span><b>Status:</b> <span ng-bind="job.status" /></span>
             </div>
 
-            <i class="material-icons"
-               ng-show="navInfo.activeSideNav === 1"
-               aria-label="Share">
-                share
-            </i>
+            <md-button class="toolbar-button md-secondary"
+                       aria-label="Job Info"
+                       uib-popover-template="'views/common/templates/jobinfo.tmpl.html'"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
 
         </md-list-item>
 

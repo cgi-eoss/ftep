@@ -142,7 +142,7 @@ define([
         };
     });
 
-    app.filter('formatDateTime', ['moment', function(moment){
+    app.filter('formatDateTime', function(){
         return function (dateTime) {
             if(dateTime){
                 if(typeof dateTime === 'string'){
@@ -162,7 +162,7 @@ define([
                 return '';
             }
         };
-    }]);
+    });
 
     function getTwoDigitNumber(num){
         return (num > 9 ? num : '0'+num);

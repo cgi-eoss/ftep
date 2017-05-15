@@ -75,10 +75,18 @@
             <div class="md-list-item-text" layout="row" ng-click="selectJob(job)">
                 <div class="col-md-12 no-padding">
                     <h3>Job ID: {{job.id}} ({{job.serviceName}})</h3>
-                    <h4>Start: {{formatDateTime(job.startTime)}}</h4>
-                    <p>{{job.status}} - {{job.stage}}</p>
+                    <h4>Start: {{job.startTime | formatDateTime}}</h4>
                 </div>
             </div>
+
+            <md-button class="toolbar-button md-secondary"
+                    aria-label="Job Info"
+                    uib-popover-template="'views/common/templates/jobinfo.tmpl.html'"
+                    popover-placement="left"
+                    popover-trigger="'mouseenter'"
+                    popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
 
             <md-button class="toolbar-button md-secondary"
                        ng-show="hasGuiEndPoint(job)"
@@ -94,6 +102,7 @@
 
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, job, 'job', 'JobService', 'refreshSelectedJob')"
+                       has-permission="ADMIN" permission-source="{{job}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

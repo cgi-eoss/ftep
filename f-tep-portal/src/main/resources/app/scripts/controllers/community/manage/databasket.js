@@ -38,8 +38,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Remove file from databasket */
-        $scope.removeItem = function(files, file) {
-            BasketService.removeItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {
+        $scope.removeDatabasketItem = function(files, file) {
+            BasketService.removeDatabasketItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {
                 BasketService.refreshDatabaskets("community");
             });
         };

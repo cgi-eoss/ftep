@@ -37,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, fileParams.selectedFile, 'ftepFile', fileParams.groups, 'FileService', 'refreshSelectedFtepFile')"
+                       has-permission="ADMIN" permission-source="{{filePermission}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

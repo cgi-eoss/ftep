@@ -37,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="addProjectContentDialog($event)"
+                       has-permission="WRITE" permission-source="{{projectPermission}}"
                        aria-label="Add ..."
                        uib-tooltip="Add ..."
                        tooltip-placement="top"
@@ -103,6 +104,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeProject(projectParams.contents, item)"
+                   has-permission="WRITE" permission-source="{{projectPermission}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

@@ -52,24 +52,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             };
             $scope.filterJobs();
 
-            $scope.formatDateTime = function(dateTime){
-                return new Date(dateTime.year + "-" +
-                        getTwoDigitNumber(dateTime.monthValue) + "-" +
-                        getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
-                        getTwoDigitNumber(dateTime.hour) + ":" +
-                        getTwoDigitNumber(dateTime.minute) + ":" +
-                        getTwoDigitNumber(dateTime.second) + "." +
-                        getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
-            };
-
-            function getTwoDigitNumber(num){
-                return (num > 9 ? num : '0'+num);
-            }
-
-            function getThreeDigitNumber(num){
-                return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
-            }
-
             $scope.repeatJob = function(job){
                 JobService.getJobConfig(job).then(function(config){
                     $rootScope.$broadcast('update.selectedService', config._embedded.service, config.inputs);

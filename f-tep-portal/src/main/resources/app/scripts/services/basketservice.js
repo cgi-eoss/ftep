@@ -317,7 +317,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.removeItem = function(databasket, files, file) {
+        this.removeDatabasketItem = function(databasket, files, file) {
             return $q(function(resolve, reject) {
 
                 /* Create array of user links */

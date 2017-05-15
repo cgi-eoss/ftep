@@ -72,7 +72,17 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
+                    aria-label="Project Info"
+                    uib-popover-template="'views/common/templates/basketinfo.tmpl.html'"
+                    popover-placement="left"
+                    popover-trigger="'mouseenter'"
+                    popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, basket, 'databasket', 'BasketService', 'refreshSelectedBasket')"
+                       has-permission="ADMIN" permission-source="{{basket}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"
@@ -85,6 +95,7 @@
 
             <md-button class="toolbar-button md-secondary"
                        ng-click="editDatabasket($event, basket)"
+                       has-permission="WRITE" permission-source="{{basket}}"
                        uib-tooltip="Edit"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
@@ -92,17 +103,6 @@
                        has-permission="WRITE"
                        permission-source="{{basket}}">
                 <i class="material-icons">create</i>
-            </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                       ng-click="removeDatabasket($event, basket)"
-                       uib-tooltip="Delete"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true"
-                       has-permission="ADMIN"
-                       permission-source="{{basket}}">
-                <i class="material-icons">delete</i>
             </md-button>
 
             <md-button class="toolbar-button md-secondary"

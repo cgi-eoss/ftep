@@ -37,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, jobParams.selectedJob, 'job', jobParams.sharedGroups, 'JobService', 'refreshSelectedJob')"
+                       has-permission="ADMIN" permission-source="{{jobPermission}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

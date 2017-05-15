@@ -836,6 +836,9 @@
 #community-container .left-container .item-list {
   padding-bottom: 3rem;
 }
+#community-container .left-container .item-list .md-avatar {
+  padding-top: 0.6rem;
+}
 #community-container .left-container .long-string {
   font-size: 0.6rem;
 }
@@ -1271,6 +1274,19 @@
   padding-left: 20px;
   margin-top: 0px;
 }
+.ftep .md-dialog-container h5 {
+  color: #33691e;
+  font-weight: bold;
+  margin-top: 0;
+}
+.ftep .md-dialog-container h5 span {
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: normal;
+}
+.ftep .md-dialog-container .content-properties {
+  border-bottom: #838383 solid 1px;
+  margin-bottom: 2.5rem;
+}
 .ftep .md-dialog-container .dialog-file-list:hover {
   background-color: #d9edf7;
 }
@@ -1693,8 +1709,15 @@
   background-color: transparent;
 }
 
+.ftep .popover {
+  max-width: none;
+}
 .ftep .tooltip {
   word-wrap: break-word;
+}
+.ftep .metadata tr td:first-child {
+  font-weight: bold;
+  padding-right: 1rem;
 }
 
 #developer-container #service-container {

@@ -120,9 +120,21 @@ define(['../ftepmodules'], function (ftepmodules) {
                         $scope.itemName = item.name;
                         var service = $injector.get(serviceName);
 
-                        /* Patch databasket and update databasket list */
+                        /* Patch databasket and update item list */
                         $scope.updateItem = function () {
                             service[serviceMethod]($scope.tempItem).then(function(data){
+                                deferred.resolve(data);
+                            },
+                            function(error){
+                                deferred.reject();
+                            });
+                            $mdDialog.hide();
+                        };
+
+                        /* Patch databasket and update databasket list */
+                        $scope.deleteItem = function () {
+                            var deleteMethod = serviceMethod.replace("update", "remove");
+                            service[deleteMethod](item).then(function(data){
                                 deferred.resolve(data);
                             },
                             function(error){

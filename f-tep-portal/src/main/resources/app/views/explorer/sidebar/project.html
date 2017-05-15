@@ -130,9 +130,21 @@
                     </div>
 
                     <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
+                        <md-button class="toolbar-button md-secondary"
+                                aria-label="Project Info"
+                                uib-popover-template="'views/common/templates/projectinfo.tmpl.html'"
+                                popover-placement="right"
+                                popover-trigger="'mouseenter'"
+                                popover-append-to-body="true">
+                            <i class="material-icons">info_outline</i>
+                        </md-button>
+                    </div>
+
+                    <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
 
                         <md-button class="toolbar-button"
                                    ng-click="shareObjectDialog($event, project, 'project', 'ProjectService', 'refreshSelectedProject')"
+                                   has-permission="ADMIN" permission-source="{{project}}"
                                    aria-label="Share Project"
                                    uib-tooltip="Share"
                                    tooltip-placement="top"
@@ -146,6 +158,7 @@
 
                         <md-button class="toolbar-button"
                                    ng-click="updateProject($event, project)"
+                                   has-permission="WRITE" permission-source="{{project}}"
                                    aria-label="Edit Project"
                                    uib-tooltip="Edit"
                                    tooltip-placement="top"
@@ -154,20 +167,6 @@
                             <i class="material-icons">edit</i>
                         </md-button>
                     </div>
-
-                    <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
-                        <md-button class="toolbar-button"
-                                   ng-click="removeProject(project)"
-                                   aria-label="Delete Project"
-                                   uib-tooltip="Delete"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">delete</i>
-                        </md-button>
-                    </div>
-
-                    <div class="col-xs-1 no-padding project-item-col" />
 
                 </div>
             </li>

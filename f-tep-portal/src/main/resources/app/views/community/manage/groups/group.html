@@ -37,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="addUsersDialog($event)"
+                       has-permission="WRITE" permission-source="{{groupPermission}}"
                        aria-label="Add Users"
                        uib-tooltip="Add Users"
                        tooltip-placement="top"
@@ -102,6 +103,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeUser(groupParams.selectedGroup, userParams.groupUsers, user)"
+                   has-permission="WRITE" permission-source="{{groupPermission}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

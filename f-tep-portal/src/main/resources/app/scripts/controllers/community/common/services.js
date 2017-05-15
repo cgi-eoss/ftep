@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'CommonService', '$scope', '$sce', function (ProductService, CommonService, $scope, $sce) {
+    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'CommonService', '$scope', function (ProductService, CommonService, $scope) {
 
         /* Get stored Service details */
         $scope.serviceParams = ProductService.params.community;
@@ -36,6 +36,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Select a Service */
         $scope.selectService = function (item) {
+            $scope.servicePermission = item;
             $scope.serviceParams.selectedService = item;
             ProductService.refreshSelectedService("community");
         };
@@ -57,23 +58,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
-        /* Service Description Popup */
-        var popover = {};
-        $scope.getDescription = function (item) {
-            if (!item.description) {
-                item.description = "No description.";
-            }
-            var html =
-                '<div class="metadata">' +
-                    '<div class="row">' +
-                        '<div class="col-sm-12">' + item.description + '</div>' +
-                    '</div>' +
-                '</div>';
-            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
-        };
-
         /* Remove Service */
-        $scope.removeItem = function (key, item) {
+        $scope.removeServiceItem = function (key, item) {
              ProductService.removeService(item).then(function (data) {
                  ProductService.refreshServices("community", "Remove", item);
             });

@@ -2,20 +2,9 @@
     <h4>Share a {{ace.type | asSingular}}</h4>
     <md-dialog-content>
         <div class="dialog-content-area">
-
-            <div class="dialog-subheader">
-                <div class="row" ng-show="ace.name != undefined">
-                    <div class="col-md-5 no-padding">
-                        <b>Name:</b>
-                    </div>
-                    <div class="col-md-7 no-padding">{{ace.name}}</div>
-                </div>
-                <div class="row" ng-show="ace.name == undefined">
-                    <div class="col-md-5 no-padding">
-                        <b>{{ace.type}} Id:</b>
-                    </div>
-                    <div class="col-md-7 no-padding">{{ace.id}}</div>
-                </div>
+             <div class="content-properties">
+                <h5 ng-show="ace.name != undefined">Name: <span ng-bind="ace.name" /></h5>
+                <h5 ng-show="ace.name == undefined">{{ace.type}} Id: <span ng-bind="ace.id" /></h5>
             </div>
 
             <md-input-container class="md-block" flex-gt-sm>

@@ -63,6 +63,10 @@
                       ng-click="selectBasket(basket)"
                       ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
 
+            <div class="md-avatar" ng-show="navInfo.activeSideNav === 1">
+                <i class="material-icons" aria-label="Share">share</i>
+            </div>
+
             <div class="md-list-item-text" layout="column">
                 <h3 class="selectable" ng-bind="basket.name" />
                 <span><b>Owner:</b> <span ng-bind="basket.owner.name" /></span>
@@ -70,9 +74,8 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeSideNav === 0"
-                       aria-label="{{item}} Description"
-                       uib-popover-html="getDescription({{basket}})"
+                       aria-label="{{item}} Info"
+                       uib-popover-template="'views/common/templates/basketinfo.tmpl.html'"
                        popover-placement="right"
                        popover-trigger="'mouseenter'"
                        popover-append-to-body="true">
@@ -82,6 +85,7 @@
             <md-button class="toolbar-button md-secondary"
                        ng-show="navInfo.activeSideNav === 0"
                        ng-click="editItemDialog($event, basket)"
+                       has-permission="WRITE" permission-source="{{basket}}"
                        aria-label="Edit"
                        uib-tooltip="Edit"
                        tooltip-placement="top"
@@ -89,23 +93,6 @@
                        tooltip-append-to-body="true">
                 <i class="material-icons">create</i>
             </md-button>
-
-            <md-button class="toolbar-button md-secondary"
-                       ng-show="navInfo.activeSideNav === 0"
-                       ng-click="removeItem(key, basket)"
-                       aria-label="Delete"
-                       uib-tooltip="Delete"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                <i class="material-icons">delete</i>
-            </md-button>
-
-            <i class="material-icons"
-               ng-show="navInfo.activeSideNav === 1"
-               aria-label="Share">
-                share
-            </i>
 
         </md-list-item>
 

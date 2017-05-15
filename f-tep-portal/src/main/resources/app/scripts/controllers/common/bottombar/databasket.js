@@ -126,8 +126,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.removeItemFromBasket = function(item) {
-            BasketService.removeItem($scope.basketParams.selectedDatabasket, $scope.basketParams.items, item).then(function (data) {
+        $scope.removeDatabasketItem = function(item) {
+            BasketService.removeDatabasketItem($scope.basketParams.selectedDatabasket, $scope.basketParams.items, item).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };

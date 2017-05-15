@@ -165,11 +165,7 @@
             <div class="col-md-2">
                     <div class="col-md-10 no-padding">
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
-                            <md-select ng-model="input.defaultAttrs.dataType" required>
-                                <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType" ng-selected="$first">
-                                    {{type.dataType}}
-                                </md-option>
-                            </md-select>
+                            <input ng-model="input.defaultAttrs.dataType" ng-init="string" ng-disabled="true"/>
                         </md-input-container>
 
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'">

@@ -33,7 +33,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.constants = {
                 serviceFields: ['dataInputs', 'dataOutputs'],
                 fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}],
-                literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
+                //literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
         };
 
         $scope.toggleServiceFilter = function(){
@@ -219,6 +219,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                         delete $scope.input.defaultAttrs.mimeType;
                         delete $scope.input.defaultAttrs.extension;
                         delete $scope.input.defaultAttrs.asReference;
+                        $scope.input.defaultAttrs.dataType = 'string';
                     }
                     else if($scope.input.data === 'COMPLEX'){
                         delete $scope.input.defaultAttrs.dataType;

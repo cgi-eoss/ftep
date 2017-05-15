@@ -16,11 +16,7 @@
 
             <section class="literal-type" ng-if="input.data === 'LITERAL'">
                <md-input-container class="md-block" flex-gt-sm>
-                   <md-select ng-model="input.defaultAttrs.dataType" required>
-                       <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType">
-                           {{type.dataType}}
-                       </md-option>
-                   </md-select>
+                   <input ng-model="input.defaultAttrs.dataType" ng-init="string" ng-disabled="true"/>
                </md-input-container>
             </section>
 

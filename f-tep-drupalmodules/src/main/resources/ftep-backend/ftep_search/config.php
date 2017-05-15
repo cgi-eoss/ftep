@@ -66,7 +66,7 @@ return [
         $fileHandler->setFormatter(new LineFormatter());
 
         $logger->pushHandler($fileHandler);
-        $logger->pushHandler($gelfHandler);
+        // $logger->pushHandler($gelfHandler);
         return $logger;
     }),
 

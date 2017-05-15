@@ -74,23 +74,7 @@
         color: @paused;
     }
     .spinner-container {
-        background-color: @disabled-trans;
-        height: 100%;
-        margin:auto;
-        padding-top: 3rem;
-        position: absolute;
-        width: 100%;
-        z-index: 20;
-        .spinner {
-            animation: spin 1s linear infinite;
-            border: 12px solid @text-light;
-            border-top: 12px solid @spinner;
-            border-radius: 50%;
-            height: 80px;
-            margin:auto;
-            width: 80px;
-            z-index: 10;
-        }
+        top:0;
     }
     @keyframes spin {
         0% {

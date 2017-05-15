@@ -8,7 +8,7 @@
         </div>
     </md-toolbar>
 
-    <div class="panel-body scrollme" is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+    <div class="panel-body">
 
         <div class="row top-title" ng-show="!searchParameters.selectedDatasource">
             <md-subheader class="md-accent md-subheader-top">Select a data source:</md-subheader>
@@ -109,12 +109,12 @@
                 </div>
 
                 <div class="row">
-	                <div class="col-xs-12">
-	                    <md-select ng-model="searchParameters.mission" ng-change="updateMissionParameters(searchParameters.mission)">
-		                    <md-option ng-repeat="mission in missions" ng-value="mission">
-		                        {{mission.name}}
-		                    </md-option>
-	                    </md-select>
+                    <div class="col-xs-12">
+                        <md-select ng-model="searchParameters.mission" ng-change="updateMissionParameters(searchParameters.mission)">
+                            <md-option ng-repeat="mission in missions" ng-value="mission">
+                                {{mission.name}}
+                            </md-option>
+                        </md-select>
                     </div>
                 </div>
             </div>

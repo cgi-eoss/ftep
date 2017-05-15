@@ -587,23 +587,7 @@
   color: #999;
 }
 #results .spinner-container {
-  background-color: rgba(180, 180, 180, 0.95);
-  height: 100%;
-  margin: auto;
-  padding-top: 3rem;
-  position: absolute;
-  width: 100%;
-  z-index: 20;
-}
-#results .spinner-container .spinner {
-  animation: spin 1s linear infinite;
-  border: 12px solid rgba(255, 255, 255, 0.87);
-  border-top: 12px solid #54ace0;
-  border-radius: 50%;
-  height: 80px;
-  margin: auto;
-  width: 80px;
-  z-index: 10;
+  top: 0;
 }
 @keyframes spin {
   0% {
@@ -2379,21 +2363,6 @@
 }
 #sidebar-left .panel .panel-body {
   padding: 0;
-}
-#sidebar-left .scrollme {
-  padding-top: 0.5rem;
-}
-#sidebar-left .scrollme .ngsb-container {
-  padding-right: 15px;
-}
-#sidebar-left .scrollme .ngsb-scrollbar {
-  margin-top: 12px;
-}
-#sidebar-left .scrollme .ngsb-track {
-  background-color: #ff4081;
-  border-radius: 20px;
-  height: 95%;
-  width: 4px;
 }
 #sidebar-left .sidebar-container {
   height: 100%;

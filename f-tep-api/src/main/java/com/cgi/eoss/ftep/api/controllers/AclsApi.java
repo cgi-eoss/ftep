@@ -106,7 +106,7 @@ public class AclsApi {
 
     @GetMapping("/group/{groupId}")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#group, 'administration')")
-    public FtepAccessControlList getServiceAcls(@ModelAttribute("groupId") Group group) {
+    public FtepAccessControlList getGroupAcls(@ModelAttribute("groupId") Group group) {
         return FtepAccessControlList.builder()
                 .entityId(group.getId())
                 .permissions(getFtepPermissions(new ObjectIdentityImpl(Group.class, group.getId())))

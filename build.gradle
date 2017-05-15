@@ -213,6 +213,6 @@ task aggregateCoverage(type: JacocoMerge) {
 
 sonarqube {
     properties {
-        property "sonar.jacoco.reportPath", "${buildDir}/target/jacoco/*.exec, ${rootDir}/target/jacoco/*.exec"
+        property "sonar.jacoco.reportPaths", "${buildDir}/target/jacoco/test.exec, ${rootDir}/target/jacoco/collectCoverage.exec"
     }
 }

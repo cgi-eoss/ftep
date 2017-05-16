@@ -59,6 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -146,6 +147,7 @@ public class ApiConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(value = "ftep.api.security.cors.enabled", havingValue = "true", matchIfMissing = true)
     public CorsConfigurationSource corsConfigurationSource(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
@@ -153,6 +155,15 @@ public class ApiConfig {
         config.addAllowedOrigin("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        source.registerCorsConfiguration(apiBasePath + "/**", config);
+        return source;
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "ftep.api.security.cors.enabled", havingValue = "false")
+    public CorsConfigurationSource disabledCorsConfiguration(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
         source.registerCorsConfiguration(apiBasePath + "/**", config);
         return source;
     }
@@ -170,16 +181,12 @@ public class ApiConfig {
                 httpSecurity
                         .csrf().disable();
                 httpSecurity
+                        .cors();
+                httpSecurity
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }
         };
-    }
-
-    @Bean
-    @ConditionalOnProperty(value = "ftep.api.security.cors", havingValue = "enabled", matchIfMissing = true)
-    public WebSecurityConfigurerAdapter corsWebSecurityConfigurerAdapter() {
-        return new CorsSecurityConfigurerAdapter();
     }
 
     @Bean
@@ -231,15 +238,6 @@ public class ApiConfig {
     @Bean
     public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
         return new AclPermissionEvaluator(aclService);
-    }
-
-    @Order(101)
-    private static class CorsSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity httpSecurity) throws Exception {
-            httpSecurity
-                    .cors();
-        }
     }
 
 }

@@ -17,8 +17,15 @@ public class UserResourceProcessor implements ResourceProcessor<Resource<User>> 
     private final RepositoryEntityLinks entityLinks;
     @Override
     public Resource<User> process(Resource<User> resource) {
-        if (resource.getContent().getWallet() != null) {
-            resource.add(entityLinks.linkToSingleResource(resource.getContent().getWallet()));
+        User entity = resource.getContent();
+
+        if (resource.getLink("self") == null) {
+            resource.add(entityLinks.linkToSingleResource(entity).withSelfRel().expand());
+            resource.add(entityLinks.linkToSingleResource(entity));
+        }
+
+        if (entity.getWallet() != null) {
+            resource.add(entityLinks.linkToSingleResource(entity.getWallet()));
         }
 
         return resource;

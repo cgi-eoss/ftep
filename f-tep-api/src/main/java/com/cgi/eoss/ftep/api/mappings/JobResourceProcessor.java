@@ -26,15 +26,22 @@ public class JobResourceProcessor implements ResourceProcessor<Resource<Job>> {
 
     @Override
     public Resource<Job> process(Resource<Job> resource) {
-        if (!Strings.isNullOrEmpty(resource.getContent().getGuiUrl())) {
-            resource.add(new Link(resource.getContent().getGuiUrl()).withRel("gui"));
+        Job entity = resource.getContent();
+
+        if (resource.getLink("self") == null) {
+            resource.add(entityLinks.linkToSingleResource(entity).withSelfRel().expand());
+            resource.add(entityLinks.linkToSingleResource(entity));
+        }
+
+        if (!Strings.isNullOrEmpty(entity.getGuiUrl())) {
+            resource.add(new Link(entity.getGuiUrl()).withRel("gui"));
         }
 
         // TODO Do this properly with a method reference
         resource.add(new Link(resource.getLink("self").getHref() + "/logs").withRel("logs"));
 
         // Transform any "ftep://" URIs into relation links
-        Multimap<String, String> outputs = resource.getContent().getOutputs();
+        Multimap<String, String> outputs = entity.getOutputs();
         if (outputs != null && !outputs.isEmpty()) {
             outputs.entries().stream()
                     .filter(e -> e.getValue().startsWith("ftep://"))

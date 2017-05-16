@@ -438,6 +438,9 @@ class Functions_features {
             else if ($collection->model->getDbType($propertyName) === 'array') {
                 $columnValue = '\'{' . pg_escape_string(join(',', $propertyValue)) . '}\'';
             }
+            else if ($collection->model->getDbType($propertyName) === 'jsonb') {
+                $columnValue = '\'' . pg_escape_string(json_encode($propertyValue)) . '\'';
+            }
             else {
                 $columnValue = '\'' . pg_escape_string(is_array($propertyValue) ? join(',', $propertyValue) : $propertyValue) . '\'';
             }

@@ -181,7 +181,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getDatabasket = function(databasket) {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/databaskets/' + databasket.id)
+            halAPI.from(rootUri + '/databaskets/' + databasket.id + '?projection=detailedDatabasket')
                      .newRequest()
                      .getResource()
                      .result
@@ -279,9 +279,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 var itemsArray = [];
 
                 /* Collect links from current items */
-                if(databasket._embedded){
-                    for (var item in databasket._embedded.files) {
-                        itemsArray.push(databasket._embedded.files[item]._links.self.href);
+                if(databasket.files){
+                    for (var item in databasket.files) {
+                        itemsArray.push(databasket.files[item]._links.self.href);
                     }
                 }
 
@@ -317,7 +317,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.removeItem = function(databasket, files, file) {
+        this.removeDatabasketItem = function(databasket, files, file) {
             return $q(function(resolve, reject) {
 
                 /* Create array of user links */

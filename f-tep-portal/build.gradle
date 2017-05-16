@@ -117,11 +117,16 @@ minifyJs {
 
 // Copy all non-JS resources to the staging area
 task copyApp(type: Copy) {
-    from "${projectDir}/src/main/resources/app"
     into "${buildDir}/staging"
 
-    exclude 'scripts/**/*.js'
-    exclude 'index.html'
+    from("${projectDir}/src/main/resources/app") {
+        exclude 'scripts/**/*.js'
+        exclude 'index.html'
+    }
+    from("${projectDir}/src/main/resources/app/scripts/vendor/codemirror") {
+        into "scripts/vendor/codemirror"
+        include '**/*'
+    }
     includeEmptyDirs = false
 
     dependsOn clientInstall

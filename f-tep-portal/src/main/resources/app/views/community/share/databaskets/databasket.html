@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="basketParams.selectedDatabasket = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-databasket"
            class="save-button md-fab md-mini right"
            ng-click="refreshDatabasket()"
@@ -28,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, basketParams.selectedDatabasket, 'databasket', basketParams.sharedGroups, 'BasketService', 'refreshSelectedBasket')"
+                       has-permission="ADMIN" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

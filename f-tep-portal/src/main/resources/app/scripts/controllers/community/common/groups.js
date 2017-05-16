@@ -9,7 +9,7 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'CommonService', '$scope', '$sce', function (GroupService, CommonService, $scope, $sce) {
+    ftepmodules.controller('CommunityGroupsCtrl', ['GroupService', 'CommonService', '$scope', function (GroupService, CommonService, $scope) {
 
         /* Get stored Groups details */
         $scope.groupParams = GroupService.params.community;
@@ -53,21 +53,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 return true;
             }
             return false;
-        };
-
-        /* Group Description Popup */
-        var popover = {};
-        $scope.getGroupDescription = function (group) {
-            if (!group.description) {
-                group.description = "No description.";
-            }
-            var html =
-                '<div class="metadata">' +
-                    '<div class="row">' +
-                        '<div class="col-sm-12">' + group.description + '</div>' +
-                    '</div>' +
-                '</div>';
-            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
         };
 
         /* Create Group */

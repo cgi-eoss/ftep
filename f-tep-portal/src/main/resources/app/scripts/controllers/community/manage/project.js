@@ -60,10 +60,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Remove file from project */
-        $scope.removeItem = function(files, file) {
-            ProjectService.removeItem($scope.projectParams.selectedProject, files, file).then(function (data) {
+        $scope.removeProjectItem = function(files, file) {
+            ProjectService.removeProjectItem($scope.projectParams.selectedProject, files, file).then(function (data) {
                 ProjectService.refreshProjects("community");
-                /* TODO: Implement removeItem in ProjectService */
+                /* TODO: Implement removeProjectItem in ProjectService */
             });
         };
 

@@ -65,7 +65,7 @@ RUN if curl -o/dev/null -sLIf "${OTB_BASE_URL}/${OTB_INSTALLER}"; then\
  curl -sL "${OTB_ALT_URL}/${OTB_INSTALLER}" >/var/tmp/${OTB_INSTALLER}; fi
 
 # Install OTB
-RUN cd /opt && sh /var/tmp/${OTB_INSTALLER}
+RUN chmod 777 /opt && cd /opt && sudo -u nobody sh /var/tmp/${OTB_INSTALLER}
 
 #######################
 # Configure environment

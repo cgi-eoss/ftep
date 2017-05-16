@@ -27,8 +27,8 @@ public class GeoUtilTest {
     }
     @Test
     public void testWktToGeojsonPoint() throws Exception {
-        Point point = GeoUtil.wktToGeojsonPoint("POINT(-0.1275 51.507222)");
-        Point expected = new Point(new LngLatAlt(-0.1275, 51.507222));
+        Point point = GeoUtil.wktToGeojsonPoint("POINT(0 0)");
+        Point expected = new Point(new LngLatAlt(0, 0));
 
         assertThat(point, is(expected));
         assertThat(GeoUtil.defaultPoint(), is(expected));

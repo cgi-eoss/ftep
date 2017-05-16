@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="groupParams.selectedGroup = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-group"
            class="save-button md-fab md-mini right"
            ng-click="refreshGroup()"
@@ -28,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="addUsersDialog($event)"
+                       has-permission="WRITE" permission-source="{{groupParams.selectedGroup}}"
                        aria-label="Add Users"
                        uib-tooltip="Add Users"
                        tooltip-placement="top"
@@ -93,6 +103,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeUser(groupParams.selectedGroup, userParams.groupUsers, user)"
+                   has-permission="WRITE" permission-source="{{groupParams.selectedGroup}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

@@ -20,11 +20,14 @@ import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
-import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -42,20 +45,24 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.google.common.collect.Multimaps.toMultimap;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * <p>Primary entry point for WPS services to launch in F-TEP.</p>
@@ -160,25 +167,69 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setJob(rpcJob).build());
             }
 
-            if (exitCode.getExitCode() != 0) {
-                throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
+            switch (exitCode.getExitCode()) {
+                case 0:
+                    // Normal exit
+                    break;
+                case 137:
+                    LOG.info("Docker container terminated via SIGKILL (exit code 137)");
+                    break;
+                case 143:
+                    LOG.info("Docker container terminated via SIGTERM (exit code 143)");
+                    break;
+                default:
+                    throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
             }
-
-            // Repatriate output files
-            Set<String> expectedServiceOutputIds = service.getServiceDescriptor().getDataOutputs().stream()
-                    .map(FtepServiceDescriptor.Parameter::getId).collect(Collectors.toSet());
 
             job.setStage(JobStep.OUTPUT_LIST.getText());
             job.setEndTime(LocalDateTime.now()); // End time is when processing ends
             jobDataService.save(job);
 
-            Map<String, FtepFile> outputFiles = new HashMap<>(expectedServiceOutputIds.size());
+            // Repatriate output files
 
-            for (String outputId : expectedServiceOutputIds) {
-                Iterator<OutputFileResponse> outputFile = worker.getOutputFile(OutputFileParam.newBuilder()
+            // Enumerate files in the job output directory
+            OutputFileList outputFileList = worker.listOutputFiles(ListOutputFilesParam.newBuilder()
+                    .setJob(rpcJob)
+                    .setOutputsRootPath(jobEnvironment.getOutputDir())
+                    .build());
+            List<String> relativePaths = outputFileList.getItemsList().stream()
+                    .map(OutputFileItem::getRelativePath)
+                    .collect(Collectors.toList());
+
+            Map<String, String> outputsByRelativePath;
+
+            if (service.getType() == FtepService.Type.APPLICATION) {
+                // Collect all files in the output directory with simple index IDs
+                outputsByRelativePath = IntStream.range(0, relativePaths.size())
+                        .boxed()
+                        .collect(toMap(i -> Integer.toString(i + 1), relativePaths::get));
+            } else {
+                // Ensure we have one file per expected output
+                Set<String> expectedServiceOutputIds = service.getServiceDescriptor().getDataOutputs().stream()
+                        .map(FtepServiceDescriptor.Parameter::getId).collect(Collectors.toSet());
+                outputsByRelativePath = new HashMap<>(expectedServiceOutputIds.size());
+
+                for (String expectedOutputId : expectedServiceOutputIds) {
+                    Optional<String> relativePath = relativePaths.stream()
+                            .filter(path -> path.startsWith(expectedOutputId + "/"))
+                            .reduce((a, b) -> null);
+                    if (relativePath.isPresent()) {
+                        outputsByRelativePath.put(expectedOutputId, relativePath.get());
+                    } else {
+                        throw new ServiceExecutionException(String.format("Did not find expected single output for '%s' in outputs list: %s", expectedOutputId, relativePaths));
+                    }
+                }
+            }
+
+            Map<String, FtepFile> outputFiles = new HashMap<>(outputsByRelativePath.size());
+
+            for (Map.Entry<String, String> output : outputsByRelativePath.entrySet()) {
+                String outputId = output.getKey();
+                String relativePath = output.getValue();
+
+                Iterator<OutputFileResponse> outputFile = worker.getOutputFile(GetOutputFileParam.newBuilder()
                         .setJob(rpcJob)
-                        .setPath(jobEnvironment.getOutputDir())
-                        .setOutputId(outputId)
+                        .setPath(Paths.get(jobEnvironment.getOutputDir()).resolve(relativePath).toString())
                         .build());
 
                 // First message is the file metadata

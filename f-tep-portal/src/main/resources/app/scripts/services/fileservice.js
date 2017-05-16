@@ -162,11 +162,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         // For search items we have to create a respective file first
-        this.createGeoResultFile = function(geojson){
+        this.createGeoResultFile = function(item, source){
+            var newProductFile = {
+                    properties: {
+                        productSource: source,
+                        productIdentifier: item.identifier,
+                        originalUrl: item.link,
+                        extraParams: item.details
+                    },
+                    type: 'Feature',
+                    geometry: item.geo
+            };
+
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/ftepFiles/externalProduct')
                          .newRequest()
-                         .post(geojson)
+                         .post(newProductFile)
                          .result
                          .then(
                 function (document) {

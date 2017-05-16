@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,18 +35,19 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         // TODO Handle non-feature objects?
         Feature feature = (Feature) geoJson;
 
-        String productSource = feature.getProperty("productSource");
+        String productSource = feature.getProperty("productSource").toString().toLowerCase().replaceAll("[^a-z0-9]", "");
         String productId = feature.getProperty("productIdentifier");
 
-        URI uri = getUri(productSource, productId);
+        Long filesize = getFilesize(feature);
+        feature.getProperties().put("filesize", filesize);
 
-        // The F-TEP internal URI is the only generated property
+        URI uri = getUri(productSource, productId);
         feature.getProperties().put("ftepUrl", uri);
 
         return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {
             UUID restoId;
             try {
-                restoId = resto.ingestExternalProduct("external_" + feature.getProperty("productSource"), feature);
+                restoId = resto.ingestExternalProduct(productSource, feature);
                 LOG.info("Ingested external product with Resto id {} and URI {}", restoId, uri);
             } catch (Exception e) {
                 LOG.error("Failed to ingest external product to Resto, continuing...", e);
@@ -54,6 +56,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
             }
             FtepFile ftepFile = new FtepFile(uri, restoId);
             ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
+            ftepFile.setFilesize(filesize);
             return ftepFileDataService.save(ftepFile);
         });
     }
@@ -64,10 +67,20 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
             CatalogueUri productSourceUrl = CatalogueUri.valueOf(productSource);
             uri = productSourceUrl.build(ImmutableMap.of("productId", productId));
         } catch (IllegalArgumentException e) {
-            uri = URI.create(productSource + ":///" + productId);
+            uri = URI.create(productSource.replaceAll("[^a-z0-9+.-]", "-") + ":///" + productId);
             LOG.debug("Could not build a well-designed F-TEP URI handler, returning automatic: {}", uri, e);
         }
         return uri;
+    }
+
+    private Long getFilesize(Feature feature) {
+        Long filesize = null;
+        Map<String, Object> extraParams = feature.getProperties().containsKey("extraParams") ? feature.getProperty("extraParams") : ImmutableMap.of();
+        if (extraParams.containsKey("file")) {
+            Map<String, Object> fileProperties = (Map<String, Object>) extraParams.get("file");
+            filesize = fileProperties.containsKey("data_file_size") ? (Long) fileProperties.get("data_file_size") : null;
+        }
+        return filesize;
     }
 
     @Override

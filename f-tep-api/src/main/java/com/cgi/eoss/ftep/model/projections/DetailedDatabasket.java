@@ -18,5 +18,5 @@ public interface DetailedDatabasket extends EmbeddedId {
     ShortUser getOwner();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
     FtepPermission getAccessLevel();
-    Set<DetailedFtepFile> getFiles();
+    Set<ShortFtepFile> getFiles();
 }

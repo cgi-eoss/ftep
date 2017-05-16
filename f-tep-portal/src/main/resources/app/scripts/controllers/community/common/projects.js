@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityProjectsCtrl', ['ProjectService', 'CommonService', '$scope', '$sce', function (ProjectService, CommonService, $scope, $sce) {
+    ftepmodules.controller('CommunityProjectsCtrl', ['ProjectService', 'CommonService', '$scope', function (ProjectService, CommonService, $scope) {
 
         /* Get stored Project details */
         $scope.projectParams = ProjectService.params.community;
@@ -56,32 +56,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
-        /* Project Description Popup */
-        var popover = {};
-        $scope.getDescription = function (item) {
-            if (!item.description) {
-                item.description = "No description.";
-            }
-            var html =
-                '<div class="metadata">' +
-                    '<div class="row">' +
-                        '<div class="col-sm-12">' + item.description + '</div>' +
-                    '</div>' +
-                '</div>';
-            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
-        };
-
         /* Create Project */
         $scope.createItemDialog = function ($event) {
             CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
                 ProjectService.refreshProjects("community", "Create");
-            });
-        };
-
-        /* Remove Project */
-        $scope.removeItem = function (key, item) {
-             ProjectService.removeProject(item).then(function (data) {
-                 ProjectService.refreshProjects("community", "Remove", item);
             });
         };
 

@@ -38,8 +38,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Remove file from databasket */
-        $scope.removeItem = function(files, file) {
-            BasketService.removeItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {
+        $scope.removeDatabasketItem = function(files, file) {
+            BasketService.removeDatabasketItem($scope.basketParams.selectedDatabasket, files, file).then(function (data) {
                 BasketService.refreshDatabaskets("community");
             });
         };
@@ -96,7 +96,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     }
 
                     /* Get correct list of files and filter out existing items */
-                    FileService.getFtepFiles(FileService.params.community.activeFileType).then(function (data) {
+                    FileService.getFtepFiles('community', FileService.params.community.activeFileType).then(function (data) {
                         $scope.files = data.filter(function (item) {
                             for (var i in $scope.basketParams.items) {
                                 if (item.id === $scope.basketParams.items[i].id) {

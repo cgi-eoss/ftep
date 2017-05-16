@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.api.security;
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
+import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.model.WalletTransaction;
@@ -80,7 +81,12 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                 LOG.warn("Existing access control entries found for 'new' object: {} {}", entityClass.getSimpleName(), entity.getId());
             }
 
-            if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT) {
+            if (Group.class.equals(entityClass)) {
+                // Group members should be able to READ their groups
+                LOG.debug("Adding self-READ ACL for new Group with ID {}", entity.getId());
+                FtepPermission.READ.getAclPermissions()
+                        .forEach(p -> acl.insertAce(acl.getEntries().size(), p, new GrantedAuthoritySid((Group) entity), true));
+            } else if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT) {
                 // No one should have ADMIN permission for EXTERNAL_PRODUCT FtepFiles, but they should be PUBLIC to read ...
                 LOG.debug("Adding PUBLIC READ-level ACL for new EXTERNAL_PRODUCT FtepFile with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()

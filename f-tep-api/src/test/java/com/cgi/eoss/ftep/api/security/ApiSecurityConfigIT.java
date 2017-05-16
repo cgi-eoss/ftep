@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.api.security;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
+import com.cgi.eoss.ftep.api.controllers.AclsApi;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
@@ -67,6 +68,9 @@ public class ApiSecurityConfigIT {
 
     @Autowired
     private MutableAclService aclService;
+
+    @Autowired
+    private AclsApi aclsApi;
 
     @Autowired
     private MockMvc mockMvc;
@@ -186,6 +190,12 @@ public class ApiSecurityConfigIT {
 
     @Test
     public void testGroupAclAccess() throws Exception {
+        // Verify groups can read themselves
+        getGroupFromApi(alpha.getId(), alice).andExpect(status().isOk());
+        getGroupFromApi(alpha.getId(), bob).andExpect(status().isOk());
+        getGroupFromApi(beta.getId(), alice).andExpect(status().isOk());
+        getGroupFromApi(beta.getId(), bob).andExpect(status().isForbidden());
+
         // Grant read access for service-2 to alpha (alice & bob)
         createGroupReadAce(service2.getId(), alpha);
         // Grant read access for service-3 to beta (alice)
@@ -245,6 +255,10 @@ public class ApiSecurityConfigIT {
 
     private ResultActions getServiceFromApi(Long serviceId, User user) throws Exception {
         return mockMvc.perform(get("/api/services/" + serviceId).header("REMOTE_USER", user.getName()));
+    }
+
+    private ResultActions getGroupFromApi(Long groupId, User user) throws Exception {
+        return mockMvc.perform(get("/api/groups/" + groupId).header("REMOTE_USER", user.getName()));
     }
 
     private void createReadAce(Long id, String principal) {

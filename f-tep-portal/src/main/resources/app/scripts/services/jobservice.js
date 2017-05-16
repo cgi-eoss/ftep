@@ -159,7 +159,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         var getJob = function (job) {
             var deferred = $q.defer();
-                halAPI.from(rootUri + '/jobs/' + job.id)
+                halAPI.from(rootUri + '/jobs/' + job.id + "?projection=detailedJob")
                          .newRequest()
                          .getResource()
                          .result

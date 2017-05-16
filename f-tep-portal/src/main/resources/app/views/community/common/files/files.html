@@ -73,10 +73,23 @@
                       ng-click="selectFile(file)"
                       ng-class="{active: file.id == fileParams.selectedFile.id}">
 
+            <div class="md-avatar" ng-show="navInfo.activeSideNav === 1">
+                <i class="material-icons" aria-label="Share">share</i>
+            </div>
+
             <div class="md-list-item-text" layout="column">
                 <h3 class="selectable" ng-bind="file.filename" />
                 <span><b>Owner:</b> <span ng-bind="file.owner.name" /></span>
             </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       aria-label="File Info"
+                       uib-popover-template="'views/common/templates/fileinfo.tmpl.html'"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
 
             <md-button class="toolbar-button md-secondary"
                        ng-show="navInfo.activeSideNav === 0"
@@ -88,12 +101,6 @@
                        tooltip-append-to-body="true">
                 <i class="material-icons">delete</i>
             </md-button>
-
-            <i class="material-icons"
-               ng-show="navInfo.activeSideNav === 1"
-               aria-label="Share">
-                share
-            </i>
 
         </md-list-item>
 

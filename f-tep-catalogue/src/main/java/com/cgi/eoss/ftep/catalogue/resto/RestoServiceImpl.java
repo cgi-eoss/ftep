@@ -4,9 +4,6 @@ import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.log4j.Log4j2;
@@ -40,8 +37,6 @@ public class RestoServiceImpl implements RestoService {
     private final OkHttpClient client;
 
     private final ObjectMapper jsonMapper = new ObjectMapper();
-
-    private final LoadingCache<String, Boolean> restoCollections;
 
     @Value("${ftep.catalogue.resto.enabled:true}")
     private boolean restoEnabled;
@@ -83,8 +78,6 @@ public class RestoServiceImpl implements RestoService {
                 })
                 .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
-
-        this.restoCollections = CacheBuilder.newBuilder().build(new CollectionCacheLoader());
     }
 
     @Override
@@ -159,7 +152,7 @@ public class RestoServiceImpl implements RestoService {
         LOG.debug("Creating new Resto catalogue entry in collection: {}", collection);
 
         try {
-            restoCollections.get(collection);
+            ensureCollectionExists(collection);
         } catch (Exception e) {
             throw new IngestionException("Failed to get/create Resto collection", e);
         }
@@ -177,7 +170,7 @@ public class RestoServiceImpl implements RestoService {
                 LOG.info("Created new Resto object with ID: {}", uuid);
                 return UUID.fromString(uuid);
             } else {
-                LOG.error("Failed to ingest Resto object to collection '{}': {} {}", collection, response.code(), response.message());
+                LOG.error("Failed to ingest Resto object to collection '{}': {} {}: {}", collection, response.code(), response.message(), response.body());
                 throw new IngestionException("Failed to ingest Resto object");
             }
         } catch (Exception e) {
@@ -211,6 +204,26 @@ public class RestoServiceImpl implements RestoService {
             return JsonPath.read(response.body().string(), "$.collections[*].name");
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void ensureCollectionExists(String collectionName) {
+        if (!getRestoCollections().contains(collectionName)) {
+            LOG.debug("Collection '{}' not found, creating", collectionName);
+            try (Response response = client
+                    .newCall(new Request.Builder()
+                            .url(HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections").build())
+                            .post(RequestBody.create(MediaType.parse(APPLICATION_JSON_VALUE), jsonMapper.writeValueAsString(buildCollectionConfig(collectionName))))
+                            .build())
+                    .execute()) {
+                if (response.isSuccessful()) {
+                    LOG.info("Created Resto collection '{}'", collectionName);
+                } else {
+                    LOG.warn("Failed to create Resto collection '{}': {} {}: {}", collectionName, response.code(), response.message(), response.body());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -249,60 +262,22 @@ public class RestoServiceImpl implements RestoService {
                     .propertiesMapping(ImmutableMap.of(
                             "ftepFileType", FtepFile.Type.REFERENCE_DATA.toString())
                     );
-        } else if (collectionName.equals(externalProductCollection)) {
+        } else {
             builder
                     .model(externalProductModel)
                     .osDescription(ImmutableMap.of("en", RestoCollection.OpensearchDescription.builder()
-                            .shortName("ftepInputs")
-                            .longName("F-TEP External Products")
-                            .description("External products used as inputs by F-TEP services")
-                            .tags("ftep f-tep inputs input external")
-                            .query("ftepInputs")
+                            .shortName(collectionName)
+                            .longName("F-TEP External Products: " + collectionName)
+                            .description("External products used as inputs by F-TEP services (" + collectionName + ")")
+                            .tags("ftep f-tep inputs input external " + collectionName)
+                            .query("ftepInputs_" + collectionName)
                             .build()))
                     .propertiesMapping(ImmutableMap.of(
                             "ftepFileType", FtepFile.Type.EXTERNAL_PRODUCT.toString())
                     );
-        } else {
-            builder
-                    .model("RestoModel_example")
-                    .osDescription(ImmutableMap.of("en", RestoCollection.OpensearchDescription.builder()
-                            .shortName(collectionName)
-                            .longName("F-TEP Collection: " + collectionName)
-                            .description(collectionName)
-                            .tags("ftep f-tep " + collectionName)
-                            .query(collectionName)
-                            .build()));
         }
 
         return builder.build();
-    }
-
-    private final class CollectionCacheLoader extends CacheLoader<String, Boolean> {
-        @Override
-        public Boolean load(String collectionName) throws Exception {
-            if (!getRestoCollections().contains(collectionName)) {
-                LOG.debug("Collection '{}' not found, creating", collectionName);
-                createCollection(collectionName);
-            }
-            return true;
-        }
-
-        private void createCollection(String collectionName) {
-            try (Response response = client
-                    .newCall(new Request.Builder()
-                            .url(HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections").build())
-                            .post(RequestBody.create(MediaType.parse(APPLICATION_JSON_VALUE), jsonMapper.writeValueAsString(buildCollectionConfig(collectionName))))
-                            .build())
-                    .execute()) {
-                if (response.isSuccessful()) {
-                    LOG.info("Created Resto collection '{}'", collectionName);
-                } else {
-                    LOG.warn("Failed to create Resto collection '{}': {} {}", collectionName, response.code(), response.message());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
 }

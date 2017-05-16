@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="projectParams.selectedProject = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-project"
            class="save-button md-fab md-mini right"
            ng-click="refreshProject()"
@@ -28,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="shareObjectDialog($event, projectParams.selectedProject, 'project', projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
+                       has-permission="ADMIN" permission-source="{{projectParams.selectedProject}}"
                        aria-label="Share"
                        uib-tooltip="Share"
                        tooltip-placement="top"

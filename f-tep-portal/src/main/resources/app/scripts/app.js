@@ -33,13 +33,14 @@ define([
     'traversonAngular',
     'traversonHal',
     'ngFileUpload',
+    'uiCodeMirror',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
                                          'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload']);
+                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload', 'ui.codemirror']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
@@ -53,6 +54,20 @@ define([
 
     app.init = function () {
         angular.bootstrap(document, ['ftepApp']);
+        require([
+         "scripts/vendor/codemirror/lib/codemirror",
+         "scripts/vendor/codemirror/mode/dockerfile/dockerfile",
+         "scripts/vendor/codemirror/mode/javascript/javascript",
+         "scripts/vendor/codemirror/mode/perl/perl",
+         "scripts/vendor/codemirror/mode/php/php",
+         "scripts/vendor/codemirror/mode/properties/properties",
+         "scripts/vendor/codemirror/mode/python/python",
+         "scripts/vendor/codemirror/mode/shell/shell",
+         "scripts/vendor/codemirror/mode/xml/xml",
+         "scripts/vendor/codemirror/mode/yaml/yaml"
+       ], function(CodeMirror) {
+           window.CodeMirror = CodeMirror;
+});
     };
 
     app.config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -142,7 +157,7 @@ define([
         };
     });
 
-    app.filter('formatDateTime', ['moment', function(moment){
+    app.filter('formatDateTime', function(){
         return function (dateTime) {
             if(dateTime){
                 if(typeof dateTime === 'string'){
@@ -162,7 +177,7 @@ define([
                 return '';
             }
         };
-    }]);
+    });
 
     function getTwoDigitNumber(num){
         return (num > 9 ? num : '0'+num);

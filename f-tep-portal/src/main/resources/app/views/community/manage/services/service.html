@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="serviceParams.selectedService = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-service"
            class="save-button md-fab md-mini right"
            ng-click="refreshService()"
@@ -93,7 +102,8 @@
         </div>
 
         <md-button class="toolbar-button md-secondary"
-                   ng-click="removeItem(serviceParams.contents, item)"
+                   ng-click="removeServiceItem(serviceParams.contents, item)"
+                   has-permission="WRITE" permission-source="{{serviceParams.selectedService}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

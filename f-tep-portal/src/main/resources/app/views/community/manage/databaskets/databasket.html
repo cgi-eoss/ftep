@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="basketParams.selectedDatabasket = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-databasket"
            class="save-button md-fab md-mini right"
            ng-click="refreshDatabasket()"
@@ -8,7 +17,6 @@
            tooltip-append-to-body="true">
         <i class="material-icons">update</i>
 </md-button>
-
 
 <section id="databasket-title" class="row section-title">
     <div class="col-xs-10 title-text">
@@ -29,6 +37,7 @@
         <h3>
             <md-button class="right toolbar-button md-secondary"
                        ng-click="clearDatabasket()"
+                       has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Clear {{item}}"
                        uib-tooltip="Clear {{item}}"
                        tooltip-placement="top"
@@ -38,6 +47,7 @@
             </md-button>
             <md-button class="right toolbar-button md-secondary"
                        ng-click="addItemsDialog($event)"
+                       has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                        aria-label="Add {{item}}"
                        uib-tooltip="Add {{item}}"
                        tooltip-placement="top"
@@ -102,7 +112,8 @@
         </div>
 
         <md-button class="toolbar-button md-secondary"
-                   ng-click="removeItem(basketParams.items, file)"
+                   ng-click="removeDatabasketItem(basketParams.items, file)"
+                   has-permission="WRITE" permission-source="{{basketParams.selectedDatabasket}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

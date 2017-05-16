@@ -1,3 +1,12 @@
+<md-button class="close toolbar-button md-secondary"
+           ng-click="projectParams.selectedProject = undefined"
+           uib-tooltip="Close"
+           tooltip-placement="top"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    <i class="material-icons">close</i>
+</md-button>
+
 <md-button id="update-project"
            class="save-button md-fab md-mini right"
            ng-click="refreshProject()"
@@ -28,6 +37,7 @@
         <h3>
             <md-button class="toolbar-button md-secondary"
                        ng-click="addProjectContentDialog($event)"
+                       has-permission="WRITE" permission-source="{{projectParams.selectedProject}}"
                        aria-label="Add ..."
                        uib-tooltip="Add ..."
                        tooltip-placement="top"
@@ -94,6 +104,7 @@
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeProject(projectParams.contents, item)"
+                   has-permission="WRITE" permission-source="{{projectParams.selectedProject}}"
                    aria-label="Remove"
                    uib-tooltip="Remove"
                    tooltip-placement="top"

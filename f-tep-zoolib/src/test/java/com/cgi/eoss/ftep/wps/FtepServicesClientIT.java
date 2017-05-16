@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.costing.CostingService;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Job;
@@ -21,8 +22,7 @@ import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
+import com.google.common.io.MoreFiles;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
 import shadow.dockerjava.com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -39,14 +40,17 @@ import shadow.dockerjava.com.github.dockerjava.core.DockerClientConfig;
 import shadow.dockerjava.com.github.dockerjava.core.RemoteApiVersion;
 import shadow.dockerjava.com.github.dockerjava.core.command.PullImageResultCallback;
 
-import java.nio.file.FileSystem;
+import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,7 +66,11 @@ import static org.mockito.Mockito.when;
  */
 public class FtepServicesClientIT {
     private static final String RPC_SERVER_NAME = FtepServicesClientIT.class.getName();
-    private static final String TEST_CONTAINER_IMAGE = "hello-world:latest";
+    private static final String SERVICE_NAME = "service1";
+    private static final String TEST_CONTAINER_IMAGE = "alpine:latest";
+
+    @Mock
+    private FtepGuiServiceManager guiService;
 
     @Mock
     private JobDataService jobDataService;
@@ -73,7 +81,8 @@ public class FtepServicesClientIT {
     @Mock
     private CostingService costingService;
 
-    private FileSystem fs;
+    private Path workspace;
+    private Path ingestedOutputsDir;
 
     private FtepServicesClient ftepServicesClient;
 
@@ -90,11 +99,28 @@ public class FtepServicesClientIT {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        this.fs = Jimfs.newFileSystem(Configuration.unix());
-        Files.createDirectories(fs.getPath("/tmp/ftep_data"));
+        workspace = Files.createTempDirectory(Paths.get("target"), FtepServicesClientIT.class.getSimpleName());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                MoreFiles.deleteRecursively(workspace);
+            } catch (IOException ignored) {
+            }
+        }));
+        ingestedOutputsDir = workspace.resolve("ingestedOutputsDir");
+        Files.createDirectories(ingestedOutputsDir);
 
-        JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(fs.getPath("/tmp/ftep_data")));
+        when(catalogueService.provisionNewOutputProduct(any(), any()))
+                .thenAnswer(invocation -> ingestedOutputsDir.resolve((String) invocation.getArgument(1)));
+        when(catalogueService.ingestOutputProduct(any(), any())).thenAnswer(invocation -> {
+            Path outputPath = (Path) invocation.getArgument(1);
+            FtepFile ftepFile = new FtepFile(URI.create("ftep://output/" + ingestedOutputsDir.relativize(outputPath)), UUID.randomUUID());
+            ftepFile.setFilename(ingestedOutputsDir.relativize(outputPath).toString());
+            return ftepFile;
+        });
+
+        JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(workspace));
         ServiceInputOutputManager ioManager = mock(ServiceInputOutputManager.class);
+        Mockito.when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
 
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(RemoteApiVersion.VERSION_1_19)
@@ -108,7 +134,7 @@ public class FtepServicesClientIT {
 
         WorkerFactory workerFactory = mock(WorkerFactory.class);
 
-        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, new FtepGuiServiceManager(), catalogueService, costingService);
+        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, guiService, catalogueService, costingService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
         when(workerFactory.getWorker(WorkerEnvironment.LOCAL)).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
@@ -130,25 +156,29 @@ public class FtepServicesClientIT {
     }
 
     @Test
-    public void launchProcessor() throws Exception {
+    public void launchApplication() throws Exception {
         FtepService service = mock(FtepService.class);
         FtepServiceDescriptor serviceDescriptor = mock(FtepServiceDescriptor.class);
         User user = mock(User.class);
+        when(user.getName()).thenReturn("ftep-user");
         Wallet wallet = mock(Wallet.class);
         when(user.getWallet()).thenReturn(wallet);
         when(wallet.getBalance()).thenReturn(100);
 
-        when(service.getDockerTag()).thenReturn(TEST_CONTAINER_IMAGE);
+        when(service.getName()).thenReturn(SERVICE_NAME);
+        when(service.getDockerTag()).thenReturn("ftep/testservice1");
+        when(service.getType()).thenReturn(FtepService.Type.APPLICATION); // Trigger ingestion of all outputs
         when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
         when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
             JobConfig config = new JobConfig(user, service);
             config.setInputs(invocation.getArgument(3));
-            return new Job(config, invocation.getArgument(0), user);
+            Job job = new Job(config, invocation.getArgument(0), user);
+            job.setId(1L);
+            return job;
         });
 
         String jobId = UUID.randomUUID().toString();
         String userId = "userId";
-        String serviceId = "serviceId";
         Multimap<String, String> inputs = ImmutableMultimap.<String, String>builder()
                 .put("inputKey1", "inputVal1")
                 .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
@@ -156,14 +186,68 @@ public class FtepServicesClientIT {
 
         when(costingService.estimateJobCost(any())).thenReturn(20);
 
-        Multimap<String, String> outputs = ftepServicesClient.launchService(userId, serviceId, jobId, inputs);
+        Multimap<String, String> outputs = ftepServicesClient.launchService(userId, SERVICE_NAME, jobId, inputs);
         assertThat(outputs, is(notNullValue()));
+        assertThat(outputs.get("1"), containsInAnyOrder("ftep://output/output_file_1"));
 
-        List<String> jobConfigLines = Files.readAllLines(fs.getPath("/tmp/ftep_data/Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
+        List<String> jobConfigLines = Files.readAllLines(workspace.resolve("Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
         assertThat(jobConfigLines, is(ImmutableList.of(
                 "inputKey1=\"inputVal1\"",
                 "inputKey2=\"inputVal2-1,inputVal2-2\""
         )));
+
+        List<String> outputFileLines = Files.readAllLines(ingestedOutputsDir.resolve("output_file_1"));
+        assertThat(outputFileLines, is(ImmutableList.of("INPUT PARAM: inputVal1")));
+
+        verify(costingService).chargeForJob(eq(wallet), any());
+    }
+
+    @Test
+    public void launchProcessor() throws Exception {
+        FtepService service = mock(FtepService.class);
+        FtepServiceDescriptor serviceDescriptor = mock(FtepServiceDescriptor.class);
+        User user = mock(User.class);
+        when(user.getName()).thenReturn("ftep-user");
+        Wallet wallet = mock(Wallet.class);
+        when(user.getWallet()).thenReturn(wallet);
+        when(wallet.getBalance()).thenReturn(100);
+
+        when(service.getName()).thenReturn(SERVICE_NAME);
+        when(service.getDockerTag()).thenReturn("ftep/testservice1");
+        when(service.getType()).thenReturn(FtepService.Type.PROCESSOR);
+        when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
+        when(serviceDescriptor.getDataOutputs()).thenReturn(ImmutableList.of(
+                FtepServiceDescriptor.Parameter.builder().id("output").build()
+        ));
+        when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
+            JobConfig config = new JobConfig(user, service);
+            config.setInputs(invocation.getArgument(3));
+            Job job = new Job(config, invocation.getArgument(0), user);
+            job.setId(1L);
+            return job;
+        });
+
+        String jobId = UUID.randomUUID().toString();
+        String userId = "userId";
+        Multimap<String, String> inputs = ImmutableMultimap.<String, String>builder()
+                .put("inputKey1", "inputVal1")
+                .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
+                .build();
+
+        when(costingService.estimateJobCost(any())).thenReturn(20);
+
+        Multimap<String, String> outputs = ftepServicesClient.launchService(userId, SERVICE_NAME, jobId, inputs);
+        assertThat(outputs, is(notNullValue()));
+        assertThat(outputs.get("output"), containsInAnyOrder("ftep://output/output_file_1"));
+
+        List<String> jobConfigLines = Files.readAllLines(workspace.resolve("Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
+        assertThat(jobConfigLines, is(ImmutableList.of(
+                "inputKey1=\"inputVal1\"",
+                "inputKey2=\"inputVal2-1,inputVal2-2\""
+        )));
+
+        List<String> outputFileLines = Files.readAllLines(ingestedOutputsDir.resolve("output_file_1"));
+        assertThat(outputFileLines, is(ImmutableList.of("INPUT PARAM: inputVal1")));
 
         verify(costingService).chargeForJob(eq(wallet), any());
     }

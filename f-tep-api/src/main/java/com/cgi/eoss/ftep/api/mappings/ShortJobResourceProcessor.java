@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api.mappings;
 
+import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.projections.ShortJob;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,15 @@ public class ShortJobResourceProcessor implements ResourceProcessor<Resource<Sho
 
     @Override
     public Resource<ShortJob> process(Resource<ShortJob> resource) {
-        if (!Strings.isNullOrEmpty(resource.getContent().getGuiUrl())) {
-            resource.add(new Link(resource.getContent().getGuiUrl()).withRel("gui"));
+        ShortJob entity = resource.getContent();
+
+        if (resource.getLink("self") == null) {
+            resource.add(entityLinks.linkToSingleResource(Job.class, entity.getId()).withSelfRel().expand());
+            resource.add(entityLinks.linkToSingleResource(Job.class, entity.getId()));
+        }
+
+        if (!Strings.isNullOrEmpty(entity.getGuiUrl())) {
+            resource.add(new Link(entity.getGuiUrl()).withRel("gui"));
         }
 
         // TODO Do this properly with a method reference

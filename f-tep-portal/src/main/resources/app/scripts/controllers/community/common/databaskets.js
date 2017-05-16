@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityDatabasketsCtrl', ['BasketService', 'CommonService', '$scope', '$sce', function (BasketService, CommonService, $scope, $sce) {
+    ftepmodules.controller('CommunityDatabasketsCtrl', ['BasketService', 'CommonService', '$scope', function (BasketService, CommonService, $scope) {
 
         /* Get stored Databasket details */
         $scope.basketParams = BasketService.params.community;
@@ -56,32 +56,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
-        /* Databasket Description Popup */
-        var popover = {};
-        $scope.getDescription = function (item) {
-            if (!item.description) {
-                item.description = "No description.";
-            }
-            var html =
-                '<div class="metadata">' +
-                    '<div class="row">' +
-                        '<div class="col-sm-12">' + item.description + '</div>' +
-                    '</div>' +
-                '</div>';
-            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
-        };
-
         /* Create Databasket */
         $scope.createItemDialog = function ($event) {
             CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
                 BasketService.refreshDatabaskets("community", "Create");
-            });
-        };
-
-        /* Remove Databasket */
-        $scope.removeItem = function (key, item) {
-             BasketService.removeDatabasket(item).then(function (data) {
-                 BasketService.refreshDatabaskets("community", "Remove", item);
             });
         };
 

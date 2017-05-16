@@ -1020,6 +1020,8 @@ abstract class RestoModel {
                 return 'geometry';
             case 'TEXT[]':
                 return 'array';
+            case 'JSONB':
+                return 'jsonb';
             default:
                 return 'string';
         }

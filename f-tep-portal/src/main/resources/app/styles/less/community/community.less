@@ -36,6 +36,9 @@
         padding-left: @sidenav-width;
         .item-list {
             padding-bottom: 3rem;
+            .md-avatar {
+                padding-top: 0.6rem;
+            }
         }
         .long-string {
             font-size: 0.6rem;
@@ -71,14 +74,16 @@
         }
         @media (max-width: @sm-max-width) {
             overflow-y: auto;
-            max-height: 50%;
-            //padding-bottom: 2rem;
+            max-height: 100%;
         }
     }
     .right-container {
         height: 100%;
         overflow-y: auto;
         padding: 0.5rem 1rem;
+        .close {
+            margin: 0.3rem 0.5rem;
+        }
         .item-list {
             .md-avatar {
                 margin: 0;
@@ -155,7 +160,7 @@
         @media (max-width: @sm-max-width) {
             height: auto;
             margin-left: @sidenav-width !important;
-            max-height: 50%;
+            max-height: 100%;
         }
     }
 }

@@ -2,6 +2,7 @@
 
     <article id="groups-container"
              class="col-md-4 col-xl-3 col-xxl-2 no-padding left-container"
+             media-show="gt-sm" media-show-on="{{groupParams.selectedGroup == undefined}}"
              ng-include src="'views/community/common/groups/groups.html'" />
 
     <article id="group-manage-container"

@@ -22,17 +22,17 @@ public class FtepFileResourceProcessor implements ResourceProcessor<Resource<Fte
 
     @Override
     public Resource<FtepFile> process(Resource<FtepFile> resource) {
-        FtepFile ftepFile = resource.getContent();
+        FtepFile entity = resource.getContent();
 
         if (resource.getLink("self") == null) {
-            resource.add(entityLinks.linkToSingleResource(ftepFile).withSelfRel().expand());
-            resource.add(entityLinks.linkToSingleResource(ftepFile));
+            resource.add(entityLinks.linkToSingleResource(entity).withSelfRel().expand());
+            resource.add(entityLinks.linkToSingleResource(entity));
         }
 
         // TODO Do this properly with a method reference
         resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
 
-        String wmsLink = catalogueService.getWmsUrl(ftepFile);
+        String wmsLink = catalogueService.getWmsUrl(entity);
         if (!Strings.isNullOrEmpty(wmsLink)) {
             resource.add(new Link(wmsLink).withRel("wms"));
         }

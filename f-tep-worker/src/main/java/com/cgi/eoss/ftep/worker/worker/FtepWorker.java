@@ -7,11 +7,14 @@ import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
-import com.cgi.eoss.ftep.rpc.worker.OutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
+import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.cgi.eoss.ftep.rpc.worker.PortBindings;
@@ -19,16 +22,6 @@ import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.io.ServiceIoException;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.api.command.BuildImageCmd;
-import shadow.dockerjava.com.github.dockerjava.api.command.CreateContainerCmd;
-import shadow.dockerjava.com.github.dockerjava.api.command.InspectContainerResponse;
-import shadow.dockerjava.com.github.dockerjava.api.exception.DockerClientException;
-import shadow.dockerjava.com.github.dockerjava.api.model.Bind;
-import shadow.dockerjava.com.github.dockerjava.api.model.ExposedPort;
-import shadow.dockerjava.com.github.dockerjava.api.model.Ports;
-import shadow.dockerjava.com.github.dockerjava.core.command.BuildImageResultCallback;
-import shadow.dockerjava.com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -41,14 +34,25 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
+import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
+import shadow.dockerjava.com.github.dockerjava.api.command.BuildImageCmd;
+import shadow.dockerjava.com.github.dockerjava.api.command.CreateContainerCmd;
+import shadow.dockerjava.com.github.dockerjava.api.command.InspectContainerResponse;
+import shadow.dockerjava.com.github.dockerjava.api.exception.DockerClientException;
+import shadow.dockerjava.com.github.dockerjava.api.model.Bind;
+import shadow.dockerjava.com.github.dockerjava.api.model.ExposedPort;
+import shadow.dockerjava.com.github.dockerjava.api.model.Ports;
+import shadow.dockerjava.com.github.dockerjava.core.command.BuildImageResultCallback;
+import shadow.dockerjava.com.github.dockerjava.core.command.WaitContainerResultCallback;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -270,15 +274,32 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void getOutputFile(OutputFileParam request, StreamObserver<OutputFileResponse> responseObserver) {
+    public void listOutputFiles(ListOutputFilesParam request, StreamObserver<OutputFileList> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            String outputId = request.getOutputId();
+            Path outputDir = Paths.get(request.getOutputsRootPath());
+            LOG.debug("Listing outputs from job {} in path: {}", request.getJob().getId(), outputDir);
+
+            OutputFileList.Builder responseBuilder = OutputFileList.newBuilder();
+
+            Files.walk(outputDir, 3, FileVisitOption.FOLLOW_LINKS)
+                    .filter(Files::isRegularFile)
+                    .map(Unchecked.function(outputDir::relativize))
+                    .map(relativePath -> OutputFileItem.newBuilder().setRelativePath(relativePath.toString()).build())
+                    .forEach(responseBuilder::addItems);
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to list output files: {}", request.toString(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void getOutputFile(GetOutputFileParam request, StreamObserver<OutputFileResponse> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             try {
-                Path outputDir = Paths.get(request.getPath()).resolve(outputId);
-                if (Files.list(outputDir).count() != 1) {
-                    throw new ServiceIoException("Found " + Files.list(outputDir).count() + " files in the output directory (1 expected): " + outputDir);
-                }
-                Path outputFile = Files.list(outputDir).findFirst().orElseThrow(FileNotFoundException::new);
+                Path outputFile = Paths.get(request.getPath());
                 long outputFileSize = Files.size(outputFile);
                 LOG.info("Returning output file from job {}: {} ({} bytes)", request.getJob().getId(), outputFile, outputFileSize);
 
@@ -323,6 +344,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         if (client.inspectContainerCmd(containerId).exec().getState().getRunning()) {
             try {
                 client.stopContainerCmd(containerId).withTimeout(30).exec();
+                if (client.inspectContainerCmd(containerId).exec().getState().getRunning()) {
+                    LOG.warn("Reached timeout trying to stop container safely; killing: {}", containerId);
+                    client.killContainerCmd(containerId).exec();
+                }
             } catch (DockerClientException e) {
                 LOG.warn("Received exception trying to stop container; killing: {}", containerId, e);
                 client.killContainerCmd(containerId).exec();

@@ -1,8 +1,8 @@
 <?php
 
-define('GEOSERVER_URL',"http://ftep-geoserver.eoss-cloud.it/geoserver/");
+define('GEOSERVER_URL',"http://ftep-geoserver:9080/geoserver/");
 define('GEOSERVER_CREDENTIALS',"admin:JGxAw1Dw1CdY4xv6qvs1FTsxGK61XiqtgxXc8CpTZOA");
-define('GEOSERVER_DOWNLOAD',"http://ftep-wps.eoss-cloud.it/wps/ftep-output/");
+define('GEOSERVER_DOWNLOAD',"ftep://outputProduct/");
 
 // require_once 'Monolog/autoload.php';
 require __DIR__ . '/vendor/autoload.php';
@@ -175,7 +175,7 @@ function catalogueIngest($jobid,$id,$filename){
     $RESTO_PWD="77137394cabe5c2d09c6f2eabd8f9136";
     $RESTO_COLLECTION="ftep";
     // $RESTO_ENDPOINT="https://192.168.3.83/resto/collections";
-    $RESTO_ENDPOINT="http://ftep-resto.eoss-cloud.it/resto/collections";
+    $RESTO_ENDPOINT="http://ftep-resto/collections";
 
     $curl = new Curl();
     $url_params=array();

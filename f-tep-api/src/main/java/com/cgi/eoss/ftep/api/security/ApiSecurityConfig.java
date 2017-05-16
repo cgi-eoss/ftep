@@ -52,6 +52,8 @@ public class ApiSecurityConfig {
                 httpSecurity
                         .csrf().disable();
                 httpSecurity
+                        .cors();
+                httpSecurity
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
             }

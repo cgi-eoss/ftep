@@ -1680,7 +1680,8 @@
 }
 .ftep .nav-pills li.active a {
   background-color: transparent;
-  border-bottom: 2px solid #ff4081;
+  box-sizing: border-box;
+  box-shadow: 0 -2px 0 0 #ff4081 inset;
   color: #558b2f;
 }
 
@@ -1791,6 +1792,59 @@
   border-color: #aed581;
   color: rgba(255, 255, 255, 0.87);
 }
+#developer-container #service-container .right-container #service-form #file-editor .nav-pills li {
+  background-color: white;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border: #d2d2d2 solid 1px;
+  min-width: 2rem !important;
+  min-height: 42px !important;
+  margin: 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor .nav-pills li .delete-file:hover {
+  color: #ff4081;
+}
+#developer-container #service-container .right-container #service-form #file-editor .CodeMirror {
+  height: 100%;
+  margin: 0 1rem 2rem 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor .file-editor {
+  background-color: #f8f8f8;
+  border: #d2d2d2 solid 1px;
+  margin-top: 0;
+  padding: 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor .file-editor textarea.md-input {
+  background-color: white;
+  font-family: 'Courier';
+  border: none;
+}
+#developer-container #service-container .right-container #service-form #file-editor .file-settings {
+  padding: 0.5rem;
+}
+#developer-container #service-container .right-container #service-form #file-editor .form-control {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding-bottom: 0;
+  padding-top: 0;
+  vertical-align: top;
+  width: auto;
+}
+#developer-container #service-container .right-container #service-form #file-editor .executable {
+  margin: 0;
+  padding: 0.6rem;
+  padding-bottom: 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor .executable md-checkbox {
+  margin: 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor .input-label {
+  font-size: 1rem;
+  margin: 0;
+  position: inherit;
+  vertical-align: top;
+  width: auto;
+}
 #developer-container #service-container .right-container #service-form .field-definitions {
   margin-top: 15px;
 }
@@ -1839,86 +1893,6 @@
 }
 #developer-container #service-container .right-container #service-form .field-definitions .error-message {
   color: #a94442;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs {
-  height: 100%;
-  -ms-flex: 1 1 auto;
-      flex: 1 1 auto;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs .md-tab {
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
-  border: #d2d2d2 solid 1px;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs .md-tab .md-button.tab-button {
-  padding: 0 !important;
-  line-height: 24px !important;
-  margin: 0px 0px 4px 4px !important;
-  min-width: 12px !important;
-  min-height: 16px !important;
-  margin-left: 8px;
-  color: #ff4081;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs .md-tab .md-button.tab-button:hover {
-  background-color: transparent;
-  color: #c51162;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs .md-tab .md-button.add-button {
-  color: darkgray;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs .md-tab .md-button.add-button:hover {
-  color: rgba(0, 0, 0, 0.54);
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs {
-  height: 100%;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper {
-  border: #d2d2d2 solid 1px;
-  margin-bottom: 1rem;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content {
-  background-color: #f8f8f8;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content {
-  background-color: transparent;
-  padding: 0;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .CodeMirror {
-  height: 100%;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .file-editor {
-  margin-top: 0;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .file-editor textarea.md-input {
-  background-color: white;
-  font-family: 'Courier';
-  border: none;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .file-settings {
-  padding: 0.5rem;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .form-control {
-  display: inline-block;
-  font-size: 0.7rem;
-  padding-bottom: 0;
-  padding-top: 0;
-  vertical-align: top;
-  width: auto;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .executable {
-  margin: 0;
-  padding: 0.6rem;
-  padding-bottom: 0;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .executable md-checkbox {
-  margin: 0;
-}
-#developer-container #service-container .right-container #service-form #editor-tabs md-tabs-content-wrapper md-tab-content md-content .input-label {
-  font-size: 1rem;
-  margin: 0;
-  position: inherit;
-  vertical-align: top;
-  width: auto;
 }
 @media (max-width: 991px) {
   #developer-container #service-container .right-container {

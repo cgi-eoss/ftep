@@ -9,8 +9,7 @@
 
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ServiceCtrl', ['$scope', 'ProductService', 'CommonService', '$mdDialog',
-                                           function ($scope, ProductService, CommonService, $mdDialog) {
+    ftepmodules.controller('ServiceCtrl', ['$scope', 'ProductService', 'CommonService', '$mdDialog', function ($scope, ProductService, CommonService, $mdDialog) {
 
         $scope.serviceParams = ProductService.params.development;
         $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
@@ -52,28 +51,25 @@ define(['../../ftepmodules'], function (ftepmodules) {
             ProductService.getServicesByFilter('development');
         };
 
-        // The modes
-        $scope.modes = ['Scheme', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];
-        $scope.mode = {};
-
-        $scope.selectDefaultMode = function(file){
-            $scope.mode.active = $scope.modes[7];
-
-            if(!file){
-                file = $scope.serviceParams.selectedService.files[0];
-            }
-
-            if(file && file.filename.toLowerCase() === 'dockerfile'){
-                $scope.mode.active = $scope.modes[1];
-            }
-            else if(file && file.filename.toLowerCase() === 'workflow.sh'){
-                $scope.mode.active = $scope.modes[7];
-            }
+        $scope.openFile = function(file) {
+            $scope.serviceParams.openedFile = file;
         };
 
-        $scope.refreshMirror = function(){
+        // The modes
+        $scope.modes = ['Text', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];
+        $scope.mode = {};
+
+        $scope.updateMode = function() {
+            ProductService.setFileType();
+        };
+
+        $scope.refreshMirror = function() {
+            // Set mode to default if not yet assigned
+            if (!$scope.serviceParams.activeMode) {
+                $scope.serviceParams.activeMode = $scope.modes[0];
+            }
             if($scope.editor) {
-                $scope.editor.setOption("mode", $scope.mode.active.toLowerCase());
+                $scope.editor.setOption("mode", $scope.serviceParams.activeMode.toLowerCase());
             }
         };
 
@@ -84,13 +80,19 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.codemirrorLoaded = function (editor) {
+
+            // Set mode to default if not yet assigned
+            if (!$scope.serviceParams.activeMode) {
+                $scope.serviceParams.activeMode = $scope.modes[0];
+            }
+
             // Editor part
             var doc = editor.getDoc();
             editor.focus();
 
             // Apply mode to editor
             $scope.editor = editor;
-            editor.setOption("mode", $scope.mode.active.toLowerCase());
+            editor.setOption("mode", $scope.serviceParams.activeMode.toLowerCase());
 
             // Options
             editor.setOption('firstLineNumber', 1);
@@ -98,11 +100,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
             editor.on("scrollCursorIntoView", function(){
                 $scope.editor = editor;
-                editor.setOption("mode", $scope.mode.active.toLowerCase());
+                editor.setOption("mode", $scope.serviceParams.activeMode.toLowerCase());
             });
             editor.on("focus", function(){
                 $scope.editor = editor;
-                editor.setOption("mode", $scope.mode.active.toLowerCase());
+                editor.setOption("mode", $scope.serviceParams.activeMode.toLowerCase());
             });
         };
 
@@ -156,13 +158,13 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.deleteFileDialog = function(event, file){
-            CommonService.confirm(event, 'Are you sure you want to delete the file ' + file.filename + "?").then(function (confirmed) {
+            CommonService.confirm(event, 'Are you sure you want to delete the file ' + file.filename + "?").then(function(confirmed) {
                 if (confirmed === false) {
                     return;
                 }
                 ProductService.removeServiceFile(file).then(function(){
-                    var index = $scope.serviceParams.selectedService.files.indexOf(file);
-                    $scope.serviceParams.selectedService.files.splice(index,1);
+                    ProductService.refreshSelectedService('development');
+                    $scope.serviceParams.openedFile = $scope.serviceParams.selectedService.files[0];
                 });
             });
         };

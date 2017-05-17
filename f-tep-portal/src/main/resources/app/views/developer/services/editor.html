@@ -76,79 +76,69 @@
         </ul>
     </section>
 
-    <section id="editor-tabs" ng-show="serviceParams.activeArea === serviceForms.files">
-        <md-tabs md-selected="1">
-             <md-tab ng-repeat="file in serviceParams.selectedService.files" ng-click="selectDefaultMode(file)">
-                <md-tab-label>
-                    {{file.filename}}
-                    <md-button class="tab-button"
-                               ng-click="deleteFileDialog($event, file)"
-                               ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
-                               aria-label="Delete File"
-                               uib-tooltip="Delete File"
-                               tooltip-placement="top"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">
-                        <i class="material-icons">close</i>
-                    </md-button>
-                </md-tab-label>
-                <md-tab-body>
-                    <md-content class="md-padding">
-                        <div class="tab-content">
-                            <md-input-container md-no-float class="md-block file-editor">
-                                <div class="row file-settings">
-                                    <div class="col-md-4 no-padding">
-                                        <label class="input-label">File Language:</label>
-                                        <select class="form-control"
-                                                ng-model="mode.active"
-                                                ng-options="m for m in modes"
-                                                ng-change="modeChanged()"
-                                                ng-init="selectDefaultMode()" />
-                                    </div>
-                                    <div class="col-md-4 no-padding" />
-                                    <div class="col-md-4 no-padding">
-                                        <label class="input-label">Executable:</label>
-                                        <md-checkbox class="executable"
-                                                     ng-model="file.executable"
-                                                     aria-label="Executable"
-                                                     ng-disabled="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'">
-                                        </md-checkbox>
-                                    </div>
-                                </div>
+    <section id="file-editor" ng-hide="serviceParams.activeArea !== serviceForms.files">
+        <ul class="nav nav-pills">
 
-                                <textarea class="file-contents"
-                                      ui-codemirror="{ onLoad : codemirrorLoaded }"
-                                      ui-codemirror-opts="editorOptions"
-                                      ui-refresh="refreshMirror()"
-                                      ng-change="refreshMirror()"
-                                      ng-model="file.content"
-                                      md-select-on-focus
-                                      placeholder="Add file content..">Loading...</textarea >
-                            </md-input-container>
-                        </div>
-                    </md-content>
-                </md-tab-body>
-            </md-tab>
-            <md-tab ng-click="createFileDialog($event)">
-                <md-tab-label>
-                    <md-button class="tab-button add-button"
-                       aria-label="Add File"
-                       uib-tooltip="Add File"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        <i class="material-icons">add</i>
-                    </md-button>
-                </md-tab-label>
-                <md-tab-body>
-                    <md-content class="md-padding">
-                    </md-content>
-                </md-tab-body>
-            </md-tab>
-        </md-tabs>
+            <li role="presentation"
+                ng-repeat="file in serviceParams.selectedService.files | orderBy: 'filename'"
+                ng-class="{'active': serviceParams.openedFile.filename == file.filename}"
+                ng-click="openFile(file); updateMode()">
+                <a class="left">{{file.filename}}</a>
+                <a ng-click="deleteFileDialog($event, file)"
+                   class="right delete-file"
+                   ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
+                   aria-label="Delete File"
+                   uib-tooltip="Delete File"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">x</a>
+            </li>
+
+            <li role="presentation"
+                ng-click="createFileDialog($event)"
+                aria-label="Add File"
+                uib-tooltip="Add File"
+                tooltip-placement="top"
+                tooltip-trigger="mouseenter"
+                tooltip-append-to-body="true">
+                <a>+</a>
+            </li>
+        </ul>
+
+        <md-input-container md-no-float class="md-block file-editor">
+            <div class="row file-settings">
+                <div class="col-md-4 no-padding">
+                    <label class="input-label">File Language:</label>
+                    <select class="form-control"
+                            ng-model="serviceParams.activeMode"
+                            ng-options="m for m in modes"
+                            ng-change="modeChanged()" />
+                </div>
+                <div class="col-md-4 no-padding" />
+                <div class="col-md-4 no-padding">
+                    <label class="input-label">Executable:</label>
+                    <md-checkbox class="executable"
+                                 ng-model="serviceParams.openedFile.executable"
+                                 aria-label="Executable"
+                                 ng-disabled="serviceParams.openedFile.filename === 'Dockerfile' || serviceParams.openedFile.filename === 'workflow.sh'">
+                    </md-checkbox>
+                </div>
+            </div>
+
+            <textarea class="file-contents"
+                  ui-codemirror="{ onLoad : codemirrorLoaded }"
+                  ui-codemirror-opts="editorOptions"
+                  ui-refresh="refreshMirror()"
+                  ng-change="refreshMirror()"
+                  ng-model="serviceParams.openedFile.content"
+                  md-select-on-focus
+                  placeholder="Add file content..">Loading...</textarea>
+        </md-input-container>
+
     </section>
 
     <section class="field-definitions" ng-repeat="key in constants.serviceFields" ng-show="serviceParams.activeArea === serviceForms[key]">
+
         <div class="row header">
             <div class="col-md-2 no-padding">Id</div>
             <div class="col-md-2 no-padding">Title</div>
@@ -225,6 +215,7 @@
                    tooltip-append-to-body="true">
             <i class="material-icons">add_box</i>
         </md-button>
+
     </section>
 
 </form>

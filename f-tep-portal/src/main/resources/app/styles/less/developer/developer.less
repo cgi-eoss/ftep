@@ -79,6 +79,63 @@
                         color: @text-light;
                     }
                 }
+                #file-editor {
+                    .nav-pills {
+                        li {
+                            background-color: @white;
+                            border-top-right-radius: 10px;
+                            border-top-left-radius: 10px;
+                            .border(border, @lighter-gray);
+                            min-width: 2rem !important;
+                            min-height: 42px !important;
+                            margin: 0;
+                            .delete-file:hover {
+                                color: @accent;
+                            }
+                        }
+                    }
+                    .CodeMirror {
+                        height: 100%;
+                        margin: 0 1rem 2rem 0;
+                    }
+                    .file-editor {
+                        background-color: @bg;
+                        .border(border, @lighter-gray);
+                        margin-top: 0;
+                        padding: 0;
+                        textarea.md-input {
+                            background-color: @white;
+                            font-family: 'Courier';
+                            border: none;
+                        }
+                    }
+                    .file-settings {
+                        padding: 0.5rem;
+                    }
+                    .form-control {
+                        display: inline-block;
+                        font-size: 0.7rem;
+                        padding-bottom: 0;
+                        padding-top: 0;
+                        vertical-align: top;
+                        width: auto;
+                    }
+                    .executable {
+                        margin: 0;
+                        padding: 0.6rem;
+                        padding-bottom: 0;
+                        md-checkbox {
+                            margin: 0;
+                        }
+                    }
+                    .input-label {
+                        font-size: 1rem;
+                        margin: 0;
+                        position: inherit;
+                        vertical-align: top;
+                        width: auto;
+                    }
+                }
                 .field-definitions {
                     margin-top: 15px;
                     .row {
@@ -125,86 +182,6 @@
                         color: @error-text;
                     }
                 }
-                #editor-tabs {
-                    height: 100%;
-                    flex: 1 1 auto;
-                    .md-tab {
-                        border-top-right-radius: 10px;
-                        border-top-left-radius: 10px;
-                        .border(border, @lighter-gray);
-                        .md-button.tab-button {
-                            padding: 0 !important;
-                            line-height: 24px !important;
-                            margin: 0px 0px 4px 4px !important;
-                            min-width: 12px !important;
-                            min-height: 16px !important;
-                            margin-left: 8px;
-                            color: @accent;
-                            &:hover {
-                                background-color: transparent;
-                                color: @accent-dark;
-                            }
-                        }
-                        .md-button.add-button {
-                            color: @gray;
-                            &:hover {
-                                color: @dark-gray;
-                            }
-                        }
-                    }
-                    md-tabs {
-                        height: 100%;
-                    }
-                    md-tabs-content-wrapper {
-                        .border(border, @bg);
-                        margin-bottom: 1rem;
-                        md-tab-content {
-                            background-color: @bg;
-                            md-content {
-                                background-color: transparent;
-                                padding: 0;
-                                .CodeMirror {
-                                    height: 100%;
-                                }
-                                .file-editor {
-                                    margin-top: 0;
-                                    textarea.md-input {
-                                        background-color: @white;
-                                        font-family: 'Courier';
-                                        border: none;
-                                    }
-                                }
-                                .file-settings {
-                                    padding: 0.5rem;
-                                }
-                                .form-control {
-                                    display: inline-block;
-                                    font-size: 0.7rem;
-                                    //height: 1.2rem;
-                                    padding-bottom: 0;
-                                    padding-top: 0;
-                                    vertical-align: top;
-                                    width: auto;
-                                }
-                                .executable {
-                                    margin: 0;
-                                    padding: 0.6rem;
-                                    padding-bottom: 0;
-                                    md-checkbox {
-                                        margin: 0;
-                                    }
-                                }
-                                .input-label {
-                                    font-size: 1rem;
-                                    margin: 0;
-                                    position: inherit;
-                                    vertical-align: top;
-                                    width: auto;
-                                }
-                            }
-                        }
-                    }
-                }
             }
             @media (max-width: @sm-max-width) {
                 height: auto;
@@ -232,5 +209,3 @@
         margin-top: 60px;
     }
 }
-
-

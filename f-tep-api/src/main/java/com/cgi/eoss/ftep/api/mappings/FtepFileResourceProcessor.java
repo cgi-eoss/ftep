@@ -30,7 +30,9 @@ public class FtepFileResourceProcessor implements ResourceProcessor<Resource<Fte
         }
 
         // TODO Do this properly with a method reference
-        resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
+        if (entity.getType() != FtepFile.Type.EXTERNAL_PRODUCT) {
+            resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
+        }
 
         String wmsLink = catalogueService.getWmsUrl(entity);
         if (!Strings.isNullOrEmpty(wmsLink)) {

@@ -71,6 +71,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 params.geometry = searchAOI;
             }
 
+            this.params.resultsMission = angular.copy(this.searchParameters.mission);
             if (this.searchParameters.mission) {
                 if(['Sentinel-1', 'Sentinel-2'].indexOf(this.searchParameters.mission.name) > -1){
                     params.mission = this.searchParameters.mission.name;
@@ -155,7 +156,8 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.params = {
-                selectedResultItems: []
+                selectedResultItems: [],
+                resultsMission: undefined
         };
 
         /** END OF PRESERVE USER SELECTIONS **/

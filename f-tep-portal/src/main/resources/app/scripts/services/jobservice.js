@@ -19,15 +19,39 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.jobOwnershipFilters = {
-            ALL_JOBS: {id: 0, name: 'All', criteria: ''},
-            MY_JOBS: {id: 1, name: 'Mine', criteria: undefined},
-            SHARED_JOBS: {id: 2, name: 'Shared', criteria: undefined}
+                ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.jobOwnershipFilters.MY_JOBS.criteria = { owner: {name: currentUser.name } };
-            self.jobOwnershipFilters.SHARED_JOBS.criteria = {  owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
+
+        var JOB_STATUSES = [
+             {
+                 title: "Completed",
+                 name: "COMPLETED",
+                 value: true
+             }, {
+                 title: "Running",
+                 name: "RUNNING",
+                 value: true
+             }, {
+                 title: "Error",
+                 name: "ERROR",
+                 value: true
+             }, {
+                 title: "Created",
+                 name: "CREATED",
+                 value: true
+             }, {
+                 title: "Cancelled",
+                 name: "CANCELLED",
+                 value: true
+             }
+         ];
 
         /** PRESERVE USER SELECTIONS **/
         this.params = {
@@ -38,21 +62,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 selectedJob: undefined,
                 jobSelectedOutputs: [], //selected outputs
                 displayFilters: false, //whether filter section is opened or not
-                jobStatuses: [    //filter options
-                    {
-                        title: "Completed",
-                        name: "COMPLETED",
-                        value: true
-                    }, {
-                        title: "Running",
-                        name: "RUNNING",
-                        value: true
-                    }, {
-                        title: "Error",
-                        name: "ERROR",
-                        value: true
-                    }
-                ],
+                jobStatuses: angular.copy(JOB_STATUSES),
                 selectedOwnershipFilter: this.jobOwnershipFilters.ALL_JOBS,
                 jobCategoryInfo: {} //info about job categories, which ones are opened, etc.
             },
@@ -67,21 +77,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
                 selectedOwnershipFilter: self.jobOwnershipFilters.ALL_JOBS,
-                jobStatuses: [    //filter options
-                    {
-                        title: "Completed",
-                        name: "COMPLETED",
-                        value: true
-                    }, {
-                        title: "Running",
-                        name: "RUNNING",
-                        value: true
-                    }, {
-                        title: "Error",
-                        name: "ERROR",
-                        value: true
-                    }
-                ],
+                jobStatuses: angular.copy(JOB_STATUSES),
             }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -148,6 +144,32 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /* Fetch a new page */
         this.getJobsPage = function(page, url){
             if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get jobs list */
+                getJobs(page).then(function (data) {
+                    self.params[page].jobs = data;
+                });
+            }
+        };
+
+        this.getJobsByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/jobs/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=id,DESC&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.jobOwnershipFilters.ALL_JOBS){
+                    url += '&owner=' + userUrl;
+                }
+
+                var statusStr = "";
+                for(var status in self.params[page].jobStatuses){
+                    if(self.params[page].jobStatuses[status].value === true){
+                        statusStr += "," + self.params[page].jobStatuses[status].name;
+                    }
+                }
+                url += "&status=" + statusStr.substring(1);
+
                 self.params[page].pollingUrl = url;
 
                 /* Get jobs list */

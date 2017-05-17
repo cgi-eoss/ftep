@@ -19,14 +19,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.serviceOwnershipFilters = {
-                ALL_SERVICES: { id: 0, name: 'All', criteria: ''},
-                MY_SERVICES: { id: 1, name: 'Mine', criteria: undefined },
-                SHARED_SERVICES: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_SERVICES: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_SERVICES: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_SERVICES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.serviceOwnershipFilters.MY_SERVICES.criteria = { owner: {name: currentUser.name } };
-            self.serviceOwnershipFilters.SHARED_SERVICES.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         this.params = {
@@ -35,6 +35,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pollingUrl: rootUri + '/services?sort=type,name',
                 pagingData: {},
                 selectedService: undefined,
+                selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
                 searchText: '',
                 inputValues: {},
                 dropLists: {}
@@ -63,7 +64,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 displayFilters: false,
                 displayRight: false,
                 selectedService: undefined,
-                selectedServiceFileTab: 1
+                selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
+                selectedServiceFileTab: 1,
+                openedFile: undefined,
+                activeMode: undefined
             }
         };
 
@@ -106,11 +110,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         if(page === 'development'){
                             self.params[page].selectedService.files = [];
                             if(data){
+                                var promises = [];
                                 for(var i = 0; i < data.length; i++){
-                                    getFileDetails(page, data[i]);
+                                    var partialPromise = getFileDetails(page, data[i]);
+                                    promises.push(partialPromise);
                                 }
-                                self.params[page].selectedService.files.sort(sortFiles);
+                                $q.all(promises).then(function(){
+                                    self.params[page].selectedService.files.sort(sortFiles);
+                                    if(!self.params[page].openedFile) {
+                                       self.params[page].openedFile = self.params[page].selectedService.files[0];
+                                    }
+                                    self.setFileType();
+                                });
                             }
+
                         }
                     });
 
@@ -120,6 +133,46 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         });
                     }
                 });
+            }
+        };
+
+        this.setFileType = function () {
+            var filename = self.params.development.openedFile.filename;
+            var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
+            var modes = ['Text', 'Dockerfile', 'Javascript', 'Perl', 'PHP', 'Python', 'Properties', 'Shell', 'XML', 'YAML' ];
+
+            if (filename === "Dockerfile") {
+                self.params.development.activeMode = modes[1];
+            } else {
+                switch(extension) {
+
+                    case "js":
+                        self.params.development.activeMode = modes[2];
+                        break;
+                    case "pl":
+                        self.params.development.activeMode = modes[3];
+                        break;
+                    case "php":
+                        self.params.development.activeMode = modes[4];
+                        break;
+                     case "py":
+                        self.params.development.activeMode = modes[5];
+                        break;
+                    case "properties":
+                        self.params.development.activeMode = modes[6];
+                        break;
+                    case "sh":
+                        self.params.development.activeMode = modes[7];
+                        break;
+                    case "xml":
+                        self.params.development.activeMode = modes[8];
+                        break;
+                    case "yml":
+                        self.params.development.activeMode = modes[9];
+                        break;
+                    default:
+                        self.params.development.activeMode = modes[0];
+                }
             }
         };
 
@@ -186,7 +239,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (self.params[page]) {
                 self.params[page].pollingUrl = url;
 
-                /* Get databasket list */
+                /* Get services list */
+                getUserServices(page).then(function (data) {
+                    self.params[page].services = data;
+                });
+            }
+        };
+
+        this.getServicesByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/services/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=type,name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.serviceOwnershipFilters.ALL_SERVICES){
+                    url += '&owner=' + userUrl;
+                }
+                self.params[page].pollingUrl = url;
+
+                /* Get services list */
                 getUserServices(page).then(function (data) {
                     self.params[page].services = data;
                 });
@@ -272,7 +342,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         this.updateService = function(selectedService) {
-            //Some descriptor fields are a copy from service itself
+
+            // Some descriptor fields are a copy from service itself
+            if(!selectedService.description) {
+                selectedService.description = '';
+            }
+            if(!selectedService.serviceDescriptor) {
+               selectedService.serviceDescriptor = {};
+            }
             selectedService.serviceDescriptor.description = selectedService.description;
             selectedService.serviceDescriptor.id = selectedService.name;
             selectedService.serviceDescriptor.serviceProvider = selectedService.name;
@@ -283,6 +360,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 dockerTag: selectedService.dockerTag,
                 serviceDescriptor: selectedService.serviceDescriptor
             };
+
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/services/' + selectedService.id)
                            .newRequest()
@@ -291,11 +369,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                            .then(
                     function (document) {
                         if (200 <= document.status && document.status < 300) {
-                            MessageService.addInfo('Service updated', 'Service ' + selectedService.name + ' successfully updated');
                             if(selectedService.files) {
+                                var promises = [];
                                 for(var i = 0; i < selectedService.files.length; i++){
-                                    updateFile(selectedService.files[i]);
+                                    var partialPromise = updateFile(selectedService.files[i]);
+                                    promises.push(partialPromise);
                                 }
+                                $q.all(promises).then(function(){
+                                    MessageService.addInfo('Service updated', 'Service ' + selectedService.name + ' successfully updated');
+                                });
                             }
                             resolve(document);
                         } else {
@@ -310,7 +392,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        function updateFile(file){
+        function updateFile(file) {
+            var deferred = $q.defer();
             var editedFile = angular.copy(file);
             editedFile.content =  btoa(file.content);
             halAPI.from(file._links.self.href)
@@ -319,11 +402,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                        .result
                        .then(
                 function (result) {
-                    MessageService.addInfo('Service File updated', file.filename + ' updated');
+                    deferred.resolve();
                 }, function (error) {
                     MessageService.addError('Could not update Service File ' + file.name, error);
+                    deferred.reject();
                 }
             );
+            return deferred.promise;
         }
 
         /** Remove service with its related files **/
@@ -409,7 +494,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         }
 
-        function getFileDetails(page, file){
+        function getFileDetails(page, file) {
+            var deferred = $q.defer();
             halAPI.from(file._links.self.href)
                        .newRequest()
                        .getResource()
@@ -417,10 +503,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                        .then(
                 function (document) {
                     self.params[page].selectedService.files.push(document);
+                    deferred.resolve();
                 }, function (error) {
                     MessageService.addError('Could not get Service File details', error);
+                    deferred.reject();
                 }
             );
+            return deferred.promise;
         }
 
         function sortFiles(a, b){

@@ -45,21 +45,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.userParams = UserService.params;
                 $scope.searchText = "";
 
-                UserService.getAllUsers().then(function (allUsers) {
-                    $scope.userParams.allUsers = allUsers;
-                });
-
                 UserService.getUsers($scope.groupParams.selectedGroup).then(function (groupUsers) {
                     $scope.userParams.groupUsers = groupUsers;
                 });
 
                 $scope.searchUsers = function(query) {
-                    var filteredItems = [];
-                    var queryLower = query.toLowerCase();
-                    filteredItems = $scope.userParams.allUsers.filter(function(searchText) {
-                        return (searchText.name.toLowerCase()).indexOf(queryLower) > -1;
+                    return UserService.getUsersByFilter(query).then(function(users){
+                        return users;
                     });
-                    return filteredItems;
                 };
 
                 $scope.validateUser = function (user) {

@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.rpc.Worker;
+import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -45,4 +47,17 @@ public class WorkerFactory {
         return FtepWorkerGrpc.newBlockingStub(managedChannel);
     }
 
+    public WorkersList listWorkers() {
+        WorkersList.Builder result = WorkersList.newBuilder();
+
+        discoveryClient.getInstances(workerServiceId).stream()
+                .map(si -> Worker.newBuilder()
+                        .setHost(si.getHost())
+                        .setPort(Integer.parseInt(si.getMetadata().get("grpcPort")))
+                        .setEnvironment(si.getMetadata().get("workerEnv"))
+                        .build())
+                .forEach(result::addWorkers);
+
+        return result.build();
+    }
 }

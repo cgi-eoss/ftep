@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -17,7 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
         itemResourceRel = "project",
         collectionResourceRel = "projects",
         excerptProjection = ShortProject.class)
-public interface ProjectsApi extends BaseRepositoryApi<Project>, PagingAndSortingRepository<Project, Long> {
+public interface ProjectsApi extends BaseRepositoryApi<Project>, ProjectsApiCustom, PagingAndSortingRepository<Project, Long> {
 
     @Override
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
@@ -43,4 +44,21 @@ public interface ProjectsApi extends BaseRepositoryApi<Project>, PagingAndSortin
     @Query("select t from Project t where not t.owner=user")
     Page<Project> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @RestResource(path = "findByFilterOnly", rel = "findByFilterOnly")
+    @Query("select t from Project t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter,
+            Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
+    @Query("select t from Project t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(@Param("filter") String filter,
+            @Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
+    @Query("select t from Project t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(@Param("filter") String filter,
+            @Param("owner") User user, Pageable pageable);
 }

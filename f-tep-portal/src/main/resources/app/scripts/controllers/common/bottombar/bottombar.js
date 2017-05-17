@@ -37,7 +37,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     var partialPromise = $q.defer();
                     promises.push(partialPromise.promise);
 
-                    FileService.createGeoResultFile(items[index], $scope.resultParams.mission.name).then(function(result){
+                    FileService.createGeoResultFile(items[index], $scope.resultParams.resultsMission.name).then(function(result){
                         itemLinks.push(result.data._links.self.href);
                         partialPromise.resolve();
                     },

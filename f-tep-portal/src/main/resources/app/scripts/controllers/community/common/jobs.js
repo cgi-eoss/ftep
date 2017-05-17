@@ -25,15 +25,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.jobParams.jobs = data;
         });
 
+        /* Stop Polling */
+        $scope.$on("$destroy", function() {
+            JobService.stopPolling();
+        });
+
         /* Paging */
         $scope.getPage = function(url){
             JobService.getJobsPage('community', url);
         };
 
-        /* Stop Polling */
-        $scope.$on("$destroy", function() {
-            JobService.stopPolling();
-        });
+        $scope.filter = function(){
+            JobService.getJobsByFilter('community');
+        };
 
         /* Select a Job */
         $scope.selectJob = function (item) {
@@ -45,28 +49,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.toggleFilters = function () {
             $scope.jobParams.displayFilters = !$scope.jobParams.displayFilters;
         };
-
-        $scope.itemSearch = {
-            searchText: $scope.jobParams.searchText
-        };
-
-        $scope.quickSearch = function (item) {
-            if (item.id.toString().indexOf($scope.itemSearch.searchText) > -1) {
-                return true;
-            }
-            return false;
-        };
-
-        $scope.filteredJobStatuses = [];
-        $scope.filterJobs = function () {
-            $scope.filteredJobStatuses = [];
-            for (var i = 0; i < $scope.jobParams.jobStatuses.length; i++) {
-                if ($scope.jobParams.jobStatuses[i].value === true) {
-                    $scope.filteredJobStatuses.push($scope.jobParams.jobStatuses[i].name);
-                }
-            }
-        };
-        $scope.filterJobs();
 
     }]);
 });

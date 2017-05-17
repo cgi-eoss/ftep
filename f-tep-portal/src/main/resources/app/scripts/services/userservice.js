@@ -36,7 +36,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getCurrentUser = function(withDetails){
             var deferred = $q.defer();
-            halAPI.from(ftepProperties.URLv2 + '/currentUser')
+            halAPI.from(ftepProperties.URLv2 + '/users/current')
                 .newRequest()
                 .getResource()
                 .result
@@ -70,6 +70,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.getAllUsers = function () {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/users/')
+                     .newRequest()
+                     .getResource()
+                     .result
+                     .then(
+            function (document) {
+                deferred.resolve(document._embedded.users);
+            }, function (error) {
+                MessageService.addError('Could not get Users', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        this.getUsersByFilter = function(searchStr){
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/users/search/byName?name=' + searchStr)
                      .newRequest()
                      .getResource()
                      .result

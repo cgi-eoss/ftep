@@ -13,7 +13,8 @@
 
         <session id="account-container" ng-if="user">
 
-            <div id="account-panel" class="col-md-12 col-lg-4">
+            <section id="account-panel" class="col-md-12 col-lg-4">
+
                <md-card id="account-info" md-theme-watch >
                     <md-card-title>
                         <md-card-title-text>
@@ -35,26 +36,34 @@
                         </div>
                         <div class="row">
                             <b class="col-md-4">Coin Balance:</b>
-                            <div class="col-md-8">{{wallet.balance}}</div>
+                            <div class="col-md-8">{{walletParams.wallet.balance}}</div>
                         </div>
                     </md-card-content>
                 </md-card>
-            </div>
 
-            <div id="statistics-panel" class="col-md-12 col-lg-4">
+            </section>
+
+            <section id="statistics-panel" class="col-md-12 col-lg-4">
+
                 <md-card id="statistics" md-theme-watch >
                     <md-card-title>
                         <md-card-title-text>
-                            <h2>Statistics</h2>
+                            <h2>Transaction History</h2>
                         </md-card-title-text>
                     </md-card-title>
+                </md-card>
+
+                <md-card class="transaction" md-theme-watch ng-repeat="transaction in walletParams.transactions | orderBy : '-id' ">
                     <md-card-content>
-                      ...
+                        <p><b>Balance {{transaction.type.toLowerCase()}}:</b> {{transaction.balanceChange}}</p>
+                        <p><b>Time:</b> {{transaction.transactionTime | formatDateTime}}</p>
                     </md-card-content>
                 </md-card>
-            </div>
 
-            <div id="info-panel" class="col-md-12 col-lg-4">
+            </section>
+
+            <section id="info-panel" class="col-md-12 col-lg-4">
+
                 <md-card id="request-coins" md-theme-watch >
                     <md-card-title>
                         <md-card-title-text>
@@ -62,18 +71,32 @@
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content>
-                        <p>You can ask for more credit by contacting F-TEP administrator using the
-                                <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a>
-                                or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.
+                        <p>To request more credit or to change your user role you can contact a F-TEP administrator using the
+                                <a href="{{ftepURL}}/?q=content/contact" target="_blank">form</a>
+                                or by sending an email to <a href="mailto:forestry-tep@esa.int?subject=F-TEP Coins/Roles" target="_top">forestry-tep@esa.int</a>.
                             </p>
                     </md-card-content>
                 </md-card>
-            </div>
+
+                <md-card id="account-manage" md-theme-watch >
+                    <md-card-title>
+                        <md-card-title-text>
+                            <h2>Manage SSO</h2>
+                        </md-card-title-text>
+                    </md-card-title>
+                    <md-card-content>
+                        <div class="row">
+                            <p>You can modify your single sign-on account details, such as your name, email address and password, via the <a ng-href="{{ssoURL}}/idp/umsso20/admin" target="_blank">EO Single Sign-On Platform</a>.</p>
+                        </div>
+                    </md-card-content>
+                </md-card>
+
+            </section>
 
         </session>
 
         <session id="login-container" ng-if="!user">
-            <div class="note">Your session has timed out. Please login or refresh the page to view your account.</div>
+            <section class="note">Your session has timed out. Please login or refresh the page to view your account.</section>
         </session>
 
     </article>

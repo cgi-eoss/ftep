@@ -33,8 +33,18 @@
             </div>
 
             <md-input-container md-no-float ng-show="serviceParams.displayFilters">
-                <input ng-model="serviceParams.searchText" type="text" placeholder="Search">
+                <input ng-model="serviceParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
             </md-input-container>
+
+            <div class="row filter-radiobutton" ng-show="serviceParams.displayFilters">
+                <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
+                    <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
 
         </ul>
     </div>
@@ -47,7 +57,7 @@
 
     <div class="item-list list" ng-if="serviceParams.services.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="service in serviceParams.services | filter: serviceParams.searchText"
+                      ng-repeat="service in serviceParams.services"
                       ng-click="selectService(service)"
                       ng-class="{active: service.name == serviceParams.selectedService.name}">
 

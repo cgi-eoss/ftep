@@ -35,13 +35,13 @@
             </div>
 
             <md-input-container md-no-float ng-show="dbParams.displayFilters">
-                <input ng-model="dbParams.searchText" type="text" placeholder="Search">
+                <input ng-model="dbParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="dbParams.displayFilters">
-                <md-radio-group ng-model="dbParams.selectedOwnerhipFilter">
+                <md-radio-group ng-model="dbParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in dbOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
-                        <md-radio-button ng-value="ownershipFilter"><!-- TODO ng-click to request new set from backend -->
+                        <md-radio-button ng-value="ownershipFilter">
                             {{ownershipFilter.name}}
                         </md-radio-button>
                     </div>
@@ -53,7 +53,7 @@
 
     <section class="item-list list" ng-if="dbParams.databaskets.length > 0">
         <md-list-item class="md-2-line"
-                      ng-repeat="basket in dbParams.databaskets | filter: dbParams.selectedOwnerhipFilter.criteria | filter: dbParams.searchText"
+                      ng-repeat="basket in dbParams.databaskets"
                       ng-click="selectDatabasket(basket);"
                       ng-class="{active: basket.name == dbParams.selectedDatabasket.name}">
 

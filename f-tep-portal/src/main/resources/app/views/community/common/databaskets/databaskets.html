@@ -35,11 +35,11 @@
             </div>
 
             <md-input-container md-no-float ng-show="basketParams.displayFilters">
-                <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+                <input ng-model="basketParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="basketParams.displayFilters">
-                <md-radio-group ng-model="basketParams.selectedOwnershipFilter">
+                <md-radio-group ng-model="basketParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in dbOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
                         <md-radio-button ng-value="ownershipFilter">
                             {{ownershipFilter.name}}
@@ -53,13 +53,13 @@
 
     <div class="row" ng-if="!basketParams.databaskets.length > 0">
         <div class="col-md-12 no-padding">
-            <div class="note">You have no {{item}}s. Create a {{item}} using the + button below.</div>
+            <div class="note">No databaskets found. To add a basket use the + button below.</div>
         </div>
     </div>
 
     <div class="item-list list" ng-if="basketParams.databaskets.length > 0">
         <md-list-item class="md-3-line"
-                      ng-repeat="(key, basket) in basketParams.databaskets | filter: quickSearch | filter: basketParams.selectedOwnershipFilter.criteria"
+                      ng-repeat="(key, basket) in basketParams.databaskets"
                       ng-click="selectBasket(basket)"
                       ng-class="{active: basket.id == basketParams.selectedDatabasket.id}">
 

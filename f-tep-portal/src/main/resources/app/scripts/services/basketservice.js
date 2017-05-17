@@ -20,14 +20,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         /** PRESERVE USER SELECTIONS **/
         this.dbOwnershipFilters = {
-                ALL_BASKETS: { id: 0, name: 'All', criteria: ''},
-                MY_BASKETS: { id: 1, name: 'Mine', criteria: undefined },
-                SHARED_BASKETS: { id: 2, name: 'Shared', criteria: undefined }
+                ALL_BASKETS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+                MY_BASKETS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+                SHARED_BASKETS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
+        var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
-            self.dbOwnershipFilters.MY_BASKETS.criteria = { owner: {name: currentUser.name } };
-            self.dbOwnershipFilters.SHARED_BASKETS.criteria = { owner: {name: "!".concat(currentUser.name) } };
+            userUrl = currentUser._links.self.href;
         });
 
         this.params = {
@@ -41,7 +41,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 searchText: '',
                 displayFilters: false,
                 databasketOnMap: {id: undefined},
-                selectedOwnerhipFilter: self.dbOwnershipFilters.ALL_BASKETS
+                selectedOwnershipFilter: self.dbOwnershipFilters.ALL_BASKETS
             },
             community: {
                 pollingUrl: rootUri + '/databaskets/?sort=name',
@@ -242,6 +242,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /* Fetch a new page */
         this.getDatabasketsPage = function(page, url){
             if (self.params[page]) {
+                self.params[page].pollingUrl = url;
+
+                /* Get databasket list */
+                getDatabaskets(page).then(function (data) {
+                    self.params[page].databaskets = data;
+                });
+            }
+        };
+
+        this.getDatabasketsByFilter = function (page) {
+            if (self.params[page]) {
+                var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl
+                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+
+                if(self.params[page].selectedOwnershipFilter !== self.dbOwnershipFilters.ALL_BASKETS){
+                    url += '&owner=' + userUrl;
+                }
                 self.params[page].pollingUrl = url;
 
                 /* Get databasket list */

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortFtepService;
 import org.springframework.data.domain.Page;
@@ -9,12 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(path = "services", itemResourceRel = "service", collectionResourceRel = "services", excerptProjection = ShortFtepService.class)
-public interface ServicesApi extends BaseRepositoryApi<FtepService>, JpaRepository<FtepService, Long> {
+public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApiCustom, JpaRepository<FtepService, Long> {
 
     @Override
     @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (returnObject.status == T(com.cgi.eoss.ftep.model.FtepService$Status).AVAILABLE) or hasPermission(returnObject, 'read')")
@@ -43,4 +45,20 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, JpaReposito
     @Query("select t from FtepService t where not t.owner=user")
     Page<FtepService> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
+    @Query("select t from FtepService t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
+    @Query("select t from FtepService t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
+            @Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
+    @Query("select t from FtepService t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
+            @Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 }

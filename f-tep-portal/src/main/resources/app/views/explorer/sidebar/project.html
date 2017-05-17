@@ -98,11 +98,11 @@
                 </div>
 
                 <md-input-container md-no-float ng-show="projectParams.displayFilters">
-                    <input ng-model="projectParams.searchText" type="text" placeholder="Search">
+                    <input ng-model="projectParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
                 </md-input-container>
 
                 <div class="row filter-radiobutton" ng-show="projectParams.displayFilters">
-                    <md-radio-group ng-model="projectParams.selectedOwnerhipFilter">
+                    <md-radio-group ng-model="projectParams.selectedOwnershipFilter" ng-change="filter()">
                         <div ng-repeat="ownershipFilter in projectOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
                             <md-radio-button ng-value="ownershipFilter">
                                 {{ownershipFilter.name}}
@@ -115,7 +115,7 @@
 
         <ul class="list-group project-list">
             <li class="list-group-item project-item"
-                ng-repeat="project in projectParams.projects | filter: projectParams.selectedOwnerhipFilter.criteria | filter: projectParams.searchText"
+                ng-repeat="project in projectParams.projects"
                 ng-click="selectProject(project)"
                 ng-class="{active: project.name === projectParams.selectedProject.name}">
 

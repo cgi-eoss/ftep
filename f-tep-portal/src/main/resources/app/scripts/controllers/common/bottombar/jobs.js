@@ -40,17 +40,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.displayFilters = !$scope.jobParams.displayFilters;
             };
 
-            $scope.filteredJobStatuses = [];
-
-            $scope.filterJobs = function () {
-                $scope.filteredJobStatuses = [];
-                for (var i = 0; i < $scope.jobParams.jobStatuses.length; i++) {
-                    if ($scope.jobParams.jobStatuses[i].value === true) {
-                        $scope.filteredJobStatuses.push($scope.jobParams.jobStatuses[i].name);
-                    }
-                }
+            $scope.filter = function () {
+                JobService.getJobsByFilter('explorer');
             };
-            $scope.filterJobs();
 
             $scope.repeatJob = function(job){
                 JobService.getJobConfig(job).then(function(config){

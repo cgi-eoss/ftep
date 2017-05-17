@@ -25,13 +25,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.basketParams.databaskets = data;
         });
 
+        /* Stop polling */
+        $scope.$on("$destroy", function() {
+            BasketService.stopPolling();
+        });
+
         $scope.getPage = function(url){
             BasketService.getDatabasketsPage('community', url);
         };
 
-        $scope.$on("$destroy", function() {
-            BasketService.stopPolling();
-        });
+        $scope.filter = function(){
+            BasketService.getDatabasketsByFilter('community');
+        };
 
         /* Select a Databasket */
         $scope.selectBasket = function (item) {
@@ -42,18 +47,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Filters */
         $scope.toggleFilters = function () {
             $scope.basketParams.displayFilters = !$scope.basketParams.displayFilters;
-        };
-
-        $scope.itemSearch = {
-            searchText: $scope.basketParams.searchText
-        };
-
-        $scope.quickSearch = function (item) {
-            if (item.name.toLowerCase().indexOf(
-                $scope.itemSearch.searchText.toLowerCase()) > -1) {
-                return true;
-            }
-            return false;
         };
 
         /* Create Databasket */

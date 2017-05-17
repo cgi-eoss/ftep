@@ -86,7 +86,9 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                 LOG.debug("Adding self-READ ACL for new Group with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()
                         .forEach(p -> acl.insertAce(acl.getEntries().size(), p, new GrantedAuthoritySid((Group) entity), true));
-            } else if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT) {
+            }
+
+            if (FtepFile.class.equals(entityClass) && ((FtepFile) entity).getType() == FtepFile.Type.EXTERNAL_PRODUCT) {
                 // No one should have ADMIN permission for EXTERNAL_PRODUCT FtepFiles, but they should be PUBLIC to read ...
                 LOG.debug("Adding PUBLIC READ-level ACL for new EXTERNAL_PRODUCT FtepFile with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()

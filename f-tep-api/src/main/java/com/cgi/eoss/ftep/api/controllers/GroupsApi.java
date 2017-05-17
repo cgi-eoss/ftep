@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortGroup;
 import org.springframework.data.domain.Page;
@@ -9,12 +10,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RepositoryRestResource(path = "groups", itemResourceRel = "group", collectionResourceRel = "groups", excerptProjection = ShortGroup.class)
-public interface GroupsApi extends BaseRepositoryApi<Group>, PagingAndSortingRepository<Group, Long> {
+public interface GroupsApi extends BaseRepositoryApi<Group>, GroupsApiCustom, PagingAndSortingRepository<Group, Long> {
 
     @Override
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
@@ -44,4 +46,20 @@ public interface GroupsApi extends BaseRepositoryApi<Group>, PagingAndSortingRep
     @Query("select t from Group t where not t.owner=user")
     Page<Group> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
+    @Override
+    @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
+    @Query("select t from Group t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
+    @Query("select t from Group t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(@Param("filter") String filter,
+            @Param("owner") User user, Pageable pageable);
+
+    @Override
+    @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
+    @Query("select t from Group t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(@Param("filter") String filter,
+            @Param("owner") User user, Pageable pageable);
 }

@@ -358,9 +358,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             self.params[page].selectedJob.downloadLinks = {};
                             for (var itemKey in self.params[page].selectedJob.outputs) {
                                 if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
-                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob._links['output-' + itemKey].href).then(function (result) {
+                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob.details._links['output-' + itemKey].href).then(function (result) {
                                         var str = self.params[page].selectedJob.outputs[itemKey][0];
-                                        self.params[page].selectedJob.downloadLinks[self.params[page].selectedJob.outputs[itemKey][0]] =  result._links.download.href;;
+                                        self.params[page].selectedJob.downloadLinks[self.params[page].selectedJob.outputs[itemKey][0]] =  result._links.download.href;
                                     });
                                 }
                             }

@@ -17,35 +17,48 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
+        var userWallet;
+
+        this.params = {
+            account: {
+                transactions: undefined,
+                wallet: undefined
+            }
+        };
 
         this.getUserWallet = function(user){
             var deferred = $q.defer();
-            halAPI.from(user._links.self.href)
+            userWallet = halAPI.from(rootUri + '/users/' + user.id)
                 .newRequest()
                 .follow('wallet')
-                .getResource()
-                .result
+                .getResource();
+
+            userWallet.result
                 .then(function (document) {
                     deferred.resolve(document);
-                 }, function (error) {
+                }, function (error) {
+                    MessageService.addError('Failed to get Wallet', error);
                     deferred.reject();
-                });
+                }
+            );
             return deferred.promise;
         };
 
-        this.getUserWalletByUserId = function(userId){
-            var deferred = $q.defer();
-            halAPI.from(rootUri + '/users/' + userId)
-                .newRequest()
-                .follow('wallet')
-                .getResource()
-                .result
-                .then(function (document) {
-                    deferred.resolve(document);
-                 }, function (error) {
-                    deferred.reject();
+        this.refreshUserTransactions = function (page, user) {
+            self.getUserWallet(user).then(function (wallet) {
+                self.params[page].wallet = wallet;
+                userWallet.continue().then(function(request) {
+                    request.follow('transactions')
+                        .getResource()
+                        .result
+                        .then(function (document) {
+                            self.params[page].transactions = document._embedded.walletTransactions;
+                        }, function (error) {
+                           MessageService.addError('Failed to get Transaction History', error);
+                       }
+                    );
                 });
-            return deferred.promise;
+            });
         };
 
         this.makeTransaction = function(user, wallet, coins){

@@ -8,16 +8,16 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AccountCtrl', ['$scope', 'UserService', 'WalletService', function ($scope, UserService, WalletService) {
+    ftepmodules.controller('AccountCtrl', ['ftepProperties', '$scope', 'UserService', 'WalletService', function (ftepProperties, $scope, UserService, WalletService) {
 
+        $scope.ftepURL = ftepProperties.FTEP_URL;
+        $scope.ssoURL = ftepProperties.SSO_URL;
+        $scope.walletParams = WalletService.params.account;
         $scope.user = undefined;
-        $scope.wallet = undefined;
 
         UserService.getCurrentUser().then(function(user){
             $scope.user = user;
-            WalletService.getUserWalletByUserId(user.id).then(function(wallet){
-                $scope.wallet = wallet;
-            });
+            WalletService.refreshUserTransactions('account', user);
         });
 
         $scope.hideContent = true;

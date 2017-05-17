@@ -8,12 +8,15 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('NavbarCtrl', ['$scope', '$location', 'UserService', '$window', function ($scope, $location, UserService, $window) {
+    ftepmodules.controller('NavbarCtrl', ['ftepProperties', '$scope', '$location', 'UserService', '$window', function (ftepProperties, $scope, $location, UserService, $window) {
+
+        $scope.user = undefined;
+        $scope.urlPrefix = ftepProperties.URL_PREFIX;
+
         $scope.isActive = function (route) {
             return route === $location.path();
         };
 
-        $scope.user = undefined;
         UserService.getCurrentUser().then(function(data){
             $scope.user = data;
         });

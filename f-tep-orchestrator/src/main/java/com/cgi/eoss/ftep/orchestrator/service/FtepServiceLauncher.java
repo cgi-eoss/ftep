@@ -16,6 +16,8 @@ import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
+import com.cgi.eoss.ftep.rpc.ListWorkersParams;
+import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
@@ -286,6 +288,17 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             }
 
             LOG.error("Failed to run processor; notifying gRPC client", e);
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void listWorkers(ListWorkersParams request, StreamObserver<WorkersList> responseObserver) {
+        try {
+            responseObserver.onNext(workerFactory.listWorkers());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to enumerate workers", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         }
     }

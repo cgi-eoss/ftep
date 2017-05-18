@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Databasket;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.Identifiable;
 
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import java.util.Set;
  * REST responses.</p>
  */
 @Projection(name = "detailedDatabasket", types = Databasket.class)
-public interface DetailedDatabasket extends EmbeddedId {
+public interface DetailedDatabasket extends Identifiable<Long> {
     String getName();
     String getDescription();
     ShortUser getOwner();

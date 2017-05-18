@@ -4,9 +4,10 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Project;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.Identifiable;
 
 @Projection(name = "shortProject", types = {Project.class})
-public interface ShortProject extends EmbeddedId {
+public interface ShortProject extends Identifiable<Long> {
     String getName();
     String getDescription();
     ShortUser getOwner();

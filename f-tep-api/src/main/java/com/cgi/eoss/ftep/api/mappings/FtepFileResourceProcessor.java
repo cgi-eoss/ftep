@@ -2,44 +2,93 @@ package com.cgi.eoss.ftep.api.mappings;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
-import com.google.common.base.Strings;
+import com.cgi.eoss.ftep.model.projections.DetailedFtepFile;
+import com.cgi.eoss.ftep.model.projections.ShortFtepFile;
 import lombok.RequiredArgsConstructor;
+import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.stereotype.Component;
+
+import java.net.URI;
 
 /**
  * <p>HATEOAS resource processor for {@link FtepFile}s. Adds extra _link entries for client use, e.g. file download.</p>
  */
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class FtepFileResourceProcessor implements ResourceProcessor<Resource<FtepFile>> {
+public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
+
     private final RepositoryEntityLinks entityLinks;
     private final CatalogueService catalogueService;
 
     @Override
-    public Resource<FtepFile> process(Resource<FtepFile> resource) {
-        FtepFile entity = resource.getContent();
+    protected EntityLinks getEntityLinks() {
+        return entityLinks;
+    }
 
-        if (resource.getLink("self") == null) {
-            resource.add(entityLinks.linkToSingleResource(entity).withSelfRel().expand());
-            resource.add(entityLinks.linkToSingleResource(entity));
-        }
+    @Override
+    protected Class<FtepFile> getTargetClass() {
+        return FtepFile.class;
+    }
 
-        // TODO Do this properly with a method reference
-        if (entity.getType() != FtepFile.Type.EXTERNAL_PRODUCT) {
+    private void addDownloadLink(Resource resource, FtepFile.Type type) {
+        if (type != FtepFile.Type.EXTERNAL_PRODUCT) {
+            // TODO Do this properly with a method reference
             resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
         }
+    }
 
-        String wmsLink = catalogueService.getWmsUrl(entity);
-        if (!Strings.isNullOrEmpty(wmsLink)) {
-            resource.add(new Link(wmsLink).withRel("wms"));
+    private void addWmsLink(Resource resource, FtepFile.Type type, URI uri) {
+        HttpUrl wmsLink = catalogueService.getWmsUrl(type, uri);
+        if (wmsLink != null) {
+            resource.add(new Link(wmsLink.toString()).withRel("wms"));
         }
+    }
 
-        return resource;
+    @Component
+    private final class BaseEntityProcessor implements ResourceProcessor<Resource<FtepFile>> {
+        @Override
+        public Resource<FtepFile> process(Resource<FtepFile> resource) {
+            FtepFile entity = resource.getContent();
+
+            addSelfLink(resource, entity);
+            addDownloadLink(resource, entity.getType());
+            addWmsLink(resource, entity.getType(), entity.getUri());
+
+            return resource;
+        }
+    }
+
+    @Component
+    private final class DetailedEntityProcessor implements ResourceProcessor<Resource<DetailedFtepFile>> {
+        @Override
+        public Resource<DetailedFtepFile> process(Resource<DetailedFtepFile> resource) {
+            DetailedFtepFile entity = resource.getContent();
+
+            addSelfLink(resource, entity);
+            addDownloadLink(resource, entity.getType());
+            addWmsLink(resource, entity.getType(), entity.getUri());
+
+            return resource;
+        }
+    }
+
+    @Component
+    private final class ShortEntityProcessor implements ResourceProcessor<Resource<ShortFtepFile>> {
+        @Override
+        public Resource<ShortFtepFile> process(Resource<ShortFtepFile> resource) {
+            ShortFtepFile entity = resource.getContent();
+
+            addSelfLink(resource, entity);
+            addDownloadLink(resource, entity.getType());
+
+            return resource;
+        }
     }
 
 }

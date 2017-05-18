@@ -15,6 +15,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.geojson.GeoJsonObject;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -110,16 +112,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
-    public String getWmsUrl(FtepFile ftepFile) {
-        switch (ftepFile.getType()) {
+    public HttpUrl getWmsUrl(FtepFile.Type type, URI uri) {
+        switch (type) {
             case OUTPUT_PRODUCT:
                 // TODO Use the CatalogueUri pattern to determine file attributes
-                String[] pathComponents = ftepFile.getUri().getPath().split("/");
+                String[] pathComponents = uri.getPath().split("/");
                 String jobId = pathComponents[1];
                 String filename = pathComponents[2];
-                return outputProductService.getWmsUrl(jobId, filename).toString();
+                return outputProductService.getWmsUrl(jobId, filename);
             default:
-                return "";
+                return null;
         }
     }
 

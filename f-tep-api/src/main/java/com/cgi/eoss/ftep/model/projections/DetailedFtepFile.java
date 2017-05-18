@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.Identifiable;
 
 import java.net.URI;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import java.util.UUID;
  * responses.</p>
  */
 @Projection(name = "detailedFtepFile", types = FtepFile.class)
-public interface DetailedFtepFile extends EmbeddedId {
+public interface DetailedFtepFile extends Identifiable<Long> {
     URI getUri();
     UUID getRestoId();
     FtepFile.Type getType();

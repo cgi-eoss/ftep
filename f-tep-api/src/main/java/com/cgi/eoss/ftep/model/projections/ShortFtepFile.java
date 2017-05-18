@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.FtepFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.Identifiable;
 
 import java.util.UUID;
 
@@ -11,10 +12,11 @@ import java.util.UUID;
  * <p>Abbreviated representation of an FtepFile entity, for embedding in REST responses.</p>
  */
 @Projection(name = "shortFtepFile", types = {FtepFile.class})
-public interface ShortFtepFile extends EmbeddedId {
+public interface ShortFtepFile extends Identifiable<Long> {
     UUID getRestoId();
     ShortUser getOwner();
     String getFilename();
+    FtepFile.Type getType();
     @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
     FtepPermission getAccessLevel();
 }

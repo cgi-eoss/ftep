@@ -37,6 +37,7 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
     }
 
     private void addDownloadLink(Resource resource, FtepFile.Type type) {
+        // TODO Check file datasource?
         if (type != FtepFile.Type.EXTERNAL_PRODUCT) {
             // TODO Do this properly with a method reference
             resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
@@ -50,6 +51,10 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
         }
     }
 
+    private void addFtepLink(Resource resource, URI ftepFileUri) {
+        resource.add(new Link(ftepFileUri.toASCIIString()).withRel("ftep"));
+    }
+
     @Component
     private final class BaseEntityProcessor implements ResourceProcessor<Resource<FtepFile>> {
         @Override
@@ -59,6 +64,7 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
             addSelfLink(resource, entity);
             addDownloadLink(resource, entity.getType());
             addWmsLink(resource, entity.getType(), entity.getUri());
+            addFtepLink(resource, entity.getUri());
 
             return resource;
         }
@@ -73,6 +79,7 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
             addSelfLink(resource, entity);
             addDownloadLink(resource, entity.getType());
             addWmsLink(resource, entity.getType(), entity.getUri());
+            addFtepLink(resource, entity.getUri());
 
             return resource;
         }

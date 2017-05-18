@@ -3,11 +3,14 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.google.protobuf.ByteString;
@@ -31,6 +34,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @GRpcService
@@ -40,13 +46,15 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final FtepFileDataService ftepFileDataService;
+    private final DatabasketDataService databasketDataService;
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
         this.ftepFileDataService = ftepFileDataService;
+        this.databasketDataService = databasketDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
         this.externalProductDataService = externalProductDataService;
@@ -159,6 +167,27 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to serve file download for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void getDatabasketContents(com.cgi.eoss.ftep.rpc.catalogue.Databasket request, StreamObserver<DatabasketContents> responseObserver) {
+        try {
+            // TODO Extract databasket ID from CatalogueUri pattern
+            Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(request.getUri());
+            Long databasketId = Long.parseLong(uriIdMatcher.group(1));
+            LOG.debug("Listing databasket contents for id {}", databasketId);
+
+            DatabasketContents.Builder responseBuilder = DatabasketContents.newBuilder();
+
+            Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new CatalogueException("Failed to load databasket for ID " + databasketId));
+            databasket.getFiles().forEach(f -> responseBuilder.addFileUris(FtepFileUri.newBuilder().setUri(f.getUri().toASCIIString()).build()));
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to list databasket contents for {}", request.getUri(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }

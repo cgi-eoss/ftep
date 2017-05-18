@@ -130,13 +130,15 @@ public class FtepFilesApiIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")))
-                .andExpect(jsonPath("$._links.wms.href").value("http://example.com/wms"));
+                .andExpect(jsonPath("$._links.wms.href").value("http://example.com/wms"))
+                .andExpect(jsonPath("$._links.ftep.href").value(testFile1.getUri().toASCIIString()));
 
         mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId() + "?projection=shortFtepFile").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")))
-                .andExpect(jsonPath("$._links.wms").doesNotExist());
+                .andExpect(jsonPath("$._links.wms").doesNotExist())
+                .andExpect(jsonPath("$._links.ftep").doesNotExist());
     }
 
     @Test

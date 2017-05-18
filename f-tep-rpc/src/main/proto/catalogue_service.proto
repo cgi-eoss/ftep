@@ -9,6 +9,7 @@ option java_package = "com.cgi.eoss.ftep.rpc.catalogue";
 
 service CatalogueService {
     rpc DownloadFtepFile (FtepFileUri) returns (stream FileResponse);
+    rpc GetDatabasketContents (Databasket) returns (DatabasketContents);
 }
 
 message FtepFileUri {
@@ -28,4 +29,12 @@ message FileResponse {
         FileMeta meta = 1;
         Chunk chunk = 2;
     }
+}
+
+message Databasket {
+    string uri = 1;
+}
+
+message DatabasketContents {
+    repeated FtepFileUri fileUris = 1;
 }

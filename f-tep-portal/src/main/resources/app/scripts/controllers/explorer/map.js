@@ -472,15 +472,15 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             if(basketFiles && basketFiles.length > 0){
                 for(var i = 0; i < basketFiles.length; i++){
                     var item = basketFiles[i];
-                    if(item.geometry){
+                    if(item.metadata && item.metadata.geometry && item.metadata.geometry.coordinates){
                         var lonlatPoints = [];
-                        for(var k = 0; k < item.geometry.length; k++){
-                           for(var m = 0; m < item.geometry[k].length; m++){
-                              var p = angular.copy(item.geometry[k][m]);
+                        for(var k = 0; k < iitem.metadata.geometry.coordinates.length; k++){
+                           for(var m = 0; m < item.metadata.geometry.coordinates[k].length; m++){
+                              var p = angular.copy(item.metadata.geometry.coordinates[k][m]);
                               lonlatPoints.push(p);
                            }
                         }
-                        var pol = new ol.geom['Polygon']( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857); //TODO type
+                        var pol = new ol.geom[item.metadata.geometry.type]( [lonlatPoints] ).transform(EPSG_4326, EPSG_3857);
                         var resultItem =  new ol.Feature({
                              geometry: pol,
                              data: item

@@ -119,24 +119,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 setFilesInputString(fieldId);
             }
             else if(dropObject && dropObject.type === 'databasket') {
-                BasketService.getDatabasketContents(dropObject.basket).then(function(files){
-                    for(var i = 0; i < files.length; i++){
-                        file = {
-                            name: files[i].filename,
-                            link: files[i]._links.self.href
-                        };
-                        if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId].indexOf(file.link) < 0){
-                            $scope.serviceParams.dropLists[fieldId].push(file);
-                        }
-                    }
-                    setFilesInputString(fieldId);
-                });
+                file = {
+                    name: dropObject.basket.name,
+                    link: dropObject.basket._links.ftep.href
+                };
+                if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId].indexOf(file.link) < 0){
+                    $scope.serviceParams.dropLists[fieldId].push(file);
+                }
+                setFilesInputString(fieldId);
                 return true;
             }
             else if(dropObject && dropObject.type === 'basketItem') {
                 file = {
                     name: dropObject.item.filename,
-                    link: dropObject.item._links.self.href
+                    link: dropObject.item._links.ftep.href
                 };
                 if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId].indexOf(file.link) < 0){
                     $scope.serviceParams.dropLists[fieldId].push(file);

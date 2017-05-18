@@ -19,9 +19,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.isWorkspaceLoading = true;
             $scope.serviceParams.inputValues = {};
             $scope.serviceParams.dropLists = {};
+
             if(inputs){
                 for (var key in inputs) {
                     $scope.serviceParams.inputValues[key] = inputs[key][0]; //First value is the actual input
+
+                    //if value has links in it, add also to dropList to show file chips
+                    if(inputs[key][0].indexOf('://') > -1){
+                        var list = inputs[key][0].split(',');
+                        $scope.serviceParams.dropLists[key] = [];
+                        for(var index in list){
+                            $scope.serviceParams.dropLists[key].push({ link: list[index] });
+                        }
+                    }
                 }
             }
 
@@ -153,47 +163,31 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             setFilesInputString(fieldId);
         };
 
-        var popover = {};
-        $scope.getDroppedFilePopover = function (listItem) {
-            var html =
-                '<div>' +
-                    '<div class="row">' +
-                        '<div class="col-sm-2">Name:</div>' +
-                        '<div class="col-sm-10">' + listItem.name + '</div>' +
-                    '</div>' +
-                    '<div class="row">' +
-                        '<div class="col-sm-2">Link:</div>' +
-                        '<div class="col-sm-10">' + listItem.link + '</div>' +
-                    '</div>';
-            if(listItem.start){
-                html +=
-                    '<div class="row">' +
-                        '<div class="col-sm-2">Start:</div>' +
-                        '<div class="col-sm-10">' + $filter('formatDateTime')(listItem.start) + '</div>' +
-                    '</div>';
+        $scope.updateDropList = function(fieldId){
+            if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId] === ''){
+                $scope.serviceParams.dropLists[fieldId] = undefined;
             }
-
-            if(listItem.stop){
-                html +=
-                    '<div class="row">' +
-                        '<div class="col-sm-2">End:</div>' +
-                        '<div class="col-sm-10">' + $filter('formatDateTime')(listItem.stop) + '</div>' +
-                    '</div>';
+            else {
+                var csvList = $scope.serviceParams.inputValues[fieldId].split(',');
+                if($scope.serviceParams.dropLists[fieldId] === undefined){
+                    $scope.serviceParams.dropLists[fieldId] = [];
+                }
+                var newDropList = [];
+                for(var index in csvList){
+                    var exists = false;
+                    for(var i in $scope.serviceParams.dropLists[fieldId]){
+                        if($scope.serviceParams.dropLists[fieldId][i].link === csvList[index]){
+                            newDropList.push($scope.serviceParams.dropLists[fieldId][i]);
+                            exists = true;
+                        }
+                    }
+                    if(!exists && csvList[index] !== ''){
+                        newDropList.push({link: csvList[index]});
+                    }
+                }
+                $scope.serviceParams.dropLists[fieldId] = newDropList;
             }
-
-            if(listItem.bytes){
-                html +=
-                    '<div class="row">' +
-                        '<div class="col-sm-2">Size:</div>' +
-                        '<div class="col-sm-10">' +  $filter('bytesToGB')(listItem.bytes) + '</div>' +
-                    '</div>';
-            }
-
-            html += '</div>';
-            return popover[html] || (popover[html] = $sce.trustAsHtml(html));
         };
-        /** END OF DRAG-AND-DROP FILES TO THE INPUT FIELD **/
-
 
     }]);
 });

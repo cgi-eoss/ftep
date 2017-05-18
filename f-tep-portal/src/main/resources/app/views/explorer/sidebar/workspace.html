@@ -86,7 +86,8 @@
                                                type="{{fieldDesc.defaultAttrs.dataType}}"
                                                ng-required="fieldDesc.minOccurs > 0"
                                                dnd-list="serviceParams.dropLists[fieldDesc.id]"
-                                               dnd-drop="onDrop(item, fieldDesc.id)">
+                                               dnd-drop="onDrop(item, fieldDesc.id)"
+                                               ng-change="updateDropList(fieldDesc.id)">
                                         <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
                                     </md-input-container>
                                </div>
@@ -96,13 +97,13 @@
                                 <div class="chip-container col-xs-12 col-sm-2 col-md-4 no-padding"
                                      ng-repeat="inputFile in serviceParams.dropLists[fieldDesc.id]">
 
-                                    <md-chip uib-popover-html="getDroppedFilePopover({{inputFile}})"
+                                    <md-chip uib-popover-template="'views/explorer/templates/metadatainputfile.tmpl.html'"
                                              popover-placement="right"
                                              popover-trigger="'mouseenter'"
                                              popover-append-to-body="true"
                                              popover-class="dropped-file-popover">
                                         <div class="md-chip-content  col-xs-9 no-padding">
-                                           <div class="chip-text" ng-bind="inputFile.name" />
+                                           <div class="chip-text">{{inputFile.name ? inputFile.name : inputFile.link}}</div>
                                         </div>
                                         <div class="md-chip-close col-xs-3 no-padding">
                                             <i class="material-icons"

@@ -281,7 +281,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJobOutput = function(job, outputLink) {
             var deferred = $q.defer();
 
-            halAPI.from(outputLink)
+            halAPI.from(outputLink + '?projection=detailedFtepFile')
                 .newRequest()
                 .getResource()
                 .result
@@ -356,11 +356,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                         if (self.params[page].selectedJob.outputs) {
                             self.params[page].selectedJob.downloadLinks = {};
+                            self.params[page].selectedJob.wmsLinks = [];
                             for (var itemKey in self.params[page].selectedJob.outputs) {
                                 if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
                                     getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob.details._links['output-' + itemKey].href).then(function (result) {
                                         var str = self.params[page].selectedJob.outputs[itemKey][0];
                                         self.params[page].selectedJob.downloadLinks[self.params[page].selectedJob.outputs[itemKey][0]] =  result._links.download.href;
+                                        if(result._links.wms){
+                                            var wmsObj = {
+                                                    key: itemKey,
+                                                    wms: result._links.wms.href,
+                                                    geo: result.metadata.geometry
+                                            };
+                                            self.params[page].selectedJob.wmsLinks.push(wmsObj);
+                                        }
                                     });
                                 }
                             }
@@ -374,6 +383,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     }
                     else if(page === 'explorer'){
                         self.params.explorer.jobSelectedOutputs = [];
+                        $rootScope.$broadcast('show.products', self.params[page].selectedJob);
                     }
 
                 });

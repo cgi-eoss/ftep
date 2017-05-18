@@ -36,9 +36,8 @@ class ftep::server (
   $local_worker_hostname              = 'ftep-worker',
   $local_worker_grpc_port             = undef,
 
-  # Hostname/IP for building the URLs to GUI applications; port is ephemeral and found from docker container
-  # If an empty string, will default to the appropriate F-TEP Worker instance gRPC host
-  $gui_default_host                   = '',
+  # Pattern for building GUI URLs, based on the subsituted string '__PORT__'
+  $gui_url_pattern                    = undef,
 
   $graylog_api_url                    = undef,
   $graylog_api_username               = undef,
@@ -112,6 +111,8 @@ class ftep::server (
   $real_graylog_api_username = pick($graylog_api_username, $ftep::globals::graylog_api_ftep_username)
   $real_graylog_api_password = pick($graylog_api_username, $ftep::globals::graylog_api_ftep_password)
 
+  $real_gui_url_pattern = pick($gui_url_pattern, "${ftep::globals::base_url}/gui/:__PORT__/")
+
   ensure_packages(['f-tep-server'], {
     ensure => 'latest',
     name   => 'f-tep-server',
@@ -167,7 +168,7 @@ class ftep::server (
       'graylog_api_url'                    => $real_graylog_api_url,
       'graylog_api_username'               => $real_graylog_api_username,
       'graylog_api_password'               => $real_graylog_api_password,
-      'gui_default_host'                   => $gui_default_host,
+      'gui_url_pattern'                    => $real_gui_url_pattern,
       'output_products_dir'                => "${ftep::common::datadir::data_basedir}/${output_products_dir}",
       'refdata_dir'                        => "${ftep::common::datadir::data_basedir}/${refdata_dir}",
       'geoserver_enabled'                  => $geoserver_enabled,

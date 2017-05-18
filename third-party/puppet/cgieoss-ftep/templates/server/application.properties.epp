@@ -21,7 +21,7 @@
     String $graylog_api_username,
     String $graylog_api_password,
 
-    String $gui_default_host,
+    String $gui_url_pattern,
 
     String $output_products_dir,
     String $refdata_dir,
@@ -90,8 +90,8 @@ ftep.api.logs.graylogApiUrl=<%= $graylog_api_url %>
 ftep.api.logs.username=<%= $graylog_api_username %>
 ftep.api.logs.password=<%= $graylog_api_password %>
 
-# Hostname/IP to use for building GUI application URLs
-ftep.orchestrator.gui.defaultHost=<%= $gui_default_host %>
+# Pattern for building GUI application URLs
+ftep.orchestrator.gui.urlPattern=<%= $gui_url_pattern %>
 
 # Catalogue service configuration
 ftep.catalogue.outputProducts.baseDir=<%= $output_products_dir %>

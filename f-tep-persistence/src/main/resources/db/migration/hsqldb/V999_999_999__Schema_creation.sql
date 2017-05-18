@@ -83,7 +83,8 @@ CREATE TABLE ftep_job_configs (
   id      BIGINT IDENTITY PRIMARY KEY,
   inputs  CLOB,
   owner   BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
-  service BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id)
+  service BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
+  label   CHARACTER VARYING(255)
   -- WARNING: No unique index on owner-service-inputs as hsqldb 2.3.4 cannot index CLOB columns
   -- UNIQUE (owner, service, inputs)
 );
@@ -91,6 +92,8 @@ CREATE INDEX ftep_job_configs_service_idx
   ON ftep_job_configs (service);
 CREATE INDEX ftep_job_configs_owner_idx
   ON ftep_job_configs (owner);
+CREATE INDEX ftep_job_configs_label_idx
+  ON ftep_job_configs (label);
 
 CREATE TABLE ftep_jobs (
   id         BIGINT IDENTITY PRIMARY KEY,

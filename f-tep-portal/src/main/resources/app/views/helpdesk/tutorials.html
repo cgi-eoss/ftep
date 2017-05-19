@@ -9,21 +9,25 @@
                 </md-card-title-text>
             </md-card-title>
             <md-card-content>
-                <p>Forestry-TEP Explorer page enables the platform user to search data and services, create custom databaskets, run services, and track their jobs.</p>
+              <p>The <em>Forestry-TEP</em> portal is divided up into various pages that provide particular functionality. 
+                The <em>Explorer</em> page allows users to search for satellite and other data, search and instigate services and to visualise their data using the various GUI applications. 
+                The <em>Manage / Share</em> page allows users to share various elements such as Projects, Databaskets, Jobs, Services and data. 
+                The <em>My Account</em> page allows users to view their account details and send requests such as for additional TEP-coins. 
+                If enabled, the <em>Developer</em> page allows Expert Users to develop, test and release their own processing services. </p>
 
-                <p>The pre-release version of the portal exposes a first set of functionalities and processes that can be run on a growing set of data. In this initial phase the platform can leverage a limited amount of resources and data: in the upcoming releases both the data and the reources will be increased.</p>
+                <p>This initial release of the portal exposes a first set of both data and services. Within the coming releases the capabilities, in terms of data, services and resources will be increased.</p>
 
                 <div id="supported-services">
                     <b>The list of services and applications available in the pre-release version includes the following:</b>
                     <div id="services-list" class="row">
                         <div class="col-md-6 no-padding">
-                            <h4>Applications:</h4>
+                            <h4>GUI Applications:</h4>
                             <ul>
                                 <li ng-repeat="app in applications" ng-bind="app" />
                             </ul>
                         </div>
                         <div class="col-md-6 no-padding">
-                            <h4>Processors/Algorithms:</h4>
+                            <h4>Processors:</h4>
                             <ul>
                                 <li ng-repeat="processor in processors" ng-bind="processor" />
                             </ul>
@@ -66,12 +70,20 @@
             <md-card-actions layout="row" layout-align="end center">
                 <md-button href="https://forestry-tep.eo.esa.int"
                            target="_blank">
-                    <span>Forestry TEP website</span>
+                    <span>F-TEP website</span>
                 </md-button>
                 <md-button href="https://forestry-tep.eo.esa.int/?q=content/user-manual-pre-release-version"
                            target="_blank">
                     <span>User Manual</span>
                 </md-button>
+                <md-button href="https://forestry-tep.eo.esa.int/?q=forum"
+                           target="_blank">
+                    <span>Forum</span>
+                </md-button>
+                <!--md-button href="https://forestry-tep.eo.esa.int/?q=wiki"
+                           target="_blank">
+                    <span>Wiki</span>
+                </md-button-->
                 <md-button href="https://github.com/cgi-eoss/ftep/blob/development/LICENSE.txt"
                            target="_blank">
                     <span>License</span>

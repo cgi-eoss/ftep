@@ -1771,38 +1771,34 @@
   -ms-flex: 0 1 auto;
       flex: 0 1 auto;
 }
-#developer-container #service-container .right-container #service-form #service-description {
+#developer-container #service-container .right-container #service-form #service-header .service-field {
+  padding: 0 0.5rem;
+}
+#developer-container #service-container .right-container #service-form #service-header #service-description,
+#developer-container #service-container .right-container #service-form #service-header #service-summary {
   width: 100%;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list {
+  border-bottom: #d2d2d2 solid 1px;
   list-style-type: none;
-  margin: 0px;
   padding: 0;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list li {
   background-color: #f8f8f8;
+  border-right: #d2d2d2 solid 1px;
+  border-top: #d2d2d2 solid 1px;
   cursor: pointer;
   display: inline-block;
-  margin: 0.5rem;
   padding: 0.8rem;
   white-space: nowrap;
+}
+#developer-container #service-container .right-container #service-form #editor-area-list li:first-child {
+  border-left: #d2d2d2 solid 1px;
 }
 #developer-container #service-container .right-container #service-form #editor-area-list .active {
   background-color: #aed581;
   border-color: #aed581;
   color: rgba(255, 255, 255, 0.87);
-}
-#developer-container #service-container .right-container #service-form #file-editor .nav-pills li {
-  background-color: white;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
-  border: #d2d2d2 solid 1px;
-  min-width: 2rem !important;
-  min-height: 42px !important;
-  margin: 0;
-}
-#developer-container #service-container .right-container #service-form #file-editor .nav-pills li .delete-file:hover {
-  color: #ff4081;
 }
 #developer-container #service-container .right-container #service-form #file-editor .CodeMirror {
   height: 100%;
@@ -1818,6 +1814,60 @@
   background-color: white;
   font-family: 'Courier';
   border: none;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list {
+  word-break: break-all;
+  list-style: none;
+  padding: 0;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list .active {
+  background-color: #aed581;
+  color: white;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list .active:hover {
+  background-color: #558b2f;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list .active:hover .material-icons {
+  color: #33691e;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list .add-file {
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list .add-file:hover {
+  background-color: transparent;
+  color: #ff4081;
+  cursor: pointer;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li .file {
+  cursor: pointer;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li .file:hover {
+  background-color: #d9edf7;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li .folder:hover {
+  background-color: #f8f8f8;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table {
+  width: 100%;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table .file-icon {
+  width: 28px;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table .file-icon .material-icons {
+  color: #558b2f;
+  font-size: 24px;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table .file-name {
+  text-align: left;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table .remove-file {
+  font-weight: bold;
+  text-align: right;
+  padding: 0 0.5rem;
+}
+#developer-container #service-container .right-container #service-form #file-editor #file-list li table .remove-file:hover {
+  color: #ff4081;
 }
 #developer-container #service-container .right-container #service-form #file-editor .file-settings {
   padding: 0.5rem;
@@ -1845,15 +1895,6 @@
   vertical-align: top;
   width: auto;
 }
-#developer-container #service-container .right-container #service-form .field-definitions {
-  margin-top: 15px;
-}
-#developer-container #service-container .right-container #service-form .field-definitions .row {
-  border: #f8f8f8 1px solid;
-}
-#developer-container #service-container .right-container #service-form .field-definitions .row .centre {
-  text-align: center;
-}
 #developer-container #service-container .right-container #service-form .add-button,
 #developer-container #service-container .right-container #service-form .remove-button,
 #developer-container #service-container .right-container #service-form .type-button {
@@ -1878,15 +1919,24 @@
   margin-left: 0px !important;
   padding-left: 2px !important;
 }
-#developer-container #service-container .right-container #service-form .header {
+#developer-container #service-container .right-container #service-form .field-definitions {
+  margin-top: 15px;
+}
+#developer-container #service-container .right-container #service-form .field-definitions table {
+  border: #d2d2d2 solid 1px;
+  min-width: 767px;
+}
+#developer-container #service-container .right-container #service-form .field-definitions table th,
+#developer-container #service-container .right-container #service-form .field-definitions table td {
+  border-left: #d2d2d2 solid 1px;
+}
+#developer-container #service-container .right-container #service-form .field-definitions table th {
   background-color: #f8f8f8;
-  font-weight: bold;
+  border-bottom: #d2d2d2 solid 1px;
   padding: 0.25rem;
 }
-#developer-container #service-container .right-container #service-form .header div {
-  display: inline-block;
-  height: 2rem;
-  vertical-align: middle;
+#developer-container #service-container .right-container #service-form .field-definitions table td {
+  border-bottom: #d2d2d2 solid 1px;
 }
 #developer-container #service-container .right-container #service-form .field-definitions md-input-container {
   width: 100%;

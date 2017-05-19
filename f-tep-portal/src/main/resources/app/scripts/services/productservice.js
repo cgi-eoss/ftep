@@ -66,6 +66,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 selectedService: undefined,
                 selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
                 selectedServiceFileTab: 1,
+                fileTree: undefined,
                 openedFile: undefined,
                 activeMode: undefined
             }
@@ -115,11 +116,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                     var partialPromise = getFileDetails(page, data[i]);
                                     promises.push(partialPromise);
                                 }
-                                $q.all(promises).then(function(){
+                                $q.all(promises).then(function() {
                                     self.params[page].selectedService.files.sort(sortFiles);
-                                    if(!self.params[page].openedFile) {
-                                       self.params[page].openedFile = self.params[page].selectedService.files[0];
-                                    }
+                                    self.params[page].openedFile = self.params[page].selectedService.files[0];
+                                    self.getFileList(page);
                                     self.setFileType();
                                 });
                             }
@@ -136,6 +136,73 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
+        this.getFileList =  function(page)  {
+
+            var files = self.params[page].selectedService.files;
+            var filename;
+            var list = [];
+            for (var file in files) {
+                var indent = 0;
+                filename = files[file].filename;
+                while(filename.indexOf('/') !== -1) {
+                    var folderexists = false;
+                    for(var i=0; i < list.length; i++) {
+                        if(list[i].name.indexOf(filename.slice(0, filename.indexOf("/")))  !== -1) {
+                             folderexists = true;
+                        }
+                    }
+                    if(!folderexists) {
+                       list.push({name: filename.slice(0, filename.indexOf("/")), type: 'folder', indent: indent});
+                    }
+                    filename = filename.substring(filename.indexOf("/") + 1);
+                    indent++;
+                }
+                list.push({name: filename, type: 'file', indent: indent, contents: files[file]});
+            }
+
+            var previousIndent = 0;
+            var nextIndent;
+            for(var item = 0; item < list.length; item++) {
+                var currentIndent = list[item].indent;
+
+                if(list.length > item + 1) {
+                    nextIndent = list[item + 1].indent;
+                } else {
+                    nextIndent = 'end';
+                }
+
+                if(nextIndent === 'end' && currentIndent === 0) {
+                    list[item].tree = "└─";
+                } else if(currentIndent === 0) {
+                    list[item].tree="├";
+                } else {
+                    list[item].tree="│";
+                    for(var j = 0; j < currentIndent; j++) {
+                        if (j < currentIndent -1) {
+                            list[item].tree = list[item].tree + "...";
+                            if(currentIndent > 0) {
+                               list[item].tree = list[item].tree + "│";  //Needs forward logic to check if │ or ...
+                            }
+                        } else {
+                            list[item].tree = list[item].tree + "...";
+                            if(nextIndent === 'end') {
+                                list[item].tree = list[item].tree + "└─";
+                            } else if(currentIndent === nextIndent) {
+                                list[item].tree = list[item].tree + "├─";
+                            } else if(currentIndent < nextIndent) {
+                                list[item].tree = list[item].tree + "├─"; //Needs forward logic to check if ├─ or └─
+                            } else if(currentIndent > nextIndent) {
+                                list[item].tree = list[item].tree + "└─";
+                            }
+                        }
+                    }
+                }
+                previousIndent = currentIndent;
+            }
+
+             self.params[page].fileTree = list;
+        }
+
         this.setFileType = function () {
             var filename = self.params.development.openedFile.filename;
             var extension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
@@ -145,7 +212,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 self.params.development.activeMode = modes[1];
             } else {
                 switch(extension) {
-
                     case "js":
                         self.params.development.activeMode = modes[2];
                         break;
@@ -248,8 +314,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getServicesByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/services/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=type,name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/services/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                          '?sort=type,name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.serviceOwnershipFilters.ALL_SERVICES){
                     url += '&owner=' + userUrl;
@@ -341,7 +407,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.updateService = function(selectedService) {
+        this.saveService = function(selectedService) {
 
             // Some descriptor fields are a copy from service itself
             if(!selectedService.description) {
@@ -358,7 +424,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 name: selectedService.name,
                 description: selectedService.description,
                 dockerTag: selectedService.dockerTag,
-                serviceDescriptor: selectedService.serviceDescriptor
+                serviceDescriptor: selectedService.serviceDescriptor,
+                serviceType: 'Java',
+                type: selectedService.type
             };
 
             return $q(function(resolve, reject) {
@@ -370,14 +438,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     function (document) {
                         if (200 <= document.status && document.status < 300) {
                             if(selectedService.files) {
-                                var promises = [];
-                                for(var i = 0; i < selectedService.files.length; i++){
-                                    var partialPromise = updateFile(selectedService.files[i]);
-                                    promises.push(partialPromise);
-                                }
-                                $q.all(promises).then(function(){
-                                    MessageService.addInfo('Service updated', 'Service ' + selectedService.name + ' successfully updated');
-                                });
+                                saveFiles(selectedService);
                             }
                             resolve(document);
                         } else {
@@ -391,6 +452,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 );
             });
         };
+
+        function saveFiles(selectedService) {
+            if(selectedService.files) {
+                var promises = [];
+                for(var i = 0; i < selectedService.files.length; i++){
+                    var partialPromise = updateFile(selectedService.files[i]);
+                    promises.push(partialPromise);
+                }
+                $q.all(promises).then(function(){
+                    MessageService.addInfo('Service updated', 'Service ' + selectedService.name + ' successfully updated');
+                });
+            }
+        }
 
         function updateFile(file) {
             var deferred = $q.defer();
@@ -465,8 +539,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function getServiceFiles(service){
             var deferred = $q.defer();
             var request = halAPI.from(rootUri + '/serviceFiles/search/')
-                                     .newRequest()
-                                     .getResource();
+                                .newRequest()
+                                .getResource();
 
             request.result.then(
                 function (document) {
@@ -513,10 +587,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         }
 
         function sortFiles(a, b){
-            var aId = parseInt(a._links.self.href.substring(a._links.self.href.lastIndexOf('/')+1));
-            var bId = parseInt(b._links.self.href.substring(b._links.self.href.lastIndexOf('/')+1));
-
-            return aId - bId;
+            if (a.filename < b.filename) {
+                return -1;
+            }
+            if (a.filename > b.filename) {
+                return 1;
+            }
+            return 0;
         }
 
         var DEFAULT_DOCKERFILE;

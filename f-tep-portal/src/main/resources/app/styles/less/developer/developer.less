@@ -57,21 +57,29 @@
                 height: 100%;
                 #service-header {
                     flex: 0 1 auto;
+                    .service-field {
+                        padding: 0 0.5rem;
+                    }
+                    #service-description, #service-summary {
+                        width: 100%;
+                    }
                 }
-                #service-description {
-                    width: 100%;
-                }
+
                 #editor-area-list {
+                    .border(border-bottom, @bg);
                     list-style-type: none;
-                    margin: 0px;
                     padding: 0;
                     li {
                         background-color: @bg;
+                        .border(border-right, @bg);
+                        .border(border-top, @bg);
                         cursor: pointer;
                         display: inline-block;
-                        margin: 0.5rem;
                         padding: 0.8rem;
                         white-space: nowrap;
+                        &:first-child {
+                            .border(border-left, @bg);
+                        }
                     }
                     .active {
                         background-color: @brand-light;
@@ -80,20 +88,6 @@
                     }
                 }
                 #file-editor {
-                    .nav-pills {
-                        li {
-                            background-color: @white;
-                            border-top-right-radius: 10px;
-                            border-top-left-radius: 10px;
-                            .border(border, @lighter-gray);
-                            min-width: 2rem !important;
-                            min-height: 42px !important;
-                            margin: 0;
-                            .delete-file:hover {
-                                color: @accent;
-                            }
-                        }
-                    }
                     .CodeMirror {
                         height: 100%;
                         margin: 0 1rem 2rem 0;
@@ -107,6 +101,64 @@
                             background-color: @white;
                             font-family: 'Courier';
                             border: none;
+                        }
+                    }
+                    #file-list {
+                        word-break: break-all;
+                        list-style: none;
+                        padding: 0;
+                        .active {
+                            background-color: @brand-light;
+                            color: @white;
+                            &:hover {
+                                background-color: @brand;
+                                .material-icons {
+                                    color: @brand-dark;
+                                }
+                            }
+                        }
+                        .add-file {
+                            font-size: 1rem;
+                            padding: 0 0.5rem;
+                            &:hover {
+                                background-color: transparent;
+                                color: @accent;
+                                cursor: pointer;
+                            }
+                        }
+                        li {
+                            .file {
+                                cursor: pointer;
+                                &:hover {
+                                    background-color: @alert;
+                                }
+                            }
+                            .folder {
+                                &:hover {
+                                    background-color: @bg;
+                                }
+                            }
+                            table {
+                                width: 100%;
+                                .file-icon {
+                                    width: 28px;
+                                    .material-icons {
+                                        color: @brand;
+                                        font-size: 24px;
+                                    }
+                                }
+                                .file-name {
+                                    text-align: left;
+                                }
+                                .remove-file {
+                                    font-weight: bold;
+                                    text-align: right;
+                                    padding: 0 0.5rem;
+                                    &:hover {
+                                        color: @accent;
+                                    }
+                                }
+                            }
                         }
                     }
                     .file-settings {
@@ -136,15 +188,6 @@
                         width: auto;
                     }
                 }
-                .field-definitions {
-                    margin-top: 15px;
-                    .row {
-                        border: @bg 1px solid;
-                        .centre {
-                            text-align: center;
-                        }
-                    }
-                }
                 .add-button, .remove-button, .type-button {
                     min-width: 0;
                     &:hover {
@@ -164,17 +207,25 @@
                     margin-left: 0px !important;
                     padding-left: 2px !important;
                 }
-                .header {
-                    background-color: @bg;
-                    font-weight: bold;
-                    padding: 0.25rem;
-                    div {
-                        display: inline-block;
-                        height: 2rem;
-                        vertical-align: middle;
-                    }
-                }
+
                 .field-definitions {
+                    margin-top: 15px;
+                    table {
+                        .border(border, @bg);
+                        min-width: @xs-max-width;
+                        th, td {
+                            .border(border-left, @bg);
+                        }
+                        th {
+                            background-color: @bg;
+                            .border(border-bottom, @bg);
+                            padding: 0.25rem;
+                        }
+                        td {
+                            .border(border-bottom, @bg);
+                        }
+                    }
+
                     md-input-container {
                         width: 100%;
                     }

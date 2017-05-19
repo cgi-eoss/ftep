@@ -319,6 +319,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         }
 
+        /* Get list of default services */
+        this.getDefaultServices = function(){
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/services/defaults')
+                       .newRequest()
+                       .getResource()
+                       .result
+                       .then(
+            function (document) {
+                deferred.resolve(document._embedded.services);
+            }, function (error) {
+                MessageService.addError('Could not get Services', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        }
+
         /* Fetch a new page */
         this.getServicesPage = function(page, url){
             if (self.params[page]) {

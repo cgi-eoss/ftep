@@ -45,6 +45,8 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 @Service("cachingSymlinkIOManager")
 public class CachingSymlinkIOManager implements ServiceInputOutputManager {
 
+    // SHA-1 is still safe for our purpose - almost-certainly-unique URL->directory name hashing
+    @SuppressWarnings("deprecation")
     public static final HashFunction HASH_FUNCTION = Hashing.sha1();
 
     private static final String FTEP_SERVICE_CONTEXT = "ftep://serviceContext/${serviceName}";

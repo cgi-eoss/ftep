@@ -74,6 +74,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         return uri;
     }
 
+    @SuppressWarnings("unchecked")
     private Long getFilesize(Feature feature) {
         Long filesize = null;
         Map<String, Object> extraParams = feature.getProperties().containsKey("extraParams") ? feature.getProperty("extraParams") : ImmutableMap.of();

@@ -4,6 +4,8 @@ import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
 import com.cgi.eoss.ftep.rpc.ShortFile;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
+import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
@@ -62,6 +64,8 @@ public class FtepDownloader implements Downloader {
                 return downloadFtepFile(targetDir, uri);
             case "refData":
                 return downloadFtepFile(targetDir, uri);
+            case "databasket":
+                return downloadDatabasket(targetDir, uri);
             default:
                 throw new UnsupportedOperationException("Unrecognised ftep:// URI type: " + uri.getHost());
         }
@@ -100,6 +104,19 @@ public class FtepDownloader implements Downloader {
         }
 
         return outputPath;
+    }
+
+    private Path downloadDatabasket(Path targetDir, URI uri) {
+        CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
+
+        DatabasketContents databasketContents = catalogueService.getDatabasketContents(Databasket.newBuilder().setUri(uri.toASCIIString()).build());
+
+        databasketContents.getFileUrisList().forEach(Unchecked.consumer((FtepFileUri ftepFileUri) -> {
+            Path downloadedFile = downloadFtepFile(targetDir, URI.create(ftepFileUri.getUri()));
+            LOG.info("Successfully downloaded file from databasket: {}", downloadedFile);
+        }));
+
+        return targetDir;
     }
 
 }

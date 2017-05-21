@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.api.security.FtepPermission;
 import com.cgi.eoss.ftep.model.Job;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
+import org.springframework.hateoas.Identifiable;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
  * <p>Default JSON projection for embedded {@link Job}s. Embeds the owner as a ShortUser.</p>
  */
 @Projection(name = "shortFtepService", types = {Job.class})
-public interface ShortJob extends EmbeddedId {
+public interface ShortJob extends Identifiable<Long> {
     String getExtId();
     ShortUser getOwner();
     Job.Status getStatus();

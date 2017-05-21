@@ -78,7 +78,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         Map<String, Object> extraParams = feature.getProperties().containsKey("extraParams") ? feature.getProperty("extraParams") : ImmutableMap.of();
         if (extraParams.containsKey("file")) {
             Map<String, Object> fileProperties = (Map<String, Object>) extraParams.get("file");
-            filesize = fileProperties.containsKey("data_file_size") ? (Long) fileProperties.get("data_file_size") : null;
+            filesize = fileProperties.containsKey("data_file_size") ? Long.parseLong(fileProperties.get("data_file_size").toString()) : null;
         }
         return filesize;
     }

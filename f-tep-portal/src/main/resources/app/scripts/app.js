@@ -49,7 +49,6 @@ define([
         "URLv2": ftepConfig.apiUrlv2,
         "FTEP_URL": ftepConfig.ftepUrl,
         "SSO_URL": ftepConfig.ssoUrl,
-        "WMS_URL": ftepConfig.wmsUrl,
         "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
     /* jshint +W117 */
@@ -140,7 +139,7 @@ define([
         };
 
         $mdDateLocaleProvider.parseDate = function (dateString) {
-            var m = moment(dateString, 'DD-MM-YYYY', true);
+            var m = moment(dateString.trim(), 'DD-MM-YYYY', true);
             return m.isValid() ? m.toDate() : new Date(NaN);
         };
     }]);

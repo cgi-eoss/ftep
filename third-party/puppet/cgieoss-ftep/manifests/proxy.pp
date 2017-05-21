@@ -13,6 +13,7 @@ class ftep::proxy (
   $context_path_monitor   = undef,
   $context_path_logs      = undef,
   $context_path_eureka    = undef,
+  $context_path_gui       = undef,
 
   $tls_cert_path          = '/etc/pki/tls/certs/ftep_portal.crt',
   $tls_key_path           = '/etc/pki/tls/private/ftep_portal.key',
@@ -45,9 +46,10 @@ class ftep::proxy (
   # Directory/Location directives - cannot be an empty array...
   $default_directories = [
     {
-      'provider' => 'location',
-      'path' => $real_context_path_logs,
-      'custom_fragment' => "RequestHeader set X-Graylog-Server-URL \"${ftep::globals::base_url}${ftep::globals::graylog_api_path}\""
+      'provider'        => 'location',
+      'path'            => $real_context_path_logs,
+      'custom_fragment' =>
+      "RequestHeader set X-Graylog-Server-URL \"${ftep::globals::base_url}${ftep::globals::graylog_api_path}\""
     }
   ]
 
@@ -55,46 +57,56 @@ class ftep::proxy (
   $default_proxy_pass = [
     {
       'path'   => $real_context_path_geoserver,
-      'url'    => "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}${real_context_path_geoserver}",
+      'url'    =>
+      "http://${ftep::globals::geoserver_hostname}:${ftep::globals::geoserver_port}${real_context_path_geoserver}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_resto,
-      'url'  => "http://${ftep::globals::resto_hostname}",
+      'path'   => $real_context_path_resto,
+      'url'    => "http://${ftep::globals::resto_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_webapp,
-      'url'  => "http://${ftep::globals::webapp_hostname}",
+      'path'   => $real_context_path_webapp,
+      'url'    => "http://${ftep::globals::webapp_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_wps,
-      'url'  => "http://${ftep::globals::wps_hostname}",
+      'path'   => $real_context_path_wps,
+      'url'    => "http://${ftep::globals::wps_hostname}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_api_v2,
-      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${real_context_path_api_v2}",
+      'path'   => $real_context_path_api_v2,
+      'url'    =>
+      "http://${ftep::globals::server_hostname}:${ftep::globals::server_application_port}${real_context_path_api_v2}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_monitor,
-      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}",
+      'path'   => $real_context_path_monitor,
+      'url'    => "http://${ftep::globals::monitor_hostname}:${ftep::globals::grafana_port}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_logs,
-      'url'  => "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}",
+      'path'   => $real_context_path_logs,
+      'url'    =>
+      "http://${ftep::globals::monitor_hostname}:${ftep::globals::graylog_port}${ftep::globals::graylog_context_path}",
       'params' => { 'retry' => '0' }
     },
     {
-      'path' => $real_context_path_eureka,
-      'url'  => "http://${ftep::globals::server_hostname}:${ftep::globals::serviceregistry_application_port}/eureka",
+      'path'   => $real_context_path_eureka,
+      'url'    => "http://${ftep::globals::server_hostname}:${ftep::globals::serviceregistry_application_port}/eureka",
       'params' => { 'retry' => '0' }
     }
   ]
 
+  $default_proxy_pass_match = [
+    {
+      'path'   => '^/gui/(.*)$',
+      'url'    => "http://${ftep::globals::default_gui_hostname}\$1",
+      'params' => { 'retry' => '0' }
+    }
+  ]
 
   if $enable_sso {
     unless ($tls_cert and $tls_key) {
@@ -145,9 +157,11 @@ class ftep::proxy (
       'reverse_urls' => [],
       'params'       => { 'retry' => '0' }
     }], $default_proxy_pass)
+    $proxy_pass_match = $default_proxy_pass_match
   } else {
     $directories = $default_directories
     $proxy_pass = $default_proxy_pass
+    $proxy_pass_match = $default_proxy_pass_match
   }
 
   if $enable_ssl {
@@ -172,25 +186,27 @@ class ftep::proxy (
     }
 
     apache::vhost { $vhost_name:
-      port            => '443',
-      ssl             => true,
-      ssl_cert        => $tls_cert_path,
-      ssl_key         => $tls_key_path,
-      default_vhost   => true,
-      request_headers => [
+      port             => '443',
+      ssl              => true,
+      ssl_cert         => $tls_cert_path,
+      ssl_key          => $tls_key_path,
+      default_vhost    => true,
+      request_headers  => [
         'set X-Forwarded-Proto "https"'
       ],
-      directories     => $directories,
-      proxy_pass      => $proxy_pass,
-      *               => $default_proxy_config
+      directories      => $directories,
+      proxy_pass       => $proxy_pass,
+      proxy_pass_match => $proxy_pass_match,
+      *                => $default_proxy_config
     }
   } else {
     apache::vhost { $vhost_name:
-      port          => '80',
-      default_vhost => true,
-      directories   => $directories,
-      proxy_pass    => $proxy_pass,
-      *             => $default_proxy_config
+      port             => '80',
+      default_vhost    => true,
+      directories      => $directories,
+      proxy_pass       => $proxy_pass,
+      proxy_pass_match => $proxy_pass_match,
+      *                => $default_proxy_config
     }
   }
 

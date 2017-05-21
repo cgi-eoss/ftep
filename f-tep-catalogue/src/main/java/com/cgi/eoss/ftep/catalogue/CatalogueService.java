@@ -3,11 +3,13 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import okhttp3.HttpUrl;
 import org.geojson.GeoJsonObject;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 
 /**
@@ -75,9 +77,11 @@ public interface CatalogueService {
     /**
      * <p>Generate an appropriate WMS URL for the given file.</p>
      *
-     * @param ftepFile
+     *
+     * @param type
+     * @param uri
      * @return
      */
-    String getWmsUrl(FtepFile ftepFile);
+    HttpUrl getWmsUrl(FtepFile.Type type, URI uri);
 
 }

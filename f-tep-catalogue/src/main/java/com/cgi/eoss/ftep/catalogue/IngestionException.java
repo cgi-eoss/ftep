@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.catalogue;
 
-public class IngestionException extends RuntimeException {
+public class IngestionException extends CatalogueException {
     public IngestionException(String message) {
         super(message);
     }

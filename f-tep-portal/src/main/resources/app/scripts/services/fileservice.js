@@ -182,7 +182,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                          .then(
                 function (document) {
                     if (200 <= document.status && document.status < 300) {
-                        resolve(document);
+                        resolve(JSON.parse(document.data));
                     } else {
                         reject();
                     }

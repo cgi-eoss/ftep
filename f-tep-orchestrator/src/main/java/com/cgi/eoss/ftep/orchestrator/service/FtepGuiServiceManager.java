@@ -4,8 +4,6 @@ import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
-import com.google.common.base.Strings;
-import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,8 +16,8 @@ public class FtepGuiServiceManager {
 
     static final String GUACAMOLE_PORT = "8080/tcp";
 
-    @Value("${ftep.orchestrator.gui.defaultHost:}")
-    private String guiDefaultHost;
+    @Value("${ftep.orchestrator.gui.urlPattern:/gui/:__PORT__/}")
+    private String guiUrlPattern;
 
     @Autowired
     public FtepGuiServiceManager() {
@@ -38,21 +36,7 @@ public class FtepGuiServiceManager {
 
         Binding binding = portBinding.getBinding();
 
-        String host;
-
-        if (binding.getIp().equals("0.0.0.0")) {
-            // Crudely determine the GUI host address from the worker gRPC endpoint, if the config property is not set
-            host = Strings.isNullOrEmpty(guiDefaultHost) ? worker.getChannel().authority().split(":")[0] : guiDefaultHost;
-        } else {
-            host = binding.getIp();
-        }
-
-        return new HttpUrl.Builder()
-                .scheme("http")
-                .host(host)
-                .port(binding.getPort())
-                .build()
-                .toString();
+        return guiUrlPattern.replaceAll("__PORT__", String.valueOf(binding.getPort()));
     }
 
 }

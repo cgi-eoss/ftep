@@ -29,6 +29,7 @@ class ftep::globals (
   $server_hostname                  = 'ftep-server',
   $monitor_hostname                 = 'ftep-monitor',
   $resto_hostname                   = 'ftep-resto',
+  $default_gui_hostname             = 'ftep-worker',
 
   $hosts_override                   = { },
 

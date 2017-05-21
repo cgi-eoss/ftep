@@ -2242,6 +2242,9 @@
 #search-panel md-datepicker .md-datepicker-triangle-button {
   margin: 0;
 }
+#search-panel md-datepicker .md-datepicker-invalid .md-datepicker-input {
+  background: #f2dede;
+}
 #search-panel md-radio-group .radio-item {
   padding: 0 16px;
 }

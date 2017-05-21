@@ -7,7 +7,8 @@ import java.util.Map;
 
 public enum CatalogueUri {
     REFERENCE_DATA("ftep://refData/${ownerId}/${filename}"),
-    OUTPUT_PRODUCT("ftep://outputProduct/${jobId}/${filename}");
+    OUTPUT_PRODUCT("ftep://outputProduct/${jobId}/${filename}"),
+    DATABASKET("ftep://databasket/${id}");
 
     private final String internalUriPattern;
 

@@ -3,11 +3,14 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.google.protobuf.ByteString;
@@ -15,6 +18,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.geojson.GeoJsonObject;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +27,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @GRpcService
@@ -38,13 +46,15 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final FtepFileDataService ftepFileDataService;
+    private final DatabasketDataService databasketDataService;
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
         this.ftepFileDataService = ftepFileDataService;
+        this.databasketDataService = databasketDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
         this.externalProductDataService = externalProductDataService;
@@ -110,16 +120,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
-    public String getWmsUrl(FtepFile ftepFile) {
-        switch (ftepFile.getType()) {
+    public HttpUrl getWmsUrl(FtepFile.Type type, URI uri) {
+        switch (type) {
             case OUTPUT_PRODUCT:
                 // TODO Use the CatalogueUri pattern to determine file attributes
-                String[] pathComponents = ftepFile.getUri().getPath().split("/");
+                String[] pathComponents = uri.getPath().split("/");
                 String jobId = pathComponents[1];
                 String filename = pathComponents[2];
-                return outputProductService.getWmsUrl(jobId, filename).toString();
+                return outputProductService.getWmsUrl(jobId, filename);
             default:
-                return "";
+                return null;
         }
     }
 
@@ -157,6 +167,27 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to serve file download for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void getDatabasketContents(com.cgi.eoss.ftep.rpc.catalogue.Databasket request, StreamObserver<DatabasketContents> responseObserver) {
+        try {
+            // TODO Extract databasket ID from CatalogueUri pattern
+            Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(request.getUri());
+            Long databasketId = Long.parseLong(uriIdMatcher.group(1));
+            LOG.debug("Listing databasket contents for id {}", databasketId);
+
+            DatabasketContents.Builder responseBuilder = DatabasketContents.newBuilder();
+
+            Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new CatalogueException("Failed to load databasket for ID " + databasketId));
+            databasket.getFiles().forEach(f -> responseBuilder.addFileUris(FtepFileUri.newBuilder().setUri(f.getUri().toASCIIString()).build()));
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to list databasket contents for {}", request.getUri(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }

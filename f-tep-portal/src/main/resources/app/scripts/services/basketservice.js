@@ -200,6 +200,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             halAPI.from(rootUri + '/databaskets/' + databasket.id)
                      .newRequest()
                      .follow('files')
+                     .withRequestOptions({
+                          qs: { projection: 'detailedFtepFile' }
+                      })
                      .getResource()
                      .result
                      .then(

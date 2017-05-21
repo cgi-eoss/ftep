@@ -60,7 +60,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.selectJob = function (job) {
                 $scope.jobParams.selectedJob = job;
                 JobService.refreshSelectedJob('explorer');
-//                    $rootScope.$broadcast('show.products', job.id, data); //TODO
 
                 var container = document.getElementById('bottombar');
                 container.scrollTop = 0;

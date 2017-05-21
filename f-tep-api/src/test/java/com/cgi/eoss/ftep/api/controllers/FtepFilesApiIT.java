@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
 import com.jayway.jsonpath.JsonPath;
+import okhttp3.HttpUrl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,6 +120,25 @@ public class FtepFilesApiIT {
                 .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
                 .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
                 .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile2"));
+    }
+
+    @Test
+    public void testGetWithProjection() throws Exception {
+        when(catalogueService.getWmsUrl(testFile1.getType(), testFile1.getUri())).thenReturn(HttpUrl.parse("http://example.com/wms"));
+
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId() + "?projection=detailedFtepFile").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
+                .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")))
+                .andExpect(jsonPath("$._links.wms.href").value("http://example.com/wms"))
+                .andExpect(jsonPath("$._links.ftep.href").value(testFile1.getUri().toASCIIString()));
+
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId() + "?projection=shortFtepFile").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
+                .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")))
+                .andExpect(jsonPath("$._links.wms").doesNotExist())
+                .andExpect(jsonPath("$._links.ftep").doesNotExist());
     }
 
     @Test

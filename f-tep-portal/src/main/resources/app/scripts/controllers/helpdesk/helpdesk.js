@@ -10,8 +10,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('HelpdeskCtrl', ['$scope', '$http', 'ProductService', 'TabService', function ($scope, $http, ProductService, TabService) {
 
-        $scope.applications = ['MonteVerdiAppV2', 'QGIS', 'Sentinel2ToolboxV2'];
-        $scope.processors = ['LandCoverS1', 'LandCoverS2', 'S1Biomass', 'VegetationIndicies'];
+        $scope.applications = ['Monteverdi', 'QGIS', 'SNAP'];
+        $scope.processors = ['LandCoverS1', 'LandCoverS2', 'S1Biomass', 'VegetationIndicies', 'ForestChangeS2'];
 
         $scope.videos = [
                  {

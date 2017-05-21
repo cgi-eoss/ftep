@@ -31,7 +31,7 @@ import javax.persistence.UniqueConstraint;
 @EqualsAndHashCode(exclude = {"id"})
 @ToString(exclude = {"inputs"})
 @Table(name = "ftep_job_configs",
-        indexes = {@Index(name = "ftep_job_configs_service_idx", columnList = "service"), @Index(name = "ftep_job_configs_owner_idx", columnList = "owner")},
+        indexes = {@Index(name = "ftep_job_configs_service_idx", columnList = "service"), @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"), @Index(name = "ftep_job_configs_label_idx", columnList = "label")},
         uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs"}))
 @NoArgsConstructor
 @Entity
@@ -66,6 +66,12 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     @Convert(converter = StringMultimapYamlConverter.class)
     @Column(name = "inputs")
     private Multimap<String, String> inputs = HashMultimap.create();
+
+    /**
+     * <p>Human-readable label to tag and identify jobs launched with this configuration.</p>
+     */
+    @Column(name = "label")
+    private String label;
 
     /**
      * <p>Create a new JobConfig instance with the minimum required parameters.</p>

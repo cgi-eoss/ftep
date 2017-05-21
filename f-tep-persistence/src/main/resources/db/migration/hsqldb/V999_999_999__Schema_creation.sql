@@ -228,6 +228,16 @@ CREATE TABLE ftep_costing_expressions (
 CREATE UNIQUE INDEX ftep_costing_expressions_type_associated_id_idx
   ON ftep_costing_expressions (type, associated_id);
 
+-- Worker expressions
+
+CREATE TABLE ftep_worker_locator_expressions (
+  id         BIGINT IDENTITY PRIMARY KEY,
+  service    BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
+  expression CHARACTER VARYING(255) NOT NULL
+);
+CREATE UNIQUE INDEX ftep_worker_locator_expressions_service_idx
+  ON ftep_worker_locator_expressions (service);
+
 -- ACL schema from spring-security-acl
 
 CREATE TABLE acl_sid (

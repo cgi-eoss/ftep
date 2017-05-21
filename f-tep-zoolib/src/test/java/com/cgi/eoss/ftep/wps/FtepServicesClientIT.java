@@ -11,7 +11,6 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
 import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
-import com.cgi.eoss.ftep.orchestrator.service.WorkerEnvironment;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
@@ -137,7 +136,7 @@ public class FtepServicesClientIT {
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, guiService, catalogueService, costingService);
         FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
 
-        when(workerFactory.getWorker(WorkerEnvironment.LOCAL)).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
+        when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
 
         inProcessServerBuilder.addService(ftepServiceLauncher);
         inProcessServerBuilder.addService(ftepWorker);

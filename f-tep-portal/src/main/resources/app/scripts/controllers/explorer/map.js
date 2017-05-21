@@ -474,7 +474,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     var item = basketFiles[i];
                     if(item.metadata && item.metadata.geometry && item.metadata.geometry.coordinates){
                         var lonlatPoints = [];
-                        for(var k = 0; k < iitem.metadata.geometry.coordinates.length; k++){
+                        for(var k = 0; k < item.metadata.geometry.coordinates.length; k++){
                            for(var m = 0; m < item.metadata.geometry.coordinates[k].length; m++){
                               var p = angular.copy(item.metadata.geometry.coordinates[k][m]);
                               lonlatPoints.push(p);

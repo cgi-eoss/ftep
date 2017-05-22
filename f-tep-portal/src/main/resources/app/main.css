@@ -1268,7 +1268,6 @@
 .ftep .md-dialog-container h4 {
   background-color: lightgray;
   font-size: 16px;
-  height: 40px;
   line-height: 40px;
   padding-left: 20px;
   margin-top: 0px;
@@ -1293,6 +1292,7 @@
   background-color: transparent;
   line-height: 2rem;
   margin: 0;
+  word-break: break-all;
 }
 .ftep .md-dialog-container .dialog-file-list .md-avatar {
   margin: 0;

@@ -108,7 +108,7 @@
         </div>
 
         <div class="md-list-item-text" layout="column">
-            <h4 ng-bind="file.filename" />
+            <h4 ng-if="file.filename" ng-bind="file.filename" />
         </div>
 
         <md-button class="toolbar-button md-secondary"

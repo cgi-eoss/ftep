@@ -125,13 +125,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.clearDatabasket = function() {
-            BasketService.clearDatabasket($scope.basketParams.selectedDatabasket).then(function (data) {
+            BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };
 
         $scope.removeDatabasketItem = function(item) {
-            BasketService.removeDatabasketItem($scope.basketParams.selectedDatabasket, $scope.basketParams.items, item).then(function (data) {
+            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };

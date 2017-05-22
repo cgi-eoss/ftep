@@ -7,8 +7,7 @@
  */
 'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', '$q', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService', 'FileService',
-                                              function($scope, $rootScope, $q, CommonService, TabService, BasketService, JobService, GeoService, FileService) {
+    ftepmodules.controller('BottombarCtrl', [ '$scope', '$rootScope', '$q', 'CommonService', 'TabService', 'BasketService', 'JobService', 'GeoService', 'FileService', 'MessageService', function($scope, $rootScope, $q, CommonService, TabService, BasketService, JobService, GeoService, FileService, MessageService) {
 
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
         $scope.tabs = TabService.getTabs();
@@ -36,12 +35,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 for(var index in items){
                     var partialPromise = $q.defer();
                     promises.push(partialPromise.promise);
-
                     FileService.createGeoResultFile(items[index], $scope.resultParams.resultsMission.name).then(function(extProdFile){
                         itemLinks.push(extProdFile._links.self.href);
                         partialPromise.resolve();
                     },
                     function(error){
+                        MessageService.addError('Could not add file to Databasket', error);
                         partialPromise.reject();
                     });
                 }
@@ -56,6 +55,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         function addToBasket(items){
             BasketService.addItems($scope.dbParams.selectedDatabasket, items).then(function () {
+                MessageService.addInfo('Files added to Databasket', 'Files added successfully to ' +
+                                       $scope.dbParams.selectedDatabasket.name);
                 BasketService.refreshDatabaskets("explorer");
             });
         }

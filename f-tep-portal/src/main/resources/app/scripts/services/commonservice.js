@@ -23,10 +23,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                     }
                 };
 
-                this.getOutputLink = function(link){
-                    return  ftepProperties.URL_PREFIX + link;
-                };
-
                 this.confirm = function(event, message) {
                     var deferred = $q.defer();
                     var dialog = $mdDialog.confirm()

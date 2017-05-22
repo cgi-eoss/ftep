@@ -44,12 +44,11 @@ define([
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
-        "URL_PREFIX": ftepConfig.urlPrefix,
-        "URL": ftepConfig.apiUrl,
-        "URLv2": ftepConfig.apiUrlv2,
-        "FTEP_URL": ftepConfig.ftepUrl,
-        "SSO_URL": ftepConfig.ssoUrl,
-        "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
+        'FTEP_URL': ftepConfig.ftepUrl,
+        'URL': ftepConfig.apiUrl,
+        'URLv2': ftepConfig.apiUrlv2,
+        'SSO_URL': ftepConfig.ssoUrl,
+        'MAPBOX_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
     /* jshint +W117 */
 

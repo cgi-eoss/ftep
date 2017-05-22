@@ -1,19 +1,17 @@
 <%- |
-    String $url_prefix,
+    String $ftep_url,
     String $api_url,
     String $api_v2_url,
-    String $zoo_url,
-    String $wms_url,
+    String $sso_url,
     String $mapbox_token,
 | -%>
 // Managed by Puppet
 define('ftepConfig', [], function () {
   return {
-    urlPrefix: "<%= $url_prefix %>",
+    ftepUrl: "<%= $ftep_url %>",
     apiUrl: "<%= $api_url %>",
     apiUrlv2: "<%= $api_v2_url %>",
-    zooUrl: "<%= $zoo_url %>",
-    wmsUrl: "<%= $wms_url %>",
+    ssoUrl: "<%= $sso_url %>",
     mapboxToken: "<%= $mapbox_token %>"
   }
 });

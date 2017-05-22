@@ -9,10 +9,10 @@
                 </md-card-title-text>
             </md-card-title>
             <md-card-content>
-              <p>The <em>Forestry-TEP</em> portal is divided up into various pages that provide particular functionality. 
-                The <em>Explorer</em> page allows users to search for satellite and other data, search and instigate services and to visualise their data using the various GUI applications. 
-                The <em>Manage / Share</em> page allows users to share various elements such as Projects, Databaskets, Jobs, Services and data. 
-                The <em>My Account</em> page allows users to view their account details and send requests such as for additional TEP-coins. 
+              <p>The <em>Forestry-TEP</em> portal is divided up into various pages that provide particular functionality.
+                The <em>Explorer</em> page allows users to search for satellite and other data, search and instigate services and to visualise their data using the various GUI applications.
+                The <em>Manage / Share</em> page allows users to share various elements such as Projects, Databaskets, Jobs, Services and data.
+                The <em>My Account</em> page allows users to view their account details and send requests such as for additional TEP-coins.
                 If enabled, the <em>Developer</em> page allows Expert Users to develop, test and release their own processing services. </p>
 
                 <p>This initial release of the portal exposes a first set of both data and services. Within the coming releases the capabilities, in terms of data, services and resources will be increased.</p>
@@ -44,7 +44,7 @@
                 </md-card-title-text>
             </md-card-title>
             <md-card-content>
-                <p>Forestry TEP welcomes feedback from you on our project and portal. For help and support on how to use Forestry TEP, please contact us using the <a href="https://forestry-tep.eo.esa.int/?q=content/contact" target="_blank">form</a> or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.</p>
+                <p>Forestry TEP welcomes feedback from you on our project and portal. For help and support on how to use Forestry TEP, please contact us using the <a ng-href="{{ftepUrl}}/?q=content/contact" target="_blank">form</a> or sending an email to <a href="mailto:forestry-tep@esa.int" target="_top">forestry-tep@esa.int</a>.</p>
 
                 <br/>
 
@@ -68,19 +68,19 @@
             </div>
             </md-card-content>
             <md-card-actions layout="row" layout-align="end center">
-                <md-button href="https://forestry-tep.eo.esa.int"
+                <md-button ng-href="{{ftepUrl}}"
                            target="_blank">
                     <span>F-TEP website</span>
                 </md-button>
-                <md-button href="https://forestry-tep.eo.esa.int/?q=content/user-manual-pre-release-version"
+                <md-button ng-href="{{ftepUrl}}/?q=content/user-manual-pre-release-version"
                            target="_blank">
                     <span>User Manual</span>
                 </md-button>
-                <md-button href="https://forestry-tep.eo.esa.int/?q=forum"
+                <md-button ng-href="{{ftepUrl}}/?q=forum"
                            target="_blank">
                     <span>Forum</span>
                 </md-button>
-                <!--md-button href="https://forestry-tep.eo.esa.int/?q=wiki"
+                <!--md-button ng-href="{{ftepUrl}}/?q=wiki"
                            target="_blank">
                     <span>Wiki</span>
                 </md-button-->

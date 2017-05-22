@@ -137,6 +137,23 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
         /* End of Selected Databasket */
 
+        /* BOTTOMBAR MENU-BAR DATABASKET SELECTION */
+        $scope.basketSelection = { searchText: ''};
+        $scope.showList = true;
+        $scope.searchBaskets = function() {
+            $scope.showList = false;
+            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets){
+                $scope.dbParams.selectBasketList = baskets;
+                $scope.showList = true;
+            });
+        };
+        $scope.searchBaskets();
+
+        $scope.isItemDisabled = function(basketId){
+            return document.getElementById('select_' + basketId).disabled;
+        };
+        /* END OF BOTTOMBAR MENU-BAR DATABASKET SELECTION */
+
         /* GET ITEM FOR DARGGING */
         $scope.getBasketItem = function(item){
             var dragObject = {

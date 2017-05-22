@@ -289,6 +289,21 @@
 #bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .resulthighlight:hover {
   background-color: #31708f;
 }
+.select-databasket .search {
+  color: rgba(0, 0, 0, 0.54);
+}
+.select-databasket .search:hover {
+  color: rgba(0, 0, 0, 0.87);
+}
+.select-databasket md-menu-item .selected {
+  background-color: #d9edf7 !important;
+}
+.select-databasket md-menu-item .selected:hover {
+  color: #999 !important;
+}
+.select-databasket md-menu-item .selected:hover .material-icons {
+  color: #999 !important;
+}
 
 #databasket {
   display: -ms-flexbox;

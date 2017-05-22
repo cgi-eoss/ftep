@@ -195,3 +195,22 @@
         }
     }
 }
+.select-databasket {
+    .search {
+        color: @dark-gray;
+        &:hover {
+            color: @text;
+        }
+    }
+    md-menu-item {
+        .selected {
+            background-color: @alert !important;
+            &:hover {
+                color: @paused !important;
+                .material-icons {
+                    color: @paused !important;
+                }
+            }
+        }
+    }
+}

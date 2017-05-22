@@ -36,6 +36,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pagingData: {},
                 databaskets: undefined,
                 items: undefined,
+                selectBasketList: undefined,
                 selectedDatabasket: undefined,
                 selectedItems: undefined,
                 searchText: '',
@@ -269,6 +270,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     self.params[page].databaskets = data;
                 });
             }
+        };
+
+        // search function for explorer page bottombar menu-bars
+        this.searchBaskets = function (searchText) {
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/databaskets/' + 'search/findByFilterOnly?sort=name&filter=' + searchText)
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                    deferred.resolve(document._embedded.databaskets);
+                }, function (error) {
+                    MessageService.addError('Could not get Databaskets', error);
+                    deferred.reject();
+                });
+
+            return deferred.promise;
         };
 
         this.refreshSelectedBasket = function (page) {

@@ -35,7 +35,7 @@ require.config({
         traversonHal: 'vendor/traverson-hal/browser/dist/traverson-hal',
         ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
         codeMirror: 'vendor/codemirror/lib/codemirror',
-        uiCodeMirror: 'vendor/angular-ui-codemirror/src/ui-codemirror',
+        uiCodeMirror: 'js/ui-codemirror',
         xml2json: 'vendor/x2js/xml2json',
 
         // F-TEP modules
@@ -75,10 +75,6 @@ require.config({
         ngFileUpload: { deps: ['angular'], exports: 'ngFileUpload'},
         codemirror: { exports: 'codemirror' },
         uiCodeMirror: { deps: ['angular', 'codemirror'], exports: 'uiCodeMirror' },
-/*            init: function (angular, codemirror) {
-                window.CodeMirror = codemirror;
-            }*/
-
         xml2json: { exports: 'xml2json' },
         ftepConfig: { exports: 'ftepConfig' }
     },

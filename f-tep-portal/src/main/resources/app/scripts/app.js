@@ -85,7 +85,7 @@ define([
                 resolve:{
                     "check": ['$location', 'UserService', function($location, UserService) {
                         UserService.getCurrentUser().then(function(user){
-                            if(user.role !== 'ADMIN' || user.role !== 'EXPERT_USER' || user.role !== 'CONTENT_AUTHORITY'){
+                            if(user.role !== 'ADMIN' && user.role !== 'EXPERT_USER' && user.role !== 'CONTENT_AUTHORITY'){
                                 $location.path('/');  //redirect to homepage
                             }
                         });

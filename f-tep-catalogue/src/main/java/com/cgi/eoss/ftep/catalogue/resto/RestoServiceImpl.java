@@ -5,7 +5,9 @@ import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
@@ -16,6 +18,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,13 +39,12 @@ public class RestoServiceImpl implements RestoService {
 
     private final OkHttpClient client;
 
-    private final ObjectMapper jsonMapper = new ObjectMapper();
+    private final ObjectMapper jsonMapper;
+
+    private final String restoBaseUrl;
 
     @Value("${ftep.catalogue.resto.enabled:true}")
     private boolean restoEnabled;
-
-    @Value("${ftep.catalogue.resto.url:http://ftep-resto/resto/}")
-    private String restoBaseUrl;
 
     @Value("${ftep.catalogue.resto.collection.externalProducts:ftepInputs}")
     private String externalProductCollection;
@@ -63,8 +65,10 @@ public class RestoServiceImpl implements RestoService {
     private String outputProductModel;
 
     @Autowired
-    public RestoServiceImpl(@Value("${ftep.catalogue.resto.username:ftepresto}") String username,
+    public RestoServiceImpl(@Value("${ftep.catalogue.resto.url:http://ftep-resto/resto/}") String restoBaseUrl,
+                            @Value("${ftep.catalogue.resto.username:ftepresto}") String username,
                             @Value("${ftep.catalogue.resto.password:fteprestopass}") String password) {
+        this.restoBaseUrl = restoBaseUrl;
         this.client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override
@@ -78,6 +82,7 @@ public class RestoServiceImpl implements RestoService {
                 })
                 .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
+        jsonMapper = new ObjectMapper();
     }
 
     @Override
@@ -102,19 +107,20 @@ public class RestoServiceImpl implements RestoService {
 
     @Override
     public GeoJsonObject getGeoJson(FtepFile ftepFile) {
-        String collection = getCollection(ftepFile);
-
         HttpUrl url = HttpUrl.parse(restoBaseUrl).newBuilder()
+                .addPathSegment("api")
                 .addPathSegment("collections")
-                .addPathSegment(collection)
-                .addPathSegment(ftepFile.getRestoId() + ".json")
+                .addPathSegment("search.json")
+                .addQueryParameter("identifier", ftepFile.getRestoId().toString())
                 .build();
 
         Request request = new Request.Builder().url(url).get().build();
 
         try (Response response = client.newCall(request).execute()) {
-            return GeoUtil.stringToGeojson(response.body().string());
+            Configuration configuration = Configuration.defaultConfiguration().mappingProvider(new JacksonMappingProvider());
+            return JsonPath.using(configuration).parse(response.body().string()).read("$.features[0]", Feature.class);
         } catch (Exception e) {
+            LOG.error("Failed to query Resto for GeoJson for identifier {}", ftepFile.getRestoId(), e);
             throw new RestoException(e);
         }
     }
@@ -125,19 +131,6 @@ public class RestoServiceImpl implements RestoService {
             return getGeoJson(ftepFile);
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    private String getCollection(FtepFile ftepFile) {
-        switch (ftepFile.getType()) {
-            case EXTERNAL_PRODUCT:
-                return externalProductCollection;
-            case OUTPUT_PRODUCT:
-                return outputProductCollection;
-            case REFERENCE_DATA:
-                return refDataCollection;
-            default:
-                throw new UnsupportedOperationException("Unknown FtepFile type: " + ftepFile.getType());
         }
     }
 

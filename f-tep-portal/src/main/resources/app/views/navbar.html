@@ -21,7 +21,8 @@
                     <p><i class="material-icons">public</i><span> Explorer</span></p>
                 </li>
 
-                <li ng-click="goTo('/developer')" aria-label="Developer" ng-class="{ active: isActive('/developer')}">
+                <li ng-if="user.role === 'EXPERT_USER' || user.role === 'CONTENT_AUTHORITY' || user.role === 'ADMIN'"
+                    ng-click="goTo('/developer')" aria-label="Developer" ng-class="{ active: isActive('/developer')}">
                     <p><i class="material-icons">build</i><span> Developer</span></p>
                 </li>
 
@@ -33,7 +34,8 @@
                    <p><i class="material-icons">help</i><span> Helpdesk</span></p>
                 </li>
 
-                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin" ng-class="{ active: isActive('/admin')}">
+                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin"
+                    ng-class="{ active: isActive('/admin')}">
                    <p><i class="material-icons">settings</i><span> Admin</span></p>
                 </li>
 

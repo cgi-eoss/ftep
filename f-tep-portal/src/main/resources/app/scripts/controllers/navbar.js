@@ -12,6 +12,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         $scope.user = undefined;
         $scope.urlPrefix = ftepProperties.URL_PREFIX;
+        $scope.ftepUrl = ftepProperties.FTEP_URL;
 
         $scope.isActive = function (route) {
             return route === $location.path();

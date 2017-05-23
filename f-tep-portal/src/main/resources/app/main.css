@@ -1641,27 +1641,6 @@
   margin: 0.2rem;
 }
 
-.ftep .rzslider .rz-bubble {
-  color: rgba(0, 0, 0, 0.7);
-}
-.ftep .rzslider .rz-pointer {
-  width: 16px;
-  height: 16px;
-  border-radius: 25px;
-  top: -6px;
-}
-.ftep .rzslider .rz-pointer .rz-active::after {
-  background-color: transparent;
-}
-.ftep .rzslider .rz-pointer:hover {
-  width: 24px;
-  height: 24px;
-  top: -10px;
-}
-.ftep .rzslider .rz-pointer:after {
-  background-color: transparent;
-}
-
 .spinner-container {
   background-color: rgba(180, 180, 180, 0.95);
   display: -ms-flexbox;
@@ -2354,7 +2333,6 @@
   max-width: none;
   width: 100%;
   z-index: 2;
-  /** Slider Styles **/
 }
 #sidebar-left form {
   padding-bottom: 30px;
@@ -2431,15 +2409,6 @@
 }
 #sidebar-left .top-title {
   padding-top: 1rem;
-}
-#sidebar-left #mCSB_2_container_wrapper,
-#sidebar-left #mCSB_2_container {
-  margin: 0;
-  padding: 0;
-  max-width: 336px;
-}
-#sidebar-left .mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
-  background-color: #ff80ab;
 }
 
 #workspace-panel {
@@ -2864,7 +2833,7 @@ pre {
 }
 .animationIf.ng-enter,
 .animationIf.ng-leave {
-  transition: opacity ease-in-out 1s;
+  transition: opacity ease-in-out 0.3s;
 }
 .animationIf.ng-enter,
 .animationIf.ng-leave.ng-leave-active {

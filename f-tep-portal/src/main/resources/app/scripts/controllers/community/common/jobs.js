@@ -16,6 +16,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.jobParams = JobService.params.community;
         $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
         $scope.item = "Job";
+        $scope.jobStatuses = JobService.JOB_STATUSES;
 
         /* Get jobs */
         JobService.refreshJobs('community');

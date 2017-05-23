@@ -257,8 +257,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getDatabasketsByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.dbOwnershipFilters.ALL_BASKETS){
                     url += '&owner=' + userUrl;

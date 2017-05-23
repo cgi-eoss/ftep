@@ -221,8 +221,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getProjectsByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/projects/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/projects/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.projectOwnershipFilters.ALL_PROJECTS){
                     url += '&owner=' + userUrl;

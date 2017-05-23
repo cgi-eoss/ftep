@@ -113,7 +113,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             button.innerHTML = '<img class="map-control" src="' + shape.img + '"/>';
 
             var handleSelection = function() {
-                if($scope.drawType != shape){
+                if($scope.drawType !== shape){
                     $scope.drawType = shape;
                     $scope.map.removeInteraction(draw);
                     addInteraction();
@@ -532,7 +532,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 var lonlatPoints = [];
                 for(var k = 0; k < geo.coordinates.length; k++){
                     for(var m = 0; m < geo.coordinates[k].length; m++){
-                        var point = item.geo.coordinates[k][m];
+                        var point = geo.coordinates[k][m];
                         lonlatPoints.push(point);
                     }
                 }

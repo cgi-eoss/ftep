@@ -135,8 +135,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getGroupsByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/groups/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/groups/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.groupOwnershipFilters.ALL_GROUPS){
                     url += '&owner=' + userUrl;

@@ -201,7 +201,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
 
              self.params[page].fileTree = list;
-        }
+        };
 
         this.setFileType = function () {
             var filename = self.params.development.openedFile.filename;

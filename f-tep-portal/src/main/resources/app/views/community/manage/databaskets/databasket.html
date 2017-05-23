@@ -108,7 +108,7 @@
         </div>
 
         <div class="md-list-item-text" layout="column">
-            <h4 ng-if="file.filename" ng-bind="file.filename" />
+            <h4>{{file.filename ? file.filename : file.uri}}</h4>
         </div>
 
         <md-button class="toolbar-button md-secondary"

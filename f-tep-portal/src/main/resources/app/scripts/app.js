@@ -22,7 +22,6 @@ define([
     'ngResource',
     'ngAria',
     'ol',
-    'rzModule',
     'dndLists',
     'ngOpenlayers',
     'ngBootstrap',
@@ -38,7 +37,7 @@ define([
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
-                                         'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
+                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
                                          'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror']);
 
     /* jshint -W117  */

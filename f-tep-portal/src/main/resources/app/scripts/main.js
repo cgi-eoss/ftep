@@ -20,7 +20,6 @@ require.config({
         ngSanitize: 'vendor/angular-sanitize/angular-sanitize',
         ngTouch: 'vendor/angular-touch/angular-touch',
         ngBootstrap: 'vendor/angular-ui-bootstrap/ui-bootstrap-tpls',
-        rzModule: 'vendor/angularjs-slider/rzslider',
 
         // Other vendor modules
         bootstrap: 'vendor/bootstrap/js/bootstrap',
@@ -59,7 +58,6 @@ require.config({
         ngAria: { deps: ['angular'], exports: 'ngAria' },
         dndLists: { deps: ['angular'], exports: 'dndLists' },
         ngPaging: { deps: ['angular'], exports: 'ngPaging' },
-        rzModule: { deps: ['angular'], exports: 'rzModule' },
         ngSanitize: { deps: ['angular'], exports: 'ngSanitize' },
         ngBootstrap: { deps: ['angular'], exports: 'ngBootstrap' },
         ngOpenlayers: { deps: ['angular'], exports: 'ngOpenlayers' },

@@ -18,7 +18,6 @@ require.config({
         ngResource: 'vendor/angular-resource/angular-resource',
         ngRoute: 'vendor/angular-route/angular-route',
         ngSanitize: 'vendor/angular-sanitize/angular-sanitize',
-        ngScrollbar: 'vendor/ng-scrollbar/ng-scrollbar',
         ngTouch: 'vendor/angular-touch/angular-touch',
         ngBootstrap: 'vendor/angular-ui-bootstrap/ui-bootstrap-tpls',
         rzModule: 'vendor/angularjs-slider/rzslider',
@@ -36,7 +35,7 @@ require.config({
         ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
         codeMirror: 'vendor/codemirror/lib/codemirror',
         uiCodeMirror: 'js/ui-codemirror',
-        xml2json: 'vendor/x2js/xml2json',
+        x2js: 'vendor/x2js/x2js',
 
         // F-TEP modules
         ftepConfig: 'ftepConfig',
@@ -69,13 +68,12 @@ require.config({
         clipboard: { exports: 'clipboard' },
         moment: { exports: 'moment' },
         angularMoment: { deps: ['angular', 'moment'], exports: 'angularMoment' },
-        ngScrollbar: { deps: ['angular'], exports: 'ngScrollbar'},
         traversonAngular: { deps: ['angular'], exports: ['traversonAngular', 'traverson'] },
         traversonHal: { deps: ['traversonAngular'], exports: ['traversonHal'] },
         ngFileUpload: { deps: ['angular'], exports: 'ngFileUpload'},
         codemirror: { exports: 'codemirror' },
         uiCodeMirror: { deps: ['angular', 'codemirror'], exports: 'uiCodeMirror' },
-        xml2json: { exports: 'xml2json' },
+        // x2js: { exports: 'x2js' },
         ftepConfig: { exports: 'ftepConfig' }
     },
     config: {

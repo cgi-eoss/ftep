@@ -29,7 +29,6 @@ define([
     'ngPaging',
     'moment',
     'angularMoment',
-    'ngScrollbar',
     'traversonAngular',
     'traversonHal',
     'ngFileUpload',
@@ -40,7 +39,7 @@ define([
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
                                          'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload', 'ui.codemirror']);
+                                         'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {

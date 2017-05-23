@@ -5,7 +5,7 @@
 * # MapCtrl
 * Controller of the ftepApp
 */
-define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
+define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
     ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', '$timeout',
@@ -313,7 +313,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
           var data = reader.result;
           if(data.indexOf('GroundOverlay') > -1){
               var x2js = new X2JS();
-              var kmlJson = x2js.xml_str2json(data);
+              var kmlJson = x2js.xml2js(data);
               var latlonbox = kmlJson.kml.Document.GroundOverlay.LatLonBox;
               var polygonWSEN = [parseFloat(latlonbox.west), parseFloat(latlonbox.south), parseFloat(latlonbox.east), parseFloat(latlonbox.north)];
               var polyExtent = ol.proj.transformExtent(polygonWSEN, EPSG_4326, EPSG_3857);

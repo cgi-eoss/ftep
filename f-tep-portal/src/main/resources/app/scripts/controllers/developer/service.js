@@ -16,9 +16,14 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceForms = {files: {title: 'Files'}, dataInputs: {title: 'Input Definitions'}, dataOutputs: {title: 'Output Definitions'}};
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
         $scope.constants = {
-                serviceFields: ['dataInputs', 'dataOutputs'],
-                fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}],
-                //literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
+            serviceFields: ['dataInputs', 'dataOutputs'],
+            fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}],
+            //literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
+        };
+        $scope.serviceTypes = {
+            APPLICATION: { id: 0, name: 'Application', value: 'APPLICATION'},
+            PROCESSOR: { id: 0, name: 'Processor', value: 'PROCESSOR'},
+            BULK_PROCESSOR: { id: 0, name: 'Bulk Processor', value: 'BULK_PROCESSOR'},
         };
 
         $scope.toggleServiceFilter = function(){
@@ -27,7 +32,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         ProductService.refreshServices('development');
 
-        $scope.selectService = function(service){
+        $scope.selectService = function(service) {
             $scope.serviceParams.displayRight = true;
             $scope.serviceParams.selectedService = service;
             ProductService.refreshSelectedService('development');
@@ -120,8 +125,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.updateService = function(){
-            ProductService.updateService($scope.serviceParams.selectedService).then(function(service){
+        $scope.saveService = function(){
+            ProductService.saveService($scope.serviceParams.selectedService).then(function(service){
                 ProductService.refreshServices('development');
             });
         };
@@ -138,6 +143,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                     };
                     ProductService.addFile(newFile).then(function(data){
                         ProductService.params.development.selectedService.files.push(data);
+                        ProductService.getFileList('development');
                     });
                     $mdDialog.hide();
                 };

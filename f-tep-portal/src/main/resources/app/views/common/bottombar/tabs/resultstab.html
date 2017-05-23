@@ -73,10 +73,23 @@
                                 <span class="menu-text">Select Databasket</span>
                             </span>
                         </md-button>
-                        <md-menu-content>
-                            <md-menu-item ng-repeat="basket in dbParams.databaskets">
-                                 <md-button ng-click="selectDatabasket(basket)"
+                        <md-menu-content class="select-databasket">
+                            <md-menu-item class="search">
+                                <input ng-model="basketSelection.searchText" type="text" placeholder="Search by name or description"
+                                        ng-keyup="searchBaskets()">
+                            </md-menu-item>
+                            <md-menu-item ng-repeat="basket in dbParams.selectBasketList"
+                                          ng-if="showList"
+                                          uib-tooltip="No rights to edit this databasket"
+                                          tooltip-trigger="mouseenter"
+                                          tooltip-append-to-body="false"
+                                          tooltip-placement="top"
+                                          tooltip-enable="isItemDisabled({{basket.id}})">
+                                 <md-button class="select_{{basket.id}}" ng-click="selectDatabasket(basket)"
                                             ng-class="(basket.name == dbParams.selectedDatabasket.name) ? 'selected' : ''"
+                                            has-permission="WRITE"
+                                            permission-source="{{basket}}"
+                                            disable-on-check
                                             aria-label="Databasket">
                                     <span>
                                         <span class="material-icons">shopping_basket</span>
@@ -164,10 +177,23 @@
                        tooltip-append-to-body="true">
                 <i class="material-icons">shopping_cart</i>
             </md-button>
-            <md-menu-content>
-                <md-menu-item ng-repeat="basket in dbParams.databaskets">
-                     <md-button ng-click="selectDatabasket(basket)"
+            <md-menu-content class="select-databasket">
+                <md-menu-item class="search">
+                    <input ng-model="basketSelection.searchText" type="text" placeholder="Search by name or description"
+                            ng-keyup="searchBaskets()">
+                </md-menu-item>
+                <md-menu-item ng-repeat="basket in dbParams.selectBasketList"
+                              ng-if="showList"
+                              uib-tooltip="No rights to edit this databasket"
+                              tooltip-trigger="mouseenter"
+                              tooltip-append-to-body="false"
+                              tooltip-placement="top"
+                              tooltip-enable="isItemDisabled({{basket.id}})">
+                     <md-button class="select_{{basket.id}}" ng-click="selectDatabasket(basket)"
                                 ng-class="(basket.name == dbParams.selectedDatabasket.name) ? 'selected' : ''"
+                                has-permission="WRITE"
+                                permission-source="{{basket}}"
+                                disable-on-check
                                 aria-label="Databasket">
                         <span>
                             <span class="material-icons">shopping_basket</span>

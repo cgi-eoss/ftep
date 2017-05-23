@@ -291,9 +291,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 if (self.params[page].selectedFile) {
                     getFile(self.params[page].selectedFile).then(function (file) {
                         self.params[page].fileDetails = file;
-                        CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {
-                            self.params[page].sharedGroups = data;
-                        });
+                        if(file.accessLevel === 'ADMIN') {
+                            CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {
+                                self.params[page].sharedGroups = data;
+                            });
+                        }
                     });
                 }
             }

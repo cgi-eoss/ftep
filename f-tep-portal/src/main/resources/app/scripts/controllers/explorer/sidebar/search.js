@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @ngdoc function
  * @name ftepApp.controller:SearchbarCtrl
@@ -6,11 +8,9 @@
  * Controller of the ftepApp
  */
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
-    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'GeoService', 'JobService', 'ProductService', 'ProjectService', '$sce', '$timeout',
-                                 function ($scope, $rootScope, $http, CommonService, BasketService, GeoService, JobService, ProductService, ProjectService, $sce, $timeout) {
-
+    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'GeoService',
+                                 function ($scope, $rootScope, $http, CommonService, BasketService, GeoService) {
 
             /** ----- DATA ----- **/
 
@@ -31,7 +31,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.searchParameters.mission = $scope.missions[1];
                 }
                 $scope.updateMissionParameters($scope.searchParameters.mission);
-                $scope.updateSlider();
             };
 
             $scope.closeDataSource = function () {
@@ -40,55 +39,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             /** ----- DATE PICKERS ----- **/
 
-            // Set months for slider.
-            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-
             // Set maximum search period range
             var searchPeriod = new Date();
             searchPeriod.setFullYear(searchPeriod.getFullYear() - 10);
             $scope.minDate = searchPeriod;
             $scope.maxDate = new Date();
-
-            // Initialise time slider
-            $scope.timeRangeSlider = {
-                options: {
-                    floor: $scope.minDate.getTime(),
-                    ceil: $scope.maxDate.getTime(),
-                    translate: function (value) {
-                        var date = new Date(value);
-                        var str = monthNames[date.getMonth()] + ' ' + date.getFullYear();
-                        return str;
-                    },
-                    getSelectionBarColor: function () {
-                        return '#ff80ab';
-                    },
-                    getTickColor: function () {
-                        return '#ff80ab';
-                    },
-                    getPointerColor: function () {
-                        return '#ff80ab';
-                    },
-                    onChange: onSliderChange,
-                    showTicks: false
-                },
-                minValue: $scope.searchParameters.startTime.getTime(),
-                maxValue: $scope.searchParameters.endTime.getTime()
-            };
-
-            // Update input values on slider change
-            function onSliderChange() { // jshint ignore:line
-                $scope.searchParameters.startTime = new Date($scope.timeRangeSlider.minValue);
-                $scope.searchParameters.endTime = new Date($scope.timeRangeSlider.maxValue);
-            }
-
-            // Update slider values on input change
-            $scope.updateSlider = function () {
-                $scope.timeRangeSlider.minValue = $scope.searchParameters.startTime.getTime();
-                $scope.timeRangeSlider.maxValue = $scope.searchParameters.endTime.getTime();
-                $timeout(function () {
-                    $scope.$broadcast('rzSliderForceRender');
-                }, 50);
-            };
 
             /** ----- MISSIONS ----- **/
 

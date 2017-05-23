@@ -7,13 +7,13 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.ProjectDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -40,34 +40,31 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter,
-            Pageable pageable) {
-        return getFilteredResults(QProject.project.name.containsIgnoreCase(filter)
-                .or(QProject.project.description.containsIgnoreCase(filter)), pageable);
+    public Page<Project> findByFilterOnly(String filter, Pageable pageable) {
+        return getFilteredResults(getFilterExpression(filter), pageable);
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<Project> findByFilterAndOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
-        }
-        else{
-            return getFilteredResults(getOwnerPath().eq(user).and(QProject.project.name.containsIgnoreCase(filter)
-                    .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
+        } else {
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
         }
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<Project> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
+        } else {
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
         }
-        else{
-            return getFilteredResults(getOwnerPath().ne(user).and(QProject.project.name.containsIgnoreCase(filter)
-                    .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
-        }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QProject.project.name.containsIgnoreCase(filter)
+                .or(QProject.project.description.containsIgnoreCase(filter));
     }
 
 }

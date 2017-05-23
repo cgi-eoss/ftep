@@ -9,9 +9,9 @@
                 <span class="icon-bar"></span>
             </button>
 
-            <div class="pull-left" ng-click="goTo('')">
+            <a class="pull-left" ng-href="{{ftepUrl}}" target="_blank">
                 <img src="images/logo.png"  alt="Forestry TEP Logo">
-            </div>
+            </a>
         </div>
 
         <div class="navbar-contents collapse navbar-collapse">
@@ -21,7 +21,8 @@
                     <p><i class="material-icons">public</i><span> Explorer</span></p>
                 </li>
 
-                <li ng-click="goTo('/developer')" aria-label="Developer" ng-class="{ active: isActive('/developer')}">
+                <li ng-if="user.role === 'EXPERT_USER' || user.role === 'CONTENT_AUTHORITY' || user.role === 'ADMIN'"
+                    ng-click="goTo('/developer')" aria-label="Developer" ng-class="{ active: isActive('/developer')}">
                     <p><i class="material-icons">build</i><span> Developer</span></p>
                 </li>
 
@@ -33,7 +34,8 @@
                    <p><i class="material-icons">help</i><span> Helpdesk</span></p>
                 </li>
 
-                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin" ng-class="{ active: isActive('/admin')}">
+                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin"
+                    ng-class="{ active: isActive('/admin')}">
                    <p><i class="material-icons">settings</i><span> Admin</span></p>
                 </li>
 
@@ -46,7 +48,7 @@
                 </li>
 
                 <li ng-if="user" aria-label="Logout">
-                    <a ng-href="{{urlPrefix}}/Shibboleth.sso/Logout" target="_self">
+                    <a ng-href="{{ssoUrl}}/idp/profile/Logout" target="_self">
                         <p><i class="material-icons">power_settings_new</i><span> Logout</span></p>
                     </a>
                 </li>

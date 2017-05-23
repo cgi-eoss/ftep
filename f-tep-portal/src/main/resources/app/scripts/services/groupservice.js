@@ -135,8 +135,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getGroupsByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/groups/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/groups/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.groupOwnershipFilters.ALL_GROUPS){
                     url += '&owner=' + userUrl;
@@ -263,9 +263,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         UserService.getUsers(group).then(function (users) {
                             UserService.params[page].groupUsers = users;
                         });
-                        CommunityService.getObjectGroups(group, 'group').then(function (data) {
-                            self.params[page].sharedGroups = data;
-                        });
+                        if(group.accessLevel === 'ADMIN') {
+                            CommunityService.getObjectGroups(group, 'group').then(function (data) {
+                                self.params[page].sharedGroups = data;
+                            });
+                        }
                     });
                 }
             }

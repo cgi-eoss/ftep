@@ -22,14 +22,12 @@ define([
     'ngResource',
     'ngAria',
     'ol',
-    'rzModule',
     'dndLists',
     'ngOpenlayers',
     'ngBootstrap',
     'ngPaging',
     'moment',
     'angularMoment',
-    'ngScrollbar',
     'traversonAngular',
     'traversonHal',
     'ngFileUpload',
@@ -39,36 +37,36 @@ define([
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
-                                         'ngResource', 'rzModule', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'ngScrollbar', 'traverson', 'ngFileUpload', 'ui.codemirror']);
+                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
+                                         'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
-        "URL_PREFIX": ftepConfig.urlPrefix,
-        "URL": ftepConfig.apiUrl,
-        "URLv2": ftepConfig.apiUrlv2,
-        "FTEP_URL": ftepConfig.ftepUrl,
-        "SSO_URL": ftepConfig.ssoUrl,
-        "MAPBOX_URL": "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
+        'FTEP_URL': ftepConfig.ftepUrl,
+        'URL': ftepConfig.apiUrl,
+        'URLv2': ftepConfig.apiUrlv2,
+        'SSO_URL': ftepConfig.ssoUrl,
+        'MAPBOX_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
     /* jshint +W117 */
 
     app.init = function () {
         angular.bootstrap(document, ['ftepApp']);
         require([
-         "scripts/vendor/codemirror/lib/codemirror",
-         "scripts/vendor/codemirror/mode/dockerfile/dockerfile",
-         "scripts/vendor/codemirror/mode/javascript/javascript",
-         "scripts/vendor/codemirror/mode/perl/perl",
-         "scripts/vendor/codemirror/mode/php/php",
-         "scripts/vendor/codemirror/mode/properties/properties",
-         "scripts/vendor/codemirror/mode/python/python",
-         "scripts/vendor/codemirror/mode/shell/shell",
-         "scripts/vendor/codemirror/mode/xml/xml",
-         "scripts/vendor/codemirror/mode/yaml/yaml"
-       ], function(CodeMirror) {
-           window.CodeMirror = CodeMirror;
-});
+            "scripts/vendor/codemirror/lib/codemirror",
+            "scripts/vendor/codemirror/mode/dockerfile/dockerfile",
+            "scripts/vendor/codemirror/mode/javascript/javascript",
+            "scripts/vendor/codemirror/mode/perl/perl",
+            "scripts/vendor/codemirror/mode/php/php",
+            "scripts/vendor/codemirror/mode/properties/properties",
+            "scripts/vendor/codemirror/mode/python/python",
+            "scripts/vendor/codemirror/mode/shell/shell",
+            "scripts/vendor/codemirror/mode/xml/xml",
+            "scripts/vendor/codemirror/mode/yaml/yaml"
+        ], function(CodeMirror) {
+            window.CodeMirror = CodeMirror;
+            }
+        );
     };
 
     app.config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -80,7 +78,16 @@ define([
                 controllerAs: 'main'
             })
             .when('/developer', {
-                templateUrl: 'views/developer/developer.html'
+                templateUrl: 'views/developer/developer.html',
+                resolve:{
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUser().then(function(user){
+                            if(user.role !== 'ADMIN' && user.role !== 'EXPERT_USER' && user.role !== 'CONTENT_AUTHORITY'){
+                                $location.path('/');  //redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/community', {
                 templateUrl: 'views/community/community.html',
@@ -166,12 +173,12 @@ define([
                 }
                 else {
                     return new Date(dateTime.year + "-" +
-                            getTwoDigitNumber(dateTime.monthValue) + "-" +
-                            getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
-                            getTwoDigitNumber(dateTime.hour) + ":" +
-                            getTwoDigitNumber(dateTime.minute) + ":" +
-                            getTwoDigitNumber(dateTime.second) + "." +
-                            getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
+                        getTwoDigitNumber(dateTime.monthValue) + "-" +
+                        getTwoDigitNumber(dateTime.dayOfMonth) + "T" +
+                        getTwoDigitNumber(dateTime.hour) + ":" +
+                        getTwoDigitNumber(dateTime.minute) + ":" +
+                        getTwoDigitNumber(dateTime.second) + "." +
+                        getThreeDigitNumber(dateTime.nano/1000000) + "Z").toISOString();
                 }
             }
             else{
@@ -239,15 +246,13 @@ define([
                             break;
                     }
 
-                    //Whether an element has been requested to be disabled only. If no disable-on-check setting, hide the whole element.
+                    // Whether an element has been requested to be disabled only. If no disable-on-check setting, hide the whole element.
                     if(attrs.hasOwnProperty('disableOnCheck')){
                         attrs.$set('disabled', !allowed);
-                    }
-                    else{
+                    } else {
                         if(allowed){
                             element.show();
-                        }
-                        else {
+                        } else {
                             element.hide();
                         }
                     }
@@ -260,10 +265,9 @@ define([
                 });
 
                 element.show();
-
             }
-          };
-        });
+        };
+    });
 
     /** Directive for adding specific style-class based on screen size **/
     app.directive("mediaClass", ["$mdMedia", "$window", "$timeout", function($mdMedia, $window, $timeout) {

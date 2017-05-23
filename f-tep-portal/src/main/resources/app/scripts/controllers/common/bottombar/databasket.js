@@ -125,17 +125,34 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.clearDatabasket = function() {
-            BasketService.clearDatabasket($scope.basketParams.selectedDatabasket).then(function (data) {
+            BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };
 
         $scope.removeDatabasketItem = function(item) {
-            BasketService.removeDatabasketItem($scope.basketParams.selectedDatabasket, $scope.basketParams.items, item).then(function (data) {
+            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function (data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };
         /* End of Selected Databasket */
+
+        /* BOTTOMBAR MENU-BAR DATABASKET SELECTION */
+        $scope.basketSelection = { searchText: ''};
+        $scope.showList = true;
+        $scope.searchBaskets = function() {
+            $scope.showList = false;
+            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets){
+                $scope.dbParams.selectBasketList = baskets;
+                $scope.showList = true;
+            });
+        };
+        $scope.searchBaskets();
+
+        $scope.isItemDisabled = function(basketId){
+            return document.getElementById('select_' + basketId).disabled;
+        };
+        /* END OF BOTTOMBAR MENU-BAR DATABASKET SELECTION */
 
         /* GET ITEM FOR DARGGING */
         $scope.getBasketItem = function(item){

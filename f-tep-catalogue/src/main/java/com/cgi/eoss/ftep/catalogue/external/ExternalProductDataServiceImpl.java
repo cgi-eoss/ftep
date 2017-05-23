@@ -56,6 +56,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
             }
             FtepFile ftepFile = new FtepFile(uri, restoId);
             ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
+            ftepFile.setFilename(productId);
             ftepFile.setFilesize(filesize);
             return ftepFileDataService.save(ftepFile);
         });

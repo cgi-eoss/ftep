@@ -34,19 +34,20 @@
 
             </div>
 
-            <div class="col-md-12 col-lg-4 filter-checkboxes"
-                 ng-show="jobParams.displayFilters"
-                 ng-repeat="jobStatus in jobParams.jobStatuses"
-                 ng-click="jobStatus.value = !jobStatus.value; filterJobs()">
-                <md-checkbox ng-model="jobStatus.value"
-                             ng-click="jobStatus.value = !jobStatus.value; filter()"
-                             aria-label="Job Filter">
-                    {{jobStatus.name}}
-                </md-checkbox>
-            </div>
-
             <md-input-container md-no-float ng-show="jobParams.displayFilters">
                 <input ng-model="jobParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+            </md-input-container>
+
+            <md-input-container ng-show="jobParams.displayFilters" md-no-float>
+                <md-select ng-model="jobParams.selectedStatuses" ng-change="filter()" multiple placeholder="Job Status">
+                    <md-optgroup label="Statuses">
+                        <md-option ng-repeat="jobStatus in jobStatuses"
+                                   ng-value="jobStatus.name"
+                                   aria-label="Job Filter">
+                            {{jobStatus.title}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="jobParams.displayFilters">

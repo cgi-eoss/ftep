@@ -124,7 +124,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             jobDataService.save(job);
 
             // TODO Determine WorkerEnvironment from service parameters
-            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(WorkerEnvironment.LOCAL);
+            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
             JobEnvironment jobEnvironment = worker.prepareEnvironment(JobInputs.newBuilder()
                     .setJob(rpcJob)
                     .addAllInputs(request.getInputsList())

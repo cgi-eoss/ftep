@@ -24,9 +24,7 @@
                tooltip-append-to-body="true">drag_handle</i>
         </div>
 
-        <div class="md-list-item-text" layout="column">
-            {{item.filename}}
-        </div>
+        <div class="md-list-item-text" layout="column">{{item.filename ? item.filename : item.uri}}</div>
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeDatabasketItem(item)"

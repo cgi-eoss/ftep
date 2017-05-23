@@ -5,7 +5,7 @@
 * # MapCtrl
 * Controller of the ftepApp
 */
-define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
+define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
     ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', '$timeout',
@@ -113,7 +113,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
             button.innerHTML = '<img class="map-control" src="' + shape.img + '"/>';
 
             var handleSelection = function() {
-                if($scope.drawType != shape){
+                if($scope.drawType !== shape){
                     $scope.drawType = shape;
                     $scope.map.removeInteraction(draw);
                     addInteraction();
@@ -313,7 +313,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
           var data = reader.result;
           if(data.indexOf('GroundOverlay') > -1){
               var x2js = new X2JS();
-              var kmlJson = x2js.xml_str2json(data);
+              var kmlJson = x2js.xml2js(data);
               var latlonbox = kmlJson.kml.Document.GroundOverlay.LatLonBox;
               var polygonWSEN = [parseFloat(latlonbox.west), parseFloat(latlonbox.south), parseFloat(latlonbox.east), parseFloat(latlonbox.north)];
               var polyExtent = ol.proj.transformExtent(polygonWSEN, EPSG_4326, EPSG_3857);
@@ -474,7 +474,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                     var item = basketFiles[i];
                     if(item.metadata && item.metadata.geometry && item.metadata.geometry.coordinates){
                         var lonlatPoints = [];
-                        for(var k = 0; k < iitem.metadata.geometry.coordinates.length; k++){
+                        for(var k = 0; k < item.metadata.geometry.coordinates.length; k++){
                            for(var m = 0; m < item.metadata.geometry.coordinates[k].length; m++){
                               var p = angular.copy(item.metadata.geometry.coordinates[k][m]);
                               lonlatPoints.push(p);
@@ -532,7 +532,7 @@ define(['../../ftepmodules', 'ol', 'xml2json', 'clipboard'], function (ftepmodul
                 var lonlatPoints = [];
                 for(var k = 0; k < geo.coordinates.length; k++){
                     for(var m = 0; m < geo.coordinates[k].length; m++){
-                        var point = item.geo.coordinates[k][m];
+                        var point = geo.coordinates[k][m];
                         lonlatPoints.push(point);
                     }
                 }

@@ -36,6 +36,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pagingData: {},
                 databaskets: undefined,
                 items: undefined,
+                selectBasketList: undefined,
                 selectedDatabasket: undefined,
                 selectedItems: undefined,
                 searchText: '',
@@ -256,8 +257,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getDatabasketsByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl
-                        + '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl +
+                    '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.dbOwnershipFilters.ALL_BASKETS){
                     url += '&owner=' + userUrl;
@@ -269,6 +270,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     self.params[page].databaskets = data;
                 });
             }
+        };
+
+        // search function for explorer page bottombar menu-bars
+        this.searchBaskets = function (searchText) {
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/databaskets/' + 'search/findByFilterOnly?sort=name&filter=' + searchText)
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                    deferred.resolve(document._embedded.databaskets);
+                }, function (error) {
+                    MessageService.addError('Could not get Databaskets', error);
+                    deferred.reject();
+                });
+
+            return deferred.promise;
         };
 
         this.refreshSelectedBasket = function (page) {
@@ -283,7 +301,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             self.params[page].items = data;
                         });
 
-                        if(page === 'community'){
+                        if(page === 'community' && basket.accessLevel === 'ADMIN') {
                             CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
                                 self.params.community.sharedGroups = data;
                             });

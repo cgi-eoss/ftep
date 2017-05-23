@@ -18,10 +18,8 @@ require.config({
         ngResource: 'vendor/angular-resource/angular-resource',
         ngRoute: 'vendor/angular-route/angular-route',
         ngSanitize: 'vendor/angular-sanitize/angular-sanitize',
-        ngScrollbar: 'vendor/ng-scrollbar/ng-scrollbar',
         ngTouch: 'vendor/angular-touch/angular-touch',
         ngBootstrap: 'vendor/angular-ui-bootstrap/ui-bootstrap-tpls',
-        rzModule: 'vendor/angularjs-slider/rzslider',
 
         // Other vendor modules
         bootstrap: 'vendor/bootstrap/js/bootstrap',
@@ -35,8 +33,8 @@ require.config({
         traversonHal: 'vendor/traverson-hal/browser/dist/traverson-hal',
         ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
         codeMirror: 'vendor/codemirror/lib/codemirror',
-        uiCodeMirror: 'vendor/angular-ui-codemirror/src/ui-codemirror',
-        xml2json: 'vendor/x2js/xml2json',
+        uiCodeMirror: 'js/ui-codemirror',
+        x2js: 'vendor/x2js/x2js',
 
         // F-TEP modules
         ftepConfig: 'ftepConfig',
@@ -60,7 +58,6 @@ require.config({
         ngAria: { deps: ['angular'], exports: 'ngAria' },
         dndLists: { deps: ['angular'], exports: 'dndLists' },
         ngPaging: { deps: ['angular'], exports: 'ngPaging' },
-        rzModule: { deps: ['angular'], exports: 'rzModule' },
         ngSanitize: { deps: ['angular'], exports: 'ngSanitize' },
         ngBootstrap: { deps: ['angular'], exports: 'ngBootstrap' },
         ngOpenlayers: { deps: ['angular'], exports: 'ngOpenlayers' },
@@ -69,17 +66,12 @@ require.config({
         clipboard: { exports: 'clipboard' },
         moment: { exports: 'moment' },
         angularMoment: { deps: ['angular', 'moment'], exports: 'angularMoment' },
-        ngScrollbar: { deps: ['angular'], exports: 'ngScrollbar'},
         traversonAngular: { deps: ['angular'], exports: ['traversonAngular', 'traverson'] },
         traversonHal: { deps: ['traversonAngular'], exports: ['traversonHal'] },
         ngFileUpload: { deps: ['angular'], exports: 'ngFileUpload'},
         codemirror: { exports: 'codemirror' },
         uiCodeMirror: { deps: ['angular', 'codemirror'], exports: 'uiCodeMirror' },
-/*            init: function (angular, codemirror) {
-                window.CodeMirror = codemirror;
-            }*/
-
-        xml2json: { exports: 'xml2json' },
+        // x2js: { exports: 'x2js' },
         ftepConfig: { exports: 'ftepConfig' }
     },
     config: {

@@ -8,11 +8,11 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('JobsCtrl', ['$scope', '$rootScope', 'CommonService', 'JobService', '$sce',
-                                 function ($scope, $rootScope, CommonService, JobService, $sce) {
+    ftepmodules.controller('JobsCtrl', ['$scope', '$rootScope', 'CommonService', 'JobService', '$sce', function ($scope, $rootScope, CommonService, JobService, $sce) {
 
             $scope.jobParams = JobService.params.explorer;
             $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
+            $scope.jobStatuses = JobService.JOB_STATUSES;
 
             /* Get jobs */
             JobService.refreshJobs('explorer');

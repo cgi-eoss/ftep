@@ -11,7 +11,8 @@ define(['../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('NavbarCtrl', ['ftepProperties', '$scope', '$location', 'UserService', '$window', function (ftepProperties, $scope, $location, UserService, $window) {
 
         $scope.user = undefined;
-        $scope.urlPrefix = ftepProperties.URL_PREFIX;
+        $scope.ssoUrl = ftepProperties.SSO_URL;
+        $scope.ftepUrl = ftepProperties.FTEP_URL;
 
         $scope.isActive = function (route) {
             return route === $location.path();

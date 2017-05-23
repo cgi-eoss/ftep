@@ -57,18 +57,15 @@ public interface FtepFilesApi extends BaseRepositoryApi<FtepFile>, FtepFilesApiC
     @Override
     @RestResource(path = "findByFilterOnly", rel = "findByFilterOnly")
     @Query("select t from FtepFile t where t.filename like CONCAT('%', filter, '%') and t.type=type")
-    Page<FtepFile> findByNameContainsIgnoreCaseAndType(@Param("filter") String filter,
-            @Param("type") FtepFile.Type type, Pageable pageable);
+    Page<FtepFile> findByFilterOnly(@Param("filter") String filter, @Param("type") FtepFile.Type type, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
     @Query("select t from FtepFile t where t.owner=user and t.filename like CONCAT('%', filter, '%') and t.type=type")
-    Page<FtepFile> findByNameContainsIgnoreCaseAndTypeAndOwner(@Param("filter") String filter,
-            @Param("type") FtepFile.Type type, @Param("owner") User user, Pageable pageable);
+    Page<FtepFile> findByFilterAndOwner(@Param("filter") String filter, @Param("type") FtepFile.Type type, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
     @Query("select t from FtepFile t where not t.owner=user and t.filename like CONCAT('%', filter, '%') and t.type=type")
-    Page<FtepFile> findByNameContainsIgnoreCaseAndTypeAndNotOwner(@Param("filter") String filter,
-            @Param("type") FtepFile.Type type, @Param("owner") User user, Pageable pageable);
+    Page<FtepFile> findByFilterAndNotOwner(@Param("filter") String filter, @Param("type") FtepFile.Type type, @Param("owner") User user, Pageable pageable);
 }

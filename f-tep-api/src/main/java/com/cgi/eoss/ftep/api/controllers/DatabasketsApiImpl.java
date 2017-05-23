@@ -6,14 +6,13 @@ import com.cgi.eoss.ftep.model.QDatabasket;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.DatabasketDao;
-import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -40,24 +39,23 @@ public class DatabasketsApiImpl extends BaseRepositoryApiImpl<Databasket> implem
     }
 
     @Override
-    public Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter,
-            Pageable pageable) {
-        return getFilteredResults(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter)), pageable);
+    public Page<Databasket> findByFilterOnly(String filter, Pageable pageable) {
+        return getFilteredResults(getFilterExpression(filter), pageable);
     }
 
     @Override
-    public Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().eq(user).and(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter))), pageable);
+    public Page<Databasket> findByFilterAndOwner(String filter, User user, Pageable pageable) {
+        return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
     }
 
     @Override
-    public Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().ne(user).and(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter))), pageable);
+    public Page<Databasket> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
+        return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QDatabasket.databasket.name.containsIgnoreCase(filter)
+                .or(QDatabasket.databasket.description.containsIgnoreCase(filter));
     }
 
 }

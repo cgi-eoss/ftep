@@ -34,6 +34,10 @@
 
             </div>
 
+            <md-input-container md-no-float ng-show="fileParams.displayFilters">
+                <input ng-model="fileParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+            </md-input-container>
+
             <div class="row filter-radiobutton" ng-show="fileParams.displayFilters">
                 <md-radio-group ng-model="fileParams.activeFileType" ng-change="filter()">
                     <div ng-repeat="filetype in filetypes" class="col-md-12 col-lg-6 no-padding">
@@ -43,10 +47,6 @@
                     </div>
                 </md-radio-group>
             </div>
-
-            <md-input-container md-no-float ng-show="fileParams.displayFilters">
-                <input ng-model="fileParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
-            </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="fileParams.displayFilters">
                 <md-radio-group ng-model="fileParams.selectedOwnershipFilter" ng-change="filter()">

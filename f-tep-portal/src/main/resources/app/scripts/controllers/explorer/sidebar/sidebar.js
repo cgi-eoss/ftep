@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @ngdoc function
  * @name ftepApp.controller:SidebarCtrl
@@ -6,8 +8,6 @@
  * Controller of the ftepApp
  */
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
-
     ftepmodules.controller('SidebarCtrl', ['$scope', '$timeout', '$mdSidenav', 'TabService', function ($scope, $timeout, $mdSidenav, TabService) {
 
         $scope.sideNavTabs = TabService.getExplorerSideNavs();
@@ -16,9 +16,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         function showSidebarArea() {
             $scope.navInfo.sideViewVisible = true;
-            $timeout(function () {
-                $scope.$broadcast('rzSliderForceRender');
-            }, 50);
         }
 
         $scope.hideSidebarArea = function () {

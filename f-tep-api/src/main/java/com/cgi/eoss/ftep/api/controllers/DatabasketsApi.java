@@ -12,9 +12,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @RepositoryRestResource(
         path = "databaskets",
@@ -50,16 +47,16 @@ public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, Databaske
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
     @Query("select t from Databasket t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
-    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable);
+    Page<Databasket> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
     @Query("select t from Databasket t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
-    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    Page<Databasket> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
     @Query("select t from Databasket t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
-    Page<Databasket> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    Page<Databasket> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
 }

@@ -14,7 +14,7 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-click="deleteItem()" ng-disabled="!tempItem.name" class="md-primary" has-permission="ADMIN" permission-source="{{tempItem}}">Delete</md-button>
+        <md-button ng-click="deleteItem($event, itemName)" ng-disabled="!tempItem.name" class="md-primary" has-permission="ADMIN" permission-source="{{tempItem}}">Delete</md-button>
         <md-button ng-click="updateItem()" ng-disabled="!tempItem.name" class="md-primary">Save</md-button>
         <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
     </md-dialog-actions>

@@ -57,14 +57,13 @@
                     <div class="col-xs-12 col-sm-6 col-md-12 no-padding">
                         <div class="col-xs-12 col-sm-4 col-md-4 no-padding">
                             <md-subheader class="md-accent">
-                                <label for="Start Date">Start Date</label>
+                                <label>Start Date</label>
                             </md-subheader>
                         </div>
 
                         <div class="col-xs-12 col-sm-8 col-md-8 no-padding">
                             <md-datepicker ng-required="true"
                                            ng-model="searchParameters.startTime"
-                                           ng-change="updateSlider()"
                                            md-placeholder="Start date"
                                            md-min-date="minDate"
                                            md-max-date="maxDate"/>
@@ -74,30 +73,18 @@
                     <div class="col-xs-12 col-sm-6 col-md-12 no-padding">
                         <div class="col-xs-12 col-sm-4 col-md-4 no-padding">
                             <md-subheader class="md-accent">
-                                <label for="Start Date">End Date</label>
+                                <label>End Date</label>
                             </md-subheader>
                         </div>
 
                         <div class="col-xs-12 col-sm-8 col-md-8 no-padding">
                             <md-datepicker ng-required="true"
                                            ng-model="searchParameters.endTime"
-                                           ng-change="updateSlider()"
                                            md-placeholder="End date"
                                            md-min-date="minDate"
                                            md-max-date="maxDate"/>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-xs-1" />
-                    <div class="col-xs-10">
-                        <rzslider id="timeSlider"
-                                  rz-slider-model="timeRangeSlider.minValue"
-                                  rz-slider-high="timeRangeSlider.maxValue"
-                                  rz-slider-options="timeRangeSlider.options" />
-                    </div>
-                    <div class="col-xs-1" />
                 </div>
             </div>
 

@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -40,31 +39,26 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter,
-            Pageable pageable) {
+    public Page<Project> findByFilterOnly(String filter, Pageable pageable) {
         return getFilteredResults(QProject.project.name.containsIgnoreCase(filter)
                 .or(QProject.project.description.containsIgnoreCase(filter)), pageable);
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<Project> findByFilterAndOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
-        }
-        else{
+        } else {
             return getFilteredResults(getOwnerPath().eq(user).and(QProject.project.name.containsIgnoreCase(filter)
                     .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
         }
     }
 
     @Override
-    public Page<Project> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<Project> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
-        }
-        else{
+        } else {
             return getFilteredResults(getOwnerPath().ne(user).and(QProject.project.name.containsIgnoreCase(filter)
                     .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
         }

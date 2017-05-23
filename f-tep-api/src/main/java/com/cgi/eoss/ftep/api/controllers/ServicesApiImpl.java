@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.QFtepService;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -41,30 +39,26 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
     }
 
     @Override
-    public Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable) {
+    public Page<FtepService> findByFilterOnly(String filter, Pageable pageable) {
         return getFilteredResults(QFtepService.ftepService.name.containsIgnoreCase(filter)
                 .or(QFtepService.ftepService.description.containsIgnoreCase(filter)), pageable);
     }
 
     @Override
-    public Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<FtepService> findByFilterAndOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
-        }
-        else{
+        } else {
             return getFilteredResults(getOwnerPath().eq(user).and(QFtepService.ftepService.name.containsIgnoreCase(filter)
                     .or(QFtepService.ftepService.description.containsIgnoreCase(filter))), pageable);
         }
     }
 
     @Override
-    public Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
-        if(Strings.isNullOrEmpty(filter)){
+    public Page<FtepService> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
+        if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
-        }
-        else{
+        } else {
             return getFilteredResults(getOwnerPath().ne(user).and(QFtepService.ftepService.name.containsIgnoreCase(filter)
                     .or(QFtepService.ftepService.description.containsIgnoreCase(filter))), pageable);
         }

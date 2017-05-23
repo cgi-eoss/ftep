@@ -4,10 +4,6 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.Job.Status;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortJob;
-
-import java.util.Collection;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +14,8 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.Collection;
 
 @RepositoryRestResource(path = "jobs", itemResourceRel = "job", collectionResourceRel = "jobs", excerptProjection = ShortJob.class)
 public interface JobsApi extends BaseRepositoryApi<Job>, JobsApiCustom, PagingAndSortingRepository<Job, Long> {
@@ -54,19 +52,16 @@ public interface JobsApi extends BaseRepositoryApi<Job>, JobsApiCustom, PagingAn
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from Job t where t.id like filter and t.status in (status)")
-    Page<Job> findByIdContainsAndStatus(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
-            Pageable pageable);
+    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status)")
+    Page<Job> findByFilterOnly(@Param("filter") String filter, @Param("status") Collection<Status> statuses, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
-    @Query("select t from Job t where t.id like filter and t.status in (status) and t.owner=user")
-    Page<Job> findByIdContainsAndStatusAndOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
-            @Param("owner") User user, Pageable pageable);
+    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status) and t.owner=user")
+    Page<Job> findByFilterAndOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
-    @Query("select t from Job t where t.id like filter and t.status in (status) and not t.owner=user")
-    Page<Job> findByIdContainsAndStatusAndNotOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses,
-            @Param("owner") User user, Pageable pageable);
+    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status) and not t.owner=user")
+    Page<Job> findByFilterAndNotOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable);
 }

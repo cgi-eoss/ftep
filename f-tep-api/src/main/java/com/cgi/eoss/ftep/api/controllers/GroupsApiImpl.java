@@ -13,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -42,16 +39,14 @@ public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> implements Group
     }
 
     @Override
-    public Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter,
-            Pageable pageable) {
+    public Page<Group> findByFilterOnly(String filter, Pageable pageable) {
         return getFilteredResults(
                 QGroup.group.name.containsIgnoreCase(filter).or(QGroup.group.description.containsIgnoreCase(filter)),
                 pageable);
     }
 
     @Override
-    public Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
+    public Page<Group> findByFilterAndOwner(String filter, User user, Pageable pageable) {
         if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
         } else {
@@ -61,8 +56,7 @@ public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> implements Group
     }
 
     @Override
-    public Page<Group> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable) {
+    public Page<Group> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
         if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
         } else {

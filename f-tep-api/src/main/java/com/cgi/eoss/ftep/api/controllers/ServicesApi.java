@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortFtepService;
 import org.springframework.data.domain.Page;
@@ -48,17 +47,15 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApi
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
     @Query("select t from FtepService t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
-    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCase(@Param("filter") String filter, Pageable pageable);
+    Page<FtepService> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
     @Query("select t from FtepService t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
-    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    Page<FtepService> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
     @Query("select t from FtepService t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
-    Page<FtepService> findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndNotOwner(
-            @Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    Page<FtepService> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 }

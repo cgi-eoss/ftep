@@ -11,18 +11,12 @@ import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
@@ -48,8 +42,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
     }
 
     @Override
-    public Page<Job> findByIdContainsAndStatus(@Param("filter") String filter,
-            @Param("status") Collection<Status> statuses, Pageable pageable) {
+    public Page<Job> findByFilterOnly(String filter, Collection<Status> statuses, Pageable pageable) {
         if (statuses.isEmpty()) {
             return getDao().findAll(QJob.job.id.isNull(), pageable);
         } else {
@@ -59,8 +52,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
     }
 
     @Override
-    public Page<Job> findByIdContainsAndStatusAndOwner(@Param("filter") String filter,
-            @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable) {
+    public Page<Job> findByFilterAndOwner(String filter, Collection<Status> statuses, User user, Pageable pageable) {
         if (statuses.isEmpty()) {
             return getDao().findAll(QJob.job.id.isNull(), pageable);
         } else if (Strings.isNullOrEmpty(filter)) {
@@ -72,8 +64,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
     }
 
     @Override
-    public Page<Job> findByIdContainsAndStatusAndNotOwner(@Param("filter") String filter,
-            @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable) {
+    public Page<Job> findByFilterAndNotOwner(String filter, Collection<Status> statuses, User user, Pageable pageable) {
         if (statuses.isEmpty()) {
             return getDao().findAll(QJob.job.id.isNull(), pageable);
         } else if (Strings.isNullOrEmpty(filter)) {

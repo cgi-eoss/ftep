@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +41,7 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
 
     @Override
     public Page<FtepService> findByFilterOnly(String filter, Pageable pageable) {
-        return getFilteredResults(QFtepService.ftepService.name.containsIgnoreCase(filter)
-                .or(QFtepService.ftepService.description.containsIgnoreCase(filter)), pageable);
+        return getFilteredResults(getFilterExpression(filter), pageable);
     }
 
     @Override
@@ -49,8 +49,7 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
         if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(QFtepService.ftepService.name.containsIgnoreCase(filter)
-                    .or(QFtepService.ftepService.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
         }
     }
 
@@ -59,9 +58,13 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
         if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(QFtepService.ftepService.name.containsIgnoreCase(filter)
-                    .or(QFtepService.ftepService.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
         }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QFtepService.ftepService.name.containsIgnoreCase(filter)
+                .or(QFtepService.ftepService.description.containsIgnoreCase(filter));
     }
 
 }

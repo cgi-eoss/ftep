@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.ProjectDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +41,7 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
 
     @Override
     public Page<Project> findByFilterOnly(String filter, Pageable pageable) {
-        return getFilteredResults(QProject.project.name.containsIgnoreCase(filter)
-                .or(QProject.project.description.containsIgnoreCase(filter)), pageable);
+        return getFilteredResults(getFilterExpression(filter), pageable);
     }
 
     @Override
@@ -49,8 +49,7 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
         if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(QProject.project.name.containsIgnoreCase(filter)
-                    .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
         }
     }
 
@@ -59,9 +58,13 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
         if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(QProject.project.name.containsIgnoreCase(filter)
-                    .or(QProject.project.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
         }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QProject.project.name.containsIgnoreCase(filter)
+                .or(QProject.project.description.containsIgnoreCase(filter));
     }
 
 }

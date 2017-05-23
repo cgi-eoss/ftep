@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         if (statuses.isEmpty()) {
             return getDao().findAll(QJob.job.id.isNull(), pageable);
         } else {
-            return getFilteredResults(QJob.job.id.stringValue().contains(filter).and(QJob.job.status.in(statuses)),
+            return getFilteredResults(getFilterExpression(filter).and(QJob.job.status.in(statuses)),
                     pageable);
         }
     }
@@ -58,7 +59,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         } else if (Strings.isNullOrEmpty(filter)) {
             return getFilteredResults(getOwnerPath().eq(user).and(QJob.job.status.in(statuses)), pageable);
         } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(QJob.job.id.stringValue().contains(filter))
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter))
                     .and(QJob.job.status.in(statuses)), pageable);
         }
     }
@@ -70,9 +71,14 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         } else if (Strings.isNullOrEmpty(filter)) {
             return getFilteredResults(getOwnerPath().ne(user).and(QJob.job.status.in(statuses)), pageable);
         } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(QJob.job.id.stringValue().contains(filter))
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter))
                     .and(QJob.job.status.in(statuses)), pageable);
         }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QJob.job.id.stringValue().contains(filter)
+                .or(QJob.job.config.label.containsIgnoreCase(filter));
     }
 
 }

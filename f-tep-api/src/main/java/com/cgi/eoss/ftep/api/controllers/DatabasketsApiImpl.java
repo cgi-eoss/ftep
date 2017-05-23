@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.QDatabasket;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.DatabasketDao;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,20 +40,22 @@ public class DatabasketsApiImpl extends BaseRepositoryApiImpl<Databasket> implem
 
     @Override
     public Page<Databasket> findByFilterOnly(String filter, Pageable pageable) {
-        return getFilteredResults(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter)), pageable);
+        return getFilteredResults(getFilterExpression(filter), pageable);
     }
 
     @Override
     public Page<Databasket> findByFilterAndOwner(String filter, User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().eq(user).and(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter))), pageable);
+        return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
     }
 
     @Override
     public Page<Databasket> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().ne(user).and(QDatabasket.databasket.name.containsIgnoreCase(filter)
-                .or(QDatabasket.databasket.description.containsIgnoreCase(filter))), pageable);
+        return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QDatabasket.databasket.name.containsIgnoreCase(filter)
+                .or(QDatabasket.databasket.description.containsIgnoreCase(filter));
     }
 
 }

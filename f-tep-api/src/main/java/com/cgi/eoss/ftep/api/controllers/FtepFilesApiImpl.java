@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
     @Override
     public Page<FtepFile> findByFilterOnly(String filter, FtepFile.Type type, Pageable pageable) {
         return getFilteredResults(
-                QFtepFile.ftepFile.filename.containsIgnoreCase(filter).and(QFtepFile.ftepFile.type.eq(type)), pageable);
+                getFilterExpression(filter).and(QFtepFile.ftepFile.type.eq(type)), pageable);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
             return getFilteredResults(getOwnerPath().eq(user).and(QFtepFile.ftepFile.type.eq(type)), pageable);
         } else {
             return getFilteredResults(getOwnerPath().eq(user)
-                            .and(QFtepFile.ftepFile.filename.containsIgnoreCase(filter)).and(QFtepFile.ftepFile.type.eq(type)),
+                            .and(getFilterExpression(filter)).and(QFtepFile.ftepFile.type.eq(type)),
                     pageable);
         }
     }
@@ -66,9 +67,13 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
             return getFilteredResults(getOwnerPath().ne(user).and(QFtepFile.ftepFile.type.eq(type)), pageable);
         } else {
             return getFilteredResults(getOwnerPath().ne(user)
-                            .and(QFtepFile.ftepFile.filename.containsIgnoreCase(filter)).and(QFtepFile.ftepFile.type.eq(type)),
+                            .and(getFilterExpression(filter)).and(QFtepFile.ftepFile.type.eq(type)),
                     pageable);
         }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QFtepFile.ftepFile.filename.containsIgnoreCase(filter);
     }
 
 }

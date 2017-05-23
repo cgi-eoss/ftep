@@ -52,16 +52,16 @@ public interface JobsApi extends BaseRepositoryApi<Job>, JobsApiCustom, PagingAn
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status)")
+    @Query("select t from Job t where (t.id like CONCAT('%', filter, '%') or t.config.label like CONCAT('%', filter, '%')) and t.status in (status)")
     Page<Job> findByFilterOnly(@Param("filter") String filter, @Param("status") Collection<Status> statuses, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
-    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status) and t.owner=user")
+    @Query("select t from Job t where (t.id like CONCAT('%', filter, '%') or t.config.label like CONCAT('%', filter, '%')) and t.status in (status) and t.owner=user")
     Page<Job> findByFilterAndOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
-    @Query("select t from Job t where t.id like CONCAT('%', filter, '%') and t.status in (status) and not t.owner=user")
+    @Query("select t from Job t where (t.id like CONCAT('%', filter, '%') or t.config.label like CONCAT('%', filter, '%')) and t.status in (status) and not t.owner=user")
     Page<Job> findByFilterAndNotOwner(@Param("filter") String filter, @Param("status") Collection<Status> statuses, @Param("owner") User user, Pageable pageable);
 }

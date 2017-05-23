@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.GroupDao;
 import com.google.common.base.Strings;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> implements Group
     @Override
     public Page<Group> findByFilterOnly(String filter, Pageable pageable) {
         return getFilteredResults(
-                QGroup.group.name.containsIgnoreCase(filter).or(QGroup.group.description.containsIgnoreCase(filter)),
+                getFilterExpression(filter),
                 pageable);
     }
 
@@ -50,8 +51,7 @@ public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> implements Group
         if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(QGroup.group.name.containsIgnoreCase(filter)
-                    .or(QGroup.group.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
         }
     }
 
@@ -60,9 +60,13 @@ public class GroupsApiImpl extends BaseRepositoryApiImpl<Group> implements Group
         if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(QGroup.group.name.containsIgnoreCase(filter)
-                    .or(QGroup.group.description.containsIgnoreCase(filter))), pageable);
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
         }
+    }
+
+    private BooleanExpression getFilterExpression(String filter) {
+        return QGroup.group.name.containsIgnoreCase(filter)
+                .or(QGroup.group.description.containsIgnoreCase(filter));
     }
 
 }

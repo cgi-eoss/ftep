@@ -45,7 +45,7 @@ public class OrchestratorConfig {
                                        @Value("${ftep.orchestrator.worker.eurekaServiceId:f-tep worker}") String workerServiceId,
                                        ExpressionParser workerLocatorExpressionParser,
                                        WorkerLocatorExpressionDataService workerLocatorExpressionDataService,
-                                       @Value("${ftep.orchestrator.worker.defaultWorkerExpression:LOCAL}") String defaultWorkerExpression) {
+                                       @Value("${ftep.orchestrator.worker.defaultWorkerExpression:\"LOCAL\"}") String defaultWorkerExpression) {
         return new WorkerFactory(discoveryClient, workerServiceId, workerLocatorExpressionParser, workerLocatorExpressionDataService, defaultWorkerExpression);
     }
 

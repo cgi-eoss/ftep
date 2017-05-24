@@ -26,19 +26,19 @@
             <div class="service-field col-md-2 no-padding">
                 <md-input-container md-no-float>
                     <label>Service Name</label>
-                    <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" required>
+                    <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" aria-label="Name" required>
                 </md-input-container>
             </div>
             <div class="service-field col-md-2 no-padding">
                 <md-input-container md-no-float>
                     <label>Docker Tag</label>
-                    <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" disabled>
+                    <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" aria-label="Docker Tag" disabled>
                 </md-input-container>
             </div>
             <div class="col-md-7 service-field no-padding">
                 <md-input-container id="service-description" md-no-float>
                     <label>Description</label>
-                    <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description">
+                    <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description" aria-label="Description">
                 </md-input-container>
             </div>
             <div class="col-md-1 service-field no-padding">
@@ -48,7 +48,7 @@
             <div class="service-field col-md-2 no-padding">
                 <md-input-container md-no-float>
                     <label>Version</label>
-                    <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version">
+                    <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version" aria-label="Version">
                 </md-input-container>
             </div>
             <div class="service-field col-md-2 no-padding">
@@ -64,7 +64,7 @@
             <div class="col-md-7 service-field no-padding">
                 <md-input-container id="service-summary" md-no-float>
                     <label>Summary</label>
-                    <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Summary">
+                    <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Summary" aria-label="Summary">
                 </md-input-container>
             </div>
             <div class="col-md-1 service-field no-padding">
@@ -181,7 +181,7 @@
             <tr ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
                 <td>
                     <md-input-container md-no-float>
-                        <input ng-model="input.id" type="text" placeholder="Field id*" required/>
+                        <input ng-model="input.id" type="text" placeholder="Field id*" required aria-label="Field ID"/>
                         <span class="error-message" ng-show="isValidFieldId(input, key) === false">Field id must be unique!</span>
                     </md-input-container>
                 </td>
@@ -198,11 +198,11 @@
                 <td>
                     <div class="col-xs-9 no-padding">
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
-                            <input ng-model="input.defaultAttrs.dataType" ng-init="string" ng-disabled="true"/>
+                            <input ng-model="input.defaultAttrs.dataType" ng-init="string" ng-disabled="true" aria-label="Input Type"/>
                         </md-input-container>
 
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'">
-                            <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType" required/>
+                            <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType" required aria-label="Input Type"/>
                         </md-input-container>
                     </div>
                     <div class="col-xs-3 no-padding">
@@ -218,12 +218,12 @@
                 </td>
                 <td>
                     <md-input-container md-no-float>
-                        <input ng-model="input.minOccurs" type="number" min="0" placeholder="Min Occurs"/>
+                        <input ng-model="input.minOccurs" type="number" min="0" placeholder="Min Occurs" aria-label="Min Occurs"/>
                     </md-input-container>
                 </td>
                 <td>
                     <md-input-container md-no-float>
-                        <input ng-model="input.maxOccurs" type="number" min="0" placeholder="Max Occurs"/>
+                        <input ng-model="input.maxOccurs" type="number" min="0" placeholder="Max Occurs" aria-label="Max Occurs"/>
                     </md-input-container>
                 </td>
                 <td>

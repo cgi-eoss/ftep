@@ -35,7 +35,7 @@
             </div>
 
             <md-input-container md-no-float ng-show="fileParams.displayFilters">
-                <input ng-model="fileParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+                <input ng-model="fileParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Files Search Filter">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="fileParams.displayFilters">

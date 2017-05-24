@@ -43,7 +43,7 @@
                     <md-input-container class="md-block">
                         <label ng-class="{'hidden': userParams.coins < 0}">Add Coins</label>
                         <label ng-class="{'hidden': userParams.coins > -1}">Subtract Coins</label>
-                        <input id="user-coins" ng-model="userParams.coins" type="number" step="1">
+                        <input id="user-coins" ng-model="userParams.coins" type="number" step="1" aria-label="User Coins">
                     </md-input-container>
                 </form>
             </md-card-content>

@@ -35,7 +35,7 @@
             </div>
 
             <md-input-container md-no-float ng-show="basketParams.displayFilters">
-                <input ng-model="basketParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+                <input ng-model="basketParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Databasket Search Filter">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="basketParams.displayFilters">

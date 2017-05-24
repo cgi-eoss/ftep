@@ -97,7 +97,7 @@
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <md-select ng-model="searchParameters.mission" ng-change="updateMissionParameters(searchParameters.mission)">
+                        <md-select ng-model="searchParameters.mission" ng-change="updateMissionParameters(searchParameters.mission)" aria-label="Select a mission">
                             <md-option ng-repeat="mission in missions" ng-value="mission">
                                 {{mission.name}}
                             </md-option>
@@ -113,7 +113,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <md-input-container md-no-float>
-                            <input ng-model="searchParameters.text" type="text" placeholder="FTEP (optional)">
+                            <input ng-model="searchParameters.text" type="text" placeholder="FTEP (optional)" aria-label="Datasource">
                             <div class="hint" ng-show="true">Name of a datasource</div>
                         </md-input-container>
                     </div>

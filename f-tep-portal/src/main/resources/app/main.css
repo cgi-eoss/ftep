@@ -2173,6 +2173,7 @@
   color: #ff80ab;
 }
 .panel-group #projects .panel .panel-heading .panel-heading-container .project-title {
+  cursor: pointer;
   padding-left: 0;
 }
 .panel-group #projects .panel .panel-heading .panel-heading-container .project-title .expand-icon {

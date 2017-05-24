@@ -9,8 +9,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', '$rootScope', '$sce', '$filter', 'JobService', 'ProductService', 'MapService', 'BasketService', 'CommonService',
-                                function ($scope, $rootScope, $sce, $filter, JobService, ProductService, MapService, BasketService, CommonService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'ProductService', 'MapService', 'CommonService', function ($scope, JobService, ProductService, MapService, CommonService) {
 
         $scope.serviceParams = ProductService.params.explorer;
         $scope.isWorkspaceLoading = false;
@@ -19,7 +18,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.isWorkspaceLoading = true;
             $scope.serviceParams.inputValues = {};
             $scope.serviceParams.dropLists = {};
-
             if(inputs){
                 for (var key in inputs) {
                     $scope.serviceParams.inputValues[key] = inputs[key][0]; //First value is the actual input
@@ -160,10 +158,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.updateDropList = function(fieldId){
-            if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId] === ''){
-                $scope.serviceParams.dropLists[fieldId] = undefined;
-            }
-            else {
+            if($scope.serviceParams.inputValues[fieldId] && $scope.serviceParams.inputValues[fieldId].indexOf('://') > -1) {
                 var csvList = $scope.serviceParams.inputValues[fieldId].split(',');
                 if($scope.serviceParams.dropLists[fieldId] === undefined){
                     $scope.serviceParams.dropLists[fieldId] = [];
@@ -182,6 +177,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     }
                 }
                 $scope.serviceParams.dropLists[fieldId] = newDropList;
+            } else {
+                $scope.serviceParams.dropLists[fieldId] = undefined;
             }
         };
 

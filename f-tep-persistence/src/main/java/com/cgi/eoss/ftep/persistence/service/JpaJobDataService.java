@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
+import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,11 +64,12 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
 
     @Override
     @Transactional
-    public Job buildNew(String extId, String ownerId, String serviceId, Multimap<String, String> inputs) {
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
         User owner = userDataService.getByName(ownerId);
         FtepService service = serviceDataService.getByName(serviceId);
 
         JobConfig config = new JobConfig(owner, service);
+        config.setLabel(Strings.isNullOrEmpty(jobConfigLabel) ? null : jobConfigLabel);
         config.setInputs(inputs);
 
         return buildNew(jobConfigDataService.save(config), extId, owner);

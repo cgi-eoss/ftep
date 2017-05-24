@@ -18,6 +18,7 @@ import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -168,9 +169,10 @@ public class FtepServicesClientIT {
         when(service.getDockerTag()).thenReturn("ftep/testservice1");
         when(service.getType()).thenReturn(FtepService.Type.APPLICATION); // Trigger ingestion of all outputs
         when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
-        when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
+        when(jobDataService.buildNew(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             JobConfig config = new JobConfig(user, service);
-            config.setInputs(invocation.getArgument(3));
+            config.setLabel(Strings.isNullOrEmpty(invocation.getArgument(3)) ? null : invocation.getArgument(3));
+            config.setInputs(invocation.getArgument(4));
             Job job = new Job(config, invocation.getArgument(0), user);
             job.setId(1L);
             return job;
@@ -218,9 +220,10 @@ public class FtepServicesClientIT {
         when(serviceDescriptor.getDataOutputs()).thenReturn(ImmutableList.of(
                 FtepServiceDescriptor.Parameter.builder().id("output").build()
         ));
-        when(jobDataService.buildNew(any(), any(), any(), any())).thenAnswer(invocation -> {
+        when(jobDataService.buildNew(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
             JobConfig config = new JobConfig(user, service);
-            config.setInputs(invocation.getArgument(3));
+            config.setLabel(Strings.isNullOrEmpty(invocation.getArgument(3)) ? null : invocation.getArgument(3));
+            config.setInputs(invocation.getArgument(4));
             Job job = new Job(config, invocation.getArgument(0), user);
             job.setId(1L);
             return job;

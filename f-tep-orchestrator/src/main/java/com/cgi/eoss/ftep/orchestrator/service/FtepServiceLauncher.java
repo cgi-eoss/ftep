@@ -99,12 +99,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         String zooId = request.getJobId();
         String userId = request.getUserId();
         String serviceId = request.getServiceId();
+        String jobConfigLabel = request.getJobConfigLabel();
 
         Job job = null;
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
                 .put("userId", userId).put("serviceId", serviceId).put("zooId", zooId)) {
             // TODO Allow re-use of existing JobConfig
-            job = jobDataService.buildNew(zooId, userId, serviceId, inputs);
+            job = jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, inputs);
             ctc.put("jobId", String.valueOf(job.getId()));
             FtepService service = job.getConfig().getService();
 

@@ -17,6 +17,7 @@ message FtepServiceParams {
     string userId = 2;
     string serviceId = 3;
     repeated JobParam inputs = 4;
+    string jobConfigLabel = 5;
 }
 
 message FtepServiceResponse {

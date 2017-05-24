@@ -16,5 +16,5 @@ public interface JobDataService extends
 
     List<Job> findByOwnerAndService(User user, FtepService service);
 
-    Job buildNew(String extId, String userId, String serviceId, Multimap<String, String> inputs);
+    Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs);
 }

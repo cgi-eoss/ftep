@@ -74,21 +74,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var startPolling = true;
         var pollingTimer;
 
-        function checkJobsQuery(page) {
-            /* If no filter set to empty string*/
-            if(!self.params[page].pollingRequestOptions.filter) {
-               self.params[page].pollingRequestOptions.filter = '';
+        var pollJobs = function (page, filter) {
+            if(filter) {
+                filterJobs(page);
             }
-            /* If no status set to all statuses */
-            if (!self.params[page].pollingRequestOptions.status) {
-                self.params[page].pollingRequestOptions.status = JOB_STATUSES_STRING;
-            }
-        }
-
-        var pollJobs = function (page) {
-
-            checkJobsQuery(page);
-
             pollingTimer = $timeout(function () {
                 halAPI.from(self.params[page].pollingUrl + self.params[page].selectedOwnershipFilter.searchUrl)
                     .newRequest()
@@ -107,13 +96,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         self.params[page].pagingData.page = document.page;
 
                         $rootScope.$broadcast('poll.jobs', document._embedded.jobs);
-                        pollJobs(page);
+                        pollJobs(page, true);
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Jobs', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollJobs(page);
+                            pollJobs(page, true);
                         }
                     });
             }, POLLING_FREQUENCY);
@@ -126,10 +115,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             startPolling = true;
         };
 
-        function getJobs(page) {
-
-            checkJobsQuery(page);
-
+        function getJobs(page, filter) {
+            if (filter) {
+                filterJobs(page);
+            }
             var deferred = $q.defer();
                 halAPI.from(self.params[page].pollingUrl + self.params[page].selectedOwnershipFilter.searchUrl)
                     .newRequest()
@@ -146,7 +135,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                  .then(
                 function (document) {
                     if(startPolling) {
-                        pollJobs(page);
+                        pollJobs(page, true);
                         startPolling = false;
                     }
                     self.params[page].pagingData._links = document._links;
@@ -167,21 +156,27 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 self.params[page].pollingUrl = url;
 
                 /* Get jobs list */
-                getJobs(page).then(function (data) {
-                    self.params[page].jobs = data;
-                });
+                self.getJobsByFilter(page);
             }
         };
 
         this.getJobsByFilter = function (page) {
+            getJobs(page, true).then(function (data) {
+                self.params[page].jobs = data;
+            });
+        };
+
+        function filterJobs(page) {
             if (self.params[page]) {
 
                 /* Get sort parameter */
                 self.params[page].pollingRequestOptions.sort = 'id,DESC';
 
-                /* Get filter parameter */
+                /* Get text search parameter */
                 if(self.params[page].searchText) {
                     self.params[page].pollingRequestOptions.filter = self.params[page].searchText;
+                } else {
+                    self.params[page].pollingRequestOptions.filter = '';
                 }
 
                 /* Get owner parameter */
@@ -191,17 +186,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Get status parameter */
                 var statusStr = '';
-                for(var status = 0; self.params[page].selectedStatuses.length > status; status++){
-                    statusStr += "," + self.params[page].selectedStatuses[status];
+                if(self.params[page].selectedStatuses) {
+                    for(var status = 0; self.params[page].selectedStatuses.length > status; status++){
+                        statusStr += "," + self.params[page].selectedStatuses[status];
+                    }
                 }
-                self.params[page].pollingRequestOptions.status = statusStr.substring(1);
-
-                /* Get jobs list */
-                getJobs(page).then(function (data) {
-                    self.params[page].jobs = data;
-                });
+                if (statusStr) {
+                    self.params[page].pollingRequestOptions.status = statusStr.substring(1);
+                } else {
+                    self.params[page].pollingRequestOptions.status = JOB_STATUSES_STRING;
+                }
             }
-        };
+        }
 
         var getJob = function (job) {
             var deferred = $q.defer();
@@ -322,7 +318,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.refreshJobs = function (page, action, job) {
 
             /* Get job list */
-            getJobs(page).then(function (data) {
+            getJobs(page, true).then(function (data) {
 
                 self.params[page].jobs = data;
 

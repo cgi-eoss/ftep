@@ -337,6 +337,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             /* Get job contents if selected */
             if (self.params[page].selectedJob) {
+                //
+
                 getJob(self.params[page].selectedJob).then(function (job) {
                     self.params[page].selectedJob = job;
 
@@ -347,26 +349,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     getJobDetails(job).then(function (data) {
                         self.params[page].selectedJob.details = data;
 
-                        var startTime = self.params[page].selectedJob.details.startTime;
-                        self.params[page].selectedJob.details.startTime =
-                            new Date(startTime.year + "-" +
-                                    getTwoDigitNumber(startTime.monthValue) + "-" +
-                                    getTwoDigitNumber(startTime.dayOfMonth) + "T" +
-                                    getTwoDigitNumber(startTime.hour) + ":" +
-                                    getTwoDigitNumber(startTime.minute) + ":" +
-                                    getTwoDigitNumber(startTime.second) + "." +
-                                    getThreeDigitNumber(startTime.nano/1000000) + "Z").toISOString();
-
-                        var endTime = self.params[page].selectedJob.details.endTime;
-                        self.params[page].selectedJob.details.endTime =
-                            new Date(endTime.year + "-" +
-                                    getTwoDigitNumber(endTime.monthValue) + "-" +
-                                    getTwoDigitNumber(endTime.dayOfMonth) + "T" +
-                                    getTwoDigitNumber(endTime.hour) + ":" +
-                                    getTwoDigitNumber(endTime.minute) + ":" +
-                                    getTwoDigitNumber(endTime.second) + "." +
-                                    getThreeDigitNumber(endTime.nano/1000000) + "Z").toISOString();
-
                         getJobLogs(job).then(function (logs) {
                              self.params[page].selectedJob.logs = logs;
                         });
@@ -374,23 +356,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                              self.params[page].selectedJob.config = config;
                         });
 
-                        if (self.params[page].selectedJob.outputs) {
-                            self.params[page].selectedJob.downloadLinks = {};
-                            self.params[page].selectedJob.wmsLinks = [];
-                            for (var itemKey in self.params[page].selectedJob.outputs) {
-                                if (self.params[page].selectedJob.outputs[itemKey][0].substring(0,7) === "ftep://") {
-                                    getJobOutput(self.params[page].selectedJob, self.params[page].selectedJob.details._links['output-' + itemKey].href).then(function (result) {
-                                        var str = self.params[page].selectedJob.outputs[itemKey][0];
-                                        self.params[page].selectedJob.downloadLinks[self.params[page].selectedJob.outputs[itemKey][0]] =  result._links.download.href;
-                                        if(result._links.wms){
-                                            var wmsObj = {
-                                                    key: itemKey,
-                                                    wms: result._links.wms.href,
-                                                    geo: result.metadata.geometry
-                                            };
-                                            self.params[page].selectedJob.wmsLinks.push(wmsObj);
-                                        }
-                                    });
+                        var selectedJob = self.params[page].selectedJob;
+                        if (selectedJob.outputs) {
+                            selectedJob.downloadLinks = {};
+                            selectedJob.wmsLinks = [];
+
+                            for (var itemKey in selectedJob.outputs) {
+                                var outputUri = selectedJob.outputs[itemKey][0];
+                                if (outputUri.substring(0,7) === "ftep://") {
+                                    getJobOutput(selectedJob, selectedJob.details._links['output-' + itemKey].href).then(
+                                        parseJobOutput(selectedJob.downloadLinks, selectedJob.wmsLinks, itemKey, outputUri)
+                                    );
                                 }
                             }
                         }
@@ -409,6 +385,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 });
             }
         };
+
+        function parseJobOutput(downloadLinks, wmsLinks, itemKey, outputUri) {
+            return function (result) {
+                downloadLinks[outputUri] =  result._links.download.href;
+                if(result._links.wms){
+                    var wmsObj = {
+                        key: itemKey,
+                        wms: result._links.wms.href,
+                        geo: result.metadata.geometry
+                    };
+                    wmsLinks.push(wmsObj);
+                }
+            };
+        }
 
         function getTwoDigitNumber(num){
             return (num > 9 ? num : '0'+num);

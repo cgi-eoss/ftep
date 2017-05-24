@@ -2,7 +2,9 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.PublishingRequest;
 import com.cgi.eoss.ftep.orchestrator.zoo.ZooManagerClient;
+import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
 import lombok.extern.log4j.Log4j2;
@@ -28,15 +30,17 @@ import java.util.stream.Collectors;
 @Log4j2
 public class ContentAuthorityApi {
 
-    private final ServiceDataService serviceDataService;
     private final FtepSecurityService ftepSecurityService;
     private final ZooManagerClient zooManagerClient;
+    private final PublishingRequestDataService publishingRequestsDataService;
+    private final ServiceDataService serviceDataService;
 
     @Autowired
-    public ContentAuthorityApi(ServiceDataService serviceDataService, FtepSecurityService ftepSecurityService, ZooManagerClient zooManagerClient) {
-        this.serviceDataService = serviceDataService;
+    public ContentAuthorityApi(FtepSecurityService ftepSecurityService, ZooManagerClient zooManagerClient, PublishingRequestDataService publishingRequestsDataService, ServiceDataService serviceDataService) {
         this.ftepSecurityService = ftepSecurityService;
         this.zooManagerClient = zooManagerClient;
+        this.publishingRequestsDataService = publishingRequestsDataService;
+        this.serviceDataService = serviceDataService;
     }
 
     @PostMapping("/services/restoreDefaults")
@@ -50,7 +54,7 @@ public class ContentAuthorityApi {
             // If the service already exists, synchronise the IDs (and associated file IDs) to avoid constraint errors
             Optional.ofNullable(serviceDataService.getByName(service.getName())).ifPresent((FtepService existing) -> {
                 service.setId(existing.getId());
-                service.getContextFiles().forEach(newFile ->  {
+                service.getContextFiles().forEach(newFile -> {
                     existing.getContextFiles().stream()
                             .filter(existingFile -> existingFile.getFilename().equals(newFile.getFilename()))
                             .findFirst()
@@ -78,6 +82,11 @@ public class ContentAuthorityApi {
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void publishService(@ModelAttribute("serviceId") FtepService service) {
         ftepSecurityService.publish(FtepService.class, service.getId());
+        publishingRequestsDataService.findRequestsForPublishing(service).forEach(request -> {
+            request.setStatus(PublishingRequest.Status.GRANTED);
+            publishingRequestsDataService.save(request);
+        });
+
     }
 
     @PostMapping("/services/unpublish/{serviceId}")

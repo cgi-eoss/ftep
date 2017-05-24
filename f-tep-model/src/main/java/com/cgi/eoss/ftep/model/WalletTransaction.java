@@ -95,7 +95,17 @@ public class WalletTransaction implements FtepEntityWithOwner<WalletTransaction>
     }
 
     public enum Type {
-        CREDIT, JOB, DOWNLOAD
+        CREDIT(null), JOB(Job.class), DOWNLOAD(FtepFile.class);
+
+        private final Class<?> typeClass;
+
+        Type(Class<?> cls) {
+            this.typeClass = cls;
+        }
+
+        public Class<?> getTypeClass() {
+            return typeClass;
+        }
     }
 
 }

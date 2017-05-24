@@ -43,7 +43,7 @@ import java.util.stream.IntStream;
 @Component
 @Log4j2
 public class FtepSecurityService {
-    public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A",ImmutableList.of(FtepPermission.PUBLIC));
+    public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
     private static final Predicate<GrantedAuthority> ADMIN_PREDICATE = a -> Role.ADMIN.getAuthority().equals(a.getAuthority());
     private static final Predicate<GrantedAuthority> SUPERUSER_PREDICATE = ADMIN_PREDICATE.or(a -> Role.CONTENT_AUTHORITY.getAuthority().equals(a.getAuthority()));
@@ -129,16 +129,24 @@ public class FtepSecurityService {
     }
 
     /**
-     * <p>Return the equivalent {@link FtepPermission} level granted to the current user on the given object.</p>
+     * <p>Return the current access properties of the current user on the given object.</p>
      *
      * @param objectClass The class of the entity being tested.
      * @param identifier The identifier of the entity being tested.
-     * @return The {@link FtepPermission} corresponding to the current access level.
+     * @return Whether the object is published or not, as well as the {@link FtepPermission} corresponding to the
+     * current access level.
      */
-    public FtepPermission getCurrentPermission(Class<?> objectClass, Long identifier) {
+    public FtepAccess getCurrentAccess(Class<?> objectClass, Long identifier) {
         Authentication authentication = getCurrentAuthentication();
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(objectClass, identifier);
 
+        return FtepAccess.builder()
+                .published(isPublic(objectIdentity))
+                .currentLevel(getCurrentPermission(authentication, objectIdentity))
+                .build();
+    }
+
+    private FtepPermission getCurrentPermission(Authentication authentication, ObjectIdentity objectIdentity) {
         if (hasFtepPermission(authentication, FtepPermission.ADMIN, objectIdentity)) {
             return FtepPermission.ADMIN;
         } else if (hasFtepPermission(authentication, FtepPermission.WRITE, objectIdentity)) {

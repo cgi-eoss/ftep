@@ -119,7 +119,8 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services[0].name").value("service-1"))
                 .andExpect(jsonPath("$._embedded.services[0].dockerTag").value("dockerTag"))
                 .andExpect(jsonPath("$._embedded.services[0].owner.id").value(ftepUser.getId()))
-                .andExpect(jsonPath("$._embedded.services[0].public").value(false))
+                .andExpect(jsonPath("$._embedded.services[0].access.published").value(false))
+                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("ADMIN"))
                 .andExpect(jsonPath("$._embedded.services[0]._links.self.href").value(endsWith("/services/" + service.getId())))
                 .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner")));
     }
@@ -146,9 +147,11 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services").isArray())
                 .andExpect(jsonPath("$._embedded.services.length()").value(2))
                 .andExpect(jsonPath("$._embedded.services[0].id").value(service.getId()))
-                .andExpect(jsonPath("$._embedded.services[0].public").value(true))
+                .andExpect(jsonPath("$._embedded.services[0].access.published").value(true))
+                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("READ"))
                 .andExpect(jsonPath("$._embedded.services[1].id").value(service3.getId()))
-                .andExpect(jsonPath("$._embedded.services[1].public").value(false));
+                .andExpect(jsonPath("$._embedded.services[1].access.published").value(false))
+                .andExpect(jsonPath("$._embedded.services[1].access.currentLevel").value("READ"));
     }
 
     @Test

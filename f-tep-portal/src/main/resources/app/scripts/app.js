@@ -230,7 +230,7 @@ define([
                     var userPermission = 'READ'; //default user permission
                     if(attrs.permissionSource){
                         var permissionSource = JSON.parse(attrs.permissionSource);
-                        userPermission = (permissionSource.accessLevel ? permissionSource.accessLevel : 'READ');
+                        userPermission = (permissionSource.access.currentLevel ? permissionSource.access.currentLevel : 'READ');
                     }
 
                     var allowed = false;
@@ -239,7 +239,7 @@ define([
                             allowed = true;
                             break;
                         case 'WRITE':
-                            allowed = (['WRITE', 'ADMIN',].indexOf(userPermission.toUpperCase()) > -1);
+                            allowed = (['WRITE', 'ADMIN'].indexOf(userPermission.toUpperCase()) > -1);
                             break;
                         case 'ADMIN':
                             allowed = (['ADMIN'].indexOf(userPermission.toUpperCase()) > -1);

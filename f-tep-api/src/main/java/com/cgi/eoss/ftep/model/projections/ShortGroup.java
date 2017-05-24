@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.Group;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -16,6 +16,6 @@ public interface ShortGroup extends Identifiable<Long> {
     ShortUser getOwner();
     @Value("#{target.members.size()}")
     Integer getSize();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

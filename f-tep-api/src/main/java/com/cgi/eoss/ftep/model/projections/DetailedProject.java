@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Project;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +20,6 @@ public interface DetailedProject extends Identifiable<Long> {
     Set<ShortDatabasket> getDatabaskets();
     Set<ShortFtepService> getServices();
     Set<JobConfig> getJobConfigs();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

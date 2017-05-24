@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.Group;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -16,7 +16,7 @@ public interface DetailedGroup extends Identifiable<Long> {
     String getName();
     String getDescription();
     ShortUser getOwner();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
     Set<ShortUser> getMembers();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

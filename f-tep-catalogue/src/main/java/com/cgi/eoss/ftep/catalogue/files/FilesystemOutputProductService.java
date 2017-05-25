@@ -120,8 +120,8 @@ public class FilesystemOutputProductService implements OutputProductService {
                 .addPathSegment(jobId)
                 .addPathSegment("wms")
                 .addQueryParameter("service", "WMS")
-                .addQueryParameter("version", "1.1.1")
-                .addQueryParameter("layers", jobId + ":" + filename)
+                .addQueryParameter("version", "1.3.0")
+                .addQueryParameter("layers", jobId + ":" + MoreFiles.getNameWithoutExtension(Paths.get(filename)))
                 .build();
     }
 

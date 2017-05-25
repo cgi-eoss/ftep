@@ -31,11 +31,11 @@ public interface JobConfigsApi extends BaseRepositoryApi<JobConfig>, PagingAndSo
     void delete(@P("jobConfig") JobConfig jobConfig);
 
     @Override
-    @Query("select t from JobConfig t where t.owner=user")
+    @Query("select t from JobConfig t where t.owner=:owner")
     Page<JobConfig> findByOwner(@Param("owner") User user, Pageable pageable);
 
     @Override
-    @Query("select t from JobConfig t where not t.owner=user")
+    @Query("select t from JobConfig t where not t.owner=:owner")
     Page<JobConfig> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
 }

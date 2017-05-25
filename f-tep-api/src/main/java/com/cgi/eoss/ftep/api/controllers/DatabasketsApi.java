@@ -46,17 +46,17 @@ public interface DatabasketsApi extends BaseRepositoryApi<Databasket>, Databaske
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from Databasket t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    @Query("select t from Databasket t where t.name like %:filter% or t.description like %:filter%")
     Page<Databasket> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndOwner", rel="findByFilterAndOwner")
-    @Query("select t from Databasket t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from Databasket t where t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<Databasket> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path="findByFilterAndNotOwner", rel="findByFilterAndNotOwner")
-    @Query("select t from Databasket t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from Databasket t where not t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<Databasket> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
 }

@@ -40,16 +40,16 @@ public interface PublishingRequestsApi extends BaseRepositoryApi<PublishingReque
     void delete(@P("publishingRequest") PublishingRequest publishingRequest);
 
     @Override
-    @Query("select t from PublishingRequest t where t.owner=user")
+    @Query("select t from PublishingRequest t where t.owner=:owner")
     Page<PublishingRequest> findByOwner(@Param("owner") User user, Pageable pageable);
 
     @Override
-    @Query("select t from PublishingRequest t where not t.owner=user")
+    @Query("select t from PublishingRequest t where not t.owner=:owner")
     Page<PublishingRequest> findByNotOwner(@Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path = "findByStatus")
-    @Query("select t from PublishingRequest t where t.status in (statuses)")
+    @Query("select t from PublishingRequest t where t.status in (:status)")
     Page<PublishingRequest> findByStatus(@Param("status") Collection<PublishingRequest.Status> statuses, Pageable pageable);
 
 }

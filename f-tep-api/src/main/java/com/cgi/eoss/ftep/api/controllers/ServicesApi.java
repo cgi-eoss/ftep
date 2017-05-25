@@ -46,16 +46,16 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApi
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from FtepService t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    @Query("select t from FtepService t where t.name like %:filter% or t.description like %:filter%")
     Page<FtepService> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
-    @Query("select t from FtepService t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from FtepService t where t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<FtepService> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
-    @Query("select t from FtepService t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from FtepService t where not t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<FtepService> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 }

@@ -38,7 +38,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 items: undefined,
                 selectBasketList: undefined,
                 selectedDatabasket: undefined,
-                selectedItems: undefined,
+                selectedItems: [],
                 searchText: '',
                 displayFilters: false,
                 databasketOnMap: {id: undefined},

@@ -14,7 +14,9 @@
     <h3>{{dbParams.selectedDatabasket.name}}</h3>
     <h4>{{dbParams.selectedDatabasket.description}}</h4>
 
-    <md-list-item class="md-2-line" ng-repeat="item in dbParams.items">
+    <md-list-item class="md-1-line" ng-repeat="item in dbParams.items"
+                  ng-class="(dbParams.selectedItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
+                  ng-click="toggleSelection(item)">
 
         <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
             <i class="material-icons"

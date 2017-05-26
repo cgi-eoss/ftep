@@ -11,7 +11,7 @@
                      md-match-case-insensitive="true"
                      placeholder="Select a user by name or email address">
         <md-item-template>
-            <span md-highlight-text="userParams.searchText">{{user.name}} <{{user.email}}></span>
+            <span><span md-highlight-text="userParams.searchText">{{user.name}}</span> &lt;<span md-highlight-text="userParams.searchText">{{user.email}}</span>&gt;</span>
         </md-item-template>
         <md-not-found>
             <span>No users matching "{{userParams.searchText}}" were found.</span>

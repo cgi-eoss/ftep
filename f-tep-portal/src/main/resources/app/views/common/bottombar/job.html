@@ -13,12 +13,27 @@
 
     <section class="row">
 
-        <div class="col-lg-2 col-md-4 job-title no-padding">
-            <h3>Job ID: {{jobParams.selectedJob.id}}</h3>
-        </div>
-
-        <div class="col-lg-6 col-md-8 job-title no-padding">
-            <h4>Start Time: <span ng-bind="jobParams.selectedJob.details.startTime | formatDateTime" /></h4>
+        <div class="col-lg-8 col-md-12 job-title no-padding">
+            <h3>Job ID: {{jobParams.selectedJob.id}}
+                <md-button class="md-secondary"
+                           ng-show="!wmsVisibile"
+                           ng-click="toggleAllWMS(true)"
+                           uib-tooltip="Show WMS Layer"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">layers</i>
+                </md-button>
+                <md-button class="md-secondary"
+                           ng-show="wmsVisibile"
+                           ng-click="toggleAllWMS(false)"
+                           uib-tooltip="Hide WMS Layer"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">layers_clear</i>
+                </md-button>
+            </h3>
         </div>
 
         <div class="col-lg-3 col-md-12 job-title no-padding">
@@ -76,8 +91,29 @@
                 ng-click="selectOutputFile(key)"
                 ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'"
                 dnd-draggable="getSelectedOutputFiles(key)">
+
                 <div class="row">
-                    <div class="col-xs-11">{{key}}</div>
+                    <div class="col-xs-10 file">{{key}}</div>
+                    <div class="col-xs-1 wms">
+                        <md-button class="toolbar-button md-secondary"
+                                   ng-show="!wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
+                                   ng-click="toggleWMS($index, true); $event.stopPropagation()"
+                                   uib-tooltip="Show WMS Layer"
+                                   tooltip-placement="top"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                            <i class="material-icons">layers</i>
+                        </md-button>
+                        <md-button class="md-secondary"
+                                   ng-show="wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
+                                   ng-click="toggleWMS($index, false); $event.stopPropagation()"
+                                   uib-tooltip="Hide WMS Layer"
+                                   tooltip-placement="top"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                            <i class="material-icons">layers_clear</i>
+                        </md-button>
+                    </div>
                     <div class="col-xs-1 download">
                         <a ng-href="{{fileUrl}}" target="_blank">
                             <i class="material-icons"

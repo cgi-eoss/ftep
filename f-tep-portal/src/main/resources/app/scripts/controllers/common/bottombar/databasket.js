@@ -69,6 +69,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.loadBasket = function (basket) {
             BasketService.getDatabasketContents(basket).then(function(files){
                 $rootScope.$broadcast('upload.basket', files);
+                $scope.dbParams.databasketOnMap.id = basket.id;
             });
         };
 
@@ -170,6 +171,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     basket: basket
             };
             return dragObject;
+        };
+
+        $scope.$on('map.item.toggled', function(event, items) {
+            $scope.dbParams.selectedItems = items;
+        });
+
+        $scope.toggleSelection = function(item) {
+            var index = $scope.resultParams.selectedResultItems.indexOf(item);
+
+            if (index < 0) {
+                $scope.dbParams.selectedItems.push(item);
+            } else {
+                $scope.dbParams.selectedItems.pop(item);
+            }
+            $rootScope.$broadcast('databasket.item.selected', item, index < 0);
         };
     }]);
 });

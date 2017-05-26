@@ -9,9 +9,11 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('JobService', [ '$http', 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', function ($http, ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, TabService, CommunityService, traverson) {
+    ftepmodules.service('JobService', [ 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'CommunityService', 'traverson', function (ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, CommunityService, traverson) {
 
+        /* TODO: Migrate self to _this as self is a reserved word and is causing scoping issues */
         var self = this;
+        var _this = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -79,22 +81,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 filterJobs(page);
             }
             pollingTimer = $timeout(function () {
-                halAPI.from(self.params[page].pollingUrl + self.params[page].selectedOwnershipFilter.searchUrl)
+                halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
-                    .withRequestOptions({
-                        qs: {
-                            sort:  self.params[page].pollingRequestOptions.sort,
-                            filter:  self.params[page].pollingRequestOptions.filter,
-                            owner:  self.params[page].pollingRequestOptions.owner,
-                            status:  self.params[page].pollingRequestOptions.status
-                        }
-                    })
                     .getResource()
                     .result
                     .then(function (document) {
                         self.params[page].pagingData._links = document._links;
                         self.params[page].pagingData.page = document.page;
-
                         $rootScope.$broadcast('poll.jobs', document._embedded.jobs);
                         pollJobs(page, true);
                     }, function (error) {
@@ -104,7 +97,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             pollCount -= 1;
                             pollJobs(page, true);
                         }
-                    });
+                    }
+                );
             }, POLLING_FREQUENCY);
         };
 
@@ -120,16 +114,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 filterJobs(page);
             }
             var deferred = $q.defer();
-                halAPI.from(self.params[page].pollingUrl + self.params[page].selectedOwnershipFilter.searchUrl)
+                halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
-                    .withRequestOptions({
-                        qs: {
-                            sort:  self.params[page].pollingRequestOptions.sort,
-                            filter:  self.params[page].pollingRequestOptions.filter,
-                            owner:  self.params[page].pollingRequestOptions.owner,
-                            status:  self.params[page].pollingRequestOptions.status
-                        }
-                    })
                     .getResource()
                     .result
                  .then(
@@ -156,7 +142,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 self.params[page].pollingUrl = url;
 
                 /* Get jobs list */
-                self.getJobsByFilter(page);
+                getJobs(page);
             }
         };
 
@@ -169,33 +155,34 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function filterJobs(page) {
             if (self.params[page]) {
 
-                /* Get sort parameter */
-                self.params[page].pollingRequestOptions.sort = 'id,DESC';
+                self.params[page].pollingUrl = rootUri + '/jobs/' + self.params[page].selectedOwnershipFilter.searchUrl;
 
-                /* Get text search parameter */
-                if(self.params[page].searchText) {
-                    self.params[page].pollingRequestOptions.filter = self.params[page].searchText;
-                } else {
-                    self.params[page].pollingRequestOptions.filter = '';
-                }
+                /* Get sort parameter */
+                self.params[page].pollingUrl += '?sort=id,DESC';
 
                 /* Get owner parameter */
                 if(self.params[page].selectedOwnershipFilter !== self.jobOwnershipFilters.ALL_JOBS) {
-                    self.params[page].pollingRequestOptions.owner = userUrl;
+                    self.params[page].pollingUrl += '&owner=' + userUrl;
                 }
 
                 /* Get status parameter */
                 var statusStr = '';
                 if(self.params[page].selectedStatuses) {
-                    for(var status = 0; self.params[page].selectedStatuses.length > status; status++){
-                        statusStr += "," + self.params[page].selectedStatuses[status];
-                    }
+                    statusStr = self.params[page].selectedStatuses.join(',');
                 }
                 if (statusStr) {
-                    self.params[page].pollingRequestOptions.status = statusStr.substring(1);
+                    self.params[page].pollingUrl += '&status=' + statusStr;
                 } else {
-                    self.params[page].pollingRequestOptions.status = JOB_STATUSES_STRING;
+                    self.params[page].pollingUrl += '&status=' + JOB_STATUSES_STRING;
                 }
+
+                /* Get text search parameter */
+                if(self.params[page].searchText) {
+                    self.params[page].pollingUrl += '&filter=' +  self.params[page].searchText;
+                } else {
+                    self.params[page].pollingUrl += "&filter=";
+                }
+
             }
         }
 
@@ -336,67 +323,72 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.refreshSelectedJob = function (page) {
 
             /* Get job contents if selected */
-            if (self.params[page].selectedJob) {
-                //
+            if (_this.params[page].selectedJob) {
 
-                getJob(self.params[page].selectedJob).then(function (job) {
-                    self.params[page].selectedJob = job;
+                getJob(_this.params[page].selectedJob).then(function (job) {
 
                     getJobOwner(job).then(function (owner) {
-                        self.params[page].selectedJob.owner = owner;
+                        job.owner = owner;
                     });
 
-                    getJobDetails(job).then(function (data) {
-                        self.params[page].selectedJob.details = data;
+                    getJobDetails(job).then(function (details) {
+                        job.details = details;
 
                         getJobLogs(job).then(function (logs) {
-                             self.params[page].selectedJob.logs = logs;
+                             job.logs = logs;
                         });
-                        self.getJobConfig(job).then(function (config) {
-                             self.params[page].selectedJob.config = config;
+                        _this.getJobConfig(job).then(function (config) {
+                            job.config = config;
                         });
 
-                        var selectedJob = self.params[page].selectedJob;
-                        if (selectedJob.outputs) {
-                            selectedJob.downloadLinks = {};
-                            selectedJob.wmsLinks = [];
+                        if (job.outputs) {
+                            job.downloadLinks = {};
+                            job.wmsLinks = [];
 
-                            for (var itemKey in selectedJob.outputs) {
-                                var outputUri = selectedJob.outputs[itemKey][0];
+                            var promises = [];
+                            for (var itemKey in job.outputs) {
+                                var partialPromise = $q.defer();
+                                promises.push(partialPromise.promise);
+                                var outputUri = job.outputs[itemKey][0];
                                 if (outputUri.substring(0,7) === "ftep://") {
-                                    getJobOutput(selectedJob, selectedJob.details._links['output-' + itemKey].href).then(
-                                        parseJobOutput(selectedJob.downloadLinks, selectedJob.wmsLinks, itemKey, outputUri)
+                                    getJobOutput(job, job.details._links['output-' + itemKey].href).then(
+                                        parseJobOutput(job.downloadLinks, job.wmsLinks, itemKey, outputUri, partialPromise)
                                     );
                                 }
                             }
+                            $q.all(promises).then(function(){
+                                _this.params[page].selectedJob = job;
+                                if(page === 'explorer'){
+                                    _this.params.explorer.jobSelectedOutputs = [];
+                                }
+                            });
+                        } else {
+                            _this.params[page].selectedJob = job;
                         }
                     });
 
                     if(page === 'community' && job.access.currentLevel === 'ADMIN') {
                         CommunityService.getObjectGroups(job, 'job').then(function (data) {
-                            self.params.community.sharedGroups = data;
+                            _this.params.community.sharedGroups = data;
                         });
-                    }
-                    else if(page === 'explorer'){
-                        self.params.explorer.jobSelectedOutputs = [];
-                        $rootScope.$broadcast('show.products', self.params[page].selectedJob);
                     }
 
                 });
             }
         };
 
-        function parseJobOutput(downloadLinks, wmsLinks, itemKey, outputUri) {
+        function parseJobOutput(downloadLinks, wmsLinks, itemKey, outputUri, partialPromise) {
             return function (result) {
-                downloadLinks[outputUri] =  result._links.download.href;
+                downloadLinks[outputUri] = result._links.download.href;
                 if(result._links.wms){
                     var wmsObj = {
                         key: itemKey,
                         wms: result._links.wms.href,
-                        geo: result.metadata.geometry
+                        geo: result.metadata ? result.metadata.geometry : undefined
                     };
                     wmsLinks.push(wmsObj);
                 }
+                partialPromise.resolve();
             };
         }
 

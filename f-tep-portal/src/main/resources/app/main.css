@@ -324,15 +324,11 @@
 }
 #databasket .md-avatar {
   cursor: move;
-  height: auto;
   margin: 0;
-  padding-top: 18px;
 }
 #databasket md-list-item {
   border-bottom: #d2d2d2 solid 1px;
   font-size: 0.6rem;
-  max-height: 60px;
-  min-height: 60px;
   word-wrap: break-word;
 }
 #databasket md-list-item:hover {
@@ -415,6 +411,25 @@
   line-height: 1.2rem;
   padding: 0.5rem;
 }
+#job .job-details .job-files .job-detail .row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+#job .job-details .job-files .job-detail .download,
+#job .job-details .job-files .job-detail .file,
+#job .job-details .job-files .job-detail .wms {
+  -ms-flex-align: center;
+      align-items: center;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-pack: center;
+      justify-content: center;
+  vertical-align: middle;
+}
 #job .job-details .job-files .job-detail .key {
   font-weight: bold;
   vertical-align: top;
@@ -422,6 +437,15 @@
 #job .job-details .job-files .job-detail .key,
 #job .job-details .job-files .job-detail .value {
   padding: 0 0.5rem;
+}
+#job .job-details .job-files .job-detail .value {
+  word-break: break-all;
+}
+#job .job-details .job-files .job-detail .wms {
+  color: #ff4081;
+}
+#job .job-details .job-files .job-detail .wms:hover {
+  color: #ff80ab;
 }
 #job .job-details .job-files .job-detail:hover {
   background-color: #d9edf7;
@@ -436,6 +460,17 @@
 }
 #job .job-title h3 {
   margin: 0;
+}
+#job .job-title h3 .md-button {
+  color: #ff4081;
+  line-height: normal;
+  margin: 0;
+  min-height: 0;
+  padding-bottom: 0.1rem;
+}
+#job .job-title h3 .md-button:hover {
+  background-color: transparent;
+  color: #ff80ab;
 }
 #job .job-title h4 {
   padding: 0.2rem 0;

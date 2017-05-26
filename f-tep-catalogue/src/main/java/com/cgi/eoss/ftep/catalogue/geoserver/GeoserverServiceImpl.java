@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Set;
 
 import static it.geosolutions.geoserver.rest.encoder.GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED;
 
@@ -37,6 +38,9 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     @Value("${ftep.catalogue.geoserver.enabled:true}")
     private boolean geoserverEnabled;
+
+    @Value("#{'${ftep.catalogue.geoserver.ingest-filetypes:TIF}'.split(',')}")
+    private Set<String> ingestableFiletypes;
 
     @Autowired
     public GeoserverServiceImpl(@Value("${ftep.catalogue.geoserver.url:http://ftep-geoserver:9080/geoserver/}") String url,
@@ -62,9 +66,9 @@ public class GeoserverServiceImpl implements GeoserverService {
 
         ensureWorkspaceExists(workspace);
 
-        if (!fileName.toString().toUpperCase().endsWith(".TIF")) {
+        if (!isIngestibleFile(fileName.toString())) {
             // TODO Ingest more filetypes
-            LOG.info("Unable to ingest a non-GeoTiff product");
+            LOG.info("Unable to ingest product with filename: {}" + fileName);
             return null;
         }
 
@@ -76,6 +80,11 @@ public class GeoserverServiceImpl implements GeoserverService {
             LOG.error("Geoserver was unable to publish file: {}", path, e);
             throw new IngestionException(e);
         }
+    }
+
+    @Override
+    public boolean isIngestibleFile(String filename) {
+        return ingestableFiletypes.stream().anyMatch(ft -> filename.toUpperCase().endsWith("." + ft.toUpperCase()));
     }
 
     @Override

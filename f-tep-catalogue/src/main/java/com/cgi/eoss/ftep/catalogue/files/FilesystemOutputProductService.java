@@ -116,13 +116,15 @@ public class FilesystemOutputProductService implements OutputProductService {
 
     @Override
     public HttpUrl getWmsUrl(String jobId, String filename) {
-        return geoserver.getExternalUrl().newBuilder()
+        return geoserver.isIngestibleFile(filename)
+                ? geoserver.getExternalUrl().newBuilder()
                 .addPathSegment(jobId)
                 .addPathSegment("wms")
                 .addQueryParameter("service", "WMS")
                 .addQueryParameter("version", "1.3.0")
                 .addQueryParameter("layers", jobId + ":" + MoreFiles.getNameWithoutExtension(Paths.get(filename)))
-                .build();
+                .build()
+                : null;
     }
 
     @Override

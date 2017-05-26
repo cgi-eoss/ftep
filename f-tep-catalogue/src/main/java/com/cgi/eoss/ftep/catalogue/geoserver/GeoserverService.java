@@ -13,6 +13,8 @@ public interface GeoserverService {
      */
     String ingest(String workspace, Path path, String crs);
 
+    boolean isIngestibleFile(String filename);
+
     /**
      * <p>Delete the layer with the given name from the selected workspace.</p>
      */

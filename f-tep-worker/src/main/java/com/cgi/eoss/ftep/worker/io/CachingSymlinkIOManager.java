@@ -47,27 +47,27 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final String URI_FILENAME = ".uri";
 
     private final Path cacheRoot;
-    private final DownloaderFactory downloaderFactory;
+    private final DownloaderFacade downloaderFacade;
     private final LoadingCache<URI, Path> loadingCache;
 
     @Autowired
     public CachingSymlinkIOManager(@Qualifier("cacheConcurrencyLevel") Integer concurrencyLevel,
                                    @Qualifier("cacheMaxWeight") Integer maximumWeight,
                                    @Qualifier("cacheRoot") Path cacheRoot,
-                                   DownloaderFactory downloaderFactory) {
+                                   DownloaderFacade downloaderFacade) {
         this.cacheRoot = cacheRoot;
-        this.downloaderFactory = downloaderFactory;
+        this.downloaderFacade = downloaderFacade;
         this.loadingCache = CacheBuilder.newBuilder()
                 .concurrencyLevel(concurrencyLevel)
                 .maximumWeight(maximumWeight)
                 .weigher(new GigabyteWeigher())
                 .removalListener(new PathDeletingRemovalListener())
-                .build(new UriCacheLoader(cacheRoot, downloaderFactory));
+                .build(new UriCacheLoader(cacheRoot, downloaderFacade));
     }
 
     public CachingSymlinkIOManager(Path cacheRoot,
-                                   DownloaderFactory downloaderFactory) {
-        this(DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, cacheRoot, downloaderFactory);
+                                   DownloaderFacade downloaderFacade) {
+        this(DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, cacheRoot, downloaderFacade);
     }
 
     @PostConstruct
@@ -129,16 +129,16 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
 
     @Override
     public boolean isSupportedProtocol(String scheme) {
-        return downloaderFactory.isSupportedProtocol(scheme);
+        return downloaderFacade.isSupportedProtocol(scheme);
     }
 
-    private class UriCacheLoader extends CacheLoader<URI, Path> {
+    private static final class UriCacheLoader extends CacheLoader<URI, Path> {
         private final Path cacheRoot;
-        private final DownloaderFactory downloaderFactory;
+        private final DownloaderFacade downloaderFacade;
 
-        public UriCacheLoader(Path cacheRoot, DownloaderFactory downloaderFactory) {
+        public UriCacheLoader(Path cacheRoot, DownloaderFacade downloaderFacade) {
             this.cacheRoot = cacheRoot;
-            this.downloaderFactory = downloaderFactory;
+            this.downloaderFacade = downloaderFacade;
         }
 
         @Override
@@ -166,7 +166,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                     Files.write(urlFile, ImmutableList.of(uri.toString()), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE_NEW);
 
                     // Download the file, and unzip it if necessary
-                    Path downloadedFile = downloaderFactory.getDownloader(uri).download(inProgressDir, uri);
+                    Path downloadedFile = downloaderFacade.download(inProgressDir, uri);
                     if (downloadedFile.getFileName().toString().toLowerCase().endsWith(".zip")) {
                         ZipHandler.unzip(downloadedFile, inProgressDir);
                         Files.delete(downloadedFile);

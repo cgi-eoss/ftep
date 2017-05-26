@@ -99,7 +99,7 @@ public class CachingSymlinkIOManagerIT {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
         when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
-        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFactory(
+        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFacadeImpl(
                 ImmutableList.of(ftepDownloader, new FtpDownloader(ftepServerClient), new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build()))));
     }
 

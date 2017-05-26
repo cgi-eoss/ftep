@@ -87,7 +87,8 @@
                                                ng-required="fieldDesc.minOccurs > 0"
                                                dnd-list="serviceParams.dropLists[fieldDesc.id]"
                                                dnd-drop="onDrop(item, fieldDesc.id)"
-                                               ng-change="updateDropList(fieldDesc.id)">
+                                               ng-change="updateDropList(fieldDesc.id)"
+                                               aria-label="{{fieldDesc.title}}">
                                         <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
                                     </md-input-container>
                                </div>

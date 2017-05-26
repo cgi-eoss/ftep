@@ -18,6 +18,15 @@ public interface Downloader {
     Set<String> getProtocols();
 
     /**
+     * @return The priority this downloader should be take when processing the given protocol. A downloader returning a
+     * higher value for the given protocol will be used in preference to one returning a lower value. Default priority
+     * is 0.
+     */
+    default int getPriority(String protocol) {
+        return 0;
+    }
+
+    /**
      * <p>Download the given URI and output the result in the given target directory.</p>
      *
      * @param targetDir The directory in which the content of the resource at the URI should be written.

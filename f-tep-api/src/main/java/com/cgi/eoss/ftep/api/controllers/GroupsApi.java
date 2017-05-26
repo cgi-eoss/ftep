@@ -47,16 +47,16 @@ public interface GroupsApi extends BaseRepositoryApi<Group>, GroupsApiCustom, Pa
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from Group t where t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%')")
+    @Query("select t from Group t where t.name like %:filter% or t.description like %:filter%")
     Page<Group> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
-    @Query("select t from Group t where t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from Group t where t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<Group> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
-    @Query("select t from Group t where not t.owner=user and (t.name like CONCAT('%', filter, '%') or t.description like CONCAT('%', filter, '%'))")
+    @Query("select t from Group t where not t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
     Page<Group> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
 }

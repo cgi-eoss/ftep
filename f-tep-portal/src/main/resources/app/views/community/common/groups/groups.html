@@ -35,7 +35,7 @@
             </div>
 
             <md-input-container md-no-float ng-show="groupParams.displayGroupFilters">
-                <input ng-model="groupParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+                <input ng-model="groupParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Groups Search Filter">
             </md-input-container>
 
             <div class="row filter-radiobutton" ng-show="groupParams.displayGroupFilters">

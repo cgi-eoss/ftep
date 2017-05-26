@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -44,12 +45,17 @@ public class JobConfigsApiExtension {
     public ResponseEntity launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
         FtepServiceLauncherGrpc.FtepServiceLauncherFutureStub serviceLauncher = FtepServiceLauncherGrpc.newFutureStub(inProcessChannelBuilder.build());
 
-        FtepServiceParams serviceParams = FtepServiceParams.newBuilder()
+        FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
                 .setUserId(ftepSecurityService.getCurrentUser().getName())
                 .setServiceId(jobConfig.getService().getName())
-                .addAllInputs(GrpcUtil.mapToParams(jobConfig.getInputs()))
-                .build();
+                .addAllInputs(GrpcUtil.mapToParams(jobConfig.getInputs()));
+
+        if (!Strings.isNullOrEmpty(jobConfig.getLabel())) {
+            serviceParamsBuilder.setJobConfigLabel(jobConfig.getLabel());
+        }
+
+        FtepServiceParams serviceParams = serviceParamsBuilder.build();
 
         LOG.info("Launching service via REST API: {}", serviceParams);
         serviceLauncher.launchService(serviceParams);

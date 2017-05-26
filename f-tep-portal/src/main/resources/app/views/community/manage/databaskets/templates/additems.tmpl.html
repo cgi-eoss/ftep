@@ -46,7 +46,7 @@
                 <md-subheader class="md-accent">Select files to add to Databasket</md-subheader>
 
                 <md-input-container class="search-container" md-no-float>
-                    <input ng-model="itemSearch.searchText" type="text" placeholder="Search">
+                    <input ng-model="itemSearch.searchText" type="text" placeholder="Search" aria-label="File Search Filter">
                 </md-input-container>
 
                 <md-list-item class="dialog-file-list md-1-line" ng-repeat="(key, file) in files | orderBy: 'name' | filter: quickSearch">

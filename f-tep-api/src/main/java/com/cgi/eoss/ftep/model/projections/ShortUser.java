@@ -10,4 +10,5 @@ import org.springframework.hateoas.Identifiable;
 @Projection(name = "shortUser", types = {User.class})
 public interface ShortUser extends Identifiable<Long> {
     String getName();
+    String getEmail();
 }

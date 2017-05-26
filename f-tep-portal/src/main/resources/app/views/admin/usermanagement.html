@@ -1,7 +1,7 @@
 <article id="user-selection" class="col-md-12 no-padding">
     <md-autocomplete id="find-user"
                      required
-                     aria-label="Select a user by name"
+                     aria-label="Select a user by name or email address"
                      md-items="user in searchUsers()"
                      md-item-text="user.name"
                      md-selected-item="userParams.selectedUser"
@@ -9,9 +9,9 @@
                      md-search-text="userParams.searchText"
                      md-require-match="true"
                      md-match-case-insensitive="true"
-                     placeholder="Select a user by name">
+                     placeholder="Select a user by name or email address">
         <md-item-template>
-            <span md-highlight-text="userParams.searchText">{{user.name}}</span>
+            <span md-highlight-text="userParams.searchText">{{user.name}} <{{user.email}}></span>
         </md-item-template>
         <md-not-found>
             <span>No users matching "{{userParams.searchText}}" were found.</span>
@@ -43,7 +43,7 @@
                     <md-input-container class="md-block">
                         <label ng-class="{'hidden': userParams.coins < 0}">Add Coins</label>
                         <label ng-class="{'hidden': userParams.coins > -1}">Subtract Coins</label>
-                        <input id="user-coins" ng-model="userParams.coins" type="number" step="1">
+                        <input id="user-coins" ng-model="userParams.coins" type="number" step="1" aria-label="User Coins">
                     </md-input-container>
                 </form>
             </md-card-content>

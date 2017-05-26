@@ -15,4 +15,5 @@ public interface ShortWalletTransaction extends Identifiable<Long> {
     Integer getBalanceChange();
     LocalDateTime getTransactionTime();
     WalletTransaction.Type getType();
+    Long getAssociatedId();
 }

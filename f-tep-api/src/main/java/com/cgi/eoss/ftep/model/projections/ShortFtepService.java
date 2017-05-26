@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.FtepService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
@@ -18,8 +18,6 @@ public interface ShortFtepService extends Identifiable<Long> {
     String getDockerTag();
     FtepService.Licence getLicence();
     FtepService.Status getStatus();
-    @Value("#{@ftepSecurityService.isPublic(target.class, target.id)}")
-    boolean isPublic();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

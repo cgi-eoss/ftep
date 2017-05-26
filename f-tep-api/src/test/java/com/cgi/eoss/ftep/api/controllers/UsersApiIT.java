@@ -79,8 +79,7 @@ public class UsersApiIT {
         mockMvc.perform(get("/api/users").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
-                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].name").value("owner-uid2"))
-                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].email").doesNotExist());
+                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].name").value("owner-uid2"));
 
         mockMvc.perform(get("/api/users/" + owner.getId()).header("REMOTE_USER", "ftep-new-user"))
                 .andExpect(status().isOk())
@@ -91,6 +90,27 @@ public class UsersApiIT {
         // The unknown user "ftep-new-user" was created automatically
         assertThat(dataService.getByName("ftep-new-user"), is(notNullValue()));
         assertThat(dataService.getByName("ftep-new-user").getRole(), is(Role.GUEST));
+    }
+
+    @Test
+    public void testFindByFilter() throws Exception {
+        User owner = dataService.save(new User("owner-uid"));
+        User owner2 = dataService.save(new User("owner-uid2"));
+        owner.setEmail("owner@example.com");
+        owner2.setEmail("owner2@example.com");
+
+        mockMvc.perform(get("/api/users/search/byFilter?filter=er2").header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.users").isArray())
+                .andExpect(jsonPath("$._embedded.users.length()").value(1))
+                .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid2"));
+
+        mockMvc.perform(get("/api/users/search/byFilter?filter=uid&sort=name,asc").header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.users").isArray())
+                .andExpect(jsonPath("$._embedded.users.length()").value(2))
+                .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid"))
+                .andExpect(jsonPath("$._embedded.users[1].name").value("owner-uid2"));
     }
 
     @Test

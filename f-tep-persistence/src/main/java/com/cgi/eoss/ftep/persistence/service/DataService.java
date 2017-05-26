@@ -64,6 +64,11 @@ public interface DataService<T, I> extends Converter<I, T> {
     Collection<T> save(Collection<T> objs);
 
     /**
+     * @return An object matching the unique properties of the given example, or none if no such entity exists.
+     */
+    T findOneByExample(T example);
+
+    /**
      * Resync the given object with its persistent representation. This may be useful when certain properties are set or
      * populated by database triggers.
      */

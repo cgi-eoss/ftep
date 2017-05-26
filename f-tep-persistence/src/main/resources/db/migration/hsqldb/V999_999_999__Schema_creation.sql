@@ -238,6 +238,24 @@ CREATE TABLE ftep_worker_locator_expressions (
 CREATE UNIQUE INDEX ftep_worker_locator_expressions_service_idx
   ON ftep_worker_locator_expressions (service);
 
+-- Publishing requests
+
+CREATE TABLE ftep_publishing_requests (
+  id            BIGINT IDENTITY PRIMARY KEY,
+  owner         BIGINT                      NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  request_time  TIMESTAMP WITHOUT TIME ZONE,
+  updated_time  TIMESTAMP WITHOUT TIME ZONE,
+  status        CHARACTER VARYING(255)      NOT NULL CHECK (status IN
+                                                            ('REQUESTED', 'GRANTED', 'NEEDS_INFO', 'REJECTED')),
+  type          CHARACTER VARYING(255)      NOT NULL CHECK (type IN
+                                                            ('DATABASKET', 'DATASOURCE', 'FILE', 'SERVICE', 'GROUP', 'JOB_CONFIG', 'PROJECT')),
+  associated_id BIGINT                      NOT NULL
+);
+CREATE INDEX ftep_publishing_requests_owner_idx
+  ON ftep_publishing_requests (owner);
+CREATE UNIQUE INDEX ftep_publishing_requests_owner_object_idx
+  ON ftep_publishing_requests (owner, type, associated_id);
+
 -- ACL schema from spring-security-acl
 
 CREATE TABLE acl_sid (

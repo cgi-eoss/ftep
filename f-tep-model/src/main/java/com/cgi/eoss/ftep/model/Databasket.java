@@ -49,14 +49,14 @@ public class Databasket implements FtepEntityWithOwner<Databasket>, Searchable {
     private String description;
 
     /**
-     * <p>The user owning the group, typically the group creator.</p>
+     * <p>The user owning the databasket, typically the databasket creator.</p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
 
     /**
-     * <p>Members of this group.</p>
+     * <p>Member files of this databasket.</p>
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "ftep_databasket_files",

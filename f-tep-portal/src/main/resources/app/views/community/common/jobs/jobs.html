@@ -35,7 +35,7 @@
             </div>
 
             <md-input-container md-no-float ng-show="jobParams.displayFilters">
-                <input ng-model="jobParams.searchText" type="text" placeholder="Search" ng-keyup="filter()">
+                <input ng-model="jobParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Jobs Search Filter">
             </md-input-container>
 
             <md-input-container ng-show="jobParams.displayFilters" md-no-float>

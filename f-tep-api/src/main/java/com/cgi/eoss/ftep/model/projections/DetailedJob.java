@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.google.common.collect.Multimap;
@@ -25,8 +25,8 @@ public interface DetailedJob extends Identifiable<Long> {
     LocalDateTime getEndTime();
     @Value("#{target.config.service.name}")
     String getServiceName();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
     Multimap<String, String> getOutputs();
     JobConfig getConfig();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

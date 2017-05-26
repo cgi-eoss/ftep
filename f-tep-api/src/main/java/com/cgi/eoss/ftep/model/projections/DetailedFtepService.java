@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ public interface DetailedFtepService extends Identifiable<Long> {
     FtepService.Licence getLicence();
     FtepService.Status getStatus();
     FtepServiceDescriptor getServiceDescriptor();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 
 }

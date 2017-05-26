@@ -85,7 +85,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getUsersByFilter = function(searchStr){
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/users/search/byName?name=' + searchStr)
+            halAPI.from(rootUri + '/users/search/byFilter?filter=' + searchStr)
                      .newRequest()
                      .getResource()
                      .result

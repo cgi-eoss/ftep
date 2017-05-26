@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepPermission;
+import com.cgi.eoss.ftep.api.security.FtepAccess;
 import com.cgi.eoss.ftep.model.FtepFile;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +21,8 @@ public interface DetailedFtepFile extends Identifiable<Long> {
     FtepFile.Type getType();
     ShortUser getOwner();
     String getFilename();
-    @Value("#{@ftepSecurityService.getCurrentPermission(target.class, target.id)}")
-    FtepPermission getAccessLevel();
     @Value("#{@restoServiceImpl.getGeoJsonSafe(target)}")
     GeoJsonObject getMetadata();
+    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    FtepAccess getAccess();
 }

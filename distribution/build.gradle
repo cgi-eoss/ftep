@@ -2,7 +2,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 group 'com.cgi.eoss.f-tep'
-version '0.6.9'
+version '0.6.10'
 
 apply plugin: 'base'
 

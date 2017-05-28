@@ -5,7 +5,7 @@ buildscript {
 }
 
 group 'com.github.docker-java'
-version '3.0.8'
+version '3.0.10'
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -30,16 +30,23 @@ sourceSets {
 }
 
 dependencies {
-    compile ('com.github.docker-java:docker-java:3.0.8') {
+    compile ('com.github.docker-java:docker-java:3.0.10') {
         exclude group: 'org.slf4j'
         exclude group: 'org.apache.log4j'
     }
 }
 
 shadowJar {
+    dependencies {
+        exclude(dependency('org.slf4j::'))
+        exclude(dependency('org.apache.log4j::'))
+    }
+
     // Use relocation patterns from testcontainers-java
     relocate 'org.apache.http', 'shadow.dockerjava.org.apache.http'
-    relocate 'org.apache.commons', 'shadow.dockerjava.org.apache.commons'
+    relocate('org.apache.commons', 'shadow.dockerjava.org.apache.commons') {
+        exclude 'org.apache.commons.logging.*'
+    }
     relocate 'org.glassfish', 'shadow.dockerjava.org.glassfish'
     relocate 'org.aopalliance', 'shadow.dockerjava.org.aopalliance'
     relocate 'org.jvnet', 'shadow.dockerjava.org.jvnet'

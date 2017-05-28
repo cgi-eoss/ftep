@@ -59,7 +59,7 @@ allprojects {
                 entry 'jackson-datatype-guava'
                 entry 'jackson-datatype-hibernate5'
             }
-            dependency 'com.github.docker-java:docker-java:3.0.8'
+            dependency 'com.github.docker-java:docker-java:3.0.10'
             dependency 'com.google.code.findbugs:jsr305:3.0.1'
             dependency 'com.google.guava:guava:21.0'
             dependency 'com.google.jimfs:jimfs:1.1'
@@ -72,12 +72,12 @@ allprojects {
                 entry 'querydsl-core'
                 entry 'querydsl-jpa'
             }
-            dependencySet(group: 'com.squareup.okhttp3', version: '3.7.0') {
+            dependencySet(group: 'com.squareup.okhttp3', version: '3.8.0') {
                 entry 'logging-interceptor'
                 entry 'mockwebserver'
                 entry 'okhttp'
             }
-            dependency 'com.zaxxer:HikariCP:2.6.1'
+            dependency 'com.zaxxer:HikariCP:2.6.2'
             dependency 'de.grundid.opendatalab:geojson-jackson:1.8'
             dependencySet(group: 'info.cukes', version: '1.2.5') {
                 entry 'cucumber-java8'
@@ -102,7 +102,7 @@ allprojects {
             dependency 'org.ehcache:ehcache:3.3.1'
             dependency 'org.flywaydb:flyway-core:4.2.0'
             dependency 'org.freemarker:freemarker:2.3.26-incubating'
-            dependencySet(group: 'org.geotools', version: '17.0') {
+            dependencySet(group: 'org.geotools', version: '17.1') {
                 // project(':third-party/java/jai_core') must be manually included
                 entry('gt-main') { exclude 'javax.media:jai_core' }
                 entry('gt-geojson') { exclude 'javax.media:jai_core' }
@@ -120,8 +120,8 @@ allprojects {
             dependency 'org.lognet:grpc-spring-boot-starter:2.0.3'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
             dependency 'org.mockito:mockito-core:2.8.8'
-            dependency 'org.pacesys:openstack4j-core:3.0.3'
-            dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.0.3'
+            dependency 'org.pacesys:openstack4j-core:3.0.4'
+            dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.0.4'
             dependency 'org.postgresql:postgresql:42.1.1'
             dependency 'org.projectlombok:lombok:1.16.16'
             dependency 'org.seleniumhq.selenium:selenium-java:3.4.0'

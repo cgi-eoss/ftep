@@ -1,7 +1,8 @@
 <md-dialog id="polygon-editor" aria-label="Edit polygon">
     <md-dialog-content>
+        <h4>Edit the polygon:</h4>
         <div class="dialog-content-area">
-            <h4>Edit the polygon:</h4>
+
             <md-input-container class="md-block" flex-gt-sm>
                 <textarea ng-model="polygon.wkt" rows="10" ng-change="validateWkt(polygon.wkt)" md-select-on-focus></textarea>
             </md-input-container>
@@ -14,4 +15,4 @@
         <md-button ng-click="updatePolygon(polygon.wkt)" ng-disabled="polygon.valid === false" class="md-primary">Update</md-button>
         <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
     </md-dialog-actions>
-</md-dialog>,
+</md-dialog>

@@ -43,7 +43,7 @@
                    <p><i class="material-icons">account_circle</i><span> My Account</span></p>
                 </li>
 
-                 <li ng-click="reloadRoute()"  ng-if="!user" class="login" aria-label="Login">
+                 <li ng-click="reloadRoute()"  ng-if="user === 'Guest'" class="login" aria-label="Login">
                      <p><i class="material-icons">account_circle</i><span> Login</span></p>
                 </li>
 

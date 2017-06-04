@@ -12,9 +12,12 @@ public class LocalCloudConfiguration {
     @Value("${ftep.clouds.local.dockerHostUrl:unix:///var/run/docker.sock}")
     private String dockerHostUrl;
 
+    @Value("${ftep.clouds.local.maxPoolSize:10}")
+    private int maxPoolSize;
+
     @Bean
     public LocalNodeFactory localNodeFactory() {
-        return new LocalNodeFactory(dockerHostUrl);
+        return new LocalNodeFactory(maxPoolSize, dockerHostUrl);
     }
 
 }

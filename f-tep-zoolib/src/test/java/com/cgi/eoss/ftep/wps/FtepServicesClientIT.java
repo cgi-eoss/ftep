@@ -128,7 +128,7 @@ public class FtepServicesClientIT {
                 .withDockerHost("unix:///var/run/docker.sock")
                 .build();
         DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
-        NodeFactory nodeFactory = new LocalNodeFactory("unix:///var/run/docker.sock");
+        NodeFactory nodeFactory = new LocalNodeFactory(-1, "unix:///var/run/docker.sock");
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(RPC_SERVER_NAME).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();

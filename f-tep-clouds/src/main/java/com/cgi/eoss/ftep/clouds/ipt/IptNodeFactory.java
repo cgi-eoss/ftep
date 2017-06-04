@@ -1,8 +1,9 @@
 package com.cgi.eoss.ftep.clouds.ipt;
 
 import com.cgi.eoss.ftep.clouds.service.Node;
-import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
+import com.cgi.eoss.ftep.clouds.service.NodePoolStatus;
+import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.SSHSession;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
@@ -34,6 +35,8 @@ public class IptNodeFactory implements NodeFactory {
     @Getter
     private final Set<Node> currentNodes = new HashSet<>();
 
+    private final int maxPoolSize;
+
     private final OSClientV3 osClient;
 
     private final String defaultNodeFlavor;
@@ -42,7 +45,8 @@ public class IptNodeFactory implements NodeFactory {
 
     private final String sshUser;
 
-    IptNodeFactory(OSClientV3 osClient, String defaultNodeFlavor, String nodeImageId, String sshUser) {
+    IptNodeFactory(int maxPoolSize, OSClientV3 osClient, String defaultNodeFlavor, String nodeImageId, String sshUser) {
+        this.maxPoolSize = maxPoolSize;
         this.osClient = osClient;
         this.defaultNodeFlavor = defaultNodeFlavor;
         this.nodeImageId = nodeImageId;
@@ -51,6 +55,7 @@ public class IptNodeFactory implements NodeFactory {
 
     @Override
     public Node provisionNode() {
+        // TODO Check against maxPoolSize
         return provisionNode(defaultNodeFlavor);
     }
 
@@ -101,6 +106,14 @@ public class IptNodeFactory implements NodeFactory {
         } else {
             LOG.warn("Failed to destroy IPT node {}: [{}] {}", node.getId(), response.getCode(), response.getFault());
         }
+    }
+
+    @Override
+    public NodePoolStatus getNodePoolStatus() {
+        return NodePoolStatus.builder()
+                .maxPoolSize(maxPoolSize)
+                .used(currentNodes.size())
+                .build();
     }
 
 }

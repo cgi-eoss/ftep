@@ -28,4 +28,9 @@ public interface NodeFactory {
      */
     Set<Node> getCurrentNodes();
 
+    /**
+     * <p>Get current available and in-use node statistics.</p>
+     */
+    NodePoolStatus getNodePoolStatus();
+
 }

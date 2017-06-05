@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.persistence.service.CostingExpressionDataService;
 import com.cgi.eoss.ftep.persistence.service.WalletDataService;
 import com.google.common.base.Strings;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -58,6 +59,7 @@ public class CostingServiceImpl implements CostingService {
     }
 
     @Override
+    @Transactional
     public void chargeForJob(Wallet wallet, Job job) {
         CostingExpression costingExpression = getCostingExpression(job.getConfig().getService());
 
@@ -65,7 +67,7 @@ public class CostingServiceImpl implements CostingService {
 
         int cost = ((Number) expressionParser.parseExpression(expression).getValue(job)).intValue();
         WalletTransaction walletTransaction = WalletTransaction.builder()
-                .wallet(wallet)
+                .wallet(walletDataService.refreshFull(wallet))
                 .balanceChange(-cost)
                 .type(WalletTransaction.Type.JOB)
                 .associatedId(job.getId())
@@ -75,6 +77,7 @@ public class CostingServiceImpl implements CostingService {
     }
 
     @Override
+    @Transactional
     public void chargeForDownload(Wallet wallet, FtepFile ftepFile) {
         CostingExpression costingExpression = getCostingExpression(ftepFile);
 
@@ -82,7 +85,7 @@ public class CostingServiceImpl implements CostingService {
 
         int cost = ((Number) expressionParser.parseExpression(expression).getValue(ftepFile)).intValue();
         WalletTransaction walletTransaction = WalletTransaction.builder()
-                .wallet(wallet)
+                .wallet(walletDataService.refreshFull(wallet))
                 .balanceChange(-cost)
                 .type(WalletTransaction.Type.DOWNLOAD)
                 .associatedId(ftepFile.getId())

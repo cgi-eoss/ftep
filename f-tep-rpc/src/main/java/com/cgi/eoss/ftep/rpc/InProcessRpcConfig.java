@@ -7,6 +7,7 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Configuration
+@EnableAsync
 public class InProcessRpcConfig {
 
     private static final String IN_PROCESS_RPC_NAME = UUID.randomUUID().toString();
@@ -27,6 +29,11 @@ public class InProcessRpcConfig {
     @Bean
     public InProcessRpcServer inProcessRpcServer(List<BindableService> services) throws IOException {
         return new InProcessRpcServer(IN_PROCESS_RPC_NAME, services);
+    }
+
+    @Bean
+    public LocalServiceLauncher localServiceLauncher(ManagedChannelBuilder inProcessChannelBuilder) {
+        return new LocalServiceLauncher(inProcessChannelBuilder);
     }
 
     private static final class InProcessRpcServer {

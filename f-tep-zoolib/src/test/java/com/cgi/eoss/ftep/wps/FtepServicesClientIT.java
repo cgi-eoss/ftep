@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.clouds.local.LocalNodeFactory;
+import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
@@ -14,7 +16,6 @@ import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
-import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
@@ -127,7 +128,7 @@ public class FtepServicesClientIT {
                 .withDockerHost("unix:///var/run/docker.sock")
                 .build();
         DockerClient dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
-        DockerClientFactory dockerClientFactory = new DockerClientFactory(dockerClient);
+        NodeFactory nodeFactory = new LocalNodeFactory("unix:///var/run/docker.sock");
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(RPC_SERVER_NAME).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(RPC_SERVER_NAME).directExecutor();
@@ -135,7 +136,7 @@ public class FtepServicesClientIT {
         WorkerFactory workerFactory = mock(WorkerFactory.class);
 
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, guiService, catalogueService, costingService);
-        FtepWorker ftepWorker = new FtepWorker(dockerClientFactory, jobEnvironmentService, ioManager);
+        FtepWorker ftepWorker = new FtepWorker(nodeFactory, jobEnvironmentService, ioManager);
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
 

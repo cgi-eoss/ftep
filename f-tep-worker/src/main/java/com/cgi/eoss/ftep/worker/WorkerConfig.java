@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.worker;
 
+import com.cgi.eoss.ftep.clouds.CloudsConfig;
 import com.google.common.base.Strings;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
@@ -29,6 +31,9 @@ import java.nio.file.Paths;
         basePackageClasses = WorkerConfig.class,
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FtepWorkerApplication.class)
 )
+@Import({
+        CloudsConfig.class
+})
 @EnableEurekaClient
 @EnableScheduling
 public class WorkerConfig {

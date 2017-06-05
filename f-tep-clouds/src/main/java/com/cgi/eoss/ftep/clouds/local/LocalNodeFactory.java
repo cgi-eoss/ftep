@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * <p></p>
+ * <p>This service may be used to access Docker 'nodes' in the LOCAL context, i.e. a single Docker Engine running at a
+ * configurable URL.</p>
  */
 @Log4j2
 public class LocalNodeFactory implements NodeFactory {

@@ -1,10 +1,6 @@
 <nav id="ftep-nav-wrapper">
 
     <ul class="ftep-nav">
-        <li ng-click="toggleSidebar(developerSideNavs.SERVICES); selected = 'services'"
-            ng-class="{'active': selected == 'services' || !selected}">
-            <i class="material-icons" uib-tooltip="Services" tooltip-placement="right">settings_remote</i>
-        </li>
         <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': bottombarNavInfo.bottomViewVisible}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification">{{message.count}}</span>

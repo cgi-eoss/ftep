@@ -10,6 +10,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', function ($scope, UserService, MessageService, WalletService, TabService) {
 
+        /* Sidenav & Bottombar */
         $scope.navInfo = TabService.navInfo.admin;
         $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
@@ -19,6 +20,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.$on('update.messages', function(event, job) {
             $scope.message.count = MessageService.countMessages();
         });
+
+        $scope.toggleBottomView = function(){
+            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+        /* End Sidenav & Bottombar */
 
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];
@@ -57,10 +63,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
             UserService.updateUser($scope.userParams.userDetails).then(function(data){
                 $scope.getUserData();
             });
-        };
-
-        $scope.toggleBottomView = function(){
-            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
         };
 
         $scope.hideContent = true;

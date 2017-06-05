@@ -10,10 +10,11 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageDatabasketCtrl', ['BasketService', 'FileService', '$scope', '$mdDialog', function (BasketService, FileService, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityManageDatabasketCtrl', ['BasketService', 'FileService', 'CommunityService', '$scope', '$mdDialog', function (BasketService, FileService, CommunityService, $scope, $mdDialog) {
 
         /* Get stored Databaskets & Files details */
         $scope.basketParams = BasketService.params.community;
+        $scope.permissions = CommunityService.permissionTypes;
         $scope.item = "File";
 
         /* Filters */
@@ -32,6 +33,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
             return false;
         };
+
+        $scope.toggleSharingFilters = function () {
+            $scope.basketParams.sharedGroupsDisplayFilters = !$scope.basketParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.shareQuickSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.basketParams.sharedGroupsSearchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
+
 
         $scope.refreshDatabasket = function() {
             BasketService.refreshSelectedBasket('community');
@@ -158,7 +172,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddItemsController.$inject = ['$scope', '$mdDialog', 'BasketService', 'FileService'];
             $mdDialog.show({
                 controller: AddItemsController,
-                templateUrl: 'views/community/manage/databaskets/templates/additems.tmpl.html',
+                templateUrl: 'views/community/manage/templates/additems.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

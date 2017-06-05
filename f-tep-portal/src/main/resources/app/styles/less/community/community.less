@@ -1,86 +1,13 @@
 @import "variable";
 #community-container {
-    #manage-container {
-        height: 100%;
-        width: 100%;
-        #manage-tabs {
-            height: 100%;
-            padding-left: @sidenav-width;
-            md-tabs-content-wrapper {
-                md-tab-content {
-                    height: 100%;
-                    md-content {
-                        background-color: transparent;
-                        .border(border-top, @bg);
-                        height: 100%;
-                        padding: 0;
-                        .tab-content {
-                            height: 100%;
-                            .tab-content-container {
-                                height: 100%;
-                            }
-                        }
-                    }
-                }
-                md-tab-content > div:nth-child(1) {
-                    height: 100%;
-                }
-            }
-        }
-    }
-    .left-container {
-        background-color: @bg;
-        .border(border-right, @bg);
-        height: 100%;
-        padding: 0;
-        padding-left: @sidenav-width;
-        .item-list {
-            padding-bottom: 3rem;
-            .md-avatar {
-                padding-top: 0.6rem;
-            }
-        }
-        .long-string {
-            font-size: 0.6rem;
-        }
-        md-list-item {
-            .border(border-bottom, @bg);
-        }
-        md-input-container {
-            margin: 0;
-            width: 100%;
-            .text-sec();
-            .hint {
-                font-size: 0.6rem;
-                .text-hint();
-            }
-        }
-        .md-list-item-inner {
-            line-height: 1.2rem;
-            padding: 0.2rem;
-            h3 {
-                font-size: 1rem;
-                margin-bottom: 0.2rem;
-                margin-top: 0;
-            }
-        }
-        .note {
-            border: none;
-            .border(border-bottom, @bg);
-        }
-        #sidebar-list {
-            height: 100%;
-            overflow-y: auto;
-        }
-        @media (max-width: @sm-max-width) {
-            overflow-y: auto;
-            max-height: 100%;
-        }
-    }
-    .right-container {
+    .community-item-container {
         height: 100%;
         overflow-y: auto;
         padding: 0.5rem 1rem;
+        margin-left: @sidenav-width;
+        .sharing-container {
+            margin-top: 1rem;
+        }
         .close {
             margin: 0.3rem 0.5rem;
         }
@@ -97,70 +24,26 @@
                 margin: 0;
                 padding-left: 1rem;
             }
-            .toolbar-button {
-                padding: 0 10px;
-            }
-            md-list-item:hover {
-                background-color: @alert;
-            }
-        }
-        md-content {
-            background-color: @bg-light;
         }
         md-input-container {
             margin: 0;
             width: 100%;
-            .text-sec();
-            .hint {
-                font-size: 0.6rem;
-                .text-hint();
-            }
-        }
-        md-tabs-canvas {
-            .border(border-bottom, @bg);
         }
         .section-title {
-            margin: 0;
-            padding: 0;
-            padding-bottom: 0.25rem;
             h2 {
-                margin: 0;
-                padding-bottom: 0.5rem;
+                margin-top: 0.2rem;
             }
             h3 {
                 color: @brand;
-                margin: 0;
-                padding-bottom: 0.5rem;
-            }
-            .title-button {
-                padding: 0;
-                h2, h3 {
-                    color: @accent;
-                    padding-left: 0;
-                    padding-right: 0;
-                    .md-button {
-                         padding: 0 10px;
-                    }
-                    &:hover {
-                        color: @accent-light;
-                    }
-                }
-
             }
             .title-text {
-                padding: 0;
-                padding-top: 0.2rem;
+                padding: 0.2rem 0 0 0;
             }
         }
         .sub-title {
             font-size: 0.8rem;
             margin: 0;
             padding-bottom: 0.5rem;
-        }
-        @media (max-width: @sm-max-width) {
-            height: auto;
-            margin-left: @sidenav-width !important;
-            max-height: 100%;
         }
     }
 }

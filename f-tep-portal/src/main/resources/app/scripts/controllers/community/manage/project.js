@@ -10,10 +10,11 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageProjectCtrl', ['ProjectService', '$scope', '$mdDialog', function (ProjectService, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityManageProjectCtrl', ['CommunityService', 'ProjectService', '$scope', '$mdDialog', function (CommunityService, ProjectService, $scope, $mdDialog) {
 
         /* Get stored Projects & Contents details */
         $scope.projectParams = ProjectService.params.community;
+        $scope.permissions = CommunityService.permissionTypes;
         $scope.item = "Project Item";
 
         /* Filters */
@@ -28,6 +29,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.contentsQuickSearch = function (item) {
             if (item.name.toLowerCase().indexOf(
                 $scope.contentsSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
+
+        $scope.toggleSharingFilters = function () {
+            $scope.projectParams.sharedGroupsDisplayFilters = !$scope.projectParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.quickSharingSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.projectParams.sharedGroupsSearchText.toLowerCase()) > -1) {
                 return true;
             }
             return false;
@@ -52,7 +65,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddProjectContentController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
             $mdDialog.show({
                 controller: AddProjectContentController,
-                templateUrl: 'views/community/manage/projects/templates/addcontents.tmpl.html',
+                templateUrl: 'views/community/manage/templates/addcontents.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

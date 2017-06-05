@@ -12,7 +12,7 @@
 
         <section ng-if="!serviceParams.selectedService">
             <div class="row top-title service-header">
-                <md-subheader class="md-accent md-subheader-top service-title" ng-hide="isWorkspaceLoading">
+                <md-subheader class="md-subheader-top service-title" ng-hide="isWorkspaceLoading">
                      No Selected Service
                 </md-subheader>
             </div>
@@ -30,7 +30,7 @@
             <section class="workspace-header">
 
                 <div class="row service-header">
-                    <md-subheader class="md-accent md-subheader-top service-title">
+                    <md-subheader class="md-subheader-top service-title">
                         {{serviceParams.selectedService.name}}
                     </md-subheader>
                 </div>
@@ -49,7 +49,7 @@
 
             </section>
 
-            <section class="workspace-content">
+            <section class="workspace-content item-list">
 
                 <form id="serviceForm" name="serviceForm">
 

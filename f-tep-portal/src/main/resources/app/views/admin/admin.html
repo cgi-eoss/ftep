@@ -4,18 +4,13 @@
         <div class="spinner" />
     </div>
 
-    <div id="navbar-container"
-         ng-include src="'views/navbar.html'"
-         onload="finishLoading('navbar')"
-         ng-class="{'hidden': hideContent}"/>
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
 
-    <article id="admin-container" layout="row" class="page-container row" ng-class="{'hidden': hideContent}">
+    <article id="admin-container" class="page-container row" ng-class="{'hidden': hideContent}">
 
         <section id="sidenav" ng-include src="'views/admin/sidenav.html'" onload="finishLoading('sidenav')" />
 
-        <section id="management-container"
-                 class="row"
-                 ng-include src="'views/admin/usermanagement.html'"
+        <section id="management-container" class="row content-container" ng-include src="'views/admin/usermanagement.html'"
                  onload="finishLoading('management')"/>
 
         <section id="bottombar-container"

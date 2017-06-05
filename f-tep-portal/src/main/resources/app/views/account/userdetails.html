@@ -1,0 +1,87 @@
+<article id="account-details" ng-if="user" class="col-md-12 no-padding ftep-content">
+
+    <section id="account-panel" class="col-md-12 col-lg-4">
+
+       <md-card id="account-info" md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Account Info</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div class="row">
+                   <b class="col-md-4">Username:</b>
+                   <div class="col-md-8">{{user.name}}</div>
+                </div>
+                <div class="row">
+                   <b class="col-md-4">Role:</b>
+                   <div class="col-md-8">{{user.role}}</div>
+                </div>
+                <div class="row">
+                    <b class="col-md-4">Email:</b>
+                    <div class="col-md-8">{{user.email}}</div>
+                </div>
+                <div class="row">
+                    <b class="col-md-4">Coin Balance:</b>
+                    <div class="col-md-8">{{walletParams.wallet.balance}}</div>
+                </div>
+            </md-card-content>
+        </md-card>
+
+    </section>
+
+    <section id="statistics-panel" class="col-md-12 col-lg-4">
+
+        <md-card id="statistics" md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Transaction History</h2>
+                </md-card-title-text>
+            </md-card-title>
+        </md-card>
+
+        <md-card class="transaction ftep-card" md-theme-watch ng-repeat="transaction in walletParams.transactions | orderBy : '-id' ">
+            <md-card-content>
+                <p><b>Balance {{transaction.type.toLowerCase()}}:</b> {{transaction.balanceChange}}</p>
+                <p><b>Time:</b> {{transaction.transactionTime | formatDateTime}}</p>
+            </md-card-content>
+        </md-card>
+
+    </section>
+
+    <section id="info-panel" class="col-md-12 col-lg-4">
+
+        <md-card id="request-coins" md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Requesting Coins</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <p>To request more credit or to change your user role you can contact a F-TEP administrator using the
+                        <a href="{{ftepURL}}/?q=content/contact" target="_blank">form</a>
+                        or by sending an email to <a href="mailto:forestry-tep@esa.int?subject=F-TEP Coins/Roles" target="_top">forestry-tep@esa.int</a>.
+                    </p>
+            </md-card-content>
+        </md-card>
+
+        <md-card id="account-manage" md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Manage SSO</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div class="row">
+                    <p>You can modify your single sign-on account details, such as your name, email address and password, via the <a ng-href="{{ssoURL}}/idp/umsso20/admin" target="_blank">EO Single Sign-On Platform</a>.</p>
+                </div>
+            </md-card-content>
+        </md-card>
+
+    </section>
+
+</article>
+
+<article id="login-container" ng-if="!user" class="col-md-12 no-padding ftep-content">
+    <section class="note">Your session has timed out. Please login or refresh the page to view your account.</section>
+</article>

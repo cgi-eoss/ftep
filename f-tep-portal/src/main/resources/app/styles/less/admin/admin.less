@@ -1,31 +1,11 @@
 @import "variable";
 #admin-container {
-    md-card {
-        margin: 0.8rem;
-        md-card-title, md-card-actions {
-            color: @brand;
-            padding-top: 0;
-        }
-        md-card-actions {
-            a:hover, a:visited {
-                color: @brand-dark;
-            }
-        }
-    }
     #management-container{
-        display: flex;
-        flex-flow: column;
-        height: 100%;
-        padding-left: @sidenav-width;
-        width: 100%;
         #user-selection {
             .border(border-bottom, @bg);
             min-height: 3.2rem;
             padding: 0.5rem;
             width: 100%;
-        }
-        #user-details {
-              height: 100%;
         }
         .column-container {
             background-color: @bg;

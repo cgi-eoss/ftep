@@ -4,14 +4,21 @@
         <div class="spinner" />
     </div>
 
-    <div id="navbar-container"
-         ng-include src="'views/navbar.html'"
-         onload="finishLoading('navbar')"
-         ng-class="{'hidden': hideContent}"/>
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
 
     <article id="helpdesk-container" class="page-container row" ng-class="{'hidden': hideContent}">
-        <section ng-include src="'views/helpdesk/tutorials.html'" onload="finishLoading('tutorials')"/>
+
+        <section id="sidenav" ng-include src="'views/helpdesk/sidenav.html'" onload="finishLoading('sidenav')" />
+
+        <section id="tutorials-container" class="row content-container" ng-include src="'views/helpdesk/tutorials.html'"
+                 onload="finishLoading('tutorials')"/>
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="bottombarNavInfo.bottomViewVisible"/>
+
     </article>
-
 </div>
-

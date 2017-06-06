@@ -7,7 +7,7 @@
 <div id="resultDiv" ng-show="resultPaging.total > 0 && !spinner.loading">
 
     <ul class="products-list product-list-in-box">
-        <div ng-repeat="result in geoResults">
+        <div ng-repeat="result in resultParams.geoResults">
             <li id="{{item.identifier}}"
                 ng-repeat="item in result.results.entities"
                 ng-click="toggleSelection(item)"

@@ -99,7 +99,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   position: absolute;
-  z-index: 2;
+  z-index: 21;
 }
 #bottombar-container #bottombar-expand {
   position: absolute;
@@ -306,13 +306,6 @@
 }
 
 #databasket {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-flow: column;
-      flex-flow: column;
-  -ms-flex: 1 1 auto;
-      flex: 1 1 auto;
-  height: 100%;
   width: 100%;
 }
 #databasket h3 {
@@ -321,24 +314,6 @@
 }
 #databasket h4 {
   font-size: 0.8rem;
-}
-#databasket .md-avatar {
-  cursor: move;
-  margin: 0;
-}
-#databasket md-list-item {
-  border-bottom: #d2d2d2 solid 1px;
-  font-size: 0.6rem;
-  word-wrap: break-word;
-}
-#databasket md-list-item:hover {
-  background-color: #d9edf7;
-}
-#databasket md-list-item:hover .toolbar-button .material-icons {
-  color: #ff4081;
-}
-#databasket md-list-item .md-list-item-text {
-  float: left;
 }
 
 #databaskets {
@@ -397,61 +372,7 @@
   border: none;
 }
 
-#job {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-flow: column;
-      flex-flow: column;
-  -ms-flex: 1 1 auto;
-      flex: 1 1 auto;
-  height: 100%;
-}
-#job .job-details .job-files {
-  list-style: none;
-  line-height: 1.2rem;
-  padding: 0.5rem;
-}
-#job .job-details .job-files .job-detail .row {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-}
-#job .job-details .job-files .job-detail .download,
-#job .job-details .job-files .job-detail .file,
-#job .job-details .job-files .job-detail .wms {
-  -ms-flex-align: center;
-      align-items: center;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-      flex-direction: column;
-  -ms-flex-pack: center;
-      justify-content: center;
-  vertical-align: middle;
-}
-#job .job-details .job-files .job-detail .key {
-  font-weight: bold;
-  vertical-align: top;
-}
-#job .job-details .job-files .job-detail .key,
-#job .job-details .job-files .job-detail .value {
-  padding: 0 0.5rem;
-}
-#job .job-details .job-files .job-detail .value {
-  word-break: break-all;
-}
-#job .job-details .job-files .job-detail .wms {
-  color: #ff4081;
-}
-#job .job-details .job-files .job-detail .wms:hover {
-  color: #ff80ab;
-}
-#job .job-details .job-files .job-detail:hover {
-  background-color: #d9edf7;
-}
 #job .job-status {
-  color: rgba(255, 255, 255, 0.87);
   cursor: default;
   font-size: smaller;
   height: 100%;
@@ -462,48 +383,13 @@
   margin: 0;
 }
 #job .job-title h3 .md-button {
-  color: #ff4081;
   line-height: normal;
   margin: 0;
   min-height: 0;
   padding-bottom: 0.1rem;
 }
-#job .job-title h3 .md-button:hover {
-  background-color: transparent;
-  color: #ff80ab;
-}
-#job .job-title h4 {
-  padding: 0.2rem 0;
-  margin: 0;
-}
-#job .job-log {
-  font-family: monospace;
-  font-size: 0.6rem;
-  overflow-x: auto;
-  width: 100%;
-}
-#job .job-log table {
-  margin-bottom: 0.5rem;
-}
-#job .job-log table th {
-  padding: 0.4rem;
-  padding-left: 0;
-}
-#job .job-log table .job-timestamp {
-  font-weight: bold;
-  padding: 2px 1rem 2px 0;
-  vertical-align: top;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-#job .job-log table .job-message {
-  background-color: transparent;
-  border: none;
-  margin: 0;
-  padding: 2px 0;
-  white-space: pre-wrap;
+#job #job-inputs .ftep-file-list .md-list-item-text {
+  cursor: default;
 }
 
 #jobs {
@@ -1104,40 +990,6 @@
 #job-share-container #job-outputs td {
   padding: 0.5rem 0;
 }
-#job-manage-container #job-log,
-#job-share-container #job-log {
-  font-family: monospace;
-  font-size: 0.6rem;
-  overflow-x: auto;
-  width: 100%;
-}
-#job-manage-container #job-log table,
-#job-share-container #job-log table {
-  margin-bottom: 1rem;
-}
-#job-manage-container #job-log table th,
-#job-share-container #job-log table th {
-  padding: 0.4rem;
-  padding-left: 0;
-}
-#job-manage-container #job-log table .job-timestamp,
-#job-share-container #job-log table .job-timestamp {
-  font-weight: bold;
-  padding: 2px 1rem 2px 0;
-  vertical-align: top;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-#job-manage-container #job-log table .job-message,
-#job-share-container #job-log table .job-message {
-  background-color: transparent;
-  border: none;
-  margin: 0;
-  padding: 2px 0;
-  white-space: pre-wrap;
-}
 
 
 
@@ -1296,6 +1148,16 @@
   float: right;
 }
 
+.ftep .ftep-container-main {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-flow: column;
+      flex-flow: column;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+  height: 100%;
+}
+
 .ftep .md-dialog-container {
   width: 100%;
   height: 100%;
@@ -1429,6 +1291,18 @@
   cursor: default;
   filter: opacity(20%);
 }
+.ftep .icon-button-accent .material-icons {
+  color: #ff4081;
+}
+.ftep .icon-button-accent .material-icons:hover {
+  color: #ff80ab;
+}
+.ftep .icon-button-accent:hover {
+  background-color: transparent;
+}
+.ftep .icon-button-accent:hover .material-icons {
+  color: #ff80ab;
+}
 
 .ftep .md-errors-spacer:empty {
   display: none;
@@ -1436,6 +1310,7 @@
 
 .ftep .filter-list .filter-list-title {
   color: #ff4081;
+  cursor: pointer;
 }
 .ftep .filter-list .filter-checkboxes {
   border-bottom: #d2d2d2 solid 1px;
@@ -1461,6 +1336,38 @@
 }
 .ftep .filter-list .filter-radiobutton md-radio-button {
   margin: 10px 40px 10px 0px;
+}
+.ftep .ftep-file-list {
+  border-bottom: #d2d2d2 solid 1px;
+  font-size: 0.6rem;
+  word-break: break-all;
+}
+.ftep .ftep-file-list:hover {
+  background-color: #d9edf7;
+}
+.ftep .ftep-file-list .drag-handle {
+  cursor: move;
+}
+.ftep .ftep-file-list .md-avatar {
+  height: auto;
+  margin: 0;
+}
+.ftep .ftep-file-list .text-avatar {
+  font-weight: bold;
+  padding-right: 0.5rem;
+  width: auto;
+}
+.ftep .ftep-file-list .md-list-item-text {
+  cursor: pointer;
+  display: -ms-flexbox;
+  display: flex;
+  float: left;
+  height: 100%;
+  -ms-flex-pack: center;
+      justify-content: center;
+  line-height: 1rem;
+  vertical-align: middle;
+  width: 100%;
 }
 .ftep .item-list .active {
   background-color: #d9edf7;
@@ -1517,6 +1424,36 @@
 }
 .ftep .md-list-item-dropdown-label label {
   margin: 0;
+}
+
+.ftep .ftep-log {
+  font-family: monospace;
+  font-size: 0.6rem;
+  overflow-x: auto;
+  width: 100%;
+}
+.ftep .ftep-log table {
+  margin-bottom: 1rem;
+}
+.ftep .ftep-log table th {
+  padding: 0.4rem;
+  padding-left: 0;
+}
+.ftep .ftep-log table .job-timestamp {
+  font-weight: bold;
+  padding: 2px 1rem 2px 0;
+  vertical-align: top;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+.ftep .ftep-log table .job-message {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 2px 0;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 767px) {
@@ -2039,125 +1976,117 @@
   width: 100%;
   z-index: 0;
 }
-#map-container #map .map-type,
+#map-container #map .map-item,
 #map-container #map .ol-zoom,
 #map-container #map .box-selection,
 #map-container #map .polygon-selection,
-#map-container #map .map-clear,
-#map-container #map .polygon-copy,
-#map-container #map .polygon-edit,
 #map-container #map .ol-mouse-position,
 #map-container #map .ol-scale-line {
   z-index: 10;
   position: absolute;
   left: auto;
   right: 10px;
-  height: 1.6rem;
-  width: 1.6rem;
+  height: 32px;
+  width: 32px;
   padding: 0;
   background-color: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: white;
   border-radius: 5px;
 }
-#map-container #map .map-type img,
+#map-container #map .map-item img,
 #map-container #map .ol-zoom img,
 #map-container #map .box-selection img,
 #map-container #map .polygon-selection img,
-#map-container #map .map-clear img,
-#map-container #map .polygon-copy img,
-#map-container #map .polygon-edit img,
 #map-container #map .ol-mouse-position img,
 #map-container #map .ol-scale-line img {
   width: 1rem;
   height: 1rem;
 }
-#map-container #map .map-type button,
+#map-container #map .map-item button,
 #map-container #map .ol-zoom button,
 #map-container #map .box-selection button,
 #map-container #map .polygon-selection button,
-#map-container #map .map-clear button,
-#map-container #map .polygon-copy button,
-#map-container #map .polygon-edit button,
 #map-container #map .ol-mouse-position button,
 #map-container #map .ol-scale-line button {
   background-color: rgba(50, 50, 50, 0.3);
-  color: rgba(255, 255, 255, 0.8);
-  height: 1.6rem;
-  width: 1.6rem;
   border: none;
   border-radius: 5px;
   font-size: 1rem;
+  height: 1.6rem;
+  width: 1.6rem;
 }
-#map-container #map .map-type button:hover,
+#map-container #map .map-item button:hover,
 #map-container #map .ol-zoom button:hover,
 #map-container #map .box-selection button:hover,
 #map-container #map .polygon-selection button:hover,
-#map-container #map .map-clear button:hover,
-#map-container #map .polygon-copy button:hover,
-#map-container #map .polygon-edit button:hover,
 #map-container #map .ol-mouse-position button:hover,
 #map-container #map .ol-scale-line button:hover {
   background-color: rgba(50, 50, 50, 0.8);
 }
-#map-container #map .map-type {
-  top: 70px;
+#map-container #map .map-item {
   background-color: rgba(50, 50, 50, 0.3);
 }
-#map-container #map .map-type:hover {
+#map-container #map .map-item:hover {
   background-color: rgba(50, 50, 50, 0.8);
 }
-#map-container #map .ol-logo-only {
-  margin-bottom: 0.5rem;
+#map-container #map .map-type {
+  top: 100px;
 }
 #map-container #map .ol-zoom {
-  top: 110px;
+  top: 132px;
 }
 #map-container #map .ol-zoom button {
-  margin: 4px 0;
+  margin: 8px 0 !important;
+}
+#map-container #map .map-reset {
+  top: 220px;
 }
 #map-container #map .box-selection {
-  top: 202px;
+  right: 54px;
+  top: 100px;
 }
 #map-container #map .polygon-selection {
-  top: 242px;
-}
-#map-container #map .map-clear,
-#map-container #map .polygon-copy,
-#map-container #map .polygon-edit {
-  background-color: rgba(50, 50, 50, 0.3);
-}
-#map-container #map .map-clear:hover,
-#map-container #map .polygon-copy:hover,
-#map-container #map .polygon-edit:hover {
-  background-color: rgba(50, 50, 50, 0.8);
+  right: 54px;
+  top: 140px;
 }
 #map-container #map .map-clear {
-  top: 286px;
+  right: 54px;
+  top: 180px;
+}
+#map-container #map .polygon-edit {
+  right: 54px;
+  top: 220px;
 }
 #map-container #map .polygon-copy {
-  top: 326px;
+  right: 54px;
+  top: 260px;
 }
 #map-container #map .polygon-copy .material-icons {
   font-size: 1rem;
 }
-#map-container #map .polygon-edit {
-  top: 366px;
-}
 #map-container #map .ol-control {
   background-color: transparent;
 }
+#map-container #map .ol-control button {
+  height: 32px;
+  margin: 0;
+  width: 32px;
+}
+#map-container #map .ol-logo-only {
+  margin-bottom: 0.5rem;
+}
 #map-container #map .ol-mouse-position {
   color: rgba(50, 50, 50, 0.8);
-  right: 40px;
-  top: 110px;
+  right: 0px;
+  top: 60px;
   width: 140px;
 }
 #map-container #map .ol-scale-line {
   background-color: transparent;
   font-size: 1rem;
   height: 1rem;
-  right: 74px;
-  top: 70px;
+  right: 160px;
+  top: 60px;
   width: auto;
 }
 #map-container #map .ol-scale-line .ol-scale-line-inner {
@@ -2167,18 +2096,11 @@
   font-weight: bold;
   height: 1rem;
 }
-#map-container #map .map-control {
-  height: 1.6rem;
-}
 #map-layer md-menu-item.active {
   background-color: #d9edf7;
 }
-#map-layer md-menu-item.active .md-button {
-  cursor: default !important;
-}
 #polygon-editor {
-  height: 500px;
-  width: 600px;
+  width: 30%;
 }
 
 .panel-group {

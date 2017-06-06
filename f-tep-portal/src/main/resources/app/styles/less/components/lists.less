@@ -3,6 +3,7 @@
     .filter-list {
         .filter-list-title {
             color: @accent;
+            cursor: pointer;
         }
         .filter-checkboxes {
             .border(border-bottom, @bg);
@@ -28,6 +29,36 @@
             md-radio-button {
                 margin: 10px 40px 10px 0px;
             }
+        }
+    }
+    .ftep-file-list {
+        .border(border-bottom, @bg);
+        font-size: 0.6rem;
+        word-break: break-all;
+        &:hover {
+            background-color: @alert;
+        }
+        .drag-handle {
+            cursor: move;
+        }
+        .md-avatar {
+            height:auto;
+            margin: 0;
+        }
+        .text-avatar {
+            font-weight: bold;
+            padding-right: 0.5rem;
+            width:auto;
+        }
+        .md-list-item-text {
+            cursor: pointer;
+            display: flex;
+            float: left;
+            height: 100%;
+            justify-content: center;
+            line-height: 1rem;
+            vertical-align: middle;
+            width: 100%;
         }
     }
     .item-list {

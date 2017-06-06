@@ -20,18 +20,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
-        this.jobOwnershipFilters = {
-                ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
-                MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
-                SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
-        };
-
         var userUrl;
         UserService.getCurrentUser().then(function(currentUser){
             userUrl = currentUser._links.self.href;
         });
 
-        self.JOB_STATUSES = [
+        this.jobOwnershipFilters = {
+            MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+            SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' },
+            ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'}
+        };
+
+        var JOB_STATUSES_STRING = "COMPLETED,RUNNING,ERROR,CREATED,CANCELLED";
+        this.JOB_STATUSES = [
             { title: "Completed", name: "COMPLETED" },
             { title: "Running", name: "RUNNING" },
             { title: "Error", name: "ERROR" },
@@ -39,25 +40,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             { title: "Cancelled", name: "CANCELLED" }
          ];
 
-        var JOB_STATUSES_STRING = "COMPLETED,RUNNING,ERROR,CREATED,CANCELLED";
-
         /** PRESERVE USER SELECTIONS **/
         this.params = {
             explorer: {
                 jobs: undefined,
-                pollingUrl: rootUri + '/jobs/',
+                pollingUrl: rootUri + '/jobs?sort=id,DESC',
                 pollingRequestOptions: {},
                 pagingData: {},
                 selectedJob: undefined,
                 jobSelectedOutputs: [], //selected outputs
                 displayFilters: false, //whether filter section is opened or not
                 selectedStatuses: [],
-                selectedOwnershipFilter: this.jobOwnershipFilters.ALL_JOBS,
+                selectedOwnershipFilter: this.jobOwnershipFilters.MY_JOBS,
                 jobCategoryInfo: {} //info about job categories, which ones are opened, etc.
             },
             community: {
                 jobs: undefined,
-                pollingUrl: rootUri + '/jobs/',
+                pollingUrl: rootUri + '/jobs/?sort=id,DESC',
                 pollingRequestOptions: {},
                 pagingData: {},
                 selectedJob: undefined,
@@ -66,7 +65,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: self.jobOwnershipFilters.ALL_JOBS
+                selectedOwnershipFilter: self.jobOwnershipFilters.MY_JOBS
             }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -76,10 +75,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var startPolling = true;
         var pollingTimer;
 
-        var pollJobs = function (page, filter) {
-            if(filter) {
-                filterJobs(page);
-            }
+        var pollJobs = function (page) {
             pollingTimer = $timeout(function () {
                 halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
@@ -89,13 +85,13 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         self.params[page].pagingData._links = document._links;
                         self.params[page].pagingData.page = document.page;
                         $rootScope.$broadcast('poll.jobs', document._embedded.jobs);
-                        pollJobs(page, true);
+                        pollJobs(page);
                     }, function (error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Jobs', error);
                         if (pollCount > 0) {
                             pollCount -= 1;
-                            pollJobs(page, true);
+                            pollJobs(page);
                         }
                     }
                 );
@@ -109,10 +105,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             startPolling = true;
         };
 
-        function getJobs(page, filter) {
-            if (filter) {
-                filterJobs(page);
-            }
+        function getJobs(page) {
             var deferred = $q.defer();
                 halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
@@ -121,7 +114,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                  .then(
                 function (document) {
                     if(startPolling) {
-                        pollJobs(page, true);
+                        pollJobs(page);
                         startPolling = false;
                     }
                     self.params[page].pagingData._links = document._links;
@@ -147,42 +140,43 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         this.getJobsByFilter = function (page) {
-            getJobs(page, true).then(function (data) {
+            filterJobs(page);
+            getJobs(page).then(function (data) {
                 self.params[page].jobs = data;
             });
         };
 
         function filterJobs(page) {
-            if (self.params[page]) {
+            if (_this.params[page]) {
 
-                self.params[page].pollingUrl = rootUri + '/jobs/' + self.params[page].selectedOwnershipFilter.searchUrl;
+                /* Set base URL */
+                _this.params[page].pollingUrl = rootUri + '/jobs/' + _this.params[page].selectedOwnershipFilter.searchUrl;
 
                 /* Get sort parameter */
-                self.params[page].pollingUrl += '?sort=id,DESC';
+                _this.params[page].pollingUrl += '?sort=id,DESC';
 
                 /* Get owner parameter */
-                if(self.params[page].selectedOwnershipFilter !== self.jobOwnershipFilters.ALL_JOBS) {
-                    self.params[page].pollingUrl += '&owner=' + userUrl;
+                if(_this.params[page].selectedOwnershipFilter !== _this.jobOwnershipFilters.ALL_JOBS) {
+                    _this.params[page].pollingUrl += '&owner=' + userUrl;
                 }
 
                 /* Get status parameter */
                 var statusStr = '';
-                if(self.params[page].selectedStatuses) {
-                    statusStr = self.params[page].selectedStatuses.join(',');
+                if(_this.params[page].selectedStatuses) {
+                    statusStr = _this.params[page].selectedStatuses.join(',');
                 }
                 if (statusStr) {
-                    self.params[page].pollingUrl += '&status=' + statusStr;
+                    _this.params[page].pollingUrl += '&status=' + statusStr;
                 } else {
-                    self.params[page].pollingUrl += '&status=' + JOB_STATUSES_STRING;
+                    _this.params[page].pollingUrl += '&status=' + JOB_STATUSES_STRING;
                 }
 
                 /* Get text search parameter */
-                if(self.params[page].searchText) {
-                    self.params[page].pollingUrl += '&filter=' +  self.params[page].searchText;
+                if(_this.params[page].searchText) {
+                    _this.params[page].pollingUrl += '&filter=' +  _this.params[page].searchText;
                 } else {
-                    self.params[page].pollingUrl += "&filter=";
+                    _this.params[page].pollingUrl += "&filter=";
                 }
-
             }
         }
 
@@ -305,7 +299,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.refreshJobs = function (page, action, job) {
 
             /* Get job list */
-            getJobs(page, true).then(function (data) {
+            filterJobs(page);
+            getJobs(page).then(function (data) {
 
                 self.params[page].jobs = data;
 

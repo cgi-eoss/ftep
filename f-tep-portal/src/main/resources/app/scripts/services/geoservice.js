@@ -156,6 +156,7 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.params = {
+                geoResults: [],
                 selectedResultItems: [],
                 resultsMission: undefined
         };

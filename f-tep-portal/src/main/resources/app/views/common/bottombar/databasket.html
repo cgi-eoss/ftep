@@ -1,6 +1,6 @@
-<section ng-if="dbParams.selectedDatabasket == undefined" class="note">Please select or create a databasket first</section>
+<article ng-if="dbParams.selectedDatabasket == undefined" class="note">Please select or create a databasket first</article>
 
-<section id="databasket" ng-if="dbParams.selectedDatabasket != undefined" class="panel-body">
+<article id="databasket" ng-if="dbParams.selectedDatabasket != undefined" class="panel-body ftep-container-main">
 
     <md-button class="close toolbar-button md-secondary"
                ng-click="deselectDatabasket()"
@@ -14,11 +14,10 @@
     <h3>{{dbParams.selectedDatabasket.name}}</h3>
     <h4>{{dbParams.selectedDatabasket.description}}</h4>
 
-    <md-list-item class="md-1-line" ng-repeat="item in dbParams.items"
-                  ng-class="(dbParams.selectedItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
-                  ng-click="toggleSelection(item)">
+    <md-list-item class="md-1-line ftep-file-list" ng-repeat="item in dbParams.items"
+                  ng-class="(getIndexById(item) > -1) ? 'resulthighlight' : 'resultnormal'">
 
-        <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketItem(item)">
+        <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getBasketItem(item)">
             <i class="material-icons"
                uib-tooltip="Drag Databasket"
                tooltip-placement="top"
@@ -26,7 +25,9 @@
                tooltip-append-to-body="true">drag_handle</i>
         </div>
 
-        <div class="md-list-item-text" layout="column">{{item.filename ? item.filename : item.uri}}</div>
+        <div class="md-list-item-text" ng-click="toggleSelection(item)" layout="column">
+            {{item.filename ? item.filename : item.uri}}
+        </div>
 
         <md-button class="toolbar-button md-secondary"
                    ng-click="removeDatabasketItem(item)"
@@ -41,4 +42,4 @@
 
     </md-list-item>
 
-</section>
+</article>

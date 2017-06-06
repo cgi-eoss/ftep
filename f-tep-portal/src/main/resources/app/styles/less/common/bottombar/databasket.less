@@ -1,9 +1,5 @@
 @import "variable";
 #databasket {
-    display: flex;
-    flex-flow: column;
-    flex: 1 1 auto;
-    height: 100%;
     width: 100%;
     h3 {
         font-size: 1.2rem;
@@ -11,26 +7,5 @@
     }
     h4 {
         font-size: 0.8rem;
-    }
-    .md-avatar {
-        cursor: move;
-        margin: 0;
-    }
-    md-list-item {
-        .border(border-bottom, @bg);
-        font-size: 0.6rem;
-
-        word-wrap: break-word;
-        &:hover {
-            background-color: @alert;
-            .toolbar-button {
-                .material-icons {
-                    color: @accent;
-                }
-            }
-        }
-        .md-list-item-text {
-            float: left;
-        }
     }
 }

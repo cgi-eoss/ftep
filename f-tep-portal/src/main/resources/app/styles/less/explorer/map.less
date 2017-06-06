@@ -10,89 +10,97 @@
         position: relative;
         width: 100%;
         z-index: 0;
-        .map-type, .ol-zoom, .box-selection, .polygon-selection, .map-clear, .polygon-copy, .polygon-edit, .ol-mouse-position, .ol-scale-line {
+        .map-item, .ol-zoom, .box-selection, .polygon-selection, .ol-mouse-position, .ol-scale-line, {
             z-index: 10;
             position: absolute;
             left: auto;
             right: 10px;
-            height: 1.6rem;
-            width: 1.6rem;
+            height: 32px;
+            width: 32px;
             padding: 0;
             background-color: none;
-            color: rgba(255,255,255,.8);
+            color: @white;
             border-radius: 5px;
             img {
                 width: 1rem;
                 height: 1rem;
             }
             button {
-                &:hover {
-                   background-color: @dark-button-hover;
-                }
                 background-color: @dark-button;
-                color: rgba(255,255,255,.8);
-                height: 1.6rem;
-                width: 1.6rem;
                 border: none;
                 border-radius: 5px;
                 font-size: 1rem;
+                height: 1.6rem;
+                width: 1.6rem;
+                &:hover {
+                   background-color: @dark-button-hover;
+                }
             }
         }
-        .map-type {
-            top: 70px;
+        .map-item {
             background-color: @dark-button;
             &:hover {
                 background-color: @dark-button-hover;
+            }
+        }
+        .map-type {
+            top: 100px;
+        }
+        .ol-zoom {
+            top: 132px;
+            button {
+                margin: 8px 0 !important;
+            }
+        }
+        .map-reset {
+            top: 220px;
+        }
+        .box-selection {
+            right: 54px;
+            top: 100px;
+        }
+        .polygon-selection {
+            right: 54px;
+            top: 140px;
+        }
+        .map-clear {
+            right: 54px;
+            top: 180px;
+        }
+        .polygon-edit {
+            right: 54px;
+            top: 220px;
+        }
+        .polygon-copy {
+            right: 54px;
+            top: 260px;
+            .material-icons {
+                font-size: 1rem;
+            }
+        }
+        .ol-control {
+            background-color: transparent;
+            button {
+                height: 32px;
+                margin: 0;
+                width: 32px;
             }
         }
         .ol-logo-only {
             margin-bottom: 0.5rem;
         }
-        .ol-zoom {
-            top: 110px;
-            button {
-                margin: 4px 0;
-            }
-        }
-        .box-selection {
-             top: 202px;
-        }
-        .polygon-selection {
-            top: 242px;
-        }
-        .map-clear, .polygon-copy, .polygon-edit {
-            background-color: @dark-button;
-            &:hover {
-                background-color: @dark-button-hover;
-            }
-        }
-        .map-clear {
-            top: 286px;
-        }
-        .polygon-copy {
-            top: 326px;
-            .material-icons {
-                font-size: 1rem;
-            }
-        }
-        .polygon-edit {
-            top: 366px;
-        }
-        .ol-control {
-            background-color: transparent;
-        }
         .ol-mouse-position {
             color: @coords;
-            right: 40px;
-            top: 110px;
+            right: 0px;
+            top: 60px;
             width: 140px;
         }
         .ol-scale-line {
             background-color: transparent;
             font-size: 1rem;
             height: 1rem;
-            right: 74px;
-            top: 70px;
+            right: 160px;
+            top: 60px;
             width: auto;
             .ol-scale-line-inner {
                 border-color: @dark-button-hover;
@@ -102,20 +110,13 @@
                 height: 1rem;
             }
         }
-        .map-control {
-            height: 1.6rem;
-        }
     }
 }
 #map-layer {
     md-menu-item.active {
         background-color: @alert;
-        .md-button {
-            cursor: default !important;
-        }
     }
 }
 #polygon-editor {
-    height: 500px;
-    width: 600px;
+    width: 30%;
 }

@@ -35,7 +35,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         function setResults(results){
             if(results && results.length >0){
-                $scope.geoResults = results;
+                $scope.resultParams.geoResults = results;
 
                 //NB! this is cause we get multiple sets, each from a different datasource.
                 var biggestSetCount = 0, startIndex = 0, elementCount = 0;
@@ -77,7 +77,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 }
             }
             else{
-                delete $scope.geoResults;
+                delete $scope.resultParams.geoResults;
                 $scope.resultPaging.currentPage = 1;
                 $scope.resultPaging.total = 0;
             }
@@ -132,16 +132,30 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
+        /* Clear results when map is reset */
+        $scope.$on('map.cleared', function () {
+            $scope.resultParams.geoResults = [];
+            cleanResults();
+        });
+
         $scope.clearSelection = function() {
             $scope.resultParams.selectedResultItems = [];
             $rootScope.$broadcast('results.select.all', false);
         };
 
+        function cleanResults() {
+            if(!$scope.resultParams.geoResults || $scope.resultParams.geoResults.length < 1) {
+                $scope.clearSelection();
+                $scope.clearAll();
+            }
+        }
+        cleanResults();
+
         $scope.selectAll = function() {
             $scope.resultParams.selectedResultItems = [];
-            for(var i = 0; i < $scope.geoResults.length; i++) {
-                if($scope.geoResults[i].results != null && $scope.geoResults[i].results.entities.length > 0){
-                    var list = $scope.geoResults[i].results.entities.slice();
+            for(var i = 0; i < $scope.resultParams.geoResults.length; i++) {
+                if($scope.resultParams.geoResults[i].results != null && $scope.resultParams.geoResults[i].results.entities.length > 0){
+                    var list = $scope.resultParams.geoResults[i].results.entities.slice();
                     $scope.resultParams.selectedResultItems = $scope.resultParams.selectedResultItems.concat(list);
                 }
             }
@@ -150,9 +164,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.invertSelection = function() {
             var newSelection = [];
-            for(var i = 0; i < $scope.geoResults.length; i++) {
-                if($scope.geoResults[i].results != null && $scope.geoResults[i].results.entities.length > 0){
-                    var list = $scope.geoResults[i].results.entities.slice();
+            for(var i = 0; i < $scope.resultParams.geoResults.length; i++) {
+                if($scope.resultParams.geoResults[i].results != null && $scope.resultParams.geoResults[i].results.entities.length > 0){
+                    var list = $scope.resultParams.geoResults[i].results.entities.slice();
                     for(var e = 0; e < list.length; e++){
                         if($scope.resultParams.selectedResultItems.indexOf(list[e]) < 0){
                             newSelection.push(list[e]);

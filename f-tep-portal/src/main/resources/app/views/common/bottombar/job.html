@@ -1,6 +1,6 @@
-<section ng-if="jobParams.selectedJob == undefined" class="note">Please select a job first</section>
+<article ng-if="jobParams.selectedJob == undefined" class="note">Please select a job first</article>
 
-<div id="job" ng-if="jobParams.selectedJob != undefined" class="panel-body">
+<article id="job" ng-if="jobParams.selectedJob != undefined" class="panel-body ftep-container-main">
 
     <md-button class="close toolbar-button md-secondary"
                ng-click="deselectJob()"
@@ -11,11 +11,10 @@
         <i class="material-icons">close</i>
     </md-button>
 
-    <section class="row">
-
+    <section id="job-title" class="row">
         <div class="col-lg-8 col-md-12 job-title no-padding">
             <h3>Job ID: {{jobParams.selectedJob.id}}
-                <md-button class="md-secondary"
+                <md-button class="md-secondary icon-button-accent"
                            ng-show="!wmsVisibile"
                            ng-click="toggleAllWMS(true)"
                            uib-tooltip="Show WMS Layer"
@@ -24,7 +23,7 @@
                            tooltip-append-to-body="true">
                     <i class="material-icons">layers</i>
                 </md-button>
-                <md-button class="md-secondary"
+                <md-button class="md-secondary icon-button-accent"
                            ng-show="wmsVisibile"
                            ng-click="toggleAllWMS(false)"
                            uib-tooltip="Hide WMS Layer"
@@ -41,100 +40,91 @@
                 Status: {{jobParams.selectedJob.status}}
             </div>
         </div>
-
     </section>
 
-    <section>
+    <section id="job-tabs">
         <ul class="nav nav-pills" ng-init="jobTab = 'OUTPUTS'">
-            <li role="presentation"
-                ng-class="(jobTab == 'INPUTS') ? 'active' : ''"
-                ng-click="jobTab = 'INPUTS'">
+            <li role="presentation" ng-class="(jobTab == 'INPUTS') ? 'active' : ''" ng-click="jobTab = 'INPUTS'">
                 <a>INPUTS</a>
             </li>
-            <li role="presentation"
-                ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''"
-                ng-click="jobTab = 'OUTPUTS'">
+            <li role="presentation" ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''" ng-click="jobTab = 'OUTPUTS'">
                 <a>OUTPUTS</a>
             </li>
-            <li role="presentation"
-                ng-class="(jobTab == 'LOGS') ? 'active' : ''"
-                ng-click="jobTab = 'LOGS'">
+            <li role="presentation" ng-class="(jobTab == 'LOGS') ? 'active' : ''" ng-click="jobTab = 'LOGS'">
                 <a>LOGS</a>
             </li>
         </ul>
     </section>
 
-    <section class="job-details" ng-if="jobTab == 'INPUTS'">
-
-        <table class="job-files no-margin">
-            <tr ng-repeat="(key, value) in jobParams.selectedJob.config.inputs" class="job-detail">
-                <td class="key" ng-bind="key" />
-                <td class="value">
-                    <div ng-repeat="link in value">
-                        <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
-                        <div ng-if="link.includes('ftp')">
-                            <div ng-repeat="file in splitInputFiles(link)">
-                                <a href="file" ng-bind="file" />
-                            </div>
+    <section id="job-inputs" ng-if="jobTab == 'INPUTS'">
+        <md-list-item class="md-1-line ftep-file-list" ng-repeat="(key, value) in jobParams.selectedJob.config.inputs">
+            <div class="md-avatar text-avatar" ng-bind="key" />
+            <div class="md-list-item-text" layout="column">
+                <div ng-repeat="link in value">
+                    <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
+                    <div ng-if="link.includes('ftp')">
+                        <div ng-repeat="file in splitInputFiles(link)">
+                            <a href="file" ng-bind="file" />
                         </div>
                     </div>
-                </td>
-            </tr>
-        </table>
-
+                </div>
+            </div>
+        </md-list-item>
     </section>
 
-    <section class="job-details" ng-if="jobTab == 'OUTPUTS'">
-        <ul class="job-files no-margin" ng-show="jobParams.selectedJob.downloadLinks">
-            <li ng-repeat="(key, fileUrl) in jobParams.selectedJob.downloadLinks"
-                class="job-detail"
-                ng-click="selectOutputFile(key)"
-                ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'"
-                dnd-draggable="getSelectedOutputFiles(key)">
+    <section id="job-outputs" ng-if="jobTab == 'OUTPUTS'">
+        <md-list-item class="md-1-line ftep-file-list" ng-repeat="(key, fileUrl) in jobParams.selectedJob.downloadLinks"
+                      ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'">
 
-                <div class="row">
-                    <div class="col-xs-10 file">{{key}}</div>
-                    <div class="col-xs-1 wms">
-                        <md-button class="toolbar-button md-secondary"
-                                   ng-show="!wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
-                                   ng-click="toggleWMS($index, true); $event.stopPropagation()"
-                                   uib-tooltip="Show WMS Layer"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">layers</i>
-                        </md-button>
-                        <md-button class="md-secondary"
-                                   ng-show="wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
-                                   ng-click="toggleWMS($index, false); $event.stopPropagation()"
-                                   uib-tooltip="Hide WMS Layer"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">layers_clear</i>
-                        </md-button>
-                    </div>
-                    <div class="col-xs-1 download">
-                        <a ng-href="{{fileUrl}}" target="_blank">
-                            <i class="material-icons"
-                               aria-label="Download"
-                               uib-tooltip="Download"
-                               tooltip-placement="top"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">
-                                file_download
-                            </i>
-                        </a>
-                    </div>
-                </div>
-            </li>
-        </ul>
+            <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getSelectedOutputFiles(key)">
+                <i class="material-icons"
+                   uib-tooltip="Drag Job"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">drag_handle</i>
+            </div>
+
+            <div class="md-list-item-text" ng-click="selectOutputFile(key)" layout="column" ng-bind="key" />
+
+            <!--TODO: Replace key.slice(-3) === 'tif' with jobParams.selectedJob.wmsLinks[$index] once wmsLinks are correct -->
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                       ng-show="!wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
+                       ng-click="toggleWMS($index, true); $event.stopPropagation()"
+                       uib-tooltip="Show WMS Layer"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">layers</i>
+            </md-button>
+
+            <md-button class="md-secondary icon-button-accent"
+                       ng-show="wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
+                       ng-click="toggleWMS($index, false); $event.stopPropagation()"
+                       uib-tooltip="Hide WMS Layer"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">layers_clear</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                       ng-href="{{fileUrl}}" target="_blank"
+                       aria-label="Download"
+                       uib-tooltip="Download"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">file_download</i>
+            </md-button>
+
+        </md-list-item>
+
         <div ng-show="!jobParams.selectedJob.outputs" class="note">
             No output files to display.
         </div>
     </section>
 
-    <section class="job-log" ng-if="jobTab == 'LOGS'">
+    <section id="job-log" class="ftep-log" ng-if="jobTab == 'LOGS'">
         <table>
             <tr>
                 <th>Timestamp</th>
@@ -149,4 +139,4 @@
         </table>
     </section>
 
-</div>
+</article>

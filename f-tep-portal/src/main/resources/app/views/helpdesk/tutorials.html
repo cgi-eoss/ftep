@@ -60,7 +60,7 @@
             <md-card-content>
             <div layout="row" class="row">
                 <div class="img-container col-md-4 no-padding">
-                    <img src="images/logo.png" alt="Forestry TEP Logo">
+                    <a ng-href="{{ftepUrl}}" target="_blank"><img src="images/logo.png" alt="Forestry TEP Logo"></a>
                 </div>
                 <div class="col-md-8 no-padding">
                     <blockquote>"One-stop shop for forestry remote sensing services for the academic, public and commercial sectors."</blockquote>
@@ -68,24 +68,19 @@
             </div>
             </md-card-content>
             <md-card-actions layout="row" layout-align="end center">
-                <md-button ng-href="{{ftepUrl}}"
-                           target="_blank">
-                    <span>F-TEP website</span>
+                <md-button ng-href="{{ftepUrl}}/?q=content/terms-conditions" target="_blank">
+                    <span>Terms &amp; Conditions</span>
                 </md-button>
-                <md-button ng-href="{{ftepUrl}}/?q=content/user-manual-pre-release-version"
-                           target="_blank">
+                <md-button ng-href="{{ftepUrl}}/?q=content/user-manual-pre-release-version" target="_blank">
                     <span>User Manual</span>
                 </md-button>
-                <md-button ng-href="{{ftepUrl}}/?q=forum"
-                           target="_blank">
+                <md-button ng-href="{{ftepUrl}}/?q=forum" target="_blank">
                     <span>Forum</span>
                 </md-button>
-                <!--md-button ng-href="{{ftepUrl}}/?q=wiki"
-                           target="_blank">
+                <!--md-button ng-href="{{ftepUrl}}/?q=wiki" target="_blank">
                     <span>Wiki</span>
                 </md-button-->
-                <md-button href="https://github.com/cgi-eoss/ftep/blob/development/LICENSE.txt"
-                           target="_blank">
+                <md-button href="https://github.com/cgi-eoss/ftep/blob/development/LICENSE.txt" target="_blank">
                     <span>License</span>
                 </md-button>
             </md-card-actions>

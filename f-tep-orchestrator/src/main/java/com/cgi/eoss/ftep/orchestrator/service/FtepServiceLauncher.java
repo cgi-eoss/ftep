@@ -106,6 +106,16 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 .put("userId", userId).put("serviceId", serviceId).put("zooId", zooId)) {
             // TODO Allow re-use of existing JobConfig
             job = jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, inputs);
+            com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder()
+                    .setId(zooId)
+                    .setIntJobId(String.valueOf(job.getId()))
+                    .setUserId(userId)
+                    .setServiceId(serviceId)
+                    .build();
+
+            // Post back the job metadata for async responses
+            responseObserver.onNext(FtepServiceResponse.newBuilder().setJob(rpcJob).build());
+
             ctc.put("jobId", String.valueOf(job.getId()));
             FtepService service = job.getConfig().getService();
 
@@ -113,12 +123,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             // Prepare inputs
             LOG.info("Downloading input data for {}", zooId);
-            com.cgi.eoss.ftep.rpc.Job rpcJob = com.cgi.eoss.ftep.rpc.Job.newBuilder()
-                    .setId(zooId)
-                    .setIntJobId(String.valueOf(job.getId()))
-                    .setUserId(userId)
-                    .setServiceId(serviceId)
-                    .build();
             job.setStartTime(LocalDateTime.now());
             job.setStatus(Job.Status.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
@@ -279,7 +283,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addAllParamValue(e.getValue()).build())
                     .collect(toList());
 
-            responseObserver.onNext(FtepServiceResponse.newBuilder().addAllOutputs(outputs).build());
+            responseObserver.onNext(FtepServiceResponse.newBuilder()
+                    .setJobOutputs(FtepServiceResponse.JobOutputs.newBuilder().addAllOutputs(outputs).build())
+                    .build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             if (job != null) {

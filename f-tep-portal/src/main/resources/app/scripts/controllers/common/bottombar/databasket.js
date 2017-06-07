@@ -5,26 +5,14 @@
  * # DatabasketCtrl
  * Controller of the ftepApp
  */
+'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
     ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService', 'TabService', function ($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService) {
 
         $scope.dbPaging = BasketService.pagingData;
         $scope.dbParams = BasketService.params.explorer;
         $scope.dbOwnershipFilters = BasketService.dbOwnershipFilters;
-
-        $scope.toggleFilters = function () {
-            $scope.dbParams.displayFilters = !$scope.dbParams.displayFilters;
-        };
-
-        $scope.databasketSearch = function (basket) {
-            if (basket.name.toLowerCase().indexOf(
-                $scope.dbParams.searchText.toLowerCase()) > -1) {
-                return true;
-            }
-            return false;
-        };
 
         /* Get Databaskets */
         BasketService.refreshDatabaskets("explorer");
@@ -44,8 +32,61 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             BasketService.getDatabasketsPage('explorer', url);
         };
 
+        /* Filtering */
         $scope.filter = function(){
             BasketService.getDatabasketsByFilter('explorer');
+        };
+
+        $scope.toggleFilters = function () {
+            $scope.dbParams.displayFilters = !$scope.dbParams.displayFilters;
+        };
+
+        /* Selecting a Databasket */
+        $scope.selectDatabasket = function (basket) {
+            $scope.dbParams.selectedDatabasket = basket;
+            BasketService.refreshSelectedBasket("explorer");
+        };
+
+        $scope.deselectDatabasket  = function () {
+            $scope.dbParams.selectedDatabasket = undefined;
+        };
+
+        /* Select databasket from bottombar menu */
+        $scope.basketSelection = { searchText: ''};
+        $scope.showList = true;
+        $scope.searchBaskets = function() {
+            $scope.showList = false;
+            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets){
+                $scope.dbParams.selectBasketList = baskets;
+                $scope.showList = true;
+            });
+        };
+        $scope.searchBaskets();
+
+        $scope.isItemDisabled = function(basketId){
+            return document.getElementById('select_' + basketId).disabled;
+        };
+
+        /* Get item for dragging */
+        $scope.getBasketItem = function(item){
+            if($scope.dbParams.selectedItems.indexOf(item) < 0) {
+                 $scope.dbParams.selectedItems.push(item);
+            }
+            var dragObject = {
+                type: 'basketItems',
+                selectedItems: $scope.dbParams.selectedItems
+            };
+
+            return dragObject;
+        };
+
+        /* Get all basket files for dragging */
+        $scope.getBasketDragItems = function (basket) {
+            var dragObject = {
+                type: 'databasket',
+                basket: basket
+            };
+            return dragObject;
         };
 
         /* Edit existing databasket's name and description */
@@ -55,30 +96,24 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.removeDatabasket = function (event, basket) {
-            CommonService.confirm(event, 'Are you sure you want to delete databasket ' + basket.name + "?").then(function (confirmed) {
-                if (confirmed === false) {
-                    return;
+        /* Remove items from a databasket */
+        $scope.clearDatabasket = function (event) {
+            CommonService.confirm(event, 'Are you sure you want to clear the databasket?').then(function (confirmed) {
+                if (confirmed !== false) {
+                    BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function (data) {
+                        BasketService.refreshDatabaskets("explorer");
+                    });
                 }
-                BasketService.removeDatabasket(basket).then(function (data) {
-                    BasketService.refreshDatabaskets("explorer", "Remove", basket);
-                });
             });
         };
 
-        $scope.loadBasket = function (basket) {
-            BasketService.getDatabasketContents(basket).then(function(files){
-                $rootScope.$broadcast('upload.basket', files);
-                $scope.dbParams.databasketOnMap.id = basket.id;
+        $scope.removeDatabasketItem = function(item) {
+            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function (data) {
+                BasketService.refreshDatabaskets("explorer");
             });
         };
 
-        /* Hide databasket items on map */
-        $scope.unloadBasket = function (basket) {
-            $rootScope.$broadcast('unload.basket');
-            $scope.dbParams.databasketOnMap.id = undefined;
-        };
-
+        /* Clone a databasket */
         $scope.cloneDatabasket = function($event, basket){
             function CloneController($scope, $mdDialog) {
 
@@ -114,78 +149,49 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        /* Selected Databasket */
-
-        $scope.selectDatabasket = function (basket) {
-            $scope.dbParams.selectedDatabasket = basket;
-            BasketService.refreshSelectedBasket("explorer");
-        };
-
-        $scope.deselectDatabasket  = function () {
-            $scope.dbParams.selectedDatabasket = undefined;
-        };
-
-        $scope.clearDatabasket = function() {
-            BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function (data) {
-                BasketService.refreshDatabaskets("explorer");
+        /* Displaying databasket items on map */
+        $scope.loadBasket = function (basket) {
+            BasketService.getDatabasketContents(basket).then(function(files){
+                $rootScope.$broadcast('upload.basket', files);
+                $scope.dbParams.databasketOnMap.id = basket.id;
+                $scope.dbParams.selectedItems = [];
             });
         };
 
-        $scope.removeDatabasketItem = function(item) {
-            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function (data) {
-                BasketService.refreshDatabaskets("explorer");
-            });
-        };
-        /* End of Selected Databasket */
-
-        /* BOTTOMBAR MENU-BAR DATABASKET SELECTION */
-        $scope.basketSelection = { searchText: ''};
-        $scope.showList = true;
-        $scope.searchBaskets = function() {
-            $scope.showList = false;
-            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets){
-                $scope.dbParams.selectBasketList = baskets;
-                $scope.showList = true;
-            });
-        };
-        $scope.searchBaskets();
-
-        $scope.isItemDisabled = function(basketId){
-            return document.getElementById('select_' + basketId).disabled;
-        };
-        /* END OF BOTTOMBAR MENU-BAR DATABASKET SELECTION */
-
-        /* GET ITEM FOR DARGGING */
-        $scope.getBasketItem = function(item){
-            var dragObject = {
-                    type: 'basketItem',
-                    item: item
-            };
-            return dragObject;
+        $scope.unloadBasket = function (basket) {
+            $rootScope.$broadcast('unload.basket');
+            $scope.dbParams.databasketOnMap.id = undefined;
+            $scope.dbParams.selectedItems = [];
         };
 
-        /* GET ALL BASKET FILES FOR DRAGGING */
-        $scope.getBasketDragItems = function (basket) {
-            var dragObject = {
-                    type: 'databasket',
-                    basket: basket
-            };
-            return dragObject;
+        $scope.getIndexById = function (item) {
+            return $scope.dbParams.selectedItems.map(function(el) {
+                return el.id;
+            }).indexOf(item.id);
         };
 
-        $scope.$on('map.item.toggled', function(event, items) {
-            $scope.dbParams.selectedItems = items;
-        });
-
+        /* Toggle selection of items displayed on the map */
         $scope.toggleSelection = function(item) {
-            var index = $scope.resultParams.selectedResultItems.indexOf(item);
-
+            var index = $scope.getIndexById(item);
             if (index < 0) {
                 $scope.dbParams.selectedItems.push(item);
             } else {
-                $scope.dbParams.selectedItems.pop(item);
+                $scope.dbParams.selectedItems.splice(index, 1);
             }
             $rootScope.$broadcast('databasket.item.selected', item, index < 0);
         };
+
+        $scope.$on('map.item.toggled', function(event, items) {
+            for(var i = 0;  i < items.length; i++) {
+                $scope.toggleSelection(items[i]);
+            }
+        });
+
+        /* Clear loaded databasket when map is reset */
+        $scope.$on('map.cleared', function () {
+            $scope.unloadBasket();
+            $scope.dbParams.selectedItems = [];
+        });
+
     }]);
 });

@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.worker.worker;
 
+import com.cgi.eoss.ftep.clouds.service.Node;
+import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
@@ -75,18 +77,20 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
-    private final DockerClientFactory dockerClientFactory;
+    private final NodeFactory nodeFactory;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
 
+    // Track which Node is used for each job
+    private final Map<String, Node> jobNodes = new HashMap<>();
     // Track which DockerClient is used for each job
     private final Map<String, DockerClient> jobClients = new HashMap<>();
     // Track which container ID is used for each job
     private final Map<String, String> jobContainers = new HashMap<>();
 
     @Autowired
-    public FtepWorker(DockerClientFactory dockerClientFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
-        this.dockerClientFactory = dockerClientFactory;
+    public FtepWorker(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
+        this.nodeFactory = nodeFactory;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
     }
@@ -95,7 +99,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void prepareEnvironment(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             try {
-                DockerClient dockerClient = dockerClientFactory.getDockerClient();
+                Node node = nodeFactory.provisionNode();
+                DockerClient dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
+                jobNodes.put(request.getJob().getId(), node);
                 jobClients.put(request.getJob().getId(), dockerClient);
             } catch (Exception e) {
                 LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
@@ -129,6 +135,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 LOG.error("Failed to prepare job inputs for {}", request.getJob().getId(), e);
+                cleanUpJob(request.getJob().getId());
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
@@ -175,8 +182,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 LOG.error("Failed to launch docker container {}", request.getDockerImage(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
-                    jobContainers.remove(request.getJob().getId());
-                    jobClients.remove(request.getJob().getId());
+                    cleanUpJob(request.getJob().getId());
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -211,8 +217,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             } catch (Exception e) {
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
-                    jobContainers.remove(request.getId());
-                    jobClients.remove(request.getId());
+                    cleanUpJob(request.getId());
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -237,8 +242,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             } finally {
                 removeContainer(dockerClient, containerId);
-                jobContainers.remove(request.getJob().getId());
-                jobClients.remove(request.getJob().getId());
+                cleanUpJob(request.getJob().getId());
             }
         }
     }
@@ -267,8 +271,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             } finally {
                 removeContainer(dockerClient, containerId);
-                jobContainers.remove(request.getJob().getId());
-                jobClients.remove(request.getJob().getId());
+                cleanUpJob(request.getJob().getId());
             }
         }
     }
@@ -334,6 +337,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
+    }
+
+    private void cleanUpJob(String jobId) {
+        jobContainers.remove(jobId);
+        jobClients.remove(jobId);
+        nodeFactory.destroyNode(jobNodes.remove(jobId));
     }
 
     private WaitContainerResultCallback waitForContainer(DockerClient dockerClient, String containerId) {

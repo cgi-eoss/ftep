@@ -11,6 +11,7 @@ import com.google.common.collect.Multimap;
 import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
         User owner = userDataService.getByName(ownerId);
         FtepService service = serviceDataService.getByName(serviceId);

@@ -5,4 +5,18 @@
         cursor: default;
         filter: opacity(20%);
     }
+    .icon-button-accent {
+        .material-icons {
+            color: @accent;
+            &:hover {
+                color: @accent-light;
+            }
+        }
+        &:hover {
+            background-color: transparent;
+            .material-icons {
+                color: @accent-light;
+            }
+        }
+    }
 }

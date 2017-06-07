@@ -26,5 +26,9 @@ define(['../ftepmodules'], function (ftepmodules) {
            $window.location.reload();
         };
 
+        $scope.$on('no.user', function() {
+            $scope.user = "Guest";
+        });
+
     }]);
 });

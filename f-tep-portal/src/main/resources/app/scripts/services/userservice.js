@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', function (ftepProperties, $q, MessageService, traverson, $mdDialog, $window) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$rootScope', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', function (ftepProperties, $rootScope, $q, MessageService, traverson, $mdDialog, $window) {
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -43,8 +43,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                     deferred.resolve(document);
                 }, function (error) {
+                    $rootScope.$broadcast('no.user');
                     if (!timeout) {
-
                         $mdDialog.show({
                             controller: function ($scope, $window) {
                                 $scope.reloadRoute = function() {

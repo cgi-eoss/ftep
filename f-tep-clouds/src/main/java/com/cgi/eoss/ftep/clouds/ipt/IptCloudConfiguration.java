@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "ftep.clouds.ipt.enabled", havingValue = "true")
 public class IptCloudConfiguration {
 
+    @Value("${ftep.clouds.ipt.maxPoolSize:-1}")
+    private int maxPoolSize;
+
     @Value("${ftep.clouds.ipt.os.identityEndpoint:https://eocloud.eu:5000/v3}")
     private String osIdentityEndpoint;
 
@@ -56,7 +59,7 @@ public class IptCloudConfiguration {
 
     @Bean
     public IptNodeFactory iptNodeFactory(OSClientV3 osClient) {
-        return new IptNodeFactory(osClient, nodeFlavorName, nodeImageId, sshUsername);
+        return new IptNodeFactory(maxPoolSize, osClient, nodeFlavorName, nodeImageId, sshUsername);
     }
 
 }

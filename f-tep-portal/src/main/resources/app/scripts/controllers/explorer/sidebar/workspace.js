@@ -127,13 +127,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 setFilesInputString(fieldId);
                 return true;
             }
-            else if(dropObject && dropObject.type === 'basketItem') {
-                file = {
-                    name: dropObject.item.filename,
-                    link: dropObject.item._links.ftep.href
-                };
-                if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId].indexOf(file.link) < 0){
-                    $scope.serviceParams.dropLists[fieldId].push(file);
+            else if(dropObject && dropObject.type === 'basketItems') {
+                for(var k = 0; k < dropObject.selectedItems.length; k++) {
+                    file = {
+                        name: dropObject.selectedItems[k].filename,
+                        link: dropObject.selectedItems[k]._links.ftep.href
+                    };
+                    if($scope.serviceParams.inputValues[fieldId] === undefined || $scope.serviceParams.inputValues[fieldId].indexOf(file.link) < 0){
+                        $scope.serviceParams.dropLists[fieldId].push(file);
+                    }
                 }
                 setFilesInputString(fieldId);
             }

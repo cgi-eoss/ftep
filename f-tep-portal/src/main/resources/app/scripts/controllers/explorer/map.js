@@ -8,10 +8,10 @@
 define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
-    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, $timeout) {
+    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', 'GeoService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, GeoService, $timeout) {
 
-        var EPSG_3857 = "EPSG:3857", //Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
-            EPSG_4326 = "EPSG:4326"; //Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
+        var EPSG_3857 = "EPSG:3857", // Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
+            EPSG_4326 = "EPSG:4326"; // Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
 
         var SHAPE = {
             NONE: {},
@@ -24,28 +24,19 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.mapType = MapService.mapType;
         $scope.searchPolygon = MapService.searchPolygon;
 
+        /** ----- MAP STYLES TYPES ----- **/
         var resultStyle = new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.15)'
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#ffcc33',
-                width: 2
-            })
+            fill: new ol.style.Fill({ color: 'rgba(255,128,171,0.3)' }),
+            stroke: new ol.style.Stroke({ color: 'rgba(255,64,129,0.6)', width: 2 })
         });
 
         var searchBoxStyle = new ol.style.Style({
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.2)'
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#ed0707',
-                width: 2,
-                lineDash: [15, 5]
-            })
+            fill: new ol.style.Fill({ color: 'rgba(188,223,241,0.4)' }),
+            stroke: new ol.style.Stroke({ color: '#31708f', width: 2, lineDash: [15, 5] })
         });
+        /** ----- END OF MAP STYLES TYPES ----- **/
 
-        /** MAP LAYER TYPES **/
+        /** ----- MAP LAYER TYPES ----- **/
         var layerOSM = new ol.layer.Tile({
             name: 'Test_OSM',
             source: new ol.source.OSM()
@@ -57,14 +48,13 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 url: ftepProperties.MAPBOX_URL
             })
         });
-        /** END OF MAP LAYER TYPES **/
+        /** ----- END OF MAP LAYER TYPES ----- **/
 
-        /** MAP INTERACTIONS FOR THE POLYGONS **/
+        /** ----- MAP INTERACTIONS FOR POLYGONS ----- **/
         var modify = new ol.interaction.Modify({
             features: searchLayerFeatures,
-            // the SHIFT key must be pressed to delete vertices, so
-            // that new vertices can be drawn at the same position
-            // of existing vertices
+            /* the SHIFT key must be pressed to delete vertices, so that new
+               vertices can be drawn at the same position of existing vertices */
             deleteCondition: function(event) {
               return ol.events.condition.shiftKeyOnly(event) &&
                   ol.events.condition.singleClick(event);
@@ -94,16 +84,17 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             $rootScope.$broadcast('map.item.toggled', selectedItems);
         });
 
-        /** END OF MAP INTERACTIONS FOR THE POLYGONS **/
+        /** ----- END OF MAP INTERACTIONS FOR POLYGONS ----- **/
 
-        /** MOUSE POSITION COORDINATES **/
+        /** ----- MOUSE POSITION COORDINATES ----- **/
         var mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
             projection: EPSG_4326,
             undefinedHTML: '&nbsp;'
         });
-        /** END OF MOUSE POSITION COORDINATES **/
+        /** ----- END OF MOUSE POSITION COORDINATES ----- **/
 
+        /** ----- MAP CONFIG & DRAW INTERACTION ----- **/
         $scope.draw = function(shape, opt_options) {
 
             var options = opt_options || {};
@@ -132,6 +123,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 target: options.target
             });
         };
+
         ol.inherits($scope.draw, ol.control.Control);
 
         $scope.map = new ol.Map({
@@ -212,8 +204,10 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
             $scope.map.addLayer(searchAreaLayer);
         };
+        /** ----- END OF MAP CONFIG & DRAW INTERACTION ----- **/
 
-        var searchAreaLayer = new ol.layer.Vector({
+        /** ----- SEARCH LAYER ----- **/
+         var searchAreaLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
                 features: searchLayerFeatures
             }),
@@ -237,7 +231,9 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
             }
         }
+        /** ----- END OF SEARCH LAYER ----- **/
 
+        /* ----- MAP BUTTONS ----- */
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
             if($scope.searchPolygon.wkt){
@@ -256,7 +252,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             $scope.drawType = SHAPE.NONE;
         };
 
-        //Dialog to enable editing the polygon coordinates manually (coordinates shown in EPSG_4326 projection)
+        // Dialog to enable editing the polygon coordinates manually (coordinates shown in EPSG_4326 projection)
         $scope.editPolygonDialog = function($event, polygon) {
             $event.stopPropagation();
             $event.preventDefault();
@@ -306,6 +302,31 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             });
         };
 
+        $scope.clearMap = function() {
+            $scope.clearSearchPolygon();
+            GeoService.params.geoResults = [];
+            if(resultsLayer) {
+               $scope.map.removeLayer(resultsLayer);
+            }
+            if(basketLayer) {
+                $scope.map.removeLayer(basketLayer);
+            }
+            if(searchAreaLayer) {
+                searchAreaLayer.getSource().clear();
+            }
+            if(productLayers && productLayers.length > 0) {
+                for(var i = 0; i < productLayers.length; i++){
+                    $scope.map.removeLayer(productLayers[i]);
+                }
+                productLayers = [];
+            }
+            $scope.map.getView().setZoom(4);
+            $scope.map.getView().setCenter(ol.proj.fromLonLat([0, 51.28]));
+            $rootScope.$broadcast('map.cleared');
+        };
+        /* ----- END OF MAP BUTTONS ----- */
+
+        /* ----- VARIOUS MAP FUNCTIONS ----- */
         /* Custom KML reader, when file has GroundOverlay features, which OL3 doesn't support */
         var reader = new FileReader();
         reader.onload = function(){
@@ -334,6 +355,34 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             }
         };
 
+        /* Update map on screen resize */
+        window.onresize = function() {
+            $scope.map.updateSize();
+        };
+
+        /* Fixes map not loading on slow connection speeds */
+        $scope.updateMap = function() {
+            $timeout(function () {
+                $scope.map.updateSize();
+            }, 1000);
+        };
+
+        /* Get polygon for geometry to display on map */
+        function getGeometryPolygon(geo) {
+            if(geo && geo.coordinates) {
+                var lonlatPoints = [];
+                for(var k = 0; k < geo.coordinates.length; k++){
+                    for(var m = 0; m < geo.coordinates[k].length; m++){
+                        var point = geo.coordinates[k][m];
+                        lonlatPoints.push(point);
+                    }
+                }
+                return new ol.geom[geo.type]([lonlatPoints]).transform(EPSG_4326, EPSG_3857);
+            }
+        }
+        /* ----- END OF VARIOUS MAP FUNCTIONS ----- */
+
+        /* ----- DROPPED FILE LAYER ----- */
         var droppedFileLayer;
         dragAndDropInteraction.on('addfeatures', function(event) {
             if(droppedFileLayer){
@@ -363,32 +412,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 $scope.searchPolygon.searchAoi = polygonWSEN;
             }
         });
-
-        /* Update map on screen resize */
-        window.onresize = function() {
-            $scope.map.updateSize();
-        };
-
-        /* Fixes map not loading on slow connection speeds */
-        $scope.updateMap = function() {
-            $timeout(function () {
-                $scope.map.updateSize();
-            }, 1000);
-        };
-
-        /* Get polygon for geometry to display on map */
-        function getGeometryPolygon(geo) {
-            if(geo) {
-                var lonlatPoints = [];
-                for(var k = 0; k < geo.coordinates.length; k++){
-                    for(var m = 0; m < geo.coordinates[k].length; m++){
-                        var point = geo.coordinates[k][m];
-                        lonlatPoints.push(point);
-                    }
-                }
-                return new ol.geom[geo.type]([lonlatPoints]).transform(EPSG_4326, EPSG_3857);
-            }
-        }
+        /* ----- END OF DROPPED FILE LAYER ----- */
 
         /** ----- RESULTS LAYER ----- **/
         var resultLayerFeatures = MapService.resultLayerFeatures;
@@ -408,7 +432,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     if(results[folderNr].results && results[folderNr].results.entities && results[folderNr].results.entities.length > 0){
                         for(var i = 0; i < results[folderNr].results.entities.length; i++){
                             var item = results[folderNr].results.entities[i];
-                            var pol = getGeometryPolygon(item.geo.coordinates);
+                            var pol = getGeometryPolygon(item.geo);
                             var resultItem =  new ol.Feature({
                                 geometry: pol,
                                 data: item
@@ -516,20 +540,21 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 if((item.id && item.id === features[i].get('data').id)){
                     if(selected){
                         selectClick.getFeatures().push(features[i]);
-                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
+                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize());
                         var zoomLevel = 3;
-                        if($scope.map.getView().getZoom() > 3){
+                        if($scope.map.getView().getZoom() > 3) {
                             zoomLevel = $scope.map.getView().getZoom()-2;
                         }
-                        $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
+                        $scope.map.getView().setZoom(zoomLevel);
                     } else {
                         selectClick.getFeatures().remove(features[i]);
                     }
                     break;
                 }
             }
+
         }
-        /** ----- END BASKET LAYER ----- **/
+        /** ----- END OF BASKET LAYER ----- **/
 
         /* ----- WMS LAYER ----- */
         var productLayers = [];
@@ -565,7 +590,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
             }
         });
-        /* ----- END WMS LAYER ----- */
+        /* ----- END OF WMS LAYER ----- */
 
     }]);
 });

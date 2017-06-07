@@ -73,6 +73,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.wmsItemVisibile = [];
             var wmsItems = [];
 
+            $scope.$on('map.cleared', function () {
+                if( $scope.jobParams.selectedJob) {
+                    $scope.toggleAllWMS(false);
+                }
+            });
+
             /* Toggles display of all wms items in job*/
             $scope.toggleAllWMS = function (show) {
                 $scope.wmsVisibile = show;

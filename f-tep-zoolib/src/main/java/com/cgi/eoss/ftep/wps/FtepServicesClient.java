@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.cgi.eoss.ftep.rpc.Job;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -17,6 +18,7 @@ import org.zoo_project.ZOO;
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -74,8 +76,15 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        FtepServiceResponse ftepServiceResponse = ftepServiceLauncherBlockingStub.launchService(request);
-        return GrpcUtil.paramsListToMap(ftepServiceResponse.getOutputsList());
+        Iterator<FtepServiceResponse> responseIterator = ftepServiceLauncherBlockingStub.launchService(request);
+
+        // First message is the persisted job metadata
+        Job jobInfo = responseIterator.next().getJob();
+        LOG.info("Instantiated job: {}", jobInfo);
+
+        // Second message is the outputs
+        FtepServiceResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
+        return GrpcUtil.paramsListToMap(jobOutputs.getOutputsList());
     }
 
     /**

@@ -8,7 +8,7 @@ option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc";
 
 service FtepServiceLauncher {
-    rpc LaunchService (FtepServiceParams) returns (FtepServiceResponse);
+    rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
     rpc ListWorkers (ListWorkersParams) returns (WorkersList);
 }
 
@@ -21,7 +21,13 @@ message FtepServiceParams {
 }
 
 message FtepServiceResponse {
-    repeated JobParam outputs = 1;
+    message JobOutputs {
+        repeated JobParam outputs = 1;
+    }
+    oneof Payload {
+        Job job = 1;
+        JobOutputs jobOutputs = 2;
+    }
 }
 
 message ListWorkersParams {

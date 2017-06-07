@@ -1,50 +1,6 @@
 @import "variable";
 #job {
-    display: flex;
-    flex-flow: column;
-    flex: 1 1 auto;
-    height: 100%;
-    .job-details {
-        .job-files {
-            list-style: none;
-            line-height: 1.2rem;
-            padding: 0.5rem;
-            .job-detail {
-                .row {
-                    display: flex;
-                    flex-wrap: wrap;
-                }
-                .download, .file, .wms {
-                    align-items: center;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    vertical-align: middle;
-                }
-                .key {
-                    font-weight: bold;
-                    vertical-align: top;
-                }
-                .key, .value {
-                    padding: 0 0.5rem;
-                }
-                .value {
-                    word-break: break-all;
-                }
-                .wms {
-                    color: @accent;
-                    &:hover {
-                        color: @accent-light;
-                    }
-                }
-                &:hover {
-                    background-color: @alert;
-                }
-            }
-        }
-    }
     .job-status {
-        color: @text-light;
         cursor: default;
         font-size: smaller;
         height: 100%;
@@ -55,45 +11,17 @@
         h3 {
             margin: 0;
             .md-button {
-                color: @accent;
                 line-height: normal;
                 margin: 0;
                 min-height: 0;
                 padding-bottom: 0.1rem;
-                &:hover {
-                    background-color: transparent;
-                    color: @accent-light;
-                }
             }
-        }
-        h4 {
-            padding: 0.2rem 0;
-            margin: 0;
         }
     }
-    .job-log {
-        font-family: monospace;
-        font-size: 0.6rem;
-        overflow-x: auto;
-        width: 100%;
-        table {
-            margin-bottom: 0.5rem;
-            th {
-                padding: 0.4rem;
-                padding-left: 0;
-            }
-            .job-timestamp {
-                font-weight: bold;
-                padding: 2px 1rem 2px 0;
-                vertical-align: top;
-                user-select: none;
-            }
-            .job-message {
-                background-color: transparent;
-                border: none;
-                margin: 0;
-                padding: 2px 0;
-                white-space:pre-wrap;
+    #job-inputs {
+        .ftep-file-list {
+            .md-list-item-text {
+                cursor: default;
             }
         }
     }

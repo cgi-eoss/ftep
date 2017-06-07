@@ -32,19 +32,19 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
 
         var selectedStyle = new ol.style.Style({
               fill: new ol.style.Fill({
-                color: 'rgba(0,255,255,0.8)'
+                color: 'rgba(174,213,129,0.8)'
               }),
               stroke: new ol.style.Stroke({
-                color: 'rgba(255,75,255,0.8)',
+                color: 'rgba(85,139,47,0.8)',
                 width: 3
               }),
               image: new ol.style.Circle({
                   fill: new ol.style.Fill({
-                    color: 'rgba(255,255,0,0.2)'
+                    color: 'rgba(250,242,204,0.2)'
                   }),
                   radius: 5,
                   stroke: new ol.style.Stroke({
-                    color: 'rgba(255,75,255,0.8)',
+                    color: 'rgba(138,109,59,0.8)',
                     width: 3
                   })
               })

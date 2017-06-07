@@ -135,7 +135,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 self.params[page].pollingUrl = url;
 
                 /* Get jobs list */
-                getJobs(page);
+                getJobs(page).then(function(data) {
+                    self.params[page].jobs = data;
+                });
             }
         };
 

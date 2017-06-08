@@ -17,6 +17,6 @@ public interface DetailedGroup extends Identifiable<Long> {
     String getDescription();
     ShortUser getOwner();
     Set<ShortUser> getMembers();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Group), target.id)}")
     FtepAccess getAccess();
 }

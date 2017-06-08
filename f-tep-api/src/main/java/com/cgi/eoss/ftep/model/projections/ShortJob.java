@@ -22,6 +22,6 @@ public interface ShortJob extends Identifiable<Long> {
     LocalDateTime getEndTime();
     @Value("#{target.config.service.name}")
     String getServiceName();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Job), target.id)}")
     FtepAccess getAccess();
 }

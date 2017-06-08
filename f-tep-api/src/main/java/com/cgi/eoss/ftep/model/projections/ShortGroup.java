@@ -16,6 +16,6 @@ public interface ShortGroup extends Identifiable<Long> {
     ShortUser getOwner();
     @Value("#{target.members.size()}")
     Integer getSize();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Group), target.id)}")
     FtepAccess getAccess();
 }

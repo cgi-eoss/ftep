@@ -81,12 +81,14 @@ public class ContentAuthorityApi {
     @PostMapping("/services/publish/{serviceId}")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void publishService(@ModelAttribute("serviceId") FtepService service) {
+        service.setStatus(FtepService.Status.AVAILABLE);
+        serviceDataService.save(service);
+
         ftepSecurityService.publish(FtepService.class, service.getId());
         publishingRequestsDataService.findRequestsForPublishing(service).forEach(request -> {
             request.setStatus(PublishingRequest.Status.GRANTED);
             publishingRequestsDataService.save(request);
         });
-
     }
 
     @PostMapping("/services/unpublish/{serviceId}")

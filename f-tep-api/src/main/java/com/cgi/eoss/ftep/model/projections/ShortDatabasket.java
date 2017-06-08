@@ -16,6 +16,6 @@ public interface ShortDatabasket extends Identifiable<Long> {
     ShortUser getOwner();
     @Value("#{target.files.size()}")
     Integer getSize();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Databasket), target.id)}")
     FtepAccess getAccess();
 }

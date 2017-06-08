@@ -18,6 +18,6 @@ public interface ShortFtepService extends Identifiable<Long> {
     String getDockerTag();
     FtepService.Licence getLicence();
     FtepService.Status getStatus();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepService), target.id)}")
     FtepAccess getAccess();
 }

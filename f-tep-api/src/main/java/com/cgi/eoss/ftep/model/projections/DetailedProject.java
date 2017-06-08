@@ -20,6 +20,6 @@ public interface DetailedProject extends Identifiable<Long> {
     Set<ShortDatabasket> getDatabaskets();
     Set<ShortFtepService> getServices();
     Set<JobConfig> getJobConfigs();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Project), target.id)}")
     FtepAccess getAccess();
 }

@@ -155,18 +155,23 @@
                     background-color: transparent;
                 }
             }
-            .add-button .material-icons{
-                color: @brand-light;
+            .add-button {
+                margin-top: 1rem;
+                .material-icons {
+                    color: @brand-light;
+                    font-size: 1.6rem;
+                }
             }
-            .remove-button .material-icons, .type-button .material-icons {
-                margin: 20px 0px 0px 0px;
-                font-size: 20px;
-                color: @white;
-                background-color:  @brand-light;
+            .remove-button, .type-button {
+                .material-icons {
+                    font-size: 1rem;
+                    color: @white;
+                    background-color:  @brand-light;
+                }
             }
             .type-button {
-                margin-left: 0px !important;
-                padding-left: 2px !important;
+                margin: 20px 0px 0px 0px;
+                padding: 0;
             }
 
             .field-definitions {
@@ -174,6 +179,7 @@
                 table {
                     .border(border, @bg);
                     min-width: @xs-max-width;
+                    width: 100%;
                     th, td {
                         .border(border-left, @bg);
                     }
@@ -186,9 +192,12 @@
                         .border(border-bottom, @bg);
                     }
                 }
-
                 md-input-container {
                     width: 100%;
+                }
+                input:invalid {
+                    background-color: @error;
+                    border-bottom: 1px solid @error-text;
                 }
                 .error-message {
                     color: @error-text;
@@ -205,17 +214,14 @@
     }
 }
 #edit-type-dialog {
-    min-height: 400px;
-    md-dialog-actions {
-        position: absolute;
-        bottom: 0px;
-        width: 100%;
-        md-button {
-            position: absolute;
-            right: 0px;
-        }
+    #allowedValuesList {
+        max-height: 6rem;
+        overflow-y: auto;
     }
-    .complex-type {
-        margin-top: 60px;
+    #addAllowedValue {
+        padding-top: 1rem;
+        md-input-container, button {
+            margin: 0;
+        }
     }
 }

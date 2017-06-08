@@ -67,6 +67,8 @@
 
             <md-button class="toolbar-button md-secondary"
                        ng-click="removeService(service)"
+                       has-permission="WRITE"
+                       permission-source="{{service}}"
                        aria-label="Delete"
                        uib-tooltip="Delete"
                        tooltip-placement="top"

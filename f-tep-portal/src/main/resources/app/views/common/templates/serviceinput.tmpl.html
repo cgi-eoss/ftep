@@ -1,0 +1,15 @@
+<div>
+    <md-input-container md-no-float ng-show="fieldData.isSelection === false">
+        <input ng-model="value" />
+        <div class="hint" ng-show="true">{{fieldData.description}}</div>
+    </md-input-container>
+
+    <md-input-container md-no-float ng-show="fieldData.isSelection">
+        <md-select ng-model="value" aria-label="Select value">
+            <md-option ng-repeat="option in fieldData.allowedValues" ng-value="option">
+                {{option}}
+            </md-option>
+        </md-select>
+        <div class="hint" ng-show="true">{{fieldData.description}}</div>
+    </md-input-container>
+</div>

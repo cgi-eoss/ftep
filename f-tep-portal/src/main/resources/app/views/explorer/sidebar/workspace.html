@@ -80,7 +80,7 @@
 
                             <div class="row input-item">
                                <div class="col-md-12 no-padding">
-                                    <md-input-container md-no-float>
+                                    <md-input-container md-no-float ng-if="fieldDesc.defaultAttrs.dataType === 'string' && (!fieldDesc.defaultAttrs.allowedValues || fieldDesc.defaultAttrs.allowedValues === '')">
                                         <input ng-model="serviceParams.inputValues[fieldDesc.id]"
                                                ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
                                                type="{{fieldDesc.defaultAttrs.dataType}}"
@@ -90,7 +90,14 @@
                                                ng-change="updateDropList(fieldDesc.id)"
                                                aria-label="{{fieldDesc.title}}">
                                         <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
-                                    </md-input-container>
+                                     </md-input-container>
+                                     <service-input ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')"
+                                                    ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                                    ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                                                    default-attrs="{{fieldDesc.defaultAttrs}}"
+                                                    ng-required="{{fieldDesc.minOccurs > 0}}"
+                                                    dnd-disable-if="true"
+                                                    description="{{fieldDesc.description}}"/>
                                </div>
                            </div>
 

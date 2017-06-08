@@ -11,7 +11,7 @@
             </md-button>
             <md-menu-content>
                 <md-menu-item>
-                     <md-button ng-disabled="geoResults == undefined"
+                     <md-button ng-disabled="resultParams.geoResults == undefined"
                                 aria-label="Clear All"
                                 ng-click="clearAll()">
                         <span>
@@ -21,7 +21,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                     <md-button ng-disabled="geoResults == undefined"
+                     <md-button ng-disabled="resultParams.geoResults == undefined"
                                 aria-label="Select All"
                                 ng-click="selectAll()">
                         <span>
@@ -31,7 +31,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-disabled="geoResults == undefined"
+                    <md-button ng-disabled="resultParams.geoResults == undefined"
                                aria-label="Deselect All"
                                ng-click="clearSelection()">
                         <span>
@@ -41,7 +41,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-disabled="geoResults == undefined"
+                    <md-button ng-disabled="resultParams.geoResults == undefined"
                                aria-label="Invert Selection"
                                ng-click="invertSelection()">
                         <span>
@@ -118,7 +118,7 @@
 <div class="button-section button-section-large">
 
     <md-button class="toolbar-button"
-               ng-disabled="geoResults == undefined"
+               ng-disabled="resultParams.geoResults == undefined"
                ng-click="clearAll()"
                aria-label="Clear All"
                uib-tooltip="Clear All"
@@ -128,7 +128,7 @@
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-disabled="geoResults == undefined"
+               ng-disabled="resultParams.geoResults == undefined"
                ng-click="selectAll()"
                aria-label="Select All"
                uib-tooltip="Select All"
@@ -138,7 +138,7 @@
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-disabled="geoResults == undefined"
+               ng-disabled="resultParams.geoResults == undefined"
                ng-click="clearSelection()"
                aria-label="Deselect All"
                uib-tooltip="Deselect All"
@@ -148,7 +148,7 @@
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-disabled="geoResults == undefined"
+               ng-disabled="resultParams.geoResults == undefined"
                ng-click="invertSelection()"
                aria-label="Invert Selection"
                uib-tooltip="Invert Selection"

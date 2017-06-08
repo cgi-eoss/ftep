@@ -7,7 +7,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '0.6.11'
+version '0.9.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'

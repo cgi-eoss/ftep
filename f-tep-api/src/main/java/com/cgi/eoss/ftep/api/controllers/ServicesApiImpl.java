@@ -40,31 +40,32 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
     }
 
     @Override
-    public Page<FtepService> findByFilterOnly(String filter, Pageable pageable) {
-        return getFilteredResults(getFilterExpression(filter), pageable);
+    public Page<FtepService> findByFilterOnly(String filter, FtepService.Type serviceType, Pageable pageable) {
+        return getFilteredResults(getFilterExpression(filter, serviceType), pageable);
     }
 
     @Override
-    public Page<FtepService> findByFilterAndOwner(String filter, User user, Pageable pageable) {
+    public Page<FtepService> findByFilterAndOwner(String filter, User user, FtepService.Type serviceType, Pageable pageable) {
         if (Strings.isNullOrEmpty(filter)) {
             return findByOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
+            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter, serviceType)), pageable);
         }
     }
 
     @Override
-    public Page<FtepService> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
+    public Page<FtepService> findByFilterAndNotOwner(String filter, User user, FtepService.Type serviceType, Pageable pageable) {
         if (Strings.isNullOrEmpty(filter)) {
             return findByNotOwner(user, pageable);
         } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
+            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter, serviceType)), pageable);
         }
     }
 
-    private BooleanExpression getFilterExpression(String filter) {
-        return QFtepService.ftepService.name.containsIgnoreCase(filter)
+    private BooleanExpression getFilterExpression(String filter, FtepService.Type serviceType) {
+        BooleanExpression baseFilter = QFtepService.ftepService.name.containsIgnoreCase(filter)
                 .or(QFtepService.ftepService.description.containsIgnoreCase(filter));
+        return serviceType == null ? baseFilter : baseFilter.and(QFtepService.ftepService.type.eq(serviceType));
     }
 
 }

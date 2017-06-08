@@ -21,6 +21,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceParams = ProductService.params.community;
         $scope.fileParams = FileService.params.community;
 
+        /* Get current user */
+        UserService.getCurrentUser().then(function(data){
+            $scope.user = data;
+        });
+
         /* Active session message count */
         $scope.message = {};
         $scope.message.count = MessageService.countMessages();
@@ -100,7 +105,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.hideContent = true;
-        var navbar, sidenav, manage;
+        var navbar, sidenav, groups, projects, databaskets, jobs, services, files;
         $scope.finishLoading = function(component) {
             switch(component) {
                 case 'navbar':
@@ -109,12 +114,27 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 case 'sidenav':
                     sidenav = true;
                     break;
-                case 'manage':
-                    manage = true;
+                case 'groups':
+                    groups = true;
+                    break;
+                case 'projects':
+                    projects = true;
+                    break;
+                case 'databaskets':
+                    databaskets = true;
+                    break;
+                case 'jobs':
+                    jobs = true;
+                    break;
+                case 'services':
+                    services = true;
+                    break;
+                case 'files':
+                    files = true;
                     break;
             }
 
-            if (navbar && sidenav) {
+            if (navbar && sidenav && (groups || projects || databaskets || jobs || services || files)) {
                 $scope.hideContent = false;
             }
         };

@@ -16,12 +16,18 @@
             <md-sidenav id="sidebar-left" class="md-sidenav-left md-whiteframe-4dp no-padding"
                         md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
                 <div class="panel-container no-padding">
-                    <div ng-controller="CommunityGroupsCtrl" ng-include src="'views/community/sidebar/groups.html'" ng-if="navInfo.activeSideNav === communityTabs.GROUPS" class="panel-container" />
-                    <div ng-controller="CommunityProjectsCtrl" ng-include src="'views/community/sidebar/projects.html'" ng-if="navInfo.activeSideNav === communityTabs.PROJECTS" class="panel-container" />
-                    <div ng-controller="CommunityDatabasketsCtrl" ng-include src="'views/community/sidebar/databaskets.html'" ng-if="navInfo.activeSideNav === communityTabs.DATABASKETS" class="panel-container" />
-                    <div ng-controller="CommunityJobsCtrl" ng-include src="'views/community/sidebar/jobs.html'" ng-if="navInfo.activeSideNav === communityTabs.JOBS" class="panel-container" />
-                    <div ng-controller="CommunityServicesCtrl" ng-include src="'views/community/sidebar/services.html'" ng-if="navInfo.activeSideNav === communityTabs.SERVICES" class="panel-container" />
-                    <div ng-controller="CommunityFilesCtrl" ng-include src="'views/community/sidebar/files.html'" ng-if="navInfo.activeSideNav === communityTabs.FILES" class="panel-container" />
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.GROUPS"
+                         ng-controller="CommunityGroupsCtrl" ng-include src="'views/community/sidebar/groups.html'" onload="finishLoading('groups')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.PROJECTS"
+                         ng-controller="CommunityProjectsCtrl" ng-include src="'views/community/sidebar/projects.html'" onload="finishLoading('projects')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.DATABASKETS"
+                         ng-controller="CommunityDatabasketsCtrl" ng-include src="'views/community/sidebar/databaskets.html'" onload="finishLoading('databaskets')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.JOBS"
+                         ng-controller="CommunityJobsCtrl" ng-include src="'views/community/sidebar/jobs.html'" onload="finishLoading('jobs')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.SERVICES"
+                         ng-controller="CommunityServicesCtrl" ng-include src="'views/community/sidebar/services.html'" onload="finishLoading('services')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.FILES"
+                         ng-controller="CommunityFilesCtrl" ng-include src="'views/community/sidebar/files.html'" onload="finishLoading('files')"/>
                 </div>
             </md-sidenav>
         </section>

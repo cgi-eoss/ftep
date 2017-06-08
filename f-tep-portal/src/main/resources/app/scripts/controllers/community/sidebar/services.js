@@ -10,11 +10,13 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'CommonService', '$scope', function (ProductService, CommonService, $scope) {
+    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'PublishingService', 'CommonService', '$scope', function (ProductService, PublishingService, CommonService, $scope) {
 
         /* Get stored Service details */
         $scope.serviceParams = ProductService.params.community;
         $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
+        $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
+        $scope.publicationFilters = ProductService.servicePublicationFilters;
         $scope.item = "Service";
 
         /* Get Services */
@@ -62,6 +64,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             CommonService.editItemDialog($event, item, 'ProductService', 'updateService').then(function (updatedService) {
                 ProductService.refreshServices("community");
             });
+        };
+
+        /* Publication */
+        $scope.requestPublication = function ($event, service) {
+            CommonService.confirm($event, 'Do you wish to publish this Service?').then(function (confirmed) {
+                if (confirmed !== false) {
+                    PublishingService.requestPublication(service, 'Service').then(function (data) {
+                         ProductService.refreshServices("community");
+                    });
+                }
+            });
+        };
+
+        $scope.publishService = function ($event, service) {
+            PublishingService.publishItemDialog($event, service);
         };
 
     }]);

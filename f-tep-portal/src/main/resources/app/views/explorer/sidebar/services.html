@@ -10,12 +10,22 @@
 
     <section class="filter-list">
        <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12 no-padding">
                 <md-input-container md-no-float>
                     <input ng-model="serviceParams.searchText" type="text" placeholder="Search Services" ng-keyup="filter()" aria-label="Service Search Filter">
                 </md-input-container>
             </div>
        </div>
+
+       <md-input-container class="row" md-no-float>
+            <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                <md-optgroup label="Service Type">
+                    <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                        {{filter.name}}
+                    </md-option>
+                </md-optgroup>
+            </md-select>
+        </md-input-container>
 
        <div class="row filter-radiobutton">
            <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">

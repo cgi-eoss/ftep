@@ -46,6 +46,27 @@
                 <input ng-model="serviceParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Services Search Filter">
             </md-input-container>
 
+            <md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                    <md-optgroup label="Service Type">
+                        <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>
+
+            <!--TODO: Uncomment when backend filter exists-->
+            <!--<md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedPublicationFilter" ng-change="filter()" aria-label="Publication Status">
+                    <md-optgroup label="Publication Status">
+                        <md-option ng-repeat="filter in publicationFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>-->
+
             <div class="row filter-radiobutton" ng-show="serviceParams.displayFilters">
                 <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
@@ -74,8 +95,34 @@
             <div class="md-list-item-text" layout="column">
                 <h3 class="selectable" ng-bind="service.name" />
                 <span><b>Owner:</b> <span ng-bind="service.owner.name" /></span>
-                <span><b>Items:</b> <span ng-bind="service.size" /></span>
+                <span><b>Status:</b> <span ng-bind="service.status.toLowerCase()" /></span>
             </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-if="user && user.role === 'ADMIN' && service.access.published === false && service.access.publishRequested === true"
+                       ng-click="publishService($event, service)"
+                       aria-label="Publish Request"
+                       uib-tooltip="Publish Request"
+                       tooltip-placement="top"
+                       tooltip-trigger="'mouseenter'"
+                       tooltip-append-to-body="true">
+                <i class="material-icons alert-text">notifications_active</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="service.access.published === false && service.access.publishRequested === false"
+                       aria-label="Private" uib-tooltip="Private" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons error-text">face</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="user && user.role !== 'ADMIN' && service.access.published === false && service.access.publishRequested === true"
+                       aria-label="Pending Publication" uib-tooltip="Pending Publication" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons warning-text">autorenew</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="service.access.published === true && service.status === 'AVAILABLE'"
+                       aria-label="Public" uib-tooltip="Public" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons success-text">public</i>
+            </md-button>
 
             <md-button class="toolbar-button md-secondary"
                        aria-label="Service Info"
@@ -95,6 +142,18 @@
                        tooltip-trigger="mouseenter"
                        tooltip-append-to-body="true">
                 <i class="material-icons">create</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-if="service.access.published === false"
+                       has-permission="ADMIN" permission-source="{{service}}"
+                       ng-click="requestPublication($event, service)"
+                       aria-label="Request Publication"
+                       uib-tooltip="Request Publication"
+                       tooltip-placement="top"
+                       tooltip-trigger="'mouseenter'"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">publish</i>
             </md-button>
 
         </md-list-item>

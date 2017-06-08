@@ -27,6 +27,6 @@ public interface DetailedJob extends Identifiable<Long> {
     String getServiceName();
     Multimap<String, String> getOutputs();
     JobConfig getConfig();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Job), target.id)}")
     FtepAccess getAccess();
 }

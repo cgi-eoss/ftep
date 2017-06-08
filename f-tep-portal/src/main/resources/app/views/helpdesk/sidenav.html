@@ -1,0 +1,10 @@
+<nav id="ftep-nav-wrapper">
+
+    <ul class="ftep-nav">
+        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': bottombarNavInfo.bottomViewVisible}">
+            <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
+            <span class="notification">{{message.count}}</span>
+        </li>
+    </ul>
+
+</nav>

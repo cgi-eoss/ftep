@@ -11,4 +11,6 @@ public interface PublishingRequestDataService extends
     List<PublishingRequest> findByOwner(User user);
 
     List<PublishingRequest> findRequestsForPublishing(FtepService service);
+
+    List<PublishingRequest> findOpenByAssociated(Class<?> objectClass, Long identifier);
 }

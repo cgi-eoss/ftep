@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.QPublishingRequest;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.PublishingRequestDao;
+import com.google.common.collect.ImmutableList;
 import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,8 +44,18 @@ public class JpaPublishingRequestDataService extends AbstractJpaDataService<Publ
 
     @Override
     public List<PublishingRequest> findRequestsForPublishing(FtepService service) {
-        return dao.findAll(QPublishingRequest.publishingRequest.type.eq(PublishingRequest.Type.SERVICE)
-                .and(QPublishingRequest.publishingRequest.associatedId.eq(service.getId())));
+        return findOpenByAssociated(FtepService.class, service.getId());
+    }
+
+    @Override
+    public List<PublishingRequest> findOpenByAssociated(Class<?> objectClass, Long identifier) {
+        if (PublishingRequest.Type.of(objectClass) == null) {
+            return ImmutableList.of();
+        }
+
+        return dao.findAll(QPublishingRequest.publishingRequest.type.eq(PublishingRequest.Type.of(objectClass))
+                .and(QPublishingRequest.publishingRequest.associatedId.eq(identifier))
+                .and(QPublishingRequest.publishingRequest.status.in(PublishingRequest.Status.REQUESTED, PublishingRequest.Status.NEEDS_INFO)));
     }
 
 }

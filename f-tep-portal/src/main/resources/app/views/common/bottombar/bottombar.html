@@ -61,6 +61,7 @@
         <md-button class="toolbar-button"
                    ng-show="!bottombarTall"
                    ng-click="toggleBottombarHeight()"
+                   aria-label="Expand"
                    uib-tooltip="Expand"
                    tooltip-placement="left"
                    tooltip-trigger="mouseenter"
@@ -71,11 +72,22 @@
         <md-button class="toolbar-button"
                    ng-show="bottombarTall"
                    ng-click="toggleBottombarHeight()"
+                   aria-label="Shrink"
                    uib-tooltip="Shrink"
                    tooltip-placement="left"
                    tooltip-trigger="mouseenter"
                    tooltip-append-to-body="true">
             <i class="material-icons">vertical_align_bottom</i>
+        </md-button>
+
+        <md-button class="toolbar-button"
+                   ng-click="toggleBottomView()"
+                   aria-label="Close"
+                   uib-tooltip="Close"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">close</i>
         </md-button>
     </div>
 

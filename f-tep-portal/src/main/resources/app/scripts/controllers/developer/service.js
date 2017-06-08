@@ -17,8 +17,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
         $scope.constants = {
             serviceFields: ['dataInputs', 'dataOutputs'],
-            fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}],
-            //literalTypes: [{dataType: 'string'}, {dataType: 'integer'}]
+            fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}], //{type: 'BOUNDING_BOX'}],
+            literalTypes: [{dataType: 'string'}, {dataType: 'integer'}, {dataType: 'double'}]
         };
         $scope.serviceTypes = {
             APPLICATION: { id: 0, name: 'Application', value: 'APPLICATION'},
@@ -227,6 +227,28 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
                 $scope.setAsReference = function(str){
                     $scope.input.defaultAttrs.asReference = (str === 'true');
+                };
+
+                $scope.addAllowedValue = function(newAllowedValue){
+                    if($scope.input.defaultAttrs.allowedValues && $scope.input.defaultAttrs.allowedValues !== ''){
+                        var array = $scope.input.defaultAttrs.allowedValues.split(',');
+                        if(array && array.indexOf(newAllowedValue) > -1){
+                            return;
+                        }
+                        else {
+                            $scope.input.defaultAttrs.allowedValues += ',' + newAllowedValue;
+                        }
+                    }
+                    else{
+                         $scope.input.defaultAttrs.allowedValues = newAllowedValue;
+                    }
+                };
+
+                $scope.removeAllowedValue = function(item){
+                    var array = $scope.input.defaultAttrs.allowedValues.split(',');
+                    var index = array.indexOf(item);
+                    array.splice(index, 1);
+                    $scope.input.defaultAttrs.allowedValues = array.toString();
                 };
 
                 $scope.closeDialog = function (save) {

@@ -14,6 +14,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         /* TODO: Migrate self to _this as self is a reserved word and is causing scoping issues */
         var self = this;
         var _this = this;
+        var launchedJobID;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
@@ -308,7 +309,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Select last job if created */
                 if (action === "Create") {
-                    self.params[page].selectedJob = self.params[page].jobs[self.params[page].jobs.length-1];
+                    for (job in self.params[page].jobs) {
+                        if (self.params[page].jobs[job].id === launchedJobID) {
+                            self.params[page].selectedJob = self.params[page].jobs[job];
+                        }
+                    }
                 }
 
                 /* Update the selected job */
@@ -397,7 +402,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
         }
 
-        this.launchJob = function(jobConfig, service){
+        this.launchJob = function(jobConfig, service, page) {
             var deferred = $q.defer();
             // Launch the jobConfig
             halAPI.from(jobConfig._links.self.href + '/launch')
@@ -406,7 +411,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
              function (document) {
-                 MessageService.addInfo('Job started', 'A new ' + service.name + ' job started.');
+                 launchedJobID = JSON.parse(document.data).content.id;
+                 MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
                  deferred.resolve();
              },
              function(error){

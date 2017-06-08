@@ -10,10 +10,11 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageServiceCtrl', ['ProductService', '$scope', function (ProductService, $scope) {
+    ftepmodules.controller('CommunityManageServiceCtrl', ['CommunityService', 'ProductService', '$scope', function (CommunityService, ProductService, $scope) {
 
         /* Get stored Services & Contents details */
         $scope.serviceParams = ProductService.params.community;
+        $scope.permissions = CommunityService.permissionTypes;
         $scope.item = "Service File";
 
         /* Filters */
@@ -28,6 +29,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.contentsQuickSearch = function (item) {
             if (item.filename.toLowerCase().indexOf(
                 $scope.contentsSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
+
+        $scope.toggleSharingFilters = function () {
+            $scope.serviceParams.sharedGroupsDisplayFilters = !$scope.serviceParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.quickSharingSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.serviceParams.sharedGroupsSearchText.toLowerCase()) > -1) {
                 return true;
             }
             return false;

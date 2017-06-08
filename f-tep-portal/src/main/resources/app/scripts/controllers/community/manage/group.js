@@ -10,11 +10,12 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageGroupCtrl', ['GroupService', 'UserService', '$scope', '$mdDialog', function (GroupService, UserService, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityManageGroupCtrl', ['CommunityService', 'GroupService', 'UserService', '$scope', '$mdDialog', function (CommunityService, GroupService, UserService, $scope, $mdDialog) {
 
         /* Get stored Groups details */
         $scope.groupParams = GroupService.params.community;
         $scope.userParams = UserService.params.community;
+        $scope.permissions = CommunityService.permissionTypes;
 
          /* Filters */
         $scope.toggleUserFilters = function () {
@@ -28,6 +29,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.userQuickSearch = function (user) {
             if (user.name.toLowerCase().indexOf(
                 $scope.userSearch.searchText.toLowerCase()) > -1) {
+                return true;
+            }
+            return false;
+        };
+
+        $scope.toggleShareFilters = function () {
+            $scope.groupParams.sharedGroupsDisplayFilters = !$scope.groupParams.sharedGroupsDisplayFilters;
+        };
+
+        $scope.quickSharingSearch = function (item) {
+            if (item.group.name.toLowerCase().indexOf(
+                $scope.groupParams.sharedGroupsSearchText.toLowerCase()) > -1) {
                 return true;
             }
             return false;
@@ -91,7 +104,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddUserController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
                 controller: AddUserController,
-                templateUrl: 'views/community/manage/groups/templates/adduser.tmpl.html',
+                templateUrl: 'views/community/manage/templates/adduser.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

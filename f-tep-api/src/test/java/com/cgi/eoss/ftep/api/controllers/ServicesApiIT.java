@@ -120,6 +120,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services[0].dockerTag").value("dockerTag"))
                 .andExpect(jsonPath("$._embedded.services[0].owner.id").value(ftepUser.getId()))
                 .andExpect(jsonPath("$._embedded.services[0].access.published").value(false))
+                .andExpect(jsonPath("$._embedded.services[0].access.publishRequested").value(false))
                 .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("ADMIN"))
                 .andExpect(jsonPath("$._embedded.services[0]._links.self.href").value(endsWith("/services/" + service.getId())))
                 .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner")));

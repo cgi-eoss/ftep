@@ -18,6 +18,6 @@ public interface DetailedDatabasket extends Identifiable<Long> {
     String getDescription();
     ShortUser getOwner();
     Set<ShortFtepFile> getFiles();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Databasket), target.id)}")
     FtepAccess getAccess();
 }

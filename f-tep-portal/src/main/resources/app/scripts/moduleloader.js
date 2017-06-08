@@ -1,6 +1,5 @@
 define([
     //contollers
-
     './controllers/index',
     './controllers/navbar',
 
@@ -15,25 +14,18 @@ define([
     './controllers/common/bottombar/results',
 
     './controllers/community/community',
-    './controllers/community/common/databaskets',
-    './controllers/community/common/files',
-    './controllers/community/common/groups',
-    './controllers/community/common/jobs',
-    './controllers/community/common/share',
-    './controllers/community/common/projects',
-    './controllers/community/common/services',
+    './controllers/community/sidebar/databaskets',
+    './controllers/community/sidebar/files',
+    './controllers/community/sidebar/groups',
+    './controllers/community/sidebar/jobs',
+    './controllers/community/sidebar/projects',
+    './controllers/community/sidebar/services',
     './controllers/community/manage/databasket',
     './controllers/community/manage/file',
     './controllers/community/manage/group',
     './controllers/community/manage/job',
     './controllers/community/manage/project',
     './controllers/community/manage/service',
-    './controllers/community/share/databasket',
-    './controllers/community/share/file',
-    './controllers/community/share/group',
-    './controllers/community/share/job',
-    './controllers/community/share/project',
-    './controllers/community/share/service',
 
     './controllers/developer/developer',
     './controllers/developer/service',
@@ -43,7 +35,6 @@ define([
     './controllers/explorer/sidebar/project',
     './controllers/explorer/sidebar/search',
     './controllers/explorer/sidebar/services',
-    './controllers/explorer/sidebar/sidebar',
     './controllers/explorer/sidebar/workspace',
 
     './controllers/helpdesk/helpdesk',
@@ -60,6 +51,7 @@ define([
     './services/messageservice',
     './services/projectservice',
     './services/productservice',
+    './services/publishingservice',
     './services/tabservice',
     './services/userservice',
     './services/walletservice'

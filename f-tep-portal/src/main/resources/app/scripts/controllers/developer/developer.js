@@ -22,12 +22,26 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.message.count = MessageService.countMessages();
         });
 
-        $scope.toggleDevPage = function (tab) {
-            $scope.navInfo.activeSideNav = tab;
-        };
-
         $scope.toggleBottomView = function(){
             $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+
+        function showSidebarArea() {
+            $scope.navInfo.sideViewVisible = true;
+        }
+
+        $scope.hideSidebarArea = function () {
+            $scope.navInfo.activeSideNav = undefined;
+            $scope.navInfo.sideViewVisible = false;
+        };
+
+        $scope.toggleSidebar = function (tab) {
+            if($scope.navInfo.activeSideNav === tab) {
+                $scope.hideSidebarArea();
+            } else {
+                $scope.navInfo.activeSideNav = tab;
+                showSidebarArea();
+            }
         };
 
         $scope.hideContent = true;

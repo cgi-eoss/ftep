@@ -1,12 +1,5 @@
 @import "variable";
 #workspace-panel {
-    padding-bottom: 3rem;
-    .info {
-        color: @accent;
-    }
-    .panel-body {
-        padding: 0;
-    }
     .workspace-header {
         .service-header {
             text-align: center;
@@ -15,55 +8,30 @@
                 font-size: 1.2rem;
                 margin-bottom: 0;
                 padding-top: 0.8rem;
-                .md-subheader-inner {
-                    padding: 0 0 0.2rem 0;
-                }
-            }
-        }
-        .service-description-title {
-            h4 {
-               font-size: 0.8rem;
             }
         }
         .service-description {
             .border(border-bottom, @bg);
-            h5 {
-                color: @accent;
-                font-size: 0.7rem;
-            }
         }
     }
     .workspace-content {
-        font-size: 0.8rem;
-        line-height: 1rem;
-        .info {
-            padding: 0.5rem;
-        }
         .service-field {
-            padding: 0.5rem;
             .input-item {
-                input {
-                  font-size: 0.6rem;
-                }
+                padding: 0 0.5rem;
             }
             .md-subheader {
                 color: @text;
-                font-size: 0.7rem;
-                padding-top: 0.5rem;
                 button {
                     background-color: @dark-button;
                     color: @text-light;
-                    margin-left: 4px;
+                    margin-left: 0.5rem;
                     padding: 2px 4px;
+                    i {
+                         font-size: 0.7rem;
+                    }
                     &:hover {
                         background-color: @dark-button-hover;
                     }
-                }
-                i {
-                     font-size: 0.7rem;
-                }
-                .md-subheader-inner {
-                    padding: 0;
                 }
                 .required-asterisk {
                     color: @accent;
@@ -73,9 +41,12 @@
                 background-color: @alert;
             }
         }
+        input:invalid {
+            border-bottom: solid 1px @error-text;
+        }
     }
 }
-.dropped-file-popover{
+.dropped-file-popover {
     max-width: 1000px;
     width: 800px;
 }

@@ -66,7 +66,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             if (confirmed === false) {
                                 return;
                             }
-                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                            $scope.displayTab($scope.bottomNavTabs.JOBS, false);
+                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService, 'explorer').then(function () {
                                 JobService.refreshJobs("explorer", "Create");
                             });
                         });

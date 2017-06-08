@@ -17,6 +17,6 @@ public interface ShortFtepFile extends Identifiable<Long> {
     ShortUser getOwner();
     String getFilename();
     FtepFile.Type getType();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepFile), target.id)}")
     FtepAccess getAccess();
 }

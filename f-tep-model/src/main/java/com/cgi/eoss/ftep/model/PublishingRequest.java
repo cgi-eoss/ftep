@@ -115,6 +115,15 @@ public class PublishingRequest implements FtepEntityWithOwner<PublishingRequest>
         public Class<?> getTypeClass() {
             return typeClass;
         }
+
+        public static Type of(Class<?> objectClass) {
+            for (Type type : Type.values()) {
+                if (type.typeClass.equals(objectClass)) {
+                    return type;
+                }
+            }
+            return null;
+        }
     }
 
 }

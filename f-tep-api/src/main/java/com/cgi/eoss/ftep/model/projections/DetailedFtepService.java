@@ -22,7 +22,7 @@ public interface DetailedFtepService extends Identifiable<Long> {
     FtepService.Licence getLicence();
     FtepService.Status getStatus();
     FtepServiceDescriptor getServiceDescriptor();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepService), target.id)}")
     FtepAccess getAccess();
 
 }

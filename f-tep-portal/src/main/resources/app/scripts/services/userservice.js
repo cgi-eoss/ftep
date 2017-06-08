@@ -11,6 +11,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
     ftepmodules.service('UserService', [ 'ftepProperties', '$rootScope', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', function (ftepProperties, $rootScope, $q, MessageService, traverson, $mdDialog, $window) {
 
+        var _this = this;
+
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
@@ -25,6 +27,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     displayUserFilters: false
                 },
                 admin: {
+                    pagingData: {},
                     selectedUser: undefined,
                     userDetails: undefined,
                     newRole: undefined,
@@ -83,14 +86,16 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.getUsersByFilter = function(searchStr){
+        this.getUsersByFilter = function(page){
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/users/search/byFilter?filter=' + searchStr)
+            halAPI.from(rootUri + '/users/search/byFilter?sort=name&filter=' + (_this.params[page].searchText ? _this.params[page].searchText : ''))
                      .newRequest()
                      .getResource()
                      .result
                      .then(
             function (document) {
+                _this.params[page].pagingData._links = document._links;
+                _this.params[page].pagingData.page = document.page;
                 deferred.resolve(document._embedded.users);
             }, function (error) {
                 MessageService.addError('Could not get Users', error);

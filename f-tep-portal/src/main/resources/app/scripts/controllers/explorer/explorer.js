@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', '$timeout', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService, $timeout) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -22,13 +22,45 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.message.count = MessageService.countMessages();
         });
 
+        /* SIDE BAR */
+        $scope.sideNavTabs = TabService.getExplorerSideNavs();
+        $scope.bottomNavTabs = TabService.getBottomNavTabs();
+        $scope.navInfo = TabService.navInfo.explorer;
+
+        function showSidebarArea() {
+            $scope.navInfo.sideViewVisible = true;
+        }
+
+        $scope.hideSidebarArea = function () {
+            $scope.navInfo.activeSideNav = undefined;
+            $scope.navInfo.sideViewVisible = false;
+        };
+
+        $scope.toggleSidebar = function (tab) {
+            if($scope.navInfo.activeSideNav === tab) {
+                $scope.hideSidebarArea();
+            } else {
+                $scope.navInfo.activeSideNav = tab;
+                showSidebarArea();
+            }
+        };
+
+        $scope.$on('update.selectedService', function(event) {
+            $scope.navInfo.activeSideNav = $scope.sideNavTabs.WORKSPACE;
+            showSidebarArea();
+        });
+        /* END OF SIDE BAR */
+
         /** BOTTOM BAR **/
         $scope.displayTab = function(tab, allowedToClose) {
+
             if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
                 $scope.toggleBottomView();
             } else {
                 $scope.bottombarNavInfo.bottomViewVisible = true;
-                $scope.navInfo.activeBottomNav = tab;
+                $timeout(function () {
+                    $scope.navInfo.activeBottomNav = tab;
+                }, 600);
             }
         };
 
@@ -44,7 +76,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 return undefined;
             }
         };
-
         /** END OF BOTTOM BAR **/
 
         /* Show Result Metadata Modal */
@@ -94,7 +125,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 CommonService.shareObjectDialog($event, item, type, groups, serviceName, serviceMethod, 'explorer');
             });
         };
-
 
         $scope.hideContent = true;
         var map, sidenav, navbar;

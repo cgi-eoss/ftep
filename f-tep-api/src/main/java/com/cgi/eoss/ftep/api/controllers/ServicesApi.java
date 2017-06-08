@@ -13,6 +13,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RepositoryRestResource(path = "services", itemResourceRel = "service", collectionResourceRel = "services", excerptProjection = ShortFtepService.class)
 public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApiCustom, JpaRepository<FtepService, Long> {
@@ -33,7 +34,7 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApi
     void delete(Iterable<? extends FtepService> services);
 
     @Override
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (!@ftepSecurityService.isPublic(service.class, service.id) and hasPermission(service, 'administration'))")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (!@ftepSecurityService.isPublic(#service.class, #service.id) and hasPermission(#service, 'administration'))")
     void delete(@P("service") FtepService service);
 
     @Override
@@ -46,16 +47,16 @@ public interface ServicesApi extends BaseRepositoryApi<FtepService>, ServicesApi
 
     @Override
     @RestResource(path="findByFilterOnly", rel="findByFilterOnly")
-    @Query("select t from FtepService t where t.name like %:filter% or t.description like %:filter%")
-    Page<FtepService> findByFilterOnly(@Param("filter") String filter, Pageable pageable);
+    @Query("select t from FtepService t where (t.name like %:filter% or t.description like %:filter%) and (:serviceType is null or t.type = :serviceType)")
+    Page<FtepService> findByFilterOnly(@Param("filter") String filter, @Param("serviceType") @RequestParam(required = false) FtepService.Type serviceType, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndOwner", rel = "findByFilterAndOwner")
-    @Query("select t from FtepService t where t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
-    Page<FtepService> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    @Query("select t from FtepService t where t.owner=:owner and (t.name like %:filter% or t.description like %:filter%) and (:serviceType is null or t.type = :serviceType)")
+    Page<FtepService> findByFilterAndOwner(@Param("filter") String filter, @Param("owner") User user, @Param("serviceType") @RequestParam(required = false) FtepService.Type serviceType, Pageable pageable);
 
     @Override
     @RestResource(path = "findByFilterAndNotOwner", rel = "findByFilterAndNotOwner")
-    @Query("select t from FtepService t where not t.owner=:owner and (t.name like %:filter% or t.description like %:filter%)")
-    Page<FtepService> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, Pageable pageable);
+    @Query("select t from FtepService t where not t.owner=:owner and (t.name like %:filter% or t.description like %:filter%) and (:serviceType is null or t.type = :serviceType)")
+    Page<FtepService> findByFilterAndNotOwner(@Param("filter") String filter, @Param("owner") User user, @Param("serviceType") @RequestParam(required = false) FtepService.Type serviceType, Pageable pageable);
 }

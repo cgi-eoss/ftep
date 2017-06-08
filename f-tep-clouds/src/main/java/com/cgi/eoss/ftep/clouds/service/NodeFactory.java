@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.clouds.service;
 
+import java.nio.file.Path;
 import java.util.Set;
 
 /**
@@ -14,9 +15,10 @@ public interface NodeFactory {
      * <p>Provision a Node suitable for running F-TEP services with Docker. This call will block until the requested
      * resource is provisioned.</p>
      *
+     * @param environmentBaseDir The base path containing job environments, to be made available to the returned node.
      * @return A Node appropriate for the configured implementation.
      */
-    Node provisionNode();
+    Node provisionNode(Path environmentBaseDir);
 
     /**
      * <p>Tear down the given node, releasing its resources.</p>

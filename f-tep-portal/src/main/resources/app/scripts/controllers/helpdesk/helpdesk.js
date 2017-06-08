@@ -8,7 +8,23 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('HelpdeskCtrl', ['ftepProperties', '$scope', '$http', 'ProductService', 'TabService', function (ftepProperties, $scope, $http, ProductService, TabService) {
+    ftepmodules.controller('HelpdeskCtrl', ['ftepProperties', '$scope', '$http', 'ProductService', 'TabService', 'MessageService', function (ftepProperties, $scope, $http, ProductService, TabService, MessageService) {
+
+        /* Sidenav & Bottombar */
+        $scope.navInfo = TabService.navInfo.admin;
+        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
+
+        /* Active session message count */
+        $scope.message = {};
+        $scope.message.count = MessageService.countMessages();
+        $scope.$on('update.messages', function(event, job) {
+            $scope.message.count = MessageService.countMessages();
+        });
+
+        $scope.toggleBottomView = function(){
+            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+        };
+        /* End Sidenav & Bottombar */
 
         $scope.applications = ['Monteverdi', 'QGIS', 'SNAP'];
         $scope.processors = ['LandCoverS1', 'LandCoverS2', 'S1Biomass', 'VegetationIndicies', 'ForestChangeS2'];
@@ -35,15 +51,22 @@ define(['../../ftepmodules'], function (ftepmodules) {
         ];
 
         $scope.hideContent = true;
-        var tutorials;
+        var navbar, sidenav, tutorials;
         $scope.finishLoading = function(component) {
             switch(component) {
+                case 'navbar':
+                    navbar = true;
+                    break;
+                case 'sidenav':
+                    sidenav = true;
+                    break;
                 case 'tutorials':
                     tutorials = true;
                     break;
+
             }
 
-            if (tutorials) {
+            if (navbar && sidenav && tutorials) {
                 $scope.hideContent = false;
             }
         };

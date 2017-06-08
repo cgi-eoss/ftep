@@ -19,9 +19,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.serviceOwnershipFilters = {
-                ALL_SERVICES: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
-                MY_SERVICES: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
-                SHARED_SERVICES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
+            MY_SERVICES: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
+            SHARED_SERVICES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' },
+            ALL_SERVICES: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'}
+        };
+
+        this.serviceTypeFilters = {
+            ALL_SERVICES: { id: 0, name: 'All Service Types' },
+            APPLICATION: { id: 1, name: 'Application Services', value: 'APPLICATION' },
+            PROCESSOR: { id: 2, name: 'Processor Services', value: 'PROCESSOR' },
+            BULK_PROCESSOR: { id: 3, name: 'Bulk Processor Services', value: 'BULK_PROCESSOR' }
+        };
+
+        this.servicePublicationFilters = {
+            ALL_SERVICES: { id: 0, name: 'All Publication Statuses' },
+            PUBLIC_SERVICES: { id: 1, name: 'Public', value: 'PUBLIC_SERVICES'},
+            PENDING_SERVICES: { id: 2, name: 'Pending', value: 'PENDING_SERVICES'},
+            PRIVATE_SERVICES: { id: 3, name: 'Private', value: 'PRIVATE_SERVICES'}
         };
 
         var userUrl;
@@ -36,6 +50,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pagingData: {},
                 selectedService: undefined,
                 selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
+                selectedTypeFilter: self.serviceTypeFilters.ALL_SERVICES,
                 searchText: '',
                 inputValues: {},
                 dropLists: {}
@@ -54,6 +69,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
                 selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
+                selectedTypeFilter: self.serviceTypeFilters.ALL_SERVICES,
+                selectedPublicationFilter: self.servicePublicationFilters.ALL_SERVICES,
                 showServices: true
             },
             development: {
@@ -314,11 +331,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getServicesByFilter = function (page) {
             if (self.params[page]) {
-                var url = rootUri + '/services/' + self.params[page].selectedOwnershipFilter.searchUrl +
-                          '?sort=type,name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
+                var url = rootUri + '/services/' +
+                                    self.params[page].selectedOwnershipFilter.searchUrl +
+                                    '?sort=type,name&filter='+
+                                    (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.serviceOwnershipFilters.ALL_SERVICES){
                     url += '&owner=' + userUrl;
+                }
+
+                if(self.params[page].selectedTypeFilter !== self.serviceTypeFilters.ALL_SERVICES){
+                    url += '&serviceType=' + self.params[page].selectedTypeFilter.value;
                 }
                 self.params[page].pollingUrl = url;
 

@@ -14,7 +14,7 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
 
-        var communityTabs = { MANAGE: 0, SHARE: 1};
+        var communityTabs = { GROUPS: 0, PROJECTS: 1, DATABASKETS: 2, JOBS: 3, SERVICES: 4, FILES: 5};
 
         var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
 
@@ -58,7 +58,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 community: {
                     activeTab: tabs.COMMUNITY,
                     sideViewVisible: true,
-                    activeSideNav: communityTabs.MANAGE,
+                    activeSideNav: communityTabs.GROUPS,
                     activeBottomNav: undefined
                 },
                 admin: {

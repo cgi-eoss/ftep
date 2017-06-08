@@ -1,11 +1,18 @@
+/**
+ * @ngdoc function
+ * @name ftepApp.controller:ServicesCtrl
+ * @description
+ * # ServicesCtrl
+ * Controller of the ftepApp
+ */
+'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
-    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', '$sce', 'ProductService', 'TabService',
-                                 function ($scope, $rootScope, $sce, ProductService, TabService) {
+    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', '$sce', 'ProductService', 'TabService', function ($scope, $rootScope, $sce, ProductService, TabService) {
 
             $scope.serviceParams = ProductService.params.explorer;
             $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
+            $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
 
             ProductService.refreshServices('explorer');
 

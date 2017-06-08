@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.clouds.service.NodePoolStatus;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public class LocalNodeFactory implements NodeFactory {
     }
 
     @Override
-    public Node provisionNode() {
+    public Node provisionNode(Path environmentBaseDir) {
         // TODO Check against maxPoolSize
         LOG.info("Provisioning LOCAL node");
         Node node = Node.builder()

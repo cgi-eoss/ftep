@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -51,12 +52,14 @@ public class FtepSecurityService {
     private final MutableAclService aclService;
     private final AclPermissionEvaluator aclPermissionEvaluator;
     private final UserDataService userDataService;
+    private final PublishingRequestDataService publishingRequestDataService;
 
     @Autowired
-    public FtepSecurityService(MutableAclService aclService, AclPermissionEvaluator aclPermissionEvaluator, UserDataService userDataService) {
+    public FtepSecurityService(MutableAclService aclService, AclPermissionEvaluator aclPermissionEvaluator, UserDataService userDataService, PublishingRequestDataService publishingRequestDataService) {
         this.aclService = aclService;
         this.aclPermissionEvaluator = aclPermissionEvaluator;
         this.userDataService = userDataService;
+        this.publishingRequestDataService = publishingRequestDataService;
     }
 
     public void updateOwnerWithCurrentUser(FtepEntityWithOwner entity) {
@@ -142,6 +145,7 @@ public class FtepSecurityService {
 
         return FtepAccess.builder()
                 .published(isPublic(objectIdentity))
+                .publishRequested(isPublishRequested(objectClass, identifier))
                 .currentLevel(getCurrentPermission(authentication, objectIdentity))
                 .build();
     }
@@ -239,6 +243,10 @@ public class FtepSecurityService {
                 .map(e -> e.getKey().getIdentifier())
                 .map(Long.class::cast)
                 .collect(Collectors.toSet());
+    }
+
+    private boolean isPublishRequested(Class<?> objectClass, Long identifier) {
+        return !publishingRequestDataService.findOpenByAssociated(objectClass, identifier).isEmpty();
     }
 
     public boolean isSuperUser() {

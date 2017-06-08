@@ -1,262 +1,227 @@
 @import "variable";
 #developer-container {
-    #service-container {
+    .right-container {
         height: 100%;
-        width: 100%;
-        .content-container {
-            height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+        margin-left: @sidenav-width;
+        .close {
+            margin: 0.3rem 0;
         }
-        .left-container {
-            background-color: @bg;
-            .border(border-right, @bg);
+        #save-service {
+            position: absolute;
+            right: 3.5rem;
+        }
+        #service-form {
+            display: flex;
+            flex-flow: column;
             height: 100%;
-            padding: 0;
-            padding-left: @sidenav-width;
-            .item-list {
-                padding-bottom: 3rem;
-            }
-            md-list-item {
-                .border(border-bottom, @bg);
-            }
-            md-input-container {
-                margin: 0;
-                width: 100%;
-                .text-sec();
-                .hint {
-                    font-size: 0.6rem;
-                    .text-hint();
+            #service-header {
+                flex: 0 1 auto;
+                .service-field {
+                    padding: 0 0.5rem;
+                }
+                #service-description, #service-summary {
+                    width: 100%;
                 }
             }
-            .note {
-                border: none;
-                .border(border-bottom, @bg);
-            }
-            #sidebar-list {
-                height: 100%;
-                overflow-y: auto;
-            }
-            @media (max-width: @sm-max-width) {
-                overflow-y: auto;
-                max-height: 100%;
-            }
-        }
-        .right-container {
-            height: 100%;
-            overflow-y: auto;
-            padding: 1rem;
-            .close {
-                margin: 0.3rem 0;
-            }
-            #save-service {
-                position: absolute;
-                right: 2.5rem;
-            }
-            #service-form {
-                display: flex;
-                flex-flow: column;
-                height: 100%;
-                #service-header {
-                    flex: 0 1 auto;
-                    .service-field {
-                        padding: 0 0.5rem;
-                    }
-                    #service-description, #service-summary {
-                        width: 100%;
-                    }
-                }
 
-                #editor-area-list {
-                    .border(border-bottom, @bg);
-                    list-style-type: none;
-                    padding: 0;
-                    li {
-                        background-color: @bg;
-                        .border(border-right, @bg);
-                        .border(border-top, @bg);
-                        cursor: pointer;
-                        display: inline-block;
-                        padding: 0.8rem;
-                        white-space: nowrap;
-                        &:first-child {
-                            .border(border-left, @bg);
-                        }
+            #editor-area-list {
+                .border(border-bottom, @bg);
+                list-style-type: none;
+                padding: 0;
+                li {
+                    background-color: @bg;
+                    .border(border-right, @bg);
+                    .border(border-top, @bg);
+                    cursor: pointer;
+                    display: inline-block;
+                    padding: 0.8rem;
+                    white-space: nowrap;
+                    &:first-child {
+                        .border(border-left, @bg);
                     }
+                }
+                .active {
+                    background-color: @brand-light;
+                    border-color: @brand-light;
+                    color: @text-light;
+                }
+            }
+            #file-editor {
+                .CodeMirror {
+                    height: 100%;
+                    margin: 0 1rem 2rem 0;
+                }
+                .file-editor {
+                    background-color: @bg;
+                    .border(border, @lighter-gray);
+                    margin-top: 0;
+                    padding: 0;
+                    textarea.md-input {
+                        background-color: @white;
+                        font-family: 'Courier';
+                        border: none;
+                    }
+                }
+                #file-list {
+                    word-break: break-all;
+                    list-style: none;
+                    padding: 0;
                     .active {
                         background-color: @brand-light;
-                        border-color: @brand-light;
-                        color: @text-light;
-                    }
-                }
-                #file-editor {
-                    .CodeMirror {
-                        height: 100%;
-                        margin: 0 1rem 2rem 0;
-                    }
-                    .file-editor {
-                        background-color: @bg;
-                        .border(border, @lighter-gray);
-                        margin-top: 0;
-                        padding: 0;
-                        textarea.md-input {
-                            background-color: @white;
-                            font-family: 'Courier';
-                            border: none;
-                        }
-                    }
-                    #file-list {
-                        word-break: break-all;
-                        list-style: none;
-                        padding: 0;
-                        .active {
-                            background-color: @brand-light;
-                            color: @white;
-                            &:hover {
-                                background-color: @brand;
-                                .material-icons {
-                                    color: @brand-dark;
-                                }
-                            }
-                        }
-                        .add-file {
-                            font-size: 1rem;
-                            padding: 0 0.5rem;
-                            &:hover {
-                                background-color: transparent;
-                                color: @accent;
-                                cursor: pointer;
-                            }
-                        }
-                        li {
-                            .file {
-                                cursor: pointer;
-                                &:hover {
-                                    background-color: @alert;
-                                }
-                            }
-                            .folder {
-                                &:hover {
-                                    background-color: @bg;
-                                }
-                            }
-                            table {
-                                width: 100%;
-                                .file-icon {
-                                    width: 28px;
-                                    .material-icons {
-                                        color: @brand;
-                                        font-size: 24px;
-                                    }
-                                }
-                                .file-name {
-                                    text-align: left;
-                                }
-                                .remove-file {
-                                    font-weight: bold;
-                                    text-align: right;
-                                    padding: 0 0.5rem;
-                                    &:hover {
-                                        color: @accent;
-                                    }
-                                }
+                        color: @white;
+                        &:hover {
+                            background-color: @brand;
+                            .material-icons {
+                                color: @brand-dark;
                             }
                         }
                     }
-                    .file-settings {
-                        padding: 0.5rem;
-                    }
-                    .form-control {
-                        display: inline-block;
-                        font-size: 0.7rem;
-                        padding-bottom: 0;
-                        padding-top: 0;
-                        vertical-align: top;
-                        width: auto;
-                    }
-                    .executable {
-                        margin: 0;
-                        padding: 0.6rem;
-                        padding-bottom: 0;
-                        md-checkbox {
-                            margin: 0;
-                        }
-                    }
-                    .input-label {
+                    .add-file {
                         font-size: 1rem;
+                        padding: 0 0.5rem;
+                        &:hover {
+                            background-color: transparent;
+                            color: @accent;
+                            cursor: pointer;
+                        }
+                    }
+                    li {
+                        .file {
+                            cursor: pointer;
+                            &:hover {
+                                background-color: @alert;
+                            }
+                        }
+                        .folder {
+                            &:hover {
+                                background-color: @bg;
+                            }
+                        }
+                        table {
+                            width: 100%;
+                            .file-icon {
+                                width: 28px;
+                                .material-icons {
+                                    color: @brand;
+                                    font-size: 24px;
+                                }
+                            }
+                            .file-name {
+                                text-align: left;
+                            }
+                            .remove-file {
+                                font-weight: bold;
+                                text-align: right;
+                                padding: 0 0.5rem;
+                                &:hover {
+                                    color: @accent;
+                                }
+                            }
+                        }
+                    }
+                }
+                .file-settings {
+                    padding: 0.5rem;
+                }
+                .form-control {
+                    display: inline-block;
+                    font-size: 0.7rem;
+                    padding-bottom: 0;
+                    padding-top: 0;
+                    vertical-align: top;
+                    width: auto;
+                }
+                .executable {
+                    margin: 0;
+                    padding: 0.6rem;
+                    padding-bottom: 0;
+                    md-checkbox {
                         margin: 0;
-                        position: inherit;
-                        vertical-align: top;
-                        width: auto;
                     }
                 }
-                .add-button, .remove-button, .type-button {
-                    min-width: 0;
-                    &:hover {
-                        background-color: transparent;
-                    }
+                .input-label {
+                    font-size: 1rem;
+                    margin: 0;
+                    position: inherit;
+                    vertical-align: top;
+                    width: auto;
                 }
-                .add-button .material-icons{
+            }
+            .add-button, .remove-button, .type-button {
+                min-width: 0;
+                &:hover {
+                    background-color: transparent;
+                }
+            }
+            .add-button {
+                margin-top: 1rem;
+                .material-icons {
                     color: @brand-light;
+                    font-size: 1.6rem;
                 }
-                .remove-button .material-icons, .type-button .material-icons {
-                    margin: 20px 0px 0px 0px;
-                    font-size: 20px;
+            }
+            .remove-button, .type-button {
+                .material-icons {
+                    font-size: 1rem;
                     color: @white;
                     background-color:  @brand-light;
                 }
-                .type-button {
-                    margin-left: 0px !important;
-                    padding-left: 2px !important;
+            }
+            .type-button {
+                margin: 20px 0px 0px 0px;
+                padding: 0;
+            }
+
+            .field-definitions {
+                margin-top: 15px;
+                table {
+                    .border(border, @bg);
+                    min-width: @xs-max-width;
+                    width: 100%;
+                    th, td {
+                        .border(border-left, @bg);
+                    }
+                    th {
+                        background-color: @bg;
+                        .border(border-bottom, @bg);
+                        padding: 0.25rem;
+                    }
+                    td {
+                        .border(border-bottom, @bg);
+                    }
                 }
-
-                .field-definitions {
-                    margin-top: 15px;
-                    table {
-                        .border(border, @bg);
-                        min-width: @xs-max-width;
-                        th, td {
-                            .border(border-left, @bg);
-                        }
-                        th {
-                            background-color: @bg;
-                            .border(border-bottom, @bg);
-                            padding: 0.25rem;
-                        }
-                        td {
-                            .border(border-bottom, @bg);
-                        }
-                    }
-
-                    md-input-container {
-                        width: 100%;
-                    }
-                    .error-message {
-                        color: @error-text;
-                    }
+                md-input-container {
+                    width: 100%;
+                }
+                input:invalid {
+                    background-color: @error;
+                    border-bottom: 1px solid @error-text;
+                }
+                .error-message {
+                    color: @error-text;
                 }
             }
-            @media (max-width: @sm-max-width) {
-                height: auto;
-                margin-left: @sidenav-width !important;
-                max-height: 100%;
-                #save-service {
-                    right: 4rem;
-                }
+        }
+        @media (max-width: @sm-max-width) {
+            height: auto;
+            max-height: 100%;
+            #save-service {
+                right: 4rem;
             }
         }
     }
 }
 #edit-type-dialog {
-    min-height: 400px;
-    md-dialog-actions {
-        position: absolute;
-        bottom: 0px;
-        width: 100%;
-        md-button {
-            position: absolute;
-            right: 0px;
-        }
+    #allowedValuesList {
+        max-height: 6rem;
+        overflow-y: auto;
     }
-    .complex-type {
-        margin-top: 60px;
+    #addAllowedValue {
+        padding-top: 1rem;
+        md-input-container, button {
+            margin: 0;
+        }
     }
 }

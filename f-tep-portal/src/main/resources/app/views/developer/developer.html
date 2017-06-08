@@ -4,27 +4,32 @@
         <div class="spinner" />
     </div>
 
-    <div id="navbar-container"
-         ng-include src="'views/navbar.html'"
-         onload="finishLoading('navbar')"
-         ng-class="{'hidden': hideContent}"/>
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
 
-    <article id="developer-container" layout="row" class="page-container row" ng-class="{'hidden': hideContent}">
+    <article id="developer-container" class="page-container row" ng-class="{'hidden': hideContent}" ng-controller="ServiceCtrl">
 
         <section id="sidenav" ng-include src="'views/developer/sidenav.html'" onload="finishLoading('sidenav')" />
 
-        <section id="service-container"
-                 class="row"
-                 ng-include src="'views/developer/services/servicescontainer.html'"
-                 ng-show="navInfo.activeSideNav == developerSideNavs.SERVICES"
-                 onload="finishLoading('services')"/>
+        <section id="side-container" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 panel-container"
+                 ng-show="navInfo.sideViewVisible" media-show="gt-sm" media-show-on="{{serviceParams.selectedService == undefined}}">
+            <md-sidenav id="sidebar-left" class="md-sidenav-left md-whiteframe-4dp"
+                        md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
+                <div class="panel-container">
+                    <div class="sidebar-item panel-container" ng-include src="'views/developer/services/services.html'" ng-show="navInfo.activeSideNav == developerSideNavs.SERVICES" onload="finishLoading('services')"/>
+                </div>
+            </md-sidenav>
+        </section>
+
+        <section id="service-editor" class="right-container" ng-include src="'views/developer/services/editor.html'"
+                 ng-if="serviceParams.selectedService" />
 
         <section id="bottombar-container"
                  ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
                  class="explorer-content animationIf no-padding"
                  ng-include src="'views/common/bottombar/bottombar.html'"
                  ng-controller="BottombarCtrl"
-                 ng-if="bottombarNavInfo.bottomViewVisible"/>
+                 ng-if="once = once || bottombarNavInfo.bottomViewVisible"
+                 ng-show="bottombarNavInfo.bottomViewVisible"/>
 
     </article>
 

@@ -174,6 +174,7 @@
                 <th>Title</th>
                 <th>Description</th>
                 <th>Type</th>
+                <th>Default Value</th>
                 <th>Min Occurs</th>
                 <th>Max Occurs</th>
                 <th></th>
@@ -187,34 +188,46 @@
                 </td>
                 <td>
                     <md-input-container md-no-float>
-                        <textarea ng-model="input.title" placeholder="Field title*" required/>
+                        <input ng-model="input.title" placeholder="Field title*" required/>
                     </md-input-container>
                 </td>
                 <td>
                     <md-input-container md-no-float>
-                        <textarea ng-model="input.description" placeholder="Field description"/>
+                        <input ng-model="input.description" placeholder="Field description"/>
                     </md-input-container>
                 </td>
                 <td>
                     <div class="col-xs-9 no-padding">
                         <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'LITERAL'">
-                            <input ng-model="input.defaultAttrs.dataType" ng-init="string" ng-disabled="true" aria-label="Input Type"/>
+                            <md-select ng-model="input.defaultAttrs.dataType" required>
+                                <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType">
+                                    {{type.dataType}}
+                                </md-option>
+                            </md-select>
                         </md-input-container>
 
-                        <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'">
+                        <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'COMPLEX'" md-no-float>
                             <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType" required aria-label="Input Type"/>
+                        </md-input-container>
+
+                        <md-input-container class="md-block" flex-gt-sm ng-if="input.data === 'BOUNDING_BOX'">
+                            <input disabled ng-model="input.defaultAttrs.dataType" ng-init="input.defaultAttrs.dataType = 'string'" type="text" placeholder="bbox"/>
                         </md-input-container>
                     </div>
                     <div class="col-xs-3 no-padding">
-                       <md-button ng-click="editTypeDialog($event, input, constants)"
-                           class="type-button"
-                           aria-label="More"
-                           uib-tooltip="More"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
+                        <md-button ng-click="editTypeDialog($event, input, constants)"
+                                   class="type-button"
+                                   aria-label="More"
+                                   uib-tooltip="More"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
                             <i class="material-icons">edit</i>
                         </md-button>
                     </div>
+                </td>
+                <td>
+                    <service-input ng-model="input.defaultAttrs.value" default-attrs="{{input.defaultAttrs}}" keep-watch="true"
+                            placeholder="Default value" aria-label="Default value"/>
                 </td>
                 <td>
                     <md-input-container md-no-float>

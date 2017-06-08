@@ -99,7 +99,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void prepareEnvironment(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             try {
-                Node node = nodeFactory.provisionNode();
+                Node node = nodeFactory.provisionNode(jobEnvironmentService.getBaseDir());
                 DockerClient dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
                 jobNodes.put(request.getJob().getId(), node);
                 jobClients.put(request.getJob().getId(), dockerClient);

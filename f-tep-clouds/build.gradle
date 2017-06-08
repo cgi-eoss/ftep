@@ -19,6 +19,7 @@ dependencies {
     // Override guava version for openstack4j, then relocate the package to avoid downstream collisions
     compile 'com.google.guava:guava:17.0'
     compile 'com.hierynomus:sshj'
+    compile 'org.awaitility:awaitility'
     compile 'org.pacesys:openstack4j-core'
     compile 'org.pacesys.openstack4j.connectors:openstack4j-okhttp'
     compile 'org.springframework.boot:spring-boot'

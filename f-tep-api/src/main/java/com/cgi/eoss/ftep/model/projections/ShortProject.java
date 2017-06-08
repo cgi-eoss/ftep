@@ -17,6 +17,6 @@ public interface ShortProject extends Identifiable<Long> {
     Integer getServicesCount();
     @Value("#{target.jobConfigs.size()}")
     Integer getJobConfigsCount();
-    @Value("#{@ftepSecurityService.getCurrentAccess(target.class, target.id)}")
+    @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.Project), target.id)}")
     FtepAccess getAccess();
 }

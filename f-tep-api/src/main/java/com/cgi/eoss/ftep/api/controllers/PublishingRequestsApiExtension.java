@@ -42,6 +42,8 @@ public class PublishingRequestsApiExtension {
         PublishingRequest persistent = dataService.findOneByExample(newRequest);
 
         if (persistent != null) {
+            // Re-request if necessary
+            persistent.setStatus(PublishingRequest.Status.REQUESTED);
             return ResponseEntity.noContent().location(URI.create(entityLinks.linkToSingleResource(persistent).expand().getHref())).build();
         } else {
             persistent = dataService.save(newRequest);

@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', '$timeout', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService, $timeout) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -53,11 +53,14 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /** BOTTOM BAR **/
         $scope.displayTab = function(tab, allowedToClose) {
+
             if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
                 $scope.toggleBottomView();
             } else {
                 $scope.bottombarNavInfo.bottomViewVisible = true;
-                $scope.navInfo.activeBottomNav = tab;
+                $timeout(function () {
+                    $scope.navInfo.activeBottomNav = tab;
+                }, 600);
             }
         };
 

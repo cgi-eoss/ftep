@@ -181,23 +181,23 @@
 #bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-pane {
   height: 100%;
 }
-#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-left {
+#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-list-container {
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0;
 }
-#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-left md-list-item.md-2-line > div:nth-child(1) {
+#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-list-container md-list-item.md-2-line > div:nth-child(1) {
   padding-right: 1.4rem;
 }
-#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-right {
+#bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-item-container {
   border-right: #d2d2d2 solid 1px;
   height: 100%;
   overflow-y: auto;
   padding: 0;
 }
 @media screen and (max-width: 991px) {
-  #bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-right {
+  #bottombar #bottombar-tabs md-tabs md-tabs-content-wrapper md-tab-content > div:nth-child(1) md-content .bottombar-item-container {
     height: auto;
   }
 }

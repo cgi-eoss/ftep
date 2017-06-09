@@ -32,8 +32,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
             $scope.selectMessage = function (message) {
                 $scope.msgParams.selectedMessage = message;
-                var container = document.getElementById('bottombar');
-                container.scrollTop = 0;
+                document.getElementById('message-container').scrollTop = 0;
             };
 
             $scope.deselectMessage  = function () {

@@ -20,7 +20,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-rpc')
-    compile project(':f-tep-clouds')
+    compile project(path: ':f-tep-clouds', configuration: 'shadow')
 
     // Pre-built shaded docker-java jar
     compile project(path: ':third-party/java/docker-java', configuration: 'shadow')

@@ -190,6 +190,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             job.setStage(JobStep.OUTPUT_LIST.getText());
             job.setEndTime(LocalDateTime.now()); // End time is when processing ends
+            job.setGuiUrl(null); // Any GUI services will no longer be available
             jobDataService.save(job);
 
             // Repatriate output files

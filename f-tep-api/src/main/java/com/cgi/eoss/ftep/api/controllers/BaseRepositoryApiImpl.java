@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import org.springframework.data.domain.Page;
@@ -43,13 +44,13 @@ public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> im
         return getFilteredResults(getOwnerPath().ne(user), pageable);
     }
 
-    Page<T> getFilteredResults(BooleanExpression expression, Pageable pageable) {
+    Page<T> getFilteredResults(Predicate predicate, Pageable pageable) {
         if (getSecurityService().isSuperUser()) {
-            return getDao().findAll(expression, pageable);
+            return getDao().findAll(predicate, pageable);
         } else {
             Set<Long> visibleIds = getSecurityService().getVisibleObjectIds(getEntityClass(), getDao().findAllIds());
             BooleanExpression isVisible = getIdPath().in(visibleIds);
-            return getDao().findAll(isVisible.and(expression), pageable);
+            return getDao().findAll(isVisible.and(predicate), pageable);
         }
     }
 

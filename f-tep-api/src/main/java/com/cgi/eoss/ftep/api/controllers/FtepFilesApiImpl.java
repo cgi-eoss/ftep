@@ -7,7 +7,8 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepFileDao;
 import com.google.common.base.Strings;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,39 +42,39 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
 
     @Override
     public Page<FtepFile> findByType(FtepFile.Type type, Pageable pageable) {
-        return getFilteredResults(QFtepFile.ftepFile.type.eq(type), pageable);
+        return getFilteredResults(getFilterPredicate(null, type), pageable);
     }
 
     @Override
     public Page<FtepFile> findByFilterOnly(String filter, FtepFile.Type type, Pageable pageable) {
-        return getFilteredResults(
-                getFilterExpression(filter).and(QFtepFile.ftepFile.type.eq(type)), pageable);
+        return getFilteredResults(getFilterPredicate(filter, type), pageable);
     }
 
     @Override
     public Page<FtepFile> findByFilterAndOwner(String filter, FtepFile.Type type, User user, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return getFilteredResults(getOwnerPath().eq(user).and(QFtepFile.ftepFile.type.eq(type)), pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().eq(user)
-                            .and(getFilterExpression(filter)).and(QFtepFile.ftepFile.type.eq(type)),
-                    pageable);
-        }
+        return getFilteredResults(getOwnerPath().eq(user).and(getFilterPredicate(filter, type)).and(QFtepFile.ftepFile.type.eq(type)),
+                pageable);
     }
 
     @Override
     public Page<FtepFile> findByFilterAndNotOwner(String filter, FtepFile.Type type, User user, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return getFilteredResults(getOwnerPath().ne(user).and(QFtepFile.ftepFile.type.eq(type)), pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().ne(user)
-                            .and(getFilterExpression(filter)).and(QFtepFile.ftepFile.type.eq(type)),
-                    pageable);
-        }
+        return getFilteredResults(getOwnerPath().ne(user)
+                        .and(getFilterPredicate(filter, type)).and(QFtepFile.ftepFile.type.eq(type)),
+                pageable);
     }
 
-    private BooleanExpression getFilterExpression(String filter) {
-        return QFtepFile.ftepFile.filename.containsIgnoreCase(filter);
+    private Predicate getFilterPredicate(String filter, FtepFile.Type type) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!Strings.isNullOrEmpty(filter)) {
+            builder.and(QFtepFile.ftepFile.filename.containsIgnoreCase(filter));
+        }
+
+        if (type != null) {
+            builder.and(QFtepFile.ftepFile.type.eq(type));
+        }
+
+        return builder.getValue();
     }
 
 }

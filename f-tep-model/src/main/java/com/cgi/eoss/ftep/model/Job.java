@@ -18,12 +18,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>Representation of a single {@link JobConfig} execution.</p>
@@ -105,10 +109,26 @@ public class Job implements FtepEntityWithOwner<Job> {
     @Column(name = "outputs")
     private Multimap<String, String> outputs;
 
+    /**
+     * <p>The FtepFiles produced as job outputs.</p>
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "ftep_job_output_files",
+            joinColumns = @JoinColumn(name = "job_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "file_id", nullable = false),
+            indexes = @Index(name = "ftep_job_output_files_job_file_idx", columnList = "job_id, file_id", unique = true)
+    )
+    private Set<FtepFile> outputFiles = new HashSet<>();
+
     public Job(JobConfig config, String extId, User owner) {
         this.config = config;
         this.extId = extId;
         this.owner = owner;
+    }
+
+    public void addOutputFile(FtepFile outputFile) {
+        outputFiles.add(outputFile);
     }
 
     @Override

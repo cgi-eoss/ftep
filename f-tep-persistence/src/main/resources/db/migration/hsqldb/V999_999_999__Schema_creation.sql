@@ -242,19 +242,28 @@ CREATE UNIQUE INDEX ftep_worker_locator_expressions_service_idx
 
 CREATE TABLE ftep_publishing_requests (
   id            BIGINT IDENTITY PRIMARY KEY,
-  owner         BIGINT                      NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  owner         BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   request_time  TIMESTAMP WITHOUT TIME ZONE,
   updated_time  TIMESTAMP WITHOUT TIME ZONE,
-  status        CHARACTER VARYING(255)      NOT NULL CHECK (status IN
-                                                            ('REQUESTED', 'GRANTED', 'NEEDS_INFO', 'REJECTED')),
-  type          CHARACTER VARYING(255)      NOT NULL CHECK (type IN
-                                                            ('DATABASKET', 'DATASOURCE', 'FILE', 'SERVICE', 'GROUP', 'JOB_CONFIG', 'PROJECT')),
-  associated_id BIGINT                      NOT NULL
+  status        CHARACTER VARYING(255) NOT NULL CHECK (status IN
+                                                       ('REQUESTED', 'GRANTED', 'NEEDS_INFO', 'REJECTED')),
+  type          CHARACTER VARYING(255) NOT NULL CHECK (type IN
+                                                       ('DATABASKET', 'DATASOURCE', 'FILE', 'SERVICE', 'GROUP', 'JOB_CONFIG', 'PROJECT')),
+  associated_id BIGINT                 NOT NULL
 );
 CREATE INDEX ftep_publishing_requests_owner_idx
   ON ftep_publishing_requests (owner);
 CREATE UNIQUE INDEX ftep_publishing_requests_owner_object_idx
   ON ftep_publishing_requests (owner, type, associated_id);
+
+-- Job-output file relationships
+
+CREATE TABLE ftep_job_output_files (
+  job_id  BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_jobs (id),
+  file_id BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_files (id)
+);
+CREATE UNIQUE INDEX ftep_job_output_files_job_file_idx
+  ON ftep_job_output_files (job_id, file_id);
 
 -- ACL schema from spring-security-acl
 

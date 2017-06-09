@@ -32,6 +32,7 @@ import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -275,6 +276,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     e -> e.getKey(),
                     e -> e.getValue().getUri().toString(),
                     MultimapBuilder.hashKeys().hashSetValues()::build)));
+            job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
             jobDataService.save(job);
 
             chargeUser(job.getOwner(), job);

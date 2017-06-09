@@ -33,17 +33,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 var itemLinks = [];
                 var promises = [];
                 for(var index in items){
-                    var partialPromise = $q.defer();
-                    promises.push(partialPromise.promise);
-                    FileService.createGeoResultFile(items[index], $scope.resultParams.resultsMission.name).then(function(extProdFile){
-                        itemLinks.push(extProdFile._links.self.href);
-                        partialPromise.resolve();
-                    },
-                    function(error){
-                        MessageService.addError('Could not add file to Databasket', error);
-                        partialPromise.reject();
-                    });
+                    promises.push(getBasketItemLink(items[index], itemLinks));
                 }
+
                 $q.all(promises).then(function(){
                     addToBasket(itemLinks);
                 });
@@ -53,10 +45,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
+        function getBasketItemLink(item, itemLinks){
+            var partialPromise = $q.defer();
+            FileService.createGeoResultFile(item, $scope.resultParams.resultsMission.name).then(function(extProdFile){
+                itemLinks.push(extProdFile._links.self.href);
+                partialPromise.resolve();
+            },
+            function(error){
+                MessageService.addError('Could not add file to Databasket', error);
+                partialPromise.reject();
+            });
+            return partialPromise.promise;
+        }
+
         function addToBasket(items){
             BasketService.addItems($scope.dbParams.selectedDatabasket, items).then(function () {
-                MessageService.addInfo('Files added to Databasket', 'Files added successfully to ' +
-                                       $scope.dbParams.selectedDatabasket.name);
                 BasketService.refreshDatabaskets("explorer");
             });
         }

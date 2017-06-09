@@ -20,21 +20,25 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var timeout = false;
 
         this.params = {
-                community: {
-                    allUsers: [],
-                    groupUsers: [],
-                    searchText: '',
-                    displayUserFilters: false
-                },
-                admin: {
-                    pagingData: {},
-                    selectedUser: undefined,
-                    userDetails: undefined,
-                    newRole: undefined,
-                    wallet: undefined,
-                    coins: 0,
-                    searchText: ''
-                }
+            community: {
+                pagingData: {},
+                pollingUrl: rootUri + '/users/',
+                allUsers: [],
+                groupUsers: [],
+                searchText: '',
+                displayUserFilters: false
+            },
+            admin: {
+                pagingData: {},
+                pollingUrl: rootUri + '/users/',
+                allUsers: [],
+                selectedUser: undefined,
+                userDetails: undefined,
+                newRole: undefined,
+                wallet: undefined,
+                coins: 0,
+                searchText: ''
+            }
         };
 
         this.getCurrentUser = function(withDetails){
@@ -70,14 +74,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.getAllUsers = function () {
+        this.getAllUsers = function (page, url) {
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/users/')
+            url = url ? url = _this.params[page].pollingUrl + url : url = _this.params[page].pollingUrl;
+            halAPI.from(url)
                      .newRequest()
                      .getResource()
                      .result
                      .then(
             function (document) {
+                if( _this.params[page] &&  _this.params[page].pagingData) {
+                    _this.params[page].pagingData._links = document._links;
+                    _this.params[page].pagingData.page = document.page;
+                }
                 deferred.resolve(document._embedded.users);
             }, function (error) {
                 MessageService.addError('Could not get Users', error);
@@ -87,21 +96,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         this.getUsersByFilter = function(page){
-            var deferred = $q.defer();
-            halAPI.from(rootUri + '/users/search/byFilter?sort=name&filter=' + (_this.params[page].searchText ? _this.params[page].searchText : ''))
-                     .newRequest()
-                     .getResource()
-                     .result
-                     .then(
-            function (document) {
-                _this.params[page].pagingData._links = document._links;
-                _this.params[page].pagingData.page = document.page;
-                deferred.resolve(document._embedded.users);
-            }, function (error) {
-                MessageService.addError('Could not get Users', error);
-                deferred.reject();
+            _this.params[page].pollingUrl = rootUri + '/users/' + 'search/byFilter?sort=name&filter=' + (_this.params[page].searchText ? _this.params[page].searchText : '');
+            _this.getAllUsers(page).then(function (users) {
+                    _this.params[page].allUsers = users;
             });
-            return deferred.promise;
         };
 
         this.getUsers = function (group) {
@@ -119,6 +117,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 deferred.reject();
             });
             return deferred.promise;
+        };
+
+        /* Fetch a new page */
+        this.getUsersPage = function(page, url){
+            if (_this.params[page]) {
+                _this.params[page].pollingUrl = url;
+                /* Get user list */
+                _this.getAllUsers(page).then(function (users) {
+                    _this.params[page].allUsers = users;
+                });
+            }
         };
 
         this.getUserByLink = function(userUrl){

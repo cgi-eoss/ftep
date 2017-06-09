@@ -24,11 +24,9 @@
   padding: 2rem;
 }
 
-#admin-container #management-container #user-selection {
-  border-bottom: #d2d2d2 solid 1px;
-  min-height: 3.2rem;
-  padding: 0.5rem;
-  width: 100%;
+#admin-container #management-container #user-list-card {
+  height: 100%;
+  overflow-y: auto;
 }
 #admin-container #management-container .column-container {
   background-color: #f8f8f8;

@@ -2,38 +2,16 @@
 
     <section id="userlist-container" class="column-container col-md-12 col-lg-4 no-padding">
 
-        <md-card md-theme-watch class="ftep-card">
+        <md-card id="user-list-card" md-theme-watch class="ftep-card">
             <md-card-title>
                 <md-card-title-text>
                     <h2>User List</h2>
-
-
-<!--                    <article id="user-selection" class="col-md-12 no-padding">
-                        <md-autocomplete id="find-user"
-                                         required
-                                         aria-label="Select a user by name or email address"
-                                         md-items="user in searchUsers()"
-                                         md-item-text="user.name"
-                                         md-selected-item="userParams.selectedUser"
-                                         md-selected-item-change="getUserData()"
-                                         md-search-text="userParams.searchText"
-                                         md-require-match="true"
-                                         md-match-case-insensitive="true"
-                                         placeholder="Select a user by name or email address">
-                            <md-item-template>
-                                <span><span md-highlight-text="userParams.searchText">{{user.name}}</span> &lt;<span md-highlight-text="userParams.searchText">{{user.email}}</span>&gt;</span>
-                            </md-item-template>
-                            <md-not-found>
-                                <span>No users matching "{{userParams.searchText}}" were found.</span>
-                            </md-not-found>
-                        </md-autocomplete>
-                    </article>-->
 
                     <md-input-container md-no-float>
                         <input ng-model="userParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="User Search Filter">
                     </md-input-container>
 
-                    <md-list-item class="md-3-line ftep-file-list" ng-repeat="user in userList" ng-click="userParams.selectedUser = user; getUserData()">
+                    <md-list-item class="md-3-line ftep-file-list" ng-repeat="user in userParams.allUsers" ng-click="userParams.selectedUser = user; getUserData()">
                         <div class="md-avatar" alt="user">
                             <i class="material-icons">person</i>
                         </div>
@@ -44,7 +22,7 @@
                         </div>
                     </md-list-item>
 
-                     <div id="paging" ftep-paging="{{userParams.pagingData}}"></div>
+                    <div id="paging" ftep-paging="{{userParams.pagingData}}"></div>
 
                 </md-card-title-text>
             </md-card-title>

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.DataSource;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.DataSourceDao;
@@ -56,7 +57,22 @@ public class JpaDataSourceDataService extends AbstractJpaDataService<DataSource>
     @Transactional
     @Override
     public DataSource getForService(FtepService service) {
-        String name = service.getDataSourceName();
+        return getOrCreate(service.getDataSourceName());
+    }
+
+    @Transactional
+    @Override
+    public DataSource getForExternalProduct(FtepFile ftepFile) {
+        return getOrCreate(ftepFile.getUri().getScheme());
+    }
+
+    @Transactional
+    @Override
+    public DataSource getForRefData(FtepFile ftepFile) {
+        return getOrCreate(ftepFile.getUri().getScheme());
+    }
+
+    private DataSource getOrCreate(String name) {
         return maybeGetByName(name).orElseGet(() -> save(new DataSource(name, userDataService.getDefaultUser())));
     }
 

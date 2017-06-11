@@ -1,5 +1,11 @@
 package com.cgi.eoss.ftep.worker.io;
 
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
+import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
+import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -46,15 +52,18 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     private static final HashFunction HASH_FUNCTION = Hashing.sha1();
     private static final String URI_FILENAME = ".uri";
 
+    private final FtepServerClient ftepServerClient;
     private final Path cacheRoot;
     private final DownloaderFacade downloaderFacade;
     private final LoadingCache<URI, Path> loadingCache;
 
     @Autowired
-    public CachingSymlinkIOManager(@Qualifier("cacheConcurrencyLevel") Integer concurrencyLevel,
+    public CachingSymlinkIOManager(FtepServerClient ftepServerClient,
+                                   @Qualifier("cacheConcurrencyLevel") Integer concurrencyLevel,
                                    @Qualifier("cacheMaxWeight") Integer maximumWeight,
                                    @Qualifier("cacheRoot") Path cacheRoot,
                                    DownloaderFacade downloaderFacade) {
+        this.ftepServerClient = ftepServerClient;
         this.cacheRoot = cacheRoot;
         this.downloaderFacade = downloaderFacade;
         this.loadingCache = CacheBuilder.newBuilder()
@@ -65,9 +74,10 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                 .build(new UriCacheLoader(cacheRoot, downloaderFacade));
     }
 
-    public CachingSymlinkIOManager(Path cacheRoot,
+    public CachingSymlinkIOManager(FtepServerClient ftepServerClient,
+                                   Path cacheRoot,
                                    DownloaderFacade downloaderFacade) {
-        this(DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, cacheRoot, downloaderFacade);
+        this(ftepServerClient, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, cacheRoot, downloaderFacade);
     }
 
     @PostConstruct
@@ -130,6 +140,22 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
     @Override
     public boolean isSupportedProtocol(String scheme) {
         return downloaderFacade.isSupportedProtocol(scheme);
+    }
+
+    @Override
+    public void cleanUp(Set<URI> unusedUris) {
+        if (!unusedUris.isEmpty()) {
+            CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
+
+            Uris.Builder ftepFileUris = Uris.newBuilder();
+            unusedUris.forEach(uri -> ftepFileUris.addFileUris(FtepFileUri.newBuilder().setUri(uri.toString()).build()));
+
+            UriDataSourcePolicies dataSourcePolicies = catalogueService.getDataSourcePolicies(ftepFileUris.build());
+            dataSourcePolicies.getPoliciesList().stream()
+                    .filter(uriPolicy -> uriPolicy.getPolicy() == UriDataSourcePolicy.Policy.REMOTE_ONLY)
+                    .peek(uriPolicy -> LOG.info("Evicting REMOTE_ONLY data from: {}", uriPolicy))
+                    .forEach(uriPolicy -> loadingCache.invalidate(URI.create(uriPolicy.getUri().getUri())));
+        }
     }
 
     private static final class UriCacheLoader extends CacheLoader<URI, Path> {

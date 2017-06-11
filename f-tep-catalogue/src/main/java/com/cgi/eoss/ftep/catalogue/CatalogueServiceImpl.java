@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
@@ -14,6 +15,9 @@ import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
+import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -66,6 +70,7 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     @Override
     public FtepFile ingestReferenceData(ReferenceDataMetadata referenceData, MultipartFile file) throws IOException {
         FtepFile ftepFile = referenceDataService.ingest(referenceData.getOwner(), referenceData.getFilename(), referenceData.getGeometry(), referenceData.getProperties(), file);
+        ftepFile.setDataSource(dataSourceDataService.getForRefData(ftepFile));
         return ftepFileDataService.save(ftepFile);
     }
 
@@ -90,7 +95,9 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     @Override
     public FtepFile indexExternalProduct(GeoJsonObject geoJson) {
         // This will return an already-persistent object
-        return externalProductDataService.ingest(geoJson);
+        FtepFile ftepFile = externalProductDataService.ingest(geoJson);
+        ftepFile.setDataSource(dataSourceDataService.getForExternalProduct(ftepFile));
+        return ftepFile;
     }
 
     @Override
@@ -192,6 +199,41 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to list databasket contents for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void getDataSourcePolicies(Uris request, StreamObserver<UriDataSourcePolicies> responseObserver) {
+        try {
+            UriDataSourcePolicies.Builder responseBuilder = UriDataSourcePolicies.newBuilder();
+
+            for (FtepFileUri fileUri : request.getFileUrisList()) {
+                FtepFile ftepFile = ftepFileDataService.getByUri(fileUri.getUri());
+                DataSource dataSource;
+
+                if (ftepFile != null) {
+                    dataSource = ftepFile.getDataSource() != null ? ftepFile.getDataSource() :
+                            dataSourceDataService.getByName(URI.create(fileUri.getUri()).getScheme());
+                } else {
+                    dataSource = dataSourceDataService.getByName(URI.create(fileUri.getUri()).getScheme());
+                }
+
+                LOG.debug("Inferred DataSource {} from FtepFile: {}", dataSource, fileUri.getUri());
+
+                // Default to CACHE mode
+                DataSource.Policy policy = dataSource != null ? dataSource.getPolicy() : DataSource.Policy.CACHE;
+
+                responseBuilder.addPolicies(UriDataSourcePolicy.newBuilder()
+                        .setUri(fileUri)
+                        .setPolicy(UriDataSourcePolicy.Policy.valueOf(policy.toString()))
+                        .build());
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to list datasource access policies contents for {}", request.getFileUrisList(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }

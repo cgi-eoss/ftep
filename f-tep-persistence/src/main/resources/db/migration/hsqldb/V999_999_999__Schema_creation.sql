@@ -118,9 +118,10 @@ CREATE INDEX ftep_jobs_owner_idx
 -- Data sources
 
 CREATE TABLE ftep_data_sources (
-  id    BIGINT IDENTITY PRIMARY KEY,
-  name  CHARACTER VARYING(255) NOT NULL,
-  owner BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
+  id     BIGINT IDENTITY PRIMARY KEY,
+  name   CHARACTER VARYING(255) NOT NULL,
+  owner  BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  policy CHARACTER VARYING(255) DEFAULT 'CACHE' NOT NULL CHECK (policy IN ('CACHE', 'MIRROR', 'REMOTE_ONLY'))
 );
 CREATE UNIQUE INDEX ftep_data_sources_name_idx
   ON ftep_data_sources (name);

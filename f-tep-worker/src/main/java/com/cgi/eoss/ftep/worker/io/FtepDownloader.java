@@ -8,7 +8,7 @@ import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
-import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

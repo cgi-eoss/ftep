@@ -2,7 +2,7 @@ package com.cgi.eoss.ftep.worker.io;
 
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
-import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;

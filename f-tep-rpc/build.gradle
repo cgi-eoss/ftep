@@ -42,6 +42,7 @@ protobuf {
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-eureka'
 
     compile 'io.grpc:grpc-netty'
     compile 'io.grpc:grpc-protobuf'

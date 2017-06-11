@@ -4,7 +4,7 @@ import com.cgi.eoss.ftep.model.DownloaderCredentials;
 import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.cgi.eoss.ftep.persistence.service.RpcCredentialsService;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
-import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;

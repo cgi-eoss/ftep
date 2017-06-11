@@ -1,24 +1,18 @@
 package com.cgi.eoss.ftep.worker;
 
 import com.cgi.eoss.ftep.clouds.CloudsConfig;
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.base.Strings;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.api.command.DockerCmdExecFactory;
-import shadow.dockerjava.com.github.dockerjava.core.DefaultDockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientBuilder;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.RemoteApiVersion;
-import shadow.dockerjava.com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -73,20 +67,9 @@ public class WorkerConfig {
     }
 
     @Bean
-    @Primary
-    public DockerClient dockerClient(@Value("${ftep.worker.docker.hostUrl:unix:///var/run/docker.sock}") String dockerHostUrl) {
-        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withApiVersion(RemoteApiVersion.VERSION_1_19)
-                .withDockerHost(dockerHostUrl)
-                .build();
-
-        DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory()
-                .withMaxTotalConnections(100)
-                .withMaxPerRouteConnections(10);
-
-        return DockerClientBuilder.getInstance(dockerClientConfig)
-                .withDockerCmdExecFactory(dockerCmdExecFactory)
-                .build();
+    public FtepServerClient ftepServerClient(DiscoveryClient discoveryClient,
+                                             @Value("${ftep.worker.server.eurekaServiceId:f-tep server}") String ftepServerServiceId) {
+        return new FtepServerClient(discoveryClient, ftepServerServiceId);
     }
 
 }

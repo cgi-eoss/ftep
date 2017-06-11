@@ -16,4 +16,5 @@ public interface UserDataService extends
      */
     User getOrSave(String name);
 
+    User getDefaultUser();
 }

@@ -47,6 +47,11 @@ public class DataSource implements FtepEntityWithOwner<DataSource>, Searchable {
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
 
+    public DataSource(String name, User owner) {
+        this.name = name;
+        this.owner = owner;
+    }
+
     @Override
     public int compareTo(DataSource o) {
         return ComparisonChain.start().compare(name, o.name).result();

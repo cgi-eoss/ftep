@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.DataSource;
+import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.DataSourceDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.cgi.eoss.ftep.model.QDataSource.dataSource;
 
@@ -18,10 +20,12 @@ import static com.cgi.eoss.ftep.model.QDataSource.dataSource;
 public class JpaDataSourceDataService extends AbstractJpaDataService<DataSource> implements DataSourceDataService {
 
     private final DataSourceDao dao;
+    private final UserDataService userDataService;
 
     @Autowired
-    public JpaDataSourceDataService(DataSourceDao dataSourceDao) {
+    public JpaDataSourceDataService(DataSourceDao dataSourceDao, UserDataService userDataService) {
         this.dao = dataSourceDao;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -47,6 +51,17 @@ public class JpaDataSourceDataService extends AbstractJpaDataService<DataSource>
     @Override
     public List<DataSource> findByOwner(User user) {
         return dao.findByOwner(user);
+    }
+
+    @Transactional
+    @Override
+    public DataSource getForService(FtepService service) {
+        String name = service.getDataSourceName();
+        return maybeGetByName(name).orElseGet(() -> save(new DataSource(name, userDataService.getDefaultUser())));
+    }
+
+    private Optional<DataSource> maybeGetByName(String name) {
+        return Optional.ofNullable(dao.findOneByName(name));
     }
 
 }

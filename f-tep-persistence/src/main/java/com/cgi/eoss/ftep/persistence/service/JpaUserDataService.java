@@ -53,6 +53,11 @@ public class JpaUserDataService extends AbstractJpaDataService<User> implements 
         return maybeGetByName(name).orElseGet(() -> save(new User(name)));
     }
 
+    @Override
+    public User getDefaultUser() {
+        return findOneByExample(User.DEFAULT);
+    }
+
     private Optional<User> maybeGetByName(String name) {
         return Optional.ofNullable(dao.findOneByName(name));
     }

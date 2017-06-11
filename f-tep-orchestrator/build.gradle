@@ -12,6 +12,7 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-security')
 
     compile 'org.awaitility:awaitility'
     compile 'org.jooq:jool'

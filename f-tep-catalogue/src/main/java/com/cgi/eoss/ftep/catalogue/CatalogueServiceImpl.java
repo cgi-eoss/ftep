@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
@@ -46,14 +47,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final FtepFileDataService ftepFileDataService;
+    private final DataSourceDataService dataSourceDataService;
     private final DatabasketDataService databasketDataService;
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
         this.ftepFileDataService = ftepFileDataService;
+        this.dataSourceDataService = dataSourceDataService;
         this.databasketDataService = databasketDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
@@ -80,6 +83,7 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
                 outputProduct.getGeometry(),
                 outputProduct.getProperties(),
                 path);
+        ftepFile.setDataSource(dataSourceDataService.getForService(outputProduct.getService()));
         return ftepFileDataService.save(ftepFile);
     }
 

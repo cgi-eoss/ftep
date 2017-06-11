@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepAccess;
+import com.cgi.eoss.ftep.security.FtepAccess;
 import com.cgi.eoss.ftep.model.FtepFile;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.api.security;
 
+import com.cgi.eoss.ftep.security.FtepUserDetailsService;
+import com.cgi.eoss.ftep.security.FtepWebAuthenticationDetailsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api.security;
+package com.cgi.eoss.ftep.security;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.acls.domain.AuditLogger;

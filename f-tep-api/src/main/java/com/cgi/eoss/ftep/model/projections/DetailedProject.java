@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.model.projections;
 
-import com.cgi.eoss.ftep.api.security.FtepAccess;
+import com.cgi.eoss.ftep.security.FtepAccess;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Project;
 import org.springframework.beans.factory.annotation.Value;

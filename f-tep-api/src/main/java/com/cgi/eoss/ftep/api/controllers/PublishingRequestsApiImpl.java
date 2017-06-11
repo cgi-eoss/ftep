@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.api.security.FtepSecurityService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.PublishingRequest;
 import com.cgi.eoss.ftep.model.QPublishingRequest;
 import com.cgi.eoss.ftep.model.QUser;

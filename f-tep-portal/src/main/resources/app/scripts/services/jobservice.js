@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('JobService', [ 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'UserService', 'CommunityService', 'traverson', function (ftepProperties, $q, $timeout, $rootScope, MessageService, UserService, CommunityService, traverson) {
+    ftepmodules.service('JobService', [ 'ftepProperties', '$q', '$timeout', '$rootScope', 'MessageService', 'CommonService', 'UserService', 'CommunityService', 'traverson', function (ftepProperties, $q, $timeout, $rootScope, MessageService, CommonService, UserService, CommunityService, traverson) {
 
         /* TODO: Migrate self to _this as self is a reserved word and is causing scoping issues */
         var self = this;
@@ -442,7 +442,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.estimateJob = function(jobConfig){
+        this.estimateJob = function(jobConfig, $event){
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/estimateCost/jobConfig/' + jobConfig.id)
                 .newRequest()
@@ -451,7 +451,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                      resolve(document);
                  }, function (error) {
-                     MessageService.addError('Could not get Job cost estimation', error);
+                    if (error.httpStatus === 402) {
+                        $rootScope.$broadcast('balance.exceeded', JSON.parse(error.body), $event);
+                    } else {
+                        MessageService.addError('Could not get Job cost estimation', error);
+                    }
                      reject();
                  });
             });

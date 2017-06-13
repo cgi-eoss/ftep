@@ -19,8 +19,9 @@ apply plugin: 'com.google.osdetector'
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
-    compile project(':f-tep-rpc')
     compile project(path: ':f-tep-clouds', configuration: 'shadow')
+    compile project(':f-tep-logging')
+    compile project(':f-tep-rpc')
 
     // Pre-built shaded docker-java jar
     compile project(path: ':third-party/java/docker-java', configuration: 'shadow')

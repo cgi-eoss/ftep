@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
@@ -27,7 +28,6 @@ import com.cgi.eoss.ftep.worker.io.ServiceIoException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -65,7 +65,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -110,6 +109,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 jobNodes.put(request.getJob().getId(), node);
                 jobClients.put(request.getJob().getId(), dockerClient);
             } catch (Exception e) {
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to prepare Docker context: {}", e.getMessage());
+                }
                 LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -141,6 +143,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onNext(ret);
                 responseObserver.onCompleted();
             } catch (Exception e) {
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to prepare job inputs: {}", e.getMessage());
+                }
                 LOG.error("Failed to prepare job inputs for {}", request.getJob().getId(), e);
                 cleanUpJob(request.getJob().getId());
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
@@ -186,7 +191,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onNext(LaunchContainerResponse.newBuilder().build());
                 responseObserver.onCompleted();
             } catch (Exception e) {
-                LOG.error("Failed to launch docker container {}", request.getDockerImage(), e);
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to launch Docker container: {}", e.getMessage());
+                }
+                LOG.error("Failed to launch Docker container {}", request.getDockerImage(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
                     cleanUpJob(request.getJob().getId());

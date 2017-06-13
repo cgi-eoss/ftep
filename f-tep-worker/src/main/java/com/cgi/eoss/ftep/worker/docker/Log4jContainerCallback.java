@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.worker.docker;
 
+import com.cgi.eoss.ftep.logging.Logging;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.logging.log4j.CloseableThreadContext;
@@ -43,6 +44,7 @@ public class Log4jContainerCallback extends LogContainerResultCallback {
         Lists.reverse(Lists.newArrayList(Iterables.limit(contextMessages, contextMessages.size() - 1)))
                 .forEach(instance::push);
         contextMap.forEach(instance::put);
+        instance.put(Logging.USER_LOG_MESSAGE_FIELD, "1");
         return instance;
     }
 

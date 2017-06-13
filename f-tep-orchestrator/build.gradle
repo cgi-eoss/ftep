@@ -9,6 +9,7 @@ dependencies {
 
     compile project(':f-tep-catalogue')
     compile project(':f-tep-costing')
+    compile project(':f-tep-logging')
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')

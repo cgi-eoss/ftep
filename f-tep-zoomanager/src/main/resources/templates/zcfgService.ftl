@@ -7,6 +7,7 @@ statusSupported = ${statusSupported?c}
 serviceType = ${serviceType}
 serviceProvider = ${serviceProvider}
 
+<#if dataInputs??>
 <#list dataInputs>
 <DataInputs>
     <#items as param>
@@ -39,7 +40,9 @@ serviceProvider = ${serviceProvider}
     </#items>
 </DataInputs>
 </#list>
+</#if>
 
+<#if dataOutputs??>
 <#list dataOutputs>
 <DataOutputs>
     <#items as param>
@@ -70,3 +73,4 @@ serviceProvider = ${serviceProvider}
     </#items>
 </DataOutputs>
 </#list>
+</#if>

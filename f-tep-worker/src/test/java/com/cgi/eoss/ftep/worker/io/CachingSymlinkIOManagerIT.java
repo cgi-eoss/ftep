@@ -1,10 +1,12 @@
 package com.cgi.eoss.ftep.worker.io;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueServiceImpl;
 import com.cgi.eoss.ftep.model.DownloaderCredentials;
 import com.cgi.eoss.ftep.persistence.service.DownloaderCredentialsDataService;
 import com.cgi.eoss.ftep.persistence.service.RpcCredentialsService;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
-import com.cgi.eoss.ftep.worker.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -46,6 +48,7 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CachingSymlinkIOManagerIT {
@@ -87,8 +90,12 @@ public class CachingSymlinkIOManagerIT {
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(getClass().getName()).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(getClass().getName()).directExecutor();
+
         RpcCredentialsService rpcCredentialsService = new RpcCredentialsService(credentialsDataService);
+        CatalogueServiceImpl rpcCatalogueService = mock(CatalogueServiceImpl.class);
+
         inProcessServerBuilder.addService(rpcCredentialsService);
+        inProcessServerBuilder.addService(rpcCatalogueService);
         server = inProcessServerBuilder.build().start();
 
         ftpServer = buildFtpServer();
@@ -99,7 +106,11 @@ public class CachingSymlinkIOManagerIT {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
         when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
-        ioManager = new CachingSymlinkIOManager(cacheDir, new DownloaderFacadeImpl(
+        CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = CatalogueServiceGrpc.newBlockingStub(channelBuilder.build());
+        when(ftepServerClient.catalogueServiceBlockingStub()).thenReturn(catalogueService);
+
+
+        ioManager = new CachingSymlinkIOManager(ftepServerClient, cacheDir, new DownloaderFacadeImpl(
                 ImmutableList.of(ftepDownloader, new FtpDownloader(ftepServerClient), new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build()))));
     }
 

@@ -230,7 +230,9 @@ define([
                     var userPermission = 'READ'; //default user permission
                     if(attrs.permissionSource){
                         var permissionSource = JSON.parse(attrs.permissionSource);
-                        userPermission = (permissionSource.access.currentLevel ? permissionSource.access.currentLevel : 'READ');
+                        if(permissionSource.access) {
+                            userPermission = (permissionSource.access.currentLevel ? permissionSource.access.currentLevel : 'READ');
+                        }
                     }
 
                     var allowed = false;

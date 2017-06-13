@@ -65,7 +65,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddProjectContentController.$inject = ['$scope', '$mdDialog', 'ProjectService'];
             $mdDialog.show({
                 controller: AddProjectContentController,
-                templateUrl: 'views/community/manage/templates/addcontents.tmpl.html',
+                templateUrl: 'views/community/templates/addcontents.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

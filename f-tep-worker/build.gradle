@@ -19,8 +19,9 @@ apply plugin: 'com.google.osdetector'
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
+    compile project(path: ':f-tep-clouds', configuration: 'shadow')
+    compile project(':f-tep-logging')
     compile project(':f-tep-rpc')
-    compile project(':f-tep-clouds')
 
     // Pre-built shaded docker-java jar
     compile project(path: ':third-party/java/docker-java', configuration: 'shadow')
@@ -45,6 +46,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-undertow'
     compile 'org.springframework.cloud:spring-cloud-starter-eureka'
 
+    testCompile project(':f-tep-catalogue')
     testCompile project(':f-tep-persistence')
 
     testCompile 'com.google.jimfs:jimfs'

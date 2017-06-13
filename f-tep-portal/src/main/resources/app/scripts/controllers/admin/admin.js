@@ -29,14 +29,15 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];
 
-         UserService.getUsersByFilter('admin').then(function(users){
-                $scope.userList = users;
-         });
+        /* Paging */
+        $scope.getPage = function(url){
+            UserService.getUsersPage('admin', url);
+        };
+
+        UserService.getUsersByFilter('admin');
 
         $scope.filter = function(){
-            UserService.getUsersByFilter('admin').then(function(users){
-                $scope.userList = users;
-            });
+            UserService.getUsersByFilter('admin');
         };
 
         $scope.getUserData = function(){

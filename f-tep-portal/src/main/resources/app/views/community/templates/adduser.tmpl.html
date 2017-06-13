@@ -8,18 +8,21 @@
                                  flex required
                                  aria-label="Select a User"
                                  md-input-name="addUser"
-                                 md-items="user in searchUsers(searchText)"
+                                 md-items="user in searchUsers()"
                                  md-item-text="user.name"
                                  md-selected-item="userParams.selectedUser"
-                                 md-search-text="searchText"
+                                 md-search-text="userParams.searchText"
                                  md-require-match="true"
                                  md-match-case-insensitive="true"
                                  placeholder="Select a User">
-                    <md-item-template>
-                        <span md-highlight-text="searchText">{{user.name}}</span>
-                    </md-item-template>
+                            <md-item-template>
+                                <span>
+                                    <span md-highlight-text="userParams.searchText">{{user.name}}</span>
+                                    <span ng-if="user.email">&lt;<span md-highlight-text="userParams.searchText">{{user.email}}</span>&gt;</span>
+                                </span>
+                            </md-item-template>
                     <md-not-found>
-                        <span>No users matching "{{searchText}}" were found.</span>
+                        <span>No users matching "{{userParams.searchText}}" were found.</span>
                     </md-not-found>
                 </md-autocomplete>
                 <br />
@@ -27,7 +30,7 @@
             <div class="note" ng-show="!validateUser(userParams.selectedUser) && userParams.selectedUser !== null">
                 {{userParams.selectedUser.name}} is already in {{groupParams.selectedGroup.name}}.
             </div>
-            <div class="note-success" ng-show="addUserSuccess && searchText === null">
+            <div class="note-success" ng-show="addUserSuccess && userParams.searchText === null">
                 User added successfully!
             </div>
         </div>

@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient.OSClientV3;
+import org.openstack4j.api.client.IOSClientBuilder;
 import org.openstack4j.model.common.ActionResponse;
 import org.openstack4j.model.compute.Flavor;
 import org.openstack4j.model.compute.FloatingIP;
@@ -46,24 +47,25 @@ public class IptNodeFactory implements NodeFactory {
 
     private final int maxPoolSize;
 
-    private final OSClientV3 osClient;
+    private final IOSClientBuilder.V3 osClientBuilder;
 
     private final ProvisioningConfig provisioningConfig;
 
-    IptNodeFactory(int maxPoolSize, OSClientV3 osClient, ProvisioningConfig provisioningConfig) {
+    IptNodeFactory(int maxPoolSize, IOSClientBuilder.V3 osClientBuilder, ProvisioningConfig provisioningConfig) {
         this.maxPoolSize = maxPoolSize;
-        this.osClient = osClient;
+        this.osClientBuilder = osClientBuilder;
         this.provisioningConfig = provisioningConfig;
     }
 
     @Override
     public Node provisionNode(Path environmentBaseDir) {
+        OSClientV3 osClient = osClientBuilder.authenticate();
         // TODO Check against maxPoolSize
-        return provisionNode(environmentBaseDir, provisioningConfig.getDefaultNodeFlavor());
+        return provisionNode(osClient, environmentBaseDir, provisioningConfig.getDefaultNodeFlavor());
     }
 
     // TODO Expose this overload for workers to provision service-specific flavours
-    private Node provisionNode(Path environmentBaseDir, String flavorName) {
+    private Node provisionNode(OSClientV3 osClient, Path environmentBaseDir, String flavorName) {
         LOG.info("Provisioning IPT node with flavor '{}'", flavorName);
         Server server = null;
         FloatingIP floatingIp = null;
@@ -87,7 +89,7 @@ public class IptNodeFactory implements NodeFactory {
             LOG.info("Provisioning IPT image '{}' to server '{}'", provisioningConfig.getNodeImageId(), sc.getName());
             server = osClient.compute().servers().bootAndWaitActive(sc, SERVER_STARTUP_TIMEOUT_MILLIS);
 
-            floatingIp = getFloatingIp();
+            floatingIp = getFloatingIp(osClient);
             osClient.compute().floatingIps().addFloatingIP(server, floatingIp.getFloatingIpAddress());
             LOG.info("Allocated floating IP to server: {} to {}", floatingIp.getFloatingIpAddress(), server.getId());
             server = osClient.compute().servers().update(server.getId(), ServerUpdateOptions.create().accessIPv4(floatingIp.getFloatingIpAddress()));
@@ -118,18 +120,18 @@ public class IptNodeFactory implements NodeFactory {
         }
     }
 
-    private FloatingIP getFloatingIp() {
-        return getUnallocatedFloatingIp().orElseGet(this::getNewFloatingIp);
+    private FloatingIP getFloatingIp(OSClientV3 osClient) {
+        return getUnallocatedFloatingIp(osClient).orElseGet(() -> getNewFloatingIp(osClient));
     }
 
-    private Optional<FloatingIP> getUnallocatedFloatingIp() {
+    private Optional<FloatingIP> getUnallocatedFloatingIp(OSClientV3 osClient) {
         return osClient.compute().floatingIps().list().stream()
                 .filter(ip -> Strings.isNullOrEmpty(ip.getInstanceId()))
                 .map(ip -> (FloatingIP) ip)
                 .findFirst();
     }
 
-    private FloatingIP getNewFloatingIp() {
+    private FloatingIP getNewFloatingIp(OSClientV3 osClient) {
         FloatingIP floatingIP = osClient.compute().floatingIps().allocateIP(provisioningConfig.getFloatingIpPool());
         LOG.debug("Allocated new floating IP: {}", floatingIP);
         return floatingIP;
@@ -183,6 +185,8 @@ public class IptNodeFactory implements NodeFactory {
 
     @Override
     public void destroyNode(Node node) {
+        OSClientV3 osClient = osClientBuilder.authenticate();
+
         LOG.info("Destroying IPT node: {} ({})", node.getId(), node.getName());
         Server server = osClient.compute().servers().get(node.getId());
         ActionResponse response = osClient.compute().servers().delete(server.getId());

@@ -368,12 +368,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createService = function(name, description){
+        this.createService = function(name, description, title){
             return $q(function(resolve, reject) {
                   var service = {
                           name: name,
                           description: description,
-                          dockerTag: 'ftep/' + name.replace(/[^a-zA-Z0-9-_.]/g,'_').toLowerCase(),
+                          dockerTag: 'ftep/' + name.toLowerCase(),
+                          serviceDescriptor: {
+                              description: description,
+                              id: name,
+                              title: title,
+                              serviceProvider: name,
+                              version: '0.1',
+                              serviceType: 'Java'
+                          }
                   };
                   halAPI.from(rootUri + '/services/')
                            .newRequest()
@@ -405,7 +413,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
               };
               var file2 = {
                       filename: 'workflow.sh',
-                      content: btoa('# ' + service.name + ' service'),
+                      content: btoa(DEFAULT_WORKFLOW),
                       service: service._links.self.href,
                       executable: true
               };
@@ -448,7 +456,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 description: selectedService.description,
                 dockerTag: selectedService.dockerTag,
                 serviceDescriptor: selectedService.serviceDescriptor,
-                serviceType: 'Java',
                 type: selectedService.type
             };
 
@@ -629,16 +636,55 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 MessageService.addError('Could not get Docker Template', error);
             });
         }
-
         loadDockerTemplate();
 
-        function getMessage(document){
+        var DEFAULT_WORKFLOW;
+        function loadWorkflowTemplate(){
+            $http.get('scripts/templates/workflow.sh')
+            .success(function(data) {
+                DEFAULT_WORKFLOW = data;
+            })
+            .error(function(error) {
+                MessageService.addError('Could not get workflow.sh Template', error);
+            });
+        }
+        loadWorkflowTemplate();
+
+        function getMessage(document) {
             var message = '';
-            if(document.data && document.data.indexOf('message') > 0){
+            if (document.data && document.data.indexOf('message') > 0) {
                 message = ': ' + JSON.parse(document.data).message;
             }
             return message;
         }
+
+        this.restoreServices = function () {
+            halAPI.from(rootUri + '/contentAuthority/services/restoreDefaults/')
+            .newRequest()
+            .post()
+            .result
+            .then(
+                function (document) {
+                    MessageService.addInfo('Restored Services', 'Successfully restored default Services.');
+                },function (error) {
+                    MessageService.addError('Failed to restore default Services', error);
+                }
+            );
+        };
+
+        this.synchronizeServices = function () {
+            halAPI.from(rootUri + '/contentAuthority/services/wps/syncAllPublic')
+            .newRequest()
+            .post()
+            .result
+            .then(
+                function (document) {
+                    MessageService.addInfo('Synchronized Services', 'Successfully synchronized Services.');
+                },function (error) {
+                    MessageService.addError('Failed to synchronized Services', error);
+                }
+            );
+        };
 
         return this;
 

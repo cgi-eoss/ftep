@@ -276,7 +276,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 if (self.params[page].selectedProject) {
                     getProject(self.params[page].selectedProject).then(function (project) {
                         self.params[page].selectedProject = project;
-                        if(project.access.currentLevel === 'ADMIN') {
+                        if(project.access && project.access.currentLevel === 'ADMIN') {
                             CommunityService.getObjectGroups(project, 'project').then(function (data) {
                                 self.params[page].sharedGroups = data;
                             });

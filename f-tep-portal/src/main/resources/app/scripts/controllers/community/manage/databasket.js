@@ -172,7 +172,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddItemsController.$inject = ['$scope', '$mdDialog', 'BasketService', 'FileService'];
             $mdDialog.show({
                 controller: AddItemsController,
-                templateUrl: 'views/community/manage/templates/additems.tmpl.html',
+                templateUrl: 'views/community/templates/additems.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

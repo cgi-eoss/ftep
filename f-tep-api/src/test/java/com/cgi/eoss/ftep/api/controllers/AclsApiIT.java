@@ -2,8 +2,8 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
-import com.cgi.eoss.ftep.api.security.FtepPermission;
-import com.cgi.eoss.ftep.api.security.FtepSecurityService;
+import com.cgi.eoss.ftep.security.FtepPermission;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;

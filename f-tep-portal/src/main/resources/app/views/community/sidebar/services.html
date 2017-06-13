@@ -163,3 +163,17 @@
     </div>
 
 </section>
+
+<section id="manage-services">
+    <md-button id="manage-services-button"
+               ng-if="user.role === 'CONTENT_AUTHORITY' || user.role === 'ADMIN'"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="manageServicesDialog($event)"
+               aria-label="Sync Services"
+               uib-tooltip="Sync Services"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">settings</i>
+    </md-button>
+</section>

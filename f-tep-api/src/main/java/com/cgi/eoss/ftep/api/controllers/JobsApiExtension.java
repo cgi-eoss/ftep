@@ -40,7 +40,8 @@ import java.util.stream.Collectors;
 public class JobsApiExtension {
 
     // TODO Make configurable
-    private String dockerJobLogQuery = "contextStack%3A%22%5BIn-Docker%2C%20F-TEP%20Worker%5D%22%20AND%20zooId%3A${zooId}";
+    @Value("${ftep.api.logs.graylogApiQuery:contextStack%3A%22%5BIn-Docker%2C%20F-TEP%20Worker%5D%22%20AND%20zooId%3A@{zooId}}")
+    private String dockerJobLogQuery;
 
     @Value("${ftep.api.logs.graylogApiUrl:http://ftep-monitor:8087/log/api}")
     private String graylogApiUrl;
@@ -77,7 +78,7 @@ public class JobsApiExtension {
                 .put("sort", "timestamp%3Aasc")
                 .put("decorate", "false")
                 .put("fields", "timestamp%2Cmessage")
-                .put("query", StrSubstitutor.replace(dockerJobLogQuery, ImmutableMap.of("zooId", job.getExtId())))
+                .put("query", StrSubstitutor.replace(dockerJobLogQuery, ImmutableMap.of("zooId", job.getExtId()), "@{", "}"))
                 .build();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(graylogApiUrl).newBuilder()

@@ -33,4 +33,11 @@ public interface ServiceInputOutputManager {
      * <p>Return true if the given URI scheme (i.e. protocol) is supported by this I/O manager.</p>
      */
     boolean isSupportedProtocol(String scheme);
+
+    /**
+     * <p>Process the given URIs to clean up cache entries if necessary.</p>
+     *
+     * @param unusedUris URIs now unused by any jobs.
+     */
+    void cleanUp(Set<URI> unusedUris);
 }

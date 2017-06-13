@@ -1,10 +1,11 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.api.security.FtepSecurityService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.PublishingRequest;
 import com.cgi.eoss.ftep.model.QPublishingRequest;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.PublishingRequestDao;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
@@ -54,12 +55,12 @@ public class PublishingRequestsApiImpl extends BaseRepositoryApiImpl<PublishingR
     }
 
     @Override
-    Page<PublishingRequest> getFilteredResults(BooleanExpression expression, Pageable pageable) {
+    Page<PublishingRequest> getFilteredResults(Predicate predicate, Pageable pageable) {
         if (getSecurityService().isSuperUser()) {
-            return getDao().findAll(expression, pageable);
+            return getDao().findAll(predicate, pageable);
         } else {
             BooleanExpression isVisible = getOwnerPath().eq(getSecurityService().getCurrentUser());
-            return getDao().findAll(isVisible.and(expression), pageable);
+            return getDao().findAll(isVisible.and(predicate), pageable);
         }
     }
 }

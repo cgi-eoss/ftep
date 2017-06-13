@@ -45,6 +45,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.selectDatabasket = function (basket) {
             $scope.dbParams.selectedDatabasket = basket;
             BasketService.refreshSelectedBasket("explorer");
+            document.getElementById('databasket-container').scrollTop = 0;
         };
 
         $scope.deselectDatabasket  = function () {
@@ -64,7 +65,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.searchBaskets();
 
         $scope.isItemDisabled = function(basketId){
-            return document.getElementById('select_' + basketId).disabled;
+            var element = document.getElementById('select_' + basketId);
+            if (element) {
+                 return element.disabled;
+            }
         };
 
         /* Get item for dragging */

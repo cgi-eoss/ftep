@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api.security;
+package com.cgi.eoss.ftep.security;
 
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 

@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Ordering;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class DownloaderFacadeImpl implements DownloaderFacade {
 
     private final ListMultimap<String, Downloader> downloaders = MultimapBuilder.hashKeys().arrayListValues().build();
 
+    @Autowired
     public DownloaderFacadeImpl(List<Downloader> availableDownloaders) {
         Multimap<String, Downloader> unsortedDownloaders = MultimapBuilder.hashKeys().hashSetValues().build();
         availableDownloaders.forEach(d -> d.getProtocols().forEach(p -> unsortedDownloaders.put(p, d)));

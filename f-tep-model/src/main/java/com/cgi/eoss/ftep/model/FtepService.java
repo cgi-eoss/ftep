@@ -37,6 +37,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable {
+
+    private static final String DATA_SOURCE_NAME_PREFIX = "FTEP_";
+
     /**
      * <p>Internal unique identifier of the service.</p>
      */
@@ -127,6 +130,10 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     public void setContextFiles(Set<FtepServiceContextFile> contextFiles) {
         contextFiles.forEach(f -> f.setService(this));
         this.contextFiles = contextFiles;
+    }
+
+    public String getDataSourceName() {
+        return DATA_SOURCE_NAME_PREFIX + this.name;
     }
 
     public enum Type {

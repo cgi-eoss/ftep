@@ -53,28 +53,29 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
 
             JobService.createJobConfig($scope.serviceParams.selectedService, iparams).then(function(jobConfig){
-                JobService.estimateJob(jobConfig).then(function(estimation){
-                    if(estimation.currentWalletBalance < estimation.estimatedCost){
-                        CommonService.infoBulletin($event, 'The cost of this job exceeds Your balance. This job cannot be run.' +
-                                '\nYour balance: ' + estimation.currentWalletBalance +
-                                '\nCost estimation: ' + estimation.estimatedCost);
-                    }
-                    else {
-                        var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
-                        CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
-                                '\nAre you sure you want to continue?').then(function (confirmed) {
-                            if (confirmed === false) {
-                                return;
-                            }
-                            $scope.displayTab($scope.bottomNavTabs.JOBS, false);
-                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService, 'explorer').then(function () {
-                                JobService.refreshJobs("explorer", "Create");
-                            });
+                JobService.estimateJob(jobConfig, $event).then(function(estimation){
+
+                    var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
+                    CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
+                            '\nAre you sure you want to continue?').then(function (confirmed) {
+                        if (confirmed === false) {
+                            return;
+                        }
+                        $scope.displayTab($scope.bottomNavTabs.JOBS, false);
+                        JobService.launchJob(jobConfig, $scope.serviceParams.selectedService, 'explorer').then(function () {
+                            JobService.refreshJobs("explorer", "Create");
                         });
-                    }
+                    });
                 });
             });
         };
+
+        $scope.$on('balance.exceeded', function(event, error, $event) {
+            var currentWalletBalance = error.currentWalletBalance;
+            var estimatedCost = error.estimatedCost;
+            CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
+                                       '\nYour balance: ' + currentWalletBalance + '\nCost estimation: ' + estimatedCost);
+        });
 
         $scope.pastePolygon = function(identifier){
             $scope.serviceParams.inputValues[identifier] = MapService.getPolygonWkt();

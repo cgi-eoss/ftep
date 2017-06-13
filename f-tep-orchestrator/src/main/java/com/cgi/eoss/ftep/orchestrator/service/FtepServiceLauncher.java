@@ -31,7 +31,9 @@ import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -82,14 +84,16 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
     private final FtepGuiServiceManager guiService;
     private final CatalogueService catalogueService;
     private final CostingService costingService;
+    private final FtepSecurityService securityService;
 
     @Autowired
-    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService, CostingService costingService) {
+    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService, CostingService costingService, FtepSecurityService securityService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
         this.catalogueService = catalogueService;
         this.costingService = costingService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -190,6 +194,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             job.setStage(JobStep.OUTPUT_LIST.getText());
             job.setEndTime(LocalDateTime.now()); // End time is when processing ends
+            job.setGuiUrl(null); // Any GUI services will no longer be available
             jobDataService.save(job);
 
             // Repatriate output files
@@ -245,6 +250,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
                 OutputProductMetadata outputProduct = OutputProductMetadata.builder()
                         .owner(job.getOwner())
+                        .service(service)
                         .jobId(zooId)
                         .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
                         .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
@@ -274,7 +280,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                     e -> e.getKey(),
                     e -> e.getValue().getUri().toString(),
                     MultimapBuilder.hashKeys().hashSetValues()::build)));
+            job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
             jobDataService.save(job);
+
+            if (service.getType() == FtepService.Type.BULK_PROCESSOR) {
+                // Auto-publish the output files
+                ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));
+            }
 
             chargeUser(job.getOwner(), job);
 

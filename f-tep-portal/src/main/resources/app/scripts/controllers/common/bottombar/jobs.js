@@ -61,8 +61,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.selectedJob = job;
                 JobService.refreshSelectedJob('explorer');
                 $scope.toggleAllWMS(false);
-                var container = document.getElementById('bottombar');
-                container.scrollTop = 0;
+                document.getElementById('job-container').scrollTop = 0;
             };
 
             $scope.deselectJob  = function () {

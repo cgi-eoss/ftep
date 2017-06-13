@@ -55,15 +55,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             function AddUserController($scope, $mdDialog, GroupService) {
 
                 $scope.groupParams = GroupService.params.community;
-                $scope.userParams = UserService.params;
-                $scope.searchText = "";
+                $scope.userParams = UserService.params.community;
 
                 UserService.getUsers($scope.groupParams.selectedGroup).then(function (groupUsers) {
                     $scope.userParams.groupUsers = groupUsers;
                 });
 
-                $scope.searchUsers = function(query) {
-                    return UserService.getUsersByFilter(query).then(function(users){
+                $scope.searchUsers = function() {
+                    return UserService.getAllUsers('community',  'search/byFilter?sort=name&filter=' + $scope.userParams.searchText).then(function(users){
                         return users;
                     });
                 };
@@ -104,7 +103,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddUserController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
                 controller: AddUserController,
-                templateUrl: 'views/community/manage/templates/adduser.tmpl.html',
+                templateUrl: 'views/community/templates/adduser.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

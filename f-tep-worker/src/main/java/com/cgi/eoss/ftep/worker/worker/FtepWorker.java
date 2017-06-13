@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
@@ -29,6 +30,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -87,6 +90,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final Map<String, DockerClient> jobClients = new HashMap<>();
     // Track which container ID is used for each job
     private final Map<String, String> jobContainers = new HashMap<>();
+    // Track which input URIs are used for each job
+    private final Multimap<String, URI> jobInputs = MultimapBuilder.hashKeys().hashSetValues().build();
 
     @Autowired
     public FtepWorker(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
@@ -104,6 +109,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 jobNodes.put(request.getJob().getId(), node);
                 jobClients.put(request.getJob().getId(), dockerClient);
             } catch (Exception e) {
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to prepare Docker context: {}", e.getMessage());
+                }
                 LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -122,6 +130,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         // Just hope no one has used a comma in their url...
                         Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(Collectors.toSet());
                         inputOutputManager.prepareInput(subdirPath, inputUris);
+                        jobInputs.putAll(request.getJob().getId(), inputUris);
                     }
                 }
 
@@ -134,6 +143,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onNext(ret);
                 responseObserver.onCompleted();
             } catch (Exception e) {
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to prepare job inputs: {}", e.getMessage());
+                }
                 LOG.error("Failed to prepare job inputs for {}", request.getJob().getId(), e);
                 cleanUpJob(request.getJob().getId());
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
@@ -179,7 +191,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onNext(LaunchContainerResponse.newBuilder().build());
                 responseObserver.onCompleted();
             } catch (Exception e) {
-                LOG.error("Failed to launch docker container {}", request.getDockerImage(), e);
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("Failed to launch Docker container: {}", e.getMessage());
+                }
+                LOG.error("Failed to launch Docker container {}", request.getDockerImage(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
                     cleanUpJob(request.getJob().getId());
@@ -343,6 +358,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         jobContainers.remove(jobId);
         jobClients.remove(jobId);
         nodeFactory.destroyNode(jobNodes.remove(jobId));
+
+        Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
+        LOG.debug("Finished job URIs: {}", finishedJobInputs);
+        Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
+        LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
+        inputOutputManager.cleanUp(unusedUris);
     }
 
     private WaitContainerResultCallback waitForContainer(DockerClient dockerClient, String containerId) {

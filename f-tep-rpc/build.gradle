@@ -22,11 +22,11 @@ sourceSets {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.2.0'
+        artifact = 'com.google.protobuf:protoc:3.3.0'
     }
     plugins {
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.2.0'
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.4.0'
         }
     }
     generateProtoTasks {
@@ -42,6 +42,7 @@ protobuf {
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-eureka'
 
     compile 'io.grpc:grpc-netty'
     compile 'io.grpc:grpc-protobuf'

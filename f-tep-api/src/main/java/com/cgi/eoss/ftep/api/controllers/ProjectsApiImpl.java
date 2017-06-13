@@ -1,13 +1,14 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.api.security.FtepSecurityService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Project;
 import com.cgi.eoss.ftep.model.QProject;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.ProjectDao;
 import com.google.common.base.Strings;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,30 +42,28 @@ public class ProjectsApiImpl extends BaseRepositoryApiImpl<Project> implements P
 
     @Override
     public Page<Project> findByFilterOnly(String filter, Pageable pageable) {
-        return getFilteredResults(getFilterExpression(filter), pageable);
+        return getFilteredResults(getFilterPredicate(filter), pageable);
     }
 
     @Override
     public Page<Project> findByFilterAndOwner(String filter, User user, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return findByOwner(user, pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter)), pageable);
-        }
+        return getFilteredResults(getOwnerPath().eq(user).and(getFilterPredicate(filter)), pageable);
     }
 
     @Override
     public Page<Project> findByFilterAndNotOwner(String filter, User user, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return findByNotOwner(user, pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter)), pageable);
-        }
+        return getFilteredResults(getOwnerPath().ne(user).and(getFilterPredicate(filter)), pageable);
     }
 
-    private BooleanExpression getFilterExpression(String filter) {
-        return QProject.project.name.containsIgnoreCase(filter)
-                .or(QProject.project.description.containsIgnoreCase(filter));
+    private Predicate getFilterPredicate(String filter) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!Strings.isNullOrEmpty(filter)) {
+            builder.and(QProject.project.name.containsIgnoreCase(filter)
+                    .or(QProject.project.description.containsIgnoreCase(filter)));
+        }
+
+        return builder.getValue();
     }
 
 }

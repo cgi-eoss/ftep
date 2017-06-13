@@ -10,6 +10,8 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.cgi.eoss.ftep.security.FtepPermission;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.After;

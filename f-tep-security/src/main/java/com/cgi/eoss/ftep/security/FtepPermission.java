@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.api.security;
+package com.cgi.eoss.ftep.security;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;

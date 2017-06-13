@@ -120,9 +120,28 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.createService = function($event) {
-            CommonService.createItemDialog($event, 'ProductService', 'createService').then(function (newService) {
-                ProductService.refreshServices('development', 'Create');
-            });
+                function CreateServiceController($scope, $mdDialog) {
+
+                    $scope.createService = function () {
+                        ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title).then(function (newService) {
+                            ProductService.refreshServices('development', 'Create');
+                        });
+                        $mdDialog.hide();
+                    };
+
+                    $scope.closeDialog = function () {
+                        $mdDialog.hide();
+                    };
+                }
+
+                CreateServiceController.$inject = ['$scope', '$mdDialog'];
+                $mdDialog.show({
+                    controller: CreateServiceController,
+                    templateUrl: 'views/developer/templates/createservice.tmpl.html',
+                    parent: angular.element(document.body),
+                    targetEvent: $event,
+                    clickOutsideToClose: true
+                });
         };
 
         $scope.saveService = function(){

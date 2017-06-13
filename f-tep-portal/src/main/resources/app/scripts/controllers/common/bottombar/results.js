@@ -24,13 +24,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $anchorScroll(anchorId);
                 }, 50);
             }
-            else{ // scroll to top
-                $timeout(function () {
-                    if(document.getElementById('resultDiv')){
-                        document.getElementById('resultDiv').scrollTop = 0;
-                    }
-                }, 50);
-            }
         }
 
         function setResults(results){

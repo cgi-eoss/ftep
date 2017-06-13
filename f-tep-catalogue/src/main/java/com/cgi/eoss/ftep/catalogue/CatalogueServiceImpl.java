@@ -3,16 +3,21 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
+import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
+import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -46,14 +51,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private static final int FILE_STREAM_CHUNK_BYTES = 8192;
 
     private final FtepFileDataService ftepFileDataService;
+    private final DataSourceDataService dataSourceDataService;
     private final DatabasketDataService databasketDataService;
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
         this.ftepFileDataService = ftepFileDataService;
+        this.dataSourceDataService = dataSourceDataService;
         this.databasketDataService = databasketDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
@@ -63,6 +70,7 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     @Override
     public FtepFile ingestReferenceData(ReferenceDataMetadata referenceData, MultipartFile file) throws IOException {
         FtepFile ftepFile = referenceDataService.ingest(referenceData.getOwner(), referenceData.getFilename(), referenceData.getGeometry(), referenceData.getProperties(), file);
+        ftepFile.setDataSource(dataSourceDataService.getForRefData(ftepFile));
         return ftepFileDataService.save(ftepFile);
     }
 
@@ -80,13 +88,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
                 outputProduct.getGeometry(),
                 outputProduct.getProperties(),
                 path);
+        ftepFile.setDataSource(dataSourceDataService.getForService(outputProduct.getService()));
         return ftepFileDataService.save(ftepFile);
     }
 
     @Override
     public FtepFile indexExternalProduct(GeoJsonObject geoJson) {
         // This will return an already-persistent object
-        return externalProductDataService.ingest(geoJson);
+        FtepFile ftepFile = externalProductDataService.ingest(geoJson);
+        ftepFile.setDataSource(dataSourceDataService.getForExternalProduct(ftepFile));
+        return ftepFile;
     }
 
     @Override
@@ -188,6 +199,41 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to list databasket contents for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @Override
+    public void getDataSourcePolicies(Uris request, StreamObserver<UriDataSourcePolicies> responseObserver) {
+        try {
+            UriDataSourcePolicies.Builder responseBuilder = UriDataSourcePolicies.newBuilder();
+
+            for (FtepFileUri fileUri : request.getFileUrisList()) {
+                FtepFile ftepFile = ftepFileDataService.getByUri(fileUri.getUri());
+                DataSource dataSource;
+
+                if (ftepFile != null) {
+                    dataSource = ftepFile.getDataSource() != null ? ftepFile.getDataSource() :
+                            dataSourceDataService.getByName(URI.create(fileUri.getUri()).getScheme());
+                } else {
+                    dataSource = dataSourceDataService.getByName(URI.create(fileUri.getUri()).getScheme());
+                }
+
+                LOG.debug("Inferred DataSource {} from FtepFile: {}", dataSource, fileUri.getUri());
+
+                // Default to CACHE mode
+                DataSource.Policy policy = dataSource != null ? dataSource.getPolicy() : DataSource.Policy.CACHE;
+
+                responseBuilder.addPolicies(UriDataSourcePolicy.newBuilder()
+                        .setUri(fileUri)
+                        .setPolicy(UriDataSourcePolicy.Policy.valueOf(policy.toString()))
+                        .build());
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to list datasource access policies contents for {}", request.getFileUrisList(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }

@@ -1,13 +1,14 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.api.security.FtepSecurityService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.QFtepService;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 import com.google.common.base.Strings;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,31 +42,31 @@ public class ServicesApiImpl extends BaseRepositoryApiImpl<FtepService> implemen
 
     @Override
     public Page<FtepService> findByFilterOnly(String filter, FtepService.Type serviceType, Pageable pageable) {
-        return getFilteredResults(getFilterExpression(filter, serviceType), pageable);
+        return getFilteredResults(getFilterPredicate(filter, serviceType), pageable);
     }
 
     @Override
     public Page<FtepService> findByFilterAndOwner(String filter, User user, FtepService.Type serviceType, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return findByOwner(user, pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().eq(user).and(getFilterExpression(filter, serviceType)), pageable);
-        }
+        return getFilteredResults(getOwnerPath().eq(user).and(getFilterPredicate(filter, serviceType)), pageable);
     }
 
     @Override
     public Page<FtepService> findByFilterAndNotOwner(String filter, User user, FtepService.Type serviceType, Pageable pageable) {
-        if (Strings.isNullOrEmpty(filter)) {
-            return findByNotOwner(user, pageable);
-        } else {
-            return getFilteredResults(getOwnerPath().ne(user).and(getFilterExpression(filter, serviceType)), pageable);
-        }
+        return getFilteredResults(getOwnerPath().ne(user).and(getFilterPredicate(filter, serviceType)), pageable);
     }
 
-    private BooleanExpression getFilterExpression(String filter, FtepService.Type serviceType) {
-        BooleanExpression baseFilter = QFtepService.ftepService.name.containsIgnoreCase(filter)
-                .or(QFtepService.ftepService.description.containsIgnoreCase(filter));
-        return serviceType == null ? baseFilter : baseFilter.and(QFtepService.ftepService.type.eq(serviceType));
+    private Predicate getFilterPredicate(String filter, FtepService.Type serviceType) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (!Strings.isNullOrEmpty(filter)) {
+            builder.and(QFtepService.ftepService.name.containsIgnoreCase(filter).or(QFtepService.ftepService.description.containsIgnoreCase(filter)));
+        }
+
+        if (serviceType != null) {
+            builder.and(QFtepService.ftepService.type.eq(serviceType));
+        }
+
+        return builder.getValue();
     }
 
 }

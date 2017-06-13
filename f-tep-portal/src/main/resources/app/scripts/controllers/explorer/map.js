@@ -26,7 +26,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
         /** ----- MAP STYLES TYPES ----- **/
         var resultStyle = new ol.style.Style({
-            fill: new ol.style.Fill({ color: 'rgba(255,128,171,0.3)' }),
+            fill: new ol.style.Fill({ color: 'rgba(255,128,171,0.2)' }),
             stroke: new ol.style.Stroke({ color: 'rgba(255,64,129,0.6)', width: 2 })
         });
 

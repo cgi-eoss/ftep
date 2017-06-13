@@ -37,8 +37,8 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
         return Job.class;
     }
 
-    private void addGuiLink(Resource resource, String guiUrl) {
-        if (!Strings.isNullOrEmpty(guiUrl)) {
+    private void addGuiLink(Resource resource, Job.Status status, String guiUrl) {
+        if (status == Job.Status.RUNNING && !Strings.isNullOrEmpty(guiUrl)) {
             resource.add(new Link(guiUrl).withRel("gui"));
         }
     }
@@ -67,7 +67,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             Job entity = resource.getContent();
 
             addSelfLink(resource, entity);
-            addGuiLink(resource, entity.getGuiUrl());
+            addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
             addOutputLinks(resource, entity.getOutputs());
 
@@ -82,7 +82,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             DetailedJob entity = resource.getContent();
 
             addSelfLink(resource, entity);
-            addGuiLink(resource, entity.getGuiUrl());
+            addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
             addOutputLinks(resource, entity.getOutputs());
 
@@ -97,7 +97,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             ShortJob entity = resource.getContent();
 
             addSelfLink(resource, entity);
-            addGuiLink(resource, entity.getGuiUrl());
+            addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
 
             return resource;

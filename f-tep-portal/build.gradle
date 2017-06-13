@@ -2,7 +2,6 @@ buildscript {
     dependencies {
         classpath pl.osPackage
         classpath pl.clientDependencies
-        classpath pl.js
     }
 }
 
@@ -12,7 +11,6 @@ version '0.9.0'
 apply plugin: 'java-base'
 apply plugin: 'nebula.ospackage'
 apply plugin: 'com.craigburke.client-dependencies'
-apply plugin: 'com.eriwen.gradle.js'
 
 sourceSets {
     main {
@@ -73,94 +71,88 @@ clientDependencies {
     }
 }
 
-javascript.source {
-    ftep {
-        js {
-            srcDir "${projectDir}/src/main/resources/app/scripts"
-            include "**/*.js"
-            exclude "vendor/**/*"
-        }
-    }
-    vendor {
-        js {
-            srcDir "${projectDir}/src/main/resources/app/scripts"
-            include "vendor/**/*.js"
-        }
-    }
+dependencies {
+    compile 'com.google.javascript:closure-compiler:v20170521'
 }
 
-String bigJs = "${buildDir}/requireJs/all.js"
-String minJs = "${buildDir}/requireJs/all.min.js"
-
-// Concatenate all required JS resources for the main app
-requireJs {
-    source = [javascript.source.ftep.js.files, javascript.source.vendor.js.files]
-    dest = file(bigJs)
-    requirejs.buildprofile = file("${projectDir}/src/main/requireJs/build.js")
-    requirejs.impl = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
+task requireJs(type: RequireJsTask) {
+    classpath = sourceSets.main.compileClasspath
+    rJs = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
+    buildJs = file("${projectDir}/src/main/requireJs/build.js")
+    sourceJs = fileTree("${projectDir}/src/main/resources/app/scripts") {
+        include '**/*.js'
+    }
+    appJsFile = "app.js"
+    outputDir = file("${buildDir}/requireJs")
 
     dependsOn clientInstall
 }
 
-minifyJs {
-    source = bigJs
-    dest = minJs
-    closure {
-        compilerOptions = [
-                'languageIn': 'ECMASCRIPT5'
-        ]
-    }
+class RequireJsTask extends DefaultTask {
+    @Input
+    File jjs = project.file("${System.properties['java.home']}/bin/jjs")
 
-    dependsOn requireJs
+    @Classpath @InputFiles
+    Iterable<File> classpath
+
+    @InputFile
+    File rJs
+
+    @InputFile
+    File buildJs
+
+    @InputFiles
+    Iterable<File> sourceJs
+
+    @Input
+    String appJsFile
+
+    @OutputDirectory
+    File outputDir
+
+    @TaskAction
+    def requireJs() {
+        project.exec {
+            commandLine jjs, "-scripting",
+                    "-cp", classpath.asPath,
+                    rJs, "--",
+                    "-o", buildJs,
+                    "out=${outputDir}/${appJsFile}"
+        }
+    }
 }
 
-// Copy all non-JS resources to the staging area
-task copyApp(type: Copy) {
+task stageApp(type: Sync) {
     into "${buildDir}/staging"
+    includeEmptyDirs = false
 
     from("${projectDir}/src/main/resources/app") {
         exclude 'scripts/**/*.js'
         exclude 'index.html'
     }
     from("${projectDir}/src/main/resources/app/scripts/vendor/codemirror") {
-        into "scripts/vendor/codemirror"
+        into 'scripts/vendor/codemirror'
         include '**/*'
     }
-    includeEmptyDirs = false
-
-    dependsOn clientInstall
-}
-
-task copyJs(type: Copy) {
-    from minifyJs
-    into "${buildDir}/staging/scripts"
-    rename { return "app.js" }
-
-    dependsOn requireJs
-}
-
-task copyConfig(type: Copy) {
-    from "${projectDir}/src/main/resources/app/scripts/ftepConfig.js"
-    into "${buildDir}/staging/scripts"
-    dependsOn copyApp
-}
-
-// Copy the index.html file and replace the require.js loader with the concatenated & minified JS resource
-task copyIndex(type: Copy) {
-    from "${projectDir}/src/main/resources/app"
-    into "${buildDir}/staging"
-    include 'index.html'
-
-    filter { line ->
-        line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
-                '<script src="scripts/app.js"></script>')
+    from(requireJs) {
+        into 'scripts'
+        include '**/*'
     }
-    filter { line ->
-        line.replace('<meta id="version" name="version" content="dev">',
-                "<meta id=\"version\" name=\"version\" content=\"${getBannerVersion()}\">")
+    from("${projectDir}/src/main/resources/app/scripts/ftepConfig.js") {
+        into 'scripts'
     }
+    from("${projectDir}/src/main/resources/app") {
+        include 'index.html'
 
-    dependsOn copyApp, copyJs, copyConfig
+        filter { line ->
+            line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
+                    '<script src="scripts/app.js"></script>')
+        }
+        filter { line ->
+            line.replace('<meta id="version" name="version" content="dev">',
+                    "<meta id=\"version\" name=\"version\" content=\"${getBannerVersion()}\">")
+        }
+    }
 }
 
 String getBannerVersion() {
@@ -169,8 +161,8 @@ String getBannerVersion() {
             "${getRpmVersion(project.version).version}"
 }
 
-buildRpm.dependsOn tasks.withType(Copy)
-buildDeb.dependsOn tasks.withType(Copy)
+buildRpm.dependsOn stageApp
+buildDeb.dependsOn stageApp
 
 ospackage {
     packageName 'f-tep-portal'

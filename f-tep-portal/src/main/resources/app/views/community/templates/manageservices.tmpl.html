@@ -1,0 +1,32 @@
+<md-dialog id="manage-services-dialog" aria-label="Manage services dialog">
+
+    <h4>Manage Services</h4>
+
+    <md-dialog-content class="item-list">
+        <div class="dialog-content-area">
+
+            <md-list-item class="md-1-line" ng-click="synchronizeServices()">
+                <div class="md-avatar" alt="synchronize services">
+                    <i class="material-icons">sync</i>
+                </div>
+                <div class="md-list-item-text" layout="column">
+                    <h4>Synchronize Services</h4>
+                </div>
+            </md-list-item>
+
+            <md-list-item class="md-1-line" ng-click="restoreServices()">
+                <div class="md-avatar" alt="restore services">
+                    <i class="material-icons">restore</i>
+                </div>
+                <div class="md-list-item-text" layout="column">
+                    <h4>Restore to Default Services</h4>
+                </div>
+            </md-list-item>
+
+        </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog()" class="md-primary">Close</md-button>
+    </md-dialog-actions>
+</md-dialog>

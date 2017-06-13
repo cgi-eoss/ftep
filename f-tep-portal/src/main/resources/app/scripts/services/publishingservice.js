@@ -80,7 +80,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             PublishItemController.$inject = ['$scope', '$mdDialog', 'ProductService', 'PublishingService'];
             $mdDialog.show({
                 controller: PublishItemController,
-                templateUrl: 'views/community/manage/templates/publishresponse.tmpl.html',
+                templateUrl: 'views/community/templates/publishresponse.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true,

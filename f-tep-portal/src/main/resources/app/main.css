@@ -1187,6 +1187,10 @@
   border-bottom: #d2d2d2 solid 1px;
   padding: 5px 0px;
 }
+.ftep .md-dialog-container .item-list h4 {
+  background-color: transparent;
+  margin-bottom: 0.2rem;
+}
 .ftep .md-dialog-container md-dialog {
   min-width: calc(44px + 336px);
 }

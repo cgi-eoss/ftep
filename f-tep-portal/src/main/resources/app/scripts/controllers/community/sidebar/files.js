@@ -78,7 +78,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddReferenceFileDialog.$inject = ['$scope', '$mdDialog', 'FileService'];
             $mdDialog.show({
                 controller: AddReferenceFileDialog,
-                templateUrl: 'views/community/manage/templates/addreferencedata.tmpl.html',
+                templateUrl: 'views/community/templates/addreferencedata.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

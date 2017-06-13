@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'PublishingService', 'CommonService', '$scope', function (ProductService, PublishingService, CommonService, $scope) {
+    ftepmodules.controller('CommunityServicesCtrl', ['ProductService', 'PublishingService', 'CommonService', '$scope', '$mdDialog', function (ProductService, PublishingService, CommonService, $scope, $mdDialog) {
 
         /* Get stored Service details */
         $scope.serviceParams = ProductService.params.community;
@@ -79,6 +79,32 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.publishService = function ($event, service) {
             PublishingService.publishItemDialog($event, service);
+        };
+
+        $scope.manageServicesDialog = function ($event) {
+            function ManageServicesController($scope, $mdDialog, ProductService) {
+
+                $scope.restoreServices = function () {
+                    ProductService.restoreServices();
+                };
+
+                $scope.synchronizeServices = function () {
+                    ProductService.synchronizeServices();
+                };
+
+                $scope.closeDialog = function () {
+                    $mdDialog.hide();
+                };
+            }
+            ManageServicesController.$inject = ['$scope', '$mdDialog', 'ProductService'];
+            $mdDialog.show({
+                controller: ManageServicesController,
+                templateUrl: 'views/community/templates/manageservices.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true,
+                locals: {}
+            });
         };
 
     }]);

@@ -103,7 +103,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             AddUserController.$inject = ['$scope', '$mdDialog', 'GroupService'];
             $mdDialog.show({
                 controller: AddUserController,
-                templateUrl: 'views/community/manage/templates/adduser.tmpl.html',
+                templateUrl: 'views/community/templates/adduser.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose: true

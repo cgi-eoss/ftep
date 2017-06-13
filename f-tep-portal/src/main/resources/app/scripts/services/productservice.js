@@ -632,13 +632,41 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         loadDockerTemplate();
 
-        function getMessage(document){
+        function getMessage(document) {
             var message = '';
-            if(document.data && document.data.indexOf('message') > 0){
+            if (document.data && document.data.indexOf('message') > 0) {
                 message = ': ' + JSON.parse(document.data).message;
             }
             return message;
         }
+
+        this.restoreServices = function () {
+            halAPI.from(rootUri + '/contentAuthority/services/restoreDefaults/')
+            .newRequest()
+            .post()
+            .result
+            .then(
+                function (document) {
+                    MessageService.addInfo('Restored Services', 'Successfully restored default Services.');
+                },function (error) {
+                    MessageService.addError('Failed to restore default Services', error);
+                }
+            );
+        };
+
+        this.synchronizeServices = function () {
+            halAPI.from(rootUri + '/contentAuthority/services/wps/syncAllPublic')
+            .newRequest()
+            .post()
+            .result
+            .then(
+                function (document) {
+                    MessageService.addInfo('Synchronized Services', 'Successfully synchronized Services.');
+                },function (error) {
+                    MessageService.addError('Failed to synchronized Services', error);
+                }
+            );
+        };
 
         return this;
 

@@ -14,6 +14,6 @@ if ! id -G -n ftep | grep -qF ftep ; then
 fi
 
 # Make application binary mutable if it already exists (i.e. this is a package upgrade)
-if test -f /var/f-tep/zoomanager/f-tep-zoomanager.jar ; then
-    chattr -i /var/f-tep/zoomanager/f-tep-zoomanager.jar
+if test -f /var/f-tep/serviceregistry/f-tep-serviceregistry.jar ; then
+    chattr -i /var/f-tep/serviceregistry/f-tep-serviceregistry.jar
 fi

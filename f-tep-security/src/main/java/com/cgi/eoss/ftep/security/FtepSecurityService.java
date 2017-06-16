@@ -185,6 +185,38 @@ public class FtepSecurityService {
         return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
+
+    /**
+     * <p>Verify that the given user has the given permission on the given object.</p>
+     *
+     * @param user The User identity being tested.
+     * @param permission The permission being tested.
+     * @param objectClass The class of the entity being tested.
+     * @param identifier The identifier of the entity being tested.
+     * @return True if the object has the requested permission for the requested user.
+     */
+    public boolean hasUserPermission(User user, FtepPermission permission, Class<?> objectClass, Long identifier) {
+        return hasUserPermission(user, permission, new ObjectIdentityImpl(objectClass, identifier));
+    }
+
+    /**
+     * <p>Verify that the given user has the given permission on the given object.</p>
+     *
+     * @param user The User identity being tested.
+     * @param permission The permission being tested.
+     * @param objectIdentity The object identity to be tested for PUBLIC visibility.
+     * @return True if the object has the requested permission for the requested user.
+     */
+    public boolean hasUserPermission(User user, FtepPermission permission, ObjectIdentity objectIdentity) {
+        Authentication authentication = getAuthentication(user);
+        return isSuperUser(authentication) || hasFtepPermission(authentication, permission, objectIdentity);
+    }
+
+    private Authentication getAuthentication(User user) {
+        SecurityUser securityUser = new SecurityUser(user);
+        return new PreAuthenticatedAuthenticationToken(securityUser.getUsername(), securityUser.getPassword(), securityUser.getAuthorities());
+    }
+
     @Transactional
     public MutableAcl getAcl(ObjectIdentity objectIdentity, Sid... sids) {
         try {
@@ -245,16 +277,20 @@ public class FtepSecurityService {
                 .collect(Collectors.toSet());
     }
 
-    private boolean isPublishRequested(Class<?> objectClass, Long identifier) {
-        return !publishingRequestDataService.findOpenByAssociated(objectClass, identifier).isEmpty();
-    }
-
     public boolean isSuperUser() {
-        return getCurrentAuthorities().stream().anyMatch(SUPERUSER_PREDICATE);
+        return isSuperUser(getCurrentAuthentication());
     }
 
     public boolean isAdmin() {
         return getCurrentAuthorities().stream().anyMatch(ADMIN_PREDICATE);
+    }
+
+    private boolean isPublishRequested(Class<?> objectClass, Long identifier) {
+        return !publishingRequestDataService.findOpenByAssociated(objectClass, identifier).isEmpty();
+    }
+
+    private boolean isSuperUser(Authentication authentication) {
+        return authentication.getAuthorities().stream().anyMatch(SUPERUSER_PREDICATE);
     }
 
 }

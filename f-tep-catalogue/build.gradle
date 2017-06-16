@@ -11,8 +11,10 @@ dependencies {
     compile project(':third-party/java/jai_core')
 
     compile project(':f-tep-model')
+    compile project(':f-tep-logging')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-security')
 
     compile 'com.fasterxml.jackson.core:jackson-core'
     compile 'com.fasterxml.jackson.core:jackson-databind'

@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.costing.CostingService;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
@@ -40,6 +41,7 @@ import com.google.common.collect.MultimapBuilder;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
 import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
@@ -47,11 +49,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -131,6 +135,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             job.setStatus(Job.Status.RUNNING);
             job.setStage(JobStep.DATA_FETCH.getText());
             jobDataService.save(job);
+
+            if (!checkInputs(job.getOwner(), request.getInputsList())) {
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.error("User does not have read access to all requested inputs", userId);
+                }
+                throw new ServiceExecutionException("User does not have read access to all requested inputs");
+            }
 
             // TODO Determine WorkerEnvironment from service parameters
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
@@ -311,6 +322,17 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         }
     }
 
+    private boolean checkInputs(User user, List<JobParam> inputsList) {
+        Multimap<String, String> inputs = GrpcUtil.paramsListToMap(inputsList);
+
+        Set<URI> inputUris = inputs.entries().stream()
+                .filter(e -> this.isValidUri(e.getValue()))
+                .flatMap(e -> Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create))
+                .collect(Collectors.toSet());
+
+        return inputUris.stream().allMatch(uri -> catalogueService.canUserRead(user, uri));
+    }
+
     @Override
     public void listWorkers(ListWorkersParams request, StreamObserver<WorkersList> responseObserver) {
         try {
@@ -332,6 +354,14 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
     private void chargeUser(User user, Job job) {
         costingService.chargeForJob(user.getWallet(), job);
+    }
+
+    private boolean isValidUri(String test) {
+        try {
+            return URI.create(test).getScheme() != null;
+        } catch (Exception unused) {
+            return false;
+        }
     }
 
 }

@@ -3,9 +3,11 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
@@ -18,12 +20,15 @@ import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
 import com.cgi.eoss.ftep.rpc.catalogue.Uris;
+import com.cgi.eoss.ftep.security.FtepPermission;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.HttpUrl;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.geojson.GeoJsonObject;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,15 +61,17 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private final OutputProductService outputProductService;
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
+    private final FtepSecurityService securityService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService, FtepSecurityService securityService) {
         this.ftepFileDataService = ftepFileDataService;
         this.dataSourceDataService = dataSourceDataService;
         this.databasketDataService = databasketDataService;
         this.outputProductService = outputProductService;
         this.referenceDataService = referenceDataService;
         this.externalProductDataService = externalProductDataService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -145,6 +152,37 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
+    public boolean canUserRead(User user, URI uri) {
+        if (uri.getScheme().equals("ftep") && uri.getHost().equals("databasket")) {
+            Databasket databasket = getDatabasketFromUri(uri.toASCIIString());
+
+            if (!securityService.hasUserPermission(user, FtepPermission.READ, Databasket.class, databasket.getId())) {
+                logAccessFailure(uri);
+                return false;
+            }
+
+            return databasket.getFiles().stream().allMatch(ftepFile -> canUserRead(user, ftepFile.getUri()));
+        } else {
+            FtepFile ftepFile = ftepFileDataService.getByUri(uri);
+
+            if (ftepFile != null) {
+                if (!securityService.hasUserPermission(user, FtepPermission.READ, FtepFile.class, ftepFile.getId())) {
+                    logAccessFailure(ftepFile.getUri());
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    private void logAccessFailure(URI uri) {
+        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+            LOG.info("Access denied to F-TEP resource: {}", uri);
+        }
+    }
+
+    @Override
     public void downloadFtepFile(FtepFileUri request, StreamObserver<FileResponse> responseObserver) {
         try {
             FtepFile file = ftepFileDataService.getByUri(request.getUri());
@@ -186,13 +224,9 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     public void getDatabasketContents(com.cgi.eoss.ftep.rpc.catalogue.Databasket request, StreamObserver<DatabasketContents> responseObserver) {
         try {
             // TODO Extract databasket ID from CatalogueUri pattern
-            Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(request.getUri());
-            Long databasketId = Long.parseLong(uriIdMatcher.group(1));
-            LOG.debug("Listing databasket contents for id {}", databasketId);
+            Databasket databasket = getDatabasketFromUri(request.getUri());
 
             DatabasketContents.Builder responseBuilder = DatabasketContents.newBuilder();
-
-            Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new CatalogueException("Failed to load databasket for ID " + databasketId));
             databasket.getFiles().forEach(f -> responseBuilder.addFileUris(FtepFileUri.newBuilder().setUri(f.getUri().toASCIIString()).build()));
 
             responseObserver.onNext(responseBuilder.build());
@@ -237,4 +271,16 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
     }
+
+    private Databasket getDatabasketFromUri(String uri) {
+        Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(uri);
+        if (!uriIdMatcher.matches()) {
+            throw new CatalogueException("Failed to load databasket for URI: " + uri);
+        }
+        Long databasketId = Long.parseLong(uriIdMatcher.group(1));
+        Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new CatalogueException("Failed to load databasket for ID " + databasketId));
+        LOG.debug("Listing databasket contents for id {}", databasketId);
+        return databasket;
+    }
+
 }

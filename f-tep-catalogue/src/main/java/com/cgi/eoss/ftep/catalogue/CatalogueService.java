@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue;
 
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import okhttp3.HttpUrl;
@@ -77,11 +78,21 @@ public interface CatalogueService {
     /**
      * <p>Generate an appropriate WMS URL for the given file.</p>
      *
-     *
      * @param type
      * @param uri
      * @return
      */
     HttpUrl getWmsUrl(FtepFile.Type type, URI uri);
 
+    /**
+     * <p>Determine whether the given user has read access to the object represented by the given URI ({@link
+     * com.cgi.eoss.ftep.model.Databasket} or {@link FtepFile}).</p>
+     * <p>This operation is recursive; access to a Databasket is granted only if all contents of the Databasket are also
+     * readable.</p>
+     *
+     * @param user
+     * @param uri
+     * @return
+     */
+    boolean canUserRead(User user, URI uri);
 }

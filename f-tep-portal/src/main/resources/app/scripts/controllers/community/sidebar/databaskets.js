@@ -52,7 +52,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Create Databasket */
         $scope.createItemDialog = function ($event) {
             CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
-                BasketService.refreshDatabaskets("community", "Create");
+                BasketService.refreshDatabaskets("community", "Create", newBasket);
             });
         };
 

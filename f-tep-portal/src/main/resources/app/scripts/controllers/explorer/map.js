@@ -559,34 +559,34 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         /* ----- WMS LAYER ----- */
         var productLayers = [];
 
-        $scope.$on('update.wmslayer', function(event, wmsLinks) {
+        $scope.$on('update.wmslayer', function(event, files) {
             /* Remove previous product layers */
             for(var i = 0; i < productLayers.length; i++){
                 $scope.map.removeLayer(productLayers[i]);
             }
             productLayers = [];
 
-            if(wmsLinks.length > 0) {
-
+            if(files.length > 0) {
                 // Create layer for each output file
-                for(var j = 0; j < wmsLinks.length; j++) {
-                    var source = new ol.source.ImageWMS({
-                        url: wmsLinks[j].wms,
-                        params: {
-                            format: 'image/png'
-                        },
-                        projection: EPSG_3857
-                    });
-                    var productLayer = new ol.layer.Image({
-                        source: source
-                    });
-                    productLayers.push(productLayer);
-                    $scope.map.addLayer(productLayer);
+                for(var i = 0; i < files.length; i++) {
+                    if(files[i]._links.wms){
+                        var source = new ol.source.ImageWMS({
+                            url: files[i]._links.wms.href,
+                            params: {
+                                format: 'image/png'
+                            },
+                            projection: EPSG_3857
+                        });
+                        var productLayer = new ol.layer.Image({
+                            source: source
+                        });
+                        productLayers.push(productLayer);
+                        $scope.map.addLayer(productLayer);
+                    }
                 }
 
                 // Zoom into place
-                var geo = wmsLinks[wmsLinks.length-1].geo;
-                var polygon = getGeometryPolygon(geo);
+                var polygon = getGeometryPolygon(files[files.length-1].metadata.geometry);
                 $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
             }
         });

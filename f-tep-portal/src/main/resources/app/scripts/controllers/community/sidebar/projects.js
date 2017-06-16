@@ -52,7 +52,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Create Project */
         $scope.createItemDialog = function ($event) {
             CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
-                ProjectService.refreshProjects("community", "Create");
+                ProjectService.refreshProjects("community", "Create", newProject);
             });
         };
 

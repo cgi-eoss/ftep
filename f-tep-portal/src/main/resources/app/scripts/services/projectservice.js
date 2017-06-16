@@ -247,7 +247,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     /* Select last project if created */
                     if (action === "Create") {
-                        self.params[page].selectedProject = self.params[page].projects[self.params[page].projects.length-1];
+                        self.params[page].selectedProject = project;
                     }
 
                     /* Clear project if deleted */

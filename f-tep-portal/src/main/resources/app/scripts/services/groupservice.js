@@ -235,7 +235,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     /* Select last group if created */
                     if (action === "Create") {
-                        self.params[page].selectedGroup = self.params[page].groups[self.params[page].groups.length-1];
+                        self.params[page].selectedGroup = group;
                     }
 
                     /* Clear group if deleted */

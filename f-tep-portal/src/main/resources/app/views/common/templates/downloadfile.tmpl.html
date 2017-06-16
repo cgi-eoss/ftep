@@ -1,0 +1,12 @@
+<md-dialog id="item-dialog" aria-label="Download Estimation">
+    <h4>Download Estimation</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            {{estimation.message}}
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+        <md-button ng-disabled="!estimation.link" ng-href="{{estimation.link}}" ng-click="closeDialog()" target="_blank" class="md-primary">Download</md-button>
+    </md-dialog-actions>
+</md-dialog>

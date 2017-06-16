@@ -68,55 +68,39 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.selectedJob = undefined;
             };
 
-            $scope.wmsVisibile = false;
-            $scope.wmsItemVisibile = [];
-            var wmsItems = [];
-
-            $scope.$on('map.cleared', function () {
-                if( $scope.jobParams.selectedJob) {
-                    $scope.toggleAllWMS(false);
-                }
-            });
-
             /* Toggles display of all wms items in job*/
             $scope.toggleAllWMS = function (show) {
-                $scope.wmsVisibile = show;
-                if($scope.jobParams.selectedJob.wmsLinks) {
+                $scope.jobParams.wms.isAllVisible = show;
+                $scope.jobParams.wms.visibleList.splice(0, $scope.jobParams.wms.visibleList.length);
+                if($scope.jobParams.selectedJob.outputFiles) {
                     if (show) {
-                        $rootScope.$broadcast('update.wmslayer',  $scope.jobParams.selectedJob.wmsLinks);
-                        for (var i = 0; i < $scope.jobParams.selectedJob.wmsLinks.length; i++) {
-                            $scope.wmsItemVisibile[i] = true;
-                        }
-                    } else {
-                        $rootScope.$broadcast('update.wmslayer',  []);
-                        for (var j = 0; j < $scope.jobParams.selectedJob.wmsLinks.length; j++) {
-                            $scope.wmsItemVisibile[j] = false;
-                        }
+                        Array.prototype.push.apply($scope.jobParams.wms.visibleList, $scope.jobParams.selectedJob.outputFiles);
                     }
                 }
+                $rootScope.$broadcast('update.wmslayer',  $scope.jobParams.wms.visibleList);
             };
 
             /* Toggles display of a wms item */
-            $scope.toggleWMS = function (key, show) {
-                $scope.wmsItemVisibile[key] = show;
-                setDisplayAllStatus();
+            $scope.toggleWMS = function (file, show) {
                 if (show) {
-                    wmsItems.push($scope.jobParams.selectedJob.wmsLinks[key]);
+                    $scope.jobParams.wms.visibleList.push(file);
                 } else {
-                    wmsItems.pop($scope.jobParams.selectedJob.wmsLinks[key]);
+                    var index = $scope.jobParams.wms.visibleList.indexOf(file);
+                    $scope.jobParams.wms.visibleList.splice(index, 1);
                 }
-                $rootScope.$broadcast('update.wmslayer', wmsItems);
+                $rootScope.$broadcast('update.wmslayer', $scope.jobParams.wms.visibleList);
+                $scope.jobParams.wms.isAllVisible = ($scope.jobParams.wms.visibleList.length === $scope.jobParams.selectedJob.outputFiles.length);
             };
 
-            /* Sets the status of the display all WMS images button */
-            function setDisplayAllStatus() {
-                $scope.wmsVisibile = true;
-                for (var i = 0; i < $scope.wmsItemVisibile.length; i++) {
-                    if($scope.wmsItemVisibile[i] !== true) {
-                       $scope.wmsVisibile = false;
-                    }
-                }
+            $scope.isWmsVisible = function(outputFile){
+                return $scope.jobParams.wms.visibleList.indexOf(outputFile) > -1;
             }
+
+            $scope.$on('map.cleared', function () {
+                if( $scope.jobParams.selectedJob) {
+                    $scope.jobParams.wms.visibleList = [];
+                }
+            });
 
             /** GET DRAGGABLE JOB OUTPUTS **/
             $scope.getSelectedOutputFiles = function(file) {

@@ -66,16 +66,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                             JobService.refreshJobs("explorer", "Create");
                         });
                     });
+                },
+                function (error) {
+                    CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
+                                               '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
                 });
             });
         };
-
-        $scope.$on('balance.exceeded', function(event, error, $event) {
-            var currentWalletBalance = error.currentWalletBalance;
-            var estimatedCost = error.estimatedCost;
-            CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
-                                       '\nYour balance: ' + currentWalletBalance + '\nCost estimation: ' + estimatedCost);
-        });
 
         $scope.pastePolygon = function(identifier){
             $scope.serviceParams.inputValues[identifier] = MapService.getPolygonWkt();

@@ -113,9 +113,14 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.removeService = function(service){
-            ProductService.removeService(service).then(function(){
-                ProductService.refreshServices('development', 'Remove', service);
+        $scope.removeService = function(event, service){
+            CommonService.confirm(event, 'Are you sure you want to delete this service: "' + service.name + '"?').then(function (confirmed){
+                if(confirmed === false){
+                    return;
+                }
+                ProductService.removeService(service).then(function(){
+                    ProductService.refreshServices('development', 'Remove', service);
+                });
             });
         };
 
@@ -124,7 +129,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
                     $scope.createService = function () {
                         ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title).then(function (newService) {
-                            ProductService.refreshServices('development', 'Create');
+                            ProductService.refreshServices('development', 'Create', newService);
                         });
                         $mdDialog.hide();
                     };

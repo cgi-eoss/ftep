@@ -82,7 +82,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 var service = $injector.get(serviceName);
 
                 $scope.addItem = function () {
-                    service[serviceMethod]($scope.newItem.name, $scope.newItem.description).then(function (createdItem) {
+                    service[serviceMethod]($scope.newItem.name, $scope.newItem.description, $scope.newItem.title).then(function (createdItem) {
                             deferred.resolve(createdItem);
                         },
                         function (error) {
@@ -204,6 +204,41 @@ define(['../ftepmodules'], function (ftepmodules) {
                 locals: {}
             });
         };
+
+        this.estimateDownloadCost = function($event, file){
+            var service = $injector.get('FileService');
+            service.estimateFileDownload(file).then(function(result){
+
+                var currency = (result.estimatedCost < 2 ? 'coin' : 'coins');
+                var msg = 'This download will cost ' + result.estimatedCost + ' ' + currency + '.';
+                downloadDialog($event, {message: msg, link: file._links.download.href});
+            },
+            function(error){
+                self.infoBulletin($event, 'The cost of this download exceeds your balance. Cannot proceed with download.' +
+                    '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
+            });
+        };
+
+        function downloadDialog($event, estimation){
+            function DownloadController($scope, $mdDialog) {
+
+                $scope.estimation = estimation;
+
+                $scope.closeDialog = function () {
+                    $mdDialog.hide();
+                };
+            }
+
+            DownloadController.$inject = ['$scope', '$mdDialog'];
+            $mdDialog.show({
+                controller: DownloadController,
+                templateUrl: 'views/common/templates/downloadfile.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true,
+                locals: {}
+            });
+        }
 
         return this;
 

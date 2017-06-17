@@ -4,8 +4,7 @@ sudo: false
 
 dist: trusty
 
-jdk:
-  - openjdk8
+jdk: openjdk8
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -15,3 +14,9 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+notifications:
+  email: false
+
+env:
+  global:
+    - GRADLE_OPTS="-Xms128m"

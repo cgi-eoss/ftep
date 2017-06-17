@@ -12,6 +12,7 @@ import org.apache.commons.net.ftp.FTPSClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -55,7 +56,7 @@ public class FtpDownloader implements Downloader {
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
             Path outputFile = targetDir.resolve(Paths.get(uri.getPath()).getFileName().toString());
-            try (OutputStream os = Files.newOutputStream(outputFile)) {
+            try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(outputFile))) {
                 boolean success = ftpClient.retrieveFile(uri.getPath(), os);
                 if (!success) {
                     LOG.error("FTP download error: {}", ftpClient.getReplyString());

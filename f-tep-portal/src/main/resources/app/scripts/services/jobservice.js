@@ -27,9 +27,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         });
 
         this.jobOwnershipFilters = {
+            ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
             MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
-            SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' },
-            ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'}
+            SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
         var JOB_STATUSES_STRING = "COMPLETED,RUNNING,ERROR,CREATED,CANCELLED";
@@ -50,6 +50,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 pagingData: {},
                 selectedJob: undefined,
                 jobSelectedOutputs: [], //selected outputs
+                wms: {
+                    isAllVisible: false,
+                    visibleList: []
+                },
                 displayFilters: false, //whether filter section is opened or not
                 selectedStatuses: [],
                 selectedOwnershipFilter: this.jobOwnershipFilters.MY_JOBS,
@@ -299,6 +303,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        function getOutputFiles(job){
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/jobs/' + job.id + '/outputFiles?projection=detailedFtepFile')
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                    deferred.resolve(document);
+                }, function (error) {
+                    MessageService.addError('Could not get outputs for Job ' + job.id, error);
+                    deferred.reject();
+                });
+
+            return deferred.promise;
+        }
+
         this.refreshJobs = function (page, action, job) {
 
             /* Get job list */
@@ -344,21 +365,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         });
 
                         if (job.outputs) {
-                            job.downloadLinks = {};
-                            job.wmsLinks = [];
-
-                            var promises = [];
-                            for (var itemKey in job.outputs) {
-                                var partialPromise = $q.defer();
-                                promises.push(partialPromise.promise);
-                                var outputUri = job.outputs[itemKey][0];
-                                if (outputUri.substring(0,7) === "ftep://") {
-                                    getJobOutput(job, job.details._links['output-' + itemKey].href).then(
-                                        parseJobOutput(job.downloadLinks, job.wmsLinks, itemKey, outputUri, partialPromise)
-                                    );
-                                }
-                            }
-                            $q.all(promises).then(function(){
+                            getOutputFiles(job).then(function(result){
+                                job.outputFiles = result._embedded.ftepFiles;
                                 _this.params[page].selectedJob = job;
                                 if(page === 'explorer'){
                                     _this.params.explorer.jobSelectedOutputs = [];
@@ -378,21 +386,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 });
             }
         };
-
-        function parseJobOutput(downloadLinks, wmsLinks, itemKey, outputUri, partialPromise) {
-            return function (result) {
-                downloadLinks[outputUri] = result._links.download.href;
-                if(result._links.wms){
-                    var wmsObj = {
-                        key: itemKey,
-                        wms: result._links.wms.href,
-                        geo: result.metadata ? result.metadata.geometry : undefined
-                    };
-                    wmsLinks.push(wmsObj);
-                }
-                partialPromise.resolve();
-            };
-        }
 
         function getTwoDigitNumber(num){
             return (num > 9 ? num : '0'+num);
@@ -452,11 +445,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                      resolve(document);
                  }, function (error) {
                     if (error.httpStatus === 402) {
-                        $rootScope.$broadcast('balance.exceeded', JSON.parse(error.body), $event);
+                        MessageService.addError('Balance exceeded', error);
                     } else {
                         MessageService.addError('Could not get Job cost estimation', error);
                     }
-                     reject();
+                    reject(JSON.parse(error.body));
                  });
             });
         };

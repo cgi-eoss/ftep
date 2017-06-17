@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageJobCtrl', ['CommunityService', 'JobService', '$scope', function (CommunityService, JobService, $scope) {
+    ftepmodules.controller('CommunityManageJobCtrl', ['CommunityService', 'JobService', 'CommonService', '$scope', function (CommunityService, JobService, CommonService, $scope) {
 
         /* Get stored Jobs details */
         $scope.jobParams = JobService.params.community;
@@ -37,6 +37,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.splitInputFiles = function(link) {
             return link.split(',');
         };
+
+        $scope.estimateDownloadCost = function($event, file){
+            CommonService.estimateDownloadCost($event, file);
+        };
+
 
     }]);
 });

@@ -99,7 +99,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     /* Select last service if created */
                     if (action === "Create") {
-                        self.params[page].selectedService = self.params[page].services[self.params[page].services.length-1];
+                        self.params[page].selectedService = service;
                     }
 
                     /* Clear service if deleted */

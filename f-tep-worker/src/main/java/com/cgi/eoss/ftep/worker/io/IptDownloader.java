@@ -1,13 +1,12 @@
 package com.cgi.eoss.ftep.worker.io;
 
 import com.cgi.eoss.ftep.rpc.Credentials;
-import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.io.ByteStreams;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.HttpUrl;
@@ -15,15 +14,15 @@ import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -84,9 +83,10 @@ public class IptDownloader implements Downloader {
         String filename = Iterables.getLast(downloadUrl.pathSegments());
         Path outputFile = targetDir.resolve(filename);
 
-        try (InputStream is = response.body().byteStream();
-             OutputStream os = Files.newOutputStream(outputFile)) {
-            ByteStreams.copy(is, os);
+        try (BufferedSource source = response.body().source();
+             BufferedSink sink = Okio.buffer(Okio.sink(outputFile))) {
+            long downloadedBytes = sink.writeAll(source);
+            LOG.debug("Downloaded {} bytes for {}", downloadedBytes, uri);
         }
         response.close();
 

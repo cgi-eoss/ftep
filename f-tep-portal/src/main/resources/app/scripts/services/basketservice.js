@@ -226,7 +226,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                     /* Select last databasket if created */
                     if (action === "Create") {
-                        self.params[page].selectedDatabasket = self.params[page].databaskets[self.params[page].databaskets.length-1];
+                        self.params[page].selectedDatabasket = basket;
                     }
 
                     /* Clear basket if deleted */

@@ -66,7 +66,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
-                       ng-click="removeService(service)"
+                       ng-click="removeService($event, service)"
                        has-permission="WRITE"
                        permission-source="{{service}}"
                        aria-label="Delete"

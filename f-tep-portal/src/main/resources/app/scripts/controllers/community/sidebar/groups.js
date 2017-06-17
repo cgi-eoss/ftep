@@ -51,7 +51,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Create Group */
         $scope.createGroupDialog = function ($event) {
             CommonService.createItemDialog($event, 'GroupService', 'createGroup').then(function (newGroup) {
-                GroupService.refreshGroups("community", "Create");
+                GroupService.refreshGroups("community", "Create", newGroup);
             });
         };
 

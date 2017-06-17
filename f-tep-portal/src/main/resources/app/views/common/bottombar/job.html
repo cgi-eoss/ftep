@@ -15,18 +15,18 @@
         <div class="col-lg-8 col-md-12 job-title no-padding">
             <h3>Job ID: {{jobParams.selectedJob.id}}
                 <md-button class="md-secondary icon-button-accent"
-                           ng-show="!wmsVisibile"
+                           ng-show="!jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(true)"
-                           uib-tooltip="Show WMS Layer"
+                           uib-tooltip="Show WMS Layers"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"
                            tooltip-append-to-body="true">
                     <i class="material-icons">layers</i>
                 </md-button>
                 <md-button class="md-secondary icon-button-accent"
-                           ng-show="wmsVisibile"
+                           ng-show="jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(false)"
-                           uib-tooltip="Hide WMS Layer"
+                           uib-tooltip="Hide WMS Layers"
                            tooltip-placement="top"
                            tooltip-trigger="mouseenter"
                            tooltip-append-to-body="true">
@@ -73,10 +73,10 @@
     </section>
 
     <section id="job-outputs" ng-if="jobTab == 'OUTPUTS'">
-        <md-list-item class="md-1-line ftep-file-list" ng-repeat="(key, fileUrl) in jobParams.selectedJob.downloadLinks"
-                      ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'">
+        <md-list-item class="md-1-line ftep-file-list" ng-repeat="outputFile in jobParams.selectedJob.outputFiles">
+                      <!-- ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'"> -->
 
-            <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getSelectedOutputFiles(key)">
+            <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getSelectedOutputFiles(outputFile)">
                 <i class="material-icons"
                    uib-tooltip="Drag Job"
                    tooltip-placement="top"
@@ -84,12 +84,13 @@
                    tooltip-append-to-body="true">drag_handle</i>
             </div>
 
-            <div class="md-list-item-text" ng-click="selectOutputFile(key)" layout="column" ng-bind="key" />
+            <div class="md-list-item-text" ng-click="selectOutputFile(outputFile)" layout="column">
+                {{outputFile.uri}}
+            </div>
 
-            <!--TODO: Replace key.slice(-3) === 'tif' with jobParams.selectedJob.wmsLinks[$index] once wmsLinks are correct -->
             <md-button class="toolbar-button md-secondary icon-button-accent"
-                       ng-show="!wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
-                       ng-click="toggleWMS($index, true); $event.stopPropagation()"
+                       ng-show="!isWmsVisible(outputFile)"
+                       ng-click="toggleWMS(outputFile, true); $event.stopPropagation()"
                        uib-tooltip="Show WMS Layer"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
@@ -97,9 +98,9 @@
                 <i class="material-icons">layers</i>
             </md-button>
 
-            <md-button class="md-secondary icon-button-accent"
-                       ng-show="wmsItemVisibile[$index] && key.slice(-3) === 'tif'"
-                       ng-click="toggleWMS($index, false); $event.stopPropagation()"
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                       ng-show="isWmsVisible(outputFile)"
+                       ng-click="toggleWMS(outputFile, false); $event.stopPropagation()"
                        uib-tooltip="Hide WMS Layer"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"
@@ -108,7 +109,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary icon-button-accent"
-                       ng-href="{{fileUrl}}" target="_blank"
+                       ng-click="estimateDownloadCost($event, outputFile); $event.stopPropagation()"
                        aria-label="Download"
                        uib-tooltip="Download"
                        tooltip-placement="top"
@@ -119,7 +120,7 @@
 
         </md-list-item>
 
-        <div ng-show="!jobParams.selectedJob.outputs" class="note">
+        <div ng-show="!jobParams.selectedJob.outputFiles || jobParams.selectedJob.outputFiles.length === 0" class="note">
             No output files to display.
         </div>
     </section>

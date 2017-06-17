@@ -874,6 +874,7 @@
 #job-manage-container #job-outputs .download a,
 #job-share-container #job-outputs .download a {
   color: #ff4081;
+  cursor: pointer;
 }
 #job-manage-container #job-inputs .download a:hover,
 #job-share-container #job-inputs .download a:hover,

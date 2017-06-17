@@ -43,11 +43,6 @@
 
         <form id="searchForm" name="searchForm" ng-show="searchParameters.selectedDatasource"
                 ng-submit="search()">
-
-            <div style="background-color: #D5E0D1; padding:4px;" ng-show="searchParameters.selectedDatasource.id == 3">
-                NB! Currently there is no reference specific data yet.
-            </div>
-
             <div ng-show="searchParameters.selectedDatasource.fields.date">
                 <div class="row">
                     <md-subheader class="md-accent">Select a date range</md-subheader>

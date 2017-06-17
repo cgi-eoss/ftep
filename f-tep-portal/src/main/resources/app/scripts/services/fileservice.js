@@ -302,6 +302,25 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         };
 
+        this.estimateFileDownload = function(file){
+            return $q(function(resolve, reject) {
+                halAPI.from(rootUri + '/estimateCost/download/' + file.id)
+                .newRequest()
+                .getResource()
+                .result
+                .then(function (document) {
+                     resolve(document);
+                 }, function (error) {
+                    if (error.httpStatus === 402) {
+                        MessageService.addError('Balance exceeded', error);
+                    } else {
+                        MessageService.addError('Could not get download cost estimation', error);
+                    }
+                    reject(JSON.parse(error.body));
+                 });
+            });
+        };
+
     return this;
   }]);
 });

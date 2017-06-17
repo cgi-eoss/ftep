@@ -21,7 +21,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
          */
         $scope.createNewBasket = function($event){
             CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
-                BasketService.refreshDatabaskets("explorer", "Create");
+                BasketService.refreshDatabaskets("explorer", "Create", newBasket);
             });
         };
 
@@ -71,6 +71,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.getColor = function(status){
             return CommonService.getColor(status);
+        };
+
+        $scope.estimateDownloadCost = function($event, file){
+            CommonService.estimateDownloadCost($event, file);
         };
 
     }]);

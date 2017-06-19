@@ -47,9 +47,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var iparams={};
 
             for(var key in $scope.serviceParams.inputValues){
-                if ($scope.serviceParams.inputValues.hasOwnProperty(key)) {
-                    iparams[key] = [$scope.serviceParams.inputValues[key]];
+                var value = $scope.serviceParams.inputValues[key];
+                if(value === undefined){
+                    value = '';
                 }
+                iparams[key] = [value];
             }
 
             JobService.createJobConfig($scope.serviceParams.selectedService, iparams).then(function(jobConfig){

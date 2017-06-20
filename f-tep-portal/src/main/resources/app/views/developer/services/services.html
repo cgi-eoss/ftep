@@ -36,6 +36,16 @@
                 <input ng-model="serviceParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Service Search Filter">
             </md-input-container>
 
+            <md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                    <md-optgroup label="Service Type">
+                        <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>
+
             <div class="row filter-radiobutton" ng-show="serviceParams.displayFilters">
                 <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
                     <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">

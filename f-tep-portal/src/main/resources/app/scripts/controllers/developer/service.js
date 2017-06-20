@@ -13,6 +13,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.serviceParams = ProductService.params.development;
         $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
+        $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
         $scope.serviceForms = {files: {title: 'Files'}, dataInputs: {title: 'Input Definitions'}, dataOutputs: {title: 'Output Definitions'}};
         $scope.serviceParams.activeArea = $scope.serviceForms.files;
         $scope.constants = {

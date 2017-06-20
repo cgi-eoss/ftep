@@ -63,7 +63,8 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
 
         if (!Strings.isNullOrEmpty(filter)) {
             builder.and(QJob.job.id.stringValue().contains(filter)
-                    .or(QJob.job.config.label.containsIgnoreCase(filter)));
+                    .or(QJob.job.config.label.containsIgnoreCase(filter))
+                    .or(QJob.job.config.service.name.containsIgnoreCase(filter)));
         }
 
         if (!statuses.isEmpty()) {

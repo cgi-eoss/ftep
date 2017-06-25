@@ -14,6 +14,7 @@ dependencies {
     compile project(':f-tep-orchestrator')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-search')
     compile project(':f-tep-security')
 
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'

@@ -14,7 +14,11 @@ public enum FtepPermission {
 
     READ,
     WRITE,
-    ADMIN;
+    ADMIN,
+    /**
+     * <p>A marker permission for API access information; not used to map Spring ACLs.</p>
+     */
+    SUPERUSER;
 
     private static final BiMap<FtepPermission, Set<Permission>> SPRING_FTEP_PERMISSION_MAP = ImmutableBiMap.<FtepPermission, Set<Permission>>builder()
             .put(FtepPermission.READ, ImmutableSet.of(BasePermission.READ))

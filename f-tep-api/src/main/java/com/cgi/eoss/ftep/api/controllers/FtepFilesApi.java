@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RepositoryRestResource(path = "ftepFiles", itemResourceRel = "ftepFile", collectionResourceRel = "ftepFiles", excerptProjection = ShortFtepFile.class)
 public interface FtepFilesApi extends BaseRepositoryApi<FtepFile>, FtepFilesApiCustom, PagingAndSortingRepository<FtepFile, Long> {
@@ -45,6 +46,9 @@ public interface FtepFilesApi extends BaseRepositoryApi<FtepFile>, FtepFilesApiC
 
     @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
     FtepFile findOneByUri(@Param("uri") URI uri);
+
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject, 'read')")
+    FtepFile findOneByRestoId(@Param("uuid") UUID uuid);
 
     @Override
     @Query("select t from FtepFile t where t.owner=user")

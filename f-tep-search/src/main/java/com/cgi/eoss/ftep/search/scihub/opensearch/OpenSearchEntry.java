@@ -2,14 +2,13 @@ package com.cgi.eoss.ftep.search.scihub.opensearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.ToString;
+import lombok.Data;
 
 import java.time.ZonedDateTime;
 
-@ToString
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OpenSearchEntry {
-
     @JsonProperty("summary")
     private String summary;
     @JsonProperty("id")
@@ -35,5 +34,4 @@ public class OpenSearchEntry {
         @JsonProperty("content")
         private T value;
     }
-
 }

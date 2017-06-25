@@ -42,4 +42,13 @@ public interface RestoService {
      */
     GeoJsonObject getGeoJsonSafe(FtepFile ftepFile);
 
+    /**
+     * @return The Resto collection name identifying F-TEP reference data.
+     */
+    String getReferenceDataCollection();
+
+    /**
+     * @return The Resto collection name identifying F-TEP output products.
+     */
+    String getOutputProductsCollection();
 }

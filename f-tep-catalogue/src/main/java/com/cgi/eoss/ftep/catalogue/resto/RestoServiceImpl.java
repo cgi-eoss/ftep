@@ -134,6 +134,16 @@ public class RestoServiceImpl implements RestoService {
         }
     }
 
+    @Override
+    public String getReferenceDataCollection() {
+        return refDataCollection;
+    }
+
+    @Override
+    public String getOutputProductsCollection() {
+        return outputProductCollection;
+    }
+
     private UUID ingest(String collection, GeoJsonObject object) {
         if (!restoEnabled) {
             UUID dummy = UUID.randomUUID();

@@ -1,11 +1,17 @@
 package com.cgi.eoss.ftep.search.api;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface SearchProvider {
-    SearchResults search(Collection<FtepSearchParameter> parameters) throws IOException;
+    SearchResults search(SearchParameters parameters) throws IOException;
 
-    boolean supports(RepoType repoType, Map<String, FtepSearchParameter> parameterMap);
+    List<SearchResults.Link> getPagingLinks();
+
+    Map<String, String> getPagingParameters(SearchParameters parameters);
+
+    Map<String, String> getQueryParameters(SearchParameters parameters);
+
+    boolean supports(RepoType repoType, SearchParameters parameters);
 }

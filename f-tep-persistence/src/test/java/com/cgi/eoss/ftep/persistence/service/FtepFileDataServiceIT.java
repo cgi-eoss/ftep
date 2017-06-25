@@ -56,6 +56,8 @@ public class FtepFileDataServiceIT {
 
         assertThat(dataService.findByOwner(owner), is(ImmutableList.of(ftepFile, ftepFile2)));
         assertThat(dataService.findByOwner(owner2), is(ImmutableList.of()));
+        assertThat(dataService.getByRestoId(ftepFile.getRestoId()), is(ftepFile));
+        assertThat(dataService.getByRestoId(ftepFile2.getRestoId()), is(ftepFile2));
     }
 
 }

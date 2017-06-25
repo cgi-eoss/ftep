@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.search.scihub;
 
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +17,12 @@ public class SciHubSearchConfiguration {
     private String password;
 
     @Bean
-    public SciHubSearchProvider sciHubSearchProvider() {
+    public SciHubSearchProvider sciHubSearchProvider(OkHttpClient httpClient) {
         return new SciHubSearchProvider(SciHubSearchProperties.builder()
                 .baseUrl(HttpUrl.parse(baseUrl))
                 .username(username)
                 .password(password)
-                .build());
+                .build(), httpClient);
     }
 
 }

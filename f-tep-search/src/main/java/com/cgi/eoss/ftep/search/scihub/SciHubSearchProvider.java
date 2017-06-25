@@ -1,13 +1,15 @@
 package com.cgi.eoss.ftep.search.scihub;
 
-import com.cgi.eoss.ftep.search.api.FtepSearchParameter;
 import com.cgi.eoss.ftep.search.api.RepoType;
+import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
 import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.cgi.eoss.ftep.search.scihub.opensearch.OpenSearchResult;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
@@ -18,7 +20,7 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,9 +37,9 @@ public class SciHubSearchProvider implements SearchProvider {
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
 
-    public SciHubSearchProvider(SciHubSearchProperties sciHubProperties) {
+    public SciHubSearchProvider(SciHubSearchProperties sciHubProperties, OkHttpClient httpClient) {
         this.baseUrl = sciHubProperties.getBaseUrl();
-        this.client = new OkHttpClient.Builder()
+        this.client = httpClient.newBuilder()
                 .addInterceptor(chain -> {
                     Request authenticatedRequest = chain.request().newBuilder()
                             .header("Authorization", Credentials.basic(sciHubProperties.getUsername(), sciHubProperties.getPassword()))
@@ -52,7 +54,7 @@ public class SciHubSearchProvider implements SearchProvider {
     }
 
     @Override
-    public SearchResults search(Collection<FtepSearchParameter> parameters) throws IOException {
+    public SearchResults search(SearchParameters parameters) throws IOException {
         HttpUrl.Builder httpUrl = baseUrl.newBuilder()
                 .addQueryParameter("start", "0")
                 .addQueryParameter("rows", "20")
@@ -65,18 +67,34 @@ public class SciHubSearchProvider implements SearchProvider {
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected HTTP response code from SciHub: " + response);
             }
-            OpenSearchResult openSearchResult = objectMapper.readValue(response.body().string(), OpenSearchResult.class);
-            LOG.info(openSearchResult);
+            OpenSearchResult sciHubResult = objectMapper.readValue(response.body().string(), OpenSearchResult.class);
+            LOG.info(sciHubResult);
         }
 
+        // TODO Implement
         return null;
     }
 
     @Override
-    public boolean supports(RepoType repoType, Map<String, FtepSearchParameter> parameterMap) {
+    public List<SearchResults.Link> getPagingLinks() {
+        return ImmutableList.of();
+    }
+
+    @Override
+    public Map<String, String> getPagingParameters(SearchParameters parameters) {
+        return ImmutableMap.of();
+    }
+
+    @Override
+    public Map<String, String> getQueryParameters(SearchParameters parameters) {
+        return ImmutableMap.of();
+    }
+
+    @Override
+    public boolean supports(RepoType repoType, SearchParameters parameters) {
         // TODO Make configurable
         return repoType == RepoType.SATELLITE &&
-                parameterMap.containsKey("mission") && supportedMissions.contains((String) parameterMap.get("mission").getValue());
+                supportedMissions.containsAll(parameters.getOtherParameters().get("mission"));
     }
 
 }

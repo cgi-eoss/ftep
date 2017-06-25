@@ -13,25 +13,16 @@ dependencies {
     compile project(':f-tep-persistence')
     compile project(':f-tep-security')
 
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
-    compile 'javax.servlet:javax.servlet-api'
-    compile 'org.aspectj:aspectjweaver'
-    compile 'org.codehaus.woodstox:woodstox-core-asl'
     compile 'org.springframework:spring-context'
-    compile 'org.springframework:spring-webmvc'
-    compile 'org.springframework.boot:spring-boot-starter-data-rest'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
-    compile 'org.springframework.data:spring-data-rest-hal-browser'
-    compile 'org.springframework.security:spring-security-acl'
-    compile 'org.springframework.security:spring-security-config'
-    compile 'org.springframework.security:spring-security-web'
 
     testCompileOnly 'org.projectlombok:lombok'
 
+    testCompile 'com.squareup.okhttp3:mockwebserver'
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.hsqldb:hsqldb'

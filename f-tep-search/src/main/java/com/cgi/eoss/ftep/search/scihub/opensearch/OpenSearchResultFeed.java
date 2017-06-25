@@ -2,11 +2,11 @@ package com.cgi.eoss.ftep.search.scihub.opensearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.List;
 
-@ToString
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OpenSearchResultFeed {
     @JsonProperty("opensearch:startIndex")

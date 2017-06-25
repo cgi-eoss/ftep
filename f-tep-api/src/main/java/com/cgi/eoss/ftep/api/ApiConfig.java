@@ -14,9 +14,11 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
+import com.cgi.eoss.ftep.search.SearchConfig;
 import com.cgi.eoss.ftep.security.SecurityConfig;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -60,6 +63,7 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         InProcessRpcConfig.class,
         OrchestratorConfig.class,
         PersistenceConfig.class,
+        SearchConfig.class,
         SecurityConfig.class
 })
 @EnableJpaRepositories(basePackageClasses = ApiConfig.class)
@@ -69,13 +73,12 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
 public class ApiConfig {
 
     @Bean
-    public GuavaModule jacksonGuavaModule() {
-        return new GuavaModule();
-    }
-
-    @Bean
-    public Hibernate5Module jacksonHibernateModule() {
-        return new Hibernate5Module();
+    public Jackson2ObjectMapperBuilder jacksonBuilder() {
+        return new Jackson2ObjectMapperBuilder()
+                .modulesToInstall(
+                        new GuavaModule(),
+                        new Hibernate5Module(),
+                        new JavaTimeModule());
     }
 
     @Bean

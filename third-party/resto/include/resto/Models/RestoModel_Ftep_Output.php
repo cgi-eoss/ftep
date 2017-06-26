@@ -54,6 +54,14 @@ class RestoModel_Ftep_Output extends RestoModel
             'name' => 'jobEndDate',
             'type' => 'TIMESTAMP',
         ),
+        'filename'     => array(
+            'name' => 'filename',
+            'type' => 'TEXT'
+        ),
+        'ftepUrl'      => array(
+            'name' => 'ftepUrl',
+            'type' => 'TEXT'
+        ),
         'ftepparam'    => array(
             'name' => 'ftepparam',
             'type' => 'JSONB'
@@ -61,7 +69,15 @@ class RestoModel_Ftep_Output extends RestoModel
     );
 
     public $extendedSearchFilters = array(
-        'jobId'        => array(
+        'productIdentifier' => array(
+            'name'      => 'productIdentifier',
+            'type'      => 'TEXT',
+            'osKey'     => 'productIdentifier',
+            'key'       => 'productIdentifier',
+            'operation' => '=',
+            'title'     => 'Identifier of the output product',
+        ),
+        'jobId'             => array(
             'name'      => 'jobId',
             'type'      => 'TEXT',
             'osKey'     => 'jobId',
@@ -69,7 +85,7 @@ class RestoModel_Ftep_Output extends RestoModel
             'operation' => '=',
             'title'     => 'Identifier of the job',
         ),
-        'intJobId'     => array(
+        'intJobId'          => array(
             'name'      => 'intJobId',
             'type'      => 'INTEGER',
             'osKey'     => 'intJobId',
@@ -77,7 +93,7 @@ class RestoModel_Ftep_Output extends RestoModel
             'operation' => '=',
             'title'     => 'Identifier of the job',
         ),
-        'serviceName'  => array(
+        'serviceName'       => array(
             'name'      => 'serviceName',
             'type'      => 'TEXT',
             'osKey'     => 'serviceName',
@@ -85,7 +101,7 @@ class RestoModel_Ftep_Output extends RestoModel
             'operation' => '=',
             'title'     => 'Identifier of the serviceName',
         ),
-        'jobOwner'     => array(
+        'jobOwner'          => array(
             'name'      => 'jobOwner',
             'type'      => 'TEXT',
             'osKey'     => 'jobOwner',
@@ -93,7 +109,7 @@ class RestoModel_Ftep_Output extends RestoModel
             'operation' => '=',
             'title'     => 'Owner of the job',
         ),
-        'jobStartDate' => array(
+        'jobStartDate'      => array(
             'name'  => 'jobStartDate',
             'type'  => 'TIMESTAMP',
             'index' => array(
@@ -101,7 +117,7 @@ class RestoModel_Ftep_Output extends RestoModel
                 'direction' => 'DESC'
             )
         ),
-        'jobEndDate'   => array(
+        'jobEndDate'        => array(
             'name'  => 'jobEndDate',
             'type'  => 'TIMESTAMP',
             'index' => array(
@@ -109,7 +125,15 @@ class RestoModel_Ftep_Output extends RestoModel
                 'direction' => 'DESC'
             )
         ),
-        'ftepparam'    => array(
+        'filename'          => array(
+            'name'      => 'filename',
+            'type'      => 'TEXT',
+            'osKey'     => 'filename',
+            'key'       => 'filename',
+            'operation' => '=',
+            'title'     => 'Output product filename',
+        ),
+        'ftepparam'         => array(
             'name'      => 'ftepparam',
             'type'      => 'JSONB',
             'osKey'     => 'ftepparam',

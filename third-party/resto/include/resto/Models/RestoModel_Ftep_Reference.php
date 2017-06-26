@@ -28,6 +28,10 @@ class RestoModel_Ftep_Reference extends RestoModel
             'name' => 'filename',
             'type' => 'TEXT'
         ),
+        'ftepUrl'   => array(
+            'name' => 'ftepurl',
+            'type' => 'TEXT'
+        ),
         'ftepparam' => array(
             'name' => 'ftepparam',
             'type' => 'JSONB'
@@ -35,7 +39,15 @@ class RestoModel_Ftep_Reference extends RestoModel
     );
 
     public $extendedSearchFilters = array(
-        'owner'     => array(
+        'productIdentifier' => array(
+            'name'      => 'productIdentifier',
+            'type'      => 'TEXT',
+            'osKey'     => 'productIdentifier',
+            'key'       => 'productIdentifier',
+            'operation' => '=',
+            'title'     => 'Identifier of the reference data',
+        ),
+        'owner'             => array(
             'name'      => 'owner',
             'type'      => 'TEXT',
             'osKey'     => 'owner',
@@ -43,7 +55,7 @@ class RestoModel_Ftep_Reference extends RestoModel
             'operation' => '=',
             'title'     => 'Owner of the reference data',
         ),
-        'filename'     => array(
+        'filename'          => array(
             'name'      => 'filename',
             'type'      => 'TEXT',
             'osKey'     => 'filename',
@@ -51,7 +63,7 @@ class RestoModel_Ftep_Reference extends RestoModel
             'operation' => '=',
             'title'     => 'Reference data filename',
         ),
-        'ftepparam'    => array(
+        'ftepparam'         => array(
             'name'      => 'ftepparam',
             'type'      => 'JSONB',
             'osKey'     => 'ftepparam',

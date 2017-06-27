@@ -50,7 +50,7 @@
                     <label class="md-title">Filename</label>
                     <input required
                            name="filename"
-                           ng-model="fileParams.selectedFile.filename"
+                           ng-model="fileParams.fileDetails.filename"
                            type="text"
                            placeholder="File name is required *"
                            aria-label="File Name">
@@ -59,24 +59,14 @@
                     </div>
                 </md-input-container>
             </div>
-            <!-- TODO description currently not in metadata -->
-            <!-- <div class="row file-field">
-                <md-input-container md-no-float>
-                    <label class="md-title">File Description</label>
-                    <input required
-                           name="filedesc"
-                           ng-model="fileParams.selectedFile.description"
-                           type="text"
-                           placeholder="File description"
-                           aria-label="File Description">
-                </md-input-container>
-            </div> -->
+
             <div class="row file-field">
                 <md-input-container md-no-float required>
                     <label class="md-title">Geometry</label>
                     <textarea required
+                              ng-readonly="true"
                               name="geometry"
-                              ng-model="fileParams.selectedFile.geometry"
+                              ng-model="fileParams.fileDetails.metadata.geometry | json"
                               type="text"
                               rows="3"
                               placeholder="File geometry is required *"
@@ -88,18 +78,6 @@
                     </div>
                 </md-input-container>
             </div>
-
-            <!-- TODO tags currently not in metadata -->
-            <!-- <div class="row file-field">
-                <md-input-container md-no-float required>
-                    <label class="md-title">Tags</label>
-                    <md-chips ng-model="fileParams.selectedFile.tags" name="tags" readonly="false" md-removable="true" md-max-chips="10" placeholder=" Enter a tag..." aria-label="Tags">
-                        <md-chip-template>
-                            <strong>{{$chip}}</strong>
-                        </md-chip-template>
-                    </md-chips>
-                </md-input-container>
-            </div> -->
     </form>
 
 </article>

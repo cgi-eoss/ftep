@@ -43,7 +43,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: self.fileOwnershipFilters.ALL_FILES
+                selectedOwnershipFilter: self.fileOwnershipFilters.ALL_FILES,
+                progressPercentage: 0,
+                uploadStatus: 'pending',
+                uploadMessage: undefined
              }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -137,7 +140,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.uploadFile = function (newReference) {
+        this.uploadFile = function (page, newReference) {
+            self.params[page].uploadStatus = "pending";
+            self.params[page].uploadMessage = undefined;
             var deferred = $q.defer();
             var file = newReference.file;
             if (!file.$error) {
@@ -149,13 +154,16 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     }
                 }).then(function (resp) {
                     MessageService.addInfo('File uploaded', 'Success ' + resp.config.data.file.name + ' uploaded.');
+                    self.params[page].uploadStatus = "complete";
+                    self.params[page].uploadMessage = "resp.config.data.file.name uploaded successfully";
                     deferred.resolve(resp);
                 }, function (resp) {
-                    MessageService.addError('Error uploading File', resp);
+                    MessageService.addError('Error uploading File', resp.data);
+                    self.params[page].uploadStatus = "failed";
+                    self.params[page].uploadMessage = resp.data ? resp.data : "An undefined error occured";
                     deferred.reject();
                 }, function (evt) {
-                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                    self.params[page].progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                 });
             }
             return deferred.promise;
@@ -271,7 +279,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     self.params[page].files = data;
 
                     /* Clear file if deleted */
-                    if (action === "Remove") {
+                    if (action === "Remove" && self.params[page].selectedFile) {
                         if (file && file.id === self.params[page].selectedFile.id) {
                             self.params[page].selectedFile = undefined;
                             self.params[page].fileDetails = undefined;

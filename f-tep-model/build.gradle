@@ -1,36 +1,33 @@
+buildscript {
+    dependencies {
+        classpath pl.querydsl
+    }
+}
+
 group 'com.cgi.eoss.f-tep'
 version '1.0.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
-
-configurations {
-    apt
-}
-
-compileJava {
-    options.annotationProcessorPath = configurations.apt
-    options.compilerArgs += ['-s', "${buildDir}/generated/java"]
-    doFirst {
-        new File("${buildDir}/generated/java").mkdirs()
-    }
-}
+apply plugin: 'com.ewerk.gradle.plugins.querydsl'
 
 sourceSets {
-    generated {
-        java {
-            srcDirs = ["${buildDir}/generated/java"]
-        }
+    querydsl {
         resources {
             srcDirs = []
         }
     }
 }
 
+querydsl {
+    library = 'com.querydsl:querydsl-apt:4.1.4'
+    querydslSourcesDir = "${buildDir}/generated/java"
+    hibernate = true
+}
+
 dependencies {
-    apt group: 'com.querydsl', name: 'querydsl-apt', classifier: 'hibernate'
-    apt 'org.hibernate:hibernate-core'
-    apt 'org.projectlombok:lombok'
+    querydsl 'org.hibernate:hibernate-core'
+    querydsl 'org.projectlombok:lombok'
 
     compileOnly 'org.projectlombok:lombok'
 

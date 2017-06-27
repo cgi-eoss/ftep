@@ -37,7 +37,7 @@ dataInputs:
     supportedAttrs: []
   - id: "crs"
     title: "Target CRS identifier"
-    description: "EPSG coordinate reference system identifier of the target product, e.g. 'EPSG:32635'"
+    description: "EPSG coordinate reference system identifier of the target product, i.e. EPSG:326XX/327XX for the Northern/Southern hemisphere, where XX is the UTM zone, e.g. EPSG:32635"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

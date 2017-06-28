@@ -42,8 +42,9 @@
 
         <md-card class="transaction ftep-card" md-theme-watch ng-repeat="transaction in walletParams.transactions | orderBy : '-id' ">
             <md-card-content>
-                <p><b>Balance {{transaction.type.toLowerCase()}}:</b> {{transaction.balanceChange}}</p>
-                <p><b>Time:</b> {{transaction.transactionTime | formatDateTime}}</p>
+                <p><b ng-bind="'Balance ' + (transaction.balanceChange > 0 ? 'Credit' : 'Debit') + ':'"></b> {{transaction.balanceChange}}</p>
+                <p ng-if="transaction.type == 'JOB'"><b>Associated Job ID:</b> {{transaction.associatedId}}</p>
+                <p><b>Date:</b> {{transaction.transactionTime | formatDateTime}}</p>
             </md-card-content>
         </md-card>
 

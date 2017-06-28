@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '0.9.3'
+version '0.9.4'
 
 apply plugin: 'base'
 

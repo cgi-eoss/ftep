@@ -52,6 +52,7 @@ define([
     './services/projectservice',
     './services/productservice',
     './services/publishingservice',
+    './services/searchservice',
     './services/tabservice',
     './services/userservice',
     './services/walletservice'

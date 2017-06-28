@@ -10,6 +10,8 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('GeoService', [ '$http', '$rootScope', 'ftepProperties', '$q', 'MessageService', 'MapService', function ($http, $rootScope, ftepProperties, $q, MessageService, MapService) {
 
+        var _this = this;
+
         /** Set the header defaults **/
         $http.defaults.headers.post['Content-Type'] = 'application/json';
         $http.defaults.withCredentials = true;
@@ -23,14 +25,14 @@ define(['../ftepmodules'], function (ftepmodules) {
             return MAX_ITEMS_ALLOWED;
         };
 
-        function setCache(results){
+        this.setCache = function(results){
             if(results && results.length > 0 && results[0].results.totalResults > 0){
                 resultCache = results;
             }
             else{
                 resultCache = {};
             }
-        }
+        };
         /* End of private methods-variables */
 
         this.getGeoResults = function(pageNumber){
@@ -98,7 +100,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 params: params,
             }).
             then(function(response) {
-                setCache(response.data.data);
+                _this.setCache(response.data.data);
                 deferred.resolve(response.data.data);
 
                 if(!response || !response.data || !response.data.data || !response.data.data[0]){

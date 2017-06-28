@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.search.api.SearchProvider;
 import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.cgi.eoss.ftep.search.ftep.opensearch.RestoSearchResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import lombok.extern.log4j.Log4j2;
@@ -102,7 +103,7 @@ public class FtepRestoSearchProvider implements SearchProvider {
 
         ListMultimap<String, String> otherParameters = parameters.getOtherParameters();
 
-        if (!otherParameters.get("keyword").isEmpty()) {
+        if (!otherParameters.get("keyword").isEmpty() && !Strings.isNullOrEmpty(otherParameters.get("keyword").get(0))) {
             queryParameters.put("productIdentifier", "%" + otherParameters.get("keyword").get(0) + "%");
         }
 

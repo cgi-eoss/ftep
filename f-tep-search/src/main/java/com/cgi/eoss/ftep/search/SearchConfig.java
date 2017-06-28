@@ -11,8 +11,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.Collection;
 
 @Configuration
@@ -32,9 +30,7 @@ public class SearchConfig {
 
     @Bean
     public OkHttpClient httpClient() {
-        return new OkHttpClient.Builder()
-                .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.logica.com", 80)))
-                .build();
+        return new OkHttpClient.Builder().build();
     }
 
 }

@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.hash.Hashing;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -215,7 +214,7 @@ public class CachingSymlinkIOManagerIT {
     }
 
     private String hash(Object object) {
-        return Hashing.sha1().hashString(object.toString(), Charset.forName("UTF-8")).toString();
+        return CachingSymlinkIOManager.HASH_FUNCTION.hashString(object.toString(), Charset.forName("UTF-8")).toString();
     }
 
 }

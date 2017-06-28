@@ -425,7 +425,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                     .withRemove(true)
                     .withBaseDirectory(serviceContext.toFile())
                     .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
-                    .withTag(dockerImage);
+                    .withTags(ImmutableSet.of(dockerImage));
 
             // Add proxy vars to the container, if they are set in the environment
             ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()

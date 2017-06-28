@@ -151,7 +151,9 @@ public class FtepSecurityService {
     }
 
     private FtepPermission getCurrentPermission(Authentication authentication, ObjectIdentity objectIdentity) {
-        if (hasFtepPermission(authentication, FtepPermission.ADMIN, objectIdentity)) {
+        if (isSuperUser()) {
+            return FtepPermission.SUPERUSER;
+        } else if (hasFtepPermission(authentication, FtepPermission.ADMIN, objectIdentity)) {
             return FtepPermission.ADMIN;
         } else if (hasFtepPermission(authentication, FtepPermission.WRITE, objectIdentity)) {
             return FtepPermission.WRITE;
@@ -293,4 +295,7 @@ public class FtepSecurityService {
         return authentication.getAuthorities().stream().anyMatch(SUPERUSER_PREDICATE);
     }
 
+    public boolean isReadableByCurrentUser(Class<?> objectClass, Long objectId) {
+        return isSuperUser() || hasFtepPermission(getCurrentAuthentication(), FtepPermission.READ, new ObjectIdentityImpl(objectClass, objectId));
+    }
 }

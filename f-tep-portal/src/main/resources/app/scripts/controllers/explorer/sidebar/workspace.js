@@ -47,9 +47,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var iparams={};
 
             for(var key in $scope.serviceParams.inputValues){
-                if ($scope.serviceParams.inputValues.hasOwnProperty(key)) {
-                    iparams[key] = [$scope.serviceParams.inputValues[key]];
+                var value = $scope.serviceParams.inputValues[key];
+                if(value === undefined){
+                    value = '';
                 }
+                iparams[key] = [value];
             }
 
             JobService.createJobConfig($scope.serviceParams.selectedService, iparams).then(function(jobConfig){
@@ -89,8 +91,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             if(dropObject && dropObject.type === 'outputs') {
                 for(var i = 0; i < dropObject.selectedOutputs.length; i++){
                     file = {
-                        name: dropObject.selectedOutputs[i],
-                        link: dropObject.selectedOutputs[i],
+                        name: dropObject.selectedOutputs[i].uri,
+                        link: dropObject.selectedOutputs[i]._links.ftep.href,
                         start: dropObject.job.startTime,
                         stop: dropObject.job.endTime
                     };

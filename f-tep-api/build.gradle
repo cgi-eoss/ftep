@@ -14,6 +14,7 @@ dependencies {
     compile project(':f-tep-orchestrator')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-search')
     compile project(':f-tep-security')
 
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
@@ -21,6 +22,7 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.servlet:javax.servlet-api'
+    compile 'org.apache.commons:commons-text'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-webmvc'

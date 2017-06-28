@@ -82,6 +82,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 displayRight: false,
                 selectedService: undefined,
                 selectedOwnershipFilter: self.serviceOwnershipFilters.ALL_SERVICES,
+                selectedTypeFilter: self.serviceTypeFilters.ALL_SERVICES,
                 selectedServiceFileTab: 1,
                 fileTree: undefined,
                 openedFile: undefined,

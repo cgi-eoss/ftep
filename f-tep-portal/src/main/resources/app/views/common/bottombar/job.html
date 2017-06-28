@@ -73,8 +73,8 @@
     </section>
 
     <section id="job-outputs" ng-if="jobTab == 'OUTPUTS'">
-        <md-list-item class="md-1-line ftep-file-list" ng-repeat="outputFile in jobParams.selectedJob.outputFiles">
-                      <!-- ng-class="isOutputSelected(key) ? 'resulthighlight' : 'resultnormal'"> -->
+        <md-list-item class="md-1-line ftep-file-list" ng-repeat="outputFile in jobParams.selectedJob.outputFiles"
+                      ng-class="isOutputSelected(outputFile) ? 'resulthighlight' : 'resultnormal'">
 
             <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getSelectedOutputFiles(outputFile)">
                 <i class="material-icons"

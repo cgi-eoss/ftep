@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.QFtepFile;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
@@ -24,6 +27,7 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
 
     private final FtepSecurityService securityService;
     private final FtepFileDao dao;
+    private final CatalogueService catalogueService;
 
     @Override
     NumberPath<Long> getIdPath() {
@@ -38,6 +42,15 @@ public class FtepFilesApiImpl extends BaseRepositoryApiImpl<FtepFile> implements
     @Override
     Class<FtepFile> getEntityClass() {
         return FtepFile.class;
+    }
+
+    @Override
+    public void delete(FtepFile ftepFile) {
+        try {
+            catalogueService.delete(ftepFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

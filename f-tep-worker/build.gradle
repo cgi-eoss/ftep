@@ -33,7 +33,7 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'io.netty:netty-tcnative-boringssl-static'
     compile 'javax.servlet:javax.servlet-api'
-    compile 'org.apache.commons:commons-lang3'
+    compile 'org.apache.commons:commons-text'
     compile 'org.apache.logging.log4j:log4j-jul'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.graylog2.log4j2:log4j2-gelf'

@@ -41,7 +41,7 @@
             </md-list-item>
         </md-list>
 
-        <form id="searchForm" name="searchForm" ng-show="searchParameters.selectedDatasource"
+        <form id="searchForm" name="searchForm" ng-if="searchParameters.selectedDatasource && searchParameters.selectedDatasource.id !== 3"
                 ng-submit="search()">
             <div ng-show="searchParameters.selectedDatasource.fields.date">
                 <div class="row">
@@ -148,18 +148,47 @@
                 </div>
             </div>
 
+            <md-button id="searchButton"
+                       class="icon-button md-icon-button md-fab md-mini btn-success"
+                       type="submit"
+                       form="searchForm"
+                       ng-disabled="searchForm.$invalid"
+                       aria-label="Search"
+                       ng-click="displayTab(bottomNavTabs.RESULTS, false)">
+                <i class="material-icons">search</i>
+            </md-button>
         </form>
 
-        <md-button id="searchButton"
-                   class="icon-button md-icon-button md-fab md-mini btn-success"
-                   ng-show="searchParameters.selectedDatasource"
-                   type="submit"
-                   form="searchForm"
-                   ng-disabled="searchForm.$invalid"
-                   aria-label="Search"
-                   ng-click="displayTab(bottomNavTabs.RESULTS, false)">
-            <i class="material-icons">search</i>
-        </md-button>
+        <!-- New APIv2 search form, enabled only for datasource.id = 3 -->
+
+        <form id="searchFormV2" name="searchForm" ng-if="searchParameters.selectedDatasource && searchParameters.selectedDatasource.id === 3"
+              ng-submit="searchV2()">
+
+            <div>
+                <div class="row">
+                    <md-subheader class="md-accent">Keyword</md-subheader>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <md-input-container md-no-float>
+                            <input ng-model="searchParametersV2.keyword" type="text" placeholder="FTEP (optional)" aria-label="Keyword">
+                            <div class="hint">Search term</div>
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+
+            <md-button id="searchButtonV2"
+                       class="icon-button md-icon-button md-fab md-mini btn-success"
+                       type="submit"
+                       form="searchFormV2"
+                       ng-disabled="searchFormV2.$invalid"
+                       aria-label="Search"
+                       ng-click="displayTab(bottomNavTabs.RESULTS, false)">
+                <i class="material-icons">search</i>
+            </md-button>
+        </form>
+
 
     </div>
 

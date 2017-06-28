@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityFilesCtrl', ['FileService', '$scope', '$mdDialog', function (FileService, $scope, $mdDialog) {
+    ftepmodules.controller('CommunityFilesCtrl', ['FileService', 'CommonService', '$scope', '$mdDialog', function (FileService, CommonService, $scope, $mdDialog) {
 
         /* Get stored Files details */
         $scope.fileParams = FileService.params.community;
@@ -61,10 +61,23 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.item = "File";
                 $scope.fileParams = FileService.params.community;
                 $scope.newReference = {};
+                $scope.validation = "Valid";
+
+                $scope.validateFile = function (file) {
+                    if(!file) {
+                        $scope.validation = "No file selected";
+                    } else if (file.name.indexOf(' ') >= 0) {
+                        $scope.validation = "Filename cannot contain white space";
+                    } else if (file.size >= (1024*1024*1024*2)) {
+                        $scope.validation = "Filesize cannot exceed 2GB";
+                    } else {
+                        $scope.validation = "Valid";
+                    }
+                };
 
                 /* Upload the file */
                 $scope.addReferenceFile = function () {
-                    FileService.uploadFile($scope.newReference).then(function (response) {
+                    FileService.uploadFile("community", $scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
                         FileService.refreshFtepFiles("community");
                     });
@@ -86,10 +99,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Remove File */
-        $scope.removeItem = function (key, item) {
-            FileService.removeFtepFile(item).then(function (data) {
-                /* Update list of files */
-                FileService.refreshFtepFiles("community", "Remove", item);
+        $scope.removeItem = function (event, key, item) {
+            CommonService.confirm(event, 'Are you sure you want to delete this file?').then(function (confirmed) {
+                if (confirmed !== false) {
+                    FileService.removeFtepFile(item).then(function (data) {
+                        /* Update list of files */
+                        FileService.refreshFtepFiles("community", "Remove", item);
+                    });
+                }
             });
         };
 

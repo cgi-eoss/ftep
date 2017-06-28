@@ -88,6 +88,7 @@ task requireJs(type: RequireJsTask) {
     dependsOn clientInstall
 }
 
+@CacheableTask
 class RequireJsTask extends DefaultTask {
     @Input
     File jjs = project.file("${System.properties['java.home']}/bin/jjs")

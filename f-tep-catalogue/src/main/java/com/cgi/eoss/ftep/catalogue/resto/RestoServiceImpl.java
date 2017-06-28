@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.resto;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueException;
 import com.cgi.eoss.ftep.catalogue.IngestionException;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
@@ -134,6 +135,16 @@ public class RestoServiceImpl implements RestoService {
         }
     }
 
+    @Override
+    public String getReferenceDataCollection() {
+        return refDataCollection;
+    }
+
+    @Override
+    public String getOutputProductsCollection() {
+        return outputProductCollection;
+    }
+
     private UUID ingest(String collection, GeoJsonObject object) {
         if (!restoEnabled) {
             UUID dummy = UUID.randomUUID();
@@ -177,13 +188,18 @@ public class RestoServiceImpl implements RestoService {
             return;
         }
 
-        HttpUrl url = HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections").addPathSegment(collection).build();
+        HttpUrl url = HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections").addPathSegment(collection).addPathSegment(uuid.toString()).build();
         LOG.debug("Deleting Resto catalogue entry {} from collection: {}", uuid, collection);
 
         Request request = new Request.Builder().url(url).delete().build();
 
         try (Response response = client.newCall(request).execute()) {
-            LOG.info("Deleted Resto object with ID {}", uuid);
+            if (response.isSuccessful()) {;
+                LOG.info("Deleted Resto object with ID {}", uuid);
+            } else {
+                LOG.error("Failed to delete Resto object from collection '{}': {} {}: {}", collection, response.code(), response.message(), response.body());
+                throw new CatalogueException("Failed to delete Resto object");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

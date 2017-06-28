@@ -20,7 +20,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StrSubstitutor;
 import org.jooq.lambda.Unchecked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,11 +45,12 @@ import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 @Service("cachingSymlinkIOManager")
 public class CachingSymlinkIOManager implements ServiceInputOutputManager {
 
+    public static final HashFunction HASH_FUNCTION = Hashing.sha1();
+
     private static final String FTEP_SERVICE_CONTEXT = "ftep://serviceContext/${serviceName}";
 
     private static final int DEFAULT_CONCURRENCY_LEVEL = 4;
     private static final int DEFAULT_MAX_WEIGHT = 1024;
-    private static final HashFunction HASH_FUNCTION = Hashing.sha1();
     private static final String URI_FILENAME = ".uri";
 
     private final FtepServerClient ftepServerClient;

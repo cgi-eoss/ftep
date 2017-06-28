@@ -69,7 +69,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
         // TODO Get the proper MIME type
         properties.put("resourceMimeType", "application/unknown");
         properties.put("resourceSize", Files.size(dest));
-        properties.put("resourceChecksum", "sha1=" + MoreFiles.asByteSource(dest).hash(Hashing.sha1()));
+        properties.put("resourceChecksum", "sha256=" + MoreFiles.asByteSource(dest).hash(Hashing.sha256()));
         // TODO Validate extra properties?
         properties.put("extraParams", jsonMapper.writeValueAsString(userProperties));
 

@@ -23,7 +23,7 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'it.geosolutions:geoserver-manager'
-    compile 'org.apache.commons:commons-lang3'
+    compile 'org.apache.commons:commons-text'
     compile 'org.ehcache:ehcache'
     compile 'org.geotools:gt-main'
     compile 'org.geotools:gt-geojson'

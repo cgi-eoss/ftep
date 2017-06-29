@@ -6,6 +6,7 @@ import lombok.Data;
 import org.geojson.Feature;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -13,23 +14,23 @@ public class SearchResults {
     @JsonProperty
     private SearchParameters parameters;
     @JsonProperty
-    private Paging paging;
-    @JsonProperty
-    private List<Link> links;
+    private Page page;
+    @JsonProperty("_links")
+    private Map<String, Link> links;
     @JsonProperty
     private List<Feature> features;
 
     @Data
     @Builder
-    public static final class Paging {
+    public static final class Page {
         @JsonProperty
-        private long totalResults;
+        private long size;
         @JsonProperty
-        private boolean exactCount;
+        private long totalElements;
         @JsonProperty
-        private long startIndex;
+        private long totalPages;
         @JsonProperty
-        private long itemsPerPage;
+        private long number;
     }
 
     @Data

@@ -8,7 +8,6 @@ import com.cgi.eoss.ftep.search.scihub.opensearch.OpenSearchResult;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
@@ -20,7 +19,6 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,11 +71,6 @@ public class SciHubSearchProvider implements SearchProvider {
 
         // TODO Implement
         return null;
-    }
-
-    @Override
-    public List<SearchResults.Link> getPagingLinks() {
-        return ImmutableList.of();
     }
 
     @Override

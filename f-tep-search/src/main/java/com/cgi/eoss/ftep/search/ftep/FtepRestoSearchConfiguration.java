@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.search.ftep;
 
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
-import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -20,7 +19,7 @@ public class FtepRestoSearchConfiguration {
     private String password;
 
     @Bean
-    public FtepRestoSearchProvider restoSearchProvider(OkHttpClient httpClient, ObjectMapper objectMapper, RestoService restoService, FtepFileDataService ftepFileDataService) {
+    public FtepRestoSearchProvider restoSearchProvider(OkHttpClient httpClient, ObjectMapper objectMapper, RestoService restoService) {
         return new FtepRestoSearchProvider(
                 FtepSearchProperties.builder()
                         .baseUrl(HttpUrl.parse(baseUrl))
@@ -29,8 +28,7 @@ public class FtepRestoSearchConfiguration {
                         .build(),
                 httpClient,
                 objectMapper,
-                restoService,
-                ftepFileDataService);
+                restoService);
     }
 
 }

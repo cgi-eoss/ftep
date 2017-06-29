@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.search;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
-import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
 import okhttp3.OkHttpClient;
@@ -17,8 +16,7 @@ import java.util.Collection;
 @Import({
         PropertyPlaceholderAutoConfiguration.class,
 
-        CatalogueConfig.class,
-        PersistenceConfig.class
+        CatalogueConfig.class
 })
 @ComponentScan(basePackageClasses = SearchConfig.class)
 public class SearchConfig {

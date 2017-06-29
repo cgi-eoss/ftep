@@ -1877,6 +1877,7 @@
   margin: 0;
 }
 
+#explorer-container,
 #sidebar-left .datasources md-list-item {
   border: none;
 }

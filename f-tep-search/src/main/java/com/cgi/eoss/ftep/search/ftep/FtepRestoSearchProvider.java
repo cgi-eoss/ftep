@@ -48,8 +48,6 @@ public class FtepRestoSearchProvider implements SearchProvider {
     public SearchResults search(SearchParameters parameters) throws IOException {
         String collectionName = getCollection(parameters.getRepo());
 
-        ListMultimap<String, String> otherParameters = parameters.getOtherParameters();
-
         HttpUrl.Builder httpUrl = baseUrl.newBuilder()
                 .addPathSegments("api/collections").addPathSegment(collectionName).addPathSegment("search.json");
 

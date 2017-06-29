@@ -32,9 +32,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.selectDataSource = function (dataSource) {
             $scope.searchParameters.selectedDatasource = dataSource;
 
-            // new APIv2 search enabled for dataSource 3 (refData) only
+            // new APIv2 search enabled for dataSource 3 & 2 (refData & existing products) only
             if (dataSource.id === 3) {
                 $scope.searchParametersV2.repo = 'REF_DATA';
+            } else if (dataSource.id === 2) {
+                $scope.searchParametersV2.repo = 'FTEP_PRODUCTS';
             } else {
                 if (dataSource.fields.mission) {
                     // Set the first mission as default

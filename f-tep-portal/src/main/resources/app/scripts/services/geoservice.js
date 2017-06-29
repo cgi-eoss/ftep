@@ -100,9 +100,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                 params: params,
             }).
             then(function(response) {
-                _this.setCache(response.data.data);
-                deferred.resolve(response.data.data);
-
                 if(!response || !response.data || !response.data.data || !response.data.data[0]){
                     MessageService.addError('Search failed', 'Search result is empty.');
                 }
@@ -110,6 +107,19 @@ define(['../ftepmodules'], function (ftepmodules) {
                     MessageService.addWarning('Too many results','Search results limited to ' +
                         MAX_ITEMS_ALLOWED + '. Please refine the search parameters to get more precise results.');
                 }
+
+                var searchResults = response.data.data;
+
+                for (var i = 0; i < searchResults[0].results.entities.length; i++) {
+                    var feature = searchResults[0].results.entities[i];
+                    if (feature.usable === undefined) {
+                        // Default product usability is allowed
+                        feature.usable = true;
+                    }
+                }
+
+                _this.setCache(searchResults);
+                deferred.resolve(searchResults);
             }).
             catch(function(error) {
                 deferred.reject();

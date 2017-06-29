@@ -114,6 +114,8 @@ class RequireJsTask extends DefaultTask {
     @TaskAction
     def requireJs() {
         project.exec {
+            standardOutput new FileOutputStream("${project.buildDir}/requireJs.log")
+            errorOutput new FileOutputStream("${project.buildDir}/requireJs.err")
             commandLine jjs, "-scripting",
                     "-cp", classpath.asPath,
                     rJs, "--",

@@ -65,9 +65,9 @@
                     }
                 }
                 #file-list {
-                    word-break: break-all;
+                    font-size: 0.6rem;
                     list-style: none;
-                    padding: 0;
+                    padding: 0 0 1.6rem 0;
                     .active {
                         background-color: @brand-light;
                         color: @white;
@@ -110,6 +110,10 @@
                             }
                             .file-name {
                                 text-align: left;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                max-width: 4rem;
                             }
                             .remove-file {
                                 font-weight: bold;

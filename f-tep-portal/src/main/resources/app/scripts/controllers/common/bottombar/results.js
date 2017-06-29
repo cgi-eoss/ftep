@@ -8,7 +8,7 @@
 'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ResultsCtrl', [ '$scope', '$rootScope', '$anchorScroll', '$timeout', 'GeoService', 'TabService', function($scope, $rootScope, $anchorScroll, $timeout, GeoService, TabService) {
+    ftepmodules.controller('ResultsCtrl', [ '$scope', '$rootScope', '$anchorScroll', '$timeout', 'GeoService', 'SearchService', 'TabService', function($scope, $rootScope, $anchorScroll, $timeout, GeoService, SearchService, TabService) {
 
         $scope.resultPaging = GeoService.pagingData;
         $scope.spinner = GeoService.spinner;
@@ -87,12 +87,22 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         }
 
         $scope.fetchResultsPage = function(pageNumber){
-            GeoService.getGeoResults(pageNumber).then(function(data) {
-                $rootScope.$broadcast('update.geoResults', data);
-           })
-           .catch(function(fallback) {
-               $rootScope.$broadcast('update.geoResults');
-           });
+            if (GeoService.pagingData.apiV2Params) {
+                var searchParameters = GeoService.pagingData.apiV2Params;
+                searchParameters.page = pageNumber - 1; // APIv2 pages are 0-index
+                SearchService.submit(searchParameters).then(function (data) {
+                    $rootScope.$broadcast('update.geoResults', data);
+                }).catch(function (fallback) {
+                    $rootScope.$broadcast('update.geoResults');
+                });
+            } else {
+                GeoService.getGeoResults(pageNumber).then(function (data) {
+                    $rootScope.$broadcast('update.geoResults', data);
+                })
+                    .catch(function (fallback) {
+                        $rootScope.$broadcast('update.geoResults');
+                    });
+            }
         };
 
         $scope.clearAll = function(){

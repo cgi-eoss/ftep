@@ -13,6 +13,8 @@ define(['../ftepmodules'], function (ftepmodules) {
         this.submit = function (searchParameters) {
             var deferred = $q.defer();
 
+            searchParameters.resultsPerPage = 20;
+
             GeoService.spinner.loading = true;
 
             $http({
@@ -45,13 +47,21 @@ define(['../ftepmodules'], function (ftepmodules) {
                 var transformedResults = [{
                     datasource: searchResults.parameters.repo,
                     results: {
-                        totalResults: searchResults.paging.totalResults,
-                        startIndex: searchResults.paging.startIndex,
+                        totalResults: searchResults.page.totalElements,
+                        // startIndex: -1,
+                        page: searchResults.page.number,
+                        _links: searchResults._links,
                         entities: transformedFeatures
                     }
                 }];
 
                 GeoService.setCache(transformedResults);
+                GeoService.pagingData = {
+                    currentPage: searchResults.page.number + 1,
+                    pageSize: 20,
+                    total: searchResults.page.totalElements,
+                    apiV2Params: searchParameters
+                };
 
                 deferred.resolve(transformedResults);
             }).catch(function (error) {

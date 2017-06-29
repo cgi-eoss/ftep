@@ -41,7 +41,7 @@
             </md-list-item>
         </md-list>
 
-        <form id="searchForm" name="searchForm" ng-if="searchParameters.selectedDatasource && searchParameters.selectedDatasource.id !== 3"
+        <form id="searchForm" name="searchForm" ng-if="searchParameters.selectedDatasource && searchParameters.selectedDatasource.id !== 3 && searchParameters.selectedDatasource.id !== 2"
                 ng-submit="search()">
             <div ng-show="searchParameters.selectedDatasource.fields.date">
                 <div class="row">
@@ -161,7 +161,7 @@
 
         <!-- New APIv2 search form, enabled only for datasource.id = 3 -->
 
-        <form id="searchFormV2" name="searchForm" ng-if="searchParameters.selectedDatasource && searchParameters.selectedDatasource.id === 3"
+        <form id="searchFormV2" name="searchForm" ng-if="searchParameters.selectedDatasource && (searchParameters.selectedDatasource.id === 3 || searchParameters.selectedDatasource.id === 2)"
               ng-submit="searchV2()">
 
             <div>

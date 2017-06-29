@@ -1720,9 +1720,9 @@
   border: none;
 }
 #developer-container .right-container #service-form #file-editor #file-list {
-  word-break: break-all;
+  font-size: 0.6rem;
   list-style: none;
-  padding: 0;
+  padding: 0 0 1.6rem 0;
 }
 #developer-container .right-container #service-form #file-editor #file-list .active {
   background-color: #aed581;
@@ -1764,6 +1764,10 @@
 }
 #developer-container .right-container #service-form #file-editor #file-list li table .file-name {
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 4rem;
 }
 #developer-container .right-container #service-form #file-editor #file-list li table .remove-file {
   font-weight: bold;
@@ -1877,6 +1881,7 @@
   margin: 0;
 }
 
+#explorer-container,
 #sidebar-left .datasources md-list-item {
   border: none;
 }

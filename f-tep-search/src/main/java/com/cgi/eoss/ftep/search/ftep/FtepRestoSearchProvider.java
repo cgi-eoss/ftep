@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.search.ftep;
 
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
-import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.search.api.RepoType;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
@@ -9,7 +8,6 @@ import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.cgi.eoss.ftep.search.ftep.opensearch.RestoSearchResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
@@ -21,7 +19,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -31,9 +28,8 @@ public class FtepRestoSearchProvider implements SearchProvider {
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
     private final RestoService restoService;
-    private final FtepFileDataService ftepFileDataService;
 
-    public FtepRestoSearchProvider(FtepSearchProperties ftepSearchProperties, OkHttpClient httpClient, ObjectMapper objectMapper, RestoService restoService, FtepFileDataService ftepFileDataService) {
+    public FtepRestoSearchProvider(FtepSearchProperties ftepSearchProperties, OkHttpClient httpClient, ObjectMapper objectMapper, RestoService restoService) {
         this.baseUrl = ftepSearchProperties.getBaseUrl();
         this.client = httpClient.newBuilder()
                 .addInterceptor(chain -> {
@@ -46,14 +42,11 @@ public class FtepRestoSearchProvider implements SearchProvider {
                 .build();
         this.objectMapper = objectMapper;
         this.restoService = restoService;
-        this.ftepFileDataService = ftepFileDataService;
     }
 
     @Override
     public SearchResults search(SearchParameters parameters) throws IOException {
         String collectionName = getCollection(parameters.getRepo());
-
-        ListMultimap<String, String> otherParameters = parameters.getOtherParameters();
 
         HttpUrl.Builder httpUrl = baseUrl.newBuilder()
                 .addPathSegments("api/collections").addPathSegment(collectionName).addPathSegment("search.json");
@@ -69,31 +62,36 @@ public class FtepRestoSearchProvider implements SearchProvider {
             }
             RestoSearchResult restoResult = objectMapper.readValue(response.body().string(), RestoSearchResult.class);
 
+            SearchResults.Page page = getPageInfo(restoResult);
             return SearchResults.builder()
                     .parameters(parameters)
-                    .paging(SearchResults.Paging.builder()
-                            .totalResults(restoResult.getProperties().getTotalResultsCount())
-                            .exactCount(restoResult.getProperties().isExactCount())
-                            .itemsPerPage(restoResult.getProperties().getItemsPerPage())
-                            .startIndex(restoResult.getProperties().getStartIndex())
-                            .build())
+                    .page(page)
                     .features(restoResult.getFeatures())
-                    .links(getPagingLinks())
+                    .links(getLinks(parameters.getRequestUrl(), page, restoResult))
                     .build();
         }
     }
 
-    @Override
-    public List<SearchResults.Link> getPagingLinks() {
-        // TODO Calculate paging links
-        return ImmutableList.of();
+    private SearchResults.Page getPageInfo(RestoSearchResult restoResult) {
+        long totalResultsCount = restoResult.getProperties().getTotalResultsCount();
+        long itemsPerPage = restoResult.getProperties().getItemsPerPage();
+        long startIndex = restoResult.getProperties().getStartIndex();
+        long pageNumber = startIndex / itemsPerPage;
+        long totalPages = totalResultsCount - startIndex < itemsPerPage ? (totalResultsCount / itemsPerPage) : (totalResultsCount / itemsPerPage) + 1;
+
+        return SearchResults.Page.builder()
+                .totalElements(totalResultsCount)
+                .size(itemsPerPage)
+                .number(pageNumber)
+                .totalPages(totalPages)
+                .build();
     }
 
     @Override
     public Map<String, String> getPagingParameters(SearchParameters parameters) {
         Map<String, String> pagingParameters = new HashMap<>();
         pagingParameters.put("maxRecords", Integer.toString(parameters.getResultsPerPage()));
-        pagingParameters.put("page", Integer.toString(parameters.getPage()));
+        pagingParameters.put("page", Integer.toString(parameters.getPage() + 1));
         return pagingParameters;
     }
 
@@ -121,6 +119,26 @@ public class FtepRestoSearchProvider implements SearchProvider {
     @Override
     public boolean supports(RepoType repoType, SearchParameters parameters) {
         return repoType == RepoType.FTEP_PRODUCTS || repoType == RepoType.REF_DATA;
+    }
+
+    private Map<String, SearchResults.Link> getLinks(HttpUrl requestUrl, SearchResults.Page page, RestoSearchResult restoResult) {
+        Map<String, SearchResults.Link> links = new HashMap<>();
+
+        // Paging links:
+        links.put("first", getPageLink("first", requestUrl, 0));
+        if (page.getNumber() != 1) {
+            links.put("prev", getPageLink("prev", requestUrl, page.getNumber() - 1));
+        }
+        if (page.getNumber() != page.getTotalPages() - 1) {
+            links.put("next", getPageLink("next", requestUrl, page.getNumber() + 1));
+        }
+        links.put("last", getPageLink("last", requestUrl, page.getTotalPages() - 1));
+
+        return links;
+    }
+
+    private SearchResults.Link getPageLink(String rel, HttpUrl requestUrl, long page) {
+        return SearchResults.Link.builder().rel(rel).href(requestUrl.newBuilder().removeAllQueryParameters("page").addQueryParameter("page", String.valueOf(page)).build().toString()).build();
     }
 
     private String getCollection(RepoType repoType) {

@@ -10,13 +10,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
@@ -48,9 +49,10 @@ public class SearchApi {
     }
 
     @GetMapping
-    public SearchResults searchResults(WebRequest webRequest) throws IOException {
+    public SearchResults searchResults(HttpServletRequest request) throws IOException {
         // Do a two-way serialize/deserialize to convert the clumsy Map<String, String[]> to a nice SearchParameters object
-        SearchParameters parameters = objectMapper.readValue(objectMapper.writeValueAsString(webRequest.getParameterMap()), SearchParameters.class);
+        SearchParameters parameters = objectMapper.readValue(objectMapper.writeValueAsString(request.getParameterMap()), SearchParameters.class);
+        parameters.setRequestUrl(HttpUrl.parse(request.getRequestURL().toString()).newBuilder().query(request.getQueryString()).build());
         SearchResults results = searchFacade.search(parameters);
 
         // Add visibility info, if the result can be matched to an FtepFile

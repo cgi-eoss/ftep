@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.search.ftep;
 
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
-import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.search.api.RepoType;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
@@ -79,12 +78,13 @@ public class FtepRestoSearchProvider implements SearchProvider {
         long totalResultsCount = restoResult.getProperties().getTotalResultsCount();
         long itemsPerPage = restoResult.getProperties().getItemsPerPage();
         long startIndex = restoResult.getProperties().getStartIndex();
+        long pageNumber = startIndex / itemsPerPage;
         long totalPages = totalResultsCount - startIndex < itemsPerPage ? (totalResultsCount / itemsPerPage) : (totalResultsCount / itemsPerPage) + 1;
 
         return SearchResults.Page.builder()
                 .totalElements(totalResultsCount)
                 .size(itemsPerPage)
-                .number((startIndex / itemsPerPage))
+                .number(pageNumber)
                 .totalPages(totalPages)
                 .build();
     }

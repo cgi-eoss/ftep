@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,7 +84,11 @@ public class JobEnvironmentService {
 
         Files.createDirectory(workingDir);
         Files.createDirectory(inputDir);
-        Files.createDirectory(outputDir);
+        // TODO Tighten permissions when service uids/gids are controlled
+        Files.createDirectory(outputDir, PosixFilePermissions.asFileAttribute(EnumSet.of(
+                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE,
+                PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE, PosixFilePermission.GROUP_EXECUTE,
+                PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_EXECUTE)));
 
         LOG.info("Created working environment for job {} in location: {}", jobId, workingDir);
 

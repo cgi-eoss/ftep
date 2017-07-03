@@ -34,6 +34,11 @@ class ftep::proxy (
     docroot    => '/var/www/html',
     vhost_name => '_default_', # The default landing site should always be Drupal
     proxy_dest => 'http://ftep-drupal', # Drupal is always mounted at the base_url
+    rewrites   => [
+      {
+        rewrite_rule => ['^/app$ /app/ [R]']
+      }
+    ]
   }
 
   $real_context_path_geoserver = pick($context_path_geoserver, $ftep::globals::context_path_geoserver)
@@ -200,7 +205,15 @@ class ftep::proxy (
       content => $tls_key,
     }
 
+    apache::vhost { "redirect ${vhost_name} non-ssl":
+      servername      => $vhost_name,
+      port            => '80',
+      docroot         => '/var/www/redirect',
+      redirect_status => 'permanent',
+      redirect_dest   => "https://${vhost_name}/"
+    }
     apache::vhost { $vhost_name:
+      servername       => $vhost_name,
       port             => '443',
       ssl              => true,
       ssl_cert         => $tls_cert_path,

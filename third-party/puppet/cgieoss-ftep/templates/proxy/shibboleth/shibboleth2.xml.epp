@@ -8,6 +8,8 @@
   Hash $app_defaults_extra_attrs,
   Integer $session_lifetime,
   Integer $session_timeout,
+  Boolean $session_check_address,
+  Boolean $session_consistent_address,
   String $support_contact,
   String $idp_id,
   String $metadata_subdir,
@@ -31,7 +33,7 @@
                          <% } -%>>
 
         <Sessions exportLocation="/GetAssertion" lifetime="<%= $session_lifetime %>" timeout="<%= $session_timeout %>"
-                  relayState="ss:mem" checkAddress="false" consistentAddress="true" handlerURL="/Shibboleth.sso"
+                  relayState="ss:mem" checkAddress="<%= $session_check_address %>" consistentAddress="<%= $session_consistent_address %>" handlerURL="/Shibboleth.sso"
                   handlerSSL="true" cookieProps="https" idpHistory="true" idpHistoryDays="7">
 
             <SessionInitiator type="SAML2" entityID="<%= $idp_id %>" forceAuthn="false" Location="/Login" template="/etc/shibboleth/bindingTemplate.html"/>

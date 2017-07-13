@@ -18,7 +18,6 @@ apply plugin: 'com.google.osdetector'
 
 dependencies {
     compile project(':f-tep-api')
-    compile project(':f-tep-catalogue')
     compile project(':f-tep-orchestrator')
 
     compile 'com.lmax:disruptor'

@@ -17,12 +17,10 @@ To simplify the use of third-party dependencies in the full packaging pipeline,
 we offer a Dockerfile defining the full build environment, suitable for use in
 CI or locally.
 
-To set up the build container and run the build scripts:
+To set up the build container and build the full distribution:
 
     docker build -t ftep-build ./build/
-    docker run -v $PWD:$PWD -w $PWD ftep-build ./build/ftep.sh
-    docker run -v $PWD:$PWD -w $PWD ftep-build ./build/zoo-project.sh
-    docker run -v $PWD:$PWD -w $PWD -e HOME=$PWD/.home ftep-build ./build/standalone-dist.sh
+    docker run -v $PWD:$PWD -w $PWD ftep-build gradle build buildDist --parallel
 
 Note that some additional paths or environment variables may be required for
 each build task.
@@ -40,18 +38,12 @@ Vagrant may be used to manage the Docker build container:
 
 We offer a [Vagrant][Vagrant] configuration environment which can
 be used for testing the distribution locally. This requires the full build
-results from running the scripts described above: `build/ftep.sh`,
-`build/zoo-project.sh` and `build/standalone-dist.sh`.
+results and yum repository achieved by building the gradle target `buildDist`
+in an environment containing `/usr/bin/createrepo`.
 
 Once the distribution has been prepared, create your test environment
-configuration in `distribution/puppet/hieradata/standalone.local.yaml`,
-for example:
-
-    ---
-    classes:
-      - ftep::backend
-      - ftep::db
-    ftep::repo::location: 'file:///vagrant/.dist/repo'
+configuration in `distribution/puppet/hieradata/standalone.local.yaml`. Copy
+the base `standalone.yaml` and adjust as needed.
 
 Then install the required vagrant plugins, and bring the machine up:
 

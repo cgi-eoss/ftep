@@ -13,7 +13,7 @@ Vagrant.configure('2') do |config|
     build.ssh.username = 'ftep'
     build.ssh.password = 'ftep'
     build.vm.synced_folder '.', '/home/ftep/build'
-    build.vm.synced_folder '/home/vanzettenp/.gradle', '/home/ftep/.gradle'
+    build.vm.synced_folder `echo $HOME`.chomp + '/.gradle', '/home/ftep/.gradle'
 
     build.vm.provider 'docker' do |d|
       d.build_dir = './build'

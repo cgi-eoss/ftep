@@ -123,11 +123,13 @@ define(['../ftepmodules'], function (ftepmodules) {
                     };
 
                     // Transform APIv1 results to APIv2-compatible results
-                    for (var i = 0; i < searchResults[0].results.entities.length; i++) {
-                        var feature = searchResults[0].results.entities[i];
-                        if (feature.usable === undefined) {
-                            // Default product usability is allowed
-                            feature.usable = true;
+                    for(var setCount = 0; setCount < searchResults.length; setCount++){
+                        for (var i = 0; i < searchResults[setCount].results.entities.length; i++) {
+                            var feature = searchResults[setCount].results.entities[i];
+                            if (feature.usable === undefined) {
+                                // Default product usability is allowed
+                                feature.usable = true;
+                            }
                         }
                     }
                 }

@@ -14,9 +14,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.serviceParams = ProductService.params.explorer;
         $scope.isWorkspaceLoading = false;
 
-        $scope.$on('update.selectedService', function(event, service, inputs) {
+        $scope.$on('update.selectedService', function(event, service, inputs, label) {
             $scope.isWorkspaceLoading = true;
             $scope.serviceParams.inputValues = {};
+            $scope.serviceParams.label = label;
             $scope.serviceParams.dropLists = {};
             if(inputs){
                 for (var key in inputs) {
@@ -54,7 +55,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 iparams[key] = [value];
             }
 
-            JobService.createJobConfig($scope.serviceParams.selectedService, iparams).then(function(jobConfig){
+            JobService.createJobConfig($scope.serviceParams.selectedService, iparams, $scope.serviceParams.label).then(function(jobConfig){
                 JobService.estimateJob(jobConfig, $event).then(function(estimation){
 
                     var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );

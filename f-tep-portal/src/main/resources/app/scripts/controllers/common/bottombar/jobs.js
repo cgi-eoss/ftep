@@ -46,7 +46,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             $scope.repeatJob = function(job){
                 JobService.getJobConfig(job).then(function(config){
-                    $rootScope.$broadcast('update.selectedService', config._embedded.service, config.inputs);
+                    $rootScope.$broadcast('update.selectedService', config._embedded.service, config.inputs, config.label);
                 });
             };
 

@@ -416,13 +416,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createJobConfig = function(service, inputs){
+        this.createJobConfig = function(service, inputs, label){
             return $q(function(resolve, reject) {
                     halAPI.from(rootUri + '/jobConfigs/')
                     .newRequest()
                     .post({
                         service: service._links.self.href,
-                        inputs: inputs
+                        inputs: inputs,
+                        label: label
                     })
                     .result
                     .then(

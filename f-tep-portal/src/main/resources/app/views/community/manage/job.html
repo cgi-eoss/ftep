@@ -97,6 +97,14 @@
                 <p ng-bind="jobParams.selectedJob.config._embedded.service.description" />
             </div>
         </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Label:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="jobParams.selectedJob.config.label" />
+            </div>
+        </div>
     </section>
 
     <section id="job-details" ng-cloak>

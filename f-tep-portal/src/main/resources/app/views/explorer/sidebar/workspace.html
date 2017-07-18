@@ -128,6 +128,29 @@
 
                     </div>
 
+                   <div class="service-field">
+                        <div class="input-container">
+                            <div class="row input-header">
+                                <md-subheader class="md-accent">
+                                    <span uib-tooltip="Label"
+                                        tooltip-placement="top"
+                                        tooltip-trigger="mouseenter"
+                                        tooltip-append-to-body="true">Label</span>
+                                </md-subheader>
+                            </div>
+                            <div class="row input-item">
+                               <div class="col-md-12 no-padding">
+                                    <md-input-container md-no-float>
+                                        <input ng-model="serviceParams.label"
+                                               type="string"
+                                               aria-label="Label">
+                                        <div class="hint" ng-show="true">Optional tag for identifying this job</div>
+                                     </md-input-container>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
                 </form>
 
                 <md-button id="launch-button"

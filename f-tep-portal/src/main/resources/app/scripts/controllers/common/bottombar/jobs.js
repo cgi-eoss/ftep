@@ -50,6 +50,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 });
             };
 
+            $scope.terminateJob = function(job){
+                JobService.terminateJob(job).then(function(result){
+                    JobService.refreshJobs('explorer');
+                });
+            };
+
             $scope.hasGuiEndPoint = function (job) {
                 if (job._links && job._links.gui && job._links.gui.href && job._links.gui.href.includes("http")) {
                     return true;

@@ -125,6 +125,17 @@
                 <i class="material-icons">replay</i>
             </md-button>
 
+            <md-button class="toolbar-button md-secondary"
+                       ng-if="job._links.terminate"
+                       ng-click="terminateJob(job)"
+                       aria-label="Terminate"
+                       uib-tooltip="Terminate this job"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">stop</i>
+            </md-button>
+
         </md-list-item>
 
         <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>

@@ -455,6 +455,26 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
+        this.terminateJob = function(job) {
+            var deferred = $q.defer();
+            // Launch the jobConfig
+            halAPI.from(job._links.terminate)
+                    .newRequest()
+                    .post()
+                    .result
+                    .then(
+             function (document) {
+                 MessageService.addInfo('Job ' + job.id + ' cancelled', 'Job ' + job.id + ' terminated by the user.');
+                 deferred.resolve();
+             },
+             function(error){
+                 MessageService.addError('Could not terminate the Job', error);
+                 deferred.reject();
+             });
+
+            return deferred.promise;
+        };
+
         return this;
     }]);
 });

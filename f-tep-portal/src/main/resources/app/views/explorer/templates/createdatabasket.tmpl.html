@@ -12,7 +12,7 @@
             </md-input-container>
         </div>
         <ul class="dialog-list">
-            <li ng-repeat="item in files" class="product-item">{{item.filename}}</li>
+            <li ng-repeat="item in files" class="product-item">{{item.identifier ? item.identifier : item}}</li>
         </ul>
     </md-dialog-content>
     <md-dialog-actions>

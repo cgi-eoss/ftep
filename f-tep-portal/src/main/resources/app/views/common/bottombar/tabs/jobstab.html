@@ -41,7 +41,7 @@
                     </md-button>
                 </md-menu-item>
                 <md-menu-item>
-                    <md-button ng-click="createNewBasket($event)"
+                    <md-button ng-click="createNewBasket($event, jobParams.jobSelectedOutputs)"
                                aria-label="Create New Databasket">
                          <span>
                              <span class="material-icons">add_shopping_cart</span>
@@ -138,7 +138,7 @@
     </md-button>
 
     <md-button class="toolbar-button"
-               ng-click="createNewBasket($event)"
+               ng-click="createNewBasket($event, jobParams.jobSelectedOutputs)"
                aria-label="Create New Databasket"
                uib-tooltip="Create New Databasket"
                tooltip-trigger="mouseenter"

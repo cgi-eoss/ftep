@@ -19,10 +19,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /** Opens a 'Create Databasket' dialog
          *  Collects selected items based on active tab, and adds to the new databasket
          */
-        $scope.createNewBasket = function($event){
-            CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
-                BasketService.refreshDatabaskets("explorer", "Create", newBasket);
-            });
+        $scope.createNewBasket = function($event, items, isGeoResult){
+            if(items && items.length > 0){
+                CommonService.createBasketWithItems($event, items).then(function (newBasket) {
+                    $scope.addToDatabasket(items, isGeoResult);
+                    BasketService.refreshDatabaskets("explorer", "Create", newBasket);
+                });
+            }
+            else {
+                CommonService.createItemDialog($event, 'BasketService', 'createDatabasket').then(function (newBasket) {
+                    BasketService.refreshDatabaskets("explorer", "Create", newBasket);
+                });
+            }
         };
 
         /**

@@ -240,6 +240,36 @@ define(['../ftepmodules'], function (ftepmodules) {
             });
         }
 
+        this.createBasketWithItems = function($event, items){
+            var deferred = $q.defer();
+            function BasketController($scope, $mdDialog, BasketService) {
+                $scope.files = items;
+
+                $scope.cloneBasket= function() {
+                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description).then(function (newBasket) {
+                        deferred.resolve(newBasket);
+                    });
+                    $mdDialog.hide();
+                };
+
+                $scope.closeDialog = function () {
+                    deferred.reject();
+                    $mdDialog.hide();
+                };
+            }
+
+            BasketController.$inject = ['$scope', '$mdDialog', 'BasketService'];
+            $mdDialog.show({
+                controller: BasketController,
+                templateUrl: 'views/explorer/templates/createdatabasket.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
+            });
+
+            return deferred.promise;
+        }
+
         return this;
 
     }]);

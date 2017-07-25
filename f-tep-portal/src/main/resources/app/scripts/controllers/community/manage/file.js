@@ -43,5 +43,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
         };
 
+        $scope.getGeometryStr = function(geoJson){
+            return JSON.stringify(geoJson);
+        }
+
     }]);
 });

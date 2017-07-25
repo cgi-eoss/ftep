@@ -63,18 +63,13 @@
             <div class="row file-field">
                 <md-input-container md-no-float required>
                     <label class="md-title">Geometry</label>
-                    <textarea required
-                              ng-readonly="true"
+                    <textarea ng-readonly="true"
                               name="geometry"
-                              ng-model="fileParams.fileDetails.metadata.geometry | json"
-                              type="text"
                               rows="3"
                               placeholder="File geometry is required *"
-                              aria-label="Geometry "
-                              ng-pattern="/^\s*(\w+)\s*\(\s*(.*)\s*\)\s*$/" />
+                              aria-label="Geometry ">{{getGeometryStr(fileParams.fileDetails.metadata.geometry)}}</textarea>
                     <div ng-messages="fileForm.geometry.$error" role="alert">
                         <div ng-message="required">Geometry is required!</div>
-                        <div ng-message="pattern">Geometry Is Invalid</div>
                     </div>
                 </md-input-container>
             </div>

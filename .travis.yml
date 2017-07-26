@@ -19,4 +19,4 @@ notifications:
 
 env:
   global:
-    - GRADLE_OPTS="-Xms128m -Dorg.gradle.daemon=false"
+    - GRADLE_OPTS="-Xms128m -Xmx1024m -Dorg.gradle.daemon=false"

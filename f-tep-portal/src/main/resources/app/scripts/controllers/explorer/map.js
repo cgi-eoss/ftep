@@ -27,7 +27,17 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         /** ----- MAP STYLES TYPES ----- **/
         var resultStyle = new ol.style.Style({
             fill: new ol.style.Fill({ color: 'rgba(255,128,171,0.2)' }),
-            stroke: new ol.style.Stroke({ color: 'rgba(255,64,129,0.6)', width: 2 })
+            stroke: new ol.style.Stroke({ color: 'rgba(255,64,129,0.6)', width: 2 }),
+            image: new ol.style.Circle({
+                fill: new ol.style.Fill({
+                  color: 'rgba(255,128,171,0.2)'
+                }),
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                  color: 'rgba(255,64,129,0.6)',
+                  width: 3
+                })
+            })
         });
 
         var searchBoxStyle = new ol.style.Style({
@@ -85,11 +95,11 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 }),
                 image: new ol.style.Circle({
                     fill: new ol.style.Fill({
-                        color: 'rgba(250,242,204,0.2)'
+                        color: 'rgba(174,213,129,0.8)'
                     }),
                     radius: 5,
                     stroke: new ol.style.Stroke({
-                        color: 'rgba(138,109,59,0.8)',
+                        color: 'rgba(85,139,47,0.8)',
                         width: 3
                     })
                 })
@@ -392,9 +402,13 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             }, 1000);
         };
 
-        /* Get polygon for geometry to display on map */
-        function getGeometryPolygon(geometry) {
+        /* Get geometry to display on map */
+        function getOlGeometryObject(geometry) {
             if(geometry && geometry.coordinates) {
+                if(geometry.type === 'Point'){
+                    return new ol.geom[geometry.type](geometry.coordinates).transform(EPSG_4326, EPSG_3857);
+                }
+                else {
                     var lonlatPoints = [];
                     for(var k = 0; k < geometry.coordinates.length; k++){
                         for(var m = 0; m < geometry.coordinates[k].length; m++){
@@ -402,10 +416,11 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                             lonlatPoints.push(point);
                         }
                     }
-
                     return new ol.geom[geometry.type]([lonlatPoints]).transform(EPSG_4326, EPSG_3857);
                 }
             }
+            return undefined;
+        }
         /* ----- END OF VARIOUS MAP FUNCTIONS ----- */
 
         /* ----- DROPPED FILE LAYER ----- */
@@ -454,17 +469,22 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             selectAll(false);
             resultLayerFeatures.clear();
             if(results && results.features && results.features.length > 0) {
+                var zoomToPlace = false;
                 for (var result in results.features) {
                     var item = results.features[result];
-                    var pol = getGeometryPolygon(item.geometry);
-                    var resultItem =  new ol.Feature({
-                        geometry: pol,
+                    var resultItem = new ol.Feature({
                         data: item
                     });
+                    if (item.geometry) {
+                        resultItem.setGeometry(getOlGeometryObject(item.geometry));
+                        zoomToPlace = true;
+                    }
                     resultLayerFeatures.push(resultItem);
                 }
+                if (zoomToPlace) {
                     $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
                 }
+            }
         });
 
         $scope.$on('results.item.selected', function(event, item, selected) {
@@ -480,7 +500,10 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                         selectClick.getFeatures().push(feature);
                         $scope.map.getView().fit(feature.getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
                         var zoomLevel = 3;
-                        if($scope.map.getView().getZoom() > 3){
+                        if(feature.getGeometry() instanceof ol.geom.Point){
+                            zoomLevel = 6;
+                        }
+                        else if($scope.map.getView().getZoom() > 3){
                             zoomLevel = $scope.map.getView().getZoom()-2;
                         }
                         $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
@@ -532,7 +555,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 for(var i = 0; i < basketFiles.length; i++){
                     var item = basketFiles[i];
                     if(item.metadata && item.metadata.geometry && item.metadata.geometry.coordinates){
-                        var pol = getGeometryPolygon(item.metadata.geometry);
+                        var pol = getOlGeometryObject(item.metadata.geometry);
                         var resultItem =  new ol.Feature({
                              geometry: pol,
                              data: item
@@ -607,7 +630,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 }
 
                 // Zoom into place
-                var polygon = getGeometryPolygon(files[files.length-1].metadata.geometry);
+                var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
                 $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
             }
         });

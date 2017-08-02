@@ -136,6 +136,15 @@
                 <i class="material-icons">stop</i>
             </md-button>
 
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="routeToManagePage(job)"
+                       uib-tooltip="Open in Manage/Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+               <i class="material-icons">call_made</i>
+            </md-button>
+
         </md-list-item>
 
         <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>

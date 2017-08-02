@@ -15,6 +15,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.resultParams = GeoService.params;
 
         $scope.$on('update.geoResults', function(event, results) {
+            TabService.navInfo.explorer.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
             setResults(results);
         });
 
@@ -75,7 +76,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.resultPaging.total = 0;
             }
 
-            TabService.navInfo.explorer.activeBottomNav = TabService.getBottomNavTabs().RESULTS;
             TabService.navInfo.explorer.resultTabNameExtention = GeoService.getResultsNameExtention();
             $scope.resultParams.selectedResultItems = [];
             scrollResults();
@@ -99,14 +99,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 GeoService.getGeoResults(pageNumber).then(function (data) {
                     $rootScope.$broadcast('update.geoResults', data);
                 })
-                    .catch(function (fallback) {
-                        $rootScope.$broadcast('update.geoResults');
-                    });
+                .catch(function (fallback) {
+                    $rootScope.$broadcast('update.geoResults');
+                });
             }
         };
 
         $scope.clearAll = function(){
-            $rootScope.$broadcast('update.geoResults');
+            setResults();
         };
 
         $scope.$on('map.item.toggled', function(event, items) {

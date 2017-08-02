@@ -24,8 +24,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* SIDE BAR */
         $scope.sideNavTabs = TabService.getExplorerSideNavs();
-        $scope.bottomNavTabs = TabService.getBottomNavTabs();
-        $scope.navInfo = TabService.navInfo.explorer;
 
         function showSidebarArea() {
             $scope.navInfo.sideViewVisible = true;
@@ -53,7 +51,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /** BOTTOM BAR **/
         $scope.displayTab = function(tab, allowedToClose) {
-
             if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
                 $scope.toggleBottomView();
             } else {

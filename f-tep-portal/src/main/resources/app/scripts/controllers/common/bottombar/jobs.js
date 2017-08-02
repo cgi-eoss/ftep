@@ -8,7 +8,7 @@
 define(['../../../ftepmodules'], function (ftepmodules) {
     'use strict';
 
-    ftepmodules.controller('JobsCtrl', ['$scope', '$rootScope', 'CommonService', 'JobService', '$sce', function ($scope, $rootScope, CommonService, JobService, $sce) {
+    ftepmodules.controller('JobsCtrl', ['$scope', '$rootScope', '$location', 'CommonService', 'JobService', '$sce', 'TabService', function ($scope, $rootScope, $location, CommonService, JobService, $sce, TabService) {
 
             $scope.jobParams = JobService.params.explorer;
             $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
@@ -159,6 +159,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             /* Split files for input tab */
             $scope.splitInputFiles = function(link) {
                 return link.split(',');
+            };
+
+            $scope.routeToManagePage = function(job) {
+                console.log(window.location.hostname);
+                TabService.navInfo.community.activeSideNav = TabService.getCommunityNavTabs().JOBS;
+                JobService.params.community.selectedJob = job;
+                JobService.refreshSelectedJob('community');
+                $location.path('/community');
             };
 
     }]);

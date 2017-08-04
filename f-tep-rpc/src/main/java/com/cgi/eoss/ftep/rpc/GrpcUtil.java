@@ -36,4 +36,20 @@ public class GrpcUtil {
                 k -> paramsBuilder.add(JobParam.newBuilder().setParamName(k).addAllParamValue(params.get(k)).build()));
         return paramsBuilder.build();
     }
+
+    /**
+     * <p>Convert a {@link com.cgi.eoss.ftep.model.Job} to its gRPC {@link Job} representation.</p>
+     *
+     * @param job The job to be converted.
+     * @return The input job mapped to {@link Job}.
+     */
+    public static Job toRpcJob(com.cgi.eoss.ftep.model.Job job) {
+        return Job.newBuilder()
+                .setId(job.getExtId())
+                .setIntJobId(String.valueOf(job.getId()))
+                .setUserId(job.getOwner().getName())
+                .setServiceId(job.getConfig().getService().getName())
+                .build();
+    }
+
 }

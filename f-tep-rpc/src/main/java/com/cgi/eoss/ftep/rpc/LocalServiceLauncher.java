@@ -17,4 +17,10 @@ public class LocalServiceLauncher {
         FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
         serviceLauncher.launchService(serviceParams, responseObserver);
     }
+
+    @Async
+    public void asyncStopService(StopServiceParams stopParams, StreamObserver<StopServiceResponse> responseObserver) {
+        FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        serviceLauncher.stopService(stopParams, responseObserver);
+    }
 }

@@ -1,10 +1,15 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
+import com.cgi.eoss.ftep.rpc.StopServiceParams;
+import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.grpc.stub.StreamObserver;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
@@ -19,10 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -48,10 +57,12 @@ public class JobsApiExtension {
 
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final LocalServiceLauncher localServiceLauncher;
 
     @Autowired
     public JobsApiExtension(@Value("${ftep.api.logs.username:admin}") String username,
-                            @Value("${ftep.api.logs.password:graylogpass}") String password) {
+                            @Value("${ftep.api.logs.password:graylogpass}") String password,
+                            LocalServiceLauncher localServiceLauncher) {
         this.httpClient = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override
@@ -67,6 +78,7 @@ public class JobsApiExtension {
                 .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
         this.objectMapper = new ObjectMapper();
+        this.localServiceLauncher = localServiceLauncher;
     }
 
     @GetMapping("/{jobId}/logs")
@@ -105,6 +117,22 @@ public class JobsApiExtension {
         }
     }
 
+    @PostMapping("/{jobId}/terminate")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'write')")
+    public ResponseEntity stop(@ModelAttribute("jobId") Job job) throws InterruptedException {
+        StopServiceParams stopServiceParams = StopServiceParams.newBuilder()
+                .setJob(GrpcUtil.toRpcJob(job))
+                .build();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        JobStopObserver responseObserver = new JobStopObserver(latch);
+
+        localServiceLauncher.asyncStopService(stopServiceParams, responseObserver);
+
+        latch.await(1, TimeUnit.MINUTES);
+        return ResponseEntity.noContent().build();
+    }
+
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static final class GraylogApiResponse {
@@ -122,6 +150,30 @@ public class JobsApiExtension {
     private static final class SimpleMessage {
         private String timestamp;
         private String message;
+    }
+
+    private static final class JobStopObserver implements StreamObserver<StopServiceResponse> {
+        private final CountDownLatch latch;
+
+        JobStopObserver(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void onNext(StopServiceResponse value) {
+            LOG.debug("Received StopServiceResponse: {}", value);
+            latch.countDown();
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            LOG.error("Failed to stop service via REST API", t);
+        }
+
+        @Override
+        public void onCompleted() {
+            // No-op, the user has long stopped listening here
+        }
     }
 
 }

@@ -56,7 +56,6 @@ public class JobConfigsApiExtension {
     @PostMapping("/{jobConfigId}/launch")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read')")
     public ResponseEntity<Resource<Job>> launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) throws InterruptedException {
-
         FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
                 .setUserId(ftepSecurityService.getCurrentUser().getName())
@@ -82,7 +81,6 @@ public class JobConfigsApiExtension {
     }
 
     private static final class JobLaunchObserver implements StreamObserver<FtepServiceResponse> {
-
         private final CountDownLatch latch;
         @Getter
         private long intJobId;

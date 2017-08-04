@@ -21,6 +21,7 @@ import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.cgi.eoss.ftep.rpc.worker.PortBindings;
+import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
@@ -46,6 +47,7 @@ import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
 import shadow.dockerjava.com.github.dockerjava.api.command.BuildImageCmd;
 import shadow.dockerjava.com.github.dockerjava.api.command.CreateContainerCmd;
 import shadow.dockerjava.com.github.dockerjava.api.command.InspectContainerResponse;
+import shadow.dockerjava.com.github.dockerjava.api.exception.BadRequestException;
 import shadow.dockerjava.com.github.dockerjava.api.exception.DockerClientException;
 import shadow.dockerjava.com.github.dockerjava.api.model.Bind;
 import shadow.dockerjava.com.github.dockerjava.api.model.ExposedPort;
@@ -357,6 +359,31 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         }
     }
 
+    @Override
+    public void stopContainer(Job request, StreamObserver<StopContainerResponse> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
+            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
+            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
+
+            DockerClient dockerClient = jobClients.get(request.getId());
+            String containerId = jobContainers.get(request.getId());
+
+            LOG.info("Stop requested for job {} running in container {}", request.getId(), containerId);
+
+            try {
+                stopContainer(dockerClient, containerId);
+                removeContainer(dockerClient, containerId);
+                cleanUpJob(request.getId());
+
+                responseObserver.onNext(StopContainerResponse.newBuilder().build());
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                LOG.error("Failed to stop job: {}", request.getId(), e);
+                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            }
+        }
+    }
+
     private void cleanUpJob(String jobId) {
         jobContainers.remove(jobId);
         jobClients.remove(jobId);
@@ -395,6 +422,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try {
             LOG.info("Removing container {}", containerId);
             client.removeContainerCmd(containerId).exec();
+        } catch (BadRequestException e) {
+            if (!e.getMessage().endsWith("is already in progress")) {
+                LOG.error("Failed to delete container {}", containerId, e);
+            }
         } catch (Exception e) {
             LOG.error("Failed to delete container {}", containerId, e);
         }

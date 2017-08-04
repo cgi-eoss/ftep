@@ -458,7 +458,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.terminateJob = function(job) {
             var deferred = $q.defer();
             // Launch the jobConfig
-            halAPI.from(job._links.terminate)
+            halAPI.from(job._links.terminate.href)
                     .newRequest()
                     .post()
                     .result

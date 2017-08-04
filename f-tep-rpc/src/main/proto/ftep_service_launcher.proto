@@ -10,6 +10,7 @@ option java_package = "com.cgi.eoss.ftep.rpc";
 service FtepServiceLauncher {
     rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
     rpc ListWorkers (ListWorkersParams) returns (WorkersList);
+    rpc StopService (StopServiceParams) returns (StopServiceResponse);
 }
 
 message FtepServiceParams {
@@ -41,4 +42,11 @@ message Worker {
     string host = 1;
     int32 port = 2;
     string environment = 3;
+}
+
+message StopServiceParams {
+    Job job = 1;
+}
+
+message StopServiceResponse {
 }

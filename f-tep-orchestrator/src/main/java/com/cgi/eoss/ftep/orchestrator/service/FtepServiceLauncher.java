@@ -18,6 +18,8 @@ import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
+import com.cgi.eoss.ftep.rpc.StopServiceParams;
+import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
@@ -32,6 +34,7 @@ import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
+import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -121,7 +124,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 .put("userId", userId).put("serviceId", serviceId).put("zooId", zooId)) {
             // TODO Allow re-use of existing JobConfig
             job = jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, inputs);
-            rpcJob = createRpcJob(job);
+            rpcJob = GrpcUtil.toRpcJob(job);
 
             // Post back the job metadata for async responses
             responseObserver.onNext(FtepServiceResponse.newBuilder().setJob(rpcJob).build());
@@ -183,13 +186,23 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         }
     }
 
-    private com.cgi.eoss.ftep.rpc.Job createRpcJob(Job job) {
-        return com.cgi.eoss.ftep.rpc.Job.newBuilder()
-                .setId(job.getExtId())
-                .setIntJobId(String.valueOf(job.getId()))
-                .setUserId(job.getOwner().getName())
-                .setServiceId(job.getConfig().getService().getName())
-                .build();
+    @Override
+    public void stopService(StopServiceParams request, StreamObserver<StopServiceResponse> responseObserver) {
+        com.cgi.eoss.ftep.rpc.Job rpcJob = request.getJob();
+
+        try {
+            FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(jobWorkers.get(rpcJob)).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
+            LOG.info("Stop requested for job {}", rpcJob.getId());
+            StopContainerResponse stopContainerResponse = worker.stopContainer(rpcJob);
+            LOG.info("Successfully stopped job {}", rpcJob.getId());
+            responseObserver.onNext(StopServiceResponse.newBuilder().build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to stop job {}; notifying gRPC client", rpcJob.getId(), e);
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
+        } finally {
+            jobWorkers.remove(rpcJob);
+        }
     }
 
     private void checkCost(User user, JobConfig jobConfig) {

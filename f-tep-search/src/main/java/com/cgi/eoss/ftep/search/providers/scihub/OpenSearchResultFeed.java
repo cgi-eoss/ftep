@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.search.scihub.opensearch;
+package com.cgi.eoss.ftep.search.providers.scihub;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

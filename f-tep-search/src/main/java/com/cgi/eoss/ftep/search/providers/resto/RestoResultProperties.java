@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.search.ftep.opensearch;
+package com.cgi.eoss.ftep.search.providers.resto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RestoSearchResultProperties {
+public class RestoResultProperties {
     @JsonProperty("id")
     private String id;
     @JsonProperty("totalResults")
@@ -18,7 +18,7 @@ public class RestoSearchResultProperties {
     @JsonProperty("itemsPerPage")
     private long itemsPerPage;
     @JsonProperty("query")
-    private RestoSearchQuery query;
+    private RestoResultQuery query;
     @JsonProperty("links")
-    private RestoSearchPropertiesLink[] links;
+    private RestoResultPropertiesLink[] links;
 }

@@ -1,10 +1,8 @@
-package com.cgi.eoss.ftep.search.scihub;
+package com.cgi.eoss.ftep.search.providers.scihub;
 
-import com.cgi.eoss.ftep.search.api.RepoType;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
 import com.cgi.eoss.ftep.search.api.SearchResults;
-import com.cgi.eoss.ftep.search.scihub.opensearch.OpenSearchResult;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -17,6 +15,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,16 +25,18 @@ import java.util.Set;
 public class SciHubSearchProvider implements SearchProvider {
 
     private final Set<String> supportedMissions = ImmutableSet.of(
-            "Sentinel-1",
-            "Sentinel-2",
-            "Sentinel-3"
+            "sentinel1",
+            "sentinel2",
+            "sentinel3"
     );
 
+    private final int priority;
     private final HttpUrl baseUrl;
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
 
-    public SciHubSearchProvider(SciHubSearchProperties sciHubProperties, OkHttpClient httpClient) {
+    public SciHubSearchProvider(int priority, SciHubSearchProperties sciHubProperties, OkHttpClient httpClient) {
+        this.priority = priority;
         this.baseUrl = sciHubProperties.getBaseUrl();
         this.client = httpClient.newBuilder()
                 .addInterceptor(chain -> {
@@ -49,6 +50,11 @@ public class SciHubSearchProvider implements SearchProvider {
         this.objectMapper = new ObjectMapper()
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
                 .registerModules(new JavaTimeModule());
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
     }
 
     @Override
@@ -84,10 +90,20 @@ public class SciHubSearchProvider implements SearchProvider {
     }
 
     @Override
-    public boolean supports(RepoType repoType, SearchParameters parameters) {
-        // TODO Make configurable
-        return repoType == RepoType.SATELLITE &&
-                supportedMissions.containsAll(parameters.getOtherParameters().get("mission"));
+    public boolean supports(SearchParameters parameters) {
+        String catalogue = parameters.getValue("catalogue", "UNKNOWN");
+        return catalogue.equals("SATELLITE") &&
+                supportedMissions.contains(parameters.getValue("mission", "UNKNOWN"));
+    }
+
+    @Override
+    public boolean supportsQuicklook(String productSource, String productIdentifier) {
+        return false;
+    }
+
+    @Override
+    public Resource getQuicklook(String productSource, String productIdentifier) throws IOException {
+        throw new IOException("Not implemented");
     }
 
 }

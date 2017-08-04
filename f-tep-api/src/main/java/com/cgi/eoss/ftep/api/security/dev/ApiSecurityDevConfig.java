@@ -58,9 +58,9 @@ public class ApiSecurityDevConfig {
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();
-                // TODO Make DEV security mode STATELESS for consistency with SSO
                 httpSecurity
                         .cors();
+                // TODO Make DEV security mode STATELESS for consistency with SSO
                 httpSecurity
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);

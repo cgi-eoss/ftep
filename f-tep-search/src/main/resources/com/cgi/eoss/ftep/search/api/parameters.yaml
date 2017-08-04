@@ -1,0 +1,149 @@
+---
+catalogue:
+  title: 'Catalogue'
+  type: 'catalogue'
+  allowed:
+    values:
+      - value: 'SATELLITE'
+        title: 'Satellite'
+        description: 'Satellite products'
+      - value: 'REF_DATA'
+        title: 'Reference'
+        description: 'User-uploaded reference and in situ data'
+      - value: 'FTEP_PRODUCTS'
+        title: 'F-TEP Products'
+        description: 'All pre-processed data'
+
+owner:
+  title: 'Owner'
+  type: 'text'
+  onlyIf:
+    'catalogue':
+      - 'REF_DATA'
+      - 'FTEP_PRODUCTS'
+
+mission:
+  title: 'Mission'
+  type: 'select'
+  defaultValue: 'sentinel2'
+  allowed:
+    values:
+      - value: 'sentinel1'
+        title: 'Sentinel-1'
+      - value: 'sentinel2'
+        title: 'Sentinel-2'
+      - value: 'sentinel3'
+        title: 'Sentinel-3'
+      - value: 'landsat'
+        title: 'Landsat'
+  onlyIf:
+    'catalogue':
+      - 'SATELLITE'
+
+productDate:
+  title: 'Product date'
+  type: 'daterange'
+  description: 'UTC'
+  defaultValue:
+    - '-3'
+    - '0'
+
+aoi:
+  title: 'AOI'
+  type: 'polygon'
+  description: 'WKT polygon'
+
+identifier:
+  title: 'Identifier'
+  type: 'text'
+  description: 'Whole product identifier string'
+
+platform:
+  title: 'Platform'
+  type: 'select'
+  defaultValue: 'S2A'
+  allowed:
+    values:
+      - value: 'Sentinel-1A'
+        title: 'S1A'
+        onlyIf:
+          'mission':
+            - 'sentinel1'
+      - value: 'Sentinel-S1B'
+        title: 'S1B'
+        onlyIf:
+          'mission':
+            - 'sentinel1'
+      - value: 'Sentinel-2A'
+        title: 'S2A'
+        onlyIf:
+          'mission':
+            - 'sentinel2'
+      - value: 'Sentinel-3A'
+        title: 'S3A'
+        onlyIf:
+          'mission':
+            - 'sentinel3'
+      - value: 'Landsat-5'
+        title: 'Landsat-5'
+        onlyIf:
+          'mission':
+            - 'landsat'
+      - value: 'Landsat-7'
+        title: 'Landsat-7'
+        onlyIf:
+          'mission':
+            - 'landsat'
+      - value: 'Landsat-8'
+        title: 'Landsat-8'
+        onlyIf:
+          'mission':
+            - 'landsat'
+  onlyIf:
+    'mission':
+      - 'sentinel1'
+      - 'sentinel2'
+      - 'sentinel3'
+      - 'landsat'
+
+maxCloudCover:
+  title: 'Cloud Coverage'
+  type: 'int'
+  description: 'Maximum (%)'
+  defaultValue: 10
+  allowed:
+    min: 0
+    max: 100
+  onlyIf:
+    'mission':
+      - 'sentinel2'
+      - 'sentinel3'
+      - 'landsat'
+
+s1ProductType:
+  title: 'Product type'
+  type: 'select'
+  defaultValue: 'GRD'
+  allowed:
+    values:
+      - value: 'GRD'
+        title: 'GRD'
+      - value: 'SLC'
+        title: 'SLC'
+  onlyIf:
+    'mission':
+      - 'sentinel1'
+
+orbitDirection:
+  title: 'Orbit direction'
+  type: 'select'
+  defaultValue: 'ASCENDING'
+  allowed:
+    values:
+      - value: 'ASCENDING'
+        title: 'ASCENDING'
+      - value: 'DESCENDING'
+        title: 'DESCENDING'
+  onlyIf:
+    'mission':
+      - 'sentinel1'

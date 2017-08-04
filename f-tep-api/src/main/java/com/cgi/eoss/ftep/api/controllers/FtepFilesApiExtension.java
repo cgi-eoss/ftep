@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.costing.CostingService;
@@ -8,12 +7,13 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.geojson.GeoJsonObject;
+import org.geojson.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * <p>A {@link RepositoryRestController} for interacting with {@link com.cgi.eoss.ftep.model.FtepFile}s. Extends the
@@ -56,8 +57,10 @@ public class FtepFilesApiExtension {
 
     @PostMapping("/externalProduct")
     @ResponseBody
-    public ResponseEntity saveExternalProductMetadata(@RequestBody GeoJsonObject geoJson) throws Exception {
-        FtepFile ftepFile = catalogueService.indexExternalProduct(geoJson);
+    public ResponseEntity saveExternalProductMetadata(@RequestBody Feature geoJsonFeature) throws Exception {
+        FtepFile ftepFile = Optional
+                .ofNullable(ftepFileDataService.getByUri((String) geoJsonFeature.getProperties().get("originalUrl")))
+                .orElseGet(() -> catalogueService.indexExternalProduct(geoJsonFeature));
         return ResponseEntity.created(ftepFile.getUri()).body(new Resource<>(ftepFile));
     }
 

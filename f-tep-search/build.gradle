@@ -16,6 +16,7 @@ dependencies {
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     compile 'com.squareup.okhttp3:okhttp'
     compile 'com.squareup.okhttp3:logging-interceptor'
+    compile 'commons-net:commons-net'
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'org.springframework:spring-context'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'

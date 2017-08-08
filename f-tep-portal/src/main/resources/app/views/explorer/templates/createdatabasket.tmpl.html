@@ -12,11 +12,11 @@
             </md-input-container>
         </div>
         <ul class="dialog-list">
-            <li ng-repeat="item in files" class="product-item">{{item.identifier ? item.identifier : item}}</li>
+            <li ng-repeat="item in files" class="product-item">{{item.properties.productIdentifier}}</li>
         </ul>
     </md-dialog-content>
     <md-dialog-actions>
-        <md-button ng-click="cloneBasket()" ng-disabled="!newBasket.name" class="md-primary">Create</md-button>
+        <md-button ng-click="createBasket()" ng-disabled="!newBasket.name" class="md-primary">Create</md-button>
         <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
     </md-dialog-actions>
 </md-dialog>

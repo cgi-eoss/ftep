@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, traverson) {
+    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'FileService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, FileService, traverson) {
 
         var self = this;
 
@@ -311,24 +311,56 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
-        this.addItems = function (databasket, fileLinks) {
+        this.addToDatabasket = function(databasket, items) {
+            var itemLinks = [];
+            var promises = [];
+            for(var index in items){
+                promises.push(getBasketItemLink(items[index], itemLinks));
+            }
+
+            $q.all(promises).then(function(){
+                if(itemLinks.length > 0) {
+                    addToBasket(databasket, itemLinks, true);
+                } else {
+                    addToBasket(databasket, items, false);
+                }
+            });
+        };
+
+        function getBasketItemLink(item, itemLinks){
+            var partialPromise = $q.defer();
+
+            FileService.createGeoResultFile(item).then(function (ftepFile) {
+                itemLinks.push(ftepFile._links.self.href);
+                partialPromise.resolve();
+            }, function(error){
+                MessageService.addError('Could not add file to Databasket', error);
+                partialPromise.resolve();
+            });
+            return partialPromise.promise;
+        }
+
+        function addToBasket(databasket, items){
+            self.addItems(databasket, items).then(function () {
+                self.refreshDatabaskets("explorer");
+            });
+        }
+
+        this.addItems = function (databasket, fileLinks, geoResults) {
             return $q(function(resolve, reject) {
 
                 var itemsArray = [];
 
                 /* Collect links from current items */
-                if(databasket.files){
+                if(databasket.files && databasket.files.length > 0){
                     for (var item in databasket.files) {
                         itemsArray.push(databasket.files[item]._links.self.href);
                     }
                 }
 
                 /* Append links of new items */
-                for (var file in fileLinks) {
-                    if(itemsArray.indexOf(fileLinks[file]) < 0){
-                        itemsArray.push(fileLinks[file]);
-                    }
-                }
+                var newItems = fileLinks.filter(function(i) { return itemsArray.indexOf(i) < 0; });
+                itemsArray.push(newItems);
 
                 /* Set new files object */
                 var updatedItems = {"files": itemsArray};

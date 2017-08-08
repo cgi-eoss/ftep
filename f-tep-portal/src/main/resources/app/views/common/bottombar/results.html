@@ -2,123 +2,112 @@
     <div class="spinner" />
 </div>
 
-<div ng-show="resultPaging.total === 0 && !spinner.loading" class="result-info">No results to display</div>
+<div ng-show="!resultParams.geoResults && !spinner.loading" class="result-info">No results to display</div>
 
-<div id="resultDiv" ng-show="resultPaging.total > 0 && !spinner.loading">
+<div id="resultDiv" ng-show="resultParams.geoResults && !spinner.loading">
 
     <ul class="products-list product-list-in-box">
-        <div ng-repeat="result in resultParams.geoResults">
-            <li id="{{item.identifier}}"
-                ng-repeat="item in result.results.entities"
-                ng-click="toggleSelection(item)"
-                ng-class="(resultParams.selectedResultItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
-                ng-mouseover="updateMetadata(item)"
-                dnd-draggable="getSelectedItemsLinks(item)">
 
-                <div class="row geo-item">
+        <li id="{{item.properties.productIdentifier}}"
+            ng-repeat="item in resultParams.geoResults.features"
+            ng-click="toggleSelection(item)"
+            ng-class="(resultParams.selectedResultItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
+            dnd-draggable="getSelectedItemsLinks(item)">
 
-                    <div class="col-xs-1 no-padding draghandle">
-                         <div class="md-avatar" alt="drag handle">
-                            <i class="material-icons"
-                               uib-tooltip="Drag Result"
-                               tooltip-placement="top"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">drag_handle</i>
+            <div class="row geo-item">
+
+                <div class="col-xs-1 no-padding draghandle">
+                     <div class="md-avatar" alt="drag handle">
+                        <i class="material-icons"
+                           uib-tooltip="Drag Result"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">drag_handle</i>
+                    </div>
+                </div>
+
+                <div class="col-xs-10 no-padding details">
+
+                    <div class="row">
+                        <div class="col-md-12 title">
+                            <h5>{{item.properties.productIdentifier}}</h5>
                         </div>
                     </div>
 
-                    <div class="col-xs-10 no-padding details">
-
-                        <div class="row">
-                            <div class="col-md-12 title">
-                                <h5>{{item.identifier}}</h5>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p>Start: {{item.properties.extraParams.ftepStartTime}}</p>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-3">
-                                <p>Start: {{item.start}}</p>
-                            </div>
-                            <div class="col-md-3">
-                                <p>End: {{item.stop}}</p>
-                            </div>
-                            <div class="col-md-2">
-                                <p>Size: {{item.size | bytesToGB}}</p>
-                            </div>
-                            <div class="col-md-3" ng-if="hasCloudCoverage(item)">
-                                <p>Cloud Coverage: {{item.details.misc.quality_info['Cloud Coverage Assessment'] | number:2}}</p>
-                            </div>
-                            <div class="col-md-3" ng-if="!hasCloudCoverage(item)">
-                                <p>Cloud Coverage: N/A</p>
-                            </div>
+                        <div class="col-md-3">
+                            <p>End: {{item.properties.extraParams.ftepEndTime}}</p>
                         </div>
-
-                    </div>
-
-                    <div class="col-xs-1 no-padding buttons">
-                        <div class="row">
-                            <div class="col-sm-4 no-padding">
-                                  <md-button class="toolbar-button md-secondary"
-                                             ng-click="showMetadata($event, item); $event.stopPropagation()"
-                                             aria-label="Show Metadata"
-                                             uib-tooltip="Show Metadata"
-                                             tooltip-placement="top"
-                                             tooltip-trigger="mouseenter"
-                                             tooltip-append-to-body="true">
-                                    <i class="material-icons">info_outline</i>
-                                </md-button>
-                            </div>
-                            <div class="col-sm-4 no-padding">
-                                 <md-button class="toolbar-button md-secondary"
-                                           ng-click="$event.stopPropagation()"
-                                            href="{{item.link}}"
-                                            target="_blank"
-                                            aria-label="Download"
-                                            uib-tooltip="Download"
-                                            tooltip-placement="top"
-                                            tooltip-trigger="mouseenter"
-                                            tooltip-append-to-body="true">
-                                    <i class="material-icons">file_download</i>
-                                </md-button>
-                            </div>
-                            <div class="col-sm-4 no-padding">
-                                <md-button class="toolbar-button md-secondary"
-                                           ng-if="item.usable"
-                                           aria-label="Usable in services"
-                                           uib-tooltip="Usable in services"
-                                           tooltip-placement="top"
-                                           tooltip-trigger="mouseenter"
-                                           tooltip-append-to-body="true">
-                                    <i class="material-icons">check_circle</i>
-                                </md-button>
-                                <md-button class="toolbar-button md-secondary"
-                                           ng-if="!item.usable"
-                                           aria-label="Not usable in services"
-                                           uib-tooltip="Not usable in services"
-                                           tooltip-placement="top"
-                                           tooltip-trigger="mouseenter"
-                                           tooltip-append-to-body="true">
-                                    <i class="material-icons">remove_circle</i>
-                                </md-button>
-                            </div>
+                        <div class="col-md-2">
+                            <p>Size: {{item.properties.filesize | bytesToGB}}</p>
                         </div>
-
+                        <div class="col-md-3" ng-if="item.properties.extraParams.ftepCloudCoverage || item.properties.extraParams.ftepCloudCoverage === 0">
+                            <p>Cloud Coverage: {{item.properties.extraParams.ftepCloudCoverage | number:2}}</p>
+                        </div>
+                        <div class="col-md-3" ng-if="item.properties.extraParams.ftepProductType">
+                            <p>Product Type: {{item.properties.extraParams.ftepProductType}}</p>
+                        </div>
                     </div>
 
                 </div>
 
-            </li>
-        </div>
-    </ul>
+                <div class="col-xs-1 no-padding buttons">
+                    <div class="row">
+                        <div class="col-sm-4 no-padding">
+                              <md-button class="toolbar-button md-secondary"
+                                         ng-click="showMetadata($event, item); $event.stopPropagation()"
+                                         aria-label="Show Metadata"
+                                         uib-tooltip="Show Metadata"
+                                         tooltip-placement="top"
+                                         tooltip-trigger="mouseenter"
+                                         tooltip-append-to-body="true">
+                                <i class="material-icons">info_outline</i>
+                            </md-button>
+                        </div>
+                        <div class="col-sm-4 no-padding">
+                            <md-button class="toolbar-button md-secondary"
+                                       ng-if="item.properties.ftepUsable"
+                                       aria-label="Usable in services"
+                                       uib-tooltip="Usable in services"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                <i class="material-icons">check_circle</i>
+                            </md-button>
+                            <md-button class="toolbar-button md-secondary"
+                                       ng-if="!item.properties.ftepUsable"
+                                       aria-label="Not usable in services"
+                                       uib-tooltip="Not usable in services"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                <i class="material-icons">remove_circle</i>
+                            </md-button>
+                        </div>
+                        <div class="col-sm-4 no-padding">
+                            <md-button class="toolbar-button md-secondary"
+                                       ng-click="estimateDownloadCost($event, item.properties._links.download.href); $event.stopPropagation()"
+                                       ng-if="item.properties._links.download.href"
+                                       aria-label="Download"
+                                       uib-tooltip="Download"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                <i class="material-icons">file_download</i>
+                            </md-button>
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+
+        </li>
+    </ul>
 </div>
 
-<section class="pagination" ng-show="resultPaging.total > 0">
-    <paging page="resultPaging.currentPage"
-        page-size="resultPaging.pageSize"
-        total="resultPaging.total"
-        show-first-last="true"
-        paging-action="fetchResultsPage(page)">
-    </paging>
-    <div class="paging-details">Showing {{pageFrom}} - {{pageTo}} of {{total}}</div>
+<section class="pagination" ng-if="resultParams.geoResults">
+    <div id="paging" ftep-paging="{{resultParams.pagingData}}"></div>
 </section>

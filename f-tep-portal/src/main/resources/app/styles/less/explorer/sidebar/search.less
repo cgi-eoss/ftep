@@ -1,10 +1,13 @@
 @import "variable";
 #search-panel {
-    .datasources {
+    .catalogs {
         padding-top: 0;
     }
     md-select {
         margin-top: 0;
+    }
+    .date-container {
+        //text-align: center;
     }
     md-datepicker {
         padding: 0;
@@ -15,14 +18,17 @@
         .md-datepicker-input-container {
             margin: 0;
             @media (max-width: @sm-max-width) {
-              width: 80%;
+                width: 80%;
             }
         }
         .md-datepicker-triangle-button {
             margin: 0;
         }
-        .md-datepicker-invalid .md-datepicker-input{
+        .md-datepicker-invalid .md-datepicker-input {
             background: @error;
         }
+    }
+    .search-input-button i {
+        font-size: 1rem;
     }
 }

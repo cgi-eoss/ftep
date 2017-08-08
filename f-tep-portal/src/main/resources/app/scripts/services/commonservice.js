@@ -24,6 +24,16 @@ define(['../ftepmodules'], function (ftepmodules) {
             }
         };
 
+        this.containsObject = function(obj, list) {
+            var i;
+            for (i = 0; i < list.length; i++) {
+                if (list[i] === obj) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         this.confirm = function (event, message) {
             var deferred = $q.defer();
             var dialog = $mdDialog.confirm()
@@ -207,17 +217,28 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         this.estimateDownloadCost = function($event, file){
             var service = $injector.get('FileService');
-            service.estimateFileDownload(file).then(function(result){
 
+            if(typeof file === "string") {
+                var tempfile = {};
+                tempfile.id = file.substr(file.lastIndexOf('/') + 1);
+                service.getFile(tempfile).then(function(result){
+                    estimateCost(result, service, $event);
+                });
+            } else {
+                estimateCost(file, service, $event);
+            }
+        };
+
+        function estimateCost(file, service, $event) {
+            service.estimateFileDownload(file).then(function (result) {
                 var currency = (result.estimatedCost < 2 ? 'coin' : 'coins');
                 var msg = 'This download will cost ' + result.estimatedCost + ' ' + currency + '.';
-                downloadDialog($event, {message: msg, link: file._links.download.href});
-            },
-            function(error){
+                downloadDialog($event, { message: msg, link: file._links.download.href });
+            }, function (error) {
                 self.infoBulletin($event, 'The cost of this download exceeds your balance. Cannot proceed with download.' +
-                    '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
+                                  '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
             });
-        };
+        }
 
         function downloadDialog($event, estimation){
             function DownloadController($scope, $mdDialog) {
@@ -238,36 +259,6 @@ define(['../ftepmodules'], function (ftepmodules) {
                 clickOutsideToClose: true,
                 locals: {}
             });
-        }
-
-        this.createBasketWithItems = function($event, items){
-            var deferred = $q.defer();
-            function BasketController($scope, $mdDialog, BasketService) {
-                $scope.files = items;
-
-                $scope.cloneBasket= function() {
-                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description).then(function (newBasket) {
-                        deferred.resolve(newBasket);
-                    });
-                    $mdDialog.hide();
-                };
-
-                $scope.closeDialog = function () {
-                    deferred.reject();
-                    $mdDialog.hide();
-                };
-            }
-
-            BasketController.$inject = ['$scope', '$mdDialog', 'BasketService'];
-            $mdDialog.show({
-                controller: BasketController,
-                templateUrl: 'views/explorer/templates/createdatabasket.tmpl.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose: true
-            });
-
-            return deferred.promise;
         }
 
         return this;

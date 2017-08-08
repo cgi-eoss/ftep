@@ -417,9 +417,6 @@
   text-align: center;
   width: 100%;
 }
-#results .pagination paging {
-  display: inline-block;
-}
 #results .products-list {
   list-style: none;
   padding-left: 0px;
@@ -1169,7 +1166,7 @@
   padding: 0.5rem 0 2rem 0;
 }
 .ftep .md-dialog-container .download-button {
-  margin: 0;
+  margin: 0 0 0.5rem 0;
   width: 100%;
 }
 .ftep .md-dialog-container .download-button:hover {
@@ -1410,6 +1407,7 @@
   font-family: monospace;
   font-size: 0.6rem;
   overflow-x: auto;
+  overflow-y: hidden;
   width: 100%;
 }
 .ftep .ftep-log table {
@@ -1427,6 +1425,7 @@
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+  white-space: nowrap;
 }
 .ftep .ftep-log table .job-message {
   background-color: transparent;
@@ -1882,7 +1881,7 @@
 }
 
 #explorer-container,
-#sidebar-left .datasources md-list-item {
+#sidebar-left .catalogs md-list-item {
   border: none;
 }
 #map-container {
@@ -2067,7 +2066,7 @@
   color: #ff80ab;
 }
 
-#search-panel .datasources {
+#search-panel .catalogs {
   padding-top: 0;
 }
 #search-panel md-select {
@@ -2093,6 +2092,9 @@
 }
 #search-panel md-datepicker .md-datepicker-invalid .md-datepicker-input {
   background: #f2dede;
+}
+#search-panel .search-input-button i {
+  font-size: 1rem;
 }
 
 #services .item-list .service-type {

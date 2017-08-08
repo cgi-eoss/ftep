@@ -5,74 +5,92 @@
  * # SearchService
  * Service in the ftepApp.
  */
-define(['../ftepmodules'], function (ftepmodules) {
+define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
+
     'use strict';
 
-    ftepmodules.service('SearchService', ['ftepProperties', '$http', '$q', 'MessageService', 'GeoService', function (ftepProperties, $http, $q, MessageService, GeoService) {
+    ftepmodules.service('SearchService', ['ftepProperties', '$http', '$q', 'MessageService', 'traverson', function (ftepProperties, $http, $q, MessageService, traverson) {
 
-        this.submit = function (searchParameters) {
+        var _this = this;
+        traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
+        var rootUri = ftepProperties.URLv2;
+        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+
+        this.spinner = { loading: false };
+
+        this.params = {
+            savedSearch: {},
+            selectedCatalog: {},
+            pagingData: {},
+            results: {}
+        };
+
+        /* Get Groups for share functionality to fill the combobox */
+        this.getSearchParameters = function(){
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/search/parameters')
+                .newRequest()
+                .getResource()
+                .result
+                .then(
+                function (document) {
+                    deferred.resolve(document);
+                }, function (error) {
+                    MessageService.addError('Could not get Search Data', error);
+                    deferred.reject();
+                });
+            return deferred.promise;
+        };
+
+        /* Get search name to display in the bottombar tab */
+        this.getSearchName = function() {
+            if(this.params.savedSearch.mission) {
+                return ': ' + this.params.savedSearch.mission;
+            } else {
+                return '';
+            }
+        };
+
+        /* Get results by page */
+        this.getResultsPage = function (url) {
+            this.spinner.loading = true;
             var deferred = $q.defer();
 
-            searchParameters.resultsPerPage = 20;
+            halAPI.from(url)
+                .newRequest()
+                .getResource()
+                .result
+                .then(
+                function (response) {
+                    deferred.resolve(response);
+                }, function (error) {
+                    MessageService.addError('Search failed', error);
+                    deferred.reject();
+                });
 
-            GeoService.spinner.loading = true;
+            return deferred.promise;
+        };
 
-            $http({
-                method: 'GET',
-                url: ftepProperties.URLv2 + '/search',
-                params: searchParameters
-            }).then(function (response) {
-                var searchResults = response.data;
+        /* Submit search and get results */
+        this.submit = function(searchParameters){
+            this.spinner.loading = true;
+            var deferred = $q.defer();
 
-                // TODO Crude hack abusing GeoService cache - refactor search results -> display loop
-                var transformedFeatures = [];
-                for (var i = 0; i < searchResults.features.length; i++) {
-                    var feature = searchResults.features[i];
-
-                    var transformedFeature = {};
-                    transformedFeature.title = transformedFeature.identifier = feature.properties.productIdentifier;
-                    if (feature.geometry && feature.geometry.type === 'Polygon') {
-                        transformedFeature.geo = feature.geometry;
-                    }
-                    transformedFeature.link = feature.properties.ftepUri;
-                    transformedFeature.usable = feature.properties.ftepUsable;
-                    transformedFeature.meta = feature.properties;
-                    if (feature.properties.services && feature.properties.services.download && feature.properties.services.download.size) {
-                        transformedFeature.size = feature.properties.services.download.size;
-                    }
-
-                    transformedFeatures.push(transformedFeature);
-                }
-
-                var transformedResults = [{
-                    datasource: searchResults.parameters.repo,
-                    results: {
-                        totalResults: searchResults.page.totalElements,
-                        // startIndex: -1,
-                        page: searchResults.page.number,
-                        _links: searchResults._links,
-                        entities: transformedFeatures
-                    }
-                }];
-
-                GeoService.setCache(transformedResults);
-                GeoService.pagingData = {
-                    currentPage: searchResults.page.number + 1,
-                    pageSize: 20,
-                    total: searchResults.page.totalElements,
-                    apiV2Params: searchParameters
-                };
-
-                deferred.resolve(transformedResults);
-            }).catch(function (error) {
-                deferred.reject();
-                MessageService.addError('Search failed', error);
-            });
-
+            halAPI.from(rootUri + '/search')
+                .newRequest()
+                .withRequestOptions({ qs: searchParameters })
+                .getResource()
+                .result
+                .then(
+                function (response) {
+                    deferred.resolve(response);
+                }, function (error) {
+                    MessageService.addError('Search failed', error);
+                    deferred.reject();
+                });
             return deferred.promise;
         };
 
         return this;
     }]);
-
 });

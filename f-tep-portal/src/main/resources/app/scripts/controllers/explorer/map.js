@@ -8,7 +8,7 @@
 define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
     'use strict';
 
-    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', 'GeoService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, GeoService, $timeout) {
+    ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', 'SearchService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, SearchService, $timeout) {
 
         var EPSG_3857 = "EPSG:3857", // Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
             EPSG_4326 = "EPSG:4326"; // Standard coordinate system used in cartography, geodesy, and navigation (including GPS).
@@ -61,8 +61,8 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             }
         });
 
-        modify.on('modifyend',function(e){
-            updateSearchPolygon(e.features.getArray()[0].getGeometry());
+        modify.on('modifyend',function(evt){
+            updateSearchPolygon(evt.features.getArray()[0].getGeometry());
         });
 
         var dragAndDropInteraction = new ol.interaction.DragAndDrop({
@@ -72,7 +72,32 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             ]
         });
 
-        var selectClick = MapService.selectClick;
+        var selectClick = new ol.interaction.Select({
+            condition: ol.events.condition.click,
+            toggleCondition: ol.events.condition.shiftKeyOnly,
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(174,213,129,0.8)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(85,139,47,0.8)',
+                    width: 3
+                }),
+                image: new ol.style.Circle({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(250,242,204,0.2)'
+                    }),
+                    radius: 5,
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(138,109,59,0.8)',
+                        width: 3
+                    })
+                })
+            }),
+            filter: function(feature, layer) {
+                return feature.get('data') !== undefined;
+            }
+        });
 
         selectClick.on('select', function(evt) {
             var selectedItems = [];
@@ -304,12 +329,12 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
         $scope.clearMap = function() {
             $scope.clearSearchPolygon();
-            GeoService.params.geoResults = [];
+            SearchService.params.geoResults = [];
             if(resultsLayer) {
-               $scope.map.removeLayer(resultsLayer);
+                resultsLayer.getSource().clear()
             }
             if(basketLayer) {
-                $scope.map.removeLayer(basketLayer);
+                basketLayer.getSource().clear()
             }
             if(searchAreaLayer) {
                 searchAreaLayer.getSource().clear();
@@ -368,18 +393,19 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         };
 
         /* Get polygon for geometry to display on map */
-        function getGeometryPolygon(geo) {
-            if(geo && geo.coordinates) {
-                var lonlatPoints = [];
-                for(var k = 0; k < geo.coordinates.length; k++){
-                    for(var m = 0; m < geo.coordinates[k].length; m++){
-                        var point = geo.coordinates[k][m];
-                        lonlatPoints.push(point);
+        function getGeometryPolygon(geometry) {
+            if(geometry && geometry.coordinates) {
+                    var lonlatPoints = [];
+                    for(var k = 0; k < geometry.coordinates.length; k++){
+                        for(var m = 0; m < geometry.coordinates[k].length; m++){
+                            var point = geometry.coordinates[k][m];
+                            lonlatPoints.push(point);
+                        }
                     }
+
+                    return new ol.geom[geometry.type]([lonlatPoints]).transform(EPSG_4326, EPSG_3857);
                 }
-                return new ol.geom[geo.type]([lonlatPoints]).transform(EPSG_4326, EPSG_3857);
             }
-        }
         /* ----- END OF VARIOUS MAP FUNCTIONS ----- */
 
         /* ----- DROPPED FILE LAYER ----- */
@@ -427,35 +453,32 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.$on('update.geoResults', function(event, results) {
             selectAll(false);
             resultLayerFeatures.clear();
-            if(results){
-                for(var folderNr = 0; folderNr < results.length; folderNr++){
-                    if(results[folderNr].results && results[folderNr].results.entities && results[folderNr].results.entities.length > 0){
-                        for(var i = 0; i < results[folderNr].results.entities.length; i++){
-                            var item = results[folderNr].results.entities[i];
-                            var pol = getGeometryPolygon(item.geo);
-                            var resultItem =  new ol.Feature({
-                                geometry: pol,
-                                data: item
-                            });
-                            resultLayerFeatures.push(resultItem);
-                        }
-                        $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
-                    }
+            if(results && results.features && results.features.length > 0) {
+                for (var result in results.features) {
+                    var item = results.features[result];
+                    var pol = getGeometryPolygon(item.geometry);
+                    var resultItem =  new ol.Feature({
+                        geometry: pol,
+                        data: item
+                    });
+                    resultLayerFeatures.push(resultItem);
                 }
-            }
+                    $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
+                }
         });
 
         $scope.$on('results.item.selected', function(event, item, selected) {
             selectItem(item, selected);
         });
 
-        function selectItem(item, selected){
+        function selectItem(item, selected) {
             var features = resultsLayer.getSource().getFeatures();
-            for(var i = 0; i < features.length; i++){
-                if((item.identifier && item.identifier === features[i].get('data').identifier)){
+            for (var i in features) {
+                var feature = features[i];
+                if(item.id && item.id === feature.get('data').properties.productIdentifier){
                     if(selected){
-                        selectClick.getFeatures().push(features[i]);
-                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
+                        selectClick.getFeatures().push(feature);
+                        $scope.map.getView().fit(feature.getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
                         var zoomLevel = 3;
                         if($scope.map.getView().getZoom() > 3){
                             zoomLevel = $scope.map.getView().getZoom()-2;
@@ -463,7 +486,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                         $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
                     }
                     else {
-                        selectClick.getFeatures().remove(features[i]);
+                        selectClick.getFeatures().remove(feature);
                     }
                     break;
                 }
@@ -476,9 +499,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
         function selectAll(selected){
             if(resultsLayer){
-                while(selectClick.getFeatures().getLength() > 0){
-                    selectClick.getFeatures().pop();
-                }
+                selectClick.getFeatures().clear();
                 if(selected){
                     for(var i = 0; i < resultsLayer.getSource().getFeatures().length; i++){
                         selectClick.getFeatures().push(resultsLayer.getSource().getFeatures()[i]);
@@ -504,7 +525,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             style: resultStyle
         });
 
-        $scope.$on('upload.basket', function(event, basketFiles) {
+        $scope.$on('load.basket', function(event, basketFiles) {
             $scope.map.removeLayer(resultsLayer);
             basketLayerFeatures.clear();
             if(basketFiles && basketFiles.length > 0){
@@ -537,7 +558,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             var features = basketLayer.getSource().getFeatures();
 
             for(var i = 0; i < features.length; i++) {
-                if((item.id && item.id === features[i].get('data').id)){
+                if((item.id && item.id === features[i].get('data').properties.productIdentifier)){
                     if(selected){
                         selectClick.getFeatures().push(features[i]);
                         $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize());

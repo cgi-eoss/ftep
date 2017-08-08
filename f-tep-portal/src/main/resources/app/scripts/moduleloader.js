@@ -44,7 +44,6 @@ define([
     './services/commonservice',
     './services/communityservice',
     './services/fileservice',
-    './services/geoservice',
     './services/groupservice',
     './services/jobservice',
     './services/mapservice',

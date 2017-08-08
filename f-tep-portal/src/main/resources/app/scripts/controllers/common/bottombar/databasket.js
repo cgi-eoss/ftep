@@ -156,7 +156,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         /* Displaying databasket items on map */
         $scope.loadBasket = function (basket) {
             BasketService.getDatabasketContents(basket).then(function(files){
-                $rootScope.$broadcast('upload.basket', files);
+                $rootScope.$broadcast('load.basket', files);
                 $scope.dbParams.databasketOnMap.id = basket.id;
                 $scope.dbParams.selectedItems = [];
             });

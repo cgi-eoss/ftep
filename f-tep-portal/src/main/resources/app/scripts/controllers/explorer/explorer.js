@@ -80,39 +80,22 @@ define(['../../ftepmodules'], function (ftepmodules) {
             function MetadataController($scope, $mdDialog, ftepProperties) {
                 $scope.item = data;
 
-                $scope.getQuicklookSrc = function(item){
-                    return item.ql;
-                };
-
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
                 };
             }
             MetadataController.$inject = ['$scope', '$mdDialog', 'ftepProperties'];
-            if(data.type === 'file') {
-                $mdDialog.show({
-                    controller: MetadataController,
-                    templateUrl: 'views/explorer/templates/metadatafile.tmpl.html',
-                    parent: angular.element(document.body),
-                    targetEvent: $event,
-                    clickOutsideToClose: true,
-                    locals: {
-                        items: $scope.items
-                    }
-                });
-            }
-            else {
-                $mdDialog.show({
-                    controller: MetadataController,
-                    templateUrl: 'views/explorer/templates/metadata.tmpl.html',
-                    parent: angular.element(document.body),
-                    targetEvent: $event,
-                    clickOutsideToClose: true,
-                    locals: {
-                        items: $scope.items
-                    }
-                });
-            }
+
+            $mdDialog.show({
+                controller: MetadataController,
+                templateUrl: 'views/explorer/templates/metadata.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true,
+                locals: {
+                    items: $scope.items
+                }
+            });
         };
 
         /* Share Object Modal */

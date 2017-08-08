@@ -170,16 +170,17 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         // For search items we have to create a respective file first
-        this.createGeoResultFile = function(item, source){
+        this.createGeoResultFile = function(item){
+
             var newProductFile = {
-                    properties: {
-                        productSource: source,
-                        productIdentifier: item.identifier,
-                        originalUrl: item.link,
-                        extraParams: item.details
-                    },
-                    type: 'Feature',
-                    geometry: item.geo
+                properties: {
+                    productSource: item.properties.productSource,
+                    productIdentifier: item.properties.productIdentifier,
+                    originalUrl: item.properties._links.ftep.href,
+                    extraParams: item.properties.extraParams
+                },
+                type: item.type,
+                geometry: item.geometry
             };
 
             return $q(function(resolve, reject) {
@@ -223,7 +224,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        var getFile = function (file) {
+        this.getFile = function (file) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/ftepFiles/' + file.id + "?projection=detailedFtepFile")
                      .newRequest()
@@ -297,7 +298,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if (self.params[page]) {
                 /* Get file contents if selected */
                 if (self.params[page].selectedFile) {
-                    getFile(self.params[page].selectedFile).then(function (file) {
+                    self.getFile(self.params[page].selectedFile).then(function (file) {
                         self.params[page].fileDetails = file;
                         if(file.access.currentLevel === 'ADMIN') {
                             CommunityService.getObjectGroups(file, 'ftepFile').then(function (data) {

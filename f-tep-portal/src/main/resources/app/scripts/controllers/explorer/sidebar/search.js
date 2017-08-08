@@ -9,92 +9,147 @@
  */
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'GeoService', 'MapService', 'SearchService', function ($scope, $rootScope, $http, CommonService, BasketService, GeoService, MapService, SearchService) {
+    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function ($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
 
-        /** ----- DATA ----- **/
+        $scope.searchParams = SearchService.params;
+        $scope.allowedValues = {};
 
-        $scope.dataSources = GeoService.dataSources;
-        $scope.missions = GeoService.missions;
-        $scope.polarisations = GeoService.polarisations;
+        SearchService.getSearchParameters().then(function(data){
+            $scope.catalogues = data;
+        });
 
-        // Initialise object to store data to send to GeoService
-        $scope.searchParameters = GeoService.searchParameters;
-        $scope.searchParametersV2 = {
-            repo: undefined,
-            resultsPerPage: undefined,
-            page: undefined
-            // additional arbitrary parameters are permitted based on datasource
+        $scope.getCatalogIcon = function(catalog) {
+            if (catalog === 'SATELLITE') {
+                return 'satellite';
+            } else if (catalog === 'REF_DATA') {
+                return 'local_library';
+            } else {
+                return 'streetview';
+            }
         };
 
-        /** ----- DATASOURCES ----- **/
+        $scope.setDefaultValue = function(field, index) {
+            if(field.defaultValue) {
+                if(field.type === 'text' || field.type === 'int' || field.type === 'polygon') {
+                    $scope.searchParams.savedSearch[index] = field.defaultValue;
+                } else if(field.type === 'select') {
+                    for (var item in field.allowed.values) {
+                        if(field.defaultValue === field.allowed.values[item].value) {
+                            $scope.searchParams.savedSearch[index] = field.allowed.values[item].value;
+                        }
+                    }
+                } else if(field.type === 'daterange') {
+                    var startPeriod = new Date();
+                    startPeriod.setMonth(startPeriod.getMonth() + parseInt(field.defaultValue[0]));
+                    $scope.searchParams.savedSearch[index + 'Start'] = startPeriod;
 
-        // Hide datasources and show search form.
-        $scope.selectDataSource = function (dataSource) {
-            $scope.searchParameters.selectedDatasource = dataSource;
-
-            // new APIv2 search enabled for dataSource 3 & 2 (refData & existing products) only
-            if (dataSource.id === 3) {
-                $scope.searchParametersV2.repo = 'REF_DATA';
-            } else if (dataSource.id === 2) {
-                $scope.searchParametersV2.repo = 'FTEP_PRODUCTS';
-            } else {
-                if (dataSource.fields.mission) {
-                    // Set the first mission as default
-                    $scope.searchParameters.mission = $scope.missions[1];
+                    var endPeriod = new Date();
+                    endPeriod.setMonth(endPeriod.getMonth() + parseInt(field.defaultValue[1]));
+                    $scope.searchParams.savedSearch[index + 'End'] = endPeriod;
                 }
             }
-
-            $scope.updateMissionParameters($scope.searchParameters.mission);
         };
 
-        $scope.closeDataSource = function () {
-            $scope.searchParameters = GeoService.resetSearchParameters();
-            $scope.searchParametersV2 = {};
+        $scope.selectCatalog = function (field, catalog) {
+            $scope.searchParams.savedSearch[field.type] = catalog.value;
+            $scope.searchParams.selectedCatalog = catalog;
         };
 
-        /** ----- DATE PICKERS ----- **/
-
-            // Set maximum search period range
-        var searchPeriod = new Date();
-        searchPeriod.setFullYear(searchPeriod.getFullYear() - 10);
-        $scope.minDate = searchPeriod;
-        $scope.maxDate = new Date();
-
-        /** ----- MISSIONS ----- **/
-
-        // Display additional parameters based on mission selection
-        $scope.missionDetails = {
-            showPolar: ($scope.searchParameters.mission && $scope.searchParameters.mission.name === 'Sentinel-1' ? true : false),
-            showCoverage: ($scope.searchParameters.mission && ['Sentinel-2', 'Landsat-5', 'Landsat-7', 'Landsat-8'].indexOf($scope.searchParameters.mission.name) > -1 ? true : false)
+        $scope.closeCatalog = function (field) {
+            $scope.searchParams.savedSearch = {};
+            $scope.searchParams.selectedCatalog = {};
         };
 
-        $scope.updateMissionParameters = function (mission) {
-            // Display polorisation or coverage parameters based on selection
-            $scope.missionDetails.showPolar = (mission && mission.name === 'Sentinel-1' ? true : false);
-            $scope.missionDetails.showCoverage = (mission && ['Sentinel-2', 'Landsat-5', 'Landsat-7', 'Landsat-8'].indexOf(mission.name) > -1 ? true : false);
+        $scope.pastePolygon = function(identifier){
+            $scope.searchParams.savedSearch[identifier] = MapService.getPolygonWkt();
         };
 
-        /** ----- SEARCH BUTTON ----- **/
-
-        // Send search parameters to GeoService to process
-        $scope.search = function () {
-            GeoService.getGeoResults().then(function (data) {
-                $rootScope.$broadcast('update.geoResults', data);
-            }).catch(function () {
-                $rootScope.$broadcast('update.geoResults');
-            });
-        };
-
-        // Send search parameters to SearchService to process
-        $scope.searchV2 = function () {
-            var searchAOI = MapService.getPolygonWkt();
-            if (searchAOI) {
-                $scope.searchParametersV2.geometry = searchAOI;
-            } else {
-                delete $scope.searchParametersV2.geometry;
+        /* If field has no dependencies display it.
+         * If field has dependencies, for each find the matching field.
+         * Check if any of the condition values matche the current dependency value */
+        $scope.displayField = function (field, type) {
+            if (field.type === type) {
+                if (!field.onlyIf) {
+                    return true;
+                } else {
+                    for (var condition in field.onlyIf) {
+                        for (var item in $scope.searchParams.savedSearch) {
+                            if (item === condition) {
+                                for (var value in field.onlyIf[condition]) {
+                                    if(field.onlyIf[condition][value] === $scope.searchParams.savedSearch[item]) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            return false;
+        };
 
-            SearchService.submit($scope.searchParametersV2).then(function (searchResults) {
+        $scope.getValues = function() {
+            for(var field in $scope.catalogues) {
+
+                // Remove values for fields no longer displayed
+                if(!$scope.displayField($scope.catalogues[field], $scope.catalogues[field].type)) {
+                    delete $scope.searchParams.savedSearch[field];
+                }
+
+                if ($scope.catalogues[field].type === 'select') {
+                    // Get list of allowed values
+                    var allowedValues = getAllowedFields($scope.catalogues[field]);
+                    $scope.allowedValues[$scope.catalogues[field].title] = allowedValues;
+                    // Clear any fields set with an invalid value
+                    removeInvalidValues(field, allowedValues);
+                }
+            }
+        };
+
+        /* For all values*/
+        function getAllowedFields(field) {
+            var displayValues = [];
+            var allFieldValues = field.allowed.values;
+
+            for (var value in allFieldValues) {
+                // If value is not dependant on another add to list
+                if (!allFieldValues[value].onlyIf) {
+                    displayValues.push(allFieldValues[value]);
+                // If value depends on anothers
+                } else {
+                    for (var depField in allFieldValues[value].onlyIf) {
+                        var allowedValues = allFieldValues[value].onlyIf[depField];
+                        for (var item in allowedValues) {
+                            if($scope.searchParams.savedSearch[depField]) {
+                                if($scope.searchParams.savedSearch[depField] === allowedValues[item]) {
+                                    displayValues.push(allFieldValues[value]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return displayValues;
+        }
+
+        function removeInvalidValues(field, allowedValues) {
+            if ($scope.catalogues[field]) {
+                var match = false;
+                for (var v in allowedValues) {
+                    if($scope.searchParams.savedSearch[field]) {
+                        if($scope.searchParams.savedSearch[field] === allowedValues[v].value) {
+                            match = true;
+                        }
+                    }
+                }
+                if (!match) {
+                    delete $scope.searchParams.savedSearch[field];
+                }
+            }
+        }
+
+        $scope.search = function() {
+            SearchService.submit($scope.searchParams.savedSearch).then(function (searchResults) {
                 $rootScope.$broadcast('update.geoResults', searchResults);
             }).catch(function () {
                 $rootScope.$broadcast('update.geoResults');
@@ -102,5 +157,4 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
     }]);
-
 });

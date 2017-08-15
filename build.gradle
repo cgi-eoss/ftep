@@ -107,11 +107,16 @@ allprojects {
             dependency 'org.ehcache:ehcache:3.3.1'
             dependency 'org.flywaydb:flyway-core:4.2.0'
             dependency 'org.freemarker:freemarker:2.3.26-incubating'
-            dependencySet(group: 'org.geotools', version: '17.1') {
+            dependencySet(group: 'org.geotools', version: '17.2') {
                 // project(':third-party/java/jai_core') must be manually included
-                entry('gt-main') { exclude 'javax.media:jai_core' }
+                entry('gt-epsg-extension') { exclude 'javax.media:jai_core' }
+                entry('gt-epsg-wkt') { exclude 'javax.media:jai_core' }
                 entry('gt-geojson') { exclude 'javax.media:jai_core' }
                 entry('gt-geometry') { exclude 'javax.media:jai_core' }
+                entry('gt-geotiff') { exclude 'javax.media:jai_core' }
+                entry('gt-main') { exclude 'javax.media:jai_core' }
+                entry('gt-referencing') { exclude 'javax.media:jai_core' }
+                entry('gt-shapefile') { exclude 'javax.media:jai_core' }
             }
             dependency 'org.graylog2.log4j2:log4j2-gelf:1.3.1'
             dependency 'org.hamcrest:hamcrest-junit:2.0.0.0'

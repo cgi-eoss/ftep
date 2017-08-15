@@ -18,16 +18,14 @@ define(['../ftepmodules'], function (ftepmodules) {
             return route === $location.path();
         };
 
-        UserService.getCurrentUser().then(function(data){
-            $scope.user = data;
+        $scope.user = UserService.params.activeUser;
+
+        $scope.$on('active.user', function(event, user) {
+            $scope.user = UserService.params.activeUser;
         });
 
-        $scope.reloadRoute = function() {
-           $window.location.reload();
-        };
-
         $scope.$on('no.user', function() {
-            $scope.user = "Guest";
+            $scope.user = UserService.params.activeUser;
         });
 
     }]);

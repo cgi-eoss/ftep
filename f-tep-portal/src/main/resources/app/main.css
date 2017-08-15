@@ -577,10 +577,6 @@
 #navbar .navbar-container .navbar-contents .nav li:hover p {
   color: #33691e;
 }
-#navbar .navbar-container .navbar-contents .nav .login {
-  background-color: #f2dede;
-  color: rgba(255, 255, 255, 0.87);
-}
 /** TODO: Remove after pre-realease **/
 .ribbon {
   position: fixed;
@@ -2490,6 +2486,35 @@ pre {
 .ng-cloak,
 .x-ng-cloak {
   display: none !important;
+}
+#logged-out {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  -ms-flex-pack: center;
+      justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+  vertical-align: middle;
+  z-index: 100;
+}
+#logged-out #login {
+  padding: 1rem 4rem;
+  margin-top: 2rem;
+}
+#logged-out #login h2 {
+  margin: 0;
+}
+#logged-out #close-button {
+  float: right;
+}
+#logged-out h3 a {
+  cursor: pointer;
 }
 
 

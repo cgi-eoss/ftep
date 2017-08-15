@@ -9,7 +9,7 @@
 
 define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('UserService', [ 'ftepProperties', '$rootScope', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', function (ftepProperties, $rootScope, $q, MessageService, traverson, $mdDialog, $window) {
+    ftepmodules.service('UserService', [ 'ftepProperties', '$rootScope', '$q', 'MessageService', 'traverson', '$mdDialog', '$window', '$timeout', function (ftepProperties, $rootScope, $q, MessageService, traverson, $mdDialog, $window, $timeout) {
 
         var _this = this;
 
@@ -18,8 +18,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
         var timeout = false;
+        var attemptCount = 5;
+        var loginStatusPoll = 10000;
+        var loginStatusFailPoll = 5000;
 
         this.params = {
+            activeUser: "Guest",
             community: {
                 pagingData: {},
                 pollingUrl: rootUri + '/users/',
@@ -41,34 +45,53 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
+        var sessionHeartbeat = setInterval(function(){ _this.checkLoginStatus(); }, loginStatusPoll);
+
+        function updateHeartbeat(pollTimer) {
+            clearInterval(sessionHeartbeat);
+            sessionHeartbeat = setInterval(function(){ _this.checkLoginStatus(); }, pollTimer);
+        }
+
+        this.checkLoginStatus = function() {
+            halAPI.from(ftepProperties.URLv2 + '/users/current')
+            .newRequest()
+            .getResource()
+            .result
+            .then(function (user) {
+                _this.params.activeUser = user;
+                $rootScope.$broadcast('active.user', user);
+                updateHeartbeat(10000);
+                attemptCount = 5;
+            },
+            function (error) {
+                if(attemptCount < 0) {
+                    _this.params.activeUser = "Guest";
+                    $rootScope.$broadcast('no.user');
+                    updateHeartbeat(10000);
+                } else if (attemptCount === 0) {
+                    $rootScope.$broadcast('no.user');
+                    MessageService.addError('Session timed out', error);
+                } else {
+                    var attempt = attemptCount === 1 ? " attempt" : " attempts";
+                    MessageService.addError('No User detected: ' + attemptCount + attempt +' remaining', error);
+                    updateHeartbeat(1000);
+                }
+                attemptCount -= 1;
+            });
+        };
+
         this.getCurrentUser = function(withDetails){
             var deferred = $q.defer();
             halAPI.from(ftepProperties.URLv2 + '/users/current')
                 .newRequest()
                 .getResource()
                 .result
-                .then(function (document) {
-                    deferred.resolve(document);
+                .then(function (user) {
+                    _this.params.activeUser = user;
+                    $rootScope.$broadcast('active.user', user);
+                    deferred.resolve(user);
                 }, function (error) {
-                    $rootScope.$broadcast('no.user');
-                    if (!timeout) {
-                        $mdDialog.show({
-                            controller: function ($scope, $window) {
-                                $scope.reloadRoute = function() {
-                                   $window.location.reload();
-                                };
-                                $scope.closeDialog = function() {
-                                    $mdDialog.hide();
-                                };
-                            },
-                            templateUrl: 'views/common/templates/timeout.tmpl.html',
-                            parent: angular.element(document.body),
-                            clickOutsideToClose: true
-                        });
-
-                        MessageService.addError('No User Detected', error);
-                        timeout = true;
-                    }
+                    MessageService.addError('No User Detected', error);
                     deferred.reject();
                 });
             return deferred.promise;

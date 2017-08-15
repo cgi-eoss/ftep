@@ -26,7 +26,7 @@
                     <p><i class="material-icons">build</i><span> Developer</span></p>
                 </li>
 
-                <li ng-click="goTo('/community')" aria-label="Manage " ng-class="{ active: isActive('/community')}">
+                <li ng-click="goTo('/community')" ng-if="user.name" aria-label="Manage " ng-class="{ active: isActive('/community')}">
                     <p><i class="material-icons">person</i><span> Manage / Share</span></p>
                 </li>
 
@@ -34,25 +34,20 @@
                    <p><i class="material-icons">help</i><span> Helpdesk</span></p>
                 </li>
 
-                <li ng-if="user && user.role === 'ADMIN'" ng-click="goTo('/admin')" aria-label="Admin"
+                <li ng-click="goTo('/admin')" ng-if="user.name && user.active.role === 'ADMIN'" aria-label="Admin"
                     ng-class="{ active: isActive('/admin')}">
                    <p><i class="material-icons">settings</i><span> Admin</span></p>
                 </li>
 
-                <li ng-click="goTo('/account')" ng-if="user" aria-label="Account" ng-class="{ active: isActive('/account')}">
+                <li ng-click="goTo('/account')" ng-if="user.name" aria-label="Account" ng-class="{ active: isActive('/account')}">
                    <p><i class="material-icons">account_circle</i><span> My Account</span></p>
                 </li>
 
-                 <li ng-click="reloadRoute()"  ng-if="user === 'Guest'" class="login" aria-label="Login">
-                     <p><i class="material-icons">account_circle</i><span> Login</span></p>
-                </li>
-
-                <li ng-if="user" aria-label="Logout">
+                <li ng-if="user.name" aria-label="Logout">
                     <a ng-href="{{ssoUrl}}/idp/profile/Logout" target="_self">
                         <p><i class="material-icons">power_settings_new</i><span> Logout</span></p>
                     </a>
                 </li>
-
             </ul>
 
         </div>

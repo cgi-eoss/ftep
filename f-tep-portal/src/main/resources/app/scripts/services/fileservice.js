@@ -24,11 +24,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 SHARED_FILES: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
-        var userUrl;
-        UserService.getCurrentUser().then(function(currentUser){
-            userUrl = currentUser._links.self.href;
-        });
-
         /** PRESERVE USER SELECTIONS **/
         this.params = {
             community: {
@@ -263,7 +258,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     '&type=' + self.params[page].activeFileType;
 
                 if(self.params[page].selectedOwnershipFilter !== self.fileOwnershipFilters.ALL_FILES){
-                    url += '&owner=' + userUrl;
+                    url += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
 
                 /* Get databasket list */

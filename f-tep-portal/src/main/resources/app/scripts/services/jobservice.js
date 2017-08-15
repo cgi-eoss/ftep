@@ -21,11 +21,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
-        var userUrl;
-        UserService.getCurrentUser().then(function(currentUser){
-            userUrl = currentUser._links.self.href;
-        });
-
         this.jobOwnershipFilters = {
             ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
             MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
@@ -164,7 +159,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Get owner parameter */
                 if(_this.params[page].selectedOwnershipFilter !== _this.jobOwnershipFilters.ALL_JOBS) {
-                    _this.params[page].pollingUrl += '&owner=' + userUrl;
+                    _this.params[page].pollingUrl += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
 
                 /* Get status parameter */

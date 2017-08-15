@@ -23,11 +23,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 SHARED_PROJECTS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
         };
 
-        var userUrl;
-        UserService.getCurrentUser().then(function(currentUser){
-            userUrl = currentUser._links.self.href;
-        });
-
         /** PRESERVE USER SELECTIONS **/
         this.params = {
               explorer: {
@@ -225,7 +220,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.projectOwnershipFilters.ALL_PROJECTS){
-                    url += '&owner=' + userUrl;
+                    url += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
                 self.params[page].pollingUrl = url;
 

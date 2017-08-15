@@ -38,11 +38,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             PRIVATE_SERVICES: { id: 3, name: 'Private', value: 'PRIVATE_SERVICES'}
         };
 
-        var userUrl;
-        UserService.getCurrentUser().then(function(currentUser){
-            userUrl = currentUser._links.self.href;
-        });
-
         this.params = {
             explorer: {
                 services: undefined,
@@ -356,7 +351,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                     (self.params[page].searchText ? self.params[page].searchText : '');
 
                 if(self.params[page].selectedOwnershipFilter !== self.serviceOwnershipFilters.ALL_SERVICES){
-                    url += '&owner=' + userUrl;
+                    url += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
 
                 if(self.params[page].selectedTypeFilter !== self.serviceTypeFilters.ALL_SERVICES){

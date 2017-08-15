@@ -86,6 +86,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     // Track which Node is used for each job
     private final Map<String, Node> jobNodes = new HashMap<>();
+    // Track which JobEnvironment is used for each job
+    private final Map<String, com.cgi.eoss.ftep.worker.worker.JobEnvironment> jobEnvironments = new HashMap<>();
     // Track which DockerClient is used for each job
     private final Map<String, DockerClient> jobClients = new HashMap<>();
     // Track which container ID is used for each job
@@ -139,6 +141,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         .setOutputDir(jobEnv.getOutputDir().toAbsolutePath().toString())
                         .setWorkingDir(jobEnv.getWorkingDir().toAbsolutePath().toString())
                         .build();
+                jobEnvironments.put(request.getJob().getId(), jobEnv);
 
                 responseObserver.onNext(ret);
                 responseObserver.onCompleted();
@@ -357,6 +360,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private void cleanUpJob(String jobId) {
         jobContainers.remove(jobId);
         jobClients.remove(jobId);
+        jobEnvironments.remove(jobId);
         nodeFactory.destroyNode(jobNodes.remove(jobId));
 
         Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));

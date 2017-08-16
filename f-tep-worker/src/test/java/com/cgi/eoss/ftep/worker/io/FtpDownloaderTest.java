@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.persistence.service.RpcCredentialsService;
 import com.cgi.eoss.ftep.rpc.CredentialsServiceGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -28,6 +29,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,7 +49,7 @@ public class FtpDownloaderTest {
 
     private FileSystem fs;
 
-    private Downloader dl;
+    private FtpDownloader dl;
 
     private FakeFtpServer ftpServer;
 
@@ -81,7 +84,7 @@ public class FtpDownloaderTest {
     }
 
     @Test
-    public void test() throws Exception {
+    public void testDownload() throws Exception {
         String ftpHost = "localhost:" + ftpServer.getServerControlPort();
 
         when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
@@ -95,6 +98,27 @@ public class FtpDownloaderTest {
         assertThat(Files.readAllLines(download), is(ImmutableList.of("foo bar baz")));
     }
 
+    @Test
+    public void testDownloadDirectory() throws Exception {
+        String ftpHost = "localhost:" + ftpServer.getServerControlPort();
+
+        when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
+                .username("ftpuser")
+                .password("ftppass")
+                .build());
+
+        Path download = dl.downloadDirectory(targetPath, URI.create("ftp://" + ftpHost + "/recursiveData"));
+
+        assertThat(download, is(targetPath));
+        Set<String> result = Files.walk(targetPath).filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toSet());
+        assertThat(result, is(ImmutableSet.of(
+                "/target/testfile.txt",
+                "/target/subdir/testfile.txt"
+        )));
+        assertThat(Files.readAllLines(targetPath.resolve("testfile.txt")), is(ImmutableList.of("foo bar baz")));
+        assertThat(Files.readAllLines(targetPath.resolve("subdir/testfile.txt")), is(ImmutableList.of("foo bar baz")));
+    }
+
     private FakeFtpServer buildFakeFtpServer() throws Exception {
         FakeFtpServer ftpServer = new FakeFtpServer();
         ftpServer.setServerControlPort(getRandomPort());
@@ -103,10 +127,24 @@ public class FtpDownloaderTest {
 
         org.mockftpserver.fake.filesystem.FileSystem fileSystem = new UnixFakeFileSystem();
         fileSystem.add(new DirectoryEntry("/data"));
+        fileSystem.add(new DirectoryEntry("/recursiveData"));
+        fileSystem.add(new DirectoryEntry("/recursiveData/subdir"));
+
         FileEntry testFile = new FileEntry("/data/testfile.txt");
         byte[] testFileBytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
         testFile.setContents(testFileBytes);
         fileSystem.add(testFile);
+
+        FileEntry testFile2 = new FileEntry("/recursiveData/testfile.txt");
+        byte[] testFile2Bytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
+        testFile2.setContents(testFile2Bytes);
+        fileSystem.add(testFile2);
+
+        FileEntry testFile3 = new FileEntry("/recursiveData/subdir/testfile.txt");
+        byte[] testFile3Bytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
+        testFile3.setContents(testFile3Bytes);
+        fileSystem.add(testFile3);
+
         ftpServer.setFileSystem(fileSystem);
 
         return ftpServer;

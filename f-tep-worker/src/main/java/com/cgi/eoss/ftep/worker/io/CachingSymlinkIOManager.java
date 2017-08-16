@@ -184,7 +184,7 @@ public class CachingSymlinkIOManager implements ServiceInputOutputManager {
                     MoreFiles.deleteRecursively(inProgressDir);
                 }
 
-                LOG.info("URI not found in cache, downloading: {}", uri);
+                LOG.info("URI not found in cache, downloading \"{}\" to {}", uri, resultDir);
 
                 try {
                     // Create the temp directory to show we are working on this uri

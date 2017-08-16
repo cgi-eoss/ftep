@@ -120,8 +120,8 @@ public class FtpDownloader implements Downloader {
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(targetFile))) {
             boolean success = ftpClient.retrieveFile(ftpPath.toString(), os);
             if (!success) {
-                LOG.error("FTP download error: {}", ftpClient.getReplyString());
-                throw new ServiceIoException("Failed to download via FTP: " + ftpClient.getPassiveHost() + ftpPath);
+                ServiceIoException cause = new ServiceIoException("FTP download error: " + ftpClient.getReplyString());
+                throw new ServiceIoException("Failed to download via FTP: " + ftpClient.getPassiveHost() + ftpPath, cause);
             }
             LOG.info("Successfully downloaded via FTP: {}", targetFile);
         }

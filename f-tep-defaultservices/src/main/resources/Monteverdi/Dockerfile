@@ -66,6 +66,7 @@ RUN if curl -o/dev/null -sLIf "${OTB_BASE_URL}/${OTB_INSTALLER}"; then\
 
 # Install OTB
 RUN chmod 777 /opt && cd /opt && sudo -u nobody sh /var/tmp/${OTB_INSTALLER}
+RUN chown -R ${USER_ID}:${GROUP_ID} /opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64
 
 #######################
 # Configure environment

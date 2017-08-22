@@ -1,13 +1,12 @@
 package com.cgi.eoss.ftep.worker.worker;
 
+import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
-import com.cgi.eoss.ftep.worker.io.ServiceInputOutputManager;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.core.command.PullImageResultCallback;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.internal.ServerImpl;
@@ -22,6 +21,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
+import shadow.dockerjava.com.github.dockerjava.core.command.PullImageResultCallback;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +40,9 @@ public class FtepWorkerIT {
 
     @MockBean
     private ServiceInputOutputManager ioManager;
+
+    @MockBean
+    private DownloaderFacade downloaderFacade;
 
     @Autowired
     private InProcessServerBuilder serverBuilder;

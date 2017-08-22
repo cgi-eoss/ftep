@@ -227,7 +227,13 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             Databasket databasket = getDatabasketFromUri(request.getUri());
 
             DatabasketContents.Builder responseBuilder = DatabasketContents.newBuilder();
-            databasket.getFiles().forEach(f -> responseBuilder.addFileUris(FtepFileUri.newBuilder().setUri(f.getUri().toASCIIString()).build()));
+            databasket.getFiles().forEach(f -> responseBuilder.addFiles(
+                    com.cgi.eoss.ftep.rpc.catalogue.FtepFile.newBuilder()
+                            .setFilename(f.getFilename())
+                            .setUri(FtepFileUri.newBuilder().setUri(f.getUri().toASCIIString()).build())
+                            .build()
+                    )
+            );
 
             responseObserver.onNext(responseBuilder.build());
             responseObserver.onCompleted();

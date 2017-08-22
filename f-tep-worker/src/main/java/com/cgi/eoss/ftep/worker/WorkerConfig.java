@@ -1,9 +1,15 @@
 package com.cgi.eoss.ftep.worker;
 
 import com.cgi.eoss.ftep.clouds.CloudsConfig;
+import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.io.ServiceInputOutputManagerImpl;
+import com.cgi.eoss.ftep.io.download.CachingSymlinkDownloaderFacade;
+import com.cgi.eoss.ftep.io.download.Downloader;
+import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.base.Strings;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -22,7 +28,7 @@ import java.nio.file.Paths;
 
 @Configuration
 @ComponentScan(
-        basePackageClasses = WorkerConfig.class,
+        basePackageClasses = {WorkerConfig.class, Downloader.class},
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FtepWorkerApplication.class)
 )
 @Import({
@@ -33,6 +39,16 @@ import java.nio.file.Paths;
 public class WorkerConfig {
 
     @Bean
+    public Path cacheRoot(@Value("${ftep.worker.cache.baseDir:/data/cache/dl}") String cacheRoot) {
+        return Paths.get(cacheRoot);
+    }
+
+    @Bean
+    public Boolean unzipAllDownloads(@Value("${ftep.worker.io.unzipAllDownloads:true}") boolean unzipAllDownloads) {
+        return unzipAllDownloads;
+    }
+
+    @Bean
     public Integer cacheConcurrencyLevel(@Value("${ftep.worker.cache.concurrency:4}") int concurrencyLevel) {
         return concurrencyLevel;
     }
@@ -40,11 +56,6 @@ public class WorkerConfig {
     @Bean
     public Integer cacheMaxWeight(@Value("${ftep.worker.cache.maxWeight:1024}") int maximumWeight) {
         return maximumWeight;
-    }
-
-    @Bean
-    public Path cacheRoot(@Value("${ftep.worker.cache.baseDir:/data/cache/dl}") String cacheRoot) {
-        return Paths.get(cacheRoot);
     }
 
     @Bean
@@ -70,6 +81,19 @@ public class WorkerConfig {
     public FtepServerClient ftepServerClient(DiscoveryClient discoveryClient,
                                              @Value("${ftep.worker.server.eurekaServiceId:f-tep server}") String ftepServerServiceId) {
         return new FtepServerClient(discoveryClient, ftepServerServiceId);
+    }
+
+    @Bean
+    public DownloaderFacade downloaderFacade(@Qualifier("cacheRoot") Path cacheRoot,
+                                             @Qualifier("unzipAllDownloads") Boolean unzipAllDownloads,
+                                             @Qualifier("cacheConcurrencyLevel") Integer concurrencyLevel,
+                                             @Qualifier("cacheMaxWeight") Integer maximumWeight) {
+        return new CachingSymlinkDownloaderFacade(cacheRoot, unzipAllDownloads, concurrencyLevel, maximumWeight);
+    }
+
+    @Bean
+    public ServiceInputOutputManager serviceInputOutputManager(FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade) {
+        return new ServiceInputOutputManagerImpl(ftepServerClient, downloaderFacade);
     }
 
 }

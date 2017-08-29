@@ -23,7 +23,7 @@
 
         <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': bottombarNavInfo.bottomViewVisible}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
-            <span class="notification">{{message.count}}</span>
+            <span class="notification" ng-show="message.count !== 0">{{message.count}}</span>
         </li>
     </ul>
 

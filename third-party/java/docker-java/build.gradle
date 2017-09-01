@@ -5,7 +5,7 @@ buildscript {
 }
 
 group 'com.github.docker-java'
-version '3.0.10'
+version '3.0.13'
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -30,7 +30,7 @@ sourceSets {
 }
 
 dependencies {
-    compile ('com.github.docker-java:docker-java:3.0.10') {
+    compile ('com.github.docker-java:docker-java:3.0.13') {
         exclude group: 'org.slf4j'
         exclude group: 'org.apache.log4j'
     }

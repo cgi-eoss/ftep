@@ -8,8 +8,8 @@ import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import io.grpc.stub.StreamObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class FtepGuiServiceManagerTest {
 
     private FtepWorkerGrpc.FtepWorkerBlockingStub worker;
 
-    private ServerImpl server;
+    private Server server;
 
     @Before
     public void setUp() throws IOException {

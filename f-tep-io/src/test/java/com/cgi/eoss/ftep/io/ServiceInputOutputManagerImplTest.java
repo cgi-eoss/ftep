@@ -20,9 +20,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.hash.Hashing;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -79,7 +79,7 @@ public class ServiceInputOutputManagerImplTest {
 
     private ServiceInputOutputManager ioManager;
 
-    private ServerImpl server;
+    private Server server;
 
     @Before
     public void setUp() throws Exception {

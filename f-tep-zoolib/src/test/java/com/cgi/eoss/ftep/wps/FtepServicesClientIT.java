@@ -25,9 +25,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.MoreFiles;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -88,7 +88,7 @@ public class FtepServicesClientIT {
 
     private FtepServicesClient ftepServicesClient;
 
-    private ServerImpl server;
+    private Server server;
 
     @BeforeClass
     public static void precondition() {

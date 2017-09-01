@@ -72,7 +72,7 @@ clientDependencies {
 }
 
 dependencies {
-    compile 'com.google.javascript:closure-compiler:v20170521'
+    compile 'com.google.javascript:closure-compiler:v20170806'
 }
 
 task requireJs(type: RequireJsTask) {

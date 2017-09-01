@@ -18,9 +18,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import io.grpc.stub.StreamObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class FtepDownloaderTest {
 
     private FileSystem fs;
 
-    private ServerImpl server;
+    private Server server;
 
     private FtepDownloader dl;
 

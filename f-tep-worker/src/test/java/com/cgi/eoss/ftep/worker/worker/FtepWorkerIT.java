@@ -8,8 +8,8 @@ import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -56,7 +56,7 @@ public class FtepWorkerIT {
     @Autowired
     private FtepWorker worker;
 
-    private ServerImpl server;
+    private Server server;
 
     private FtepWorkerGrpc.FtepWorkerBlockingStub workerClient;
 

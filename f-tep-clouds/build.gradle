@@ -38,4 +38,5 @@ shadowJar {
     transform(de.sebastianboegl.gradle.plugins.shadow.transformers.Log4j2PluginsFileTransformer)
     // Shade the Guava package for version >=21.0 compatibility
     relocate 'com.google.common', 'shadow.com.google.common'
+    relocate 'com.google.thirdparty.publicsuffix', 'shadow.com.google.thirdparty.publicsuffix'
 }

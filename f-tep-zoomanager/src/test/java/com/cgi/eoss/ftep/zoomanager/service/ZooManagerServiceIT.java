@@ -10,8 +10,8 @@ import com.cgi.eoss.ftep.zoomanager.ZooManagerTestConfig;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.grpc.internal.ServerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class ZooManagerServiceIT {
     @Autowired
     private ManagedChannelBuilder channelBuilder;
 
-    private ServerImpl server;
+    private Server server;
 
     private ZooManagerServiceGrpc.ZooManagerServiceBlockingStub client;
 

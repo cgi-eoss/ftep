@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +62,9 @@ public class SearchApi {
     public SearchResults search(HttpServletRequest request) throws IOException {
         // Do a two-way serialize/deserialize to convert the clumsy Map<String, String[]> to a nice SearchParameters object
         SearchParameters parameters = objectMapper.readValue(objectMapper.writeValueAsString(request.getParameterMap()), SearchParameters.class);
-        parameters.setRequestUrl(HttpUrl.parse(request.getRequestURL().toString()).newBuilder().encodedQuery(request.getQueryString()).build());
+        parameters.setRequestUrl(HttpUrl.parse(ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString()).newBuilder()
+                .encodedPath(request.getServletPath())
+                .encodedQuery(request.getQueryString()).build());
         return searchFacade.search(parameters);
     }
 

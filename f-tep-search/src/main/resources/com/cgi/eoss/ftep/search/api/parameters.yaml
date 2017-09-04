@@ -56,7 +56,7 @@ aoi:
 identifier:
   title: 'Identifier'
   type: 'text'
-  description: 'Whole product identifier string'
+  description: 'Product identifier string'
 
 platform:
   title: 'Platform'

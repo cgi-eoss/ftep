@@ -16,7 +16,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import java.io.IOException;
 import java.util.Collection;
 
 @Configuration
@@ -34,7 +33,7 @@ public class SearchConfig {
     private String searchParametersFile;
 
     @Bean
-    public SearchFacade searchFacade(Collection<SearchProvider> searchProviders) throws IOException {
+    public SearchFacade searchFacade(Collection<SearchProvider> searchProviders) {
         return new SearchFacade(searchProviders, searchParametersFile);
     }
 

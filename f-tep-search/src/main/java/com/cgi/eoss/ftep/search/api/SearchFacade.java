@@ -11,7 +11,6 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -25,7 +24,7 @@ public class SearchFacade {
     private final ObjectMapper yamlMapper;
     private final String parametersSchemaFile;
 
-    public SearchFacade(Collection<SearchProvider> searchProviders, String parametersSchemaFile) throws IOException {
+    public SearchFacade(Collection<SearchProvider> searchProviders, String parametersSchemaFile) {
         this.searchProviders = ImmutableList.sortedCopyOf(searchProviders);
         this.yamlMapper = new ObjectMapper(new YAMLFactory());
         this.parametersSchemaFile = parametersSchemaFile;
@@ -36,7 +35,7 @@ public class SearchFacade {
         return provider.search(parameters);
     }
 
-    public Map<String, Object> getParametersSchema() throws IOException, URISyntaxException {
+    public Map<String, Object> getParametersSchema() throws IOException {
         InputStream parametersFile = Strings.isNullOrEmpty(parametersSchemaFile)
                 ? getClass().getResourceAsStream("parameters.yaml")
                 : Files.newInputStream(Paths.get(parametersSchemaFile));

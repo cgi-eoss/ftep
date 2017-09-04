@@ -121,7 +121,7 @@ public class CedaSearchProvider implements SearchProvider {
 
     @Override
     public Map<String, String> getPagingParameters(SearchParameters parameters) {
-        if ((parameters.getResultsPerPage() * (parameters.getPage()+1)) > 10000) {
+        if ((parameters.getResultsPerPage() * (parameters.getPage() + 1)) > 10000) {
             throw new UnsupportedOperationException("CEDA search does not permit paging past the first 10,000 results; please add additional query constraints to narrow the search");
         }
 
@@ -256,7 +256,7 @@ public class CedaSearchProvider implements SearchProvider {
         long itemsPerPage = parameters.getResultsPerPage();
         long startIndex = cedaResult.getStartIndex();
         long pageNumber = startIndex / itemsPerPage;
-        long totalPages = totalResultsCount - startIndex < itemsPerPage ? (totalResultsCount / itemsPerPage) : (totalResultsCount / itemsPerPage) + 1;
+        long totalPages = (totalResultsCount + itemsPerPage - 1) / itemsPerPage;
 
         return SearchResults.Page.builder()
                 .totalElements(totalResultsCount)

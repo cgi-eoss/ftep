@@ -1,7 +1,7 @@
 ---
 id: "S1Biomass"
 title: "Calculate biomass (stem volume) from Sentinel-1 SAR data"
-description: "Stem volume calculation from Sentinel-1 data"
+description: "Stem volume calculation from Sentinel-1 data. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true

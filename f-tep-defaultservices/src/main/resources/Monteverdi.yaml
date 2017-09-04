@@ -1,7 +1,7 @@
 ---
 id: "Monteverdi"
 title: "Start the Orfeo Toolbox Monteverdi Desktop Application"
-description: "The Monteverdi Image Processing Graphical User Application (GUI)"
+description: "The Monteverdi Image Processing Graphical User Application (GUI), provided with the Orfeo Toolbox v 5.8.0. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true
@@ -10,7 +10,7 @@ serviceProvider: "Monteverdi"
 dataInputs:
   - id: "inputfile"
     title: "Input data"
-    description: "The input data file"
+    description: "The input data file(s)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

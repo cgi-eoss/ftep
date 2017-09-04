@@ -1,7 +1,7 @@
 ---
 id: "QGIS"
 title: "Start the QGIS Desktop Application"
-description: "Quantum GIS - A GUI Geographical Information Package"
+description: "Quantum GIS - A Geographical Information Systems (GIS) GUI Package. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true
@@ -10,7 +10,7 @@ serviceProvider: "QGIS"
 dataInputs:
   - id: "inputfile"
     title: "Input data"
-    description: "The input data file"
+    description: "The input data file(s)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

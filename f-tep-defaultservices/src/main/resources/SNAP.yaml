@@ -1,7 +1,7 @@
 ---
 id: "SNAP"
 title: "Start the SNAP Desktop Application"
-description: "The Sentinel Applications Platform v5.0 - A Graphical User Application"
+description: "The Sentinel Applications Platform v5.0 - A GUI created for the processing and analysis of Sentinel data. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true
@@ -10,7 +10,7 @@ serviceProvider: "SNAP"
 dataInputs:
   - id: "inputfile"
     title: "Input data"
-    description: "The input data file"
+    description: "The input data file(s)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

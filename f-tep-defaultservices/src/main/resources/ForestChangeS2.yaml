@@ -1,7 +1,7 @@
 ---
 id: "ForestChangeS2"
 title: "Change mapping using Sentinel-2 data"
-description: "Forest change mapped by difference in red band between two Sentinel-2 images"
+description: "Forest change mapped by difference in red band between two Sentinel-2 images. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true

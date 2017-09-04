@@ -1,7 +1,7 @@
 ---
 id: "VegetationIndices"
 title: "Calculate a variety of radiometric indices for vegetation"
-description: "Radiometric indices for Sentinel-2 images, provided by Orfeo Toolbox"
+description: "Radiometric indices for Sentinel-2 images, provided by Orfeo Toolbox. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true

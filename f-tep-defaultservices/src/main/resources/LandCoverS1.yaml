@@ -1,7 +1,7 @@
 ---
 id: "LandCoverS1"
 title: "Calculate land coverage (a forest map) from Sentinel-1 SAR data"
-description: "Land cover mapping of Sentinel-1 images, with image classification trained by Random Forest model"
+description: "Land cover mapping of Sentinel-1 (GRD) images, with image classification trained by Random Forest model. A core F-TEP service."
 version: "1.0"
 storeSupported: true
 statusSupported: true
@@ -10,7 +10,7 @@ serviceProvider: "LandCoverS1"
 dataInputs:
   - id: "inputfiles"
     title: "Input data"
-    description: "The input Sentinel-1 data files"
+    description: "The input Sentinel-1 data files (GRD products)"
     minOccurs: 1
     maxOccurs: 1
     data: "LITERAL"

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue.geoserver;
 
 import com.cgi.eoss.ftep.catalogue.IngestionException;
+import com.google.common.base.Preconditions;
 import com.google.common.io.MoreFiles;
 import it.geosolutions.geoserver.rest.GeoServerRESTManager;
 import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
@@ -107,10 +108,10 @@ public class GeoserverServiceImpl implements GeoserverService {
 
     private RESTCoverageStore publishExternalGeoTIFF(String workspace, String storeName, File geotiff,
                                                      String coverageName, String srs, GSResourceEncoder.ProjectionPolicy policy, String defaultStyle)
-            throws FileNotFoundException, IllegalArgumentException {
-        if (workspace == null || storeName == null || geotiff == null || coverageName == null
-                || srs == null || policy == null || defaultStyle == null)
-            throw new IllegalArgumentException("Unable to run: null parameter");
+            throws FileNotFoundException {
+        for (Object param : new Object[]{workspace, storeName, geotiff, coverageName, srs, policy, defaultStyle}){
+            Preconditions.checkNotNull(param, "Unable to publish GeoTIFF with null parameter");
+        }
 
         // config coverage props (srs)
         final GSCoverageEncoder coverageEncoder = new GSCoverageEncoder();

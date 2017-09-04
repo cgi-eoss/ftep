@@ -116,7 +116,7 @@ allprojects {
             dependencySet(group: 'org.geotools', version: '17.2') {
                 // project(':third-party/java/jai_core') must be manually included
                 entry('gt-epsg-extension') { exclude 'javax.media:jai_core' }
-                entry('gt-epsg-wkt') { exclude 'javax.media:jai_core' }
+                entry('gt-epsg-hsql') { exclude 'javax.media:jai_core' }
                 entry('gt-geojson') { exclude 'javax.media:jai_core' }
                 entry('gt-geometry') { exclude 'javax.media:jai_core' }
                 entry('gt-geotiff') { exclude 'javax.media:jai_core' }

@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.FtepFile;
@@ -424,10 +425,30 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
             }
 
+            // Try to read CRS/AOI from the file if not set by input parameters - note that CRS/AOI may still be null after this
+            outputProduct.setCrs(Optional.ofNullable(outputProduct.getCrs()).orElse(getOutputCrs(outputPath)));
+            outputProduct.setGeometry(Optional.ofNullable(outputProduct.getGeometry()).orElse(getOutputGeometry(outputPath)));
+
             outputFiles.put(outputId, catalogueService.ingestOutputProduct(outputProduct, outputPath));
         }
 
         return outputFiles;
+    }
+
+    private String getOutputCrs(Path outputPath) {
+        try {
+            return GeoUtil.extractEpsg(outputPath);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String getOutputGeometry(Path outputPath) {
+        try {
+            return GeoUtil.geojsonToWkt(GeoUtil.extractBoundingBox(outputPath));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void chargeUser(User user, Job job) {

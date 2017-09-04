@@ -17,10 +17,12 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.Hints;
+import org.geotools.geojson.geom.GeometryJSON;
 import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.geometry.text.WKTParser;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.coordinate.LineString;
@@ -29,6 +31,7 @@ import org.opengis.geometry.coordinate.Position;
 import org.opengis.geometry.primitive.Curve;
 import org.opengis.geometry.primitive.Point;
 import org.opengis.geometry.primitive.Surface;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -57,7 +60,7 @@ public class GeoUtil {
         try {
             // TODO Check for other ISO Geometry types
             return GeoUtil.wktToGeojsonPolygon(geometry);
-        } catch (RuntimeException e) {
+        } catch (GeometryException e) {
             return GeoUtil.defaultPoint();
         }
     }
@@ -77,7 +80,7 @@ public class GeoUtil {
             return new org.geojson.Polygon(geojsonCoords);
         } catch (Exception e) {
             LOG.error("Could not convert WKT to GeoJson Polygon: {}", wkt, e);
-            throw new RuntimeException(e);
+            throw new GeometryException(e);
         }
     }
 
@@ -89,7 +92,7 @@ public class GeoUtil {
                     point.getDirectPosition().getOrdinate(1));
         } catch (Exception e) {
             LOG.error("Could not convert WKT to GeoJson Point: {}", wkt, e);
-            throw new RuntimeException(e);
+            throw new GeometryException(e);
         }
     }
 
@@ -98,7 +101,16 @@ public class GeoUtil {
             return OBJECT_MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             LOG.error("Could not serialise GeoJsonObject: {}", object, e);
-            throw new RuntimeException(e);
+            throw new GeometryException(e);
+        }
+    }
+
+    public static String geojsonToWkt(GeoJsonObject geojson) {
+        try {
+            return new GeometryJSON().read(geojsonToString(geojson)).toString();
+        } catch (Exception e) {
+            LOG.error("Could not convert GeoJsonObject to WKT: {}", geojson, e);
+            throw new GeometryException(e);
         }
     }
 
@@ -107,7 +119,7 @@ public class GeoUtil {
             return OBJECT_MAPPER.readValue(geojson, GeoJsonObject.class);
         } catch (Exception e) {
             LOG.error("Could not deserialise GeoJsonObject: {}", geojson, e);
-            throw new RuntimeException(e);
+            throw new GeometryException(e);
         }
     }
 
@@ -120,7 +132,22 @@ public class GeoUtil {
             return wktToGeojsonPolygon(polygon.toString());
         } catch (Exception e) {
             LOG.error("Could not extract bounding box from file: {}", file, e);
-            throw new RuntimeException(e);
+            throw new GeometryException(e);
+        }
+    }
+
+    public static String extractEpsg(Path file) {
+        try {
+            CoordinateReferenceSystem crs = getCrs(file);
+
+            Integer epsgCode = CRS.lookupEpsgCode(crs, true);
+            String epsg = "EPSG:" + epsgCode;
+
+            LOG.debug("Extracted EPSG from file {}: {}", file.getFileName(), epsg);
+            return epsg;
+        } catch (Exception e) {
+            LOG.error("Could not extract bounding box from file: {}", file, e);
+            throw new GeometryException(e);
         }
     }
 
@@ -141,5 +168,24 @@ public class GeoUtil {
         }
 
         throw new UnsupportedOperationException("Could not extract geometry envelope from " + file.toString());
+    }
+
+    private static CoordinateReferenceSystem getCrs(Path file) throws IOException {
+        // General metadata
+        DataStore dataStore = DataStoreFinder.getDataStore(ImmutableMap.of("url", file.toUri().toURL()));
+        if (dataStore != null) {
+            SimpleFeatureCollection featureCollection = dataStore.getFeatureSource(dataStore.getTypeNames()[0]).getFeatures(Filter.INCLUDE);
+            return featureCollection.getSchema().getCoordinateReferenceSystem();
+        }
+
+        // Raster data
+        AbstractGridFormat gridFormat = GridFormatFinder.findFormat(file.toUri().toURL());
+        if (gridFormat != null && !(gridFormat instanceof UnknownFormat)) {
+            Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
+            AbstractGridCoverage2DReader reader = gridFormat.getReader(file.toUri().toURL(), hints);
+            return reader.getCoordinateReferenceSystem();
+        }
+
+        throw new UnsupportedOperationException("Could not extract CRS from " + file.toString());
     }
 }

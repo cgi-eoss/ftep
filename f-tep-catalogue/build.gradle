@@ -26,7 +26,7 @@ dependencies {
     compile 'org.apache.commons:commons-text'
     compile 'org.ehcache:ehcache'
     compile 'org.geotools:gt-epsg-extension'
-    compile 'org.geotools:gt-epsg-wkt'
+    compile 'org.geotools:gt-epsg-hsql'
     compile 'org.geotools:gt-geojson'
     compile 'org.geotools:gt-geometry'
     compile 'org.geotools:gt-geotiff'

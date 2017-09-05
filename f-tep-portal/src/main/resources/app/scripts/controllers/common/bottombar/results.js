@@ -32,7 +32,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             /* Clear previous selections, scroll to the top and hide the spinner */
             $scope.resultParams.selectedResultItems = [];
             scrollResults();
-            $scope.spinner.loading = false;
         }
 
         /* Paging */

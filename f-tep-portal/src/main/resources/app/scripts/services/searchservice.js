@@ -62,8 +62,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .result
                 .then(
                 function (response) {
+                    _this.spinner.loading = false;
                     deferred.resolve(response);
                 }, function (error) {
+                    _this.spinner.loading = false;
                     MessageService.addError('Search failed', error);
                     deferred.reject();
                 });
@@ -83,8 +85,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .result
                 .then(
                 function (response) {
+                    _this.spinner.loading = false;
                     deferred.resolve(response);
                 }, function (error) {
+                    _this.spinner.loading = false;
                     MessageService.addError('Search failed', error);
                     deferred.reject();
                 });

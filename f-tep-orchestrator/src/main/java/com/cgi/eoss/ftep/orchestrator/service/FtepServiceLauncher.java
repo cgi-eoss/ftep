@@ -142,7 +142,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 throw new ServiceExecutionException("User does not have read access to all requested inputs");
             }
 
-            // TODO Determine WorkerEnvironment from service parameters
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
             jobWorkers.put(rpcJob, worker);
 

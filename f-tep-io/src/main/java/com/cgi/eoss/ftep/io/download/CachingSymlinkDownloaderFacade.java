@@ -207,7 +207,7 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
 
             // Shortcut return if the directory already exists
             if (Files.isDirectory(cacheDir)) {
-                return cacheDir;
+                return resolveCacheSymlink(cacheDir).orElse(cacheDir);
             }
 
             LOG.info("URI not found in cache, downloading \"{}\" to {}", uri, cacheDir);
@@ -245,21 +245,7 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
                 throw new ServiceIoException("Failed to populate cache directory: " + inProgressDir, e);
             }
 
-            // If the downloader returned a single symlink (i.e. it's a "resolving" downloader), point to that rather than the cacheDir directly
-            try (Stream<Path> cacheDirList = Files.list(cacheDir)) {
-                Set<Path> cacheDirContents = cacheDirList
-                        .filter(f -> !f.getFileName().toString().equals(URI_FILENAME))
-                        .collect(Collectors.toSet());
-
-                if (cacheDirContents.size() == 1) {
-                    Path file = Iterables.getOnlyElement(cacheDirContents);
-                    if (Files.isSymbolicLink(file)) {
-                        return file;
-                    }
-                }
-            }
-
-            return cacheDir;
+            return resolveCacheSymlink(cacheDir).orElse(cacheDir);
         }
 
         private Path doDownload(Path targetDir, URI uri) {
@@ -277,6 +263,25 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
 
         private Set<Downloader> getValidDownloaders(URI uri) {
             return downloaders.stream().filter(d -> d.getProtocols().contains(uri.getScheme())).collect(Collectors.toSet());
+        }
+
+        private Optional<Path> resolveCacheSymlink(Path cacheDir) {
+            // If the downloader returned a single symlink (i.e. it's a "resolving" downloader), point to that rather than the cacheDir directly
+            try (Stream<Path> cacheDirList = Files.list(cacheDir)) {
+                Set<Path> cacheDirContents = cacheDirList
+                        .filter(f -> !f.getFileName().toString().equals(URI_FILENAME))
+                        .collect(Collectors.toSet());
+
+                if (cacheDirContents.size() == 1) {
+                    Path file = Iterables.getOnlyElement(cacheDirContents);
+                    if (Files.isSymbolicLink(file)) {
+                        return Optional.of(file);
+                    }
+                }
+            } catch (IOException e) {
+                LOG.warn("Failed to read contents of cache directory {}", cacheDir, e);
+            }
+            return Optional.empty();
         }
     }
 

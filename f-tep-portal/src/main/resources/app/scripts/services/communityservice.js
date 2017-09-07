@@ -28,6 +28,9 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         this.getObjectGroups = function(item, type) {
             return $q(function(resolve, reject) {
+                if (item.access.currentLevel !== 'ADMIN' && item.access.currentLevel !== 'SUPERUSER') {
+                    reject();
+                }
                 $http({
                     method: 'GET',
                     url: rootUri + '/acls/' + type + '/' + item.id,

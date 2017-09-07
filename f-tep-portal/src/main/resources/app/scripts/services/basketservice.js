@@ -296,7 +296,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                             self.params[page].items = data;
                         });
 
-                        if(page === 'community' && basket.access.currentLevel === 'ADMIN') {
+                        if(page === 'community') {
                             CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
                                 self.params.community.sharedGroups = data;
                             });

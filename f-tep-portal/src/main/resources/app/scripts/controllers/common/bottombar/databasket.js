@@ -6,9 +6,9 @@
  * Controller of the ftepApp
  */
 'use strict';
-define(['../../../ftepmodules'], function (ftepmodules) {
+define(['../../../ftepmodules'], function(ftepmodules) {
 
-    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService', 'TabService', '$location', function ($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService, $location) {
+    ftepmodules.controller('DatabasketCtrl', ['$scope', '$rootScope', '$mdDialog', 'CommonService', 'BasketService', 'TabService', '$location', function($scope, $rootScope, $mdDialog, CommonService, BasketService, TabService, $location) {
 
         $scope.dbPaging = BasketService.pagingData;
         $scope.dbParams = BasketService.params.explorer;
@@ -18,7 +18,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         BasketService.refreshDatabaskets("explorer");
 
         /* Update Databaskets when polling */
-        $scope.$on('poll.baskets', function (event, data) {
+        $scope.$on('poll.baskets', function(event, data) {
             $scope.dbParams.databaskets = data;
         });
 
@@ -28,53 +28,53 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         });
 
         /* Paging */
-        $scope.getPage = function(url){
+        $scope.getPage = function(url) {
             BasketService.getDatabasketsPage('explorer', url);
         };
 
         /* Filtering */
-        $scope.filter = function(){
+        $scope.filter = function() {
             BasketService.getDatabasketsByFilter('explorer');
         };
 
-        $scope.toggleFilters = function () {
+        $scope.toggleFilters = function() {
             $scope.dbParams.displayFilters = !$scope.dbParams.displayFilters;
         };
 
         /* Selecting a Databasket */
-        $scope.selectDatabasket = function (basket) {
+        $scope.selectDatabasket = function(basket) {
             $scope.dbParams.selectedDatabasket = basket;
             BasketService.refreshSelectedBasket("explorer");
             document.getElementById('databasket-container').scrollTop = 0;
         };
 
-        $scope.deselectDatabasket  = function () {
+        $scope.deselectDatabasket = function() {
             $scope.dbParams.selectedDatabasket = undefined;
         };
 
         /* Select databasket from bottombar menu */
-        $scope.basketSelection = { searchText: ''};
+        $scope.basketSelection = {searchText: ''};
         $scope.showList = true;
         $scope.searchBaskets = function() {
             $scope.showList = false;
-            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets){
+            BasketService.searchBaskets($scope.basketSelection.searchText).then(function(baskets) {
                 $scope.dbParams.selectBasketList = baskets;
                 $scope.showList = true;
             });
         };
         $scope.searchBaskets();
 
-        $scope.isItemDisabled = function(basketId){
+        $scope.isItemDisabled = function(basketId) {
             var element = document.getElementById('select_' + basketId);
             if (element) {
-                 return element.disabled;
+                return element.disabled;
             }
         };
 
         /* Get item for dragging */
-        $scope.getBasketItem = function(item){
-            if($scope.dbParams.selectedItems.indexOf(item) < 0) {
-                 $scope.dbParams.selectedItems.push(item);
+        $scope.getBasketItem = function(item) {
+            if ($scope.dbParams.selectedItems.indexOf(item) < 0) {
+                $scope.dbParams.selectedItems.push(item);
             }
             var dragObject = {
                 type: 'basketItems',
@@ -85,7 +85,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Get all basket files for dragging */
-        $scope.getBasketDragItems = function (basket) {
+        $scope.getBasketDragItems = function(basket) {
             var dragObject = {
                 type: 'databasket',
                 basket: basket
@@ -95,16 +95,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Edit existing databasket's name and description */
         $scope.editDatabasket = function($event, basket) {
-            CommonService.editItemDialog($event, basket, 'BasketService', 'updateDatabasket').then(function (updatedBasket) {
+            CommonService.editItemDialog($event, basket, 'BasketService', 'updateDatabasket').then(function(updatedBasket) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };
 
         /* Remove items from a databasket */
-        $scope.clearDatabasket = function (event) {
-            CommonService.confirm(event, 'Are you sure you want to clear the databasket?').then(function (confirmed) {
+        $scope.clearDatabasket = function(event) {
+            CommonService.confirm(event, 'Are you sure you want to clear the databasket?').then(function(confirmed) {
                 if (confirmed !== false) {
-                    BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function (data) {
+                    BasketService.clearDatabasket($scope.dbParams.selectedDatabasket).then(function(data) {
                         BasketService.refreshDatabaskets("explorer");
                     });
                 }
@@ -112,38 +112,39 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.removeDatabasketItem = function(item) {
-            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function (data) {
+            BasketService.removeDatabasketItem($scope.dbParams.selectedDatabasket, $scope.dbParams.items, item).then(function(data) {
                 BasketService.refreshDatabaskets("explorer");
             });
         };
 
         /* Clone a databasket */
-        $scope.cloneDatabasket = function($event, basket){
+        $scope.cloneDatabasket = function($event, basket) {
             function CloneController($scope, $mdDialog) {
-
-                BasketService.getDatabasketContents(basket).then(function(files){
-                    $scope.files = files;
+                BasketService.getDatabasketContents(basket).then(function(files) {
+                    var fileRefs = [];
+                    for (var file in files) {
+                        fileRefs.push({
+                            _links: files[file]._links,
+                            properties: files[file].metadata.properties
+                        });
+                    }
+                    $scope.files = fileRefs;
                 });
 
-                $scope.cloneBasket= function() {
-                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description).then(function (newBasket) {
-                        var fileLinks = [];
-                        for (var file in $scope.files) {
-                            fileLinks.push($scope.files[file]._links.self.href);
-                        }
-                        BasketService.addItems(newBasket, fileLinks).then(function(data){
-                            BasketService.refreshDatabaskets("explorer");
-                        });
+                $scope.createBasket = function() {
+                    BasketService.createDatabasket($scope.newBasket.name, $scope.newBasket.description).then(function(newBasket) {
+                        BasketService.addToDatabasket(newBasket, $scope.files);
+                        BasketService.refreshDatabaskets("explorer", "Create", newBasket);
                     });
                     $mdDialog.hide();
                 };
 
-                $scope.closeDialog = function () {
+                $scope.closeDialog = function() {
                     $mdDialog.hide();
                 };
             }
 
-            CloneController.$inject = ['$scope', '$mdDialog'];
+            CloneController.$inject = ['$scope', '$mdDialog', 'BasketService'];
             $mdDialog.show({
                 controller: CloneController,
                 templateUrl: 'views/explorer/templates/createdatabasket.tmpl.html',
@@ -154,21 +155,21 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Displaying databasket items on map */
-        $scope.loadBasket = function (basket) {
-            BasketService.getDatabasketContents(basket).then(function(files){
+        $scope.loadBasket = function(basket) {
+            BasketService.getDatabasketContents(basket).then(function(files) {
                 $rootScope.$broadcast('load.basket', files);
                 $scope.dbParams.databasketOnMap.id = basket.id;
                 $scope.dbParams.selectedItems = [];
             });
         };
 
-        $scope.unloadBasket = function (basket) {
+        $scope.unloadBasket = function(basket) {
             $rootScope.$broadcast('unload.basket');
             $scope.dbParams.databasketOnMap.id = undefined;
             $scope.dbParams.selectedItems = [];
         };
 
-        $scope.getIndexById = function (item) {
+        $scope.getIndexById = function(item) {
             return $scope.dbParams.selectedItems.map(function(el) {
                 return el.id;
             }).indexOf(item.id);
@@ -186,13 +187,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.$on('map.item.toggled', function(event, items) {
-            for(var i = 0;  i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 $scope.toggleSelection(items[i]);
             }
         });
 
         /* Clear loaded databasket when map is reset */
-        $scope.$on('map.cleared', function () {
+        $scope.$on('map.cleared', function() {
             $scope.unloadBasket();
             $scope.dbParams.selectedItems = [];
         });

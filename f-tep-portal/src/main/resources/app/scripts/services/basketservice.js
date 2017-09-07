@@ -7,22 +7,22 @@
  */
 'use strict';
 
-define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
+define(['../ftepmodules', 'traversonHal'], function(ftepmodules, TraversonJsonHalAdapter) {
 
-    ftepmodules.service('BasketService', [ '$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'FileService', 'traverson', function ($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, FileService, traverson) {
+    ftepmodules.service('BasketService', ['$rootScope', '$http', 'ftepProperties', '$q', '$timeout', 'MessageService', 'UserService', 'TabService', 'CommunityService', 'FileService', 'traverson', function($rootScope, $http, ftepProperties, $q, $timeout, MessageService, UserService, TabService, CommunityService, FileService, traverson) {
 
         var self = this;
 
         traverson.registerMediaType(TraversonJsonHalAdapter.mediaType, TraversonJsonHalAdapter);
         var rootUri = ftepProperties.URLv2;
-        var halAPI =  traverson.from(rootUri).jsonHal().useAngularHttp();
+        var halAPI = traverson.from(rootUri).jsonHal().useAngularHttp();
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         /** PRESERVE USER SELECTIONS **/
         this.dbOwnershipFilters = {
-                ALL_BASKETS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
-                MY_BASKETS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
-                SHARED_BASKETS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
+            ALL_BASKETS: {id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
+            MY_BASKETS: {id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner'},
+            SHARED_BASKETS: {id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner'}
         };
 
         this.params = {
@@ -64,19 +64,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var startPolling = true;
         var pollingTimer;
 
-        var pollDatabaskets = function (page) {
-            pollingTimer = $timeout(function () {
+        var pollDatabaskets = function(page) {
+            pollingTimer = $timeout(function() {
                 halAPI.from(self.params[page].pollingUrl)
                     .newRequest()
                     .getResource()
                     .result
-                    .then(function (document) {
+                    .then(function(document) {
                         self.params[page].pagingData._links = document._links;
                         self.params[page].pagingData.page = document.page;
 
                         $rootScope.$broadcast('poll.baskets', document._embedded.databaskets);
                         pollDatabaskets(page);
-                    }, function (error) {
+                    }, function(error) {
                         error.retriesLeft = pollCount;
                         MessageService.addError('Could not poll Databaskets', error);
                         if (pollCount > 0) {
@@ -87,20 +87,20 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }, POLLING_FREQUENCY);
         };
 
-        this.stopPolling = function(){
-            if(pollingTimer){
+        this.stopPolling = function() {
+            if (pollingTimer) {
                 $timeout.cancel(pollingTimer);
             }
             startPolling = true;
         };
 
-        var getDatabaskets = function (page) {
+        var getDatabaskets = function(page) {
             var deferred = $q.defer();
             halAPI.from(self.params[page].pollingUrl)
                 .newRequest()
                 .getResource()
                 .result
-                .then(function (document) {
+                .then(function(document) {
                     if (startPolling) {
                         pollDatabaskets(page);
                         startPolling = false;
@@ -109,7 +109,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     self.params[page].pagingData.page = document.page;
 
                     deferred.resolve(document._embedded.databaskets);
-                }, function (error) {
+                }, function(error) {
                     MessageService.addError('Could not get Databaskets', error);
                     deferred.reject();
                 });
@@ -117,105 +117,104 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createDatabasket = function (name, desc) {
+        this.createDatabasket = function(name, desc) {
             return $q(function(resolve, reject) {
                 var databasket = {name: name, description: (desc ? desc : '')};
                 halAPI.from(rootUri + '/databaskets/')
-                         .newRequest()
-                         .post(databasket)
-                         .result
-                         .then(
-                function (document) {
-                     MessageService.addInfo('Databasket created', 'New databasket ' + name + ' created.');
-                    resolve(JSON.parse(document.data));
-                }, function (error) {
-                    MessageService.addError('Could not create Databasket ' + name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .post(databasket)
+                    .result
+                    .then(
+                        function(document) {
+                            MessageService.addInfo('Databasket created', 'New databasket ' + name + ' created.');
+                            resolve(JSON.parse(document.data));
+                        }, function(error) {
+                            MessageService.addError('Could not create Databasket ' + name, error);
+                            reject();
+                        });
             });
         };
 
         this.removeDatabasket = function(databasket) {
             return $q(function(resolve, reject) {
                 deleteAPI.from(rootUri + '/databaskets/' + databasket.id)
-                         .newRequest()
-                         .delete()
-                         .result
-                         .then(
-                function (document) {
-                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Databasket deleted', 'Databasket ' + databasket.name + ' deleted.');
-                        resolve(databasket);
-                    } else {
-                         MessageService.addError('Could not remove Databasket ' + databasket.name, document);
-                        reject();
-                    }
-                }, function (error) {
-                    MessageService.addError('Could not remove Databasket ' + databasket.name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .delete()
+                    .result
+                    .then(
+                        function(document) {
+                            if (200 <= document.status && document.status < 300) {
+                                MessageService.addInfo('Databasket deleted', 'Databasket ' + databasket.name + ' deleted.');
+                                resolve(databasket);
+                            } else {
+                                MessageService.addError('Could not remove Databasket ' + databasket.name, document);
+                                reject();
+                            }
+                        }, function(error) {
+                            MessageService.addError('Could not remove Databasket ' + databasket.name, error);
+                            reject();
+                        });
             });
         };
 
-        this.updateDatabasket = function (databasket) {
+        this.updateDatabasket = function(databasket) {
             var newdatabasket = {name: databasket.name, description: databasket.description};
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/databaskets/' + databasket.id)
-                         .newRequest()
-                         .patch(newdatabasket)
-                         .result
-                         .then(
-                function (document) {
-                    MessageService.addInfo('Databasket successfully updated', 'Databasket ' + databasket.name + ' updated.');
-                    resolve(JSON.parse(document.data));
-                }, function (error) {
-                    MessageService.addError('Could not update Databasket ' + databasket.name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .patch(newdatabasket)
+                    .result
+                    .then(
+                        function(document) {
+                            MessageService.addInfo('Databasket successfully updated', 'Databasket ' + databasket.name + ' updated.');
+                            resolve(JSON.parse(document.data));
+                        }, function(error) {
+                            MessageService.addError('Could not update Databasket ' + databasket.name, error);
+                            reject();
+                        });
             });
         };
 
         var getDatabasket = function(databasket) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + databasket.id + '?projection=detailedDatabasket')
-                     .newRequest()
-                     .getResource()
-                     .result
-                     .then(
-            function (document) {
-                deferred.resolve(document);
-            }, function (error) {
-                MessageService.addError('Could not get Databasket' + databasket.name, error);
-                deferred.reject();
-            });
+                .newRequest()
+                .getResource()
+                .result
+                .then(
+                    function(document) {
+                        deferred.resolve(document);
+                    }, function(error) {
+                        MessageService.addError('Could not get Databasket: ' + databasket.name, error);
+                        deferred.reject();
+                    });
             return deferred.promise;
         };
 
         this.getDatabasketContents = function(databasket) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + databasket.id)
-                     .newRequest()
-                     .follow('files')
-                     .withRequestOptions({
-                          qs: { projection: 'detailedFtepFile' }
-                      })
-                     .getResource()
-                     .result
-                     .then(
-            function (document) {
-                deferred.resolve(document._embedded.ftepFiles);
-            }, function (error) {
-                MessageService.addError('Could not get contents of Databasket ' + databasket.name, error);
-                deferred.reject();
-            });
+                .newRequest()
+                .follow('files')
+                .withRequestOptions({
+                    qs: {projection: 'detailedFtepFile'}
+                })
+                .getResource()
+                .result
+                .then(
+                    function(document) {
+                        deferred.resolve(document._embedded.ftepFiles);
+                    }, function(error) {
+                        MessageService.addError('Could not get contents of Databasket ' + databasket.name, error);
+                        deferred.reject();
+                    });
             return deferred.promise;
         };
 
-        this.refreshDatabaskets = function (page, action, basket) {
-
+        this.refreshDatabaskets = function(page, action, basket) {
             if (self.params[page]) {
                 /* Get databasket list */
-                getDatabaskets(page).then(function (data) {
+                getDatabaskets(page).then(function(data) {
 
                     self.params[page].databaskets = data;
 
@@ -239,44 +238,44 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         /* Fetch a new page */
-        this.getDatabasketsPage = function(page, url){
+        this.getDatabasketsPage = function(page, url) {
             if (self.params[page]) {
                 self.params[page].pollingUrl = url;
 
                 /* Get databasket list */
-                getDatabaskets(page).then(function (data) {
+                getDatabaskets(page).then(function(data) {
                     self.params[page].databaskets = data;
                 });
             }
         };
 
-        this.getDatabasketsByFilter = function (page) {
+        this.getDatabasketsByFilter = function(page) {
             if (self.params[page]) {
                 var url = rootUri + '/databaskets/' + self.params[page].selectedOwnershipFilter.searchUrl +
                     '?sort=name&filter=' + (self.params[page].searchText ? self.params[page].searchText : '');
 
-                if(self.params[page].selectedOwnershipFilter !== self.dbOwnershipFilters.ALL_BASKETS){
+                if (self.params[page].selectedOwnershipFilter !== self.dbOwnershipFilters.ALL_BASKETS) {
                     url += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
                 self.params[page].pollingUrl = url;
 
                 /* Get databasket list */
-                getDatabaskets(page).then(function (data) {
+                getDatabaskets(page).then(function(data) {
                     self.params[page].databaskets = data;
                 });
             }
         };
 
         // search function for explorer page bottombar menu-bars
-        this.searchBaskets = function (searchText) {
+        this.searchBaskets = function(searchText) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/databaskets/' + 'search/findByFilterOnly?sort=name&filter=' + searchText)
                 .newRequest()
                 .getResource()
                 .result
-                .then(function (document) {
+                .then(function(document) {
                     deferred.resolve(document._embedded.databaskets);
-                }, function (error) {
+                }, function(error) {
                     MessageService.addError('Could not get Databaskets', error);
                     deferred.reject();
                 });
@@ -284,20 +283,19 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.refreshSelectedBasket = function (page) {
-
+        this.refreshSelectedBasket = function(page) {
             if (self.params[page]) {
                 /* Get basket contents if selected */
                 if (self.params[page].selectedDatabasket) {
 
-                    getDatabasket(self.params[page].selectedDatabasket).then(function (basket) {
+                    getDatabasket(self.params[page].selectedDatabasket).then(function(basket) {
                         self.params[page].selectedDatabasket = basket;
-                        self.getDatabasketContents(basket).then(function (data) {
+                        self.getDatabasketContents(basket).then(function(data) {
                             self.params[page].items = data;
                         });
 
-                        if(page === 'community') {
-                            CommunityService.getObjectGroups(basket, 'databasket').then(function (data) {
+                        if (page === 'community') {
+                            CommunityService.getObjectGroups(basket, 'databasket').then(function(data) {
                                 self.params.community.sharedGroups = data;
                             });
                         }
@@ -309,52 +307,57 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.addToDatabasket = function(databasket, items) {
             var itemLinks = [];
             var promises = [];
-            for(var index in items){
+            for (var index in items) {
                 promises.push(getBasketItemLink(items[index], itemLinks));
             }
 
-            $q.all(promises).then(function(){
-                if(itemLinks.length > 0) {
-                    addToBasket(databasket, itemLinks, true);
-                } else {
-                    addToBasket(databasket, items, false);
+            $q.all(promises).then(function() {
+                if (itemLinks.length > 0) {
+                    addToBasket(databasket, itemLinks);
                 }
             });
         };
 
-        function getBasketItemLink(item, itemLinks){
+        function getBasketItemLink(item, itemLinks) {
             var partialPromise = $q.defer();
 
-            FileService.createGeoResultFile(item).then(function (ftepFile) {
-                itemLinks.push(ftepFile._links.self.href);
+            if (item._links && item._links.self) {
+                itemLinks.push(item._links.self.href);
                 partialPromise.resolve();
-            }, function(error){
-                MessageService.addError('Could not add file to Databasket', error);
-                partialPromise.resolve();
-            });
+            } else {
+                FileService.createGeoResultFile(item).then(function(ftepFile) {
+                    itemLinks.push(ftepFile._links.self.href);
+                    partialPromise.resolve();
+                }, function(error) {
+                    MessageService.addError('Could not add file to Databasket', error);
+                    partialPromise.resolve();
+                });
+            }
             return partialPromise.promise;
         }
 
-        function addToBasket(databasket, items){
-            self.addItems(databasket, items).then(function () {
+        function addToBasket(databasket, items) {
+            self.addItems(databasket, items).then(function() {
                 self.refreshDatabaskets("explorer");
             });
         }
 
-        this.addItems = function (databasket, fileLinks, geoResults) {
+        this.addItems = function(databasket, fileLinks) {
             return $q(function(resolve, reject) {
 
                 var itemsArray = [];
 
                 /* Collect links from current items */
-                if(databasket.files && databasket.files.length > 0){
+                if (databasket.files && databasket.files.length > 0) {
                     for (var item in databasket.files) {
                         itemsArray.push(databasket.files[item]._links.self.href);
                     }
                 }
 
                 /* Append links of new items */
-                var newItems = fileLinks.filter(function(i) { return itemsArray.indexOf(i) < 0; });
+                var newItems = fileLinks.filter(function(i) {
+                    return itemsArray.indexOf(i) < 0;
+                });
                 itemsArray.push(newItems);
 
                 /* Set new files object */
@@ -362,22 +365,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Patch members with updated member list */
                 halAPI.from(rootUri + '/databaskets/' + databasket.id)
-                         .newRequest()
-                         .patch(updatedItems)
-                         .result
-                         .then(
-                function (document) {
-                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Files successfully added', 'Files added to ' + databasket.name);
-                        resolve(document);
-                    } else {
-                        MessageService.addError('Could not add file/s to Databasket ' + databasket.name, document);
-                        reject();
-                    }
-                }, function (error) {
-                    MessageService.addError('Could not add file/s to Databasket ' + databasket.name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .patch(updatedItems)
+                    .result
+                    .then(
+                        function(document) {
+                            if (200 <= document.status && document.status < 300) {
+                                MessageService.addInfo('Files successfully added', 'Files added to ' + databasket.name);
+                                resolve(document);
+                            } else {
+                                MessageService.addError('Could not add file/s to Databasket ' + databasket.name, document);
+                                reject();
+                            }
+                        }, function(error) {
+                            MessageService.addError('Could not add file/s to Databasket ' + databasket.name, error);
+                            reject();
+                        });
 
             });
         };
@@ -399,22 +402,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Patch databasket with empty item list */
                 halAPI.from(rootUri + '/databaskets/' + databasket.id)
-                         .newRequest()
-                         .patch(updatedItems)
-                         .result
-                         .then(
-                function (document) {
-                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('File removed from Databasket', 'File ' + file.filename + ' removed from ' + databasket.name);
-                        resolve(databasket);
-                    } else {
-                        MessageService.addError('Could not remove item from Databasket ' + databasket.name, document);
-                        reject();
-                    }
-                }, function (error) {
-                    MessageService.addError('Could not remove item from Databasket ' + databasket.name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .patch(updatedItems)
+                    .result
+                    .then(
+                        function(document) {
+                            if (200 <= document.status && document.status < 300) {
+                                MessageService.addInfo('File removed from Databasket', 'File ' + file.filename + ' removed from ' + databasket.name);
+                                resolve(databasket);
+                            } else {
+                                MessageService.addError('Could not remove item from Databasket ' + databasket.name, document);
+                                reject();
+                            }
+                        }, function(error) {
+                            MessageService.addError('Could not remove item from Databasket ' + databasket.name, error);
+                            reject();
+                        });
             });
         };
 
@@ -426,22 +429,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Patch databasket with empty item list */
                 halAPI.from(rootUri + '/databaskets/' + databasket.id)
-                         .newRequest()
-                         .patch(updatedItems)
-                         .result
-                         .then(
-                function (document) {
-                    if (200 <= document.status && document.status < 300) {
-                        MessageService.addInfo('Databasket successfully cleared', 'Databasket ' + databasket.name + ' has been cleared');
-                        resolve(databasket);
-                    } else {
-                        MessageService.addError('Could not clear Databasket ' + databasket.name, document);
-                        reject();
-                    }
-                }, function (error) {
-                    MessageService.addError('Could not clear Databasket ' + databasket.name, error);
-                    reject();
-                });
+                    .newRequest()
+                    .patch(updatedItems)
+                    .result
+                    .then(
+                        function(document) {
+                            if (200 <= document.status && document.status < 300) {
+                                MessageService.addInfo('Databasket successfully cleared', 'Databasket ' + databasket.name + ' has been cleared');
+                                resolve(databasket);
+                            } else {
+                                MessageService.addError('Could not clear Databasket ' + databasket.name, document);
+                                reject();
+                            }
+                        }, function(error) {
+                            MessageService.addError('Could not clear Databasket ' + databasket.name, error);
+                            reject();
+                        });
             });
         };
 

@@ -28,6 +28,7 @@ import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -64,8 +65,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,6 +102,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         this.nodeFactory = nodeFactory;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
+    }
+
+    private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
+        return CloseableThreadContext.push("F-TEP Worker")
+                .put("zooId", job.getId())
+                .put("jobId", job.getIntJobId())
+                .put("userId", job.getUserId())
+                .put("serviceId", job.getServiceId());
     }
 
     @Override
@@ -247,6 +254,31 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
+    public void stopContainer(Job request, StreamObserver<StopContainerResponse> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
+            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
+            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
+
+            DockerClient dockerClient = jobClients.get(request.getId());
+            String containerId = jobContainers.get(request.getId());
+
+            LOG.info("Stop requested for job {} running in container {}", request.getId(), containerId);
+
+            try {
+                stopContainer(dockerClient, containerId);
+                removeContainer(dockerClient, containerId);
+                cleanUpJob(request.getId());
+
+                responseObserver.onNext(StopContainerResponse.newBuilder().build());
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                LOG.error("Failed to stop job: {}", request.getId(), e);
+                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            }
+        }
+    }
+
+    @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
@@ -337,7 +369,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onNext(OutputFileResponse.newBuilder().setMeta(fileMeta).build());
 
                 // Then read the file, chunked at 8kB
-                LocalDateTime startTime = LocalDateTime.now();
+                Stopwatch stopwatch = Stopwatch.createStarted();
                 try (SeekableByteChannel channel = Files.newByteChannel(outputFile, StandardOpenOption.READ)) {
                     ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
                     int position = 0;
@@ -352,36 +384,11 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         buffer.flip();
                     }
                 }
-                LOG.info("Transferred output file {} ({} bytes) in {}", outputFile.getFileName(), outputFileSize, Duration.between(startTime, LocalDateTime.now()));
+                LOG.info("Transferred output file {} ({} bytes) in {}", outputFile.getFileName(), outputFileSize, stopwatch.stop().elapsed());
 
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 LOG.error("Failed to collect output file: {}", request.toString(), e);
-                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
-            }
-        }
-    }
-
-    @Override
-    public void stopContainer(Job request, StreamObserver<StopContainerResponse> responseObserver) {
-        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
-
-            DockerClient dockerClient = jobClients.get(request.getId());
-            String containerId = jobContainers.get(request.getId());
-
-            LOG.info("Stop requested for job {} running in container {}", request.getId(), containerId);
-
-            try {
-                stopContainer(dockerClient, containerId);
-                removeContainer(dockerClient, containerId);
-                cleanUpJob(request.getId());
-
-                responseObserver.onNext(StopContainerResponse.newBuilder().build());
-                responseObserver.onCompleted();
-            } catch (Exception e) {
-                LOG.error("Failed to stop job: {}", request.getId(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
@@ -491,14 +498,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @VisibleForTesting
     Map<String, String> getJobContainers() {
         return jobContainers;
-    }
-
-    private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
-        return CloseableThreadContext.push("F-TEP Worker")
-                .put("zooId", job.getId())
-                .put("jobId", job.getIntJobId())
-                .put("userId", job.getUserId())
-                .put("serviceId", job.getServiceId());
     }
 
 }

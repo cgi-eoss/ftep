@@ -164,7 +164,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         } catch (Exception e) {
             if (job != null) {
                 job.setStatus(Job.Status.ERROR);
-                job.setEndTime(LocalDateTime.now());
+                job.setEndTime(LocalDateTime.now(ZoneOffset.UTC));
                 jobDataService.save(job);
             }
 
@@ -281,7 +281,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
     private JobEnvironment prepareEnvironment(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) {
         LOG.info("Downloading input data for {}", job.getExtId());
-        job.setStartTime(LocalDateTime.now());
+        job.setStartTime(LocalDateTime.now(ZoneOffset.UTC));
         job.setStatus(Job.Status.RUNNING);
         job.setStage(JobStep.DATA_FETCH.getText());
         jobDataService.save(job);
@@ -340,7 +340,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         }
 
         job.setStage(JobStep.OUTPUT_LIST.getText());
-        job.setEndTime(LocalDateTime.now()); // End time is when processing ends
+        job.setEndTime(LocalDateTime.now(ZoneOffset.UTC)); // End time is when processing ends
         job.setGuiUrl(null); // Any GUI services will no longer be available
         jobDataService.save(job);
     }

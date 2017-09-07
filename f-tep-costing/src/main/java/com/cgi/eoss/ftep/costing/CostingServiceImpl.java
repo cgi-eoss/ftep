@@ -14,6 +14,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 /**
@@ -71,7 +72,7 @@ public class CostingServiceImpl implements CostingService {
                 .balanceChange(-cost)
                 .type(WalletTransaction.Type.JOB)
                 .associatedId(job.getId())
-                .transactionTime(LocalDateTime.now())
+                .transactionTime(LocalDateTime.now(ZoneOffset.UTC))
                 .build();
         walletDataService.transact(walletTransaction);
     }
@@ -89,7 +90,7 @@ public class CostingServiceImpl implements CostingService {
                 .balanceChange(-cost)
                 .type(WalletTransaction.Type.DOWNLOAD)
                 .associatedId(ftepFile.getId())
-                .transactionTime(LocalDateTime.now())
+                .transactionTime(LocalDateTime.now(ZoneOffset.UTC))
                 .build();
         walletDataService.transact(walletTransaction);
     }

@@ -22,6 +22,7 @@ import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
 import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.cgi.eoss.ftep.security.FtepPermission;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -42,8 +43,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -196,7 +195,7 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             responseObserver.onNext(FileResponse.newBuilder().setMeta(fileMeta).build());
 
             // Then read the file, chunked at 8kB
-            LocalDateTime startTime = LocalDateTime.now();
+            Stopwatch stopwatch = Stopwatch.createStarted();
             try (ReadableByteChannel channel = Channels.newChannel(fileResource.getInputStream())) {
                 ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
                 int position = 0;
@@ -211,7 +210,7 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
                     buffer.flip();
                 }
             }
-            LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), Duration.between(startTime, LocalDateTime.now()));
+            LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), stopwatch.stop().elapsed());
 
             responseObserver.onCompleted();
         } catch (Exception e) {

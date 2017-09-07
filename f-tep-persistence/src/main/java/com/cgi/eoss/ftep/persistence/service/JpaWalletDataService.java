@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,7 +59,7 @@ public class JpaWalletDataService extends AbstractJpaDataService<Wallet> impleme
         transact(WalletTransaction.builder()
                 .wallet(wallet)
                 .balanceChange(amount)
-                .transactionTime(LocalDateTime.now())
+                .transactionTime(LocalDateTime.now(ZoneOffset.UTC))
                 .type(WalletTransaction.Type.CREDIT)
                 .associatedId(null)
                 .build());

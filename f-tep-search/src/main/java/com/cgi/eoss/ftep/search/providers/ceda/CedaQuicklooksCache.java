@@ -31,18 +31,27 @@ import java.util.regex.Pattern;
 
 @Log4j2
 public class CedaQuicklooksCache {
+
     private static final int CONNECT_TIMEOUT = 2000;
     private static final String FTPS_SCHEME = "ftps";
+    private static final DateTimeFormatter PRODUCT_ID_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+    private static final DateTimeFormatter YEAR_FOLDER_FORMAT = DateTimeFormatter.ofPattern("yyyy");
+    private static final DateTimeFormatter MONTH_FOLDER_FORMAT = DateTimeFormatter.ofPattern("MM");
+    private static final DateTimeFormatter DAY_FOLDER_FORMAT = DateTimeFormatter.ofPattern("dd");
+    private static final Pattern OLD_S2_PRODUCT_PATTERN = Pattern.compile(
+            "(?<PRODUCT>(?<MISSION>\\w{3})_(?<FILECLASS>OPER_)(?<FILETYPE>(?<FILECATEGORY>\\w{3})_(?<PRODUCTLEVEL>\\w{6}))_(?<SITECENTRE>\\w{4})_(?<CREATIONDATE>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<RORBIT>R\\d{3})_(?<VALIDITYPERIOD>V(?<VALIDITYSTART>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<VALIDITYEND>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})))$"
+    );
+    private static final Pattern NEW_S2_PRODUCT_PATTERN = Pattern.compile(
+            "(?<PRODUCT>(?<MISSION>\\w{3})_(?<PRODUCTLEVEL>\\w{6})_(?<VALIDITYSTART>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<PROCESSINGBASELINE>N\\d{4})_(?<RORBIT>R\\d{3})_(?<TILE>T\\w{5})_(?<PRODUCTDISCRIMINATOR>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2}))$"
+    );
 
     private final LoadingCache<String, Path> cache;
     private final Path cacheBaseDir;
-    private final URI cedaFtpBaseUri;
     private final Credentials creds;
 
-    public CedaQuicklooksCache(CedaSearchProperties cedaSearchProperties, String quicklooksCacheDirectory) throws IOException {
+    public CedaQuicklooksCache(CedaSearchProperties cedaSearchProperties, String quicklooksCacheDirectory) {
         this.cacheBaseDir = Paths.get(quicklooksCacheDirectory);
         this.creds = Credentials.newBuilder().setUsername(cedaSearchProperties.getUsername()).setPassword(cedaSearchProperties.getPassword()).build();
-        this.cedaFtpBaseUri = cedaSearchProperties.getFtpBaseUri();
         this.cache = CacheBuilder.newBuilder()
                 .concurrencyLevel(4)
                 .maximumSize(1000L)
@@ -70,6 +79,8 @@ public class CedaQuicklooksCache {
     }
 
     private final class CedaQuicklookDownloader extends CacheLoader<String, Path> {
+        private static final String CEDA_FTP_URI_FORMAT = "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/${PRODUCT_LEVEL}/${YEAR}/${MONTH}/${DAY}/${PRODUCT}.png";
+
         @Override
         public Path load(String key) throws Exception {
             LOG.info("Retrieving quicklook for: {}", key);
@@ -107,43 +118,30 @@ public class CedaQuicklooksCache {
                 }
             }
         }
-    }
 
-    private static final DateTimeFormatter PRODUCT_ID_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-    private static final DateTimeFormatter YEAR_FOLDER_FORMAT = DateTimeFormatter.ofPattern("yyyy");
-    private static final DateTimeFormatter MONTH_FOLDER_FORMAT = DateTimeFormatter.ofPattern("MM");
-    private static final DateTimeFormatter DAY_FOLDER_FORMAT = DateTimeFormatter.ofPattern("dd");
-    private static final Pattern OLD_S2_PRODUCT_PATTERN = Pattern.compile(
-            "(?<PRODUCT>(?<MISSION>\\w{3})_(?<FILECLASS>OPER_)(?<FILETYPE>(?<FILECATEGORY>\\w{3})_(?<PRODUCTLEVEL>\\w{6}))_(?<SITECENTRE>\\w{4})_(?<CREATIONDATE>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<RORBIT>R\\d{3})_(?<VALIDITYPERIOD>V(?<VALIDITYSTART>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<VALIDITYEND>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})))$"
-    );
-    private static final Pattern NEW_S2_PRODUCT_PATTERN = Pattern.compile(
-            "(?<PRODUCT>(?<MISSION>\\w{3})_(?<PRODUCTLEVEL>\\w{6})_(?<VALIDITYSTART>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2})_(?<PROCESSINGBASELINE>N\\d{4})_(?<RORBIT>R\\d{3})_(?<TILE>T\\w{5})_(?<PRODUCTDISCRIMINATOR>\\d{4}\\d{2}\\d{2}T\\d{2}\\d{2}\\d{2}))$"
-    );
+        private URI getUriForProduct(String productIdentifier) {
+            Matcher s2Regex = getMatcher(productIdentifier);
+            Preconditions.checkArgument(s2Regex.matches(), "S2 product name not recognised: " + s2Regex);
 
-    private static final String CEDA_FTP_URI_FORMAT = "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/${PRODUCT_LEVEL}/${YEAR}/${MONTH}/${DAY}/${PRODUCT}.png";
+            String productId = s2Regex.group("PRODUCT");
+            String productLevel = s2Regex.group("PRODUCTLEVEL");
+            LocalDateTime productStartDate = LocalDateTime.parse(s2Regex.group("VALIDITYSTART"), PRODUCT_ID_DATE_FORMAT);
 
-    private URI getUriForProduct(String productIdentifier) {
-        Matcher s2Regex = getMatcher(productIdentifier);
-        Preconditions.checkArgument(s2Regex.matches(), "S2 product name not recognised: " + s2Regex);
+            Map<String, String> s2Attrs = ImmutableMap.of(
+                    "PRODUCT", productId,
+                    "PRODUCT_LEVEL", productLevel.equals("MSIL1C") ? "L1C_MSI" : productLevel.substring(3) + "_" + productLevel.substring(0, 3),
+                    "YEAR", YEAR_FOLDER_FORMAT.format(productStartDate),
+                    "MONTH", MONTH_FOLDER_FORMAT.format(productStartDate),
+                    "DAY", DAY_FOLDER_FORMAT.format(productStartDate)
+            );
 
-        String productId = s2Regex.group("PRODUCT");
-        String productLevel = s2Regex.group("PRODUCTLEVEL");
-        LocalDateTime productStartDate = LocalDateTime.parse(s2Regex.group("VALIDITYSTART"), PRODUCT_ID_DATE_FORMAT);
+            return URI.create(StrSubstitutor.replace(CEDA_FTP_URI_FORMAT, s2Attrs));
+        }
 
-        Map<String, String> s2Attrs = ImmutableMap.of(
-                "PRODUCT", productId,
-                "PRODUCT_LEVEL", productLevel.equals("MSIL1C") ? "L1C_MSI" : productLevel.substring(3) + "_" + productLevel.substring(0, 3),
-                "YEAR", YEAR_FOLDER_FORMAT.format(productStartDate),
-                "MONTH", MONTH_FOLDER_FORMAT.format(productStartDate),
-                "DAY", DAY_FOLDER_FORMAT.format(productStartDate)
-        );
-
-        return URI.create(StrSubstitutor.replace(CEDA_FTP_URI_FORMAT, s2Attrs));
-    }
-
-    private Matcher getMatcher(String s2Product) {
-        // Test against the new-style naming convention first, then try the old
-        return NEW_S2_PRODUCT_PATTERN.matcher(s2Product).matches() ? NEW_S2_PRODUCT_PATTERN.matcher(s2Product) : OLD_S2_PRODUCT_PATTERN.matcher(s2Product);
+        private Matcher getMatcher(String s2Product) {
+            // Test against the new-style naming convention first, then try the old
+            return NEW_S2_PRODUCT_PATTERN.matcher(s2Product).matches() ? NEW_S2_PRODUCT_PATTERN.matcher(s2Product) : OLD_S2_PRODUCT_PATTERN.matcher(s2Product);
+        }
     }
 
 }

@@ -1,6 +1,0 @@
-name = Ftep Project
-description = Ftep Project
-core = 7.x
-package = Ftep
-dependencies[] = entity
-files[] = ftep_project.controller.inc

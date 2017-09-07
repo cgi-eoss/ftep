@@ -1,6 +1,0 @@
-name = Ftep Datasource
-description = Ftep Datasource
-core = 7.x
-package = Ftep
-dependencies[] = entity
-files[] = ftep_datasource.controller.inc

@@ -1,9 +1,0 @@
-name = Ftep Test UI
-description = Ftep User Interface Test
-version = 7.x-1.0
-core = 7.x
-package = Ftep
-dependencies[] = entity
-dependencies[] = angularjs
-#dependencies[] = ftep_job
-

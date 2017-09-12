@@ -8,7 +8,7 @@ option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc.catalogue";
 
 service CatalogueService {
-    rpc DownloadFtepFile (FtepFileUri) returns (stream FileResponse);
+    rpc DownloadFtepFile (FtepFileUri) returns (stream FileStream);
     rpc GetDatabasketContents (Databasket) returns (DatabasketContents);
     rpc GetDataSourcePolicies (Uris) returns (UriDataSourcePolicies);
 }
@@ -20,21 +20,6 @@ message FtepFile {
 
 message FtepFileUri {
     string uri = 1;
-}
-
-message FileResponse {
-    message FileMeta {
-        string filename = 1;
-        int64 size = 2;
-    }
-    message Chunk {
-        int64 position = 1;
-        bytes data = 2;
-    }
-    oneof Payload {
-        FileMeta meta = 1;
-        Chunk chunk = 2;
-    }
 }
 
 message Databasket {

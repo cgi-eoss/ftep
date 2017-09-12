@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.io.download;
 
+import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
@@ -7,7 +8,6 @@ import com.cgi.eoss.ftep.rpc.ShortFile;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
-import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.google.common.collect.ImmutableSet;
@@ -109,10 +109,10 @@ public class FtepDownloader implements Downloader {
     private Path downloadFtepFile(Path targetDir, URI uri) throws IOException {
         CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
 
-        Iterator<FileResponse> outputFile = catalogueService.downloadFtepFile(FtepFileUri.newBuilder().setUri(uri.toString()).build());
+        Iterator<FileStream> outputFile = catalogueService.downloadFtepFile(FtepFileUri.newBuilder().setUri(uri.toString()).build());
 
         // First message is the file metadata
-        FileResponse.FileMeta fileMeta = outputFile.next().getMeta();
+        FileStream.FileMeta fileMeta = outputFile.next().getMeta();
 
         // TODO Configure whether files need to be transferred via RPC or simply copied
         Path outputPath = targetDir.resolve(fileMeta.getFilename());

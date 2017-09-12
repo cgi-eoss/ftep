@@ -13,6 +13,7 @@ import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
@@ -34,7 +35,6 @@ import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
-import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableMap;
@@ -171,7 +171,10 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             LOG.error("Failed to run processor; notifying gRPC client", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         } finally {
-            Optional.ofNullable(rpcJob).ifPresent(jobWorkers::remove);
+            Optional.ofNullable(rpcJob).ifPresent(j -> {
+                FtepWorkerGrpc.FtepWorkerBlockingStub worker = jobWorkers.remove(j);
+                worker.cleanUp(j);
+            });
         }
     }
 
@@ -391,13 +394,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             String outputId = output.getKey();
             String relativePath = output.getValue();
 
-            Iterator<OutputFileResponse> outputFile = worker.getOutputFile(GetOutputFileParam.newBuilder()
+            Iterator<FileStream> outputFile = worker.getOutputFile(GetOutputFileParam.newBuilder()
                     .setJob(rpcJob)
                     .setPath(Paths.get(jobEnvironment.getOutputDir()).resolve(relativePath).toString())
                     .build());
 
             // First message is the file metadata
-            OutputFileResponse.FileMeta fileMeta = outputFile.next().getMeta();
+            FileStream.FileMeta fileMeta = outputFile.next().getMeta();
             LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
 
             OutputProductMetadata outputProduct = OutputProductMetadata.builder()

@@ -5,9 +5,11 @@ import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.logging.Logging;
+import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
+import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
@@ -20,7 +22,6 @@ import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
-import com.cgi.eoss.ftep.rpc.worker.OutputFileResponse;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
@@ -30,11 +31,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
-import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -58,8 +59,7 @@ import shadow.dockerjava.com.github.dockerjava.core.command.WaitContainerResultC
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -179,6 +179,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
                 // Launch tag
                 try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage())) {
+                    createContainerCmd.withLabels(ImmutableMap.of(
+                            "jobId", request.getJob().getId(),
+                            "intJobId", request.getJob().getIntJobId(),
+                            "userId", request.getJob().getUserId(),
+                            "serviceId", request.getJob().getServiceId()
+                    ));
                     createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
                     createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
                     createContainerCmd.withPortBindings(request.getPortsList().stream()
@@ -266,14 +272,15 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
             try {
                 stopContainer(dockerClient, containerId);
-                removeContainer(dockerClient, containerId);
-                cleanUpJob(request.getId());
 
                 responseObserver.onNext(StopContainerResponse.newBuilder().build());
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 LOG.error("Failed to stop job: {}", request.getId(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            } finally {
+                removeContainer(dockerClient, containerId);
+                cleanUpJob(request.getId());
             }
         }
     }
@@ -354,35 +361,21 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void getOutputFile(GetOutputFileParam request, StreamObserver<OutputFileResponse> responseObserver) {
+    public void getOutputFile(GetOutputFileParam request, StreamObserver<FileStream> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             try {
                 Path outputFile = Paths.get(request.getPath());
                 long outputFileSize = Files.size(outputFile);
                 LOG.info("Returning output file from job {}: {} ({} bytes)", request.getJob().getId(), outputFile, outputFileSize);
 
-                // First message is the metadata
-                OutputFileResponse.FileMeta fileMeta = OutputFileResponse.FileMeta.newBuilder()
-                        .setFilename(outputFile.getFileName().toString())
-                        .setSize(outputFileSize)
-                        .build();
-                responseObserver.onNext(OutputFileResponse.newBuilder().setMeta(fileMeta).build());
-
-                // Then read the file, chunked at 8kB
                 Stopwatch stopwatch = Stopwatch.createStarted();
-                try (SeekableByteChannel channel = Files.newByteChannel(outputFile, StandardOpenOption.READ)) {
-                    ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
-                    int position = 0;
-                    while (channel.read(buffer) > 0) {
-                        int size = buffer.position();
-                        buffer.rewind();
-                        responseObserver.onNext(OutputFileResponse.newBuilder().setChunk(OutputFileResponse.Chunk.newBuilder()
-                                .setPosition(position)
-                                .setData(ByteString.copyFrom(buffer, size))
-                                .build()).build());
-                        position += buffer.position();
-                        buffer.flip();
-                    }
+                try (ReadableByteChannel channel = Files.newByteChannel(outputFile, StandardOpenOption.READ)) {
+                    GrpcUtil.streamFile(
+                            responseObserver,
+                            outputFile.getFileName().toString(),
+                            outputFileSize,
+                            channel
+                    );
                 }
                 LOG.info("Transferred output file {} ({} bytes) in {}", outputFile.getFileName(), outputFileSize, stopwatch.stop().elapsed());
 
@@ -391,6 +384,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 LOG.error("Failed to collect output file: {}", request.toString(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
+        }
+    }
+
+    @Override
+    public void cleanUp(Job job, StreamObserver<CleanUpResponse> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
+            LOG.info("Clean up requested for job {}", job.getId());
+            cleanUpJob(job.getId());
         }
     }
 

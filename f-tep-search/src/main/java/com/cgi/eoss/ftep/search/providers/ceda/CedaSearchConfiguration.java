@@ -26,7 +26,7 @@ public class CedaSearchConfiguration {
     private String username;
     @Value("${ftep.search.ceda.password:}")
     private String password;
-    @Value("${ftep.search.ceda.usableProductsOnly:false}")
+    @Value("${ftep.search.ceda.usableProductsOnly:true}")
     private boolean usableProductsOnly;
     @Value("${ftep.search.ceda.quicklooksCacheDirectory:/data/ql/ceda}")
     private String quicklooksCacheDirectory;

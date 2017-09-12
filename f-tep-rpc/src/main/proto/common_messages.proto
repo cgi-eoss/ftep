@@ -23,3 +23,18 @@ message ShortFile {
     bytes content = 2;
     bool executable = 3;
 }
+
+message FileStream {
+    message FileMeta {
+        string filename = 1;
+        int64 size = 2;
+    }
+    message Chunk {
+        int64 position = 1;
+        bytes data = 2;
+    }
+    oneof Payload {
+        FileMeta meta = 1;
+        Chunk chunk = 2;
+    }
+}

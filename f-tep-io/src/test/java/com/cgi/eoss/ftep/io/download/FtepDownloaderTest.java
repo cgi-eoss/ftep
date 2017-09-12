@@ -5,12 +5,12 @@ import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.persistence.service.RpcServiceFileService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
+import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.ServiceContextFilesServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
-import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.google.common.collect.ImmutableList;
@@ -173,20 +173,20 @@ public class FtepDownloaderTest {
         }
 
         @Override
-        public void downloadFtepFile(FtepFileUri request, StreamObserver<FileResponse> responseObserver) {
+        public void downloadFtepFile(FtepFileUri request, StreamObserver<FileStream> responseObserver) {
             try {
                 URI uri = URI.create(request.getUri());
                 Path fileContent = Paths.get(getClass().getResource(uri.getPath()).toURI());
 
                 // First message is the metadata
-                FileResponse.FileMeta fileMeta = FileResponse.FileMeta.newBuilder()
+                FileStream.FileMeta fileMeta = FileStream.FileMeta.newBuilder()
                         .setFilename(fileContent.getFileName().toString())
                         .setSize(Files.size(fileContent))
                         .build();
-                responseObserver.onNext(FileResponse.newBuilder().setMeta(fileMeta).build());
+                responseObserver.onNext(FileStream.newBuilder().setMeta(fileMeta).build());
 
                 // Then the content
-                responseObserver.onNext(FileResponse.newBuilder().setChunk(FileResponse.Chunk.newBuilder()
+                responseObserver.onNext(FileStream.newBuilder().setChunk(FileStream.Chunk.newBuilder()
                         .setPosition(0)
                         .setData(ByteString.copyFrom(Files.readAllBytes(fileContent)))
                         .build()).build());

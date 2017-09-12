@@ -13,9 +13,10 @@ import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import com.cgi.eoss.ftep.rpc.FileStream;
+import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
-import com.cgi.eoss.ftep.rpc.catalogue.FileResponse;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
@@ -23,7 +24,6 @@ import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.cgi.eoss.ftep.security.FtepPermission;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Stopwatch;
-import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -39,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
@@ -182,33 +181,18 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
-    public void downloadFtepFile(FtepFileUri request, StreamObserver<FileResponse> responseObserver) {
+    public void downloadFtepFile(FtepFileUri request, StreamObserver<FileStream> responseObserver) {
         try {
             FtepFile file = ftepFileDataService.getByUri(request.getUri());
             Resource fileResource = getAsResource(file);
 
-            // First message is the metadata
-            FileResponse.FileMeta fileMeta = FileResponse.FileMeta.newBuilder()
-                    .setFilename(fileResource.getFilename())
-                    .setSize(fileResource.contentLength())
-                    .build();
-            responseObserver.onNext(FileResponse.newBuilder().setMeta(fileMeta).build());
-
-            // Then read the file, chunked at 8kB
             Stopwatch stopwatch = Stopwatch.createStarted();
             try (ReadableByteChannel channel = Channels.newChannel(fileResource.getInputStream())) {
-                ByteBuffer buffer = ByteBuffer.allocate(FILE_STREAM_CHUNK_BYTES);
-                int position = 0;
-                while (channel.read(buffer) > 0) {
-                    int size = buffer.position();
-                    buffer.rewind();
-                    responseObserver.onNext(FileResponse.newBuilder().setChunk(FileResponse.Chunk.newBuilder()
-                            .setPosition(position)
-                            .setData(ByteString.copyFrom(buffer, size))
-                            .build()).build());
-                    position += buffer.position();
-                    buffer.flip();
-                }
+                GrpcUtil.streamFile(responseObserver,
+                        fileResource.getFilename(),
+                        fileResource.contentLength(),
+                        channel
+                );
             }
             LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), stopwatch.stop().elapsed());
 

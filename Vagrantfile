@@ -64,7 +64,19 @@ Vagrant.configure('2') do |config|
     #   - ftep::backend
     # ftep::repo::location: 'file:///vagrant/.dist/repo'
     #
-    config.puppet_install.puppet_version = '4.9.3'
+    config.puppet_install.puppet_version = '4.10.7'
+
+    # Install r10k to pull in the dependency modules
+    ftep.vm.provision 'shell', inline: <<EOF
+/opt/puppetlabs/puppet/bin/gem install --quiet r10k
+
+/opt/puppetlabs/puppet/bin/r10k -v info\
+  puppetfile install\
+  --moduledir /tmp/vagrant-puppet/environments/puppet/modules\
+  --puppetfile /tmp/vagrant-puppet/environments/puppet/Puppetfile
+EOF
+
+    # Use Vagrant's "puppet apply" provisioning
     ftep.vm.provision 'puppet' do |puppet|
       puppet.environment_path = '.dist'
       puppet.environment = 'puppet'

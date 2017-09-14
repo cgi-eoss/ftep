@@ -62,7 +62,7 @@ task distPuppet(type: Sync) {
     into "${buildDir}/puppet"
     from 'puppet'
 
-    into('modules') {
+    into('local-modules') {
         from {
             configurations.puppetModules.collect { tarTree(it) }
         }

@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
@@ -32,6 +33,8 @@ public class ApiSecurityDevConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
+            @Value("${management.contextPath:}") String managementContextPath,
+            @Value("${management.security.enabled:true}") Boolean managementSecurityEnabled,
             @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute,
             @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
         return new WebSecurityConfigurerAdapter() {
@@ -52,8 +55,14 @@ public class ApiSecurityDevConfig {
                 httpSecurity
                         .addFilterBefore(sessionUserAttributeInjector, RequestAttributeAuthenticationFilter.class)
                         .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
-                        .addFilter(filter)
-                        .authorizeRequests()
+                        .addFilter(filter);
+                ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry =
+                        httpSecurity.authorizeRequests();
+                if (!managementSecurityEnabled) {
+                    expressionInterceptUrlRegistry
+                            .antMatchers(managementContextPath + "/**").permitAll();
+                }
+                expressionInterceptUrlRegistry
                         .antMatchers("/**/dev/user/become/*").permitAll()
                         .anyRequest().authenticated();
                 httpSecurity

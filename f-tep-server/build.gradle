@@ -26,6 +26,7 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-jul'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.graylog2.log4j2:log4j2-gelf'
+    compile 'org.jolokia:jolokia-core'
     compile 'org.springframework:spring-context'
     compile 'org.springframework.boot:spring-boot-autoconfigure'
     compile 'org.springframework.boot:spring-boot-starter-actuator'

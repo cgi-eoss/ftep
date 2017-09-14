@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
@@ -31,6 +32,8 @@ public class ApiSecurityConfig {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
+            @Value("${management.contextPath:}") String managementContextPath,
+            @Value("${management.security.enabled:true}") Boolean managementSecurityEnabled,
             @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
             @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
         return new WebSecurityConfigurerAdapter() {
@@ -48,8 +51,14 @@ public class ApiSecurityConfig {
 
                 httpSecurity
                         .addFilterBefore(exceptionTranslationFilter, RequestHeaderAuthenticationFilter.class)
-                        .addFilter(filter)
-                        .authorizeRequests()
+                        .addFilter(filter);
+                ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry =
+                        httpSecurity.authorizeRequests();
+                if (!managementSecurityEnabled) {
+                    expressionInterceptUrlRegistry
+                            .antMatchers(managementContextPath + "/**").permitAll();
+                }
+                expressionInterceptUrlRegistry
                         .anyRequest().authenticated();
                 httpSecurity
                         .csrf().disable();

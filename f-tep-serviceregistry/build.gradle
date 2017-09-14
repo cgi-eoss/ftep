@@ -18,6 +18,7 @@ apply plugin: 'com.google.osdetector'
 
 dependencies {
     compile 'com.lmax:disruptor'
+    compile 'org.jolokia:jolokia-core'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
     compile 'org.springframework.boot:spring-boot-starter-undertow'

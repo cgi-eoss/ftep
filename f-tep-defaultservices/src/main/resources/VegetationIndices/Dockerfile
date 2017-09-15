@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y\
  curl\
  libfreetype6\
  gdal-bin\
+ proj-bin\
  python\
  python-dev\
  python-gdal\
@@ -29,6 +30,9 @@ RUN curl -sL "${SNAP_BASE_URL}/${SNAP_INSTALLER}" >/var/tmp/${SNAP_INSTALLER}
 # Install SNAP
 RUN echo -e "deleteAllSnapEngineDir\$Boolean=false\ndeleteOnlySnapDesktopDir\$Boolean=false\nexecuteLauncherWithPythonAction\$Boolean=false\nforcePython\$Boolean=false\npythonExecutable=/usr/bin/python\nsys.adminRights\$Boolean=true\nsys.component.RSTB\$Boolean=false\nsys.component.S1TBX\$Boolean=true\nsys.component.S2TBX$Boolean=true\nsys.component.S3TBX\$Boolean=false\nsys.component.SNAP\$Boolean=false\nsys.installationDir=/opt/snap\nsys.languageId=en\nsys.programGroupDisabled\$Boolean=false\nsys.symlinkDir=/usr/local/bin" >/var/tmp/SNAP_install.varfile
 RUN sh /var/tmp/${SNAP_INSTALLER} -q -varfile /var/tmp/SNAP_install.varfile
+
+#RUN echo "-Xmx8192m" >>/opt/snap/bin/gpt.vmoptions
+#RUN echo "-Xms512m" >>/opt/snap/bin/gpt.vmoptions
 
 ##########################
 # Download and install OTB

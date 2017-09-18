@@ -197,14 +197,13 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(jobWorkers.get(rpcJob)).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
             LOG.info("Stop requested for job {}", rpcJob.getId());
             StopContainerResponse stopContainerResponse = worker.stopContainer(rpcJob);
+            jobWorkers.remove(rpcJob);
             LOG.info("Successfully stopped job {}", rpcJob.getId());
             responseObserver.onNext(StopServiceResponse.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             LOG.error("Failed to stop job {}; notifying gRPC client", rpcJob.getId(), e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
-        } finally {
-            jobWorkers.remove(rpcJob);
         }
     }
 

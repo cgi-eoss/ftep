@@ -21,16 +21,21 @@ import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.WebMvcRegistrationsAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -38,7 +43,9 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapt
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -145,24 +152,49 @@ public class ApiConfig {
     }
 
     // Spring Security configuration for anonymous/open access
-    @Bean
+    @Component
     @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "NONE", matchIfMissing = true)
-    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
-        return new WebSecurityConfigurerAdapter() {
-            @Override
-            protected void configure(HttpSecurity httpSecurity) throws Exception {
-                httpSecurity
-                        .authorizeRequests()
-                        .anyRequest().anonymous();
-                httpSecurity
-                        .csrf().disable();
-                httpSecurity
-                        .cors();
-                httpSecurity
-                        .sessionManagement()
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    public static class ApiNoneSecurityConfigurer extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity httpSecurity) throws Exception {
+            httpSecurity
+                    .authorizeRequests()
+                    .anyRequest().anonymous();
+            httpSecurity
+                    .csrf().disable();
+            httpSecurity
+                    .cors();
+            httpSecurity
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        }
+    }
+
+    // Spring Security configuration for actuator endpoints
+    // TODO Compose the role-based security in here
+    @Component
+    @ConditionalOnBean(ManagementServerProperties.class)
+    @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
+    public static class ManagementSecurityConfigurer extends WebSecurityConfigurerAdapter {
+
+        private final ManagementServerProperties managementServerProperties;
+
+        @Autowired
+        public ManagementSecurityConfigurer(ManagementServerProperties managementServerProperties) {
+            this.managementServerProperties = managementServerProperties;
+        }
+
+        @Override
+        protected void configure(HttpSecurity httpSecurity) throws Exception {
+            ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry =
+                    httpSecurity.authorizeRequests();
+            if (!managementServerProperties.getSecurity().isEnabled()) {
+                expressionInterceptUrlRegistry
+                        .antMatchers(managementServerProperties.getContextPath() + "/**")
+                        .permitAll();
             }
-        };
+        }
     }
 
 }

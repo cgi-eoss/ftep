@@ -5,8 +5,10 @@ import com.cgi.eoss.ftep.security.FtepWebAuthenticationDetailsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.acls.AclPermissionEvaluator;
@@ -17,12 +19,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 @Configuration
 @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
@@ -30,52 +32,6 @@ import org.springframework.security.web.authentication.preauth.RequestAttributeA
 @EnableGlobalAuthentication
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class ApiSecurityDevConfig {
-
-    @Bean
-    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            @Value("${management.contextPath:}") String managementContextPath,
-            @Value("${management.security.enabled:true}") Boolean managementSecurityEnabled,
-            @Value("${ftep.api.security.username-request-attribute:REMOTE_USER}") String usernameRequestAttribute,
-            @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
-        return new WebSecurityConfigurerAdapter() {
-            @Override
-            protected void configure(HttpSecurity httpSecurity) throws Exception {
-                // Maps a session attribute to a request attribute, allowing us to choose a user id per session
-                SessionUserAttributeInjectorFilter sessionUserAttributeInjector = new SessionUserAttributeInjectorFilter(usernameRequestAttribute);
-
-                // Retrieve the "sso" user from the request attributes (not from headers, as in SSO mode)
-                RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
-                filter.setAuthenticationManager(authenticationManager());
-                filter.setPrincipalEnvironmentVariable(usernameRequestAttribute);
-                filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader));
-                filter.setExceptionIfVariableMissing(false);
-
-                ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
-
-                httpSecurity
-                        .addFilterBefore(sessionUserAttributeInjector, RequestAttributeAuthenticationFilter.class)
-                        .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
-                        .addFilter(filter);
-                ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry =
-                        httpSecurity.authorizeRequests();
-                if (!managementSecurityEnabled) {
-                    expressionInterceptUrlRegistry
-                            .antMatchers(managementContextPath + "/**").permitAll();
-                }
-                expressionInterceptUrlRegistry
-                        .antMatchers("/**/dev/user/become/*").permitAll()
-                        .anyRequest().authenticated();
-                httpSecurity
-                        .csrf().disable();
-                httpSecurity
-                        .cors();
-                // TODO Make DEV security mode STATELESS for consistency with SSO
-                httpSecurity
-                        .sessionManagement()
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
-            }
-        };
-    }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, FtepUserDetailsService ftepUserDetailsService) {
@@ -94,6 +50,53 @@ public class ApiSecurityDevConfig {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
         return expressionHandler;
+    }
+
+    @Component
+    @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
+    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    public static class ApiDevSecurityConfigurer extends WebSecurityConfigurerAdapter {
+        private final String usernameRequestHeader;
+        private final String emailRequestHeader;
+
+        @Autowired
+        public ApiDevSecurityConfigurer(
+                @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
+                @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
+            this.usernameRequestHeader = usernameRequestHeader;
+            this.emailRequestHeader = emailRequestHeader;
+        }
+
+        @Override
+        protected void configure(HttpSecurity httpSecurity) throws Exception {
+            // Maps a session attribute to a request attribute, allowing us to choose a user id per session
+            SessionUserAttributeInjectorFilter sessionUserAttributeInjector = new SessionUserAttributeInjectorFilter(usernameRequestHeader);
+
+            // Retrieve the "sso" user from the request attributes (not from headers, as in SSO mode)
+            RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
+            filter.setAuthenticationManager(authenticationManager());
+            filter.setPrincipalEnvironmentVariable(usernameRequestHeader);
+            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader));
+            filter.setExceptionIfVariableMissing(false);
+
+            ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
+
+            httpSecurity
+                    .addFilterBefore(sessionUserAttributeInjector, RequestAttributeAuthenticationFilter.class)
+                    .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
+                    .addFilter(filter);
+            httpSecurity.authorizeRequests()
+                    .antMatchers("/**/dev/user/become/*").permitAll()
+                    .anyRequest().authenticated();
+            httpSecurity
+                    .csrf().disable();
+            httpSecurity
+                    .cors();
+            // TODO Make DEV security mode STATELESS for consistency with SSO
+            httpSecurity
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        }
     }
 
 }

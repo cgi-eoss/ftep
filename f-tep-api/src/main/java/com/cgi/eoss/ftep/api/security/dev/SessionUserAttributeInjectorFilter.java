@@ -32,7 +32,7 @@ public class SessionUserAttributeInjectorFilter extends GenericFilterBean {
             if (!Strings.isNullOrEmpty(username)) {
                 httpServletRequest.setAttribute(usernameRequestAttribute, username);
             }
-        } else if(!Strings.isNullOrEmpty(httpServletRequest.getHeader(usernameRequestAttribute))) {
+        } else if (!Strings.isNullOrEmpty(httpServletRequest.getHeader(usernameRequestAttribute))) {
             String username = httpServletRequest.getHeader(usernameRequestAttribute);
             LOG.debug("Found username '{}' in headers for session: {}", username, httpServletRequest.getSession().getId());
             httpServletRequest.setAttribute(usernameRequestAttribute, username);

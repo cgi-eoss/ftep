@@ -355,9 +355,11 @@ define([
 
                 $scope.getPageText = function(){
                     var txt = 'Page 1 of 1';
-                    if($scope.pagingData.page){
+                    if($scope.pagingData.page && $scope.pagingData.page.totalPages > 0){
                         var currentPage = $scope.pagingData.page.number + 1;
                         txt = 'Page ' + currentPage + ' of ' + $scope.pagingData.page.totalPages;
+                    } else {
+                        txt = 'No results to display';
                     }
                     return txt;
                 };

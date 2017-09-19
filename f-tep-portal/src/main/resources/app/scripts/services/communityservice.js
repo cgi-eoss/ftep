@@ -6,21 +6,21 @@
  * Service in the ftepApp.
  */
 'use strict';
-define(['../ftepmodules'], function (ftepmodules) {
+define(['../ftepmodules'], function(ftepmodules) {
 
-    ftepmodules.service('CommunityService', ['ftepProperties', 'MessageService', '$http', '$q',  function (ftepProperties, MessageService, $http, $q) {
+    ftepmodules.service('CommunityService', ['ftepProperties', 'MessageService', '$http', '$q', function(ftepProperties, MessageService, $http, $q) {
 
         var rootUri = ftepProperties.URLv2;
 
         this.permissionTypes = {
-                READ: "READ",
-                EDIT: "WRITE",
-                ADMIN: "ADMIN"
+            READ: "READ",
+            EDIT: "WRITE",
+            ADMIN: "ADMIN"
         };
 
-        function getItemName(ace){
+        function getItemName(ace) {
             var name = (ace.name ? ace.name : ( ace.filename ? ace.filename : ace.id));
-            if(ace.type === 'job'){
+            if (ace.type === 'job') {
                 name = "Job ID: " + ace.id;
             }
             return name;
@@ -30,18 +30,17 @@ define(['../ftepmodules'], function (ftepmodules) {
             return $q(function(resolve, reject) {
                 if (item.access.currentLevel !== 'ADMIN' && item.access.currentLevel !== 'SUPERUSER') {
                     reject();
+                } else {
+                    $http({
+                        method: 'GET',
+                        url: rootUri + '/acls/' + type + '/' + item.id,
+                    }).then(function(response) {
+                        resolve(response.data.permissions);
+                    }).catch(function(error) {
+                        MessageService.addError('Could not get ' + item.name + ' shared groups', error);
+                        reject();
+                    });
                 }
-                $http({
-                    method: 'GET',
-                    url: rootUri + '/acls/' + type + '/' + item.id,
-                }).
-                then(function (response) {
-                    resolve(response.data.permissions);
-                }).
-                catch(function (error) {
-                    MessageService.addError('Could not get ' + item.name + ' shared groups', error);
-                    reject();
-                });
             });
         };
 
@@ -77,12 +76,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                     method: 'POST',
                     url: rootUri + '/acls/' + ace.type + '/' + ace.id,
                     data: aclsObject,
-                }).
-                then(function (response) {
+                }).then(function(response) {
                     resolve(response);
                     MessageService.addInfo(itemType + ' shared', itemName + ' shared to ' + ace.group.name);
-                }).
-                catch(function (error) {
+                }).catch(function(error) {
                     MessageService.addError('Could not share ' + itemName, error);
                     reject();
                 });
@@ -111,12 +108,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                     method: 'POST',
                     url: rootUri + '/acls/' + type + '/' + item.id,
                     data: aclsObject,
-                }).
-                then(function (response) {
+                }).then(function(response) {
                     resolve(response);
                     MessageService.addInfo(itemType + ' updated', itemName + ' has been saved.');
-                }).
-                catch(function (error) {
+                }).catch(function(error) {
                     MessageService.addError('Could not save ' + itemName, error);
                     reject();
                 });
@@ -146,12 +141,10 @@ define(['../ftepmodules'], function (ftepmodules) {
                     method: 'POST',
                     url: rootUri + '/acls/' + type + '/' + item.id,
                     data: aclsObject,
-                }).
-                then(function (response) {
+                }).then(function(response) {
                     MessageService.addInfo(itemType + ' removed from Group', itemName + ' removed from ' + group.name);
                     resolve(response);
-                }).
-                catch(function (error) {
+                }).catch(function(error) {
                     MessageService.addError('Could not remove ' + itemName + ' from Group', error);
                     reject();
                 });

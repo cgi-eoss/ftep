@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "fstep.search.ftep.enabled", havingValue = "true", matchIfMissing = true)
 public class FtepSearchConfiguration {
 
-    @Value("${ftep.search.ftep.baseUrl:http://ftep-resto/resto}")
+    @Value("${ftep.search.ftep.baseUrl:http://ftep-resto}")
     private String baseUrl;
     @Value("${ftep.search.ftep.username:}")
     private String username;

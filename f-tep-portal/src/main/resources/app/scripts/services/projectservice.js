@@ -264,7 +264,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
             if (self.params[page]) {
                 if(page === 'explorer' && self.params[page].selectedProject === undefined && self.params[page].projects){
-                    self.params[page].selectedProject = self.params[page].projects[0];
+                    self.params[page].selectedProject = self.params[page].projects.filter(function(p) { return p.name === 'Default Project'})[0];
                 }
 
                 /* Get project contents if selected */

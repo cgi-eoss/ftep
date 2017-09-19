@@ -7,14 +7,15 @@
  * # SearchbarCtrl
  * Controller of the ftepApp
  */
-define(['../../../ftepmodules'], function (ftepmodules) {
+define(['../../../ftepmodules'], function(ftepmodules) {
 
-    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function ($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
+    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
 
         $scope.searchParams = SearchService.params;
+        $scope.mapAoi = MapService.aoi;
         $scope.allowedValues = {};
 
-        SearchService.getSearchParameters().then(function(data){
+        SearchService.getSearchParameters().then(function(data) {
             $scope.catalogues = data;
         });
 
@@ -29,16 +30,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.setDefaultValue = function(field, index) {
-            if(field.defaultValue) {
-                if(field.type === 'text' || field.type === 'int' || field.type === 'polygon') {
+            if (field.defaultValue) {
+                if (field.type === 'text' || field.type === 'int' || field.type === 'polygon') {
                     $scope.searchParams.savedSearch[index] = field.defaultValue;
-                } else if(field.type === 'select') {
+                } else if (field.type === 'select') {
                     for (var item in field.allowed.values) {
-                        if(field.defaultValue === field.allowed.values[item].value) {
+                        if (field.defaultValue === field.allowed.values[item].value) {
                             $scope.searchParams.savedSearch[index] = field.allowed.values[item].value;
                         }
                     }
-                } else if(field.type === 'daterange') {
+                } else if (field.type === 'daterange') {
                     var startPeriod = new Date();
                     startPeriod.setMonth(startPeriod.getMonth() + parseInt(field.defaultValue[0]));
                     $scope.searchParams.savedSearch[index + 'Start'] = startPeriod;
@@ -50,24 +51,20 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
-        $scope.selectCatalog = function (field, catalog) {
+        $scope.selectCatalog = function(field, catalog) {
             $scope.searchParams.savedSearch[field.type] = catalog.value;
             $scope.searchParams.selectedCatalog = catalog;
         };
 
-        $scope.closeCatalog = function (field) {
+        $scope.closeCatalog = function(field) {
             $scope.searchParams.savedSearch = {};
             $scope.searchParams.selectedCatalog = {};
-        };
-
-        $scope.pastePolygon = function(identifier){
-            $scope.searchParams.savedSearch[identifier] = MapService.getPolygonWkt();
         };
 
         /* If field has no dependencies display it.
          * If field has dependencies, for each find the matching field.
          * Check if any of the condition values matche the current dependency value */
-        $scope.displayField = function (field, type) {
+        $scope.displayField = function(field, type) {
             if (field.type === type) {
                 if (!field.onlyIf) {
                     return true;
@@ -76,7 +73,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         for (var item in $scope.searchParams.savedSearch) {
                             if (item === condition) {
                                 for (var value in field.onlyIf[condition]) {
-                                    if(field.onlyIf[condition][value] === $scope.searchParams.savedSearch[item]) {
+                                    if (field.onlyIf[condition][value] === $scope.searchParams.savedSearch[item]) {
                                         return true;
                                     }
                                 }
@@ -89,10 +86,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.getValues = function() {
-            for(var field in $scope.catalogues) {
+            for (var field in $scope.catalogues) {
 
                 // Remove values for fields no longer displayed
-                if(!$scope.displayField($scope.catalogues[field], $scope.catalogues[field].type)) {
+                if (!$scope.displayField($scope.catalogues[field], $scope.catalogues[field].type)) {
                     delete $scope.searchParams.savedSearch[field];
                 }
 
@@ -106,6 +103,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
+        $scope.$watch('mapAoi.wkt', function(wkt) {
+            $scope.searchParams.savedSearch['aoi'] = wkt;
+        });
+
         /* For all values*/
         function getAllowedFields(field) {
             var displayValues = [];
@@ -115,13 +116,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 // If value is not dependant on another add to list
                 if (!allFieldValues[value].onlyIf) {
                     displayValues.push(allFieldValues[value]);
-                // If value depends on anothers
+                    // If value depends on anothers
                 } else {
                     for (var depField in allFieldValues[value].onlyIf) {
                         var allowedValues = allFieldValues[value].onlyIf[depField];
                         for (var item in allowedValues) {
-                            if($scope.searchParams.savedSearch[depField]) {
-                                if($scope.searchParams.savedSearch[depField] === allowedValues[item]) {
+                            if ($scope.searchParams.savedSearch[depField]) {
+                                if ($scope.searchParams.savedSearch[depField] === allowedValues[item]) {
                                     displayValues.push(allFieldValues[value]);
                                 }
                             }
@@ -136,8 +137,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             if ($scope.catalogues[field]) {
                 var match = false;
                 for (var v in allowedValues) {
-                    if($scope.searchParams.savedSearch[field]) {
-                        if($scope.searchParams.savedSearch[field] === allowedValues[v].value) {
+                    if ($scope.searchParams.savedSearch[field]) {
+                        if ($scope.searchParams.savedSearch[field] === allowedValues[v].value) {
                             match = true;
                         }
                     }
@@ -149,12 +150,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         }
 
         $scope.search = function() {
-            SearchService.submit($scope.searchParams.savedSearch).then(function (searchResults) {
+            SearchService.submit($scope.searchParams.savedSearch).then(function(searchResults) {
                 $rootScope.$broadcast('update.geoResults', searchResults);
-            }).catch(function () {
+            }).catch(function() {
                 $rootScope.$broadcast('update.geoResults');
             });
         };
-
     }]);
 });

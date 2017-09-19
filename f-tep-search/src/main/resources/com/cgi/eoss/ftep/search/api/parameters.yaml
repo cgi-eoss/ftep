@@ -61,7 +61,7 @@ identifier:
 platform:
   title: 'Platform'
   type: 'select'
-  defaultValue: 'S2A'
+  defaultValue: 'Sentinel-2A'
   allowed:
     values:
       - value: 'Sentinel-1A'

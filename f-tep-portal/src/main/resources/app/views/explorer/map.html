@@ -34,7 +34,7 @@
 
 <button type="button"
         class="btn btn-control map-item polygon-edit"
-        ng-click="editPolygonDialog($event, searchPolygon)"
+        ng-click="editPolygonDialog($event)"
         aria-label="Edit Polygon"
         title="Edit Polygon">
     <i class="material-icons">edit</i>
@@ -43,7 +43,7 @@
 <button type="button"
         class="btn btn-control map-item polygon-copy"
         ng-click="copyPolygon()"
-        ng-disabled="searchPolygon.wkt === undefined"
+        ng-disabled="aoi === undefined || aoi.wkt === undefined"
         aria-label="Copy Polygon to Clipboard"
         title="Copy Polygon to Clipboard">
     <i class="material-icons">content_copy</i>

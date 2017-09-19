@@ -22,7 +22,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.drawType = SHAPE.NONE;
         var searchLayerFeatures = MapService.searchLayerFeatures;
         $scope.mapType = MapService.mapType;
-        $scope.searchPolygon = MapService.searchPolygon;
+        $scope.aoi = MapService.aoi;
 
         /** ----- MAP STYLES TYPES ----- **/
         var resultStyle = new ol.style.Style({
@@ -251,19 +251,20 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.map.addLayer(searchAreaLayer);
 
         function updateSearchPolygon(geom, editedWkt, refit){
-            $scope.searchPolygon.selectedArea = geom.clone();
-
-            //set the AOI value for search parameters
-            var polygonWSEN = ol.extent.applyTransform(geom.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-            $scope.searchPolygon.searchAoi = polygonWSEN;
+            $scope.aoi.selectedArea = geom.clone();
 
             //set the WKT when editing AOI manually
-            var area = angular.copy($scope.searchPolygon.selectedArea);
-            $scope.searchPolygon.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
+            var area = angular.copy($scope.aoi.selectedArea);
+            $scope.aoi.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
 
             // re-fit when user has edited AOI manually
             if(refit && refit === true){
                 $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+            }
+
+            // If no digest/apply is in progress, trigger it to update bound components
+            if (!$scope.$$phase) {
+                $scope.$apply();
             }
         }
         /** ----- END OF SEARCH LAYER ----- **/
@@ -271,8 +272,8 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         /* ----- MAP BUTTONS ----- */
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
-            if($scope.searchPolygon.wkt){
-                clipboard.copy($scope.searchPolygon.wkt);
+            if($scope.aoi.wkt){
+                clipboard.copy($scope.aoi.wkt);
             }
         };
 
@@ -288,12 +289,12 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         };
 
         // Dialog to enable editing the polygon coordinates manually (coordinates shown in EPSG_4326 projection)
-        $scope.editPolygonDialog = function($event, polygon) {
+        $scope.editPolygonDialog = function($event) {
             $event.stopPropagation();
             $event.preventDefault();
             function EditPolygonController($scope, $mdDialog, MapService) {
-                $scope.polygon = { wkt: angular.copy(MapService.getPolygonWkt()), valid: false};
-                if(polygon.selectedArea) {
+                $scope.polygon = { wkt: MapService.getPolygonWkt(), valid: false};
+                if(MapService.aoi.selectedArea) {
                     $scope.polygon.valid = true;
                 }
                 $scope.closeDialog = function() {
@@ -449,8 +450,6 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 });
                 $scope.map.addLayer(droppedFileLayer);
                 $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
-                var polygonWSEN = ol.extent.applyTransform(vectorSource.getExtent(), ol.proj.getTransform(EPSG_3857, EPSG_4326));
-                $scope.searchPolygon.searchAoi = polygonWSEN;
             }
         });
         /* ----- END OF DROPPED FILE LAYER ----- */

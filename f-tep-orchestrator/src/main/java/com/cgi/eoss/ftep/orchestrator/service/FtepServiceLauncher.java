@@ -12,6 +12,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
+import com.cgi.eoss.ftep.model.internal.Shapefile;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
@@ -37,12 +38,15 @@ import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
+import com.google.common.io.MoreFiles;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
@@ -384,7 +388,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
     }
 
     private Map<String, FtepFile> repatriateAndIngestOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, Multimap<String, String> inputs, JobEnvironment jobEnvironment, Map<String, String> outputsByRelativePath) throws IOException {
-        Map<String, FtepFile> outputFiles = new HashMap<>(outputsByRelativePath.size());
+        BiMap<OutputProductMetadata, Path> outputProducts = HashBiMap.create(outputsByRelativePath.size());
+        Map<String, FtepFile> outputFtepFiles = new HashMap<>(outputsByRelativePath.size());
 
         for (Map.Entry<String, String> output : outputsByRelativePath.entrySet()) {
             String outputId = output.getKey();
@@ -402,6 +407,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             OutputProductMetadata outputProduct = OutputProductMetadata.builder()
                     .owner(job.getOwner())
                     .service(job.getConfig().getService())
+                    .outputId(outputId)
                     .jobId(job.getExtId())
                     .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
                     .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
@@ -423,14 +429,55 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
             }
 
-            // Try to read CRS/AOI from the file if not set by input parameters - note that CRS/AOI may still be null after this
-            outputProduct.setCrs(Optional.ofNullable(outputProduct.getCrs()).orElse(getOutputCrs(outputPath)));
-            outputProduct.setGeometry(Optional.ofNullable(outputProduct.getGeometry()).orElse(getOutputGeometry(outputPath)));
-
-            outputFiles.put(outputId, catalogueService.ingestOutputProduct(outputProduct, outputPath));
+            outputProducts.put(outputProduct, outputPath);
         }
 
-        return outputFiles;
+        postProcessOutputProducts(outputProducts).forEach(Unchecked.biConsumer(
+                (outputProduct, outputPath) -> outputFtepFiles.put(outputProduct.getOutputId(), catalogueService.ingestOutputProduct(outputProduct, outputPath))
+        ));
+
+        return outputFtepFiles;
+    }
+
+    private BiMap<OutputProductMetadata, Path> postProcessOutputProducts(BiMap<OutputProductMetadata, Path> outputProducts) throws IOException {
+        // TODO Extract post-process possibilities to separate classes
+
+        // Detect and zip up shapefiles
+        Set<Path> shapefiles = outputProducts.values().stream()
+                .filter(p -> MoreFiles.getFileExtension(p).equals("shp"))
+                .collect(toSet());
+        for (Path shapefile : shapefiles) {
+            LOG.info("Processing detected shapefile: {}", shapefile);
+            postProcessShapefile(shapefile, outputProducts);
+        }
+
+        // Try to read CRS/AOI from all files if not set by input parameters - note that CRS/AOI may still be null after this
+        outputProducts.forEach((outputProduct, outputPath) -> {
+            outputProduct.setCrs(Optional.ofNullable(outputProduct.getCrs()).orElseGet(() -> getOutputCrs(outputPath)));
+            outputProduct.setGeometry(Optional.ofNullable(outputProduct.getGeometry()).orElseGet(() -> getOutputGeometry(outputPath)));
+        });
+
+        return outputProducts;
+    }
+
+    private void postProcessShapefile(Path shapefile, BiMap<OutputProductMetadata, Path> outputProducts) throws IOException {
+        // Clone the metadata of the .shp
+        OutputProductMetadata originalMetadata = outputProducts.inverse().get(shapefile);
+        OutputProductMetadata shapefileMetadata = OutputProductMetadata.builder()
+                .owner(originalMetadata.getOwner())
+                .service(originalMetadata.getService())
+                .outputId(originalMetadata.getOutputId())
+                .jobId(originalMetadata.getJobId())
+                .crs(Optional.ofNullable(originalMetadata.getCrs()).orElseGet(() -> getOutputCrs(shapefile)))
+                .geometry(Optional.ofNullable(originalMetadata.getGeometry()).orElseGet(() -> getOutputGeometry(shapefile)))
+                .properties(originalMetadata.getProperties())
+                .build();
+
+        Shapefile zippedShapefile = GeoUtil.zipShapeFile(shapefile, true);
+
+        // Remove the individual shapefile sidecar files from the outputProducts list, then add the new zip
+        zippedShapefile.getContents().forEach(f -> outputProducts.inverse().remove(f));
+        outputProducts.put(shapefileMetadata, zippedShapefile.zip);
     }
 
     private String getOutputCrs(Path outputPath) {

@@ -69,6 +69,7 @@ import static org.mockito.Mockito.when;
 public class FtepServicesClientIT {
     private static final String RPC_SERVER_NAME = FtepServicesClientIT.class.getName();
     private static final String SERVICE_NAME = "service1";
+    private static final String APPLICATION_NAME = "service2";
     private static final String TEST_CONTAINER_IMAGE = "alpine:latest";
 
     @Mock
@@ -123,6 +124,7 @@ public class FtepServicesClientIT {
         JobEnvironmentService jobEnvironmentService = spy(new JobEnvironmentService(workspace));
         ServiceInputOutputManager ioManager = mock(ServiceInputOutputManager.class);
         Mockito.when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
+        Mockito.when(ioManager.getServiceContext(APPLICATION_NAME)).thenReturn(Paths.get("src/test/resources/service2").toAbsolutePath());
 
         DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withApiVersion(RemoteApiVersion.VERSION_1_19)
@@ -168,8 +170,8 @@ public class FtepServicesClientIT {
         when(user.getWallet()).thenReturn(wallet);
         when(wallet.getBalance()).thenReturn(100);
 
-        when(service.getName()).thenReturn(SERVICE_NAME);
-        when(service.getDockerTag()).thenReturn("ftep/testservice1");
+        when(service.getName()).thenReturn(APPLICATION_NAME);
+        when(service.getDockerTag()).thenReturn("ftep/testservice2");
         when(service.getType()).thenReturn(FtepService.Type.APPLICATION); // Trigger ingestion of all outputs
         when(service.getServiceDescriptor()).thenReturn(serviceDescriptor);
         when(jobDataService.buildNew(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
@@ -192,7 +194,12 @@ public class FtepServicesClientIT {
 
         Multimap<String, String> outputs = ftepServicesClient.launchService(userId, SERVICE_NAME, jobId, inputs);
         assertThat(outputs, is(notNullValue()));
-        assertThat(outputs.get("1"), containsInAnyOrder("ftep://output/output_file_1"));
+        assertThat(outputs.values(), containsInAnyOrder(
+                "ftep://output/output_file_1",
+                "ftep://output/A_plot.zip",
+                "ftep://output/A_plot.qpj",
+                "ftep://output/A_point.qpj"
+        ));
 
         List<String> jobConfigLines = Files.readAllLines(workspace.resolve("Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
         assertThat(jobConfigLines, is(ImmutableList.of(

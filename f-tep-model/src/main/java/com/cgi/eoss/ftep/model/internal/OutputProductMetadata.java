@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.User;
 import lombok.Builder;
 import lombok.Data;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
@@ -16,6 +17,7 @@ public class OutputProductMetadata {
 
     private User owner;
     private FtepService service;
+    private String outputId;
     private String jobId;
     private String crs;
     private String geometry;

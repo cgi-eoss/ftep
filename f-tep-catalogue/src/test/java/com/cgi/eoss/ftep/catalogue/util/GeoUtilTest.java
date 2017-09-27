@@ -1,5 +1,9 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
+import com.cgi.eoss.ftep.model.internal.Shapefile;
+import com.google.common.io.MoreFiles;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
 import org.geojson.Polygon;
@@ -7,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

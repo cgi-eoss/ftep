@@ -1,9 +1,13 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
+import com.cgi.eoss.ftep.model.internal.Shapefile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.MoreFiles;
+import com.sun.nio.zipfs.ZipFileSystem;
 import com.vividsolutions.jts.geom.Polygon;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
@@ -15,6 +19,7 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
+import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.Hints;
 import org.geotools.geojson.geom.GeometryJSON;
@@ -33,10 +38,25 @@ import org.opengis.geometry.primitive.Point;
 import org.opengis.geometry.primitive.Surface;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * <p>Utility methods for dealing with geo-spatial data and its various java libraries.</p>
@@ -189,5 +209,35 @@ public class GeoUtil {
         }
 
         throw new UnsupportedOperationException("Could not extract CRS from " + file.toString());
+    }
+
+    public static Shapefile zipShapeFile(Path shapefile, boolean deleteContentsAfterZipping) throws IOException {
+        String shapefileNameBase = MoreFiles.getNameWithoutExtension(shapefile);
+        Set<Path> shapefileComponents = Arrays.stream(ShpFileType.values())
+                .map(type -> shapefile.resolveSibling(shapefileNameBase + type.extensionWithPeriod))
+                .filter(Files::exists)
+                .collect(Collectors.toSet());
+
+        Path shapefileZip = shapefile.resolveSibling(shapefileNameBase + ".zip");
+
+
+        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(shapefileZip))) {
+            for (Path shapefileComponent : shapefileComponents) {
+                    ZipEntry zipEntry = new ZipEntry(shapefileComponent.getFileName().toString());
+                    zipOut.putNextEntry(zipEntry);
+                try (InputStream fis = Files.newInputStream(shapefileComponent)) {
+                    ByteStreams.copy(fis, zipOut);
+                }
+
+                if (deleteContentsAfterZipping) {
+                    Files.delete(shapefileComponent);
+                }
+            }
+        }
+
+        return Shapefile.builder()
+                .zip(shapefileZip)
+                .contents(shapefileComponents)
+                .build();
     }
 }

@@ -131,7 +131,8 @@ public class GeoUtil {
             LOG.debug("Extracted WKT bounding box from file {}: {}", file.getFileName(), polygon);
             return wktToGeojsonPolygon(polygon.toString());
         } catch (Exception e) {
-            LOG.error("Could not extract bounding box from file: {}", file, e);
+            LOG.error("Could not extract bounding box from file: {}", file);
+            LOG.trace(e);
             throw new GeometryException(e);
         }
     }
@@ -146,7 +147,8 @@ public class GeoUtil {
             LOG.debug("Extracted EPSG from file {}: {}", file.getFileName(), epsg);
             return epsg;
         } catch (Exception e) {
-            LOG.error("Could not extract bounding box from file: {}", file, e);
+            LOG.error("Could not extract bounding box from file: {}", file);
+            LOG.trace(e);
             throw new GeometryException(e);
         }
     }

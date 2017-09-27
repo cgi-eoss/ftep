@@ -68,6 +68,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -392,6 +393,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
             LOG.info("Clean up requested for job {}", job.getId());
             cleanUpJob(job.getId());
+        } finally {
+            responseObserver.onNext(CleanUpResponse.newBuilder().build());
+            responseObserver.onCompleted();
         }
     }
 
@@ -399,7 +403,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         jobContainers.remove(jobId);
         jobClients.remove(jobId);
         jobEnvironments.remove(jobId);
-        nodeFactory.destroyNode(jobNodes.remove(jobId));
+        Optional.ofNullable(jobNodes.remove(jobId)).ifPresent(nodeFactory::destroyNode);
 
         Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
         LOG.debug("Finished job URIs: {}", finishedJobInputs);

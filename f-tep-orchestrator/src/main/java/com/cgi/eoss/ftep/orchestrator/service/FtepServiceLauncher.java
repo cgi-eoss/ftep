@@ -171,10 +171,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             LOG.error("Failed to run processor; notifying gRPC client", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         } finally {
-            Optional.ofNullable(rpcJob).ifPresent(j -> {
-                FtepWorkerGrpc.FtepWorkerBlockingStub worker = jobWorkers.remove(j);
-                worker.cleanUp(j);
-            });
+            Optional.ofNullable(rpcJob).ifPresent(j -> Optional.ofNullable(jobWorkers.remove(j)).ifPresent(worker -> worker.cleanUp(j)));
         }
     }
 

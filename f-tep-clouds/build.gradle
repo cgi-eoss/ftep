@@ -1,14 +1,23 @@
+buildscript {
+    dependencies {
+        classpath pl.shadow
+        classpath pl.shadowLog4j2Transformer
+    }
+}
+
 group 'com.cgi.eoss.f-tep'
 version '1.2.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     compileOnly 'org.projectlombok:lombok'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 
-    compile 'com.google.guava:guava'
+    // Override guava version for openstack4j, then relocate the package to avoid downstream collisions
+    compile 'com.google.guava:guava:17.0'
     compile 'com.hierynomus:sshj'
     compile 'org.awaitility:awaitility'
     compile 'org.pacesys:openstack4j-core'
@@ -24,3 +33,10 @@ dependencies {
 }
 
 compileJava.dependsOn(processResources)
+
+shadowJar {
+    transform(de.sebastianboegl.gradle.plugins.shadow.transformers.Log4j2PluginsFileTransformer)
+    // Shade the Guava package for version >=21.0 compatibility
+    relocate 'com.google.common', 'shadow.com.google.common'
+    relocate 'com.google.thirdparty.publicsuffix', 'shadow.com.google.thirdparty.publicsuffix'
+}

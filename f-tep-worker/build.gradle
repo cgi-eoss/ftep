@@ -19,7 +19,7 @@ apply plugin: 'com.google.osdetector'
 dependencies {
     compileOnly 'org.projectlombok:lombok'
 
-    compile project(':f-tep-clouds')
+    compile project(path: ':f-tep-clouds', configuration: 'shadow')
     compile project(':f-tep-io')
     compile project(':f-tep-logging')
     compile project(':f-tep-rpc')

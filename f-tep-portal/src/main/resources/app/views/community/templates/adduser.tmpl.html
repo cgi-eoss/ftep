@@ -1,11 +1,12 @@
 <md-dialog id="edit-group-dialog" aria-label="Add Users dialog">
-    <h4>Add User to {{groupParams.selectedGroup.name}}</h4>
-    <md-dialog-content>
-        <div class="dialog-content-area">
-            <form id="addUserForm" name ="addUserForm">
-               <label for="add-user-input" class="material-label">Enter a user ID *</label>
+    <form id="addUserForm" name="addUserForm">
+        <h4>Add User to {{groupParams.selectedGroup.name}}</h4>
+        <md-dialog-content>
+            <div class="dialog-content-area">
+                <label for="add-user-input" class="material-label">Enter a user ID *</label>
                 <md-autocomplete id="add-user-input"
-                                 flex required
+                                 flex
+                                 required
                                  aria-label="Select a User"
                                  md-input-name="addUser"
                                  md-items="user in searchUsers()"
@@ -15,34 +16,34 @@
                                  md-require-match="true"
                                  md-match-case-insensitive="true"
                                  placeholder="Select a User">
-                            <md-item-template>
-                                <span>
-                                    <span md-highlight-text="userParams.searchText">{{user.name}}</span>
-                                    <span ng-if="user.email">&lt;<span md-highlight-text="userParams.searchText">{{user.email}}</span>&gt;</span>
-                                </span>
-                            </md-item-template>
+                    <md-item-template>
+                        <span>
+                            <span md-highlight-text="userParams.searchText">{{user.name}}</span>
+                            <span ng-if="user.email">&lt;<span md-highlight-text="userParams.searchText">{{user.email}}</span>&gt;</span>
+                        </span>
+                    </md-item-template>
                     <md-not-found>
                         <span>No users matching "{{userParams.searchText}}" were found.</span>
                     </md-not-found>
                 </md-autocomplete>
                 <br />
-            </form>
-            <div class="note" ng-show="!validateUser(userParams.selectedUser) && userParams.selectedUser !== null">
-                {{userParams.selectedUser.name}} is already in {{groupParams.selectedGroup.name}}.
+                <div class="note" ng-show="!validateUser(userParams.selectedUser) && userParams.selectedUser !== null">
+                    {{userParams.selectedUser.name}} is already in {{groupParams.selectedGroup.name}}.
+                </div>
+                <div class="note-success" ng-show="addUserSuccess && userParams.searchText === null">
+                    User added successfully!
+                </div>
             </div>
-            <div class="note-success" ng-show="addUserSuccess && userParams.searchText === null">
-                User added successfully!
-            </div>
-        </div>
-    </md-dialog-content>
-    <md-dialog-actions>
-        <md-button ng-click="addUser(groupParams.selectedGroup, userParams.selectedUser)"
-                   class="md-primary"
-                   form="addUserForm"
-                   ng-disabled="addUserForm.$invalid ||
-                   !validateUser(userParams.selectedUser) && userParams.selectedUser !== null">
-            Add
-        </md-button>
-        <md-button ng-click="closeDialog()" class="md-primary">Close</md-button>
-    </md-dialog-actions>
+        </md-dialog-content>
+        <md-dialog-actions>
+            <md-button ng-click="addUser(groupParams.selectedGroup, userParams.selectedUser)"
+                       type="submit"
+                       class="md-primary"
+                       form="addUserForm"
+                       ng-disabled="addUserForm.$invalid || !validateUser(userParams.selectedUser) && userParams.selectedUser !== null">
+                Add
+            </md-button>
+            <md-button ng-click="closeDialog()" class="md-primary">Close</md-button>
+        </md-dialog-actions>
+    </form>
 </md-dialog>

@@ -1,28 +1,30 @@
 <md-dialog id="publish-response-dialog" aria-label="Publish Response Dialog">
-    <h4>Publish Request Response</h4>
-    <md-dialog-content>
-        <div class="dialog-content-area">
-            <form id="responseForm" name="responseForm" class="col-md-12 no-padding">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <md-select ng-model="action.value" aria-label="Select a response">
-                            <md-option ng-repeat="response in statusResponses" ng-value="response.value">
-                                {{response.text}}
-                            </md-option>
-                        </md-select>
+    <form id="responseForm" name="responseForm">
+        <h4>Publish Request Response</h4>
+        <md-dialog-content>
+            <div class="dialog-content-area">
+                <div class="col-md-12 no-padding">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <md-select ng-model="action.value" aria-label="Select a response">
+                                <md-option ng-repeat="response in statusResponses" ng-value="response.value">
+                                    {{response.text}}
+                                </md-option>
+                            </md-select>
+                        </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </md-dialog-content>
-    <md-dialog-actions>
-        <md-button id="responseSubmitButton"
-                   class="md-primary"
-                   type="submit"
-                   form="responseForm"
-                   ng-disabled="responseForm.$invalid"
-                   aria-label="Submit"
-                   ng-click="respond()">Ok</md-button>
-        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
-    </md-dialog-actions>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions>
+            <md-button id="responseSubmitButton"
+                       class="md-primary"
+                       type="submit"
+                       form="responseForm"
+                       ng-disabled="responseForm.$invalid"
+                       aria-label="Submit"
+                       ng-click="respond()">Ok</md-button>
+            <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+        </md-dialog-actions>
+    </form>
 </md-dialog>

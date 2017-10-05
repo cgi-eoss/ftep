@@ -151,21 +151,21 @@
                        </div>
                    </div>
 
-                </form>
+                    <md-button id="launch-button"
+                               class="icon-button md-icon-button md-fab md-mini btn-success"
+                               form="serviceForm"
+                               ng-disabled="serviceForm.$invalid"
+                               ng-hide="isWorkspaceLoading"
+                               aria-label="Launch"
+                               ng-click="launchProcessing($event)"
+                               uib-tooltip="Launch"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">play_arrow</i>
+                    </md-button>
 
-                <md-button id="launch-button"
-                           class="icon-button md-icon-button md-fab md-mini btn-success"
-                           form="serviceForm"
-                           ng-disabled="serviceForm.$invalid"
-                           ng-hide="isWorkspaceLoading"
-                           aria-label="Launch"
-                           ng-click="launchProcessing($event)"
-                           uib-tooltip="Launch"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">
-                    <i class="material-icons">play_arrow</i>
-                </md-button>
+                </form>
 
             </section>
 

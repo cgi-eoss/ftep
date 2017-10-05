@@ -111,7 +111,6 @@
   margin-right: 36px;
 }
 #bottombar #bottombar-tabs md-tabs md-tabs-wrapper md-tab-data {
-  display: table;
   float: right;
   left: initial;
   opacity: 1;
@@ -1602,6 +1601,8 @@
   background-color: rgba(180, 180, 180, 0.95);
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
   height: 100%;
   -ms-flex-pack: center;
       justify-content: center;
@@ -1616,7 +1617,7 @@
   border-top: 12px solid #54ace0;
   border-radius: 50%;
   height: 80px;
-  margin: auto;
+  margin: 0 auto;
   width: 80px;
   z-index: 10;
 }

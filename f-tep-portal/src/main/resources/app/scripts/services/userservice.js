@@ -176,7 +176,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 var membersArray = [];
 
                 for (var item in groupUsers) {
-                    membersArray.push(groupUsers[item]._links.self.href);
+                    if (groupUsers[item]._links) {
+                        membersArray.push(groupUsers[item]._links.self.href);
+                    }
                 }
 
                 /* Append user to new members array */

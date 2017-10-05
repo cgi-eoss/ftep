@@ -135,18 +135,18 @@
                 </div>
             </div>
 
-        </form>
+            <md-button id="searchButton"
+                       class="icon-button md-icon-button md-fab md-mini btn-success"
+                       ng-if="searchParams.savedSearch.catalogue"
+                       type="submit"
+                       form="searchForm"
+                       ng-disabled="searchForm.$invalid"
+                       aria-label="Search"
+                       ng-click="displayTab(bottomNavTabs.RESULTS, false);">
+                <i class="material-icons">search</i>
+            </md-button>
 
-        <md-button id="searchButton"
-                   class="icon-button md-icon-button md-fab md-mini btn-success"
-                   ng-if="searchParams.savedSearch.catalogue"
-                   type="submit"
-                   form="searchForm"
-                   ng-disabled="searchForm.$invalid"
-                   aria-label="Search"
-                   ng-click="displayTab(bottomNavTabs.RESULTS, false);">
-            <i class="material-icons">search</i>
-        </md-button>
+        </form>
 
     </div>
 </div>

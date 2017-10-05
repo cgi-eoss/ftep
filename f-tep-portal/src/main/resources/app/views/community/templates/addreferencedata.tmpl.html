@@ -1,70 +1,74 @@
 <md-dialog id="referencedata-dialog" aria-label="Add {{item}} dialog">
-    <h4>Add Reference Data</h4>
-    <md-dialog-content>
-        <div class="dialog-content-area">
+    <form id="refDataForm" name="refDataForm" class="col-md-12 no-padding">
+        <h4>Add Reference Data</h4>
+        <md-dialog-content>
+            <div class="dialog-content-area">
 
-            <form id="refDataForm" name="refDataForm" class="col-md-12 no-padding">
-
-                <div class="row drop-box-container">
-                    <div class="col-md-12 no-padding">
-                        <md-input-container md-no-float>
-                            <div class="drop-box"
-                                 required
-                                 ng-model="newReference.file"
-                                 ngf-drop
-                                 ngf-select
-                                 ngf-change="validateFile(newReference.file)"
-                                 ngf-drag-over-class="'dragover'"
-                                 ngf-multiple="false"
-                                 ngf-allow-dir="false">
-                                Drop a file here or click to upload
-                            </div>
-                        </md-input-container>
-                        <div ng-if="newReference.file">
-                            <h4 ng-if="validation == 'Valid'" ng-bind="newReference.file.name" />
-                            <h4 ng-if="validation != 'Valid'" ng-bind="newReference.file.name + ' - ' + validation" class="error" />
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 no-padding" ng-if="fileParams.progressPercentage > 0">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" aria-valuenow="{{fileParams.progressPercentage}}"
-                                 aria-valuemin="0" aria-valuemax="100" style="width:{{fileParams.progressPercentage}}%"  ng-class="(fileParams.uploadStatus == 'failed') ? 'progress-bar-danger' : 'progress-bar-success'">
-                                <span ng-if="fileParams.uploadStatus == 'pending'">{{fileParams.progressPercentage -1}}% {{fileParams.uploadMessage}}</span>
-                                <span ng-if="fileParams.uploadStatus == 'complete'">Complete</span>
-                                <span ng-if="fileParams.uploadStatus == 'failed'">Error - {{fileParams.uploadMessage}}</span>
+                <div class="col-md-12 no-padding">
+                    <div class="row drop-box-container">
+                        <div class="col-md-12 no-padding">
+                            <md-input-container md-no-float>
+                                <div class="drop-box"
+                                     required
+                                     ng-model="newReference.file"
+                                     ngf-drop
+                                     ngf-select
+                                     ngf-change="validateFile(newReference.file)"
+                                     ngf-drag-over-class="'dragover'"
+                                     ngf-multiple="false"
+                                     ngf-allow-dir="false">
+                                    Drop a file here or click to upload
+                                </div>
+                            </md-input-container>
+                            <div ng-if="newReference.file">
+                                <h4 ng-if="validation == 'Valid'" ng-bind="newReference.file.name" />
+                                <h4 ng-if="validation != 'Valid'" ng-bind="newReference.file.name + ' - ' + validation" class="error" />
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-12 no-padding">
-                         <md-input-container md-no-float>
-                             <input required ng-model="newReference.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry">
-                             <div class="hint" ng-show="true">Geometry *</div>
-                         </md-input-container>
-                    </div>
+                        <div class="col-md-12 no-padding" ng-if="fileParams.progressPercentage > 0">
+                            <div class="progress">
+                                <div class="progress-bar"
+                                     role="progressbar"
+                                     aria-valuenow="{{fileParams.progressPercentage}}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100"
+                                     style="width:{{fileParams.progressPercentage}}%"
+                                     ng-class="(fileParams.uploadStatus == 'failed') ? 'progress-bar-danger' : 'progress-bar-success'">
+                                    <span ng-if="fileParams.uploadStatus == 'pending'">{{fileParams.progressPercentage -1}}% {{fileParams.uploadMessage}}</span>
+                                    <span ng-if="fileParams.uploadStatus == 'complete'">Complete</span>
+                                    <span ng-if="fileParams.uploadStatus == 'failed'">Error - {{fileParams.uploadMessage}}</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!-- TODO description currently not in metadata -->
-                    <!-- <div class="col-md-12 no-padding">
+                        <div class="col-md-12 no-padding">
+                            <md-input-container md-no-float>
+                                <input required ng-model="newReference.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry">
+                                <div class="hint" ng-show="true">Geometry *</div>
+                            </md-input-container>
+                        </div>
+
+                        <!-- TODO description currently not in metadata -->
+                        <!-- <div class="col-md-12 no-padding">
                          <md-input-container md-no-float>
                              <input ng-model="newReference.description" type="text" placeholder="Enter a description" aria-label="Enter a description">
                              <div class="hint" ng-show="true">Description</div>
                          </md-input-container>
                     </div> -->
+                    </div>
                 </div>
-
-            </form>
-
-        </div>
-    </md-dialog-content>
-    <md-dialog-actions>
-        <md-button id="referenceSubmitButton"
-                   class="md-primary"
-                   type="submit"
-                   form="refDataForm"
-                   ng-disabled="refDataForm.$invalid || validation != 'Valid'"
-                   aria-label="Submit"
-                   ng-click="addReferenceFile()">Upload</md-button>
-        <md-button ng-click="closeDialog()" class="md-primary">Close</md-button>
-    </md-dialog-actions>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions>
+            <md-button id="referenceSubmitButton"
+                       class="md-primary"
+                       type="submit"
+                       form="refDataForm"
+                       ng-disabled="refDataForm.$invalid || validation != 'Valid'"
+                       aria-label="Submit"
+                       ng-click="addReferenceFile()">Upload</md-button>
+            <md-button ng-click="closeDialog()" class="md-primary">Close</md-button>
+        </md-dialog-actions>
+    </form>
 </md-dialog>

@@ -213,12 +213,16 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     if(searchAreaLayer){
                         searchAreaLayer.getSource().clear();
                     }
+                    selectClick.setActive(false);
                 });
 
                 draw.on('drawend', function (event) {
                     $scope.drawType = SHAPE.NONE;
                     $scope.map.removeInteraction(draw);
                     updateSearchPolygon(event.feature.getGeometry());
+                    setTimeout(function () {
+                        selectClick.setActive(true);
+                    }, 300);
                 });
 
                 $scope.map.addInteraction(draw);

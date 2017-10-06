@@ -68,7 +68,7 @@
     <div class="item-list list" ng-if="serviceParams.services.length > 0">
         <md-list-item class="md-3-line"
                       ng-repeat="service in serviceParams.services"
-                      ng-click="selectService(service)"
+                      ng-click="selectService(service, $event)"
                       ng-class="{active: service.name == serviceParams.selectedService.name}">
 
             <div class="md-list-item-text" layout="column">

@@ -11,6 +11,8 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.controller('ServiceCtrl', ['$scope', 'ProductService', 'CommonService', '$mdDialog', function ($scope, ProductService, CommonService, $mdDialog) {
 
+        var editmode = false;
+
         $scope.serviceParams = ProductService.params.development;
         $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
         $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
@@ -33,10 +35,35 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         ProductService.refreshServices('development');
 
-        $scope.selectService = function(service) {
-            $scope.serviceParams.displayRight = true;
-            $scope.serviceParams.selectedService = service;
-            ProductService.refreshSelectedService('development');
+        function discardChangesMessage(event) {
+            if (editmode) {
+                var answer = confirm("Are you sure you want to leave this page? Unsaved changes will be discarded.");
+                if (!answer) {
+                    event.preventDefault();
+                    return false;
+                } else {
+                    editmode = false;
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        $scope.toggleEditMode = function(state) {
+            editmode = state;
+        };
+
+        $scope.$on('$locationChangeStart', function( event ) {
+            discardChangesMessage(event);
+        });
+
+        $scope.selectService = function(service, event) {
+            if(discardChangesMessage(event)) {
+                $scope.serviceParams.displayRight = true;
+                $scope.serviceParams.selectedService = service;
+                ProductService.refreshSelectedService('development');
+            }
         };
 
         /* Update Services when polling */
@@ -152,6 +179,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.saveService = function(){
             ProductService.saveService($scope.serviceParams.selectedService).then(function(service){
+                editmode = false;
                 ProductService.refreshServices('development');
             });
         };

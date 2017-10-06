@@ -1,5 +1,5 @@
 <md-button class="close toolbar-button md-secondary"
-           ng-click="serviceParams.selectedService = undefined"
+           ng-click="serviceParams.selectedService = undefined; toggleEditMode(false)"
            uib-tooltip="Close"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
@@ -9,7 +9,7 @@
 
 <md-button id="save-service"
            class="save-button md-fab md-mini right"
-           ng-click="saveService()"
+           ng-click="saveService(); toggleEditMode(false)"
            ng-disabled="serviceForm.$invalid"
            aria-label="Save Service"
            uib-tooltip="Save Service"
@@ -19,7 +19,7 @@
         <i class="material-icons">save</i>
 </md-button>
 
-<form id="service-form" name="serviceForm">
+<form id="service-form" name="serviceForm" ng-model="serviceParams.selectedService" ng-keyup="toggleEditMode(true)">
 
     <section id="service-header">
         <div class="row">
@@ -213,7 +213,7 @@
                         </md-input-container>
                     </div>
                     <div class="col-xs-3 no-padding">
-                        <md-button ng-click="editTypeDialog($event, input, constants)"
+                        <md-button ng-click="editTypeDialog($event, input, constants); toggleEditMode(true)"
                                    class="type-button"
                                    aria-label="More"
                                    uib-tooltip="More"
@@ -225,7 +225,7 @@
                 </td>
                 <td>
                     <service-input ng-model="input.defaultAttrs.value" default-attrs="{{input.defaultAttrs}}" keep-watch="true"
-                            placeholder="Default value" aria-label="Default value"/>
+                                   placeholder="Default value" aria-label="Default value"/>
                 </td>
                 <td>
                     <md-input-container md-no-float>
@@ -238,7 +238,7 @@
                     </md-input-container>
                 </td>
                 <td>
-                    <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input)"
+                    <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input); toggleEditMode(true)"
                                class="remove-button"
                                aria-label="Remove Row"
                                uib-tooltip="Remove Row"
@@ -250,7 +250,7 @@
             </tr>
         </table>
 
-        <md-button ng-click="addNewRow(key)"
+        <md-button ng-click="addNewRow(key); toggleEditMode(true)"
                    class="add-button"
                    aria-label="Add New Row"
                    uib-tooltip="Add New Row"

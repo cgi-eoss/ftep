@@ -18,6 +18,8 @@ public interface ShortJob extends Identifiable<Long> {
     Job.Status getStatus();
     String getGuiUrl();
     String getStage();
+    @Value("#{target.config.label}")
+    String getLabel();
     LocalDateTime getStartTime();
     LocalDateTime getEndTime();
     @Value("#{target.config.service.name}")

@@ -77,12 +77,19 @@
                     width: 100%;
                 }
             }
+            .md-list-item-inner {
+                max-width: 80%;
+            }
             .md-list-item-text {
+                float: left;
                 h3, h4 {
                     overflow-wrap: break-word;
+                    white-space: normal !important;
                     word-break: break-all;
                     word-wrap: break-word;
-                    white-space: normal !important;
+                    &.truncate {
+                        white-space: nowrap !important;
+                    }
                 }
             }
             .toolbar-button {

@@ -80,6 +80,7 @@
                 <div class="col-md-12 no-padding">
                     <h3>Job ID: {{job.id}} ({{job.serviceName}})</h3>
                     <h4>Start: {{job.startTime | formatDateTime}}</h4>
+                    <h4 ng-if="job.label" class="truncate">{{job.label}}</h4>
                 </div>
             </div>
 

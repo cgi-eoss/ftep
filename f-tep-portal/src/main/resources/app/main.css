@@ -1346,12 +1346,22 @@
   text-align: center;
   width: 100%;
 }
+.ftep .item-list md-list-item .md-list-item-inner {
+  max-width: 80%;
+}
+.ftep .item-list md-list-item .md-list-item-text {
+  float: left;
+}
 .ftep .item-list md-list-item .md-list-item-text h3,
 .ftep .item-list md-list-item .md-list-item-text h4 {
   overflow-wrap: break-word;
+  white-space: normal !important;
   word-break: break-all;
   word-wrap: break-word;
-  white-space: normal !important;
+}
+.ftep .item-list md-list-item .md-list-item-text h3.truncate,
+.ftep .item-list md-list-item .md-list-item-text h4.truncate {
+  white-space: nowrap !important;
 }
 .ftep .item-list md-list-item .toolbar-button {
   padding: 0 0.25rem;
@@ -2419,6 +2429,11 @@ pre {
 }
 .selectable {
   cursor: pointer;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
 }
 .error {
   background-color: #f2dede !important;

@@ -89,7 +89,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         UserService.addUser(group, $scope.userParams.groupUsers, user).then(function (data) {
                             /* Display success message and clear form */
                             $scope.addUserSuccess = true;
-                            $scope.searchText = null;
+                            $scope.userParams.selectedUser = null;
                             /* Update groups & active group */
                             GroupService.refreshGroups("community");
                         });

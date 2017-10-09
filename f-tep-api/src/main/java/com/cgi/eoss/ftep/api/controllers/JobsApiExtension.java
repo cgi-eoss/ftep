@@ -6,8 +6,8 @@ import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.stub.StreamObserver;
 import lombok.Data;
@@ -35,11 +35,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @RestController
 @BasePathAwareController
@@ -93,26 +93,35 @@ public class JobsApiExtension {
                 .put("query", StrSubstitutor.replace(dockerJobLogQuery, ImmutableMap.of("zooId", job.getExtId()), "@{", "}"))
                 .build();
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(graylogApiUrl).newBuilder()
-                .addPathSegments("search/universal/relative");
-
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(graylogApiUrl).newBuilder().addPathSegments("search/universal/relative");
         parameters.forEach(urlBuilder::addEncodedQueryParameter);
+        HttpUrl searchUrl = urlBuilder.build();
 
+        List<SimpleMessage> messages = new ArrayList<>();
+        LOG.debug("Retrieving job {} logs from url: {}", job.getId(), searchUrl);
+        loadGraylogMessages(messages, searchUrl);
+        return messages;
+    }
+
+    private void loadGraylogMessages(List<SimpleMessage> messages, HttpUrl graylogApiUrl) throws IOException {
         Request request = new Request.Builder()
                 .get()
-                .url(urlBuilder.build())
+                .url(graylogApiUrl)
                 .build();
 
-        LOG.debug("Retrieving job {} logs from url: {}", job.getId(), request.url());
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                return objectMapper.readValue(response.body().string(), GraylogApiResponse.class).getMessages().stream()
+                GraylogApiResponse graylogApiResponse = objectMapper.readValue(response.body().string(), GraylogApiResponse.class);
+                graylogApiResponse.getMessages().stream()
                         .map(GraylogMessage::getMessage)
-                        .collect(Collectors.toList());
+                        .forEach(messages::add);
+
+                if (messages.size() < graylogApiResponse.getTotalResults()) {
+                    loadGraylogMessages(messages, graylogApiUrl.newBuilder().setQueryParameter("offset", String.valueOf(messages.size())).build());
+                }
             } else {
-                LOG.error("Failed to retrieve job {} logs: {} -- {}", job.getId(), response.code(), response.message());
+                LOG.error("Failed to retrieve logs: {} -- {}", response.code(), response.message());
                 LOG.debug("Graylog response: {}", response.body());
-                return ImmutableList.of();
             }
         }
     }
@@ -137,6 +146,8 @@ public class JobsApiExtension {
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static final class GraylogApiResponse {
         private List<GraylogMessage> messages;
+        @JsonProperty("total_results")
+        private Long totalResults;
     }
 
     @Data

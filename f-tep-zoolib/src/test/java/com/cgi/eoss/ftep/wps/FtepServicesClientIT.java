@@ -252,6 +252,10 @@ public class FtepServicesClientIT {
         assertThat(outputs, is(notNullValue()));
         assertThat(outputs.get("output"), containsInAnyOrder("ftep://output/output_file_1"));
 
+        assertThat(Files.exists(workspace.resolve("Job_" + jobId + "/inDir")), is(true));
+        assertThat(Files.exists(workspace.resolve("Job_" + jobId + "/outDir")), is(true));
+        assertThat(Files.exists(workspace.resolve("Job_" + jobId + "/procDir")), is(false));
+
         List<String> jobConfigLines = Files.readAllLines(workspace.resolve("Job_" + jobId + "/FTEP-WPS-INPUT.properties"));
         assertThat(jobConfigLines, is(ImmutableList.of(
                 "inputKey1=\"inputVal1\"",

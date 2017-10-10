@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
+import com.google.common.io.MoreFiles;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -151,6 +152,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         .setInputDir(jobEnv.getInputDir().toAbsolutePath().toString())
                         .setOutputDir(jobEnv.getOutputDir().toAbsolutePath().toString())
                         .setWorkingDir(jobEnv.getWorkingDir().toAbsolutePath().toString())
+                        .setTempDir(jobEnv.getTempDir().toAbsolutePath().toString())
                         .build();
                 jobEnvironments.put(request.getJob().getId(), jobEnv);
 
@@ -402,7 +404,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private void cleanUpJob(String jobId) {
         jobContainers.remove(jobId);
         jobClients.remove(jobId);
-        jobEnvironments.remove(jobId);
+        Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
         Optional.ofNullable(jobNodes.remove(jobId)).ifPresent(nodeFactory::destroyNode);
 
         Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
@@ -410,6 +412,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
         LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
         inputOutputManager.cleanUp(unusedUris);
+    }
+
+    private void destroyEnvironment(com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment) {
+        try {
+            MoreFiles.deleteRecursively(jobEnvironment.getTempDir());
+        } catch (IOException e) {
+            LOG.warn("Failed to clean up job environment tempDir: {}", jobEnvironment.getTempDir(), e);
+        }
     }
 
     private WaitContainerResultCallback waitForContainer(DockerClient dockerClient, String containerId) {

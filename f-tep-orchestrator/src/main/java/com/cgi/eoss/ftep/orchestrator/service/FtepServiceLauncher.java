@@ -306,7 +306,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 .addBinds("/data:/data:ro")
                 .addBinds(jobEnvironment.getWorkingDir() + "/FTEP-WPS-INPUT.properties:" + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro")
                 .addBinds(jobEnvironment.getInputDir() + ":" + "/home/worker/workDir/inDir:ro")
-                .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw");
+                .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw")
+                .addBinds(jobEnvironment.getTempDir() + ":" + "/home/worker/procDir:rw");
 
         if (service.getType() == FtepService.Type.APPLICATION) {
             dockerConfigBuilder.addPorts(FtepGuiServiceManager.GUACAMOLE_PORT);

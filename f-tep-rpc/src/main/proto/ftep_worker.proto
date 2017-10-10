@@ -29,6 +29,7 @@ message JobEnvironment {
     string workingDir = 1;
     string inputDir = 2;
     string outputDir = 3;
+    string tempDir = 4;
 }
 
 message JobDockerConfig {

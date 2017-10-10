@@ -31,4 +31,10 @@ class JobEnvironment {
      * collects from this path.</p>
      */
     private Path outputDir;
+
+    /**
+     * <p>The temporary workspace, used for interim files created during service execution. The {@link FtepWorker}
+     * should delete this path after execution.</p>
+     */
+    private Path tempDir;
 }

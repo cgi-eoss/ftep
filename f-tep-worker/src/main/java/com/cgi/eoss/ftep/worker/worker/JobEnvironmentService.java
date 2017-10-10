@@ -30,6 +30,7 @@ public class JobEnvironmentService {
     private static final String WORKING_DIR_PREFIX = "Job_";
     private static final String INPUT_DIR = "inDir";
     private static final String OUTPUT_DIR = "outDir";
+    private static final String TEMP_DIR = "procDir";
 
     @Getter
     private final Path baseDir;
@@ -81,11 +82,16 @@ public class JobEnvironmentService {
         Path workingDir = baseDir.resolve(WORKING_DIR_PREFIX + jobId);
         Path inputDir = workingDir.resolve(INPUT_DIR);
         Path outputDir = workingDir.resolve(OUTPUT_DIR);
+        Path tempDir = workingDir.resolve(TEMP_DIR);
 
         Files.createDirectory(workingDir);
         Files.createDirectory(inputDir);
         // TODO Tighten permissions when service uids/gids are controlled
         Files.createDirectory(outputDir, PosixFilePermissions.asFileAttribute(EnumSet.of(
+                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE,
+                PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE, PosixFilePermission.GROUP_EXECUTE,
+                PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_EXECUTE)));
+        Files.createDirectory(tempDir, PosixFilePermissions.asFileAttribute(EnumSet.of(
                 PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE,
                 PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE, PosixFilePermission.GROUP_EXECUTE,
                 PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_WRITE, PosixFilePermission.OTHERS_EXECUTE)));
@@ -97,6 +103,7 @@ public class JobEnvironmentService {
                 .workingDir(workingDir)
                 .inputDir(inputDir)
                 .outputDir(outputDir)
+                .tempDir(tempDir)
                 .build();
     }
 

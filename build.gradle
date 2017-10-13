@@ -65,11 +65,11 @@ allprojects {
                 entry 'jackson-datatype-jdk8'
                 entry 'jackson-datatype-jsr310'
             }
-            dependency 'com.github.docker-java:docker-java:3.0.13'
+            dependency 'com.github.docker-java:docker-java:3.0.14'
             dependency 'com.google.code.findbugs:jsr305:3.0.1'
             dependency 'com.google.guava:guava:23.0'
             dependency 'com.google.jimfs:jimfs:1.1'
-            dependency 'com.google.protobuf:protoc:3.3.0'
+            dependency 'com.google.protobuf:protoc:3.4.0'
             dependency 'com.hierynomus:sshj:0.22.0'
             dependency 'com.jayway.jsonpath:json-path:2.4.0'
             dependency 'com.lmax:disruptor:3.3.6'
@@ -90,7 +90,7 @@ allprojects {
                 entry 'cucumber-junit'
                 entry 'cucumber-picocontainer'
             }
-            dependencySet(group: 'io.grpc', version: '1.6.1') {
+            dependencySet(group: 'io.grpc', version: '1.7.0') {
                 entry 'grpc-netty'
                 entry 'grpc-protobuf'
                 entry 'grpc-stub'
@@ -133,11 +133,11 @@ allprojects {
             dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
             dependency 'org.hsqldb:hsqldb:2.4.0'
             dependency 'org.jooq:jool:0.9.12'
-            dependency 'org.lognet:grpc-spring-boot-starter:2.0.5'
+            dependency 'org.lognet:grpc-spring-boot-starter:2.1.0'
             dependency 'org.mockftpserver:MockFtpServer:2.7.1'
             dependency 'org.mockito:mockito-core:2.9.0'
-            dependency 'org.pacesys:openstack4j-core:3.0.4'
-            dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.0.4'
+            dependency 'org.pacesys:openstack4j-core:3.1.0'
+            dependency 'org.pacesys.openstack4j.connectors:openstack4j-okhttp:3.1.0'
             dependency 'org.postgresql:postgresql:42.1.4'
             dependency 'org.projectlombok:lombok:1.16.18'
             dependency 'org.seleniumhq.selenium:selenium-java:3.4.0'

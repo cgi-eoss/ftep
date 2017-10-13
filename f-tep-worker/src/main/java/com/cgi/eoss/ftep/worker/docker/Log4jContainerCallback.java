@@ -7,8 +7,8 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
-import shadow.dockerjava.com.github.dockerjava.api.model.Frame;
-import shadow.dockerjava.com.github.dockerjava.core.command.LogContainerResultCallback;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
 
 import java.util.List;
 import java.util.Map;

@@ -21,13 +21,26 @@ include 'f-tep-worker'
 include 'f-tep-zoolib'
 include 'f-tep-zoomanager'
 
-include 'third-party/cxx/zoo-project'
-include 'third-party/java/docker-java'
-include 'third-party/java/graylog-collector'
-include 'third-party/java/jai_core'
-include 'third-party/pkg'
-include 'third-party/puppet'
-include 'third-party/resto'
+include 'zoo-project'
+project(':zoo-project').projectDir = file('third-party/cxx/zoo-project')
+
+include 'docker-java'
+project(':docker-java').projectDir = file('third-party/java/docker-java')
+
+include 'graylog-collector'
+project(':graylog-collector').projectDir = file('third-party/java/graylog-collector')
+
+include 'jai_core'
+project(':jai_core').projectDir = file('third-party/java/jai_core')
+
+include 'pkg'
+project(':pkg').projectDir = file('third-party/pkg')
+
+include 'puppet'
+project(':puppet').projectDir = file('third-party/puppet')
+
+include 'resto'
+project(':resto').projectDir = file('third-party/resto')
 
 include 'distribution'
 

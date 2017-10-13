@@ -17,10 +17,11 @@ dependencies {
     packages project(path: ':f-tep-serviceregistry', configuration: 'pkg')
     packages project(path: ':f-tep-worker', configuration: 'pkg')
     packages project(path: ':f-tep-zoomanager', configuration: 'pkg')
-    packages project(path: ':third-party/pkg', configuration: 'pkg')
-    packages project(path: ':third-party/resto', configuration: 'pkg')
 
-    puppetModules project(path: ':third-party/puppet', configuration: 'allModules')
+    packages project(path: ':pkg', configuration: 'pkg')
+    packages project(path: ':resto', configuration: 'pkg')
+
+    puppetModules project(path: ':puppet', configuration: 'allModules')
 }
 
 task distPackages(type: Sync) {

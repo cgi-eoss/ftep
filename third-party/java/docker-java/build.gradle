@@ -4,8 +4,7 @@ buildscript {
     }
 }
 
-group 'com.github.docker-java'
-version '3.0.13'
+version '3.0.14'
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -30,7 +29,7 @@ sourceSets {
 }
 
 dependencies {
-    compile ('com.github.docker-java:docker-java:3.0.13') {
+    compile('com.github.docker-java:docker-java:3.0.14') {
         exclude group: 'org.slf4j'
         exclude group: 'org.apache.log4j'
     }
@@ -44,9 +43,6 @@ shadowJar {
 
     // Use relocation patterns from testcontainers-java
     relocate 'org.apache.http', 'shadow.dockerjava.org.apache.http'
-    relocate('org.apache.commons', 'shadow.dockerjava.org.apache.commons') {
-        exclude 'org.apache.commons.logging.*'
-    }
     relocate 'org.glassfish', 'shadow.dockerjava.org.glassfish'
     relocate 'org.aopalliance', 'shadow.dockerjava.org.aopalliance'
     relocate 'org.jvnet', 'shadow.dockerjava.org.jvnet'
@@ -54,14 +50,12 @@ shadowJar {
     relocate 'javax.inject', 'shadow.dockerjava.javax.inject'
     relocate 'javax.ws.rs', 'shadow.dockerjava.javax.ws.rs'
     relocate 'com.fasterxml.jackson', 'shadow.dockerjava.com.fasterxml.jackson'
-    relocate 'com.github.dockerjava', 'shadow.dockerjava.com.github.dockerjava'
     relocate 'jersey.repackaged', 'shadow.dockerjava.jersey.repackaged'
     relocate 'com.google', 'shadow.dockerjava.com.google'
     relocate 'io.netty', 'shadow.dockerjava.io.netty'
     relocate 'org.bouncycastle', 'shadow.dockerjava.org.bouncycastle'
-    relocate 'javassist', 'shadow.dockerjava.javassist'
-    relocate 'org.scijava', 'shadow.dockerjava.org.scijava'
-    relocate 'mozilla', 'shadow.dockerjava.mozilla'
+    // Don't relocate the socket lib
+    // relocate 'org.newsclub', 'shadow.dockerjava.org.newsclub'
 
     mergeServiceFiles()
 }

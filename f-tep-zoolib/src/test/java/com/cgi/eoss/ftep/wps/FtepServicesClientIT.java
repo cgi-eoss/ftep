@@ -35,12 +35,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.core.DefaultDockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientBuilder;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.RemoteApiVersion;
-import shadow.dockerjava.com.github.dockerjava.core.command.PullImageResultCallback;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.RemoteApiVersion;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 
 import java.io.IOException;
 import java.net.URI;

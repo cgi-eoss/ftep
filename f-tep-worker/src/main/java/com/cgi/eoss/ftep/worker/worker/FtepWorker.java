@@ -46,17 +46,17 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.api.command.BuildImageCmd;
-import shadow.dockerjava.com.github.dockerjava.api.command.CreateContainerCmd;
-import shadow.dockerjava.com.github.dockerjava.api.command.InspectContainerResponse;
-import shadow.dockerjava.com.github.dockerjava.api.exception.BadRequestException;
-import shadow.dockerjava.com.github.dockerjava.api.exception.DockerClientException;
-import shadow.dockerjava.com.github.dockerjava.api.model.Bind;
-import shadow.dockerjava.com.github.dockerjava.api.model.ExposedPort;
-import shadow.dockerjava.com.github.dockerjava.api.model.Ports;
-import shadow.dockerjava.com.github.dockerjava.core.command.BuildImageResultCallback;
-import shadow.dockerjava.com.github.dockerjava.core.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.BuildImageCmd;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.BadRequestException;
+import com.github.dockerjava.api.exception.DockerClientException;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import java.io.IOException;
 import java.net.URI;
@@ -191,7 +191,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                     createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
                     createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
                     createContainerCmd.withPortBindings(request.getPortsList().stream()
-                            .map(p -> new shadow.dockerjava.com.github.dockerjava.api.model.PortBinding(new Ports.Binding(null, null), ExposedPort.parse(p)))
+                            .map(p -> new com.github.dockerjava.api.model.PortBinding(new Ports.Binding(null, null), ExposedPort.parse(p)))
                             .collect(Collectors.toList()));
 
                     // Add proxy vars to the container, if they are set in the environment

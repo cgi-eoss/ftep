@@ -8,7 +8,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
 
     // Manually import excluded dependency from geotools
-    compile project(':third-party/java/jai_core')
+    compile project(':jai_core')
 
     compile project(':f-tep-model')
     compile project(':f-tep-logging')

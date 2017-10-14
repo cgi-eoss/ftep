@@ -8,13 +8,13 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.api.command.DockerCmdExecFactory;
-import shadow.dockerjava.com.github.dockerjava.core.DefaultDockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientBuilder;
-import shadow.dockerjava.com.github.dockerjava.core.DockerClientConfig;
-import shadow.dockerjava.com.github.dockerjava.core.RemoteApiVersion;
-import shadow.dockerjava.com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.RemoteApiVersion;
+import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 
 import static org.mockito.Mockito.mock;
 

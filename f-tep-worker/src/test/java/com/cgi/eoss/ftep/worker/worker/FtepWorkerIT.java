@@ -21,8 +21,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import shadow.dockerjava.com.github.dockerjava.api.DockerClient;
-import shadow.dockerjava.com.github.dockerjava.core.command.PullImageResultCallback;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 
 import java.io.IOException;
 import java.nio.file.Files;

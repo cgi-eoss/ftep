@@ -83,8 +83,10 @@ public class FtepDownloaderTest {
 
         ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub = ServiceContextFilesServiceGrpc.newBlockingStub(channelBuilder.build());
         CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueServiceBlockingStub = CatalogueServiceGrpc.newBlockingStub(channelBuilder.build());
+        CatalogueServiceGrpc.CatalogueServiceStub catalogueServiceStub = CatalogueServiceGrpc.newStub(channelBuilder.build());
         when(ftepServerClient.serviceContextFilesServiceBlockingStub()).thenReturn(serviceContextFilesServiceBlockingStub);
         when(ftepServerClient.catalogueServiceBlockingStub()).thenReturn(catalogueServiceBlockingStub);
+        when(ftepServerClient.catalogueServiceStub()).thenReturn(catalogueServiceStub);
 
         this.dl = new FtepDownloader(ftepServerClient, new CachingSymlinkDownloaderFacade(cacheRoot));
         this.dl.postConstruct();

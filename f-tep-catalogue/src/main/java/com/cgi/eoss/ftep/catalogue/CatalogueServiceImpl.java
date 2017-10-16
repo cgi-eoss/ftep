@@ -14,7 +14,8 @@ import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.rpc.FileStream;
-import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.cgi.eoss.ftep.rpc.FileStreamIOException;
+import com.cgi.eoss.ftep.rpc.FileStreamServer;
 import com.cgi.eoss.ftep.rpc.catalogue.CatalogueServiceGrpc;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
@@ -182,25 +183,44 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
 
     @Override
     public void downloadFtepFile(FtepFileUri request, StreamObserver<FileStream> responseObserver) {
-        try {
-            FtepFile file = ftepFileDataService.getByUri(request.getUri());
-            Resource fileResource = getAsResource(file);
+        FtepFile file = ftepFileDataService.getByUri(request.getUri());
+        Resource fileResource = getAsResource(file);
 
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            try (ReadableByteChannel channel = Channels.newChannel(fileResource.getInputStream())) {
-                GrpcUtil.streamFile(responseObserver,
-                        fileResource.getFilename(),
-                        fileResource.contentLength(),
-                        channel
-                );
+        try (FileStreamServer fileStreamServer = new FileStreamServer(null, responseObserver) {
+            @Override
+            protected FileStream.FileMeta buildFileMeta() {
+                try {
+                    return FileStream.FileMeta.newBuilder()
+                            .setFilename(fileResource.getFilename())
+                            .setSize(fileResource.contentLength())
+                            .build();
+                } catch (IOException e) {
+                    throw new FileStreamIOException(e);
+                }
             }
-            LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), stopwatch.stop().elapsed());
 
-            responseObserver.onCompleted();
-        } catch (Exception e) {
+            @Override
+            protected ReadableByteChannel buildByteChannel() {
+                try {
+                    return Channels.newChannel(fileResource.getInputStream());
+                } catch (IOException e) {
+                    throw new FileStreamIOException(e);
+                }
+            }
+        }) {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            fileStreamServer.streamFile();
+            LOG.info("Transferred FtepFile {} ({} bytes) in {}", fileResource.getFilename(), fileResource.contentLength(), stopwatch.stop().elapsed());
+        } catch (IOException e) {
+            LOG.error("Failed to serve file download for {}", request.getUri(), e);
+            responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+        } catch (InterruptedException e) {
+            // Restore interrupted state
+            Thread.currentThread().interrupt();
             LOG.error("Failed to serve file download for {}", request.getUri(), e);
             responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
         }
+
     }
 
     @Override

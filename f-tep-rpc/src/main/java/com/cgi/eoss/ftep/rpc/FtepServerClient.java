@@ -28,6 +28,10 @@ public class FtepServerClient {
         return CatalogueServiceGrpc.newBlockingStub(getChannel());
     }
 
+    public CatalogueServiceGrpc.CatalogueServiceStub catalogueServiceStub() {
+        return CatalogueServiceGrpc.newStub(getChannel());
+    }
+
     private ManagedChannel getChannel() {
         ServiceInstance ftepServer = Iterables.getOnlyElement(discoveryClient.getInstances(ftepServerServiceId));
 

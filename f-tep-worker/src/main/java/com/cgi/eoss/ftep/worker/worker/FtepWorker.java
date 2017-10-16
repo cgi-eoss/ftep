@@ -6,6 +6,8 @@ import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.rpc.FileStream;
+import com.cgi.eoss.ftep.rpc.FileStreamIOException;
+import com.cgi.eoss.ftep.rpc.FileStreamServer;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
@@ -27,6 +29,17 @@ import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.BuildImageCmd;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.exception.BadRequestException;
+import com.github.dockerjava.api.exception.DockerClientException;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -46,17 +59,6 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.exception.BadRequestException;
-import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
-import com.github.dockerjava.core.command.WaitContainerResultCallback;
 
 import java.io.IOException;
 import java.net.URI;
@@ -366,24 +368,38 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void getOutputFile(GetOutputFileParam request, StreamObserver<FileStream> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            try {
-                Path outputFile = Paths.get(request.getPath());
-                long outputFileSize = Files.size(outputFile);
-                LOG.info("Returning output file from job {}: {} ({} bytes)", request.getJob().getId(), outputFile, outputFileSize);
-
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                try (ReadableByteChannel channel = Files.newByteChannel(outputFile, StandardOpenOption.READ)) {
-                    GrpcUtil.streamFile(
-                            responseObserver,
-                            outputFile.getFileName().toString(),
-                            outputFileSize,
-                            channel
-                    );
+            try (FileStreamServer fileStreamServer = new FileStreamServer(Paths.get(request.getPath()), responseObserver) {
+                @Override
+                protected FileStream.FileMeta buildFileMeta() {
+                    try {
+                        return FileStream.FileMeta.newBuilder()
+                                .setFilename(getInputPath().getFileName().toString())
+                                .setSize(Files.size(getInputPath()))
+                                .build();
+                    } catch (IOException e) {
+                        throw new FileStreamIOException(e);
+                    }
                 }
-                LOG.info("Transferred output file {} ({} bytes) in {}", outputFile.getFileName(), outputFileSize, stopwatch.stop().elapsed());
 
-                responseObserver.onCompleted();
-            } catch (Exception e) {
+                @Override
+                protected ReadableByteChannel buildByteChannel() {
+                    try {
+                        return Files.newByteChannel(getInputPath(), StandardOpenOption.READ);
+                    } catch (IOException e) {
+                        throw new FileStreamIOException(e);
+                    }
+                }
+            }) {
+                LOG.info("Returning output file from job {}: {} ({} bytes)", request.getJob().getId(), fileStreamServer.getInputPath(), fileStreamServer.getFileMeta().getSize());
+                Stopwatch stopwatch = Stopwatch.createStarted();
+                fileStreamServer.streamFile();
+                LOG.info("Transferred output file {} ({} bytes) in {}", fileStreamServer.getInputPath().getFileName(), fileStreamServer.getFileMeta().getSize(), stopwatch.stop().elapsed());
+            } catch (IOException e) {
+                LOG.error("Failed to collect output file: {}", request.toString(), e);
+                responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            } catch (InterruptedException e) {
+                // Restore interrupted state
+                Thread.currentThread().interrupt();
                 LOG.error("Failed to collect output file: {}", request.toString(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }

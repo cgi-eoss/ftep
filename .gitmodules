@@ -1,4 +1,4 @@
 [submodule "third-party/puppet/cgieoss-ftep"]
 	path = third-party/puppet/cgieoss-ftep
 	url = https://github.com/cgi-eoss/puppet-ftep.git
-	branch = development
+	branch = stable-1.2

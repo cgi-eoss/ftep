@@ -14,4 +14,13 @@ public class ServiceExecutionException extends RuntimeException {
         super(message);
     }
 
+    /**
+     * <p>Constructs a new service execution exception with the given detail message and cause.</p>
+     *
+     * @param message
+     * @param cause
+     */
+    public ServiceExecutionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -15,6 +15,7 @@ import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.Shapefile;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FileStream;
+import com.cgi.eoss.ftep.rpc.FileStreamClient;
 import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
@@ -48,6 +49,8 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.MoreFiles;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ClientCallStreamObserver;
+import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +62,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,11 +71,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -235,7 +239,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         }
     }
 
-    private Map<String, FtepFile> executeJob(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) throws IOException {
+    private Map<String, FtepFile> executeJob(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) throws IOException, InterruptedException {
         String zooId = job.getExtId();
         String userId = job.getOwner().getName();
         FtepService service = job.getConfig().getService();
@@ -388,49 +392,59 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         return outputsByRelativePath;
     }
 
-    private Map<String, FtepFile> repatriateAndIngestOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, Multimap<String, String> inputs, JobEnvironment jobEnvironment, Map<String, String> outputsByRelativePath) throws IOException {
+    private Map<String, FtepFile> repatriateAndIngestOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, Multimap<String, String> inputs, JobEnvironment jobEnvironment, Map<String, String> outputsByRelativePath) throws IOException, InterruptedException {
         BiMap<OutputProductMetadata, Path> outputProducts = HashBiMap.create(outputsByRelativePath.size());
         Map<String, FtepFile> outputFtepFiles = new HashMap<>(outputsByRelativePath.size());
 
         for (Map.Entry<String, String> output : outputsByRelativePath.entrySet()) {
             String outputId = output.getKey();
             String relativePath = output.getValue();
-
-            Iterator<FileStream> outputFile = worker.getOutputFile(GetOutputFileParam.newBuilder()
+            GetOutputFileParam getOutputFileParam = GetOutputFileParam.newBuilder()
                     .setJob(rpcJob)
                     .setPath(Paths.get(jobEnvironment.getOutputDir()).resolve(relativePath).toString())
-                    .build());
-
-            // First message is the file metadata
-            FileStream.FileMeta fileMeta = outputFile.next().getMeta();
-            LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
-
-            OutputProductMetadata outputProduct = OutputProductMetadata.builder()
-                    .owner(job.getOwner())
-                    .service(job.getConfig().getService())
-                    .outputId(outputId)
-                    .jobId(job.getExtId())
-                    .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
-                    .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
-                    .properties(new HashMap<>(ImmutableMap.<String, Object>builder()
-                            .put("jobId", job.getExtId())
-                            .put("intJobId", job.getId())
-                            .put("serviceName", job.getConfig().getService().getName())
-                            .put("jobOwner", job.getOwner().getName())
-                            .put("jobStartTime", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
-                            .put("jobEndTime", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
-                            .put("filename", fileMeta.getFilename())
-                            .build()))
                     .build();
 
-            // TODO Configure whether files need to be transferred via RPC or simply copied
-            Path outputPath = catalogueService.provisionNewOutputProduct(outputProduct, fileMeta.getFilename());
-            LOG.info("Writing output file for job {}: {}", job.getExtId(), outputPath);
-            try (BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath, CREATE, TRUNCATE_EXISTING, WRITE))) {
-                outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
-            }
+            FtepWorkerGrpc.FtepWorkerStub asyncWorker = FtepWorkerGrpc.newStub(worker.getChannel());
 
-            outputProducts.put(outputProduct, outputPath);
+            try (FileStreamClient<GetOutputFileParam> fileStreamClient = new FileStreamClient<GetOutputFileParam>() {
+                private OutputProductMetadata outputProduct;
+
+                @Override
+                public OutputStream buildOutputStream(FileStream.FileMeta fileMeta) throws IOException {
+                    LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
+
+                    this.outputProduct = OutputProductMetadata.builder()
+                            .owner(job.getOwner())
+                            .service(job.getConfig().getService())
+                            .outputId(outputId)
+                            .jobId(job.getExtId())
+                            .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
+                            .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
+                            .properties(new HashMap<>(ImmutableMap.<String, Object>builder()
+                                    .put("jobId", job.getExtId())
+                                    .put("intJobId", job.getId())
+                                    .put("serviceName", job.getConfig().getService().getName())
+                                    .put("jobOwner", job.getOwner().getName())
+                                    .put("jobStartTime", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
+                                    .put("jobEndTime", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
+                                    .put("filename", fileMeta.getFilename())
+                                    .build()))
+                            .build();
+
+                    setOutputPath(catalogueService.provisionNewOutputProduct(outputProduct, fileMeta.getFilename()));
+                    LOG.info("Writing output file for job {}: {}", job.getExtId(), getOutputPath());
+                    return new BufferedOutputStream(Files.newOutputStream(getOutputPath(), CREATE, TRUNCATE_EXISTING, WRITE));
+                }
+
+                @Override
+                public void onCompleted() {
+                    super.onCompleted();
+                    outputProducts.put(outputProduct, getOutputPath());
+                }
+            }) {
+                asyncWorker.getOutputFile(getOutputFileParam, fileStreamClient.getFileStreamObserver());
+                fileStreamClient.getLatch().await();
+            }
         }
 
         postProcessOutputProducts(outputProducts).forEach(Unchecked.biConsumer(

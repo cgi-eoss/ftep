@@ -1,6 +1,8 @@
 package com.cgi.eoss.ftep.io.download;
 
+import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.rpc.FileStream;
+import com.cgi.eoss.ftep.rpc.FileStreamClient;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetServiceContextFilesParams;
 import com.cgi.eoss.ftep.rpc.ServiceContextFiles;
@@ -10,6 +12,9 @@ import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import lombok.extern.log4j.Log4j2;
@@ -20,12 +25,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.ZoneOffset;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,22 +115,26 @@ public class FtepDownloader implements Downloader {
     }
 
     private Path downloadFtepFile(Path targetDir, URI uri) throws IOException {
-        CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
+        FtepFileUri ftepFileUri = FtepFileUri.newBuilder().setUri(uri.toString()).build();
 
-        Iterator<FileStream> outputFile = catalogueService.downloadFtepFile(FtepFileUri.newBuilder().setUri(uri.toString()).build());
+        CatalogueServiceGrpc.CatalogueServiceStub catalogueService = ftepServerClient.catalogueServiceStub();
 
-        // First message is the file metadata
-        FileStream.FileMeta fileMeta = outputFile.next().getMeta();
-
-        // TODO Configure whether files need to be transferred via RPC or simply copied
-        Path outputPath = targetDir.resolve(fileMeta.getFilename());
-        LOG.info("Transferring FtepFile ({} bytes) to {}", fileMeta.getSize(), outputPath);
-
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath, CREATE, TRUNCATE_EXISTING, WRITE))) {
-            outputFile.forEachRemaining(Unchecked.consumer(of -> of.getChunk().getData().writeTo(outputStream)));
+        try (FileStreamClient<FtepFileUri> fileStreamClient = new FileStreamClient<FtepFileUri>() {
+            @Override
+            public OutputStream buildOutputStream(FileStream.FileMeta fileMeta) throws IOException {
+                setOutputPath(targetDir.resolve(fileMeta.getFilename()));
+                LOG.info("Transferring FtepFile ({} bytes) to {}", fileMeta.getSize(), getOutputPath());
+                return new BufferedOutputStream(Files.newOutputStream(getOutputPath(), CREATE, TRUNCATE_EXISTING, WRITE));
+            }
+        }) {
+            catalogueService.downloadFtepFile(ftepFileUri, fileStreamClient.getFileStreamObserver());
+            fileStreamClient.getLatch().await();
+            return fileStreamClient.getOutputPath();
+        } catch (InterruptedException e) {
+            // Restore interrupted state, then re-throw
+            Thread.currentThread().interrupt();
+            throw new IOException(e);
         }
-
-        return outputPath;
     }
 
     private Path downloadDatabasket(Path targetDir, URI uri) {

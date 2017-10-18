@@ -496,7 +496,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             }
 
             // Build image
-            LOG.info("Building Docker image '{}' for service {}", dockerImage, serviceName);
+            try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                LOG.info("Building Docker image '{}' for service {}", dockerImage, serviceName);
+            }
             BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
                     .withRemove(true)
                     .withBaseDirectory(serviceContext.toFile())
@@ -513,9 +515,15 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             // Tag image with desired image name
             LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImage);
         } catch (ServiceIoException e) {
+            try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                LOG.error("Failed to retrieve Docker context files for service {}", serviceName);
+            }
             LOG.error("Failed to retrieve Docker context files for service {}", serviceName, e);
             throw e;
         } catch (IOException e) {
+            try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                LOG.error("Failed to build Docker context for service {}: {}", serviceName, e.getMessage());
+            }
             LOG.error("Failed to build Docker context for service {}", serviceName, e);
             throw e;
         }

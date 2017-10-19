@@ -21,10 +21,7 @@ import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableList;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
@@ -43,7 +40,6 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapt
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
@@ -168,32 +164,6 @@ public class ApiConfig {
             httpSecurity
                     .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        }
-    }
-
-    // Spring Security configuration for actuator endpoints
-    // TODO Compose the role-based security in here
-    @Component
-    @ConditionalOnBean(ManagementServerProperties.class)
-    @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
-    public static class ManagementSecurityConfigurer extends WebSecurityConfigurerAdapter {
-
-        private final ManagementServerProperties managementServerProperties;
-
-        @Autowired
-        public ManagementSecurityConfigurer(ManagementServerProperties managementServerProperties) {
-            this.managementServerProperties = managementServerProperties;
-        }
-
-        @Override
-        protected void configure(HttpSecurity httpSecurity) throws Exception {
-            ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry =
-                    httpSecurity.authorizeRequests();
-            if (!managementServerProperties.getSecurity().isEnabled()) {
-                expressionInterceptUrlRegistry
-                        .antMatchers(managementServerProperties.getContextPath() + "/**")
-                        .permitAll();
-            }
         }
     }
 

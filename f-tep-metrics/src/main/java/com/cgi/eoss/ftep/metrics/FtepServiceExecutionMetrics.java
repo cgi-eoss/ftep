@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.orchestrator.metrics;
+package com.cgi.eoss.ftep.metrics;
 
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
@@ -11,20 +11,20 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.boot.actuate.endpoint.PublicMetrics;
 import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-@Component
 public class FtepServiceExecutionMetrics implements PublicMetrics {
 
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
+
+    FtepServiceExecutionMetrics(EntityManager em) {
+        this.em = em;
+    }
 
     @Override
     @Transactional(readOnly = true)

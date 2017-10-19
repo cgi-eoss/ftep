@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.security.FtepUserDetailsService;
 import com.cgi.eoss.ftep.security.FtepWebAuthenticationDetailsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +27,8 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Configuration
 @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
@@ -56,13 +60,17 @@ public class ApiSecurityDevConfig {
     @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
     public static class ApiDevSecurityConfigurer extends WebSecurityConfigurerAdapter {
+
+        private final ManagementServerProperties managementServerProperties;
         private final String usernameRequestHeader;
         private final String emailRequestHeader;
 
         @Autowired
         public ApiDevSecurityConfigurer(
+                Optional<ManagementServerProperties> managementServerProperties,
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
                 @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
+            this.managementServerProperties = managementServerProperties.orElse(null);
             this.usernameRequestHeader = usernameRequestHeader;
             this.emailRequestHeader = emailRequestHeader;
         }
@@ -96,6 +104,13 @@ public class ApiSecurityDevConfig {
             httpSecurity
                     .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        }
+
+        @Override
+        public void configure(WebSecurity web) throws Exception {
+            if (managementServerProperties != null && !managementServerProperties.getSecurity().isEnabled()) {
+                web.ignoring().antMatchers(managementServerProperties.getContextPath() + "/**");
+            }
         }
     }
 

@@ -231,11 +231,11 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         addInteraction();
 
         $scope.setMapType = function(newType) {
-            if(newType === 'OSM') {
+            if(newType === 'OSM' && $scope.mapType.active !== "Open Street") {
                 $scope.map.removeLayer(layerMapBox);
                 $scope.map.getLayers().insertAt(0, layerOSM);
                 $scope.mapType.active = "Open Street";
-            } else if (newType === 'MB') {
+            } else if (newType === 'MB' &&  $scope.mapType.active !== "MapBox") {
                 $scope.map.removeLayer(layerOSM);
                 $scope.map.getLayers().insertAt(0, layerMapBox);
                 $scope.mapType.active = "MapBox";

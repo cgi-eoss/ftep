@@ -2,11 +2,9 @@ package com.cgi.eoss.ftep.metrics;
 
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
-import com.cgi.eoss.ftep.model.QJob;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.boot.actuate.endpoint.PublicMetrics;
@@ -14,9 +12,15 @@ import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import static com.cgi.eoss.ftep.model.QJob.job;
 
 public class FtepServiceExecutionMetrics implements PublicMetrics {
 
@@ -31,36 +35,51 @@ public class FtepServiceExecutionMetrics implements PublicMetrics {
     public Collection<Metric<?>> metrics() {
         Collection<Metric<?>> metrics = new HashSet<>();
 
-        JPAQuery<Job> query = new JPAQuery<>(em);
-
-        List<Tuple> totalCounts = query.from(QJob.job)
-                .select(Projections.tuple(QJob.job.status, Wildcard.count))
-                .groupBy(QJob.job.status)
-                .fetch();
-        for (Job.Status status : Job.Status.values()) {
-            metrics.add(new Metric<>("ftep.jobs.total." + status.name().toLowerCase(), getTupleElement(totalCounts, QJob.job.status.eq(status), Wildcard.count, 0L)));
-        }
-
-        List<Tuple> serviceTypeCounts = query.from(QJob.job)
-                .select(Projections.tuple(QJob.job.config.service.type, QJob.job.status, Wildcard.count))
-                .groupBy(QJob.job.config.service.type, QJob.job.status)
-                .fetch();
-        for (FtepService.Type type : FtepService.Type.values()) {
-            for (Job.Status status : Job.Status.values()) {
-                metrics.add(new Metric<>("ftep.jobs." + type.name().toLowerCase() + "." + status.name().toLowerCase(),
-                        getTupleElement(serviceTypeCounts, QJob.job.config.service.type.eq(type).and(QJob.job.status.eq(status)), Wildcard.count, 0L)));
-            }
-        }
+        addJobStatusMetrics(metrics);
 
         return metrics;
     }
 
-    private <T> T getTupleElement(Collection<Tuple> tuple, BooleanExpression keySelector, Expression<T> valueSelector, T defaultValue) {
+    private void addJobStatusMetrics(Collection<Metric<?>> metrics) {
+        JPAQuery<Job> query = new JPAQuery<>(em);
+
+        List<Tuple> totalCounts = query.from(job)
+                .select(Projections.tuple(job.config.service.type, job.status, Wildcard.count))
+                .groupBy(job.config.service.type, job.status)
+                .fetch();
+
+        List<Tuple> d90Counts = query.from(job)
+                .select(Projections.tuple(job.config.service.type, job.status, Wildcard.count))
+                .where(job.startTime.gt(LocalDateTime.now(ZoneOffset.UTC).minusDays(90)))
+                .groupBy(job.config.service.type, job.status)
+                .fetch();
+
+        List<Tuple> d30Counts = query.from(job)
+                .select(Projections.tuple(job.config.service.type, job.status, Wildcard.count))
+                .where(job.startTime.gt(LocalDateTime.now(ZoneOffset.UTC).minusDays(30)))
+                .groupBy(job.config.service.type, job.status)
+                .fetch();
+
+        for (Job.Status status : Job.Status.values()) {
+            Predicate<Tuple> statusPredicate = t -> t.get(job.status) == status;
+            metrics.add(new Metric<>("ftep.jobs.total." + status.name().toLowerCase(), getTupleCount(totalCounts, statusPredicate, Wildcard.count)));
+            metrics.add(new Metric<>("ftep.jobs.total.90d." + status.name().toLowerCase(), getTupleCount(d90Counts, statusPredicate, Wildcard.count)));
+            metrics.add(new Metric<>("ftep.jobs.total.30d." + status.name().toLowerCase(), getTupleCount(d30Counts, statusPredicate, Wildcard.count)));
+
+            for (FtepService.Type type : FtepService.Type.values()) {
+                Predicate<Tuple> serviceTypePredicate = statusPredicate.and(t -> t.get(job.config.service.type) == type);
+                metrics.add(new Metric<>("ftep.jobs." + type.name().toLowerCase() + "." + status.name().toLowerCase(), getTupleCount(totalCounts, serviceTypePredicate, Wildcard.count)));
+                metrics.add(new Metric<>("ftep.jobs." + type.name().toLowerCase() + ".90d." + status.name().toLowerCase(), getTupleCount(d90Counts, serviceTypePredicate, Wildcard.count)));
+                metrics.add(new Metric<>("ftep.jobs." + type.name().toLowerCase() + ".30d." + status.name().toLowerCase(), getTupleCount(d30Counts, serviceTypePredicate, Wildcard.count)));
+            }
+        }
+    }
+
+    private long getTupleCount(Collection<Tuple> tuple, Predicate<? super Tuple> keyPredicate, NumberExpression<Long> valueSelector) {
         return tuple.stream()
-                .filter(t -> t.get(keySelector))
-                .findFirst()
-                .map(t -> t.get(valueSelector))
-                .orElse(defaultValue);
+                .filter(keyPredicate)
+                .mapToLong(t -> Optional.ofNullable(t.get(valueSelector)).orElse(0L))
+                .sum();
     }
 
 }

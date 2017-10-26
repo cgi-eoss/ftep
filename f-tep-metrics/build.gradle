@@ -13,4 +13,10 @@ dependencies {
 
     compile 'com.google.guava:guava'
     compile 'org.springframework.boot:spring-boot-actuator'
+
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.springframework:spring-test'
+
+    testRuntime 'org.hsqldb:hsqldb'
 }

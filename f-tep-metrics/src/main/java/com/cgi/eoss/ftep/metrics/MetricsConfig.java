@@ -18,4 +18,9 @@ public class MetricsConfig {
         return new FtepServiceExecutionMetrics(em);
     }
 
+    @Bean
+    public FtepUserMetrics ftepUserMetrics(EntityManager em) {
+        return new FtepUserMetrics(em);
+    }
+
 }

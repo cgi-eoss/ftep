@@ -49,7 +49,8 @@ public class FtepServiceExecutionMetricsTest {
     private JobDataService jobDataService;
 
     private List<User> users = Lists.newArrayList(
-            new User("user-1")
+            new User("user-1"),
+            new User("user-2")
     );
 
     private List<FtepService> services = Lists.newArrayList(
@@ -66,7 +67,7 @@ public class FtepServiceExecutionMetricsTest {
 
     private List<Job> jobs = Lists.newArrayList(
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.CREATED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
-            newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
+            newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(1), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.RUNNING, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.CANCELLED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
@@ -165,6 +166,10 @@ public class FtepServiceExecutionMetricsTest {
         assertThat(metrics.get("ftep.jobs.total.created"), is(3));
         assertThat(metrics.get("ftep.jobs.total.error"), is(9));
         assertThat(metrics.get("ftep.jobs.total.running"), is(3));
+
+        assertThat(metrics.get("ftep.jobs.unique-users"), is(2));
+        assertThat(metrics.get("ftep.jobs.unique-users.90d"), is(1));
+        assertThat(metrics.get("ftep.jobs.unique-users.30d"), is(1));
     }
 
     private FtepService newService(String name, User user, FtepService.Type type) {

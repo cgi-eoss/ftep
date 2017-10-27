@@ -120,7 +120,9 @@ public class JobsApiExtension {
                     loadGraylogMessages(messages, graylogApiUrl.newBuilder().setQueryParameter("offset", String.valueOf(messages.size())).build());
                 }
             } else {
-                LOG.error("Failed to retrieve logs: {} -- {}", response.code(), response.message());
+                if (response.code() != 503) {
+                    LOG.error("Failed to retrieve logs: {} -- {}", response.code(), response.message());
+                }
                 LOG.debug("Graylog response: {}", response.body());
             }
         }

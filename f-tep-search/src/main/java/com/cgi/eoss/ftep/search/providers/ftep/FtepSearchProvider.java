@@ -22,6 +22,7 @@ import org.springframework.hateoas.Link;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -32,9 +33,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+
 @Log4j2
 public class FtepSearchProvider extends RestoSearchProvider {
 
+    private static final String FTEP_PRODUCTS = "FTEP_PRODUCTS";
+    private static final String REF_DATA = "REF_DATA";
     private final int priority;
     private final CatalogueService catalogueService;
     private final RestoService restoService;
@@ -71,15 +76,43 @@ public class FtepSearchProvider extends RestoSearchProvider {
 
         parameters.getValue("identifier").ifPresent(s -> queryParameters.put("productIdentifier", "%" + s + "%"));
         parameters.getValue("aoi").ifPresent(s -> queryParameters.put("geometry", s));
-        parameters.getValue("owner").ifPresent(s -> queryParameters.put("owner", s));
+        parameters.getValue("owner").ifPresent(s -> addOwnerParameter(parameters, queryParameters, s));
+        parameters.getValue("productDateStart").ifPresent(s -> addProductStartDateParameter(parameters, queryParameters, s));
+        parameters.getValue("productDateEnd").ifPresent(s -> addProductEndDateParameter(parameters, queryParameters, s));
 
         return queryParameters;
+    }
+
+    private void addOwnerParameter(SearchParameters parameters, Map<String, String> queryParameters, String value) {
+        if (FTEP_PRODUCTS.equals(parameters.getValue("catalogue", ""))) {
+            queryParameters.put("job:owner", value);
+        } else {
+            queryParameters.put("refData:owner", value);
+        }
+    }
+
+    private void addProductStartDateParameter(SearchParameters parameters, Map<String, String> queryParameters, String value) {
+        String dateTime = ISO_DATE_TIME.format(LocalDate.from(ISO_DATE_TIME.parse(value)).atStartOfDay(ZoneOffset.UTC));
+        if (FTEP_PRODUCTS.equals(parameters.getValue("catalogue", ""))) {
+            queryParameters.put("job:startDateAfter", dateTime);
+        } else {
+            queryParameters.put("publishedAfter", dateTime);
+        }
+    }
+
+    private void addProductEndDateParameter(SearchParameters parameters, Map<String, String> queryParameters, String value) {
+        String dateTime = ISO_DATE_TIME.format(LocalDate.from(ISO_DATE_TIME.parse(value)).plusDays(1).atStartOfDay(ZoneOffset.UTC));
+        if (FTEP_PRODUCTS.equals(parameters.getValue("catalogue", ""))) {
+            queryParameters.put("job:startDateBefore", dateTime);
+        } else {
+            queryParameters.put("publishedBefore", dateTime);
+        }
     }
 
     @Override
     public boolean supports(SearchParameters parameters) {
         String catalogue = parameters.getValue("catalogue", "UNKNOWN");
-        return catalogue.equals("REF_DATA") || catalogue.equals("FTEP_PRODUCTS");
+        return catalogue.equals(REF_DATA) || catalogue.equals(FTEP_PRODUCTS);
     }
 
     @Override
@@ -104,9 +137,9 @@ public class FtepSearchProvider extends RestoSearchProvider {
     @Override
     protected String getCollection(SearchParameters parameters) {
         switch (parameters.getValue("catalogue").orElse("")) {
-            case "REF_DATA":
+            case REF_DATA:
                 return restoService.getReferenceDataCollection();
-            case "FTEP_PRODUCTS":
+            case FTEP_PRODUCTS:
                 return restoService.getOutputProductsCollection();
             default:
                 throw new IllegalArgumentException("Could not identify Resto collection for repo type: " + parameters.getValue("catalogue"));
@@ -133,7 +166,8 @@ public class FtepSearchProvider extends RestoSearchProvider {
                     ftepUsable = securityService.isReadableByCurrentUser(FtepFile.class, ftepFile.getId());
                     ftepUri = ftepFile.getUri();
                     featureLinks.add(new Link(ftepUri.toASCIIString(), "ftep"));
-                    filesize = ftepFile.getFilesize();
+                    filesize = Optional.ofNullable(ftepFile.getFilesize())
+                            .orElseGet(() -> (Long) ((Map<String, Map<String, Object>>) f.getProperties().get("services")).get("download").get("size"));
 
                     if (ftepUsable) {
                         HttpUrl.Builder downloadUrlBuilder = parameters.getRequestUrl().newBuilder();
@@ -159,11 +193,11 @@ public class FtepSearchProvider extends RestoSearchProvider {
 
             Map<String, Object> extraParams = Optional.ofNullable((Map<String, Object>) f.getProperties().get("extraParams")).orElse(new HashMap<>());
 
-            if (results.getParameters().getValue("catalogue", "").equals("REF_DATA")) {
+            if (results.getParameters().getValue("catalogue", "").equals(REF_DATA)) {
                 // Reference data timestamp is just the publish time
                 extraParams.put("ftepStartTime", ZonedDateTime.parse(f.getProperty("published")).with(ZoneOffset.UTC).toLocalDateTime());
                 extraParams.put("ftepEndTime", ZonedDateTime.parse(f.getProperty("published")).with(ZoneOffset.UTC).toLocalDateTime());
-            } else if (results.getParameters().getValue("catalogue", "").equals("FTEP_PRODUCTS")) {
+            } else if (results.getParameters().getValue("catalogue", "").equals(FTEP_PRODUCTS)) {
                 // F-TEP products should have jobStart/EndDate
                 extraParams.put("ftepStartTime", ZonedDateTime.parse(f.getProperty("jobStartDate")).with(ZoneOffset.UTC).toLocalDateTime());
                 extraParams.put("ftepEndTime", ZonedDateTime.parse(f.getProperty("jobEndDate")).with(ZoneOffset.UTC).toLocalDateTime());

@@ -61,6 +61,8 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
 
         Map<String, Object> properties = new HashMap<>();
 
+        long filesize = Files.size(dest);
+
         // Add automatically-determined properties
         properties.put("productIdentifier", owner.getName() + "_" + filename);
         properties.put("owner", owner.getName());
@@ -68,7 +70,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
         properties.put("ftepUrl", uri);
         // TODO Get the proper MIME type
         properties.put("resourceMimeType", "application/unknown");
-        properties.put("resourceSize", Files.size(dest));
+        properties.put("resourceSize", filesize);
         properties.put("resourceChecksum", "sha256=" + MoreFiles.asByteSource(dest).hash(Hashing.sha256()));
         // TODO Validate extra properties?
         properties.put("extraParams", jsonMapper.writeValueAsString(userProperties));
@@ -92,6 +94,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
         ftepFile.setOwner(owner);
         ftepFile.setType(FtepFile.Type.REFERENCE_DATA);
         ftepFile.setFilename(referenceDataBasedir.relativize(dest).toString());
+        ftepFile.setFilesize(filesize);
         return ftepFile;
     }
 

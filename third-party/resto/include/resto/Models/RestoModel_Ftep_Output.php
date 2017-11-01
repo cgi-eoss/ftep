@@ -77,38 +77,6 @@ class RestoModel_Ftep_Output extends RestoModel
             'operation' => '=',
             'title'     => 'Identifier of the output product',
         ),
-        'jobId'             => array(
-            'name'      => 'jobId',
-            'type'      => 'TEXT',
-            'osKey'     => 'jobId',
-            'key'       => 'jobId',
-            'operation' => '=',
-            'title'     => 'Identifier of the job',
-        ),
-        'intJobId'          => array(
-            'name'      => 'intJobId',
-            'type'      => 'INTEGER',
-            'osKey'     => 'intJobId',
-            'key'       => 'intJobId',
-            'operation' => '=',
-            'title'     => 'Identifier of the job',
-        ),
-        'serviceName'       => array(
-            'name'      => 'serviceName',
-            'type'      => 'TEXT',
-            'osKey'     => 'serviceName',
-            'key'       => 'serviceName',
-            'operation' => '=',
-            'title'     => 'Identifier of the serviceName',
-        ),
-        'jobOwner'          => array(
-            'name'      => 'jobOwner',
-            'type'      => 'TEXT',
-            'osKey'     => 'jobOwner',
-            'key'       => 'jobOwner',
-            'operation' => '=',
-            'title'     => 'Owner of the job',
-        ),
         'jobStartDate'      => array(
             'name'  => 'jobStartDate',
             'type'  => 'TIMESTAMP',
@@ -140,6 +108,46 @@ class RestoModel_Ftep_Output extends RestoModel
             'key'       => 'ftepparam',
             'operation' => '@>',
         ),
+
+        'job:owner'           => array(
+            'key'       => 'jobOwner',
+            'osKey'     => 'job:owner',
+            'operation' => '=',
+            'title'     => 'Owner of the job',
+        ),
+        'job:id'              => array(
+            'key'       => 'jobId',
+            'osKey'     => 'job:id',
+            'operation' => '=',
+            'title'     => 'Identifier of the job',
+        ),
+        'job:integerId'       => array(
+            'key'       => 'intJobId',
+            'osKey'     => 'job:integerId',
+            'operation' => '=',
+            'title'     => 'Identifier of the job',
+        ),
+        'job:serviceName'     => array(
+            'key'       => 'serviceName',
+            'osKey'     => 'job:serviceName',
+            'operation' => '=',
+            'title'     => 'Identifier of the serviceName',
+        ),
+        'job:startDateAfter'  => array(
+            'key'       => 'jobStartDate',
+            'osKey'     => 'job:startDateAfter',
+            'operation' => '>=',
+            'title'     => 'Beginning of the time slice of the search query for job start date. Format should follow RFC-3339',
+            'pattern'   => '^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(|Z|[\+\-][0-9]{2}:[0-9]{2}))?$'
+        ),
+        'job:startDateBefore' => array(
+            'key'       => 'jobStartDate',
+            'osKey'     => 'job:startDateBefore',
+            'operation' => '<=',
+            'title'     => 'End of the time slice of the search query for job start date. Format should follow RFC-3339',
+            'pattern'   => '^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?(|Z|[\+\-][0-9]{2}:[0-9]{2}))?$'
+        ),
+
     );
 
     /*

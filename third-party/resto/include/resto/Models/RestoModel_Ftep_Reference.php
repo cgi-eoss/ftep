@@ -47,14 +47,6 @@ class RestoModel_Ftep_Reference extends RestoModel
             'operation' => '=',
             'title'     => 'Identifier of the reference data',
         ),
-        'owner'             => array(
-            'name'      => 'owner',
-            'type'      => 'TEXT',
-            'osKey'     => 'owner',
-            'key'       => 'owner',
-            'operation' => '=',
-            'title'     => 'Owner of the reference data',
-        ),
         'filename'          => array(
             'name'      => 'filename',
             'type'      => 'TEXT',
@@ -70,6 +62,14 @@ class RestoModel_Ftep_Reference extends RestoModel
             'key'       => 'ftepparam',
             'operation' => '@>',
         ),
+
+        'refData:owner'          => array(
+            'key'       => 'owner',
+            'osKey'     => 'refData:owner',
+            'operation' => '=',
+            'title'     => 'Owner of the reference data',
+        ),
+
     );
 
     /*

@@ -90,8 +90,8 @@ public abstract class FileStreamClient<T extends Message> implements Closeable {
 
         @Override
         public void onCompleted() {
-            latch.countDown();
             FileStreamClient.this.onCompleted();
+            latch.countDown();
         }
 
         private void setOutputStream(OutputStream outputStream) {

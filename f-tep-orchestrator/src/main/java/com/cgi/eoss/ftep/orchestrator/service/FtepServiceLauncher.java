@@ -49,8 +49,6 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.MoreFiles;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.ClientCallStreamObserver;
-import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +73,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -384,6 +381,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                 if (relativePath.isPresent()) {
                     outputsByRelativePath.put(expectedOutputId, relativePath.get());
                 } else {
+                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                        LOG.info("Service defined output with ID '{}' but no matching directory was found in the job outputs", expectedOutputId);
+                    }
                     throw new ServiceExecutionException(String.format("Did not find expected single output for '%s' in outputs list: %s", expectedOutputId, relativePaths));
                 }
             }
@@ -411,7 +411,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
                 @Override
                 public OutputStream buildOutputStream(FileStream.FileMeta fileMeta) throws IOException {
-                    LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
+                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                        LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
+                    }
 
                     this.outputProduct = OutputProductMetadata.builder()
                             .owner(job.getOwner())
@@ -438,17 +440,27 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
                 @Override
                 public void onCompleted() {
-                    super.onCompleted();
+                    LOG.info("Completed writing output file for job {}: {}", job.getExtId(), getOutputPath());
                     outputProducts.put(outputProduct, getOutputPath());
                 }
             }) {
                 asyncWorker.getOutputFile(getOutputFileParam, fileStreamClient.getFileStreamObserver());
                 fileStreamClient.getLatch().await();
+                LOG.info("Retrieved output for job {}: {}", job.getExtId(), output.getKey());
             }
         }
 
+        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+            LOG.info("Retrieved all outputs for job {}: {}", job.getExtId(), outputsByRelativePath.keySet());
+        }
+
         postProcessOutputProducts(outputProducts).forEach(Unchecked.biConsumer(
-                (outputProduct, outputPath) -> outputFtepFiles.put(outputProduct.getOutputId(), catalogueService.ingestOutputProduct(outputProduct, outputPath))
+                (outputProduct, outputPath) -> {
+                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                        LOG.info("Ingesting output file to F-TEP catalogue: {}", outputProduct.getOutputId());
+                    }
+                    outputFtepFiles.put(outputProduct.getOutputId(), catalogueService.ingestOutputProduct(outputProduct, outputPath));
+                }
         ));
 
         return outputFtepFiles;

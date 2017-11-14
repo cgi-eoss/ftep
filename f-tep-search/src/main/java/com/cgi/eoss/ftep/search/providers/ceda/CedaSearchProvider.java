@@ -284,7 +284,10 @@ public class CedaSearchProvider implements SearchProvider {
         if (page.getNumber() < page.getTotalPages() - 1) {
             links.put("next", getPageLink("next", requestUrl, page.getNumber() + 1));
         }
-        links.put("last", getPageLink("last", requestUrl, page.getTotalPages() - 1));
+        // CEDA is limited to the 10,000th result - server side - so set the last page link to this page
+        long lastPage = (10000 / page.getSize()) - 1;
+        LOG.debug("CEDA returned {} pages of results, but linking clients to {}", page.getTotalPages() - 1, lastPage);
+        links.put("last", getPageLink("last", requestUrl, lastPage));
         return links;
     }
 

@@ -8,7 +8,6 @@ import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
 import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
@@ -39,17 +38,12 @@ public class ServiceInputOutputManagerImpl implements ServiceInputOutputManager 
 
     @Override
     public void prepareInput(Path target, Collection<URI> uris) throws IOException {
-        if (uris.size() == 1) {
-            // Single URI, download directly to the targetDir
-            downloaderFacade.download(Iterables.getOnlyElement(uris), target);
-        } else {
-            // Multiple URIs, download to a subdir named after the filename portion of the URI
-            Files.createDirectories(target);
-            Map<URI, Optional<Path>> inputs = uris.stream().collect(Collectors.toMap(
-                    uri -> uri,
-                    uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()))))));
-            downloaderFacade.download(inputs);
-        }
+        // Multiple URIs, download to a subdir named after the filename portion of the URI
+        Files.createDirectories(target);
+        Map<URI, Optional<Path>> inputs = uris.stream().collect(Collectors.toMap(
+                uri -> uri,
+                uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()))))));
+        downloaderFacade.download(inputs);
     }
 
     @Override

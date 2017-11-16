@@ -154,20 +154,22 @@ public class ServiceInputOutputManagerImplTest {
                 "/cache/" + httpzipUriHash + "/file1"
         )));
 
-        assertThat(Files.isSymbolicLink(workDir.resolve("ftptxt")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("ftptxt")), is(cacheDir.resolve(ftptxtUriHash)));
-        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip")), is(cacheDir.resolve(httpzipUriHash)));
+        assertThat(Files.isSymbolicLink(workDir.resolve("ftptxt").resolve("testfile")), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("ftptxt").resolve("testfile")), is(cacheDir.resolve(ftptxtUriHash)));
+        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(cacheDir.resolve(httpzipUriHash)));
 
         Set<String> result = Files.walk(workDir, FOLLOW_LINKS).map(Path::toString).collect(Collectors.toSet());
         assertThat(result, is(ImmutableSet.of(
                 "/work",
                 "/work/ftptxt",
-                "/work/ftptxt/.uri",
-                "/work/ftptxt/testfile.txt",
+                "/work/ftptxt/testfile",
+                "/work/ftptxt/testfile/.uri",
+                "/work/ftptxt/testfile/testfile.txt",
                 "/work/httpzip",
-                "/work/httpzip/.uri",
-                "/work/httpzip/file1",
+                "/work/httpzip/singleFile",
+                "/work/httpzip/singleFile/.uri",
+                "/work/httpzip/singleFile/file1",
                 "/work/multi",
                 "/work/multi/testfile",
                 "/work/multi/testfile/.uri",
@@ -176,8 +178,8 @@ public class ServiceInputOutputManagerImplTest {
                 "/work/multi/singleFile/.uri",
                 "/work/multi/singleFile/file1"
         )));
-        assertThat(Files.readAllLines(workDir.resolve("ftptxt/.uri")), is(ImmutableList.of(ftptxtUri)));
-        assertThat(Files.readAllLines(workDir.resolve("httpzip/.uri")), is(ImmutableList.of(httpzipUri)));
+        assertThat(Files.readAllLines(workDir.resolve("ftptxt/testfile/.uri")), is(ImmutableList.of(ftptxtUri)));
+        assertThat(Files.readAllLines(workDir.resolve("httpzip/singleFile/.uri")), is(ImmutableList.of(httpzipUri)));
     }
 
     @Test
@@ -190,8 +192,8 @@ public class ServiceInputOutputManagerImplTest {
         ioManager.prepareInput(firstTarget, ImmutableSet.of(uri));
         ioManager.prepareInput(secondTarget, ImmutableSet.of(uri));
 
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-1")), is(cacheDir.resolve(hash(uri))));
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-2")), is(cacheDir.resolve(hash(uri))));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-1").resolve("singleFile")), is(cacheDir.resolve(hash(uri))));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-2").resolve("singleFile")), is(cacheDir.resolve(hash(uri))));
 
         assertThat(webServer.getRequestCount(), is(1));
     }

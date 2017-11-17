@@ -2,7 +2,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 group 'com.cgi.eoss.f-tep'
-version '1.3.0-SNAPSHOT'
+version '1.3.0'
 
 // This pattern allows us to override the URLs from init.gradle or gradle.properties
 ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://jcenter.bintray.com'

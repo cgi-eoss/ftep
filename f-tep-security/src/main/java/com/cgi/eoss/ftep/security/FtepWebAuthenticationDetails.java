@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 public class FtepWebAuthenticationDetails extends WebAuthenticationDetails {
     private String userEmail;
 
+    private String userOrganisation;
+
     /**
      * Records the remote address and will also set the session Id if a session already
      * exists (it won't create one).
@@ -23,5 +25,13 @@ public class FtepWebAuthenticationDetails extends WebAuthenticationDetails {
 
     public String getUserEmail() {
         return userEmail;
+    }
+
+    public void setUserOrganisation(String userOrganisation) {
+        this.userOrganisation = userOrganisation;
+    }
+
+    public String getUserOrganisation() {
+        return userOrganisation;
     }
 }

@@ -84,6 +84,12 @@ public class User implements FtepEntity<User>, Searchable {
     private Set<Group> groups = new HashSet<>();
 
     /**
+     * <p>The user's associated organisation as provided by the SP.</p>
+     */
+    @Column(name = "organisation", nullable = true)
+    private String organisation;
+
+    /**
      * Create a new User instance with the minimum required parameters
      *
      * @param name Account name of the user, as returned from the SSO SP.

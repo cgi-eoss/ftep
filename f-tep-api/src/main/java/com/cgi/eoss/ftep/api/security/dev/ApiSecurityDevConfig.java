@@ -64,15 +64,18 @@ public class ApiSecurityDevConfig {
         private final ManagementServerProperties managementServerProperties;
         private final String usernameRequestHeader;
         private final String emailRequestHeader;
+        private final String organisationRequestHeader;
 
         @Autowired
         public ApiDevSecurityConfigurer(
                 Optional<ManagementServerProperties> managementServerProperties,
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
-                @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader) {
+                @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader,
+                @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader) {
             this.managementServerProperties = managementServerProperties.orElse(null);
             this.usernameRequestHeader = usernameRequestHeader;
             this.emailRequestHeader = emailRequestHeader;
+            this.organisationRequestHeader = organisationRequestHeader;
         }
 
         @Override
@@ -84,7 +87,7 @@ public class ApiSecurityDevConfig {
             RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
             filter.setAuthenticationManager(authenticationManager());
             filter.setPrincipalEnvironmentVariable(usernameRequestHeader);
-            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader));
+            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader, organisationRequestHeader));
             filter.setExceptionIfVariableMissing(false);
 
             ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());

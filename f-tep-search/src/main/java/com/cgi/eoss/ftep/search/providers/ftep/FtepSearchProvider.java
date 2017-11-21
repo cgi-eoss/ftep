@@ -167,7 +167,7 @@ public class FtepSearchProvider extends RestoSearchProvider {
                     ftepUri = ftepFile.getUri();
                     featureLinks.add(new Link(ftepUri.toASCIIString(), "ftep"));
                     filesize = Optional.ofNullable(ftepFile.getFilesize())
-                            .orElseGet(() -> (Long) ((Map<String, Map<String, Object>>) f.getProperties().get("services")).get("download").get("size"));
+                            .orElseGet(() -> getRestoFilesize(f));
 
                     if (ftepUsable) {
                         HttpUrl.Builder downloadUrlBuilder = parameters.getRequestUrl().newBuilder();

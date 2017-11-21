@@ -9,6 +9,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.geojson.Feature;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -79,6 +80,16 @@ public abstract class RestoSearchProvider implements SearchProvider {
         }
         links.put("last", getPageLink("last", requestUrl, page.getTotalPages() - 1));
         return links;
+    }
+
+    protected static Long getRestoFilesize(Feature f) {
+        return ((Number)
+                ((Map<String, Object>)
+                    ((Map<String, Object>)
+                        f.getProperties().get("services"))
+                            .get("download")
+                ).get("size")
+            ).longValue();
     }
 
     protected abstract Map<String, SearchResults.Link> getLinks(HttpUrl requestUrl, SearchResults.Page page, RestoResult restoResult);

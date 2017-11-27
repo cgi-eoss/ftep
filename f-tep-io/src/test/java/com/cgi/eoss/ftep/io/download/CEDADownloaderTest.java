@@ -95,9 +95,9 @@ public class CEDADownloaderTest {
                 .password("ftppass")
                 .build());
 
-        this.dl = new CEDADownloader(this.webServer.url(""), "ftp://localhost:" + ftpServer.getServerControlPort(), new OkHttpClient.Builder().build(), downloaderFacade);
+        this.dl = new CEDADownloader(downloaderFacade, new OkHttpClient.Builder().build(), this.webServer.url(""), "ftp://localhost:" + ftpServer.getServerControlPort(), ProtocolPriority.builder().build());
 
-        new FtpDownloader(ftepServerClient, downloaderFacade).postConstruct();
+        new FtpDownloader(downloaderFacade, ftepServerClient).postConstruct();
     }
 
     @After

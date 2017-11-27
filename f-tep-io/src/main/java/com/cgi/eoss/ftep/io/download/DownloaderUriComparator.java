@@ -6,7 +6,7 @@ import java.util.Comparator;
 public final class DownloaderUriComparator implements Comparator<Downloader> {
     private final URI uri;
 
-    public DownloaderUriComparator(URI uri) {
+    DownloaderUriComparator(URI uri) {
         this.uri = uri;
     }
 

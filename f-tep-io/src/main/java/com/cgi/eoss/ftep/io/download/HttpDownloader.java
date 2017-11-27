@@ -16,8 +16,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,7 +28,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
 @Log4j2
 public class HttpDownloader implements Downloader {
 
@@ -41,14 +38,13 @@ public class HttpDownloader implements Downloader {
     private final OkHttpClient client;
     private final DownloaderFacade downloaderFacade;
 
-    @Autowired
-    public HttpDownloader(FtepServerClient ftepServerClient, OkHttpClient okHttpClient, DownloaderFacade downloaderFacade) {
+    public HttpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient, OkHttpClient okHttpClient) {
+        this.downloaderFacade = downloaderFacade;
         this.ftepServerClient = ftepServerClient;
         this.client = okHttpClient.newBuilder()
                 .authenticator(new FtepAuthenticator())
                 .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
-        this.downloaderFacade = downloaderFacade;
     }
 
     @PostConstruct

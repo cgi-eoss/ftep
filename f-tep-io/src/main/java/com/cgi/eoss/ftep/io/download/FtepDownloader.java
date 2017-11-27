@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.io.download;
 
-import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FileStreamClient;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
@@ -12,14 +11,10 @@ import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
-import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
-import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.lambda.Unchecked;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -31,10 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
-import java.time.ZoneOffset;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +42,6 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
-@Component
 @Log4j2
 public class FtepDownloader implements Downloader {
 
@@ -60,7 +51,7 @@ public class FtepDownloader implements Downloader {
     private final FtepServerClient ftepServerClient;
     private final DownloaderFacade downloaderFacade;
 
-    public FtepDownloader(FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade) {
+    public FtepDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient) {
         this.ftepServerClient = ftepServerClient;
         this.downloaderFacade = downloaderFacade;
     }

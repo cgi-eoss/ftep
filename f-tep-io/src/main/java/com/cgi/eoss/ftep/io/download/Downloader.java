@@ -19,7 +19,7 @@ public interface Downloader {
 
     /**
      * @return The priority this downloader should be take when processing the given URI. A downloader returning a
-     * higher value will be used in preference to one returning a lower value. Default priority is 0.
+     * lower value will be used in preference to one returning a higher value. Default priority is 0.
      */
     default int getPriority(URI uri) {
         return 0;

@@ -76,7 +76,7 @@ public class HttpDownloaderTest {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
         when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
-        this.dl = new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build(), new CachingSymlinkDownloaderFacade(cacheRoot));
+        this.dl = new HttpDownloader(new CachingSymlinkDownloaderFacade(cacheRoot), ftepServerClient, new OkHttpClient.Builder().build());
         this.dl.postConstruct();
     }
 

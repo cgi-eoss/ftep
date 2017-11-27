@@ -18,9 +18,6 @@ import okhttp3.Response;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -33,7 +30,6 @@ import java.util.Set;
  * <p>Downloader for accessing data from <a href="https://finder.eocloud.eu">EO Cloud</a>. Uses IPT's token
  * authentication process.</p>
  */
-@Component
 @Log4j2
 public class IptHttpDownloader implements Downloader {
 
@@ -41,18 +37,15 @@ public class IptHttpDownloader implements Downloader {
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
     private final DownloaderFacade downloaderFacade;
-    // TODO Add this to the credentials/datasource object (?)
-    @Value("${ftep.worker.downloader.ipt.authEndpoint:https://finder.eocloud.eu/resto/api/authidentity}")
-    private String authEndpoint;
-    // TODO Add this to the credentials/datasource object
-    @Value("${ftep.worker.downloader.ipt.authDomain:__secret__}")
-    private String authDomain;
+    private final String authEndpoint;
+    private final String authDomain;
 
-    @Autowired
-    IptHttpDownloader(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade) {
+    public IptHttpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient, OkHttpClient okHttpClient, String authEndpoint, String authDomain) {
         this.client = okHttpClient;
         this.ftepServerClient = ftepServerClient;
         this.downloaderFacade = downloaderFacade;
+        this.authEndpoint = authEndpoint;
+        this.authDomain = authDomain;
         this.objectMapper = new ObjectMapper();
     }
 

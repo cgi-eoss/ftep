@@ -118,8 +118,8 @@ public class ServiceInputOutputManagerImplTest {
         DownloaderFacade downloaderFacade = new CachingSymlinkDownloaderFacade(cacheDir);
         ioManager = new ServiceInputOutputManagerImpl(ftepServerClient, downloaderFacade);
 
-        new FtpDownloader(ftepServerClient, downloaderFacade).postConstruct();
-        new HttpDownloader(ftepServerClient, new OkHttpClient.Builder().build(), downloaderFacade).postConstruct();
+        new FtpDownloader(downloaderFacade, ftepServerClient).postConstruct();
+        new HttpDownloader(downloaderFacade, ftepServerClient, new OkHttpClient.Builder().build()).postConstruct();
     }
 
     @After

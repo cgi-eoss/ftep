@@ -79,7 +79,7 @@ public class FtpDownloaderTest {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
         when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
-        this.dl = new FtpDownloader(ftepServerClient, new CachingSymlinkDownloaderFacade(cacheRoot));
+        this.dl = new FtpDownloader(new CachingSymlinkDownloaderFacade(cacheRoot), ftepServerClient);
         this.dl.postConstruct();
     }
 

@@ -88,7 +88,7 @@ public class FtepDownloaderTest {
         when(ftepServerClient.catalogueServiceBlockingStub()).thenReturn(catalogueServiceBlockingStub);
         when(ftepServerClient.catalogueServiceStub()).thenReturn(catalogueServiceStub);
 
-        this.dl = new FtepDownloader(ftepServerClient, new CachingSymlinkDownloaderFacade(cacheRoot));
+        this.dl = new FtepDownloader(new CachingSymlinkDownloaderFacade(cacheRoot), ftepServerClient);
         this.dl.postConstruct();
     }
 

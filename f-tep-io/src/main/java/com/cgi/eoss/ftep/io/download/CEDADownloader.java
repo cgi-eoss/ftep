@@ -10,8 +10,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.text.StrSubstitutor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -21,12 +19,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Set;
 
-@Component
 @Log4j2
 public class CEDADownloader implements Downloader {
-
-    private static final HttpUrl DEFAULT_CEDA_SEARCH_URL = HttpUrl.parse("http://opensearch.ceda.ac.uk/opensearch/json");
-    private static final String DEFAULT_FTP_URL_BASE = "ftp://ftp.ceda.ac.uk";
 
     private static final String CEDA_FTP_DIRECTORY_URI_FORMAT = "${FTP_URL_BASE}${DIRECTORY}";
     private static final String CEDA_FTP_FILE_URI_FORMAT = "${FTP_URL_BASE}${DIRECTORY}/${DATAFILE}";
@@ -35,17 +29,14 @@ public class CEDADownloader implements Downloader {
     private final String ftpUrlBase;
     private final OkHttpClient httpClient;
     private final DownloaderFacade downloaderFacade;
+    private final ProtocolPriority protocolPriority;
 
-    @Autowired
-    public CEDADownloader(OkHttpClient httpClient, DownloaderFacade downloaderFacade) {
-        this(DEFAULT_CEDA_SEARCH_URL, DEFAULT_FTP_URL_BASE, httpClient, downloaderFacade);
-    }
-
-    public CEDADownloader(HttpUrl cedaSearchUrl, String ftpUrlBase, OkHttpClient httpClient, DownloaderFacade downloaderFacade) {
+    public CEDADownloader(DownloaderFacade downloaderFacade, OkHttpClient httpClient, HttpUrl cedaSearchUrl, String ftpUrlBase, ProtocolPriority protocolPriority) {
+        this.downloaderFacade = downloaderFacade;
+        this.httpClient = httpClient;
         this.cedaSearchUrl = cedaSearchUrl;
         this.ftpUrlBase = ftpUrlBase;
-        this.httpClient = httpClient;
-        this.downloaderFacade = downloaderFacade;
+        this.protocolPriority = protocolPriority;
     }
 
     @PostConstruct
@@ -61,6 +52,11 @@ public class CEDADownloader implements Downloader {
     @Override
     public Set<String> getProtocols() {
         return ImmutableSet.of("sentinel1", "sentinel2", "landsat");
+    }
+
+    @Override
+    public int getPriority(URI uri) {
+        return protocolPriority.get(uri.getScheme());
     }
 
     @Override

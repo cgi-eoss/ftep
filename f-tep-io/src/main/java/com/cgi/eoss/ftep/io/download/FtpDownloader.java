@@ -11,8 +11,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.jooq.lambda.Unchecked;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
 @Log4j2
 public class FtpDownloader implements Downloader {
     private static final int CONNECT_TIMEOUT = 2000;
@@ -38,10 +35,9 @@ public class FtpDownloader implements Downloader {
     private final FtepServerClient ftepServerClient;
     private final DownloaderFacade downloaderFacade;
 
-    @Autowired
-    public FtpDownloader(FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade) {
-        this.ftepServerClient = ftepServerClient;
+    public FtpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient) {
         this.downloaderFacade = downloaderFacade;
+        this.ftepServerClient = ftepServerClient;
     }
 
     @PostConstruct

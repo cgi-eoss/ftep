@@ -60,10 +60,10 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
     private final Set<Downloader> downloaders = new HashSet<>();
 
     public CachingSymlinkDownloaderFacade(Path cacheRoot) {
-        this(cacheRoot, true, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT);
+        this(cacheRoot, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, true);
     }
 
-    public CachingSymlinkDownloaderFacade(Path cacheRoot, Boolean unzipAllDownloads, Integer concurrencyLevel, Integer maximumWeight) {
+    public CachingSymlinkDownloaderFacade(Path cacheRoot, Integer concurrencyLevel, Integer maximumWeight, Boolean unzipAllDownloads) {
         this.cacheRoot = cacheRoot;
         this.unzipAllDownloads = unzipAllDownloads;
         this.cache = CacheBuilder.newBuilder()

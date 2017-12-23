@@ -42,31 +42,32 @@ define(['../ftepmodules'], function (ftepmodules) {
 
         /** PRESERVE USER SELECTIONS **/
         this.navInfo = {
-                explorer: {
-                    activeTab: tabs.EXPLORER,
-                    sideViewVisible: false,
-                    activeSideNav: undefined,
-                    activeBottomNav: bottomNavTabs.RESULTS,
-                    resultTabNameExtention: ''
-                },
-                developer: {
-                    activeTab: tabs.DEVELOPER,
-                    sideViewVisible: true,
-                    activeSideNav: developerSideNavs.SERVICES,
-                    activeBottomNav: undefined
-                },
-                community: {
-                    activeTab: tabs.COMMUNITY,
-                    sideViewVisible: true,
-                    activeSideNav: communityTabs.GROUPS,
-                    activeBottomNav: undefined
-                },
-                admin: {
-                    sideViewVisible: false
-                },
-                bottombar: {
-                    bottomViewVisible: false
-                }
+            explorer: {
+                activeTab: tabs.EXPLORER,
+                sideViewVisible: false,
+                activeSideNav: undefined,
+                activeBottomNav: bottomNavTabs.RESULTS,
+                resultTabNameExtention: '',
+                bottomViewVisible: false
+            },
+            developer: {
+                activeTab: tabs.DEVELOPER,
+                sideViewVisible: true,
+                activeSideNav: developerSideNavs.SERVICES,
+                activeBottomNav: undefined,
+                bottomViewVisible: false
+            },
+            community: {
+                activeTab: tabs.COMMUNITY,
+                sideViewVisible: true,
+                activeSideNav: communityTabs.GROUPS,
+                activeBottomNav: undefined,
+                bottomViewVisible: false
+            },
+            admin: {
+                sideViewVisible: false,
+                bottomViewVisible: false
+            }
         };
 
         /** END OF PRESERVE USER SELECTIONS **/

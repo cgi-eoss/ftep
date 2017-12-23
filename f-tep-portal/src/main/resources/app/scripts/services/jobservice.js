@@ -149,7 +149,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         function filterJobs(page) {
-            if (_this.params[page]) {
+            if (_this.params[page] && UserService.params.activeUser._links) {
 
                 /* Set base URL */
                 _this.params[page].pollingUrl = rootUri + '/jobs/' + _this.params[page].selectedOwnershipFilter.searchUrl;

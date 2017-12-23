@@ -13,7 +13,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.developerSideNavs = TabService.getDeveloperSideNavs();
         $scope.navInfo = TabService.navInfo.developer;
-        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
         /* Active session message count */
         $scope.message = {};
@@ -23,7 +22,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         });
 
         $scope.toggleBottomView = function(){
-            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
         };
 
         function showSidebarArea() {

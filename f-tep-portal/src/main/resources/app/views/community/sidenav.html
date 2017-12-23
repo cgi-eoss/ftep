@@ -21,7 +21,7 @@
             <i class="material-icons" uib-tooltip="Files" tooltip-placement="right">attach_file</i>
         </li>
 
-        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': bottombarNavInfo.bottomViewVisible}">
+        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': navInfo.bottomViewVisible}">
             <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
             <span class="notification" ng-show="message.count !== 0">{{message.count}}</span>
         </li>

@@ -12,7 +12,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('CommunityCtrl', ['$scope', 'CommunityService', 'GroupService', 'UserService', 'ProjectService', 'BasketService', 'JobService', 'ProductService', 'FileService', 'MessageService', 'TabService', 'CommonService', '$injector', function ($scope, CommunityService, GroupService, UserService, ProjectService, BasketService, JobService, ProductService, FileService, MessageService, TabService, CommonService, $injector) {
 
         $scope.navInfo = TabService.navInfo.community;
-        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
         $scope.groupParams = GroupService.params.community;
         $scope.projectParams = ProjectService.params.community;
@@ -55,12 +54,12 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /** Bottom bar **/
         $scope.displayTab = function(tab){
-            $scope.bottombarNavInfo.bottomViewVisible = true;
-            $scope.bottombarNavInfo.activeBottomNav = tab;
+            $scope.navInfo.bottomViewVisible = true;
+            $scope.navInfo.activeBottomNav = tab;
         };
 
         $scope.toggleBottomView = function(){
-            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
         };
 
         /* Sharing */

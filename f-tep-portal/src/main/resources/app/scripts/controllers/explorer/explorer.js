@@ -12,7 +12,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
-        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
         $scope.bottomNavTabs = TabService.getBottomNavTabs();
 
         /* Active session message count */
@@ -54,7 +53,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
             if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
                 $scope.toggleBottomView();
             } else {
-                $scope.bottombarNavInfo.bottomViewVisible = true;
+                $scope.navInfo.bottomViewVisible = true;
                 $timeout(function () {
                     $scope.navInfo.activeBottomNav = tab;
                 }, 600);
@@ -62,11 +61,11 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.toggleBottomView = function () {
-            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
         };
 
         $scope.getOpenedBottombar = function(){
-            if($scope.bottombarNavInfo.bottomViewVisible){
+            if($scope.navInfo.bottomViewVisible){
                 return $scope.navInfo.activeBottomNav;
             }
             else {

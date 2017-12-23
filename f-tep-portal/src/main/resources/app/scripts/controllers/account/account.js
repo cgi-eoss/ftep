@@ -12,7 +12,6 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /* Sidenav & Bottombar */
         $scope.navInfo = TabService.navInfo.account;
-        $scope.bottombarNavInfo = TabService.navInfo.bottombar;
 
         /* Active session message count */
         $scope.message = {};
@@ -22,7 +21,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         });
 
         $scope.toggleBottomView = function(){
-            $scope.bottombarNavInfo.bottomViewVisible = !$scope.bottombarNavInfo.bottomViewVisible;
+            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
         };
         /* End Sidenav & Bottombar */
 

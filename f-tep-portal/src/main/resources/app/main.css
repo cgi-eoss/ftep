@@ -1667,7 +1667,7 @@
   margin: 0.3rem 0;
 }
 #developer-container .right-container #save-service {
-  position: absolute;
+  position: fixed;
   right: 3.5rem;
 }
 #developer-container .right-container #service-form {

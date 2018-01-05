@@ -41,6 +41,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -73,6 +74,9 @@ public class ApiSecurityConfigIT {
 
     @Autowired
     private AclsApi aclsApi;
+
+    @Autowired
+    private FtepSecurityService securityService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -232,7 +236,7 @@ public class ApiSecurityConfigIT {
                 .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(FtepPermission.PUBLIC, Role.GUEST))))
                 .andReturn().getRequest().getSession();
 
-        mockMvc.perform(patch("/api/groups/"+beta.getId()).content("{\"members\":[\"" +
+        mockMvc.perform(patch("/api/groups/" + beta.getId()).content("{\"members\":[\"" +
                 getUserUrl(alice) + getUserUrl(chuck) + "\"]}").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isNoContent());
 
@@ -240,6 +244,18 @@ public class ApiSecurityConfigIT {
         mockMvc.perform(get("/api/currentUser/grantedAuthorities").header("REMOTE_USER", chuck.getName()).session(chuckSession))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(containsInAnyOrder(authoritiesToStrings(beta, FtepPermission.PUBLIC, Role.GUEST))));
+    }
+
+    @Test
+    public void testAclInheritance() throws Exception {
+        // bob is in alpha but not beta -> bob cannot read beta
+        getGroupFromApi(beta.getId(), bob).andExpect(status().isForbidden());
+
+        // Set beta's ACL to inherit from alpha's ACL, i.e. letting members of alpha also see beta
+        setParentAcl(Group.class, alpha.getId(), Group.class, ImmutableSet.of(beta.getId()));
+
+        // bob can now read beta
+        getGroupFromApi(beta.getId(), bob).andExpect(status().isOk());
     }
 
     private String getUserUrl(User user) throws Exception {
@@ -285,6 +301,11 @@ public class ApiSecurityConfigIT {
 
         acl.insertAce(acl.getEntries().size(), p, sid, true);
         aclService.updateAcl(acl);
+    }
+
+    private void setParentAcl(Class<?> parentObjectClass, Long parentObjectId, Class<?> childObjectClass, Set<Long> childObjectIds) {
+        SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
+        securityService.setParentAcl(parentObjectClass, parentObjectId, childObjectClass, childObjectIds);
     }
 
 }

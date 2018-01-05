@@ -275,6 +275,9 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
         jobDataService.save(job);
 
+        // Ensure output files inherit the ACEs of the job which created them
+        securityService.setParentAcl(Job.class, job.getId(), FtepFile.class, job.getOutputFiles().stream().map(FtepFile::getId).collect(toSet()));
+
         if (service.getType() == FtepService.Type.BULK_PROCESSOR) {
             // Auto-publish the output files
             ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));

@@ -36,6 +36,10 @@ dependencies {
     // Default provided database adapters
     runtime 'org.hsqldb:hsqldb'
     runtime 'org.postgresql:postgresql'
+
+    testCompile project(':f-tep-worker')
+    testCompile project(path: ':docker-java', configuration: 'shadow')
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
 springBoot {

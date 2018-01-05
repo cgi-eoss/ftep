@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
@@ -35,8 +36,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * <p>Provides common utility-style methods for interacting with the F-TEP security context.</p>
@@ -87,7 +91,7 @@ public class FtepSecurityService {
      * <p>Create an access control entry granting all users (the PUBLIC authority) READ access to the given object.</p>
      *
      * @param objectClass The class of the entity being published.
-     * @param identifier The identifier of the entity being published.
+     * @param identifier  The identifier of the entity being published.
      */
     public void publish(Class<?> objectClass, Long identifier) {
         LOG.info("Publishing entity: {} (id: {})", objectClass, identifier);
@@ -135,7 +139,7 @@ public class FtepSecurityService {
      * <p>Return the current access properties of the current user on the given object.</p>
      *
      * @param objectClass The class of the entity being tested.
-     * @param identifier The identifier of the entity being tested.
+     * @param identifier  The identifier of the entity being tested.
      * @return Whether the object is published or not, as well as the {@link FtepPermission} corresponding to the
      * current access level.
      */
@@ -169,7 +173,7 @@ public class FtepSecurityService {
      * Authentication entity.</p>
      *
      * @param objectClass The class of the entity being tested.
-     * @param identifier The identifier of the entity being tested.
+     * @param identifier  The identifier of the entity being tested.
      * @return True if the object is READable by PUBLIC.
      */
     public boolean isPublic(Class<?> objectClass, Long identifier) {
@@ -191,10 +195,10 @@ public class FtepSecurityService {
     /**
      * <p>Verify that the given user has the given permission on the given object.</p>
      *
-     * @param user The User identity being tested.
-     * @param permission The permission being tested.
+     * @param user        The User identity being tested.
+     * @param permission  The permission being tested.
      * @param objectClass The class of the entity being tested.
-     * @param identifier The identifier of the entity being tested.
+     * @param identifier  The identifier of the entity being tested.
      * @return True if the object has the requested permission for the requested user.
      */
     public boolean hasUserPermission(User user, FtepPermission permission, Class<?> objectClass, Long identifier) {
@@ -204,8 +208,8 @@ public class FtepSecurityService {
     /**
      * <p>Verify that the given user has the given permission on the given object.</p>
      *
-     * @param user The User identity being tested.
-     * @param permission The permission being tested.
+     * @param user           The User identity being tested.
+     * @param permission     The permission being tested.
      * @param objectIdentity The object identity to be tested for PUBLIC visibility.
      * @return True if the object has the requested permission for the requested user.
      */
@@ -236,7 +240,7 @@ public class FtepSecurityService {
     private List<Sid> getSids(Authentication authentication) {
         return ImmutableList.<Sid>builder()
                 .add(new PrincipalSid(authentication))
-                .addAll(authentication.getAuthorities().stream().map(GrantedAuthoritySid::new).collect(Collectors.toSet()))
+                .addAll(authentication.getAuthorities().stream().map(GrantedAuthoritySid::new).collect(toSet()))
                 .build();
     }
 
@@ -255,7 +259,7 @@ public class FtepSecurityService {
         }
 
         List<Sid> sids = getSids(getCurrentAuthentication());
-        List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(Collectors.toList());
+        List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(toList());
 
         Map<ObjectIdentity, Acl> objectIdentityAclMap = null;
         try {
@@ -263,7 +267,7 @@ public class FtepSecurityService {
         } catch (NotFoundException e) {
             // Manually build up the ACLs one by one with the null-safe getter
             objectIdentityAclMap = objectIdentities.stream()
-                    .collect(Collectors.toMap(Function.identity(), oid -> this.getAcl(oid, sids.toArray(new Sid[sids.size()]))));
+                    .collect(toMap(Function.identity(), oid -> this.getAcl(oid, sids.toArray(new Sid[sids.size()]))));
         }
 
         return objectIdentityAclMap.entrySet().stream()
@@ -276,7 +280,7 @@ public class FtepSecurityService {
                 })
                 .map(e -> e.getKey().getIdentifier())
                 .map(Long.class::cast)
-                .collect(Collectors.toSet());
+                .collect(toSet());
     }
 
     public boolean isSuperUser() {
@@ -298,4 +302,16 @@ public class FtepSecurityService {
     public boolean isReadableByCurrentUser(Class<?> objectClass, Long objectId) {
         return isSuperUser() || hasFtepPermission(getCurrentAuthentication(), FtepPermission.READ, new ObjectIdentityImpl(objectClass, objectId));
     }
+
+    @Transactional
+    public void setParentAcl(Class<?> parentObjectClass, Long parentObjectId, Class<?> childObjectClass, Set<Long> childObjectIds) {
+        MutableAcl parentAcl = getAcl(new ObjectIdentityImpl(parentObjectClass, parentObjectId));
+        Set<MutableAcl> childAcls = childObjectIds.stream().map(id -> getAcl(new ObjectIdentityImpl(childObjectClass, id))).collect(toSet());
+
+        childAcls.forEach(acl -> {
+            acl.setParent(parentAcl);
+            saveAcl(acl);
+        });
+    }
+
 }

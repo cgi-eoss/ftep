@@ -68,8 +68,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         $scope.validation = "No file selected";
                     } else if (file.name.indexOf(' ') >= 0) {
                         $scope.validation = "Filename cannot contain white space";
-                    } else if (file.size >= (1024*1024*1024*2)) {
-                        $scope.validation = "Filesize cannot exceed 2GB";
+                    } else if (file.size >= (1024*1024*1024*10)) {
+                        $scope.validation = "Filesize cannot exceed 10GB";
                     } else {
                         $scope.validation = "Valid";
                     }

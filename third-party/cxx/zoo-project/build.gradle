@@ -5,7 +5,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '2.1.0-SNAPSHOT'
+version '1.6.0'
 
 apply plugin: 'base'
 apply plugin: 'nebula.ospackage'
@@ -16,7 +16,7 @@ task buildZoo(type: Exec) {
 
 ospackage {
     packageName 'zoo-kernel'
-    version '1.5.0'
+    version '1.6.0'
     release '1'
     arch X86_64
     os LINUX
@@ -31,15 +31,26 @@ ospackage {
 
     postInstall file('postinst.sh')
 
-    into '/'
-    from("${buildDir}/staging") {
-        user 'root'
-        include '**'
+    into('/usr') {
+        into('include/zoo') {
+            from "${buildDir}/staging/usr/include/zoo"
+            addParentDirs false
+        }
+        into('lib') {
+            from "${buildDir}/staging/usr/lib"
+        }
     }
-    from("src/zoo-project/zoo-kernel/sql/schema.sql") {
-        into '/var/www/cgi-bin/sql'
-        rename('schema.sql', 'V1_5_0__Schema_install.sql')
-        user 'root'
+
+    into('/var/www/cgi-bin') {
+        from "${buildDir}/staging/var/www/cgi-bin"
+        addParentDirs false
+
+        into('sql') {
+            from('src/zoo-project/zoo-kernel/sql/schema.sql') {
+                rename('schema.sql', 'V1_6_0__Schema_install.sql')
+                addParentDirs false
+            }
+        }
     }
 }
 

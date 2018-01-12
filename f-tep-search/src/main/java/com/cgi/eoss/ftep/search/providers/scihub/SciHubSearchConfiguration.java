@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(value = "fstep.search.scihub.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "ftep.search.scihub.enabled", havingValue = "true")
 public class SciHubSearchConfiguration {
 
     @Value("${ftep.search.scihub.baseUrl:https://scihub.copernicus.eu/apihub/search}")

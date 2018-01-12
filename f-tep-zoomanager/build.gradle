@@ -79,6 +79,7 @@ ospackage {
 
     preInstall file('src/ospackage/preinst.sh')
     postInstall file('src/ospackage/postinst.sh')
+    preUninstall file('src/ospackage/prerm.sh')
 
     into('/var/f-tep/zoomanager') {
         from("${buildDir}/libs") {
@@ -95,6 +96,12 @@ ospackage {
     into('/var/www/cgi-bin/jars') {
         from configurations.zooJars
         rename('f-tep-zoolib-.*\\-all.jar', 'f-tep-zoolib.jar')
+        addParentDirs false
+    }
+
+    into('/usr/lib/systemd/system') {
+        from 'src/ospackage/f-tep-zoomanager.service'
+        addParentDirs false
     }
 
     link('/etc/init.d/f-tep-zoomanager', '/var/f-tep/zoomanager/f-tep-zoomanager.jar')

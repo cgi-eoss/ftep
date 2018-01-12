@@ -66,17 +66,22 @@ ospackage {
 
     preInstall file('src/ospackage/preinst.sh')
     postInstall file('src/ospackage/postinst.sh')
+    preUninstall file('src/ospackage/prerm.sh')
 
-    into '/var/f-tep/server'
-
-    from("${buildDir}/libs") {
-        include '*-bin.jar'
-        rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
-        fileMode 0500
+    into('/var/f-tep/server') {
+        from("${buildDir}/libs") {
+            include '*-bin.jar'
+            rename('f-tep-server-.*\\-bin.jar', 'f-tep-server.jar')
+            fileMode 0500
+        }
+        from('src/ospackage/application.properties') {
+            fileType CONFIG | NOREPLACE
+        }
     }
 
-    from("src/ospackage/application.properties") {
-        fileType CONFIG | NOREPLACE
+    into('/usr/lib/systemd/system') {
+        from 'src/ospackage/f-tep-server.service'
+        addParentDirs false
     }
 
     link('/etc/init.d/f-tep-server', '/var/f-tep/server/f-tep-server.jar')

@@ -49,6 +49,7 @@ ospackage {
 
     preInstall file('src/ospackage/preinst.sh')
     postInstall file('src/ospackage/postinst.sh')
+    preUninstall file('src/ospackage/prerm.sh')
 
     into('/var/f-tep/serviceregistry') {
         from("${buildDir}/libs") {
@@ -60,6 +61,11 @@ ospackage {
         from("src/ospackage/application.properties") {
             fileType CONFIG | NOREPLACE
         }
+    }
+
+    into('/usr/lib/systemd/system') {
+        from 'src/ospackage/f-tep-serviceregistry.service'
+        addParentDirs false
     }
 
     link('/etc/init.d/f-tep-serviceregistry', '/var/f-tep/serviceregistry/f-tep-serviceregistry.jar')

@@ -8,6 +8,7 @@
 # They may be installed with "vagrant plugin install <plugin>"
 
 Vagrant.configure('2') do |config|
+  config.puppet_install.puppet_version = :latest
 
   config.vm.define 'build', primary: false, autostart: false do |build|
     build.ssh.username = 'ftep'
@@ -27,7 +28,7 @@ Vagrant.configure('2') do |config|
   # The default box is an integration testing environment, installing the
   # distribution and configuring with the Puppet manifest.
   config.vm.define 'ftep', primary: true do |ftep|
-    ftep.vm.box = 'centos/6'
+    ftep.vm.box = 'centos/7'
 
     # Expose the container's web server on 8080
     ftep.vm.network 'forwarded_port', guest: 80, host: 8080 # apache
@@ -51,7 +52,7 @@ Vagrant.configure('2') do |config|
     # folders (which may be confused by symlinks)
     ftep.vm.provider 'virtualbox' do |vb|
       ftep.vm.synced_folder '.', '/vagrant', type: 'virtualbox'
-      vb.memory = 2048
+      vb.memory = 4096
       vb.cpus = 2
     end
 
@@ -63,8 +64,6 @@ Vagrant.configure('2') do |config|
     # classes:
     #   - ftep::backend
     # ftep::repo::location: 'file:///vagrant/.dist/repo'
-    #
-    config.puppet_install.puppet_version = '4.10.7'
 
     # Install r10k to pull in the dependency modules
     ftep.vm.provision 'shell', inline: <<EOF

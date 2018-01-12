@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 
 @Configuration
-@ConditionalOnProperty(value = "fstep.search.ceda.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = "ftep.search.ceda.enabled", havingValue = "true", matchIfMissing = true)
 public class CedaSearchConfiguration {
 
     @Value("${ftep.search.ceda.baseUrl:http://opensearch.ceda.ac.uk/opensearch/json}")

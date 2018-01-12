@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(value = "fstep.search.ftep.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = "ftep.search.ftep.enabled", havingValue = "true", matchIfMissing = true)
 public class FtepSearchConfiguration {
 
     @Value("${ftep.search.ftep.baseUrl:http://ftep-resto}")

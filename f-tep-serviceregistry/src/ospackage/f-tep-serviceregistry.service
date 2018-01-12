@@ -1,0 +1,12 @@
+[Unit]
+Description=F-TEP Service Registry
+After=syslog.target
+After=network.target
+
+[Service]
+User=ftep
+ExecStart=/var/f-tep/serviceregistry/f-tep-serviceregistry.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

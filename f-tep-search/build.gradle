@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '1.4.0'
+version '2.0.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'

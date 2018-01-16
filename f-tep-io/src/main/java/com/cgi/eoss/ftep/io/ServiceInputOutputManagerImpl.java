@@ -40,9 +40,11 @@ public class ServiceInputOutputManagerImpl implements ServiceInputOutputManager 
     public void prepareInput(Path target, Collection<URI> uris) throws IOException {
         // Multiple URIs, download to a subdir named after the filename portion of the URI
         Files.createDirectories(target);
-        Map<URI, Optional<Path>> inputs = uris.stream().collect(Collectors.toMap(
-                uri -> uri,
-                uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()))))));
+        Map<URI, Optional<Path>> inputs = uris.stream()
+                .flatMap(downloaderFacade::resolveUri)
+                .collect(Collectors.toMap(
+                        uri -> uri,
+                        uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()))))));
         downloaderFacade.download(inputs);
     }
 

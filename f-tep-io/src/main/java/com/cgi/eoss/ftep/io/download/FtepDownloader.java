@@ -12,7 +12,6 @@ import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import lombok.extern.log4j.Log4j2;
 import org.jooq.lambda.Unchecked;
 
@@ -28,7 +27,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -82,10 +80,22 @@ public class FtepDownloader implements Downloader {
                 return downloadFtepFile(targetDir, uri);
             case "refData":
                 return downloadFtepFile(targetDir, uri);
-            case "databasket":
-                return downloadDatabasket(targetDir, uri);
             default:
                 throw new UnsupportedOperationException("Unrecognised ftep:// URI type: " + uri.getHost());
+        }
+    }
+
+    @Override
+    public Stream<URI> resolveUri(URI uri) {
+        if (uri.getHost().equals("databasket")) {
+            CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
+
+            DatabasketContents databasketContents = catalogueService.getDatabasketContents(Databasket.newBuilder().setUri(uri.toASCIIString()).build());
+
+            return databasketContents.getFilesList().stream()
+                    .map(ftepFile -> URI.create(ftepFile.getUri().getUri()));
+        } else {
+            return Downloader.super.resolveUri(uri);
         }
     }
 
@@ -125,38 +135,6 @@ public class FtepDownloader implements Downloader {
             // Restore interrupted state, then re-throw
             Thread.currentThread().interrupt();
             throw new IOException(e);
-        }
-    }
-
-    private Path downloadDatabasket(Path targetDir, URI uri) {
-        CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueService = ftepServerClient.catalogueServiceBlockingStub();
-
-        DatabasketContents databasketContents = catalogueService.getDatabasketContents(Databasket.newBuilder().setUri(uri.toASCIIString()).build());
-
-        databasketContents.getFilesList().forEach(Unchecked.consumer((FtepFile ftepFile) -> {
-            URI fileUri = URI.create(ftepFile.getUri().getUri());
-            Path cacheDir = downloaderFacade.download(fileUri, null);
-            LOG.info("Successfully downloaded from databasket: {} ({})", cacheDir, fileUri);
-            symlinkDatabasketContents(cacheDir, targetDir, ftepFile.getFilename());
-        }));
-
-        return targetDir;
-    }
-
-    private void symlinkDatabasketContents(Path cacheDir, Path targetDir, String filename) throws IOException {
-        try (Stream<Path> cacheDirList = Files.list(cacheDir)) {
-            Set<Path> cacheDirContents = cacheDirList
-                    .filter(f -> Files.isRegularFile(f) && !f.getFileName().toString().equals(".uri"))
-                    .collect(Collectors.toSet());
-
-            if (cacheDirContents.size() == 1) {
-                // If the cache directory contains only one file (excluding .uri) then symlink it directly
-                Path file = Iterables.getOnlyElement(cacheDirContents);
-                Files.createSymbolicLink(targetDir.resolve(file.getFileName()), file);
-            } else {
-                // Otherwise symlink the FtepFile filename to the cache directory
-                Files.createSymbolicLink(targetDir.resolve(filename), cacheDir);
-            }
         }
     }
 

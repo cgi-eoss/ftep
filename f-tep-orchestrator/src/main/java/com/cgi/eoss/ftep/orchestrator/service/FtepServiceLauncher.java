@@ -140,7 +140,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             checkCost(job.getOwner(), job.getConfig());
 
-            if (!checkInputs(job.getOwner(), request.getInputsList())) {
+            if (!checkInputs(job.getOwner(), rpcInputs)) {
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.error("User does not have read access to all requested inputs", userId);
                 }

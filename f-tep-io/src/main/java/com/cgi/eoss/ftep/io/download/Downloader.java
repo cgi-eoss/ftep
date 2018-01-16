@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * <p>General contract for a function which downloads (or otherwise retrieves) a URI into a target.</p>
@@ -29,8 +30,20 @@ public interface Downloader {
      * <p>Download the given URI and output the result in the given target directory.</p>
      *
      * @param targetDir The directory in which the content of the resource at the URI should be written.
-     * @param uri The URI to be retrieved.
+     * @param uri       The URI to be retrieved.
      * @return The path to the downloaded file.
      */
     Path download(Path targetDir, URI uri) throws IOException;
+
+
+    /**
+     * <p>Build a stream representing the resolved value of a URI. Typically necessary if the URI requires complex
+     * resolution or expansion to process, e.g. databaskets -> their contents' URIs.</p>
+     *
+     * @param uri The URI to be expanded or resolved.
+     * @return A stream of the URI's resolved representation elements. By default, a single-element stream of the input URI.
+     */
+    default Stream<URI> resolveUri(URI uri) {
+        return Stream.of(uri);
+    }
 }

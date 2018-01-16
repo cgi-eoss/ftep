@@ -97,6 +97,13 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
     }
 
     @Override
+    public Stream<URI> resolveUri(URI uri) {
+        return getAvailableDownloaders(uri).stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No downloader found for URI: %s", uri)))
+                .resolveUri(uri);
+    }
+
+    @Override
     public boolean isSupportedProtocol(String scheme) {
         return downloaders.stream().anyMatch(d -> d.getProtocols().contains(scheme));
     }
@@ -149,6 +156,12 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
         cache.invalidateAll(uris.stream()
                 .filter(ALWAYS_EVICT_URI)
                 .collect(Collectors.toSet()));
+    }
+
+    private ImmutableList<Downloader> getAvailableDownloaders(URI uri) {
+        return ImmutableList.sortedCopyOf(
+                new DownloaderUriComparator(uri),
+                downloaders.stream().filter(d -> d.getProtocols().contains(uri.getScheme())).collect(Collectors.toSet()));
     }
 
     /**
@@ -249,7 +262,7 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
         }
 
         private Path doDownload(Path targetDir, URI uri) {
-            List<Downloader> availableDownloaders = ImmutableList.sortedCopyOf(new DownloaderUriComparator(uri), getValidDownloaders(uri));
+            List<Downloader> availableDownloaders = getAvailableDownloaders(uri);
             for (Downloader downloader : availableDownloaders) {
                 try {
                     LOG.debug("Attempting download with {} for uri: {}", downloader, uri);
@@ -259,10 +272,6 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
                 }
             }
             throw new ServiceIoException("No downloader was able to process the URI: " + uri);
-        }
-
-        private Set<Downloader> getValidDownloaders(URI uri) {
-            return downloaders.stream().filter(d -> d.getProtocols().contains(uri.getScheme())).collect(Collectors.toSet());
         }
 
         private Optional<Path> resolveCacheSymlink(Path cacheDir) {

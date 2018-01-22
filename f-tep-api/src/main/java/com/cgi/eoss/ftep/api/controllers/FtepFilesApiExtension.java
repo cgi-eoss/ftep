@@ -10,7 +10,6 @@ import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
@@ -18,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,13 +111,7 @@ public class FtepFilesApiExtension {
         }
         // TODO Should estimated cost be "locked" in the wallet?
 
-        org.springframework.core.io.Resource fileResource = catalogueService.getAsResource(file);
-
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setContentLengthLong(fileResource.contentLength());
-        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileResource.getFilename() + "\"");
-        ByteStreams.copy(fileResource.getInputStream(), response.getOutputStream());
-        response.flushBuffer();
+        Util.serveFileDownload(response, catalogueService.getAsResource(file));
 
         costingService.chargeForDownload(user.getWallet(), file);
     }

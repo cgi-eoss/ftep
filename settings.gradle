@@ -28,9 +28,6 @@ project(':zoo-project').projectDir = file('third-party/cxx/zoo-project')
 include 'docker-java'
 project(':docker-java').projectDir = file('third-party/java/docker-java')
 
-include 'graylog-collector'
-project(':graylog-collector').projectDir = file('third-party/java/graylog-collector')
-
 include 'jai_core'
 project(':jai_core').projectDir = file('third-party/java/jai_core')
 
@@ -44,4 +41,3 @@ include 'resto'
 project(':resto').projectDir = file('third-party/resto')
 
 include 'distribution'
-

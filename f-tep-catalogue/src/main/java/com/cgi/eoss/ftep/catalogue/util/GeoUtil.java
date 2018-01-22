@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.MoreFiles;
-import com.sun.nio.zipfs.ZipFileSystem;
 import com.vividsolutions.jts.geom.Polygon;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
@@ -38,21 +37,12 @@ import org.opengis.geometry.primitive.Point;
 import org.opengis.geometry.primitive.Surface;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -223,8 +213,8 @@ public class GeoUtil {
 
         try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(shapefileZip))) {
             for (Path shapefileComponent : shapefileComponents) {
-                    ZipEntry zipEntry = new ZipEntry(shapefileComponent.getFileName().toString());
-                    zipOut.putNextEntry(zipEntry);
+                ZipEntry zipEntry = new ZipEntry(shapefileComponent.getFileName().toString());
+                zipOut.putNextEntry(zipEntry);
                 try (InputStream fis = Files.newInputStream(shapefileComponent)) {
                     ByteStreams.copy(fis, zipOut);
                 }

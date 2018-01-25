@@ -49,11 +49,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Scroll to the top of the results section*/
         function scrollResults(anchorId) {
-            if(anchorId){
-                $timeout(function () {
-                    $anchorScroll(anchorId);
-                }, 50);
-            }
+            // Has to be called to ensure the List is actually synchronized all the time
+            // Even if we click on the Map to deselect all the items and so there's no anchorId
+            $timeout(function () {
+                $anchorScroll(anchorId);
+            }, 50);
         }
 
         /* Get the draggable object with selected items */
@@ -131,11 +131,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.clearAll = function(){
             setResults();
+            $rootScope.$broadcast('results.cleared');
         };
 
         /* Clear results */
         function cleanResults() {
-            if(!$scope.resultParams.geoResults || $scope.resultParams.geoResults.length < 1) {
+            if($scope.resultParams.geoResults && $scope.resultParams.geoResults.length > 0) {
                 $scope.clearSelection();
                 $scope.clearAll();
             }

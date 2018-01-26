@@ -146,7 +146,8 @@ allprojects {
                 entry('spring-boot-starter-web') { exclude 'org.springframework.boot:spring-boot-starter-tomcat' }
             }
             dependency 'org.springframework.hateoas:spring-hateoas:0.23.0.RELEASE'
-            dependencySet(group: 'org.testcontainers', version: '1.3.1') {
+            dependencySet(group: 'org.testcontainers', version: '1.5.1') {
+                entry 'postgresql'
                 entry 'selenium'
                 entry 'testcontainers'
             }

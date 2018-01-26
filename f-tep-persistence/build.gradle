@@ -26,6 +26,9 @@ dependencies {
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.springframework:spring-test'
+    testCompile 'org.springframework.boot:spring-boot-test'
+    testCompile 'org.testcontainers:postgresql'
 
     testRuntime 'org.hsqldb:hsqldb'
+    testRuntime 'org.postgresql:postgresql'
 }

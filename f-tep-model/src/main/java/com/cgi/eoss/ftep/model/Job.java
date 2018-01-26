@@ -1,14 +1,13 @@
 package com.cgi.eoss.ftep.model;
 
-import com.cgi.eoss.ftep.model.converters.StringMultimapYamlConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Multimap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -105,7 +104,7 @@ public class Job implements FtepEntityWithOwner<Job> {
      * <p>The job execution outputs.</p>
      */
     @Lob
-    @Convert(converter = StringMultimapYamlConverter.class)
+    @Type(type = "com.cgi.eoss.ftep.model.converters.StringMultimapYamlConverter")
     @Column(name = "outputs")
     private Multimap<String, String> outputs;
 

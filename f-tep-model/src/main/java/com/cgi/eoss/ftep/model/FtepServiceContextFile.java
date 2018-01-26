@@ -16,7 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -66,7 +65,6 @@ public class FtepServiceContextFile implements FtepEntityWithOwner<FtepServiceCo
     /**
      * <p>The file content.</p>
      */
-    @Lob
     @Column(name = "content")
     private String content;
 
@@ -77,6 +75,7 @@ public class FtepServiceContextFile implements FtepEntityWithOwner<FtepServiceCo
         this.service = service;
         this.filename = filename;
     }
+
     /**
      * <p>Construct a new service file with all properties set.</p>
      */

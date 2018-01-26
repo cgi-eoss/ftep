@@ -39,7 +39,7 @@ CREATE TABLE ftep_services (
   docker_tag     CHARACTER VARYING(255),
   licence        CHARACTER VARYING(255) NOT NULL CHECK (licence IN ('OPEN', 'RESTRICTED')),
   name           CHARACTER VARYING(255) NOT NULL,
-  wps_descriptor CLOB,
+  wps_descriptor LONGVARCHAR,
   status         CHARACTER VARYING(255) NOT NULL CHECK (status IN ('IN_DEVELOPMENT', 'AVAILABLE')),
   type           CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'BULK_PROCESSOR', 'APPLICATION')),
   owner          BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
@@ -82,12 +82,11 @@ CREATE UNIQUE INDEX ftep_group_member_user_group_idx
 
 CREATE TABLE ftep_job_configs (
   id      BIGINT IDENTITY PRIMARY KEY,
-  inputs  CLOB,
+  inputs  LONGVARCHAR,
   owner   BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   service BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
-  label   CHARACTER VARYING(255)
-  -- WARNING: No unique index on owner-service-inputs as hsqldb 2.3.4 cannot index CLOB columns
-  -- UNIQUE (owner, service, inputs)
+  label   CHARACTER VARYING(255),
+  UNIQUE (owner, service, inputs)
 );
 CREATE INDEX ftep_job_configs_service_idx
   ON ftep_job_configs (service);
@@ -101,7 +100,7 @@ CREATE TABLE ftep_jobs (
   end_time   TIMESTAMP WITHOUT TIME ZONE,
   ext_id     CHARACTER VARYING(255) NOT NULL,
   gui_url    CHARACTER VARYING(255),
-  outputs    CLOB,
+  outputs    LONGVARCHAR,
   stage      CHARACTER VARYING(255),
   start_time TIMESTAMP WITHOUT TIME ZONE,
   status     CHARACTER VARYING(255) NOT NULL CHECK (status IN
@@ -209,7 +208,7 @@ CREATE TABLE ftep_service_files (
   service    BIGINT                NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
   filename   CHARACTER VARYING(255),
   executable BOOLEAN DEFAULT FALSE NOT NULL,
-  content    CLOB
+  content    LONGVARCHAR
 );
 CREATE UNIQUE INDEX ftep_service_files_filename_service_idx
   ON ftep_service_files (filename, service);

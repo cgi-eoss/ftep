@@ -21,7 +21,7 @@ public class JpaJobConfigDataService extends AbstractJpaDataService<JobConfig> i
     private final JobConfigDao dao;
 
     @Autowired
-    public JpaJobConfigDataService(JobConfigDao jobConfigDao, UserDataService userDataService, ServiceDataService serviceDataService) {
+    public JpaJobConfigDataService(JobConfigDao jobConfigDao) {
         this.dao = jobConfigDao;
     }
 

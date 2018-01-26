@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.model;
 
-import com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
@@ -10,7 +9,6 @@ import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -99,7 +97,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
      * <p>The full definition of the WPS service, used to build ZOO-Kernel configuration.</p>
      */
     @Lob
-    @Convert(converter = FtepServiceDescriptorYamlConverter.class)
+    @org.hibernate.annotations.Type(type = "com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter")
     @Column(name = "wps_descriptor")
     private FtepServiceDescriptor serviceDescriptor;
 
@@ -113,7 +111,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     /**
      * <p>Create a new Service with the minimum required parameters.</p>
      *
-     * @param name Name of the service.
+     * @param name  Name of the service.
      * @param owner The user owning the service.
      */
     public FtepService(String name, User owner, String dockerTag) {

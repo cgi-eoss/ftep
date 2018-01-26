@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -69,7 +70,7 @@ public class JobConfigDataServiceIT {
         assertThat(dataService.getByIds(ImmutableSet.of(jobConfig.getId())), is(ImmutableList.of(jobConfig)));
         assertThat(dataService.isUniqueAndValid(new JobConfig(owner, svc)), is(true));
 
-        assertThat(dataService.findByOwner(owner), is(ImmutableList.of(jobConfig, jobConfig2)));
+        assertThat(dataService.findByOwner(owner), containsInAnyOrder(jobConfig, jobConfig2));
         assertThat(dataService.findByOwner(owner2), is(ImmutableList.of()));
         assertThat(dataService.findByService(svc), is(ImmutableList.of(jobConfig)));
         assertThat(dataService.findByService(svc2), is(ImmutableList.of(jobConfig2)));

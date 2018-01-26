@@ -47,6 +47,9 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
         entities.forEach(this::resyncId);
         try {
             return getDao().save(entities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             getDao().flush();
         }

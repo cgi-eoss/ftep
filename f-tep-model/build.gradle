@@ -34,6 +34,7 @@ dependencies {
     compile 'com.google.guava:guava'
     compile 'com.querydsl:querydsl-core'
     compile 'com.querydsl:querydsl-jpa'
+    compile 'org.hibernate:hibernate-core'
     compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api'
     compile 'com.fasterxml.jackson.core:jackson-annotations'
     compile 'com.fasterxml.jackson.core:jackson-databind'

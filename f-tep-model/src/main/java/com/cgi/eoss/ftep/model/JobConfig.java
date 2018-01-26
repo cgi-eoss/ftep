@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.model;
 
-import com.cgi.eoss.ftep.model.converters.StringMultimapYamlConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -8,9 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -63,7 +62,7 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
      * <p>The job input parameters.</p>
      */
     @Lob
-    @Convert(converter = StringMultimapYamlConverter.class)
+    @Type(type = "com.cgi.eoss.ftep.model.converters.StringMultimapYamlConverter")
     @Column(name = "inputs")
     private Multimap<String, String> inputs = HashMultimap.create();
 
@@ -76,7 +75,7 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     /**
      * <p>Create a new JobConfig instance with the minimum required parameters.</p>
      *
-     * @param owner The user who owns the job
+     * @param owner   The user who owns the job
      * @param service The service this job is running on
      */
     public JobConfig(User owner, FtepService service) {

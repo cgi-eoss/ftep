@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,18 +36,20 @@ import static org.junit.Assume.assumeTrue;
 @Transactional
 public class PostgresqlBackendIT {
 
-    @BeforeClass
-    public static void precondition() {
+    private static PostgreSQLContainer postgres;
+
+    @ClassRule
+    public static PostgreSQLContainer init() {
         // Shortcut if docker socket is not accessible to the current user
         assumeTrue("Unable to write to Docker socket; disabling Docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
         // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
-    }
 
-    @ClassRule
-    public static PostgreSQLContainer postgres = new PostgreSQLContainer()
-            .withDatabaseName("ftep_v2")
-            .withUsername("ftepdb")
-            .withPassword("ftepdb");
+        PostgresqlBackendIT.postgres = new PostgreSQLContainer()
+                .withDatabaseName("ftep_v2")
+                .withUsername("ftepdb")
+                .withPassword("ftepdb");
+        return postgres;
+    }
 
     public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override

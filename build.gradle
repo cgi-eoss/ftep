@@ -65,7 +65,7 @@ allprojects {
 
     // Spring BOM versions
     ext['spring-cloud.version'] = 'Edgware.SR1'
-    ext['spring-boot.version'] = '1.5.9.RELEASE'
+    ext['spring-boot.version'] = '1.5.10.RELEASE'
 
     // Dependency versions overriding those from the Spring BOMs
     ext['flyway.version'] = '4.2.0'

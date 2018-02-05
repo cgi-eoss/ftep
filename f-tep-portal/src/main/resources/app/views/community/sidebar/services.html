@@ -1,0 +1,179 @@
+<md-toolbar md-scroll-shrink class="sidebar-subheader">
+    <div class="md-toolbar-tools">
+        <div class="col-xs-12">
+            <span>Services</span>
+        </div>
+    </div>
+</md-toolbar>
+
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-10" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!serviceParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="serviceParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="serviceParams.displayFilters">
+                <input ng-model="serviceParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Services Search Filter">
+            </md-input-container>
+
+            <md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                    <md-optgroup label="Service Type">
+                        <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>
+
+            <!--TODO: Uncomment when backend filter exists-->
+            <!--<md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedPublicationFilter" ng-change="filter()" aria-label="Publication Status">
+                    <md-optgroup label="Publication Status">
+                        <md-option ng-repeat="filter in publicationFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>-->
+
+            <div class="row filter-radiobutton" ng-show="serviceParams.displayFilters">
+                <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
+                    <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="!serviceParams.services.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">No services found. Create a service by going to the 'Developer' tab in the main navigation panel.</div>
+        </div>
+    </div>
+
+    <div class="item-list list" ng-if="serviceParams.services.length > 0">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, service) in serviceParams.services"
+                      ng-click="selectService(service)"
+                      ng-class="{active: service.id == serviceParams.selectedService.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="service.name" />
+                <span><b>Owner:</b> <span ng-bind="service.owner.name" /></span>
+                <span><b>Status:</b> <span ng-bind="service.status.toLowerCase()" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-if="user && user.role === 'ADMIN' && service.access.published === false && service.access.publishRequested === true"
+                       ng-click="publishService($event, service)"
+                       aria-label="Publish Request"
+                       uib-tooltip="Publish Request"
+                       tooltip-placement="top"
+                       tooltip-trigger="'mouseenter'"
+                       tooltip-append-to-body="true">
+                <i class="material-icons alert-text">notifications_active</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="service.access.published === false && service.access.publishRequested === false"
+                       aria-label="Private" uib-tooltip="Private" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons error-text">face</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="user && user.role !== 'ADMIN' && service.access.published === false && service.access.publishRequested === true"
+                       aria-label="Pending Publication" uib-tooltip="Pending Publication" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons warning-text">autorenew</i>
+            </md-button>
+
+            <md-button class="toolbar-button status-icon md-secondary" ng-if="service.access.published === true && service.status === 'AVAILABLE'"
+                       aria-label="Public" uib-tooltip="Public" tooltip-placement="top" tooltip-trigger="'mouseenter'" tooltip-append-to-body="true">
+                <i class="material-icons success-text">public</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       aria-label="Service Info"
+                       uib-popover-template="'views/common/templates/serviceinfo.tmpl.html'"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="editItemDialog($event, service)"
+                       has-permission="WRITE" permission-source="{{service}}"
+                       aria-label="Edit"
+                       uib-tooltip="Edit"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">create</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-if="service.access.published === false"
+                       has-permission="ADMIN" permission-source="{{service}}"
+                       ng-click="requestPublication($event, service)"
+                       aria-label="Request Publication"
+                       uib-tooltip="Request Publication"
+                       tooltip-placement="top"
+                       tooltip-trigger="'mouseenter'"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">publish</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{serviceParams.pagingData}}"></div>
+
+    </div>
+
+</section>
+
+<section id="manage-services">
+    <md-button id="manage-services-button"
+               ng-if="user.role === 'CONTENT_AUTHORITY' || user.role === 'ADMIN'"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="manageServicesDialog($event)"
+               aria-label="Sync Services"
+               uib-tooltip="Sync Services"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">settings</i>
+    </md-button>
+</section>

@@ -1,0 +1,54 @@
+@import "variable";
+.ftep {
+    .pagination {
+        font-size: 0.6rem;
+        margin: 0;
+        a {
+            background-color: transparent;
+            border: none;
+            color: @brand;
+            .border(border-left, @bg);
+            &:first-child {}
+            &:hover {
+                background: @accent-light;
+                color: @brand-dark;
+            }
+        }
+        .active {
+            a {
+                background-color: @accent;
+                border-color: @accent;
+                color: @text-light;
+            }
+        }
+        li:first-child a {
+            border: none;
+        }
+    }
+    .paging-details {
+        float: right;
+        padding-top: 0.4rem;
+    }
+    #paging {
+        display: inline-block;
+        padding: 0.8rem 0 0.2rem 0;
+        text-align: center;
+        width: 100%;
+        .md-button {
+           min-height: 1rem !important;
+           min-width: 1rem !important;
+           margin: 0 0.2rem;
+            &:hover {
+                color: @brand;
+            }
+        }
+        .md-button[disabled]:hover {
+            color: @disabled;
+        }
+        #current-page {
+            cursor: auto;
+            border: none;
+            margin: 0.2rem;
+        }
+    }
+}

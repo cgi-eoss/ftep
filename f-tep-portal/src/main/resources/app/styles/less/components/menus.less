@@ -1,0 +1,51 @@
+@import "variable";
+.ftep {
+    md-menu-bar {
+        float: right;
+        padding: 0;
+    }
+    md-menu-item {
+        color: @brand;
+        .md-button {
+            font-size: 14px;
+        }
+        .md-button[disabled] {
+            color: @text;
+        }
+        .menu-text {
+            float: left;
+            line-height: 24px;
+            width: 100px;
+        }
+        .material-icons {
+            float:left;
+            height: 24px;
+            padding-right: 10px;
+            width: 50px;
+        }
+        .selected {
+            background-color: @accent-light;
+            &:hover {
+                background-color: @accent;
+                color: @text;
+                .material-icons {
+                    color: @text;
+                }
+            }
+        }
+        span {
+            padding-right: 10px;
+        }
+        &:hover {
+            color: @accent;
+            .material-icons {
+                color: @accent;
+            }
+            .md-button[disabled] {
+                .material-icons {
+                    color: @text;
+                }
+            }
+        }
+    }
+}

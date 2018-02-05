@@ -1,53 +1,56 @@
+buildscript {
+    dependencies {
+        classpath pl.querydsl
+    }
+}
+
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'com.ewerk.gradle.plugins.querydsl'
 
 sourceSets {
-    generated {
-        java {
-            srcDirs = ["${buildDir}/generated/java"]
-        }
-    }
-    main {
-        java {
-            srcDirs += "${buildDir}/generated/java"
+    querydsl {
+        resources {
+            srcDirs = []
         }
     }
 }
 
-configurations {
-    querydslApt
+querydsl {
+    library = 'com.querydsl:querydsl-apt:4.1.4'
+    querydslSourcesDir = "${buildDir}/generated/java"
+    hibernate = true
 }
 
 dependencies {
-    compileOnly deps.lombok
+    querydsl 'org.hibernate:hibernate-core'
+    querydsl 'org.projectlombok:lombok'
 
-    querydslApt deps.querydslApt
+    compileOnly 'org.projectlombok:lombok'
 
-    compile deps.guava
-    compile deps.hibernateJpa21Api
-    compile deps.jsonapiConverter
-    compile deps.querydslJpa
-}
+    compile 'com.google.guava:guava'
+    compile 'com.querydsl:querydsl-core'
+    compile 'com.querydsl:querydsl-jpa'
+    compile 'org.hibernate:hibernate-core'
+    compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api'
+    compile 'com.fasterxml.jackson.core:jackson-annotations'
+    compile 'com.fasterxml.jackson.core:jackson-databind'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-guava'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.data:spring-data-rest-core'
+    compile 'org.springframework.hateoas:spring-hateoas'
+    compile 'org.springframework.security:spring-security-core'
 
-task generateQueryDSL(type: JavaCompile, group: 'build', description: 'Generates the QueryDSL query types') {
-    source = sourceSets.main.java
-    classpath = configurations.compileOnly + configurations.querydslApt
-    options.compilerArgs = [
-            '-proc:only',
-            '-processor', 'com.querydsl.apt.hibernate.HibernateAnnotationProcessor'
-    ]
-    destinationDir = sourceSets.generated.java.srcDirs.iterator().next()
-}
-
-compileJava {
-    dependsOn generateQueryDSL
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
 }
 
 sonarqube {
     properties {
-        property "sonar.exclusions", "target/generated/**/*"
+        property "sonar.exclusions", "${buildDir}/generated/**/*"
     }
 }

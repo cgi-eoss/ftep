@@ -1,42 +1,65 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import com.cgi.eoss.ftep.persistence.dao.FtepUserDao;
+import com.cgi.eoss.ftep.persistence.dao.UserDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.cgi.eoss.ftep.model.QUser.user;
 
 @Service
 @Transactional(readOnly = true)
-public class JpaUserDataService extends AbstractJpaDataService<FtepUser> implements UserDataService {
+public class JpaUserDataService extends AbstractJpaDataService<User> implements UserDataService {
 
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact);
+    private final UserDao dao;
 
-    private final FtepUserDao ftepUserDao;
+    private final GroupDataService groupDataService;
 
     @Autowired
-    public JpaUserDataService(FtepUserDao ftepUserDao) {
-        this.ftepUserDao = ftepUserDao;
+    public JpaUserDataService(UserDao userDao, GroupDataService groupDataService) {
+        this.dao = userDao;
+        this.groupDataService = groupDataService;
     }
 
     @Override
-    FtepEntityDao<FtepUser> getDao() {
-        return ftepUserDao;
+    FtepEntityDao<User> getDao() {
+        return dao;
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(User entity) {
+        return user.name.eq(entity.getName());
     }
 
     @Override
-    public List<FtepUser> search(String term) {
-        return ftepUserDao.findByNameContainingIgnoreCase(term);
+    public List<User> search(String term) {
+        return dao.findByNameContainingIgnoreCase(term);
+    }
+
+    @Override
+    public User getByName(String name) {
+        return maybeGetByName(name).orElse(null);
+    }
+
+    @Transactional
+    @Override
+    public User getOrSave(String name) {
+        return maybeGetByName(name).orElseGet(() -> save(new User(name)));
+    }
+
+    @Override
+    public User getDefaultUser() {
+        return findOneByExample(User.DEFAULT);
+    }
+
+    private Optional<User> maybeGetByName(String name) {
+        return Optional.ofNullable(dao.findOneByName(name));
     }
 
 }

@@ -1,0 +1,25 @@
+{
+  "name": "ftepoutput",
+  "model": "RestoModel_Ftep_Output",
+  "status": "public",
+  "licenseId": "unlicensed",
+  "rights":{
+    "download": 1,
+    "visualize":0
+  },
+  "osDescription": {
+    "en": {
+      "ShortName": "ftepref",
+      "LongName": "Ftep Reference Data",
+      "Description": "This collection contains product created by FTEP platfrom Data",
+      "Tags": "ftep reference data",
+      "Developer": "AA",
+      "Contact": "user@mail.com",
+      "Query": "FTEP",
+      "Attribution": "AAA"
+    }
+  },
+  "propertiesMapping":{
+    "productType": "FtepProduct"
+  }
+}

@@ -1,0 +1,105 @@
+@import "variable";
+#navbar {
+    background-color: @bg;
+    border: none;
+    border-radius: 0;
+    height: @navbar-height;
+    margin-bottom: 0;
+    z-index: 50;
+    .navbar-container {
+        height: @navbar-height;
+        padding: 0;
+        padding-left: 0.3rem;
+        .navbar-header {
+            cursor: pointer;
+            margin: 0;
+            padding-right: 1rem;
+            img {
+                height: @navbar-height;
+                padding: 5px;
+            }
+            .navbar-toggle {
+                margin-right: 3rem;
+            }
+        }
+        .navbar-contents {
+            padding: 0;
+            .nav {
+                height: 100%;
+                margin:0;
+                li {
+                    background-color: @bg;
+                    cursor: pointer;
+                    height: @navbar-height;
+                    .border(border-right, @bg);
+                    @media (max-width:1100px) and (min-width: @xs-max-width) {
+                        &:hover {
+                            span {
+                                display:block;
+                            }
+                            .material-icons {
+                                 display: none;
+                            }
+                        }
+                    }
+                    a {
+                        color: @text;
+                        padding: 0;
+                    }
+                    p {
+                        padding: 14px 1rem 0 1rem;
+                        padding-top: 14px;
+                        vertical-align: middle;
+                        .material-icons {
+                            font-size: 1.1rem;
+                        }
+                        @media (max-width:1100px) and (min-width: @xs-max-width) {
+                            .material-icons {
+                                 font-size: 1.4rem;
+                            }
+                            span {
+                                display: none;
+                            }
+                        }
+                    }
+                    &.active {
+                        border-bottom: @brand solid 4px;
+                        p {
+                            color: @brand-dark !important;
+                        }
+                        @media (max-width: @xs-max-width) {
+                            background-color: @brand-light;
+                            border: none;
+                        }
+                    }
+                    &:first-child {
+                        .border(border-left, @bg);
+                    }
+                    &:hover {
+                        background-color: darken(@bg, 15%);
+                        p {
+                            color: @brand-dark;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** TODO: Remove after pre-realease **/
+.ribbon {
+    position: fixed;
+    right: -30px;
+    top: 12px;
+    z-index: 51;
+    background-color: @accent;
+    background-image: linear-gradient(to top, @accent-light, @accent);
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+    color: @text-light;
+    font: bold 1rem;
+    padding: 7px 0;
+    text-align: center;
+    transform: rotate(45deg);
+    width: 120px;
+}

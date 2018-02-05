@@ -1,0 +1,44 @@
+{
+  "type": "Feature",
+  "properties": {
+    "jobid": "c1844ff8-310b-5584-a97a-11214dc72cfd",
+    "userid": 23,
+    "servicename": "SERVICE123",
+    "title": "fid--2d981d6d_158737ed83e_-7a0e",
+    "author_name": "Claudius Ptolomaeus",
+    "id": "http://192.171.139.85:8080/geoserver/946/wms/reflect?format=application%2Fatom%2Bxml&layers=null%3AGridCoverage&featureid=fid--2d981d6d_158737ed83e_-7a0e",
+    "link_href": "http://192.171.139.85:8080/geoserver/946/wms/reflect?format=application%2Fatom%2Bxml&layers=null%3AGridCoverage&featureid=fid--2d981d6d_158737ed83e_-7a0e",
+    "link_rel": "self",
+    "updated": "2017/03/07 14:03:43+00",
+    "content": "<h4>GridCoverage</h4><ul class=\"textattributes\">    <li><strong><span class=\"atr-name\">grid</span>:</strong> <span class=\"atr-value\">org.geoserver.catalog.CoverageDimensionCustomizerReader@7a96300c</span></li>  <li><strong><span class=\"atr-name\">params</span>:</strong> <span class=\"atr-value\">[Lorg.opengis.parameter.GeneralParameterValue;@78aad427</span></li></ul>",
+    "content_type": "html"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -93.935883,
+          16.19036
+        ],
+        [
+          -90.103367,
+          16.172692
+        ],
+        [
+          -90.088402,
+          17.163984
+        ],
+        [
+          -93.940725,
+          17.182799
+        ],
+        [
+          -93.935883,
+          16.19036
+        ]
+      ]
+    ]
+  }
+}
+

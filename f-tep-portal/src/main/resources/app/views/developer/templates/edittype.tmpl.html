@@ -1,0 +1,89 @@
+<md-dialog id="edit-type-dialog" aria-label="Edit type dialog">
+
+    <h4>Edit type for {{input.id}}</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+
+            <section id="type-selection">
+                <md-input-container class="md-block" flex-gt-sm>
+                    <md-select ng-model="input.data" ng-change="updateAttrs()">
+                        <md-option ng-repeat="type in constants.fieldTypes" ng-value="type.type">
+                            {{type.type}}
+                        </md-option>
+                   </md-select>
+                </md-input-container>
+            </section>
+
+            <form name="typeFormLiteral" class="literal-type" ng-show="input.data === 'LITERAL'">
+                <md-input-container class="md-block input-with-label" flex-gt-sm>
+                    <label>Data Type</label>
+                    <md-select ng-model="input.defaultAttrs.dataType" required>
+                        <md-option ng-repeat="type in constants.literalTypes" ng-value="type.dataType">
+                            {{type.dataType}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+
+                <div id="allowedValues">
+                    <md-subheader class="md-accent">Allowed Values:</md-subheader>
+                    <div id="allowedValuesList" ng-if="input.defaultAttrs.allowedValues && input.defaultAttrs.allowedValues !== ''">
+                        <md-list-item class="md-1-line" ng-repeat="item in input.defaultAttrs.allowedValues.split(',')">
+                             {{item}}
+                             <md-button class="toolbar-button md-secondary"
+                                        ng-click="removeAllowedValue(item)"
+                                        aria-label="Remove"
+                                        uib-tooltip="Remove"
+                                        tooltip-placement="top"
+                                        tooltip-trigger="mouseenter"
+                                        tooltip-append-to-body="true">
+                                <i class="material-icons">clear</i>
+                            </md-button>
+                        </md-list-item>
+                    </div>
+                    <div ng-if="input.defaultAttrs.allowedValues === undefined || input.defaultAttrs.allowedValues === ''">
+                        None defined
+                    </div>
+                </div>
+                <div id="addAllowedValue" class="row">
+                    <form name="allowedValuesForm">
+                        <div class="col-md-8">
+                            <md-input-container class="md-block" flex-gt-sm md-no-float>
+                               <input type="text" ng-model="newAllowedVal" placeholder="Add New Allowed Value" aria-label="Add Allowed Value">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4">
+                            <md-button ng-click="addAllowedValue(newAllowedVal); newAllowedValue=''" class="md-primary" form="allowedValuesForm" ng-disabled="allowedValuesForm.$invalid">Add</md-button>
+                        </div>
+                    </form>
+                </div>
+            </form>
+
+            <form name="typeFormComplex" class="complex-type" ng-show="input.data === 'COMPLEX'">
+                <md-input-container class="md-block input-with-label" flex-gt-sm md-no-float>
+                    <label>mimeType</label>
+                    <input ng-model="input.defaultAttrs.mimeType" type="text" placeholder="mimeType*" required aria-label="Mime Type">
+                </md-input-container>
+                <md-input-container class="md-block input-with-label" flex-gt-sm>
+                    <label>extension</label>
+                    <input ng-model="input.defaultAttrs.extension" type="text" placeholder="extension*" required aria-label="Extension">
+                </md-input-container>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="input-label">asReference:</label>
+                    </div>
+                    <div class="col-md-4">
+                        <md-checkbox ng-model="input.defaultAttrs.asReference"></md-checkbox>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog(false)" class="md-primary">Cancel</md-button>
+        <md-button ng-click="closeDialog(true)" ng-if="input.data === 'LITERAL'" class="md-primary" form="typeFormLiteral" ng-disabled="typeFormLiteral.$invalid">Done</md-button>
+        <md-button ng-click="closeDialog(true)" ng-if="input.data === 'COMPLEX'" class="md-primary" form="typeFormComplex" ng-disabled="typeFormComplex.$invalid">Done</md-button>
+    </md-dialog-actions>
+</md-dialog>

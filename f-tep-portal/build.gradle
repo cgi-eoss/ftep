@@ -1,21 +1,34 @@
 buildscript {
     dependencies {
-        classpath "com.netflix.nebula:gradle-ospackage-plugin:4.1.0"
-        classpath "gradle.plugin.com.craigburke.gradle:client-dependencies:1.3.1"
-        classpath "com.eriwen:gradle-js-plugin:2.14.1"
+        classpath pl.osPackage
+        classpath pl.clientDependencies
     }
 }
 
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
-apply plugin: 'java'
+apply plugin: 'java-base'
 apply plugin: 'nebula.ospackage'
 apply plugin: 'com.craigburke.client-dependencies'
-apply plugin: 'com.eriwen.gradle.js'
 
-jar {
-    enabled false
+sourceSets {
+    main {
+        java {
+            srcDirs = []
+        }
+        resources {
+            srcDirs = ["src/main/resources", "src/main/requireJs"]
+        }
+    }
+    test {
+        java {
+            srcDirs = []
+        }
+        resources {
+            srcDirs = ["src/test/resources"]
+        }
+    }
 }
 
 clientDependencies {
@@ -40,104 +53,119 @@ clientDependencies {
         'angular-sanitize'('1.4.14')
         'angular-touch'('1.4.14')
         'angular-ui-bootstrap'('2.3.0')
-        'angular-ui-grid'('3.2.9')
+        'angular-ui-codemirror'('0.3.0')
+        'angular-ui-grid'('4.0.4')
         'angular-ui-layout'('1.4.2')
-        'angularjs-slider'('5.8.7')
         'bootstrap'('3.2.0')
         'clipboard-js'('0.3.1')
+        'codemirror'('5.25.2')
         'jquery'('3.1.1')
         'moment'('2.17.0')
-        'ng-scrollbar'('0.0.8')
-        'requirejs'('2.3.2')
+        'requirejs'('2.3.3')
         'requirejs-domready'('2.0.3', into: 'domready')
+        'ng-file-upload'('12.2.13')
+        'traverson'('6.0.1')
+        'traverson-angular'('6.0.0')
+        'traverson-hal'('6.0.0')
+        'x2js'('3.1.1')
     }
 }
 
-javascript.source {
-    ftep {
-        js {
-            srcDir "${projectDir}/src/main/resources/app/scripts"
-            include "**/*.js"
-            exclude "vendor/**/*"
-            exclude "zoo-client/**/*"
-        }
-    }
-    vendor {
-        js {
-            srcDir "${projectDir}/src/main/resources/app/scripts"
-            include "vendor/**/*.js"
-            include "zoo-client/**/*.js"
-        }
-    }
+dependencies {
+    compile 'com.google.javascript:closure-compiler:v20170806'
 }
 
-String finalJs = "${buildDir}/requireJs/all.js"
-
-// Concatenate all required JS resources for the main app
-requireJs {
-    source = [javascript.source.ftep.js.files, javascript.source.vendor.js.files]
-    dest = file(finalJs)
-    requirejs.buildprofile = file("${projectDir}/src/main/requireJs/build.js")
-    requirejs.impl = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
+task requireJs(type: RequireJsTask) {
+    classpath = sourceSets.main.compileClasspath
+    rJs = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
+    buildJs = file("${projectDir}/src/main/requireJs/build.js")
+    sourceJs = fileTree("${projectDir}/src/main/resources/app/scripts") {
+        include '**/*.js'
+    }
+    appJsFile = "app.js"
+    outputDir = file("${buildDir}/requireJs")
 
     dependsOn clientInstall
 }
 
-// TODO Test and enable minification, and change finalJs
-minifyJs {
-    source = "${buildDir}/requireJs/all.js"
-    dest = "${buildDir}/requireJs/all.min.js"
-    closure {
-        compilerOptions = [
-                'languageIn': 'ECMASCRIPT5'
-        ]
-    }
+@CacheableTask
+class RequireJsTask extends DefaultTask {
+    @Input
+    File jjs = project.file("${System.properties['java.home']}/bin/jjs")
 
-    dependsOn requireJs
+    @Classpath @InputFiles
+    Iterable<File> classpath
+
+    @InputFile
+    File rJs
+
+    @InputFile
+    File buildJs
+
+    @InputFiles
+    Iterable<File> sourceJs
+
+    @Input
+    String appJsFile
+
+    @OutputDirectory
+    File outputDir
+
+    @TaskAction
+    def requireJs() {
+        project.exec {
+            standardOutput new FileOutputStream("${project.buildDir}/requireJs.log")
+            errorOutput new FileOutputStream("${project.buildDir}/requireJs.err")
+            commandLine jjs, "-scripting",
+                    "-cp", classpath.asPath,
+                    rJs, "--",
+                    "-o", buildJs,
+                    "out=${outputDir}/${appJsFile}"
+        }
+    }
 }
 
-// Copy all non-JS resources to the staging area
-task copyApp(type: Copy) {
-    from "${projectDir}/src/main/resources/app"
+task stageApp(type: Sync) {
     into "${buildDir}/staging"
-
-    exclude 'scripts/**/*.js'
-    exclude 'index.html'
     includeEmptyDirs = false
 
-    dependsOn clientInstall
-}
-
-task copyJs(type: Copy) {
-    from finalJs
-    into "${buildDir}/staging/scripts"
-    rename { return "app.js" }
-
-    dependsOn requireJs
-}
-
-task copyConfig(type: Copy) {
-    from "${projectDir}/src/main/resources/app/scripts/ftepConfig.js"
-    into "${buildDir}/staging/scripts"
-    dependsOn copyApp
-}
-
-// Copy the index.html file and replace the require.js loader with the concatenated & minified JS resource
-task copyIndex(type: Copy) {
-    from "${projectDir}/src/main/resources/app"
-    into "${buildDir}/staging"
-    include 'index.html'
-
-    filter { line ->
-        line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
-                '<script src="scripts/app.js"></script>')
+    from("${projectDir}/src/main/resources/app") {
+        exclude 'scripts/**/*.js'
+        exclude 'index.html'
     }
+    from("${projectDir}/src/main/resources/app/scripts/vendor/codemirror") {
+        into 'scripts/vendor/codemirror'
+        include '**/*'
+    }
+    from(requireJs) {
+        into 'scripts'
+        include '**/*'
+    }
+    from("${projectDir}/src/main/resources/app/scripts/ftepConfig.js") {
+        into 'scripts'
+    }
+    from("${projectDir}/src/main/resources/app") {
+        include 'index.html'
 
-    dependsOn copyApp, copyJs, copyConfig
+        filter { line ->
+            line.replace('<script data-main="scripts/main" src="scripts/vendor/requirejs/require.js"></script>',
+                    '<script src="scripts/app.js"></script>')
+        }
+        filter { line ->
+            line.replace('<meta id="version" name="version" content="dev">',
+                    "<meta id=\"version\" name=\"version\" content=\"${getBannerVersion()}\">")
+        }
+    }
 }
 
-buildRpm.dependsOn tasks.withType(Copy)
-buildDeb.dependsOn tasks.withType(Copy)
+String getBannerVersion() {
+    return project.version.endsWith('-SNAPSHOT') ?
+            "${getRpmVersion(project.version).version}-dev" :
+            "${getRpmVersion(project.version).version}"
+}
+
+buildRpm.dependsOn stageApp
+buildDeb.dependsOn stageApp
 
 ospackage {
     packageName 'f-tep-portal'
@@ -161,12 +189,13 @@ ospackage {
     }
 }
 
-artifacts {
-    archives buildRpm
-}
+configurations { pkg }
+artifacts { pkg buildRpm }
 
 sonarqube {
     properties {
-        property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*,src/main/resources/app/scripts/zoo-client/**/*"
+        property "sonar.sources", "src/main/resources/app"
+        property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*"
     }
 }
+

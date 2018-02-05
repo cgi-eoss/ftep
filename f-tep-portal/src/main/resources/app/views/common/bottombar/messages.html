@@ -1,0 +1,83 @@
+<div id="messages">
+
+   <section class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-11" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-1 expander">
+                    <i class="material-icons"
+                       ng-show="!msgParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="msgParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <div class="col-md-12 col-lg-4 filter-checkboxes"
+                 ng-show="msgParams.displayFilters"
+                 ng-click="messageStatus.value = !messageStatus.value; filterMessages()"
+                 ng-repeat="messageStatus in msgParams.messageStatuses">
+                <md-checkbox ng-model="messageStatus.value"
+                             ng-click="messageStatus.value = !messageStatus.value; filterMessages()"
+                             aria-label="Message Filter"/>
+                <span>{{messageStatus.name}}</span>
+            </div>
+
+        </ul>
+    </section>
+
+    <section class="item-list list">
+
+            <md-list-item class="md-2-line"
+                          ng-repeat="message in messages | orderBy: '-time'"
+                          ng-show="filteredMessages.indexOf(message.status) > -1"
+                          ng-click="selectMessage(message)"
+                          ng-class="{active: message.id == msgParams.selectedMessage.id}">
+
+                <div class="md-avatar" alt="{{message.attributes.step}}" style="{{getColor(message.status)}}">
+                    <i class="material-icons" ng-if="message.status === 'Error'">error</i>
+                    <i class="material-icons" ng-if="message.status === 'Warning'">warning</i>
+                    <i class="material-icons" ng-if="message.status === 'Info'">info</i>
+                </div>
+
+                <div class="md-list-item-text" layout="column">
+                    <h3>{{message.title}}</h3>
+                    <h4>{{message.time}}</h4>
+                </div>
+
+                <md-button class="toolbar-button md-secondary"
+                           ng-click="clearMessage($event, message)"
+                           aria-label="Clear"
+                           uib-tooltip="Clear"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">clear</i>
+                </md-button>
+
+            </md-list-item>
+
+    </section>
+
+</div>

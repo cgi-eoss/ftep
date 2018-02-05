@@ -1,0 +1,110 @@
+buildscript {
+    dependencies {
+        classpath pl.osDetector
+        classpath pl.osPackage
+        classpath pl.springBoot
+    }
+}
+
+group 'com.cgi.eoss.f-tep'
+version '2.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'nebula.ospackage'
+apply plugin: 'com.google.osdetector'
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+
+    compile project(':f-tep-clouds')
+    compile project(':f-tep-io')
+    compile project(':f-tep-logging')
+    compile project(':f-tep-rpc')
+
+    // Pre-built shaded docker-java jar
+    compile project(path: ':docker-java', configuration: 'shadow')
+
+    compile 'commons-io:commons-io'
+    compile 'commons-net:commons-net'
+    compile 'com.jayway.jsonpath:json-path'
+    compile 'com.lmax:disruptor'
+    compile 'com.squareup.okhttp3:okhttp'
+    compile 'com.squareup.okhttp3:logging-interceptor'
+    compile 'io.netty:netty-tcnative-boringssl-static'
+    compile 'javax.servlet:javax.servlet-api'
+    compile 'org.apache.commons:commons-text'
+    compile 'org.apache.logging.log4j:log4j-jul'
+    compile 'org.aspectj:aspectjweaver'
+    compile 'org.graylog2.log4j2:log4j2-gelf'
+    compile 'org.jolokia:jolokia-core'
+    compile 'org.jooq:jool'
+    compile 'org.lognet:grpc-spring-boot-starter'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-autoconfigure'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.boot:spring-boot-starter-undertow'
+    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+
+    testCompile project(':f-tep-catalogue')
+    testCompile project(':f-tep-persistence')
+
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.mockftpserver:MockFtpServer'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'org.springframework:spring-test'
+    testCompile 'org.springframework.boot:spring-boot-test'
+}
+
+springBoot {
+    classifier = 'bin'
+    executable = true
+}
+
+// bootRepackage was depending on "archives" and creating a circular dependency
+bootRepackage.dependsOn = [jar]
+buildRpm.dependsOn bootRepackage
+buildDeb.dependsOn bootRepackage
+configurations { pkg }
+artifacts { pkg buildRpm }
+
+ospackage {
+    packageName 'f-tep-worker'
+    version getRpmVersion(project.version).version
+    release getRpmVersion(project.version).release
+    arch NOARCH
+    os LINUX
+
+    user 'ftep'
+    permissionGroup 'ftep'
+
+    preInstall file('src/ospackage/preinst.sh')
+    postInstall file('src/ospackage/postinst.sh')
+    preUninstall file('src/ospackage/prerm.sh')
+
+    into('/var/f-tep/worker') {
+        from("${buildDir}/libs") {
+            include '*-bin.jar'
+            rename('f-tep-worker-.*\\-bin.jar', 'f-tep-worker.jar')
+            fileMode 0500
+        }
+
+        from("src/ospackage/application.properties") {
+            fileType CONFIG | NOREPLACE
+        }
+    }
+
+    into('/usr/lib/systemd/system') {
+        from 'src/ospackage/f-tep-worker.service'
+        addParentDirs false
+    }
+
+    link('/etc/init.d/f-tep-worker', '/var/f-tep/worker/f-tep-worker.jar')
+}

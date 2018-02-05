@@ -1,0 +1,87 @@
+<div class="button-section button-section-small">
+    <md-menu-bar>
+        <md-menu>
+            <md-button ng-click="$mdOpenMenu($event)"
+                       class="toolbar-button"
+                       aria-label="Databaskets Action Menu"
+                       uib-tooltip="Databaskets Action Menu"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">settings</i>
+            </md-button>
+            <md-menu-content>
+                <md-menu-item>
+                     <md-button ng-click="clearDatabasket()"
+                                aria-label="Clear Databasket"
+                                has-permission="WRITE"
+                                permission-source="{{dbParams.selectedDatabasket}}"
+                                disable-on-check>
+                        <span>
+                            <span class="material-icons">remove_shopping_cart</span>
+                            <span class="menu-text">Clear Databasket</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-menu>
+                        <md-button ng-click="$mdOpenMenu($event)"
+                                   class="toolbar-button"
+                                   aria-label="Select Databasket"
+                                   uib-tooltip="Select Databasket"
+                                   tooltip-trigger="mouseenter"
+                                   tooltip-append-to-body="true">
+                            <span>
+                                <span class="material-icons">shopping_cart</span>
+                                <span class="menu-text">Select Databasket</span>
+                            </span>
+                        </md-button>
+                        <md-menu-content>
+                            <md-menu-item ng-repeat="basket in databaskets">
+                                 <md-button ng-click="selectDatabasket(basket)"
+                                            ng-class="(basket.attributes.name == dbParams.selectedDatabasket.attributes.name) ? 'selected' : ''"
+                                            aria-label="Databasket">
+                                    <span>
+                                        <span class="material-icons">shopping_basket</span>
+                                        <span class="menu-text">{{basket.attributes.name}}</span>
+                                    </span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="createNewBasket($event)"
+                               aria-label="Create New Databasket">
+                        <span>
+                            <span class="material-icons">add_shopping_cart</span>
+                            <span class="menu-text">Create New Databasket</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+    </md-menu-bar>
+</div>
+
+<div class="button-section button-section-large">
+    <md-button class="toolbar-button"
+               ng-click="clearDatabasket()"
+               aria-label="Clear Databasket"
+               uib-tooltip="Clear Databasket"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true"
+               has-permission="WRITE"
+               permission-source="{{dbParams.selectedDatabasket}}"
+               disable-on-check>
+        <i class="material-icons">remove_shopping_cart</i>
+    </md-button>
+
+    <md-button class="toolbar-button"
+               ng-click="createNewBasket($event)"
+               aria-label="Create New Databasket"
+               uib-tooltip="Create New Databasket"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add_shopping_cart</i>
+    </md-button>
+</div>

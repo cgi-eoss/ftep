@@ -24,9 +24,8 @@ ENTRYPOINT /entrypoint.sh
 
 # Speed up provisioning by pre-installing appropriate packages for each node; this should change infrequently and can be
 # cached effectively, whereas the F-TEP stuff will change frequently
-ARG pkgconf
-ADD ${pkgconf} /var/tmp/pkglist
-RUN yum install -y $(cat /var/tmp/pkglist) && yum clean all
+ARG pkgs
+RUN yum install -y ${pkgs} && yum clean all
 
 # F-TEP installation/configuration
 ADD puppet /var/tmp/puppet
@@ -34,12 +33,19 @@ ADD common.yaml /var/tmp/puppet/hieradata/standalone.yaml
 ARG puppetconf
 ADD ${puppetconf} /var/tmp/puppet/hieradata/standalone.local.yaml
 
-# This will change on every build, so do it as late as possible
-ADD repo /var/tmp/repo
-
+# Run puppet once now (without the F-TEP repo) to try to cache the base system config - this will throw errors!
 RUN cd /var/tmp/puppet \
  && puppet apply \
- --hiera_config=/var/tmp/puppet/hiera.yaml \
+ --hiera_config=/var/tmp/puppet/hiera-global.yaml \
+ --environmentpath=/var/tmp \
+ --environment=puppet \
+ /var/tmp/puppet/manifest.pp
+
+# This will change on every build, so do it as late as possible
+ADD repo /var/tmp/repo
+RUN cd /var/tmp/puppet \
+ && puppet apply \
+ --hiera_config=/var/tmp/puppet/hiera-global.yaml \
  --environmentpath=/var/tmp \
  --environment=puppet \
  /var/tmp/puppet/manifest.pp

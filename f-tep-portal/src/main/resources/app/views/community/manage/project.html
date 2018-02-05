@@ -1,0 +1,230 @@
+<article id="project-header">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="projectParams.selectedProject = undefined"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
+
+    <md-button id="update-project"
+               class="save-button md-fab md-mini right"
+               ng-click="refreshProject()"
+               aria-label="Update Project"
+               uib-tooltip="Update Project"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+            <i class="material-icons">update</i>
+    </md-button>
+
+    <section id="projects-title" class="row section-title">
+        <div class="col-xs-10 title-text">
+            <h2 ng-bind="projectParams.selectedProject.name" />
+        </div>
+    </section>
+
+    <section class="sub-title">
+        <div ng-show="projectParams.selectedProject.description" ng-bind="projectParams.selectedProject.description" />
+        <div ng-show="!projectParams.selectedProject.description" ng-bind="'No Description'" />
+    </section>
+
+</article>
+
+<article id="project-manage">
+
+    <section class="row section-title">
+        <div class="col-xs-11 title-text">
+            <h3>Contents</h3>
+        </div>
+        <div class="col-xs-1 title-button">
+            <h3>
+                <md-button class="toolbar-button icon-button-accent md-secondary"
+                           ng-click="addProjectContentDialog($event)"
+                           has-permission="WRITE" permission-source="{{projectParams.selectedProject}}"
+                           aria-label="Add ..."
+                           uib-tooltip="Add ..."
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">library_add</i>
+                </md-button>
+            </h3>
+        </div>
+    </section>
+
+    <section class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-11" ng-click="toggleContentsFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-1 expander">
+                    <i class="material-icons"
+                       ng-show="!projectParams.displayContentsFilters"
+                       ng-click="toggleContentsFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="projectParams.displayContentsFilters"
+                       ng-click="toggleContentsFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="projectParams.displayContentsFilters">
+                <input ng-model="contentsSearch.searchText" type="text" placeholder="Search" aria-label="Item Search Filter">
+            </md-input-container>
+
+        </ul>
+    </section>
+
+    <section class="item-list">
+        <md-list-item class="md-1-line" ng-repeat="(key, item) in projectParams.contents | filter: contentsQuickSearch">
+
+            <div class="md-avatar" alt="access rights">
+                <i class="material-icons">insert_drive_file</i>
+            </div>
+
+            <div class="md-list-item-text" layout="column">
+                <h4 ng-if="item.name" ng-bind="item.name" />
+                <h4 ng-if="!item.name" ng-bind="'Job ID: ' + item.id" />
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeProject(projectParams.contents, item)"
+                       has-permission="WRITE" permission-source="{{projectParams.selectedProject}}"
+                       aria-label="Remove"
+                       uib-tooltip="Remove"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">clear</i>
+            </md-button>
+
+        </md-list-item>
+    </section>
+
+</article>
+
+<article id="group-sharing" class="sharing-container" has-permission="ADMIN" permission-source="{{projectParams.selectedProject}}">
+
+    <section class="row section-title">
+        <div class="col-xs-11 title-text">
+            <h3>Sharing List</h3>
+        </div>
+        <div class="col-xs-1 title-button">
+            <h3>
+                <md-button class="toolbar-button icon-button-accent md-secondary"
+                           ng-click="shareObjectDialog($event, projectParams.selectedProject, 'project', projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
+                           has-permission="ADMIN" permission-source="{{projectParams.selectedProject}}"
+                           aria-label="Share"
+                           uib-tooltip="Share"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">share</i>
+                </md-button>
+            </h3>
+        </div>
+    </section>
+
+    <section class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-11" ng-click="toggleSharingFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-1 expander">
+                    <i class="material-icons"
+                       ng-show="!projectParams.sharedGroupsDisplayFilters"
+                       ng-click="toggleShareFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="projectParams.sharedGroupsDisplayFilters"
+                       ng-click="toggleShareFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="projectParams.sharedGroupsDisplayFilters">
+                <input ng-model="projectParams.sharedGroupsSearchText" type="text" placeholder="Search" aria-label="Group Search Filter">
+            </md-input-container>
+
+        </ul>
+    </section>
+
+    <section class="groups-shared item-list">
+
+         <md-list-item class="md-1-line" ng-repeat="ace in projectParams.sharedGroups | orderBy: 'group.name' | filter: quickSharingSearch">
+
+            <div class="md-avatar" alt="access rights">
+                <i class="material-icons">group</i>
+            </div>
+
+            <div class="md-list-item-text" layout="column">
+                <h4 ng-bind="ace.group.name" />
+            </div>
+
+            <div class="md-secondary md-list-item-dropdown-label">
+                <label>Permission</label>
+            </div>
+
+            <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
+                <md-select ng-model="ace.permission"
+                           ng-change="updateGroups(projectParams.selectedProject, 'project', projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
+                           aria-label="Permission">
+                    <md-option ng-repeat="permission in permissions" ng-value="permission">
+                        {{permission}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeGroup(projectParams.selectedProject, 'project', ace.group, projectParams.sharedGroups, 'ProjectService', 'refreshSelectedProject')"
+                       aria-label="Remove"
+                       uib-tooltip="Remove"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">clear</i>
+            </md-button>
+
+        </md-list-item>
+
+    </section>
+
+</article>

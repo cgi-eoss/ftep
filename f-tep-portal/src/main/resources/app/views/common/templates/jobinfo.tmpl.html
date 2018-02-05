@@ -1,0 +1,30 @@
+<table class="metadata">
+    <tr>
+        <td>Owner:</td>
+        <td ng-bind="job.owner.name" />
+    </tr>
+    <tr>
+        <td>Description:</td>
+        <td ng-bind="job.description ? job.description : 'No description'" />
+    </tr>
+    <tr>
+        <td>Access:</td>
+        <td ng-bind="job.access.currentLevel" />
+    </tr>
+    <tr>
+        <td>Status:</td>
+        <td ng-bind="job.status" />
+    </tr>
+    <tr>
+        <td>Stage:</td>
+        <td ng-bind="job.stage" />
+    </tr>
+    <tr>
+        <td>Start:</td>
+         <td ng-bind="job.startTime | formatDateTime" />
+    </tr>
+    <tr>
+        <td>End:</td>
+        <td ng-bind="job.endTime | formatDateTime" />
+    </tr>
+</table>

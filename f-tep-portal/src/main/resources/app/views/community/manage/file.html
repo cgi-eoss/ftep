@@ -1,0 +1,163 @@
+<article>
+    <form id="file-details" name="fileForm">
+
+        <section id="file-header">
+
+            <md-button class="close toolbar-button md-secondary"
+                       ng-click="fileParams.selectedFile = undefined"
+                       uib-tooltip="Close"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">close</i>
+            </md-button>
+
+            <md-button id="update-file"
+                       class="save-button md-fab md-mini right"
+                       ng-click="refreshFile()"
+                       aria-label="Update File"
+                       uib-tooltip="Update File"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">update</i>
+            </md-button>
+
+            <md-button id="save-file-button"
+                       class="md-fab md-mini btn-success right"
+                       type="submit"
+                       form="fileForm"
+                       ng-disabled="fileForm.$invalid"
+                       ng-click="saveFile()"
+                       aria-label="Save"
+                       uib-tooltip="Save"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">save</i>
+            </md-button>
+
+            <section class="row section-title">
+                <div class="col-xs-6 title-text">
+                    <h3>{{item}} Details</h3>
+                </div>
+            </section>
+
+        </section>
+
+        <section id="file-manage">
+
+            <div class="row file-field">
+                <md-input-container md-no-float>
+                    <label class="md-title">Filename</label>
+                    <input required ng-readonly="true" name="filename" ng-model="fileParams.fileDetails.filename" type="text" placeholder="File name is required *" aria-label="File Name">
+                    <div ng-messages="fileForm.filename.$error" role="alert">
+                        <div ng-message="required">Filename is required!</div>
+                    </div>
+                </md-input-container>
+            </div>
+
+            <div class="row file-field">
+                <md-input-container md-no-float required>
+                    <label class="md-title">Geometry</label>
+                    <textarea ng-readonly="true" name="geometry" rows="3" placeholder="File geometry is required *" aria-label="Geometry ">{{getGeometryStr(fileParams.fileDetails.metadata.geometry)}}</textarea>
+                    <div ng-messages="fileForm.geometry.$error" role="alert">
+                        <div ng-message="required">Geometry is required!</div>
+                    </div>
+                </md-input-container>
+            </div>
+
+        </section>
+
+    </form>
+</article>
+
+<article id="databasket-sharing" class="sharing-container" has-permission="ADMIN" permission-source="{{fileParams.selectedFile}}">
+
+    <section class="row section-title">
+        <div class="col-xs-11 title-text">
+            <h3>Sharing List</h3>
+        </div>
+        <div class="col-xs-1 title-button">
+            <h3>
+                <md-button class="toolbar-button icon-button-accent md-secondary"
+                           ng-click="shareObjectDialog($event, fileParams.selectedFile, 'ftepFile', fileParams.groups, 'FileService', 'refreshSelectedFtepFile')"
+                           has-permission="ADMIN"
+                           permission-source="{{fileParams.selectedFile}}"
+                           aria-label="Share"
+                           uib-tooltip="Share"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">share</i>
+                </md-button>
+            </h3>
+        </div>
+    </section>
+
+    <section class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-11" ng-click="toggleSharingFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-1 expander">
+                    <i class="material-icons" ng-show="!fileParams.sharedGroupsDisplayFilters" ng-click="toggleSharingFilters()" aria-label="Show Filters" uib-tooltip="Show Filters" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons" ng-show="fileParams.sharedGroupsDisplayFilters" ng-click="toggleSharingFilters()" aria-label="Hide Filters" uib-tooltip="Hide Filters" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="fileParams.sharedGroupsDisplayFilters">
+                <input ng-model="fileParams.sharedGroupsSearchText" type="text" placeholder="Search" aria-label="Group Search Filter">
+            </md-input-container>
+
+        </ul>
+    </section>
+
+    <section class="groups-shared item-list">
+
+        <md-list-item class="md-1-line" ng-repeat="ace in fileParams.sharedGroups | orderBy: 'group.name' | filter: quickSharingSearch">
+
+            <div class="md-avatar" alt="access rights">
+                <i class="material-icons">group</i>
+            </div>
+
+            <div class="md-list-item-text" layout="column">
+                <h4 ng-bind="ace.group.name" />
+            </div>
+
+            <div class="md-secondary md-list-item-dropdown-label">
+                <label>Permission</label>
+            </div>
+
+            <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
+                <md-select ng-model="ace.permission" ng-change="updateGroups(fileParams.selectedFile, 'ftepFile', fileParams.sharedGroups, 'FileService', 'refreshSelectedFtepFile')" aria-label="Permission">
+                    <md-option ng-repeat="permission in permissions" ng-value="permission">
+                        {{permission}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeGroup(fileParams.selectedFile, 'ftepFile', ace.group, fileParams.groups, 'FileService', 'refreshSelectedFtepFile')"
+                       aria-label="Remove"
+                       uib-tooltip="Remove"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">clear</i>
+            </md-button>
+
+        </md-list-item>
+
+    </section>
+
+</article>

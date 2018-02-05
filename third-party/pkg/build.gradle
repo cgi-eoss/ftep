@@ -1,0 +1,15 @@
+group 'com.cgi.eoss.f-tep'
+version '2.1.0-SNAPSHOT'
+
+apply plugin: 'base'
+
+configurations { pkg }
+artifacts {
+    fileTree(dir: '.', includes: ['**/*.rpm']).collect {
+        pkg it
+    }
+}
+
+sonarqube {
+    skipProject = true
+}

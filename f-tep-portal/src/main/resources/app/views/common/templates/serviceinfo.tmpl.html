@@ -1,0 +1,22 @@
+<table class="metadata">
+    <tr>
+        <td>Name:</td>
+        <td ng-bind="service.name" />
+    </tr>
+    <tr>
+        <td>Description:</td>
+        <td ng-bind="service.description ? service.description : 'No description'" />
+    </tr>
+    <tr>
+        <td>Type:</td>
+        <td ng-bind="service.type" />
+    </tr>
+    <tr>
+        <td>Licence:</td>
+        <td ng-bind="service.licence" />
+    </tr>
+    <tr>
+        <td>Owner:</td>
+        <td ng-bind="service.owner.name" />
+    </tr>
+</table>

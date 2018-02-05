@@ -1,0 +1,8 @@
+---
+classes:
+  - ftep::proxy
+  - ftep::drupal
+  - ftep::webapp
+
+ftep::drupal::init_db: false
+ftep::drupal::enable_cron: false

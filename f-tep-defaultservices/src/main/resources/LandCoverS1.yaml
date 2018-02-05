@@ -1,0 +1,102 @@
+---
+id: "LandCoverS1"
+title: "Calculate land coverage (a forest map) from Sentinel-1 SAR data"
+description: "Land cover mapping of Sentinel-1 (GRD) images, with image classification trained by Random Forest model. A core F-TEP service."
+version: "1.0"
+storeSupported: true
+statusSupported: true
+serviceType: "Java"
+serviceProvider: "LandCoverS1"
+dataInputs:
+  - id: "inputfiles"
+    title: "Input data"
+    description: "The input Sentinel-1 data files (GRD products)"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "refDataShapefile"
+    title: "Reference data archive containing shapefile for image classification training"
+    description: "Expected is a .zip with flat content structure containing one *.shp and associated files"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "shapefileAttribute"
+    title: "String identifying the field in the shapefile to be used for training the model"
+    description: "E.g. 'Class'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "crs"
+    title: "Target CRS identifier"
+    description: "EPSG coordinate reference system identifier of the target product, i.e. EPSG:326XX/327XX for the Northern/Southern hemisphere, where XX is the UTM zone, e.g. EPSG:32635"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "aoi"
+    title: "Area of interest"
+    description: "Well-known text POLYGON describing the AOI to be processed"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "dem"
+    title: "Digital elevation model"
+    description: "Digital elevation model identifier: e.g. SRTM 1Sec HGT (default)"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+      value: "SRTM 1Sec HGT"
+    supportedAttrs: []
+  - id: "targetResolution"
+    title: "Target image resolution"
+    description: "Desired image resolution in metres. Controls resampling of the input data. Example: '10'"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+dataOutputs:
+  - id: "result"
+    title: "GeoTiff image file"
+    description: "The requested land cover image"
+    data: "COMPLEX"
+    defaultAttrs:
+      mimeType: "image/tiff"
+      extension: "tif"
+      asReference: "true"
+    supportedAttrs: []
+  - id: "model"
+    title: "Training model"
+    description: "The output of the image classification training step"
+    data: "COMPLEX"
+    defaultAttrs:
+      mimeType: "text/plain"
+      extension: "txt"
+      asReference: "true"
+    supportedAttrs: []
+  - id: "confusionMatrix"
+    title: "Confusion matrix"
+    description: "The CSV confusion matrix output of the image classification training step"
+    data: "COMPLEX"
+    defaultAttrs:
+      mimeType: "text/csv"
+      extension: "csv"
+      asReference: "true"
+    supportedAttrs: []

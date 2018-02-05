@@ -1,79 +1,52 @@
 @import "variable";
 #workspace-panel {
-    .info {
-        color: @accent;
-    }
-    .service-header {
-        text-align: center;
-        .service-title {
-            font-size: 1.2rem;
-            margin-bottom: 0;
+    .workspace-header {
+        .service-header {
+            text-align: center;
+            .service-title {
+                color: @text;
+                font-size: 1.2rem;
+                margin-bottom: 0;
+                padding-top: 0.8rem;
+            }
+        }
+        .service-description {
+            .border(border-bottom, @bg);
         }
     }
     .workspace-content {
-        font-size: 0.8rem;
-        line-height: 1rem;
-        i {
-            font-size: 0.9rem;
+        .service-field {
+            .input-item {
+                padding: 0 0.5rem;
+            }
+            .md-subheader {
+                color: @text;
+                button {
+                    background-color: @dark-button;
+                    color: @text-light;
+                    margin-left: 0.5rem;
+                    padding: 2px 4px;
+                    i {
+                         font-size: 0.7rem;
+                    }
+                    &:hover {
+                        background-color: @dark-button-hover;
+                    }
+                }
+                .required-asterisk {
+                    color: @accent;
+                }
+            }
+            &:hover {
+                background-color: @alert;
+            }
         }
-    }
-    #launch-button {
-        background-color: @accent-light;
-        bottom: 20px;
-        float: right;
-        height: 40px;
-        margin: 0;
-        min-height: 0;
-        padding: 0;
-        position: fixed;
-        right: 40px;
-        width: 40px;
-        .material-icons {
-            color: @text-light;
-            font-size: 30px;
-            height: 100%;
-            line-height: 40px;
-            width: 100%;
-        }
-        &:hover {
-            background-color: @accent;
+        input:invalid {
+            border-bottom: solid 1px @error-text;
         }
     }
 }
-
-md-chip {
-    background-color: @light-gray;
-    border-radius: 16px;
-    color: @dark-gray;
-    display: block;
-    float: left;
-    font-size: 12px;
-    height: 32px;
-    line-height: 32px;
-    margin: 2px;
-    max-width: 110px;
-    padding-left: 12px;
-    .md-chip-content {
-        float: left;
-        height: 32px;
-        max-width: 50px;
-        overflow: hidden;
-        padding-right: 4px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .md-chip-close {
-        float: right;
-        line-height: 22px;
-        padding-right: 12px;
-        padding-top: 4px;
-        i {
-            cursor: pointer;
-            font-size: 12px;
-        }
-    }
-    &:hover {
-        background-color: @alert-text;
-        color: @text-light;
-    }
+.dropped-file-popover {
+    max-width: 1000px;
+    width: 800px;
 }

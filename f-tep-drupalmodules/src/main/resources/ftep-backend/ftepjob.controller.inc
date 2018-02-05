@@ -1,1 +1,0 @@
-x	class FtepJobController extends DrupalDefaultEntityController{}

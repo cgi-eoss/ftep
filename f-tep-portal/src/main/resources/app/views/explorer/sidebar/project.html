@@ -17,17 +17,13 @@
 </script>
 
 <uib-accordion>
-    <div uib-accordion-group
-         id="projects"
-         class="panel-default"
-         template-url="group-template.html"
-         open="projectShow">
+    <div uib-accordion-group id="projects" class="panel-default" template-url="group-template.html" open="projectShow">
 
         <uib-accordion-heading class="project-heading">
-            <div class="row panel-heading-container" ng-click="toggleProjectShow()">
+            <div class="row no-margin panel-heading-container" ng-click="toggleProjectShow()">
 
                 <div class="col-xs-8 no-padding project-title heading-item">
-                    <h2 class="left">{{activeProject.attributes.name}}</h2>
+                    <h2 class="left">{{projectParams.selectedProject.name}}</h2>
                     <i class="material-icons expand-icon"
                        uib-tooltip="View More"
                        tooltip-placement="right"
@@ -37,7 +33,7 @@
 
                 <div class="col-xs-1 no-padding heading-item">
                     <md-button class="toolbar-button"
-                               ng-click="createProjectDialog($event)"
+                               ng-click="createProjectDialog($event); $event.stopPropagation()"
                                aria-label="Create New Project"
                                uib-tooltip="Create New Project"
                                tooltip-placement="right"
@@ -47,23 +43,11 @@
                     </md-button>
                 </div>
 
-                <div class="col-xs-1 no-padding heading-item">
-                    <md-button class="toolbar-button"
-                               ng-click="shareProject($event)"
-                               aria-label="Share Project"
-                               uib-tooltip="Share"
-                               tooltip-placement="right"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">
-                        <i class="material-icons">folder_shared</i>
-                    </md-button>
-                </div>
-
                 <div class="col-xs-1 no-padding heading-item" />
 
                 <div class="col-xs-1 no-padding heading-item">
                     <md-button class="toolbar-button right toolbar-right"
-                               ng-click="hideSearchArea($event)"
+                               ng-click="hideSidebarArea(); $event.stopPropagation()"
                                aria-label="Close Sidebar"
                                uib-tooltip="Close"
                                tooltip-placement="right"
@@ -76,73 +60,99 @@
             </div>
         </uib-accordion-heading>
 
-        <ul class="list-group project-list">
-            <li class="list-group-item project-item"
-                ng-repeat="project in projects | orderBy: 'attributes.name'"
-                ng-click="setActiveProject(project)"
-                ng-dblclick="cacheProject(project); projectEdit = true"
-                ng-class="{active:$first}">
-                <div class="row project-item-row">
-                    <div class="col-xs-9 project-item-col">
+        <section class="filter-list">
+            <ul class="list">
 
-                        <div class="project-name-container" ng-show="!projectEdit || project.id == 0">
-                            <span class="selectable project-name">{{project.attributes.name}}</span>
-                        </div>
+                <div class="row list-group filter-list-title">
 
-                        <div class="row no-padding project-edit" ng-show="projectEdit && project.id > 0">
-                            <div class="col-xs-8 no-padding project-item-col">
-                                <div class="input-group">
-                                    <input type="text"
-                                           class="form-control project-rename"
-                                           ng-keyup="projectEdit = updateProject($event.keyCode == 13, project)"
-                                           ng-model="project.attributes.name">
-                                </div>
-                            </div>
-
-                            <div class="col-xs-4 no-padding project-item-col">
-                                <md-button class="toolbar-button"
-                                           ng-click="project=getProjectCache(project); projectEdit = !projectEdit"
-                                           uib-tooltip="Cancel"
-                                           tooltip-placement="top"
-                                           tooltip-trigger="mouseenter"
-                                           tooltip-append-to-body="true">
-                                   <i class="material-icons">close</i>
-                                </md-button>
-                            </div>
-                        </div>
-
+                    <div class="col-xs-11" ng-click="projectParams.displayFilters = !projectParams.displayFilters">
+                        <label class="md-accent">Filters</label>
                     </div>
 
-                    <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
-
-                        <md-button class="toolbar-button"
-                                   ng-click="cacheProject(project); projectEdit=!projectEdit"
-                                   aria-label="Edit Project Name"
-                                   uib-tooltip="Edit"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">edit</i>
-                        </md-button>
+                    <div class="col-xs-1 expander">
+                        <i class="material-icons"
+                           ng-show="!projectParams.displayFilters"
+                           ng-click="toggleFilters()"
+                           aria-label="Show Filters"
+                           uib-tooltip="Show Filters"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                            expand_less
+                        </i>
+                        <i class="material-icons"
+                           ng-show="projectParams.displayFilters"
+                           ng-click="toggleFilters()"
+                           aria-label="Hide Filters"
+                           uib-tooltip="Hide Filters"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                            expand_more
+                        </i>
                     </div>
-
-                    <div class="col-xs-1 icon-button-container project-item-col" ng-show="project.id > 0">
-                        <md-button class="toolbar-button"
-                                   ng-click="removeProject(project)"
-                                   aria-label="Delete Project"
-                                   uib-tooltip="Delete"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                            <i class="material-icons">delete</i>
-                        </md-button>
-                    </div>
-
-                    <div class="col-xs-1 no-padding project-item-col" />
-
                 </div>
-            </li>
-        </ul>
+
+                <md-input-container md-no-float ng-show="projectParams.displayFilters">
+                    <input ng-model="projectParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Project Search Filter">
+                </md-input-container>
+
+                <div class="row filter-radiobutton" ng-show="projectParams.displayFilters">
+                    <md-radio-group ng-model="projectParams.selectedOwnershipFilter" ng-change="filter()">
+                        <div ng-repeat="ownershipFilter in projectOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                            <md-radio-button ng-value="ownershipFilter">
+                                {{ownershipFilter.name}}
+                            </md-radio-button>
+                        </div>
+                    </md-radio-group>
+                </div>
+            </ul>
+        </section>
+
+        <md-list-item class="md-1-line ftep-file-list" ng-repeat="project in projectParams.projects"
+                  ng-class="{active: project.name === projectParams.selectedProject.name}">
+
+            <div class="md-list-item-text" ng-click="selectProject(project)" layout="column">
+                <h4>{{project.name}}</h4>
+            </div>
+
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                      aria-label="Project Info"
+                      uib-popover-template="'views/common/templates/projectinfo.tmpl.html'"
+                      popover-placement="right"
+                      popover-trigger="'mouseenter'"
+                      popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                       ng-show="project.id > 0"
+                       ng-click="shareObjectDialog($event, project, 'project', 'ProjectService', 'refreshSelectedProject')"
+                       has-permission="ADMIN" permission-source="{{project}}"
+                       aria-label="Share Project"
+                       uib-tooltip="Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">share</i>
+            </md-button>
+
+
+            <md-button class="toolbar-button md-secondary icon-button-accent"
+                       ng-show="project.id > 0"
+                       ng-click="updateProject($event, project)"
+                       has-permission="WRITE" permission-source="{{project}}"
+                       aria-label="Edit Project"
+                       uib-tooltip="Edit"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">edit</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{projectParams.pagingData}}"></div>
 
     </div>
 </uib-accordion>

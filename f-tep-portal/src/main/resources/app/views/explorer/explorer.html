@@ -1,28 +1,41 @@
-<div id="explorer-container" layout="row">
+<div class="page">
 
-    <div id="sidebar-container" ng-controller="SidebarCtrl">
-
-        <div id="sidenav" ng-show="true">
-             <div ng-include src="'views/explorer/sidenav.html'"></div>
-        </div>
-
-        <md-sidenav id="sidebar-left"
-                    class="md-sidenav-left md-whiteframe-4dp"
-                    md-component-id="left"
-                    md-disable-backdrop
-                    md-whiteframe="4"
-                    ng-show="searchMenuVisible">
-             <div class="sidebar-container" ng-include src="'views/explorer/sidebar/sidebar.html'"></div>
-        </md-sidenav>
-
+    <div class="spinner-container" ng-class="{'hidden': !hideContent}">
+        <div class="spinner" />
     </div>
 
-    <div id="map-container" ng-include src="'views/explorer/map.html'"></div>
+    <div id="navbar-container" ng-include src="'views/navbar.html'" ng-class="{'hidden': hideContent}" onload="finishLoading('navbar')" />
 
-    <div id="bottombar" class="explorer-content" ng-controller="BottombarCtrl" ng-include src="'views/explorer/bottombar/bottombar.html'" ng-show="resultsMenuVisible"></div>
+    <article id="explorer-container" class="page-container row" ng-class="{'hidden': hideContent}">
 
-</div>
+        <section id="sidenav" ng-include src="'views/explorer/sidenav.html'" onload="finishLoading('sidenav')" />
 
-<div class="warnings error-text" ng-show="warning.isVisible">
-    {{warning.message}}
+        <section id="side-container" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 panel-container">
+            <md-sidenav id="sidebar-left" class="md-sidenav-left md-whiteframe-4dp"
+                        md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
+                <div class="panel-container">
+                    <div ng-controller="ProjectCtrl" ng-include src="'views/explorer/sidebar/project.html'" class="sidebar-header" />
+                    <div ng-controller="SearchbarCtrl" ng-include src="'views/explorer/sidebar/search.html'" ng-if="navInfo.activeSideNav === 0" class="sidebar-item panel-container" />
+                    <div ng-controller="ServicesCtrl" ng-include src="'views/explorer/sidebar/services.html'" ng-if="navInfo.activeSideNav === 1" class="sidebar-item panel-container" />
+                    <div ng-controller="WorkspaceCtrl" ng-include src="'views/explorer/sidebar/workspace.html'" ng-show="navInfo.activeSideNav === 2" class="sidebar-item panel-container" />
+                </div>
+            </md-sidenav>
+        </section>
+
+        <section id="map-container">
+            <div id="map" ng-controller="MapCtrl">
+                <div ng-include src="'views/explorer/map.html'" onload="finishLoading('map'); updateMap()"></div>
+            </div>
+        </section>
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="once = once || navInfo.bottomViewVisible"
+                 ng-show="navInfo.bottomViewVisible"/>
+
+    </article>
+
 </div>

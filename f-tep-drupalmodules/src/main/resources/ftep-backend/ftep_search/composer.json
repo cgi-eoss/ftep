@@ -1,8 +1,0 @@
-{
-    "require": {
-        "php-curl-class/php-curl-class": "^7.0",
-        "monolog/monolog": "^1.21",
-        "tobscure/json-api": "^0.3.0",
-        "phayes/geophp": "^1.2"
-    }
-}

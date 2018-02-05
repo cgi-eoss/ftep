@@ -1,0 +1,25 @@
+@import "variable";
+#account-container {
+    #account-panel, #statistics-panel, #info-panel {
+        background-color: @gray;
+        height: 100%;
+        overflow-y: auto;
+        padding: 0.5rem;
+        @media (max-width: @md-max-width) {
+            height: auto;
+        }
+    }
+    #account-panel, #info-panel {
+        background-color: @bg;
+    }
+    #account-info {
+        .row {
+            padding: 0.25rem;
+        }
+    }
+}
+#login-container {
+    .note {
+        padding: 2rem;
+    }
+}

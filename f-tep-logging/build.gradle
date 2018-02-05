@@ -1,0 +1,11 @@
+group 'com.cgi.eoss.f-tep'
+version '2.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+}

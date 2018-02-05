@@ -1,0 +1,39 @@
+---
+id: "QGIS"
+title: "Start the QGIS Desktop Application"
+description: "Quantum GIS - A Geographical Information Systems (GIS) GUI Package. A core F-TEP service."
+version: "1.0"
+storeSupported: true
+statusSupported: true
+serviceType: "Java"
+serviceProvider: "QGIS"
+dataInputs:
+  - id: "inputfile"
+    title: "Input data"
+    description: "The input data file(s)"
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []
+  - id: "timeout"
+    title: "Timeout in minutes before the application automatically shuts down"
+    description: "The maximum time this application can remain open. WARNING: This is a hard limit, not an inactivity timer."
+    minOccurs: 1
+    maxOccurs: 1
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+      value: "60"
+    supportedAttrs: []
+dataOutputs:
+  - id: "Result"
+    title: "URL to open the application"
+    description: "Persistent URL to access the web-hosted desktop application"
+    minOccurs: 0
+    maxOccurs: 0
+    data: "LITERAL"
+    defaultAttrs:
+      dataType: "string"
+    supportedAttrs: []

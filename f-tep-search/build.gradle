@@ -1,0 +1,32 @@
+group 'com.cgi.eoss.f-tep'
+version '2.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+
+    compile project(':f-tep-catalogue')
+    compile project(':f-tep-costing')
+    compile project(':f-tep-model')
+    compile project(':f-tep-persistence')
+    compile project(':f-tep-security')
+
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    compile 'com.squareup.okhttp3:okhttp'
+    compile 'com.squareup.okhttp3:logging-interceptor'
+    compile 'commons-net:commons-net'
+    compile 'de.grundid.opendatalab:geojson-jackson'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    testCompileOnly 'org.projectlombok:lombok'
+
+    testCompile 'com.squareup.okhttp3:mockwebserver'
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.springframework:spring-test'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+}

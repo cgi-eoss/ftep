@@ -1,0 +1,25 @@
+{
+  "name": "ftepinput",
+  "model": "RestoModel_Ftep_Input",
+  "status": "public",
+  "licenseId": "unlicensed",
+  "rights":{
+    "download": 1,
+    "visualize":0
+  },
+  "osDescription": {
+    "en": {
+      "ShortName": "ftep_input",
+      "LongName": "Ftep Input Data",
+      "Description": "This collection contains external data used in F-TEP processing",
+      "Tags": "ftep input data",
+      "Developer": "AA",
+      "Contact": "user@mail.com",
+      "Query": "FTEP",
+      "Attribution": "AAA"
+    }
+  },
+  "propertiesMapping":{
+    "productType": "FtepInputProduct"
+  }
+}

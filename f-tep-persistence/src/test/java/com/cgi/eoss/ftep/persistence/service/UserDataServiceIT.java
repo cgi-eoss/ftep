@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -25,18 +25,22 @@ public class UserDataServiceIT {
 
     @Test
     public void test() throws Exception {
-        FtepUser owner = new FtepUser("owner-uid");
-        FtepUser owner2 = new FtepUser("owner-uid2");
+        User owner = new User("owner-uid");
+        User owner2 = new User("owner-uid2");
         dataService.save(ImmutableSet.of(owner, owner2));
 
-        assertThat(dataService.getAll(), is(ImmutableList.of(owner, owner2)));
         assertThat(dataService.getById(owner.getId()), is(owner));
+        assertThat(dataService.getById(owner2.getId()), is(owner2));
         assertThat(dataService.getByIds(ImmutableSet.of(owner.getId())), is(ImmutableList.of(owner)));
-        assertThat(dataService.isUniqueAndValid(new FtepUser("owner-uid")), is(false));
-        assertThat(dataService.isUniqueAndValid(new FtepUser("owner-uid3")), is(true));
+        assertThat(dataService.isUniqueAndValid(new User("owner-uid")), is(false));
+        assertThat(dataService.isUniqueAndValid(new User("owner-uid3")), is(true));
 
         assertThat(dataService.search("uid"), is(ImmutableList.of(owner, owner2)));
         assertThat(dataService.search("uid2"), is(ImmutableList.of(owner2)));
+        assertThat(dataService.getByName("owner-uid"), is(owner));
+        assertThat(dataService.getByName("owner-uid2"), is(owner2));
+        assertThat(dataService.getByName("owner-uid").getWallet().getBalance(), is(100));
+        assertThat(dataService.getByName("owner-uid2").getWallet().getBalance(), is(100));
     }
 
 }

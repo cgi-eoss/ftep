@@ -1,0 +1,106 @@
+@import "variable";
+.ftep {
+    .md-dialog-container {
+        width: 100%;
+        height: 100%;
+        h4 {
+            background-color: @light-gray;
+            font-size: 16px;
+            //height: 40px;
+            line-height: 40px;
+            padding-left: 20px;
+            margin-top: 0px;
+        }
+        h5 {
+            color: @brand-dark;
+            font-weight: bold;
+            margin-top: 0;
+            span {
+                color: @text;
+                font-weight: normal;
+            }
+        }
+        .content-properties {
+            .border(border-bottom, @gray);
+            margin-bottom: 2.5rem;
+        }
+        .dialog-file-list {
+            &:hover {
+                background-color: @alert;
+            }
+            h4 {
+                background-color: transparent;
+                line-height: 2rem;
+                margin: 0;
+                word-break: break-all;
+            }
+            .md-avatar {
+                margin: 0;
+                .material-icons {
+                   padding-top: 0.4rem;
+                }
+            }
+            .md-icon-button {
+                padding-bottom: 0;
+                padding-top: 0.2rem;
+            }
+
+        }
+        .dialog-subheader {
+            font-size: 0.8rem;
+            padding: 0.5rem 0 2rem 0;
+        }
+        .download-button {
+            margin: 0 0 0.5rem 0;
+            width: 100%;
+            &:hover {
+                color: @accent;
+            }
+        }
+        .dialog-content-area {
+            padding: 10px 40px;
+            word-wrap: break-word;
+        }
+        .dialog-list {
+            list-style: none;
+            padding: 5px 30px 5px 30px;
+            li {
+                .border(border-bottom, @bg);
+                padding: 5px 0px;
+            }
+        }
+        .item-list {
+            h4 {
+                background-color: transparent;
+                margin-bottom: 0.2rem;
+            }
+        }
+        md-dialog {
+            min-width: @min-width;
+        }
+        md-list-item {
+            &:hover {
+                background-color: @alert;
+            }
+        }
+        .md-subheader {
+            background-color: transparent;
+            .md-subheader-inner {
+                padding-left: 0;
+            }
+        }
+        .quicklook-cointainer {
+            height: 400px;
+        }
+        .quicklook-img {
+            max-height: 100%;
+            width: auto;
+            display: block;
+            margin: auto;
+        }
+        .search-container {
+            margin-top: 0;
+            width: 100%;
+        }
+    }
+}

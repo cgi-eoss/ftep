@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc.catalogue";
+
+service CatalogueService {
+    rpc DownloadFtepFile (FtepFileUri) returns (stream FileStream);
+    rpc GetDatabasketContents (Databasket) returns (DatabasketContents);
+    rpc GetDataSourcePolicies (Uris) returns (UriDataSourcePolicies);
+}
+
+message FtepFile {
+    string filename = 1;
+    FtepFileUri uri = 2;
+}
+
+message FtepFileUri {
+    string uri = 1;
+}
+
+message Databasket {
+    string uri = 1;
+}
+
+message DatabasketContents {
+    repeated FtepFile files = 1;
+}
+
+message Uris {
+    repeated FtepFileUri fileUris = 1;
+}
+
+message UriDataSourcePolicies {
+    repeated UriDataSourcePolicy policies = 1;
+}
+
+message UriDataSourcePolicy {
+    enum Policy {
+        CACHE = 0;
+        MIRROR = 1;
+        REMOTE_ONLY = 2;
+    }
+    FtepFileUri uri = 1;
+    Policy policy = 2;
+}

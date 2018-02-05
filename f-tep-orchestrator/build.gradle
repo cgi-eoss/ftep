@@ -1,29 +1,32 @@
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
+    compile project(':f-tep-catalogue')
+    compile project(':f-tep-costing')
+    compile project(':f-tep-logging')
+    compile project(':f-tep-metrics')
     compile project(':f-tep-model')
+    compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-security')
 
-    compile deps.awaitility
-    compile deps.commonsNet
-    compile deps.dockerJava
-    compile deps.googleHttpClient
-    compile deps.googleHttpClientJackson
-    compile deps.okHttp
-    compile deps.slf4j
+    compile 'org.awaitility:awaitility'
+    compile 'org.jooq:jool'
+    compile 'org.lognet:grpc-spring-boot-starter'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+    compile 'org.springframework.cloud:spring-cloud-starter-zuul'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.jimfs
-    testCompile deps.junit
-    testCompile deps.mockFtpServer
-    testCompile deps.mockWebServer
-    testCompile deps.mockito
-
-    testRuntime deps.logbackClassic
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.hsqldb:hsqldb'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'org.springframework:spring-test'
 }

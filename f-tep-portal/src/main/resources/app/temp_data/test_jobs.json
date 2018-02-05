@@ -1,0 +1,313 @@
+{
+
+    "links": {
+        "self": "https://192.168.3.83/api/v1.0/jobs"
+    },
+    "data": [
+        {
+            "type": "jobs",
+            "id": "660",
+            "owner": {
+                "name": "lobjakasm",
+                "id": 1
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_1c90734e-ad6a-11e6-bf39-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161118_083656Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": "",
+                "permissionLevel": "ADMIN"
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "708",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_2ece5548-b6da-11e6-a107-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161130_085135Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": "",                
+                "permissionLevel": "ADMIN"
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "798",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_86a60084-c1e0-11e6-a2a8-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161214_093430Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": ""
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "799",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_9a831254-c1e0-11e6-afa1-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161214_093456Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": ""
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "800",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_e0defb14-c1e0-11e6-9233-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161214_093700Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": ""
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "808",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": "{}",
+                "outputs": "{}",
+                "status": "Failed",
+                "step": "Step 1of3:Data-Fetch",
+                "guiEndpoint": ""
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "22"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "jobs",
+            "id": "839",
+            "owner": {
+              "name": "vanzettenp",
+              "id": 2
+            },
+            "attributes": {
+                "inputs": {
+                    "inputfile": [
+                        "ftp://ftp.ceda.ac.uk/neodc/sentinel2a/data/L1C_MSI/2016/01/14/S2A_OPER_PRD_MSIL1C_PDMC_20160114T225642_R083_V20160114T164908_20160114T164908.zip"
+                    ],
+                    "sourceBand2": [
+                        "B8"
+                    ],
+                    "sourceBand1": [
+                        "B4"
+                    ],
+                    "zone": [
+                        "15N"
+                    ],
+                    "resolution": [
+                        "20"
+                    ]
+                },
+                "outputs": {
+                    "Result": "/data/cache/Job_71e581f8-c2c9-11e6-a9be-005056011b7b/outDir/FTEP_S2_NDVI_B4_B8_20161215_132143Z.tif"
+                },
+                "status": "Succeeded",
+                "step": "Step 3of3:Output-List",
+                "guiEndpoint": ""
+            },
+            "relationships": {
+                "service": {
+                    "data": [
+                        {
+                            "type": "services",
+                            "id": "17"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "included": [
+        {
+            "type": "services",
+            "id": "17",
+            "attributes": {
+                "name": "Sentinel2Ndvi"
+            }
+        },
+        {
+            "type": "services",
+            "id": "22",
+            "attributes": {
+                "name": "VegetationIndices"
+            }
+        }
+    ],
+    "meta": {
+        "total": 7
+    }
+
+}

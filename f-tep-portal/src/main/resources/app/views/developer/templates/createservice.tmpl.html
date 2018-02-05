@@ -1,0 +1,36 @@
+<md-dialog id="item-dialog" aria-label="Create {{item}} dialog">
+    <h4>Add {{item}}</h4>
+    <md-dialog-content>
+        <form name="createServiceForm">
+            <div class="dialog-content-area">
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Name</label>
+                    <input name="serviceName" ng-model="newItem.name" md-autofocus type="text" aria-label="Item Name" required pattern="^[a-zA-Z][a-zA-Z0-9]+" ng-pattern-restrict>
+                    <span ng-show="createServiceForm.serviceName.$touched && createServiceForm.serviceName.$invalid">
+                        Name has to start with a letter, and only
+                        <br/>contain letters and numbers.
+                        <br/>No spaces or special characters allowed.
+                    </span>
+                </md-input-container>
+                <br>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Service Title</label>
+                    <input ng-model="newItem.title" required/>
+                </md-input-container>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Description</label>
+                    <textarea ng-model="newItem.description" />
+                </md-input-container>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <md-checkbox required  ng-model="newItem.termsAcceptance" aria-label="I have read and accept the Terms and Conditions"></md-checkbox>
+                    I have read and accept the <a href="https://forestry-tep.eo.esa.int/?q=content/terms-conditions" target="_blank">Terms and Conditions</a>
+                </md-input-container>
+            </div>
+        </form>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="createService()" ng-disabled="createServiceForm.$invalid" class="md-primary">Create</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+    {{termsAcceptance}}
+</md-dialog>

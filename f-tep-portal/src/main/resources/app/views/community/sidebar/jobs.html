@@ -1,0 +1,108 @@
+<md-toolbar md-scroll-shrink class="sidebar-subheader">
+    <div class="md-toolbar-tools">
+        <div class="col-xs-12">
+            <span>Jobs</span>
+        </div>
+    </div>
+</md-toolbar>
+
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-10" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!jobParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="jobParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="jobParams.displayFilters">
+                <input ng-model="jobParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Jobs Search Filter">
+            </md-input-container>
+
+            <md-input-container ng-show="jobParams.displayFilters" md-no-float>
+                <md-select ng-model="jobParams.selectedStatuses" ng-change="filter()" multiple placeholder="Job Status">
+                    <md-optgroup label="Statuses">
+                        <md-option ng-repeat="jobStatus in jobStatuses"
+                                   ng-value="jobStatus.name"
+                                   aria-label="Job Filter">
+                            {{jobStatus.title}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>
+
+            <div class="row filter-radiobutton" ng-show="jobParams.displayFilters">
+                <md-radio-group ng-model="jobParams.selectedOwnershipFilter" ng-change="filter()">
+                    <div ng-repeat="ownershipFilter in jobOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="!jobParams.jobs.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">No jobs found.</div>
+        </div>
+    </div>
+
+    <div class="item-list list" ng-if="jobParams.jobs.length > 0">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, job) in jobParams.jobs"
+                      ng-click="selectJob(job)"
+                      ng-class="{active: job.id == jobParams.selectedJob.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="'Job: ' + job.id" />
+                <span><b>ID:</b> <span ng-bind="job.extId" /></span>
+                <span><b>Stage:</b> <span ng-bind="job.stage" /></span>
+                <span><b>Status:</b> <span ng-bind="job.status" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       aria-label="Job Info"
+                       uib-popover-template="'views/common/templates/jobinfo.tmpl.html'"
+                       popover-placement="right"
+                       popover-trigger="'mouseenter'"
+                       popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>
+
+    </div>
+
+</section>

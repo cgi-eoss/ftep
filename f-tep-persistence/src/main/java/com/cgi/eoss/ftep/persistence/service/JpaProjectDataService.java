@@ -1,49 +1,72 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepProject;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.Databasket;
+import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.Project;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import com.cgi.eoss.ftep.persistence.dao.FtepProjectDao;
+import com.cgi.eoss.ftep.persistence.dao.ProjectDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QProject.project;
+
 @Service
 @Transactional(readOnly = true)
-public class JpaProjectDataService extends AbstractJpaDataService<FtepProject> implements ProjectDataService {
+public class JpaProjectDataService extends AbstractJpaDataService<Project> implements ProjectDataService {
 
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact)
-            .withMatcher("owner", ExampleMatcher.GenericPropertyMatcher::exact);
-
-    private final FtepProjectDao ftepProjectDao;
+    private final ProjectDao dao;
+    private final UserDataService userDataService;
 
     @Autowired
-    public JpaProjectDataService(FtepProjectDao ftepProjectDao) {
-        this.ftepProjectDao = ftepProjectDao;
+    public JpaProjectDataService(ProjectDao projectDao, UserDataService userDataService) {
+        this.dao = projectDao;
+        this.userDataService = userDataService;
     }
 
     @Override
-    FtepEntityDao<FtepProject> getDao() {
-        return ftepProjectDao;
+    FtepEntityDao<Project> getDao() {
+        return dao;
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(Project entity) {
+        return project.name.eq(entity.getName()).and(project.owner.eq(entity.getOwner()));
     }
 
     @Override
-    public List<FtepProject> search(String term) {
-        return ftepProjectDao.findByNameContainingIgnoreCase(term);
+    public Project refresh(Project obj) {
+        obj.setOwner(userDataService.refresh(obj.getOwner()));
+        return super.refresh(obj);
     }
 
     @Override
-    public List<FtepProject> findByOwner(FtepUser user) {
-        return ftepProjectDao.findByOwner(user);
+    public List<Project> search(String term) {
+        return dao.findByNameContainingIgnoreCase(term);
+    }
+
+    @Override
+    public Project getByNameAndOwner(String name, User user) {
+        return dao.findOneByNameAndOwner(name, user);
+    }
+
+    @Override
+    public List<Project> findByDatabasket(Databasket databasket) {
+        return dao.findByDatabasketsContaining(databasket);
+    }
+
+    @Override
+    public List<Project> findByJobConfig(JobConfig jobConfig) {
+        return dao.findByJobConfigsContaining(jobConfig);
+    }
+
+    @Override
+    public List<Project> findByOwner(User user) {
+        return dao.findByOwner(user);
     }
 
 }

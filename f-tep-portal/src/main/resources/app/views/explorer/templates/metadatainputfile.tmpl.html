@@ -1,0 +1,22 @@
+<div>
+    <div class="row no-padding" ng-if="inputFile.name">
+        <div class="col-sm-1 no-padding">Name:</div>
+        <div class="col-sm-11 no-padding">{{inputFile.name}}</div>
+    </div>
+    <div class="row no-padding" ng-if="inputFile.link">
+        <div class="col-sm-1 no-padding">Link:</div>
+        <div class="col-sm-11 no-padding">{{inputFile.link}}</div>
+    </div>
+    <div class="row no-padding" ng-if="inputFile.start">
+        <div class="col-sm-1 no-padding">Start:</div>
+        <div class="col-sm-11 no-padding">{{inputFile.start | formatDateTime}}</div>
+    </div>
+    <div class="row no-padding" ng-if="inputFile.stop">
+        <div class="col-sm-1 no-padding">End:</div>
+        <div class="col-sm-11 no-padding">{{inputFile.stop | formatDateTime}}</div>
+    </div>
+     <div class="row no-padding" ng-if="inputFile.bytes">
+        <div class="col-sm-1 no-padding">Size:</div>
+        <div class="col-sm-11 no-padding">{{inputFile.bytes | bytesToGB}}</div>
+    </div>
+</div>

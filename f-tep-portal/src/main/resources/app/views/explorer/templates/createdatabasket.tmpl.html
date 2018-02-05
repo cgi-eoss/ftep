@@ -1,0 +1,22 @@
+<md-dialog id="databasket-dialog" aria-label="Create databasket dialog">
+    <h4>Create New Databasket</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Name</label>
+                <input ng-model="newBasket.name" md-autofocus type="text" aria-label="Databasket Name">
+            </md-input-container>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Description</label>
+                <textarea ng-model="newBasket.description"></textarea>
+            </md-input-container>
+        </div>
+        <ul class="dialog-list">
+            <li ng-repeat="item in files" class="product-item">{{item.properties.productIdentifier}}</li>
+        </ul>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="createBasket()" ng-disabled="!newBasket.name" class="md-primary">Create</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

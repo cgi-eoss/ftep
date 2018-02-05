@@ -1,9 +1,12 @@
 .idea/
+*.iml
+*/out/
 .dist/
 .repository/
 .home/
 distribution/puppet/hieradata/standalone.local.yaml
 distribution/puppet/modules/
+distribution/config/
 init.gradle
 
 f-tep-portal/src/main/resources/bower_components

@@ -1,24 +1,42 @@
+buildscript {
+    dependencies {
+        classpath pl.shadow
+        classpath pl.shadowLog4j2Transformer
+    }
+}
+
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
 
     compile project(':f-tep-rpc')
-    compile project(':f-tep-orchestrator')
 
-    compile deps.guava
-    compile deps.logbackClassic
-    compile deps.slf4j
-    compile deps.slf4jJulBridge
+    compile 'com.google.guava:guava'
+    compile 'io.netty:netty-tcnative-boringssl-static'
+    compile 'org.apache.logging.log4j:log4j-jul'
+    compile 'org.graylog2.log4j2:log4j2-gelf'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
 
-    testCompile deps.hamcrestJunit
-    testCompile deps.jimfs
-    testCompile deps.junit
-    testCompile deps.mockito
+    testCompile project(':f-tep-model')
+    testCompile project(':f-tep-orchestrator')
+    testCompile project(':f-tep-persistence')
+    testCompile project(':f-tep-worker')
+
+    testCompile 'com.github.docker-java:docker-java'
+    testCompile 'com.google.jimfs:jimfs'
+    testCompile 'junit:junit'
+    testCompile 'org.hamcrest:hamcrest-junit'
+    testCompile 'org.mockito:mockito-core'
+}
+
+shadowJar {
+    transform(de.sebastianboegl.gradle.plugins.shadow.transformers.Log4j2PluginsFileTransformer)
 }
 
 sonarqube {

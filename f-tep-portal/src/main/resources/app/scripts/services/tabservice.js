@@ -10,50 +10,67 @@ define(['../ftepmodules'], function (ftepmodules) {
 
     ftepmodules.service('TabService', [ '$q', function ($q) {
 
-        var tabs = {};
-        var activeTab = "";
+        var tabs = { EXPLORER: 0, DEVELOPER: 1, COMMUNITY: 2, ACCOUNT: 3, HELPDESK: 4 };
 
-        tabs.side = [
-            {
-                name: "SEARCH",
-                active: true
-            },
-                        {
-                name: "SERVICES",
-                active: false
-            },
-                        {
-                name: "WORKSPACE",
-                active: false
-            }
-        ];
+        var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
 
-        tabs.bottom = [
-            {
-                name: "RESULTS",
-                active: true
-            },
-            {
-                name: "DATABASKETS",
-                active: false
-            },
-            {
-                name: "JOBS",
-                active: false
-            }
-        ];
+        var communityTabs = { GROUPS: 0, PROJECTS: 1, DATABASKETS: 2, JOBS: 3, SERVICES: 4, FILES: 5};
 
-        this.setActiveTab = function (location, tabName) {
-            for (var item in tabs[location]) {
-                if (tabs[location][item].name === tabName) {
-                     tabs[location][item].active = true;
-                     activeTab = tabs[location][item].name;
-                } else {
-                     tabs[location][item].active = false;
-                }
-            }
-            return activeTab;
+        var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
+
+        var developerSideNavs = { SERVICES: 0 };
+
+        this.getTabs = function(){
+            return angular.copy(tabs);
         };
+
+        this.getExplorerSideNavs = function(){
+            return angular.copy(explorerSideNavs);
+        };
+
+        this.getBottomNavTabs = function(){
+            return angular.copy(bottomNavTabs);
+        };
+
+        this.getCommunityNavTabs = function(){
+            return angular.copy(communityTabs);
+        };
+
+        this.getDeveloperSideNavs = function(){
+            return angular.copy(developerSideNavs);
+        };
+
+        /** PRESERVE USER SELECTIONS **/
+        this.navInfo = {
+            explorer: {
+                activeTab: tabs.EXPLORER,
+                sideViewVisible: false,
+                activeSideNav: undefined,
+                activeBottomNav: bottomNavTabs.RESULTS,
+                resultTabNameExtention: '',
+                bottomViewVisible: false
+            },
+            developer: {
+                activeTab: tabs.DEVELOPER,
+                sideViewVisible: true,
+                activeSideNav: developerSideNavs.SERVICES,
+                activeBottomNav: undefined,
+                bottomViewVisible: false
+            },
+            community: {
+                activeTab: tabs.COMMUNITY,
+                sideViewVisible: true,
+                activeSideNav: communityTabs.GROUPS,
+                activeBottomNav: undefined,
+                bottomViewVisible: false
+            },
+            admin: {
+                sideViewVisible: false,
+                bottomViewVisible: false
+            }
+        };
+
+        /** END OF PRESERVE USER SELECTIONS **/
 
         return this;
     }]);

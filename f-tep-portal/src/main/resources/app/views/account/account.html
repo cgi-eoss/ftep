@@ -1,0 +1,25 @@
+<div class="page" ng-controller="AccountCtrl">
+
+    <div class="spinner-container" ng-class="{'hidden': !hideContent}">
+        <div class="spinner" />
+    </div>
+
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
+
+    <article id="account-container" class="page-container row" ng-class="{'hidden': hideContent}">
+
+        <section id="sidenav" ng-include src="'views/account/sidenav.html'" onload="finishLoading('sidenav')" />
+
+        <section id="userdetails-container" class="row content-container" ng-include src="'views/account/userdetails.html'"
+                 onload="finishLoading('userdetails')"/>
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="once = once || navInfo.bottomViewVisible"
+                 ng-show="navInfo.bottomViewVisible"/>
+
+    </article>
+</div>

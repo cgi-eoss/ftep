@@ -1,0 +1,12 @@
+[Unit]
+Description=F-TEP Server
+After=syslog.target
+After=network.target
+
+[Service]
+User=ftep
+ExecStart=/var/f-tep/server/f-tep-server.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

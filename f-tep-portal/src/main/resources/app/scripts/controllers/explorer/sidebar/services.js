@@ -1,39 +1,41 @@
+/**
+ * @ngdoc function
+ * @name ftepApp.controller:ServicesCtrl
+ * @description
+ * # ServicesCtrl
+ * Controller of the ftepApp
+ */
+'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
-    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', 'ProductService', '$sce',
-                                 function ($scope, $rootScope, ProductService, $sce) {
+    ftepmodules.controller('ServicesCtrl', ['$scope', '$rootScope', '$sce', 'ProductService', 'TabService', function ($scope, $rootScope, $sce, ProductService, TabService) {
 
+            $scope.serviceParams = ProductService.params.explorer;
+            $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
+            $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
 
-            // Service types which services are grouped by
-             $scope.serviceTypes = [
-                 {
-                    type: "processor",
-                    label: "Processors"
-                }, {
-                    type: 'application',
-                    label: "GUI Applications"
-                }
-            ];
+            ProductService.refreshServices('explorer');
 
-            $scope.services = [];
-            ProductService.getServices().then(function (data) {
-                $scope.services = data;
+            $scope.getPage = function(url){
+                ProductService.getServicesPage('explorer', url);
+            };
+
+            $scope.filter = function(){
+                ProductService.getServicesByFilter('explorer');
+            };
+
+            /* Update Services when polling */
+            $scope.$on('poll.services', function (event, data) {
+                $scope.serviceParams.services = data;
             });
 
-            $scope.serviceSearch = {
-                searchText: ''
-            };
-
-            $scope.serviceQuickSearch = function (item) {
-                if (item.attributes.name.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1 || item.attributes.description.toLowerCase().indexOf($scope.serviceSearch.searchText.toLowerCase()) > -1) {
-                    return true;
-                }
-                return false;
-            };
+            $scope.$on("$destroy", function() {
+                ProductService.stopPolling();
+            });
 
             $scope.selectService = function (service) {
                 $rootScope.$broadcast('update.selectedService', service);
+                TabService.navInfo.activeSideNav = TabService.getExplorerSideNavs().WORKSPACE;
             };
 
             $scope.getShortDesc = function (desc) {
@@ -50,39 +52,23 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 var html =
                     '<div class="metadata">' +
                         '<div class="row">' +
-                            '<div class="col-sm-4">Rating:</div>' +
-                            '<div class="col-sm-8">' + $scope.getRating(service.attributes.rating) + '</div>' +
-                        '</div>' +
-                        '<div class="row">' +
                             '<div class="col-sm-4">Name:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.name + '</div>' +
+                            '<div class="col-sm-8">' + service.name + '</div>' +
                         '</div>' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Description:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.description + '</div>' +
+                            '<div class="col-sm-8">' + (service.description ? service.description : '' ) + '</div>' +
                         '</div>' +
                         '<div class="row">' +
                             '<div class="col-sm-4">Type:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.kind + '</div>' +
+                            '<div class="col-sm-8">' + service.type + '</div>' +
                         '</div>' +
                         '<div class="row">' +
-                            '<div class="col-sm-4">License:</div>' +
-                            '<div class="col-sm-8">' + service.attributes.license + '</div>' +
+                            '<div class="col-sm-4">Licence:</div>' +
+                            '<div class="col-sm-8">' + service.licence + '</div>' +
                         '</div>' +
                     '</div>';
                 return popover[html] || (popover[html] = $sce.trustAsHtml(html));
-            };
-
-            $scope.getRating = function (rating) {
-                var stars = '';
-                for (var i = 0; i < 5; i++) {
-                    if (rating > i) {
-                        stars = stars + '<i class="material-icons star-full">star</i>';
-                    } else {
-                        stars = stars + '<i class="material-icons star-empty">star_border</i>';
-                    }
-                }
-                return stars;
             };
 
     }]);

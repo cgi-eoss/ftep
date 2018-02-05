@@ -2,12 +2,13 @@ package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.FtepEntity;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import com.querydsl.core.types.Predicate;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEntityDataService<T> {
@@ -37,14 +38,21 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
     @Transactional
     public T save(T entity) {
         resyncId(entity);
-        return getDao().save(entity);
+        return getDao().saveAndFlush(entity);
     }
 
     @Override
     @Transactional
     public Collection<T> save(Collection<T> entities) {
         entities.forEach(this::resyncId);
-        return getDao().save(entities);
+        try {
+            return getDao().save(entities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            getDao().flush();
+        }
     }
 
     @Override
@@ -59,7 +67,7 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public boolean isUnique(T entity) {
-        return !getDao().exists(Example.of(entity, getUniqueMatcher()));
+        return !getDao().exists(getUniquePredicate(entity));
     }
 
     @Override
@@ -68,20 +76,30 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
     }
 
     @Override
+    public T findOneByExample(T example) {
+        return getDao().findOne(getUniquePredicate(example));
+    }
+
+    @Override
     public T refresh(T obj) {
-        return null;
+        return Optional.ofNullable(getDao().findOne(getUniquePredicate(obj))).orElseThrow(() -> new EmptyResultDataAccessException(1));
     }
 
     @Override
     public T refreshFull(T obj) {
-        return null;
+        return refresh(obj);
+    }
+
+    @Override
+    public T convert(Long source) {
+        return getById(source);
     }
 
     /**
      * @param entity The potentially detached entity
      */
     private void resyncId(T entity) {
-        T tmp = getDao().findOne(Example.of(entity, getUniqueMatcher()));
+        T tmp = getDao().findOne(getUniquePredicate(entity));
         if (tmp != null) {
             entity.setId(tmp.getId());
         }
@@ -89,5 +107,6 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     abstract FtepEntityDao<T> getDao();
 
-    abstract ExampleMatcher getUniqueMatcher();
+    abstract Predicate getUniquePredicate(T entity);
+
 }

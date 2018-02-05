@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
+import com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,14 @@ public class FtepServiceDescriptor {
     private List<Parameter> dataInputs;
 
     private List<Parameter> dataOutputs;
+
+    public String toYaml() {
+        return FtepServiceDescriptorYamlConverter.toYaml(this);
+    }
+
+    public static FtepServiceDescriptor fromYaml(String yaml) {
+        return FtepServiceDescriptorYamlConverter.fromYaml(yaml);
+    }
 
     @Data
     @Builder

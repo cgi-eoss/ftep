@@ -1,9 +1,0 @@
-httpd
-mod_proxy_fcgi
-php56w-devel
-php56w-fpm
-php56w-gd
-php56w-mbstring
-php56w-pdo
-php56w-pear
-php56w-pgsql

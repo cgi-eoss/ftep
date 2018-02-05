@@ -10,7 +10,7 @@
          expand: true,
          cwd: '<%= ftep.app %>/styles/less',
          src: ['**/*.less', '!{variable, mixins}*.less'],
-         dest: '<%= ftep.app %>/styles',
+         dest: '.tmp/styles',
          ext: '.css'
      },
  };

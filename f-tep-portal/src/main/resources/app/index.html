@@ -1,32 +1,48 @@
 <!doctype html>
-<html class="ftep">
+<html class="ftep" ng-controller="IndexCtrl">
 
     <head>
     <meta charset="utf-8">
-    <base href="/app/">
-    <title>F-TEP Portal - ALPHA</title>
+    <title>F-TEP Portal</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+    <meta id="version" name="version" content="dev">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 
     <link rel="stylesheet" href="scripts/vendor/bootstrap/css/bootstrap.css" />
     <link rel="stylesheet" href="scripts/vendor/angular-ui-grid/ui-grid.css" />
     <link rel="stylesheet" href="scripts/vendor/angular-material/angular-material.css" />
     <link rel="stylesheet" href="scripts/vendor/angular-ui-layout/src/ui-layout.css" />
-    <link rel="stylesheet" href="scripts/vendor/angularjs-slider/rzslider.css" />
-    <link rel="stylesheet" href="scripts/vendor/ng-scrollbar/ng-scrollbar.css" />
     <link rel="stylesheet" href="scripts/vendor/openlayers/ol.css" />
+    <link rel="stylesheet" href="scripts/vendor/codemirror/lib/codemirror.css" />
 
     <link rel="stylesheet" href="main.css" />
 </head>
 
-    <body ng-controller="IndexCtrl" class="ftep ng-cloak" ng-cloak>
+    <body class="ftep ng-cloak" ng-cloak>
         <!--[if lte IE 8]>
           <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <div id="navbar-container" ng-include src="'views/navbar.html'"></div>
-
         <div id="portal-container" ng-view=""></div>
+
+        <div id="logged-out" ng-show="sessionEnded && !timeoutDismissed" ng-cloak>
+            <md-button id="close-button"
+                       class="toolbar-button md-secondary"
+                       aria-label="Hide"
+                       ng-click="hideTimeout()"
+                       uib-tooltip="Hide"
+                       tooltip-placement="left"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">close</i>
+            </md-button>
+            <h1>No EO-SSO session detected.</h1>
+            <h3>Login to EO-SSO below to refresh your session.</h3>
+            <md-button  id="login" class="md-raised md-primary" ng-click="reloadRoute()">
+                <h2>Login</h2>
+            </md-button>
+        </div>
 
         <!-- Google Analytics -->
          <script>

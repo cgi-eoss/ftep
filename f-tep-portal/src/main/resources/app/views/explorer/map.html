@@ -1,67 +1,55 @@
-<div id="map" ng-controller="MapCtrl">
-
+<md-menu id="mapMenu">
     <button type="button"
-            class="btn btn-control map-clear"
-            ng-click="clearMap()"
-            aria-label="Remove Polygon"
-            uib-tooltip="Remove search polygon"
-            tooltip-placement="left"
-            tooltip-trigger="mouseenter"
-            tooltip-append-to-body="true">
-
-        <i class="material-icons">clear</i>
-
+            class="btn btn-control map-item map-type"
+            ng-click="$mdOpenMenu($event)"
+            aria-label="Menu"
+            title="{{mapType.active}} (Map Layer)">
+        <i class="material-icons">layers</i>
     </button>
+    <md-menu-content id="map-layer">
+        <md-menu-item ng-class="{'active': mapType.active == 'Open Street'}">
+            <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
+        </md-menu-item>
+        <md-menu-item ng-class="{'active': mapType.active == 'MapBox'}">
+            <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
+        </md-menu-item>
+    </md-menu-content>
+</md-menu>
 
-    <button type="button"
-            class="btn btn-control polygon-copy"
-            ng-click="copyPolygon()"
-            aria-label="Copy Polygon to Clipboard"
-            uib-tooltip="Copy polygon to clipboard"
-            tooltip-placement="left"
-            tooltip-trigger="mouseenter"
-            tooltip-append-to-body="true">
+<button type="button"
+        class="btn btn-control map-item map-reset"
+        ng-click="clearMap()"
+        title="Clear Map"
+        aria-label="Clear Map">
+    <i class="material-icons">layers_clear</i>
+</button>
 
-        <i class="material-icons">input</i>
+<button type="button"
+        class="btn btn-control map-item map-clear"
+        ng-click="clearSearchPolygon()"
+        aria-label="Remove Polygon"
+        title="Remove Search Polygon">
+    <i class="material-icons">clear</i>
+</button>
 
-    </button>
+<button type="button"
+        class="btn btn-control map-item polygon-edit"
+        ng-click="editPolygonDialog($event)"
+        aria-label="Edit Polygon"
+        title="Edit Polygon">
+    <i class="material-icons">edit</i>
+</button>
 
-    <button type="button"
-            class="btn btn-control polygon-edit"
-            ng-click="editPolygonDialog($event, searchPolygon)"
-            aria-label="Edit Polygon"
-            uib-tooltip="Edit polygon"
-            tooltip-placement="left"
-            tooltip-trigger="mouseenter"
-            tooltip-append-to-body="true">
+<button type="button"
+        class="btn btn-control map-item polygon-copy"
+        ng-click="copyPolygon()"
+        ng-disabled="aoi === undefined || aoi.wkt === undefined"
+        aria-label="Copy Polygon to Clipboard"
+        title="Copy Polygon to Clipboard">
+    <i class="material-icons">content_copy</i>
+</button>
 
-        <i class="material-icons">edit</i>
-
-    </button>
-
-    <md-menu id="mapMenu">
-
-        <button type="button"
-                   class="btn btn-control map-type"
-                   ng-click="$mdOpenMenu($event)"
-                   aria-label="Menu"
-                   uib-tooltip="{{maplayer.active}} (Map Layer)"
-                   tooltip-placement="left"
-                   tooltip-trigger="mouseenter"
-                   tooltip-append-to-body="true">
-
-            <i class="material-icons">layers</i>
-
-        </button>
-
-        <md-menu-content id="map-layer">
-            <md-menu-item ng-class="{'active': maplayer.active == 'Open Street'}">
-                <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
-            </md-menu-item>
-            <md-menu-item ng-class="{'active': maplayer.active == 'MapBox'}">
-                <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
-            </md-menu-item>
-        </md-menu-content>
-    </md-menu>
-
-</div>
+<section id="footer">
+    <a href="https://github.com/cgi-eoss/ftep/blob/development/LICENSE.txt">GNU Affero General Public License v3.0</a>
+    <a href="https://github.com/cgi-eoss/ftep"><img src="images/github.ico" alt="Github Source Code"></a>
+</section>

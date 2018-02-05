@@ -1,0 +1,109 @@
+<section id="sidebar-list">
+
+    <div class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title" ng-click="toggleServiceFilter()">
+
+                <div class="col-xs-10">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-2 expander">
+                    <i class="material-icons"
+                       ng-show="!serviceParams.displayFilters"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="serviceParams.displayFilters"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="serviceParams.displayFilters">
+                <input ng-model="serviceParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Service Search Filter">
+            </md-input-container>
+
+            <md-input-container class="row" ng-show="serviceParams.displayFilters" md-no-float>
+                <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                    <md-optgroup label="Service Type">
+                        <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                            {{filter.name}}
+                        </md-option>
+                    </md-optgroup>
+                </md-select>
+            </md-input-container>
+
+            <div class="row filter-radiobutton" ng-show="serviceParams.displayFilters">
+                <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
+                    <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+        </ul>
+    </div>
+
+    <div class="row" ng-if="serviceParams.services.length === 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">You have no services. Create a service using the + button below.</div>
+        </div>
+    </div>
+
+    <div class="item-list list" ng-if="serviceParams.services.length > 0">
+        <md-list-item class="md-3-line"
+                      ng-repeat="service in serviceParams.services"
+                      ng-click="selectService(service, $event)"
+                      ng-class="{active: service.name == serviceParams.selectedService.name}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable basket-name" ng-bind="service.name" />
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="removeService($event, service)"
+                       has-permission="WRITE"
+                       permission-source="{{service}}"
+                       aria-label="Delete"
+                       uib-tooltip="Delete"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{serviceParams.pagingData}}"></div>
+
+    </div>
+
+</section>
+
+<section id="create-service">
+    <md-button id="create-service-button"
+               class="icon-button md-icon-button md-fab md-mini"
+               ng-click="createService($event)"
+               aria-label="Create New Service"
+               uib-tooltip="Create New Service"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">add</i>
+    </md-button>
+</section>

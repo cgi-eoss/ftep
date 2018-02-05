@@ -1,17 +1,28 @@
 ---
-# Uncomment the F-TEP classes required on this node. See the cgieoss-ftep
-# module for available configuration of these classes.
+# Uncomment the F-TEP classes desired. See the cgieoss-ftep module for
+# available configuration of these classes.
 classes:
   - base
 #  - ftep::db
 #  - ftep::drupal
 #  - ftep::geoserver
+#  - ftep::monitor
+#  - ftep::monitor::graylog_collector
 #  - ftep::proxy
+#  - ftep::resto
+#  - ftep::server
 #  - ftep::webapp
+#  - ftep::worker
 #  - ftep::wps
 
-#ftep::repo::location: file:///path/to/repo
+# MANDATORY PARAMETER. The example here should work for Vagrant environments
+#ftep::repo::location: file:///vagrant/.dist/repo
 
+# Uncomment and change to your local IP/port if using the webapp
+#ftep::globals::base_url: 'http://192.168.x.y:8080'
+
+# Uncomment and change these depending on how each F-TEP component can resolve the others
+# e.g. this allows running some components outside the managed configuration
 #ftep::globals::hosts_override:
 #  ftep-db:
 #    ip: 127.0.0.1
@@ -19,9 +30,33 @@ classes:
 #    ip: 127.0.0.1
 #  ftep-geoserver:
 #    ip: 127.0.0.1
+#  ftep-monitor:
+#    ip: 127.0.0.1
 #  ftep-proxy:
+#    ip: 127.0.0.1
+#  ftep-resto:
+#    ip: 127.0.0.1
+#  ftep-server:
 #    ip: 127.0.0.1
 #  ftep-webapp:
 #    ip: 127.0.0.1
+#  ftep-worker:
+#    ip: 127.0.0.1
 #  ftep-wps:
 #    ip: 127.0.0.1
+
+# Note that ftep::workers are self-registering with the ftep::server but the remoting IP can be controlled:
+#ftep::server::custom_config_properties:
+#  'eureka.instance.ipAddress': '127.0.0.1'
+#  'eureka.instance.preferIpAddress': 'true'
+#ftep::zoomanager::custom_config_properties:
+#  'eureka.instance.ipAddress': '127.0.0.1'
+#  'eureka.instance.preferIpAddress': 'true'
+#ftep::worker::custom_config_properties:
+#  'eureka.instance.ipAddress': '127.0.0.1'
+#  'eureka.instance.preferIpAddress': 'true'
+
+# Other useful parameters in a test environment; for full documentation see the cgieoss-ftep module:
+#ftep::server::api_security_mode: 'DEVELOPMENT_BECOME_ANY_USER'
+#ftep::server::geoserver_url: 'http://ftep-geoserver:9080/geoserver/'
+#ftep::server::resto_url: 'http://ftep-resto/'

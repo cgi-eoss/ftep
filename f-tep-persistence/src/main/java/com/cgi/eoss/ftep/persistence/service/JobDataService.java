@@ -1,18 +1,20 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepJob;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.User;
+import com.google.common.collect.Multimap;
 
 import java.util.List;
 
 public interface JobDataService extends
-        FtepEntityDataService<FtepJob> {
+        FtepEntityDataService<Job> {
 
-    List<FtepJob> findByOwner(FtepUser user);
+    List<Job> findByOwner(User user);
 
-    List<FtepJob> findByService(FtepService service);
+    List<Job> findByService(FtepService service);
 
-    List<FtepJob> findByOwnerAndService(FtepUser user, FtepService service);
+    List<Job> findByOwnerAndService(User user, FtepService service);
 
+    Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs);
 }

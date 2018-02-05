@@ -1,0 +1,44 @@
+{
+  "type": "Feature",
+  "id": "plots_2012Dec10_new.zip",
+  "geometry": {
+    "coordinates": [
+      [
+        [
+          -91.6620637926024,
+          16.259898506404987
+        ],
+        [
+          -91.25257419251994,
+          16.259898506404987
+        ],
+        [
+          -91.25257419251994,
+          15.861240038220693
+        ],
+        [
+          -91.6620637926024,
+          15.861240038220693
+        ],
+        [
+          -91.6620637926024,
+          16.259898506404987
+        ]
+      ]
+    ],
+    "type": "Polygon"
+  },
+  "properties": {
+    "dem": "SRTM 3Sec",
+    "wktFootprint": "POLYGON ((-91.6620637926024 16.259898506404987, -91.25257419251994 16.259898506404987, -91.25257419251994 15.861240038220693, -91.6620637926024 15.861240038220693, -91.6620637926024 16.259898506404987))",
+    "ingestionDate": "2012-12-10T19:47:31Z",
+    "acquisitionDate": "2012-11-10T19:47:31Z",
+    "description": "Cras vitae consequat tortor. Quisque sit amet lacinia purus. Curabitur nibh orci, congue a tempor vitae, ullamcorper ac metus. Vivamus consequat nulla eget purus pharetra, sed iaculis nisi posuere. Nulla a ipsum arcu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed eget lacinia velit. Fusce odio ante, convallis efficitur risus ac, egestas mollis neque.",
+    "shapefileAttributes": "Class",
+    "crs": "EPSG:32615",
+    "url": "https://cloud.cgispace.com/owncloud/s/ooGm37aJtb6DTbS/download?f=/plots_2012Dec10_new.zip",
+    "targetResolution": "10",
+    "uid": 1,
+	"gid": 40
+  }
+}

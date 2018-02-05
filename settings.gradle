@@ -1,20 +1,43 @@
 rootProject.name = 'f-tep'
 
-include 'f-tep-common'
-include 'f-tep-datamanager'
-include 'f-tep-requesthandler'
-include 'f-tep-wpswrapper'
-include 'f-tep-demoprocessor'
-include 'f-tep-processors'
-include 'f-tep-portal'
+include 'f-tep-api'
+include 'f-tep-catalogue'
+include 'f-tep-clouds'
+include 'f-tep-costing'
+include 'f-tep-defaultservices'
+include 'f-tep-io'
+include 'f-tep-logging'
+include 'f-tep-metrics'
 include 'f-tep-model'
-include 'f-tep-persistence'
-include 'f-tep-zoowrapper'
-include 'f-tep-drupalmodules'
-include 'f-tep-zoolib'
-include 'f-tep-test'
-include 'f-tep-rpc'
 include 'f-tep-orchestrator'
+include 'f-tep-persistence'
+include 'f-tep-portal'
+include 'f-tep-rpc'
+include 'f-tep-search'
+include 'f-tep-security'
+include 'f-tep-server'
+include 'f-tep-serviceregistry'
+include 'f-tep-test'
+include 'f-tep-worker'
+include 'f-tep-zoolib'
+include 'f-tep-zoomanager'
 
-include 'third-party/puppet'
+include 'zoo-project'
+project(':zoo-project').projectDir = file('third-party/cxx/zoo-project')
 
+include 'docker-java'
+project(':docker-java').projectDir = file('third-party/java/docker-java')
+
+include 'jai_core'
+project(':jai_core').projectDir = file('third-party/java/jai_core')
+
+include 'pkg'
+project(':pkg').projectDir = file('third-party/pkg')
+
+include 'puppet'
+project(':puppet').projectDir = file('third-party/puppet')
+
+include 'resto'
+project(':resto').projectDir = file('third-party/resto')
+
+include 'distribution'

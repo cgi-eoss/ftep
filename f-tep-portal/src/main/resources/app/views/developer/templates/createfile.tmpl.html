@@ -1,0 +1,21 @@
+<md-dialog id="file-dialog" aria-label="Create file dialog">
+    <h4>Create new file</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Filename</label>
+                <input ng-model="file.filename" md-autofocus type="text" aria-label="File name">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <md-checkbox ng-model="file.executable" aria-label="Executable">
+                    Executable
+                </md-checkbox>
+            </md-input-container>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="addFile()" ng-disabled="!file.filename" class="md-primary">Create</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

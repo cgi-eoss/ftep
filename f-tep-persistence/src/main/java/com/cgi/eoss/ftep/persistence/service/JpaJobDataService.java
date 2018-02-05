@@ -1,54 +1,83 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepJob;
 import com.cgi.eoss.ftep.model.FtepService;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import com.cgi.eoss.ftep.persistence.dao.FtepJobDao;
+import com.cgi.eoss.ftep.persistence.dao.JobDao;
+import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QJob.job;
+
 @Service
 @Transactional(readOnly = true)
-public class JpaJobDataService extends AbstractJpaDataService<FtepJob> implements JobDataService {
+public class JpaJobDataService extends AbstractJpaDataService<Job> implements JobDataService {
 
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("jobId", ExampleMatcher.GenericPropertyMatcher::exact);
+    private final JobDao dao;
 
-    private final FtepJobDao ftepJobDao;
+    private final JobConfigDataService jobConfigDataService;
+
+    private final UserDataService userDataService;
+
+    private final ServiceDataService serviceDataService;
 
     @Autowired
-    public JpaJobDataService(FtepJobDao ftepJobDao) {
-        this.ftepJobDao = ftepJobDao;
+    public JpaJobDataService(JobDao jobDao, JobConfigDataService jobConfigDataService, UserDataService userDataService, ServiceDataService serviceDataService) {
+        this.dao = jobDao;
+        this.jobConfigDataService = jobConfigDataService;
+        this.userDataService = userDataService;
+        this.serviceDataService = serviceDataService;
     }
 
     @Override
-    FtepEntityDao<FtepJob> getDao() {
-        return ftepJobDao;
+    FtepEntityDao<Job> getDao() {
+        return dao;
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(Job entity) {
+        return job.extId.eq(entity.getExtId());
     }
 
     @Override
-    public List<FtepJob> findByOwner(FtepUser user) {
-        return ftepJobDao.findByOwner(user);
+    public List<Job> findByOwner(User user) {
+        return dao.findByOwner(user);
     }
 
     @Override
-    public List<FtepJob> findByService(FtepService service) {
-        return ftepJobDao.findByService(service);
+    public List<Job> findByService(FtepService service) {
+        return dao.findByConfig_Service(service);
     }
 
     @Override
-    public List<FtepJob> findByOwnerAndService(FtepUser user, FtepService service) {
-        return ftepJobDao.findByOwnerAndService(user, service);
+    public List<Job> findByOwnerAndService(User user, FtepService service) {
+        return dao.findByOwnerAndConfig_Service(user, service);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
+        User owner = userDataService.getByName(ownerId);
+        FtepService service = serviceDataService.getByName(serviceId);
+
+        JobConfig config = new JobConfig(owner, service);
+        config.setLabel(Strings.isNullOrEmpty(jobConfigLabel) ? null : jobConfigLabel);
+        config.setInputs(inputs);
+
+        return buildNew(jobConfigDataService.save(config), extId, owner);
+    }
+
+    private Job buildNew(JobConfig jobConfig, String extId, User owner) {
+        return dao.save(new Job(jobConfig, extId, owner));
     }
 
 }

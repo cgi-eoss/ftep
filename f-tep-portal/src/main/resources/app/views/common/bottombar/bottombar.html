@@ -1,0 +1,94 @@
+<article id="bottombar">
+
+    <div id="bottombar-tabs" class="col-xs-12 no-padding">
+        <md-tabs md-selected="navInfo.activeBottomNav" md-disable-animation>
+
+            <section ng-controller="ResultsCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.RESULTS" class="tab-options" ng-include src="'views/common/bottombar/tabs/resultstab.html'" />
+                <md-tab label="RESULTS{{navInfo.resultTabNameExtention}}" ng-click="navInfo.activeBottomNav = bottomNavTabs.RESULTS">
+                    <md-content>
+                        <div id="results" ng-include src="'views/common/bottombar/results.html'" />
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="DatabasketCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.DATABASKETS" class="tab-options" ng-include src="'views/common/bottombar/tabs/databasketstab.html'" />
+                <md-tab label="DATABASKETS" ng-click="navInfo.activeBottomNav = bottomNavTabs.DATABASKETS">
+                    <md-content>
+                        <div id="databasket-container" class="col-md-12 bottombar-item-container" media-class="gt-md: col-lg-7" media-show="gt-md" media-show-on="{{dbParams.selectedDatabasket != undefined}}">
+                            <div ng-include src="'views/common/bottombar/databasket.html'" />
+                        </div>
+                        <div id="databaskets-container" class="col-md-12 bottombar-list-container" media-class="gt-md: col-lg-5" media-show="gt-md" media-show-on="{{dbParams.selectedDatabasket === undefined}}">
+                            <div ng-include src="'views/common/bottombar/databaskets.html'" />
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="JobsCtrl" ng-if="navInfo.activeTab == tabs.EXPLORER">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.JOBS" class="tab-options" ng-include src="'views/common/bottombar/tabs/jobstab.html'" />
+                <md-tab label="JOBS" ng-click="navInfo.activeBottomNav = bottomNavTabs.JOBS">
+                    <md-content>
+                        <div id="job-container" class="col-md-12 bottombar-item-container"  media-class="gt-md: col-lg-7" media-show="gt-md" media-show-on="{{jobParams.selectedJob != undefined}}">
+                            <div ng-include src="'views/common/bottombar/job.html'" />
+                        </div>
+                        <div id="jobs-container" class="col-md-12 bottombar-list-container"  media-class="gt-md: col-lg-5" media-show="gt-md" media-show-on="{{jobParams.selectedJob === undefined}}">
+                            <div ng-include src="'views/common/bottombar/jobs.html'" />
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+            <section ng-controller="MessagesCtrl">
+                <div ng-if="navInfo.activeBottomNav == bottomNavTabs.MESSAGES || navInfo.activeTab != tabs.EXPLORER" class="tab-options" ng-include src="'views/common/bottombar/tabs/messagestab.html'" />
+                <md-tab label="MESSAGES ({{message.count}})" ng-click="navInfo.activeBottomNav = bottomNavTabs.MESSAGES">
+                    <md-content>
+                       <div id="message-container" class="col-md-12 bottombar-item-container" media-class="gt-md: col-lg-7" media-show="gt-md" media-show-on="{{msgParams.selectedMessage != undefined}}">
+                            <div ng-include src="'views/common/bottombar/message.html'" />
+                        </div>
+                        <div id="messages-container" class="col-md-12 bottombar-list-container" media-class="gt-md: col-lg-5" media-show="gt-md" media-show-on="{{msgParams.selectedMessage === undefined}}">
+                            <div ng-include src="'views/common/bottombar/messages.html'" />
+                        </div>
+                    </md-content>
+                </md-tab>
+            </section>
+
+        </md-tabs>
+    </div>
+
+    <div id="bottombar-expand">
+        <md-button class="toolbar-button"
+                   ng-show="!bottombarTall"
+                   ng-click="toggleBottombarHeight()"
+                   aria-label="Expand"
+                   uib-tooltip="Expand"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">vertical_align_top</i>
+        </md-button>
+
+        <md-button class="toolbar-button"
+                   ng-show="bottombarTall"
+                   ng-click="toggleBottombarHeight()"
+                   aria-label="Shrink"
+                   uib-tooltip="Shrink"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">vertical_align_bottom</i>
+        </md-button>
+
+        <md-button class="toolbar-button"
+                   ng-click="toggleBottomView()"
+                   aria-label="Close"
+                   uib-tooltip="Close"
+                   tooltip-placement="left"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">
+            <i class="material-icons">close</i>
+        </md-button>
+    </div>
+
+</article>

@@ -10,9 +10,9 @@ module.exports = {
     dist: {
         files: [{
             expand: true,
-            cwd: '<%= ftep.app %>/styles',
+            cwd: '.tmp/styles',
             src: ['**/*.css'],
-            dest: '.tmp/styles/'
+            dest: '.tmp/post/styles/'
         }]
     }
 };

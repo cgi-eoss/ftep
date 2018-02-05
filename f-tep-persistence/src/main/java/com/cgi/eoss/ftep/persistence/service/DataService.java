@@ -1,11 +1,13 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import org.springframework.core.convert.converter.Converter;
+
 import java.util.Collection;
 import java.util.List;
 
 /**
  */
-public interface DataService<T, I> {
+public interface DataService<T, I> extends Converter<I, T> {
 
     /**
      * Delete the specified object from the data store.
@@ -62,6 +64,11 @@ public interface DataService<T, I> {
     Collection<T> save(Collection<T> objs);
 
     /**
+     * @return An object matching the unique properties of the given example, or none if no such entity exists.
+     */
+    T findOneByExample(T example);
+
+    /**
      * Resync the given object with its persistent representation. This may be useful when certain properties are set or
      * populated by database triggers.
      */
@@ -72,4 +79,5 @@ public interface DataService<T, I> {
      * lazy-loaded properties.
      */
     T refreshFull(T obj);
+
 }

@@ -1,9 +1,8 @@
 package com.cgi.eoss.ftep;
 
-import com.google.api.client.http.HttpResponse;
+import com.cgi.eoss.ftep.util.FtepWebClient;
 import cucumber.api.java8.En;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.testcontainers.containers.BrowserWebDriverContainer;
+import okhttp3.Response;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -14,29 +13,28 @@ import static org.junit.Assert.assertThat;
  */
 public class WpsStepdefs implements En {
 
-    private Harness harness = new Harness();
-
-    private BrowserWebDriverContainer browser;
-
     private String responseBody;
 
-    public WpsStepdefs() {
-        Given("^the F-TEP environment$", () -> {
-            harness.startFtepEnvironment();
-            browser = new BrowserWebDriverContainer().withDesiredCapabilities(DesiredCapabilities.chrome());
+    public WpsStepdefs(FtepWebClient client) {
+        Given("^F-TEP WPS is available", () -> {
+            assertThat(client.get("/secure/wps/zoo_loader.cgi").code(), is(400));
         });
 
         When("^a user requests GetCapabilities from WPS$", () -> {
-            HttpResponse response = harness.getWpsResponse("/cgi-bin/zoo_loader.cgi?request=GetCapabilities&service=WPS");
-            assertThat(response.getStatusCode(), is(200));
-            responseBody = harness.getResponseContent(response);
+            Response response = client.get("/secure/wps/zoo_loader.cgi?request=GetCapabilities&service=WPS");
+            assertThat(response.code(), is(200));
+            responseBody = client.getContent(response);
         });
 
         Then("^they receive the F-TEP service list$", () -> {
             assertThat(responseBody, allOf(
                     containsString("<ows:Title>Forestry TEP (F-TEP)  WPS Server</ows:Title>"),
-                    containsString("<ows:Identifier>QGIS</ows:Identifier>")
+                    containsString("<ows:Identifier>LandCoverS2</ows:Identifier>"),
+                    containsString("<ows:Identifier>VegetationIndices</ows:Identifier>"),
+                    containsString("<ows:Identifier>QGIS</ows:Identifier>"),
+                    containsString("<ows:Identifier>SNAP</ows:Identifier>")
             ));
         });
     }
+
 }

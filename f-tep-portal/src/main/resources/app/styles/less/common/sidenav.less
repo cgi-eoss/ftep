@@ -1,0 +1,66 @@
+@import "variable";
+#sidenav {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: @sidenav-width;
+    z-index: 22;
+    .bg-trans-dark(@bg-dark);
+    &:hover {
+        background-color: @bg-dark;
+        #explorer-nav-wrapper .explorer-nav li {
+            color: @text-light;
+        }
+    }
+    #ftep-nav-wrapper {
+        padding-top: 5rem;
+        .ftep-nav {
+            padding: 0;
+            li {
+                cursor: pointer;
+                display: block;
+                font-size: 1rem;
+                padding: 10px;
+                text-decoration: none;
+                .border-dark(border-bottom, @bg-dark);
+                .text-sec-light();
+                &:first-child {
+                    .border-dark(border-top, @bg-dark);
+                }
+                &:hover {
+                    .bg-trans-dark(@brand);
+                }
+            }
+            .active {
+                .bg-trans-dark(@brand-dark);
+            }
+            .active-bottom {
+                .bg-trans-dark(@alert-link);
+            }
+            .bottom-link {
+                 &:hover {
+                    .bg-trans-dark(@alert-text);
+                }
+            }
+        }
+    }
+    .notification-container {
+        position: relative;
+        .notification {
+            background-color: @error-text;
+            border-radius: 25px;
+            color: @text-light;
+            float: left;
+            font-size: 11px;
+            left: 24px;
+            top: 28px;
+            min-width: 16px;
+            padding: 0 3px;
+            position: absolute;
+            text-align: center;
+            z-index: 20;
+        }
+    }
+
+}

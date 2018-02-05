@@ -1,11 +1,11 @@
 buildscript {
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.0'
+        classpath pl.protobuf
     }
 }
 
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -22,11 +22,11 @@ sourceSets {
 
 protobuf {
     protoc {
-        artifact = deps.protoc
+        artifact = 'com.google.protobuf:protoc:3.4.0'
     }
     plugins {
         grpc {
-            artifact = deps.protocGenGrpcJava
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.9.0'
         }
     }
     generateProtoTasks {
@@ -41,11 +41,16 @@ protobuf {
 }
 
 dependencies {
-    compileOnly deps.lombok
+    compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-eureka'
 
-    compile deps.grpcNetty
-    compile deps.grpcProtobuf
-    compile deps.grpcStub
+    compile project(':f-tep-model')
+
+    compile 'io.grpc:grpc-netty'
+    compile 'io.grpc:grpc-protobuf'
+    compile 'io.grpc:grpc-stub'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework:spring-tx'
 }
 
 sonarqube {

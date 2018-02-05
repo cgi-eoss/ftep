@@ -1,111 +1,30 @@
 @import "variable";
-.panel-group {
-    margin: 0;
-    #projects {
-        border: none;
-        border-radius: 0;
-        .panel {
-            border: none;
-            .panel-heading {
-                padding: 0;
-                .panel-heading-container {
-                    background-color: @brand-dark;
-                    border-radius: 0;
-                    color: @text-light;
-                    margin: 0;
-                    padding: 2px;
-                    .md-button {
-                        width: 100%;
-                        &:hover {
-                            color: @accent-light;
-                        }
-                    }
-                    .project-title {
-                        padding-left: 0;
-                        .expand-icon {
-                            font-size: 1rem;
-                            margin: 8px;
-                            padding-top: 2px;
-                        }
-                        h2 {
-                            font-size: 1rem;
-                            margin: 0;
-                            padding: 8px;
-                        }
-                        &:hover {
-                            color: @accent-light;
-                        }
-                    }
-                    .toolbar-right {
-                        float: right;
-                    }
+#projects {
+    .panel-heading {
+        padding: 0;
+        .panel-heading-container {
+            background-color: @brand-dark;
+            color: @text-light;
+            cursor: pointer;
+            .md-button {
+                width: 100%;
+                &:hover {
+                    color: @accent-light;
                 }
             }
-            .panel-body {
-                border: none;
-                padding: 0px;
-                .project-list {
-                    margin-bottom: 0;
-                    .project-item {
-                        border-radius: 0;
-                        height: 2rem;
-                        min-height: 36px;
-                        padding: 0;
-                        .project-item-row {
-                            height: 100%;
-                            .heading-item,
-                            .project-item-col {
-                                height: 100%;
-                            }
-                            .icon-button-container {
-                                padding: 0;
-                            }
-                            .project-name-container {
-                                display: table;
-                                height: 100%;
-                                .project-name {
-                                    display: table-cell;
-                                    padding-left: 1rem;
-                                    vertical-align: middle;
-                                    &:hover {
-                                        color: @accent;
-                                    }
-                                }
-                            }
-                            .project-edit {
-                                height: 100%;
-                                .input-group {
-                                    padding-left: 1rem;
-                                    .project-rename {
-                                        display: inline-block;
-                                        height: 2rem;
-                                        min-height: 36px;
-                                        position: relative;
-                                        padding: 0 0 0 4px;
-                                    }
-                                }
-                            }
-                            .md-button {
-                                width: 100%;
-                                .material-icons {
-                                    font-size: 1rem;
-                                }
-                                &:hover {
-                                    color: @accent;
-                                }
-                            }
-                        }
-                        &.active {
-                            background-color: @brand;
-                            border: none;
-                            .project-name,
-                            .md-button {
-                                &:hover {
-                                    color: @accent-light;
-                                }
-                            }
-                        }
-                    }
+            .project-title {
+                .expand-icon {
+                    font-size: 1rem;
+                    margin: 8px;
+                    padding-top: 2px;
+                }
+                h2 {
+                    font-size: 1rem;
+                    margin: 0;
+                    padding: 8px;
+                }
+                &:hover {
+                    color: @accent-light;
                 }
             }
         }

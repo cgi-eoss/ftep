@@ -2,33 +2,187 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 // This pattern allows us to override the URLs from init.gradle or gradle.properties
-ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://repo1.maven.org/maven2'
+ext.mavenCentralUrl = project.hasProperty('mavenCentralUrl') ? mavenCentralUrl : 'https://jcenter.bintray.com'
+ext.mavenGeosolutionsUrl = project.hasProperty('mavenGeosolutionsUrl') ? mavenGeosolutionsUrl : 'http://maven.geo-solutions.it'
+ext.mavenOsgeoUrl = project.hasProperty('mavenOsgeoUrl') ? mavenOsgeoUrl : 'http://download.osgeo.org/webdav/geotools'
 ext.npmUrl = project.hasProperty('npmUrl') ? npmUrl : 'https://registry.npmjs.org'
 ext.gradlePluginPortalUrl = project.hasProperty('gradlePluginPortalUrl') ? gradlePluginPortalUrl : 'https://plugins.gradle.org/m2'
 
 allprojects {
     buildscript {
         repositories {
-            maven {
-                url gradlePluginPortalUrl
-            }
+            maven { url gradlePluginPortalUrl }
         }
+    }
+
+    repositories {
+        maven { url mavenCentralUrl }
+        maven { url mavenGeosolutionsUrl }
+        maven { url mavenOsgeoUrl }
     }
 
     buildDir = 'target'
 
     plugins.withType(JavaPlugin) {
         sourceCompatibility = 1.8
-        repositories {
-            maven {
-                url mavenCentralUrl
+    }
+
+    tasks.withType(JavaCompile) {
+        options.incremental = true
+    }
+
+    // Dependency versions
+    ext['awaitility.version'] = '2.0.0'
+    ext['commons-io.version'] = '2.5'
+    ext['commons-lang3.version'] = '3.6'
+    ext['commons-net.version'] = '3.6'
+    ext['commons-text.version'] = '1.1'
+    ext['cucumber-jvm.version'] = '1.2.5'
+    ext['disruptor.version'] = '3.3.6'
+    ext['docker-java.version'] = '3.0.14'
+    ext['geojson-jackson.version'] = '1.8'
+    ext['geoserver-manager.version'] = '1.7.0'
+    ext['geotools.version'] = '17.2'
+    ext['grpc.version'] = '1.9.0'
+    ext['grpc-spring-boot-starter.version'] = '2.1.5'
+    ext['guava.version'] = '23.6-jre'
+    ext['hamcrest-junit.version'] = '2.0.0.0'
+    ext['hibernate-jpa-2.1-api.version'] = '1.0.2.Final'
+    ext['jimfs.version'] = '1.1'
+    ext['jool.version'] = '0.9.12'
+    ext['logf42-gelf.version'] = '1.3.1'
+    ext['mockftpserver.version'] = '2.7.1'
+    ext['okhttp3.version'] = '3.9.1'
+    ext['openstack4j.version'] = '3.1.0'
+    ext['protoc.version'] = '3.4.0'
+    ext['selenium.version'] = '3.4.0'
+    ext['sshj.version'] = '0.23.0'
+    ext['testcontainers.version'] = '1.5.1'
+    ext['netty-tcnative-boringssl-static.version'] = '2.0.6.Final'
+
+    // Spring BOM versions
+    ext['spring-cloud.version'] = 'Edgware.SR1'
+    ext['spring-boot.version'] = '1.5.10.RELEASE'
+
+    // Dependency versions overriding those from the Spring BOMs
+    ext['flyway.version'] = '4.2.0'
+    ext['hibernate.version'] = '5.2.12.Final'
+    ext['jackson.version'] = '2.9.4'
+    ext['mockito.version'] = '2.9.0'
+
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports {
+            mavenBom 'org.springframework.cloud:spring-cloud-dependencies:' + ext['spring-cloud.version']
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:' + ext['spring-boot.version']
+        }
+
+        dependencies {
+            dependency group: 'commons-io', name: 'commons-io', version: ext['commons-io.version']
+            dependency group: 'commons-net', name: 'commons-net', version: ext['commons-net.version']
+            dependency group: 'com.github.docker-java', name: 'docker-java', version: ext['docker-java.version']
+            dependency group: 'com.google.guava', name: 'guava', version: ext['guava.version']
+            dependency group: 'com.google.jimfs', name: 'jimfs', version: ext['jimfs.version']
+            dependency group: 'com.google.protobuf', name: 'protoc', version: ext['protoc.version']
+            dependency group: 'com.hierynomus', name: 'sshj', version: ext['sshj.version']
+            dependency group: 'com.lmax', name: 'disruptor', version: ext['disruptor.version']
+            dependency group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: ext['jackson.version']
+            dependencySet(group: 'com.squareup.okhttp3', version: ext['okhttp3.version']) {
+                entry 'logging-interceptor'
+                entry 'mockwebserver'
+                entry 'okhttp'
+            }
+            dependency group: 'de.grundid.opendatalab', name: 'geojson-jackson', version: ext['geojson-jackson.version']
+            dependencySet(group: 'info.cukes', version: ext['cucumber-jvm.version']) {
+                entry 'cucumber-java8'
+                entry 'cucumber-junit'
+                entry 'cucumber-picocontainer'
+            }
+            dependencySet(group: 'io.grpc', version: ext['grpc.version']) {
+                entry 'grpc-netty'
+                entry 'grpc-protobuf'
+                entry 'grpc-stub'
+                entry 'protoc-gen-grpc-java'
+            }
+            dependency group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: ext['netty-tcnative-boringssl-static.version']
+            dependency group: 'it.geosolutions', name: 'geoserver-manager', version: ext['geoserver-manager.version']
+            dependency group: 'org.apache.commons', name: 'commons-lang3', version: ext['commons-lang3.version']
+            dependency group: 'org.apache.commons', name: 'commons-text', version: ext['commons-text.version']
+            dependency group: 'org.awaitility', name: 'awaitility', version: ext['awaitility.version']
+            dependencySet(group: 'org.geotools', version: ext['geotools.version']) {
+                // project(':third-party/java/jai_core') must be manually included
+                entry('gt-epsg-extension') { exclude 'javax.media:jai_core' }
+                entry('gt-epsg-hsql') { exclude 'javax.media:jai_core' }
+                entry('gt-geojson') { exclude 'javax.media:jai_core' }
+                entry('gt-geometry') { exclude 'javax.media:jai_core' }
+                entry('gt-geotiff') { exclude 'javax.media:jai_core' }
+                entry('gt-main') { exclude 'javax.media:jai_core' }
+                entry('gt-referencing') { exclude 'javax.media:jai_core' }
+                entry('gt-shapefile') { exclude 'javax.media:jai_core' }
+            }
+            dependency group: 'org.graylog2.log4j2', name: 'log4j2-gelf', version: ext['logf42-gelf.version']
+            dependency group: 'org.hamcrest', name: 'hamcrest-junit', version: ext['hamcrest-junit.version']
+            dependency group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: ext['hibernate-jpa-2.1-api.version']
+            dependency group: 'org.jooq', name: 'jool', version: ext['jool.version']
+            dependency group: 'org.lognet', name: 'grpc-spring-boot-starter', version: ext['grpc-spring-boot-starter.version']
+            dependency group: 'org.mockftpserver', name: 'MockFtpServer', version: ext['mockftpserver.version']
+            dependency group: 'org.mockito', name: 'mockito-core', version: ext['mockito.version']
+            dependency group: 'org.pacesys', name: 'openstack4j-core', version: ext['openstack4j.version']
+            dependency group: 'org.pacesys.openstack4j.connectors', name: 'openstack4j-okhttp', version: ext['openstack4j.version']
+            dependency group: 'org.seleniumhq.selenium', name: 'selenium-java', version: ext['selenium.version']
+            dependencySet(group: 'org.springframework.boot', version: ext['spring-boot.version']) {
+                entry('spring-boot-starter') { exclude 'org.springframework.boot:spring-boot-starter-logging' }
+                entry('spring-boot-starter-web') { exclude 'org.springframework.boot:spring-boot-starter-tomcat' }
+            }
+            dependencySet(group: 'org.testcontainers', version: ext['testcontainers.version']) {
+                entry 'postgresql'
+                entry 'selenium'
+                entry 'testcontainers'
             }
         }
     }
 }
+
+subprojects {
+    afterEvaluate { project ->
+        if (!project.sonarqube.skipProject) {
+            sonarqube {
+                properties {
+                    property 'sonar.jacoco.reportPaths', "${project.buildDir}/jacoco/test.exec, ${rootProject.buildDir}/jacoco/aggregateCoverage.exec"
+                }
+            }
+        }
+    }
+}
+
+def depVersions = [
+        // Build plugin versions
+        clientDependenciesPlugin     : '1.4.0',
+        dependencyManagementPlugin   : '1.0.4.RELEASE',
+        osDetectorPlugin             : '1.4.0',
+        osPackagePlugin              : '4.5.1',
+        protobufPlugin               : '0.8.3',
+        querydslPlugin               : '1.0.9',
+        shadowPlugin                 : '2.0.2',
+        shadowLog4j2TransformerPlugin: '2.1.1',
+        springBootPlugin             : ext['spring-boot.version'],
+]
+
+ext.pl = [
+        clientDependencies     : 'gradle.plugin.com.craigburke.gradle:client-dependencies:' + depVersions.clientDependenciesPlugin,
+        dependencyManagement   : 'io.spring.gradle:dependency-management-plugin:' + depVersions.dependencyManagementPlugin,
+        osPackage              : 'com.netflix.nebula:gradle-ospackage-plugin:' + depVersions.osPackagePlugin,
+        protobuf               : 'com.google.protobuf:protobuf-gradle-plugin:' + depVersions.protobufPlugin,
+        shadow                 : 'com.github.jengelman.gradle.plugins:shadow:' + depVersions.shadowPlugin,
+        shadowLog4j2Transformer: 'de.sebastianboegl.gradle.plugins:shadow-log4j-transformer:' + depVersions.shadowLog4j2TransformerPlugin,
+        springBoot             : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBootPlugin,
+        osDetector             : 'com.google.gradle:osdetector-gradle-plugin:' + depVersions.osDetectorPlugin,
+        querydsl               : 'gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:' + depVersions.querydslPlugin
+]
 
 buildscript {
     repositories {
@@ -37,110 +191,44 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
     }
 }
 
-apply plugin: "org.sonarqube"
+apply plugin: 'jacoco'
+apply plugin: 'org.sonarqube'
+apply plugin: 'com.github.ben-manes.versions'
 
+ext.snapshotRpmQualifier = System.getenv("BUILD_NUMBER") == null ? LocalDateTime.now().format(DateTimeFormatter.ofPattern('yyyyMMddHHmmss')) : System.getenv("BUILD_NUMBER")
 
-def depVersions = [
-        awaitility       : '2.0.0',
-        commonsIo        : '2.5',
-        commonsNet       : '3.5',
-        cucumber         : '1.2.5',
-        dockerJava       : '3.0.0',
-        freemarker       : '2.3.25-incubating',
-        googleHttpClient : '1.22.0',
-        grpc             : '1.0.1',
-        gson             : '2.7',
-        guava            : '20.0',
-        hamcrest         : '2.0.0.0',
-        hibernateJpa21Api: '1.0.0.Final',
-        hibernate        : '5.2.4.Final',
-        hikaricp         : '2.5.1',
-        hsqldb           : '2.3.4',
-        httpclient       : '4.3.1',
-        jackson          : '2.8.5',
-        jimfs            : '1.1',
-        jsonapiConverter : '0.3',
-        jsr305           : '3.0.1',
-        junit            : '4.12',
-        logback          : '1.1.7',
-        lombok           : '1.16.10',
-        mockFtpServer    : '2.7.1',
-        mockito          : '2.2.26',
-        okHttp           : '3.5.0',
-        protoc           : '3.1.0-build2',
-        querydsl         : '4.1.4',
-        selenium         : '2.53.1',
-        slf4j            : '1.7.21',
-        springFramework  : '4.3.4.RELEASE',
-        springDataCommons: '1.12.5.RELEASE',
-        springDataJpa    : '1.10.5.RELEASE',
-        springBoot       : '1.4.2.RELEASE',
-        testContainers   : '1.1.7'
-]
-
-ext.deps = [
-        commonsIo              : 'commons-io:commons-io:' + depVersions.commonsIo,
-        commonsNet             : 'commons-net:commons-net:' + depVersions.commonsNet,
-        cucumberJava8          : 'info.cukes:cucumber-java8:' + depVersions.cucumber,
-        cucumberJunit          : 'info.cukes:cucumber-junit:' + depVersions.cucumber,
-        dockerJava             : 'com.github.docker-java:docker-java:' + depVersions.dockerJava,
-        freemarker             : 'org.freemarker:freemarker:' + depVersions.freemarker,
-        googleHttpClient       : 'com.google.http-client:google-http-client:' + depVersions.googleHttpClient,
-        googleHttpClientJackson: 'com.google.http-client:google-http-client-jackson2:' + depVersions.googleHttpClient,
-        grpcNetty              : 'io.grpc:grpc-netty:' + depVersions.grpc,
-        grpcProtobuf           : 'io.grpc:grpc-protobuf:' + depVersions.grpc,
-        grpcStub               : 'io.grpc:grpc-stub:' + depVersions.grpc,
-        gson                   : 'com.google.code.gson:gson:' + depVersions.gson,
-        guava                  : 'com.google.guava:guava:' + depVersions.guava,
-        hibernateCore          : 'org.hibernate:hibernate-core:' + depVersions.hibernate,
-        hibernateEntityManager : 'org.hibernate:hibernate-entitymanager:' + depVersions.hibernate,
-        hibernateJpa21Api      : 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:' + depVersions.hibernateJpa21Api,
-        hikaricp               : 'com.zaxxer:HikariCP:' + depVersions.hikaricp,
-        httpclient             : 'org.apache.httpcomponents:httpclient:' + depVersions.httpclient,
-        jacksonDatabind        : 'com.fasterxml.jackson.core:jackson-databind:' + depVersions.jackson,
-        jacksonDataformatYaml  : 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:' + depVersions.jackson,
-        jimfs                  : 'com.google.jimfs:jimfs:' + depVersions.jimfs,
-        jsonapiConverter       : 'com.github.jasminb:jsonapi-converter:' + depVersions.jsonapiConverter,
-        jsr305                 : 'com.google.code.findbugs:jsr305:' + depVersions.jsr305,
-        logbackClassic         : 'ch.qos.logback:logback-classic:' + depVersions.logback,
-        lombok                 : 'org.projectlombok:lombok:' + depVersions.lombok,
-        okHttp                 : 'com.squareup.okhttp3:okhttp:' + depVersions.okHttp,
-        protoc                 : 'com.google.protobuf:protoc:' + depVersions.protoc,
-        protocGenGrpcJava      : 'io.grpc:protoc-gen-grpc-java:' + depVersions.grpc,
-        querydslApt            : [
-                'com.querydsl:querydsl-apt:' + depVersions.querydsl + ':hibernate',
-                'org.hibernate:hibernate-core:' + depVersions.hibernate,
-        ],
-        querydslJpa            : 'com.querydsl:querydsl-jpa:' + depVersions.querydsl,
-        slf4j                  : 'org.slf4j:slf4j-api:' + depVersions.slf4j,
-        slf4jJclBridge         : 'org.slf4j:jcl-over-slf4j:' + depVersions.slf4j,
-        slf4jJulBridge         : 'org.slf4j:jul-to-slf4j:' + depVersions.slf4j,
-        springOrm              : 'org.springframework:spring-orm:' + depVersions.springFramework,
-        springTx               : 'org.springframework:spring-tx:' + depVersions.springFramework,
-        springBoot             : 'org.springframework.boot:spring-boot:' + depVersions.springBoot,
-        springBootAutoconfigure: 'org.springframework.boot:spring-boot-autoconfigure:' + depVersions.springBoot,
-        springDataJpa          : 'org.springframework.data:spring-data-jpa:' + depVersions.springDataJpa,
-
-        awaitility             : 'org.awaitility:awaitility:' + depVersions.awaitility,
-        hamcrestJunit          : 'org.hamcrest:hamcrest-junit:' + depVersions.hamcrest,
-        hsqldb                 : 'org.hsqldb:hsqldb:' + depVersions.hsqldb,
-        mockFtpServer          : 'org.mockftpserver:MockFtpServer:' + depVersions.mockFtpServer,
-        mockWebServer          : 'com.squareup.okhttp3:mockwebserver:' + depVersions.okHttp,
-        mockito                : 'org.mockito:mockito-core:' + depVersions.mockito,
-        junit                  : 'junit:junit:' + depVersions.junit,
-        selenium               : 'org.seleniumhq.selenium:selenium-java:' + depVersions.selenium,
-        springTest             : 'org.springframework:spring-test:' + depVersions.springFramework,
-        testContainers         : 'org.testcontainers:testcontainers:' + depVersions.testContainers,
-        testContainersSelenium : 'org.testcontainers:selenium:' + depVersions.testContainers
-]
-
-static def getRpmVersion(version) {
+def getRpmVersion(version) {
     return [
             version: version.endsWith('-SNAPSHOT') ? version.toString().split('-')[0] : version,
-            release: version.endsWith('-SNAPSHOT') ? 'SNAPSHOT' + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) : '1'
+            release: version.endsWith('-SNAPSHOT') ? "SNAPSHOT${snapshotRpmQualifier}" : '1'
     ]
+}
+
+task aggregateCoverage(type: JacocoMerge) {
+    def jacocoReports = []
+    doFirst {
+        subprojects.each { p ->
+            def coverageFileLocation = "$p.buildDir/jacoco/test.exec"
+            if (new File(coverageFileLocation).exists()) {
+                jacocoReports.add(file(coverageFileLocation))
+            }
+        }
+    }
+    executionData = files(jacocoReports)
+}
+
+if (System.env.TRAVIS == 'true') {
+    allprojects {
+        tasks.withType(Test) {
+            // containers (currently) have 2 dedicated cores and 4GB of memory
+            maxParallelForks = 2
+            minHeapSize = '128m'
+        }
+    }
 }

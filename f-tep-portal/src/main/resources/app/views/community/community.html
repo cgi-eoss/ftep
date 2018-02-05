@@ -1,0 +1,76 @@
+<div class="page" ng-controller="CommunityCtrl">
+
+    <div class="spinner-container" ng-class="{'hidden': !hideContent}">
+        <div class="spinner" />
+    </div>
+
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
+
+    <article id="community-container" class="page-container row" ng-class="{'hidden': hideContent}">
+
+        <section id="sidenav" ng-include src="'views/community/sidenav.html'" onload="finishLoading('sidenav')" />
+
+        <section id="side-container" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 panel-container" ng-show="navInfo.sideViewVisible"
+                 media-show="gt-sm" media-show-on="{{displaySidebar()}}">
+
+            <md-sidenav id="sidebar-left" class="md-sidenav-left md-whiteframe-4dp no-padding"
+                        md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
+                <div class="panel-container no-padding">
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.GROUPS"
+                         ng-controller="CommunityGroupsCtrl" ng-include src="'views/community/sidebar/groups.html'" onload="finishLoading('groups')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.PROJECTS"
+                         ng-controller="CommunityProjectsCtrl" ng-include src="'views/community/sidebar/projects.html'" onload="finishLoading('projects')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.DATABASKETS"
+                         ng-controller="CommunityDatabasketsCtrl" ng-include src="'views/community/sidebar/databaskets.html'" onload="finishLoading('databaskets')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.JOBS"
+                         ng-controller="CommunityJobsCtrl" ng-include src="'views/community/sidebar/jobs.html'" onload="finishLoading('jobs')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.SERVICES"
+                         ng-controller="CommunityServicesCtrl" ng-include src="'views/community/sidebar/services.html'" onload="finishLoading('services')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.FILES"
+                         ng-controller="CommunityFilesCtrl" ng-include src="'views/community/sidebar/files.html'" onload="finishLoading('files')"/>
+                </div>
+            </md-sidenav>
+        </section>
+
+        <section id="group-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageGroupCtrl"
+                 src="'views/community/manage/group.html'"
+                 ng-if="groupParams.selectedGroup && navInfo.activeSideNav === communityTabs.GROUPS" />
+
+        <section id="project-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageProjectCtrl"
+                 src="'views/community/manage/project.html'"
+                 ng-if="projectParams.selectedProject && navInfo.activeSideNav === communityTabs.PROJECTS" />
+
+        <section id="databasket-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageDatabasketCtrl"
+                 src="'views/community/manage/databasket.html'"
+                 ng-if="basketParams.selectedDatabasket && navInfo.activeSideNav === communityTabs.DATABASKETS" />
+
+        <section id="job-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageJobCtrl"
+                 src="'views/community/manage/job.html'"
+                 ng-if="jobParams.selectedJob && navInfo.activeSideNav === communityTabs.JOBS" />
+
+        <section id="service-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageServiceCtrl"
+                 src="'views/community/manage/service.html'"
+                 ng-if="serviceParams.selectedService && navInfo.activeSideNav === communityTabs.SERVICES" />
+
+        <section id="file-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageFileCtrl"
+                 src="'views/community/manage/file.html'"
+                 ng-if="fileParams.selectedFile && navInfo.activeSideNav === communityTabs.FILES" />
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="once = once || navInfo.bottomViewVisible"
+                 ng-show="navInfo.bottomViewVisible"/>
+
+    </article>
+
+
+</div>

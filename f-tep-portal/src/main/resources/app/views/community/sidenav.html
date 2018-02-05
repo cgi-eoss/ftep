@@ -1,0 +1,30 @@
+<nav id="ftep-nav-wrapper">
+
+    <ul class="ftep-nav">
+
+        <li ng-click="togglePage(communityTabs.GROUPS)" ng-class="{'active': navInfo.activeSideNav === communityTabs.GROUPS }">
+            <i class="material-icons" uib-tooltip="Groups" tooltip-placement="right">group</i>
+        </li>
+        <li ng-click="togglePage(communityTabs.PROJECTS)" ng-class="{'active': navInfo.activeSideNav === communityTabs.PROJECTS}">
+            <i class="material-icons" uib-tooltip="Projects" tooltip-placement="right">folder_special</i>
+        </li>
+        <li ng-click="togglePage(communityTabs.DATABASKETS)" ng-class="{'active': navInfo.activeSideNav === communityTabs.DATABASKETS}">
+            <i class="material-icons" uib-tooltip="Databaskets" tooltip-placement="right">shopping_basket</i>
+        </li>
+        <li ng-click="togglePage(communityTabs.JOBS)" ng-class="{'active': navInfo.activeSideNav === communityTabs.JOBS}">
+            <i class="material-icons" uib-tooltip="Jobs" tooltip-placement="right">assignment</i>
+        </li>
+        <li ng-click="togglePage(communityTabs.SERVICES)" ng-class="{'active': navInfo.activeSideNav === communityTabs.SERVICES}">
+            <i class="material-icons" uib-tooltip="Services" tooltip-placement="right">settings_remote</i>
+        </li>
+        <li ng-click="togglePage(communityTabs.FILES)" ng-class="{'active': navInfo.activeSideNav === communityTabs.FILES}">
+            <i class="material-icons" uib-tooltip="Files" tooltip-placement="right">attach_file</i>
+        </li>
+
+        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': navInfo.bottomViewVisible}">
+            <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
+            <span class="notification" ng-show="message.count !== 0">{{message.count}}</span>
+        </li>
+    </ul>
+
+</nav>

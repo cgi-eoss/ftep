@@ -1,0 +1,37 @@
+<div class="button-section button-section-small">
+    <md-menu-bar>
+        <md-menu>
+            <md-button ng-click="$mdOpenMenu($event)"
+                       class="toolbar-button"
+                       aria-label="Messages Action Menu"
+                       uib-tooltip="Messages Action Menu"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">settings</i>
+            </md-button>
+            <md-menu-content>
+                <md-menu-item>
+                     <md-button ng-click="clearAll($event)"
+                                aria-label="Clear All">
+                        <span>
+                            <span class="material-icons">clear_all</span>
+                            <span class="menu-text">Clear All</span>
+                        </span>
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+    </md-menu-bar>
+</div>
+
+<div class="button-section button-section-large">
+    <md-button class="toolbar-button"
+               ng-click="clearAll($event)"
+               aria-label="Clear All"
+               uib-tooltip="Clear All"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">clear_all</i>
+    </md-button>
+
+</div>

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc";
+option java_outer_classname = "Messages";
+
+message Job {
+    string id = 1;
+    string intJobId = 2;
+    string userId = 3;
+    string serviceId = 4;
+}
+
+message JobParam {
+    string paramName = 1;
+    repeated string paramValue = 2;
+}
+
+message ShortFile {
+    string filename = 1;
+    bytes content = 2;
+    bool executable = 3;
+}
+
+message FileStream {
+    message FileMeta {
+        string filename = 1;
+        int64 size = 2;
+    }
+    message Chunk {
+        int64 position = 1;
+        bytes data = 2;
+    }
+    oneof Payload {
+        FileMeta meta = 1;
+        Chunk chunk = 2;
+    }
+}

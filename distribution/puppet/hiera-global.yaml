@@ -1,0 +1,13 @@
+---
+# This file is not an environment-local hiera.yaml (which is not supported as of Puppet 4.9.0)
+# It is to be passed to puppet apply (e.g. by Vagrant) with --hiera_config=/path/to/hiera-global.yaml
+
+:backends:
+  - yaml
+:hierarchy:
+  - "%{fqdn}"
+  - "standalone.local"
+  - "standalone"
+
+:yaml:
+  :datadir: "hieradata"

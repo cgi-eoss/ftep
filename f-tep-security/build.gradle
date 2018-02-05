@@ -1,0 +1,22 @@
+group 'com.cgi.eoss.f-tep'
+version '2.1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+
+    compile project(':f-tep-model')
+    compile project(':f-tep-persistence')
+
+    compile 'javax.cache:cache-api'
+    compile 'javax.servlet:javax.servlet-api'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.ehcache:ehcache'
+    compile 'org.springframework.boot:spring-boot-starter-cache'
+    compile 'org.springframework.boot:spring-boot-starter-log4j2'
+    compile 'org.springframework.security:spring-security-acl'
+    compile 'org.springframework.security:spring-security-config'
+    compile 'org.springframework.security:spring-security-web'
+}

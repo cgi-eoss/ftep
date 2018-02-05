@@ -1,0 +1,151 @@
+<div id="databaskets">
+
+       <section class="filter-list">
+        <ul class="list">
+
+            <div class="row list-group filter-list-title">
+
+                <div class="col-xs-11" ng-click="toggleFilters()">
+                    <label class="md-accent">Filters</label>
+                </div>
+
+                <div class="col-xs-1 expander">
+                    <i class="material-icons"
+                       ng-show="!dbParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Show Filters"
+                       uib-tooltip="Show Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_less
+                    </i>
+                    <i class="material-icons"
+                       ng-show="dbParams.displayFilters"
+                       ng-click="toggleFilters()"
+                       aria-label="Hide Filters"
+                       uib-tooltip="Hide Filters"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                        expand_more
+                    </i>
+                </div>
+
+            </div>
+
+            <md-input-container md-no-float ng-show="dbParams.displayFilters">
+                <input ng-model="dbParams.searchText" type="text" placeholder="Search" ng-keyup="filter()" aria-label="Databaskets Search Filter">
+            </md-input-container>
+
+            <div class="row filter-radiobutton" ng-show="dbParams.displayFilters">
+                <md-radio-group ng-model="dbParams.selectedOwnershipFilter" ng-change="filter()">
+                    <div ng-repeat="ownershipFilter in dbOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                        <md-radio-button ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+
+        </ul>
+    </section>
+
+    <section class="item-list list" ng-if="dbParams.databaskets.length > 0">
+        <md-list-item class="md-2-line"
+                      ng-repeat="basket in dbParams.databaskets"
+                      ng-click="selectDatabasket(basket);"
+                      ng-class="{active: basket.name == dbParams.selectedDatabasket.name}">
+
+            <div class="md-avatar" alt="drag handle" dnd-draggable="getBasketDragItems(basket)">
+                <i class="material-icons"
+                   uib-tooltip="Drag Databasket"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">drag_handle</i>
+            </div>
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable basket-name">{{basket.name}}</h3>
+
+                <p>Items: {{basket.size}}</p>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                    aria-label="Project Info"
+                    uib-popover-template="'views/common/templates/basketinfo.tmpl.html'"
+                    popover-placement="left"
+                    popover-trigger="'mouseenter'"
+                    popover-append-to-body="true">
+                <i class="material-icons">info_outline</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="shareObjectDialog($event, basket, 'databasket', 'BasketService', 'refreshSelectedBasket')"
+                       has-permission="ADMIN" permission-source="{{basket}}"
+                       aria-label="Share"
+                       uib-tooltip="Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true"
+                       has-permission="ADMIN"
+                       permission-source="{{basket}}">
+                <i class="material-icons">share</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="editDatabasket($event, basket)"
+                       has-permission="WRITE" permission-source="{{basket}}"
+                       uib-tooltip="Edit"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true"
+                       has-permission="WRITE"
+                       permission-source="{{basket}}">
+                <i class="material-icons">create</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                        ng-click="cloneDatabasket($event, basket)"
+                        uib-tooltip="Clone"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                <i class="material-icons">content_copy</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="dbParams.databasketOnMap.id != basket.id"
+                       ng-click="loadBasket(basket)"
+                       uib-tooltip="Load to map"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons"> visibility</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="dbParams.databasketOnMap.id == basket.id"
+                       ng-click="unloadBasket(basket)"
+                       uib-tooltip="Unload from map"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+               <i class="material-icons"> visibility_off</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="routeToManagePage(basket)"
+                       uib-tooltip="Open in Manage/Share"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+               <i class="material-icons">call_made</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{dbParams.pagingData}}"></div>
+    </section>
+
+</div>

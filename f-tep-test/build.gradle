@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '0.3.0'
+version '2.1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -19,36 +19,33 @@ test {
     }
 
     systemProperties['HARNESS_DIR'] = harnessDir
+
+    testLogging.showStandardStreams = true
+
+    ignoreFailures Boolean.getBoolean("test.ignoreFailures")
 }
 
 if (project.hasProperty("acceptanceTests")) {
-    test.dependsOn 'copyDocker', 'copyPuppet', 'copyRepo'
+    test.dependsOn 'copyFtepDist'
 }
 
-task copyDocker(type: Copy) {
-    from "${projectDir}/src/test/docker"
+task copyFtepDist(type: Sync) {
     into harnessDir
-}
-
-task copyPuppet(type: Copy) {
-    from tarTree(resources.gzip("${projectDir}/../.dist/puppet.tar.gz"))
-    into "${harnessDir}/puppet"
-}
-
-task copyRepo(type: Copy) {
-    from "${projectDir}/../.dist/repo"
-    into "${harnessDir}/repo"
+    from "${projectDir}/src/test/docker"
+    from "${projectDir}/../.dist"
 }
 
 dependencies {
-    testCompile deps.awaitility
-    testCompile deps.cucumberJava8
-    testCompile deps.cucumberJunit
-    testCompile deps.googleHttpClient
-    testCompile deps.junit
-    testCompile deps.testContainers
-    testCompile deps.testContainersSelenium
-    testCompile deps.selenium
+    testCompileOnly 'org.projectlombok:lombok'
 
-    testRuntime deps.logbackClassic
+    testCompile 'com.squareup.okhttp3:okhttp'
+    testCompile 'info.cukes:cucumber-java8'
+    testCompile 'info.cukes:cucumber-junit'
+    testCompile 'info.cukes:cucumber-picocontainer'
+    testCompile 'junit:junit'
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.seleniumhq.selenium:selenium-java'
+    testCompile 'org.testcontainers:selenium'
+    testCompile 'org.testcontainers:testcontainers'
+    testCompile 'org.springframework.boot:spring-boot-starter-log4j2'
 }

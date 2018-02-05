@@ -1,7 +1,0 @@
-name = Ftep Job
-description = Ftep Job
-core = 7.x
-package = Ftep
-version = 7.x-1.0
-dependencies[] = entity
-files[] = ftep_job.controller.inc

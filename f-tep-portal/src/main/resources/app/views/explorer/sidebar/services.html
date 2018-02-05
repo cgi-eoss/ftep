@@ -10,75 +10,65 @@
 
     <section class="filter-list">
        <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12 no-padding">
                 <md-input-container md-no-float>
-                    <input ng-model="serviceSearch.searchText" type="text" placeholder="Search Services">
+                    <input ng-model="serviceParams.searchText" type="text" placeholder="Search Services" ng-keyup="filter()" aria-label="Service Search Filter">
                 </md-input-container>
             </div>
        </div>
+
+       <md-input-container class="row" md-no-float>
+            <md-select ng-model="serviceParams.selectedTypeFilter" ng-change="filter()" aria-label="Service Type">
+                <md-optgroup label="Service Type">
+                    <md-option ng-repeat="filter in serviceTypeFilters" ng-value="filter">
+                        {{filter.name}}
+                    </md-option>
+                </md-optgroup>
+            </md-select>
+        </md-input-container>
+
+       <div class="row filter-radiobutton">
+           <md-radio-group ng-model="serviceParams.selectedOwnershipFilter" ng-change="filter()">
+               <div ng-repeat="ownershipFilter in serviceOwnershipFilters" class="col-md-12 col-lg-4 no-padding">
+                   <md-radio-button ng-value="ownershipFilter">
+                       {{ownershipFilter.name}}
+                   </md-radio-button>
+               </div>
+           </md-radio-group>
+       </div>
     </section>
 
-    <section class="panel-body scrollme" ng-scrollbar is-bar-shown="flag" rebuild-on="rebuild:scrollbar" rebuild-on-resize>
+    <section class="panel-body">
 
-        <ul class="list" ng-repeat="serviceType in serviceTypes" ng-init="isServiceTypeOpened = true">
+            <div class="item-list list">
 
-            <div class="row no-margin list-group">
+                <md-list-item class="md-2-line"
+                              ng-repeat="service in serviceParams.services"
+                              ng-click="selectService(service)">
 
-                <div class="col-md-11" ng-click="isServiceTypeOpened = !isServiceTypeOpened">
-                    <label>{{serviceType.label}}</label>
-                </div>
+                    <div class="service-type">
+                        {{service.type.substring(0,1)}}
+                    </div>
 
-                <div class="col-md-1 no-padding expander">
-                    <i class="material-icons"
-                       ng-show="!isServiceTypeOpened"
-                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
-                       aria-label="Show {{serviceType.label}}"
-                       uib-tooltip="Show {{serviceType.label}}"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_less
-                    </i>
-                    <i class="material-icons"
-                       ng-show="isServiceTypeOpened"
-                       ng-click="isServiceTypeOpened = !isServiceTypeOpened"
-                       aria-label="Hide {{serviceType.label}}"
-                       uib-tooltip="Hide {{serviceType.label}}"
-                       tooltip-placement="top"
-                       tooltip-trigger="mouseenter"
-                       tooltip-append-to-body="true">
-                        expand_more
-                    </i>
-                </div>
+                    <div class="md-list-item-text" layout="column">
+                        <h3>{{service.name}}</h3>
+                        <p>{{getShortDesc(service.description)}}</p>
+                    </div>
+
+                    <md-button class="toolbar-button md-secondary"
+                                aria-label="Service Info"
+                                uib-popover-template="'views/common/templates/serviceinfo.tmpl.html'"
+                                popover-placement="right"
+                                popover-trigger="'mouseenter'"
+                                popover-append-to-body="true">
+                        <i class="material-icons">info_outline</i>
+                    </md-button>
+
+                </md-list-item>
+
+                <div id="paging" ftep-paging="{{serviceParams.pagingData}}"></div>
 
             </div>
-
-        <div class="item-list list">
-
-            <md-list-item class="md-2-line"
-                          ng-repeat="service in services | orderBy: 'attributes.name' | filter: serviceQuickSearch "
-                          ng-if="isServiceTypeOpened && (serviceType.type === service.attributes.kind)"
-                          ng-click="selectService(service); toggleSidebar('workspace')">
-
-                <div class="md-list-item-text" layout="column">
-                    <h3>{{service.attributes.name}}</h3>
-                    <p>{{getShortDesc(service.attributes.description)}}</p>
-                </div>
-
-                <md-button class="toolbar-button md-secondary"
-                            aria-label="Service Info"
-                            uib-popover-html="getServicePopover({{service}})"
-                            popover-placement="right"
-                            popover-trigger="mouseenter"
-                            popover-append-to-body="true">
-                    <i class="material-icons">info_outline</i>
-                </md-button>
-
-                <span class="rating md-secondary" ng-bind-html="getRating(service.attributes.rating)"></span>
-
-            </md-list-item>
-        </div>
-        </ul>
 
     </section>
 

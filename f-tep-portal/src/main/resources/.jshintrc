@@ -1,10 +1,11 @@
 {
-    "bitwise": true,
+    "bitwise": false,
     "browser": true,
     "curly": true,
     "eqeqeq": true,
     "esnext": true,
     "latedef": true,
+    "loopfunc": true,
     "noarg": true,
     "node": true,
     "strict": true,

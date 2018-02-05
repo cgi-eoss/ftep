@@ -1,54 +1,57 @@
 package com.cgi.eoss.ftep.persistence.service;
 
-import com.cgi.eoss.ftep.model.FtepGroup;
-import com.cgi.eoss.ftep.model.FtepUser;
+import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
-import com.cgi.eoss.ftep.persistence.dao.FtepGroupDao;
+import com.cgi.eoss.ftep.persistence.dao.GroupDao;
+import com.querydsl.core.types.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.cgi.eoss.ftep.model.QGroup.group;
+
 @Service
 @Transactional(readOnly = true)
-public class JpaGroupDataService extends AbstractJpaDataService<FtepGroup> implements GroupDataService {
+public class JpaGroupDataService extends AbstractJpaDataService<Group> implements GroupDataService {
 
-    private static final ExampleMatcher UNIQUE_MATCHER = ExampleMatcher.matching()
-            .withMatcher("name", ExampleMatcher.GenericPropertyMatcher::exact)
-            .withMatcher("owner", ExampleMatcher.GenericPropertyMatcher::exact);
-
-    private final FtepGroupDao ftepGroupDao;
+    private final GroupDao dao;
 
     @Autowired
-    public JpaGroupDataService(FtepGroupDao ftepGroupDao) {
-        this.ftepGroupDao = ftepGroupDao;
+    public JpaGroupDataService(GroupDao groupDao) {
+        this.dao = groupDao;
     }
 
     @Override
-    FtepEntityDao<FtepGroup> getDao() {
-        return ftepGroupDao;
+    FtepEntityDao<Group> getDao() {
+        return dao;
     }
 
     @Override
-    ExampleMatcher getUniqueMatcher() {
-        return UNIQUE_MATCHER;
+    Predicate getUniquePredicate(Group entity) {
+        return group.name.eq(entity.getName()).and(group.owner.eq(entity.getOwner()));
     }
 
     @Override
-    public List<FtepGroup> search(String term) {
-        return ftepGroupDao.findByNameContainingIgnoreCase(term);
+    public List<Group> search(String term) {
+        return dao.findByNameContainingIgnoreCase(term);
     }
 
     @Override
-    public List<FtepGroup> findGroupMemberships(FtepUser user) {
-        return ftepGroupDao.findByMembersContaining(user);
+    public Group getByName(String name) {
+        return dao.findOneByName(name);
     }
 
     @Override
-    public List<FtepGroup> findByOwner(FtepUser user) {
-        return ftepGroupDao.findByOwner(user);
+    public List<Group> findGroupMemberships(User user) {
+        return dao.findByMembersContaining(user);
+    }
+
+    @Override
+    public List<Group> findByOwner(User user) {
+        return dao.findByOwner(user);
     }
 
 }

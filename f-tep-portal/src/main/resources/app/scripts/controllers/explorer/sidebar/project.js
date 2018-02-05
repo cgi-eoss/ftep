@@ -5,81 +5,48 @@
  * # ProjectCtrl
  * Controller of the ftepApp
  */
+'use strict';
 define(['../../../ftepmodules'], function (ftepmodules) {
-    'use strict';
 
-    ftepmodules.controller('ProjectCtrl', function ($scope, ProjectService) {
+    ftepmodules.controller('ProjectCtrl', ['$scope', '$rootScope', '$mdDialog', 'ProjectService', 'CommonService',
+                                               function ($scope, $rootScope, $mdDialog, ProjectService, CommonService) {
 
-        $scope.projects = [{
-                "type": "project",
-                "id": "0",
-                "attributes": {
-                    "name": "Default Project",
-                    "description": "Default project"
-                }
-            },
-            {
-                "type": "project",
-                "id": "1",
-                "attributes": {
-                    "name": "Test Project",
-                    "description": "Test project"
-                }
-            }];
+        $scope.projectParams = ProjectService.params.explorer;
+        $scope.projectOwnershipFilters = ProjectService.projectOwnershipFilters;
 
-        $scope.activeProject = $scope.projects[0];
-
-        $scope.setActiveProject = function (project) {
-            $scope.activeProject = project;
-            $('.project-list').on('click', 'li', function () {
-                $(this).addClass('active').siblings().removeClass('active');
-            });
+        $scope.selectProject = function (project) {
+            $scope.projectParams.selectedProject = project;
         };
 
-        ProjectService.getProjects().then(function (data) {
-            $scope.projects.push.apply($scope.projects, data);
-        });
+        ProjectService.refreshProjects('explorer');
 
         $scope.removeProject = function (project) {
             ProjectService.removeProject(project).then(function () {
-                var i = $scope.projects.indexOf(project);
-                $scope.projects.splice(i, 1);
+                ProjectService.refreshProjects('explorer', 'Remove');
             });
         };
 
-        $scope.$on('add.project', function (event, data) {
-            $scope.projects.push(data);
-        });
-
-        $scope.shareProject = function ($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
+        $scope.getPage = function(url){
+            ProjectService.getProjectsPage('explorer', url);
         };
 
-        var projectCache = {};
-
-        $scope.cacheProject = function (project) {
-            if (projectCache[project.id] === undefined) {
-                projectCache[project.id] = angular.copy(project);
-            }
+        $scope.filter = function(){
+            ProjectService.getProjectsByFilter('explorer');
         };
 
-        $scope.getProjectCache = function (project) {
-            var result;
-            if (projectCache[project.id] !== undefined) {
-                result = angular.copy(projectCache[project.id]);
-                projectCache[project.id] = undefined;
-            }
-            return result;
-        };
 
-        $scope.updateProject = function (enterClicked, project) {
-            if (enterClicked) {
-                ProjectService.updateProject(project).then(function () {
-                    projectCache[project.id] = undefined;
-                });
-            }
-            return !enterClicked;
+        /** CREATE PROJECT MODAL **/
+        $scope.createProjectDialog = function($event) {
+            CommonService.createItemDialog($event, 'ProjectService', 'createProject').then(function (newProject) {
+                ProjectService.refreshProjects('explorer', 'Create');
+            });
+        };
+        /** END OF CREATE PROJECT MODAL **/
+
+        $scope.updateProject = function ($event, project) {
+            CommonService.editItemDialog($event, project, 'ProjectService', 'updateProject').then(function(updatedProject) {
+                ProjectService.refreshProjects('explorer');
+            });
         };
 
         $scope.projectShow = false;
@@ -96,6 +63,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
-    });
+    }]);
 
 });

@@ -1,0 +1,5 @@
+{
+    "require": {
+        "skyscanner/jsonpath": "^0.7.3"
+    }
+}

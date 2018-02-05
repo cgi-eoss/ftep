@@ -1,0 +1,45 @@
+<article ng-if="dbParams.selectedDatabasket == undefined" class="note">Please select or create a databasket first</article>
+
+<article id="databasket" ng-if="dbParams.selectedDatabasket != undefined" class="panel-body panel-container">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="deselectDatabasket()"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
+
+    <h3>{{dbParams.selectedDatabasket.name}}</h3>
+    <h4>{{dbParams.selectedDatabasket.description}}</h4>
+
+    <md-list-item class="md-1-line ftep-file-list" ng-repeat="item in dbParams.items"
+                  ng-class="(getIndexById(item) > -1) ? 'resulthighlight' : 'resultnormal'">
+
+        <div class="md-avatar drag-handle" alt="drag handle" dnd-draggable="getBasketItem(item)">
+            <i class="material-icons"
+               uib-tooltip="Drag item"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">drag_handle</i>
+        </div>
+
+        <div class="md-list-item-text" ng-click="toggleSelection(item)" layout="column">
+            {{item.filename ? item.filename : item.uri}}
+        </div>
+
+        <md-button class="toolbar-button md-secondary"
+                   ng-click="removeDatabasketItem(item)"
+                   uib-tooltip="Remove"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true"
+                   has-permission="WRITE"
+                   permission-source="{{dbParams.selectedDatabasket}}">
+            <i class="material-icons">close</i>
+        </md-button>
+
+    </md-list-item>
+
+</article>

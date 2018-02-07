@@ -74,6 +74,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.selectedJob = undefined;
             };
 
+            $scope.selectedJobHasAnyWmsLinks = function() {
+                for (var item in $scope.jobParams.selectedJob.outputFiles) {
+                    if ($scope.jobParams.selectedJob.outputFiles[item]._links.wms) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             /* Toggles display of all wms items in job*/
             $scope.toggleAllWMS = function (show) {
                 $scope.jobParams.wms.isAllVisible = show;
@@ -98,9 +107,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.jobParams.wms.isAllVisible = ($scope.jobParams.wms.visibleList.length === $scope.jobParams.selectedJob.outputFiles.length);
             };
 
+            $scope.hasWmsLink = function(outputFile) {
+                return outputFile._links.wms;
+            };
+
             $scope.isWmsVisible = function(outputFile){
                 return $scope.jobParams.wms.visibleList.indexOf(outputFile) > -1;
-            }
+            };
 
             $scope.$on('map.cleared', function () {
                 if( $scope.jobParams.selectedJob) {

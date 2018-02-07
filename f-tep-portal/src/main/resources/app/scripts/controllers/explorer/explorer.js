@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('ExplorerCtrl', ['$scope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', '$timeout', function ($scope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService, $timeout) {
+    ftepmodules.controller('ExplorerCtrl', ['$scope', '$rootScope', '$mdDialog', 'TabService', 'MessageService', 'ftepProperties', 'CommonService', 'CommunityService', '$timeout', function ($scope, $rootScope, $mdDialog, TabService, MessageService, ftepProperties, CommonService, CommunityService, $timeout) {
 
         /* Set active page */
         $scope.navInfo = TabService.navInfo.explorer;
@@ -73,6 +73,34 @@ define(['../../ftepmodules'], function (ftepmodules) {
             }
         };
         /** END OF BOTTOM BAR **/
+
+        /** WMS layer show/hide option for Product Search result items **/
+        $scope.visibleWmsList = [];
+
+        /* Toggles display of a wms item */
+        $scope.toggleSearchResWMS = function ($event, item, show) {
+            if (show) {
+                $scope.visibleWmsList.push(item.properties);
+            } else {
+                var index = $scope.visibleWmsList.indexOf(item.properties);
+                $scope.visibleWmsList.splice(index, 1);
+            }
+            $rootScope.$broadcast('update.wmslayer', $scope.visibleWmsList);
+        };
+
+        /* Clear visible WMS-s when map is reset */
+        $scope.$on('map.cleared', function () {
+            $scope.visibleWmsList = [];
+        });
+
+        $scope.hasWmsLink = function(item) {
+            return item.properties._links.wms;
+        };
+
+        $scope.isSearchResWmsVisible = function(item) {
+            return $scope.visibleWmsList.indexOf(item.properties) > -1;
+        };
+        /** END OF WMS layer show/hide option for Product Search result items **/
 
         /* Show Result Metadata Modal */
         $scope.showMetadata = function($event, data) {

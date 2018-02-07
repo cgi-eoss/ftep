@@ -7,6 +7,7 @@
  */
 'use strict';
 define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
+
     ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', 'SearchService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, SearchService, $timeout) {
 
         var EPSG_3857 = "EPSG:3857", // Spherical Mercator projection used by most web map applications (e.g Google, OpenStreetMap, Mapbox).
@@ -621,15 +622,15 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
         $scope.$on('update.wmslayer', function(event, files) {
             /* Remove previous product layers */
-            for(var i = 0; i < productLayers.length; i++){
+            for (var i = 0; i < productLayers.length; i++) {
                 $scope.map.removeLayer(productLayers[i]);
             }
             productLayers = [];
 
-            if(files.length > 0) {
+            if (files.length > 0) {
                 // Create layer for each output file
-                for(var i = 0; i < files.length; i++) {
-                    if(files[i]._links.wms){
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i]._links && files[i]._links.wms) {
                         var source = new ol.source.ImageWMS({
                             url: files[i]._links.wms.href,
                             params: {
@@ -645,9 +646,12 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     }
                 }
 
-                // Zoom into place
-                var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
-                $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
+                // For example the Product Search result items apparently don't have this field
+                if (files[files.length-1].metadata) {
+                    // Zoom into place
+                    var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
+                    $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
+                }
             }
         });
         /* ----- END OF WMS LAYER ----- */

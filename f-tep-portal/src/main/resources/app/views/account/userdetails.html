@@ -44,6 +44,7 @@
             <md-card-content>
                 <p><b ng-bind="'Balance ' + (transaction.balanceChange > 0 ? 'Credit' : 'Debit') + ':'"></b> {{transaction.balanceChange}}</p>
                 <p ng-if="transaction.type == 'JOB'"><b>Associated Job ID:</b> {{transaction.associatedId}}</p>
+                <p ng-if="transaction.type == 'DOWNLOAD'"><b>Product Download</b></p>
                 <p><b>Date:</b> {{transaction.transactionTime | formatDateTime}}</p>
             </md-card-content>
         </md-card>

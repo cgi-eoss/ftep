@@ -110,6 +110,10 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
                 };
+
+                $scope.estimateAndDownload = function() {
+                    CommonService.estimateDownloadCost($event, $scope.item.properties._links.download.href);
+                };
             }
             MetadataController.$inject = ['$scope', '$mdDialog', 'ftepProperties'];
 

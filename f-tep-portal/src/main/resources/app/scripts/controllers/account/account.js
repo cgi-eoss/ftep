@@ -11,7 +11,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('AccountCtrl', ['ftepProperties', '$scope', 'UserService', 'WalletService', 'TabService', 'MessageService', function (ftepProperties, $scope, UserService, WalletService, TabService, MessageService) {
 
         /* Sidenav & Bottombar */
-        $scope.navInfo = TabService.navInfo.account;
+        $scope.navInfo = TabService.navInfo.admin;
 
         /* Active session message count */
         $scope.message = {};

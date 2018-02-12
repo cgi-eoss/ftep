@@ -49,19 +49,54 @@ define(['../../ftepmodules'], function (ftepmodules) {
         /* END OF SIDE BAR */
 
         /** BOTTOM BAR **/
+        // When a new Job has been started flip a flag
+        var newjobWithBottombar = false;
+        $scope.$on('newjob.started.init', function() {
+            newjobWithBottombar = true;
+        });
+
         $scope.displayTab = function(tab, allowedToClose) {
-            if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
-                $scope.toggleBottomView();
+            if (newjobWithBottombar || allowedToClose === undefined) {
+                $scope.toggleBottomView(true);
+                // Transition without animation
+                $scope.navInfo.activeBottomNav = tab;
             } else {
-                $scope.navInfo.bottomViewVisible = true;
-                $timeout(function () {
-                    $scope.navInfo.activeBottomNav = tab;
-                }, 600);
+                if ($scope.navInfo.activeBottomNav === tab && allowedToClose !== false) {
+                    // No need to switch tab
+                    $scope.toggleBottomView();
+                } else {
+                    $scope.toggleBottomView(true);
+                    // Transition with animation
+                    $timeout(function () {
+                        $scope.navInfo.activeBottomNav = tab;
+                    }, 100);
+                }
             }
         };
 
-        $scope.toggleBottomView = function () {
-            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+        // Triggering scroll action on the Jobs List when the document element is visible
+        $scope.$on('newjob.started.show', function() {
+            if (newjobWithBottombar) {
+                // Timered watcher
+                var checkExist = setInterval(function() {
+                    // Scroll to first job item
+                    document.querySelector("#jobs .job-list-item:nth-child(1)").scrollIntoView(true);
+                    if ($('#jobs-container').length) {
+                        // Resetting flag
+                        newjobWithBottombar = false;
+                        // Remove timer
+                        clearInterval(checkExist);
+                    }
+                }, 100);
+            }
+        });
+
+        $scope.toggleBottomView = function (flag) {
+            if (flag === undefined) {
+                $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+            } else {
+                $scope.navInfo.bottomViewVisible = flag;
+            }
         };
 
         $scope.getOpenedBottombar = function(){

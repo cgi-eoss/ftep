@@ -1,4 +1,4 @@
-<div id="job">
+<div id="jobs">
 
    <section class="filter-list">
         <ul class="list">
@@ -65,7 +65,7 @@
 
     <section class="item-list" ng-if="jobParams.jobs.length > 0">
 
-        <md-list-item class="md-3-line"
+        <md-list-item class="md-3-line job-list-item"
                       ng-repeat="job in jobParams.jobs"
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">

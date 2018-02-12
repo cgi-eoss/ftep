@@ -54,12 +54,16 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         /** Bottom bar **/
         $scope.displayTab = function(tab){
-            $scope.navInfo.bottomViewVisible = true;
+            $scope.toggleBottomView(true);
             $scope.navInfo.activeBottomNav = tab;
         };
 
-        $scope.toggleBottomView = function(){
-            $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+        $scope.toggleBottomView = function(flag) {
+            if (flag === undefined) {
+                $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;
+            } else {
+                $scope.navInfo.bottomViewVisible = flag;
+            }
         };
 
         /* Sharing */

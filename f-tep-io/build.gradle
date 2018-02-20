@@ -20,7 +20,7 @@ dependencies {
     compile 'org.apache.commons:commons-text'
     compile 'org.jooq:jool'
     compile 'org.springframework.boot:spring-boot'
-    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     compile 'org.springframework:spring-context'
 
     testCompile project(':f-tep-catalogue')
@@ -33,7 +33,7 @@ dependencies {
     testCompile 'org.mockftpserver:MockFtpServer'
     testCompile 'org.mockito:mockito-core'
     testCompile 'org.springframework:spring-test'
-    testCompile 'org.springframework.cloud:spring-cloud-starter-eureka'
+    testCompile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 }
 
 compileJava.dependsOn(processResources)

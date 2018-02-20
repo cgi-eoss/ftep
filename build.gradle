@@ -46,7 +46,7 @@ allprojects {
     ext['geojson-jackson.version'] = '1.8'
     ext['geoserver-manager.version'] = '1.7.0'
     ext['geotools.version'] = '17.2'
-    ext['grpc.version'] = '1.9.0'
+    ext['grpc.version'] = '1.10.0'
     ext['grpc-spring-boot-starter.version'] = '2.1.5'
     ext['guava.version'] = '23.6-jre'
     ext['hamcrest-junit.version'] = '2.0.0.0'
@@ -57,14 +57,14 @@ allprojects {
     ext['mockftpserver.version'] = '2.7.1'
     ext['okhttp3.version'] = '3.9.1'
     ext['openstack4j.version'] = '3.1.0'
-    ext['protoc.version'] = '3.4.0'
+    ext['protoc.version'] = '3.5.1-1'
     ext['selenium.version'] = '3.4.0'
     ext['sshj.version'] = '0.23.0'
     ext['testcontainers.version'] = '1.5.1'
     ext['netty-tcnative-boringssl-static.version'] = '2.0.6.Final'
 
     // Spring BOM versions
-    ext['spring-cloud.version'] = 'Edgware.SR1'
+    ext['spring-cloud.version'] = 'Edgware.SR2'
     ext['spring-boot.version'] = '1.5.10.RELEASE'
 
     // Dependency versions overriding those from the Spring BOMs
@@ -165,7 +165,7 @@ def depVersions = [
         dependencyManagementPlugin   : '1.0.4.RELEASE',
         osDetectorPlugin             : '1.4.0',
         osPackagePlugin              : '4.5.1',
-        protobufPlugin               : '0.8.3',
+        protobufPlugin               : '0.8.4',
         querydslPlugin               : '1.0.9',
         shadowPlugin                 : '2.0.2',
         shadowLog4j2TransformerPlugin: '2.1.1',

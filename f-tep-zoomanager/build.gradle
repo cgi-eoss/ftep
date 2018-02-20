@@ -43,7 +43,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
     compile 'org.springframework.boot:spring-boot-starter-undertow'
-    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'com.google.jimfs:jimfs'

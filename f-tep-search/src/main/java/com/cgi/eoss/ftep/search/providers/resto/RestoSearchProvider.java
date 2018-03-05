@@ -43,6 +43,8 @@ public abstract class RestoSearchProvider implements SearchProvider {
 
         Request request = new Request.Builder().url(httpUrl.build()).get().build();
 
+        LOG.debug("Performing HTTP request for Resto search: {}", httpUrl);
+
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 LOG.error("Received unsuccessful HTTP response for Resto search: {}", response.toString());
@@ -58,6 +60,9 @@ public abstract class RestoSearchProvider implements SearchProvider {
                     .features(restoResult.getFeatures())
                     .links(getLinks(parameters.getRequestUrl(), page, restoResult))
                     .build());
+        } catch (Exception e) {
+            LOG.error("Could not perform HTTP request for Resto search", e);
+            throw e;
         }
     }
 

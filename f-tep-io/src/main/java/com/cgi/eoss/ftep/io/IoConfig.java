@@ -8,7 +8,6 @@ import com.cgi.eoss.ftep.io.download.FtpDownloader;
 import com.cgi.eoss.ftep.io.download.HttpDownloader;
 import com.cgi.eoss.ftep.io.download.IptHttpDownloader;
 import com.cgi.eoss.ftep.io.download.ProtocolPriority;
-import com.cgi.eoss.ftep.io.download.S2IptDownloader;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.google.common.base.Strings;
 import okhttp3.HttpUrl;
@@ -96,17 +95,16 @@ public class IoConfig {
     public IptHttpDownloader iptHttpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient, OkHttpClient okHttpClient, IoConfigurationProperties properties) {
         IoConfigurationProperties.Downloader.IptHttp iptHttpProperties = properties.getDownloader().getIptHttp();
         return new IptHttpDownloader(
-                downloaderFacade,
-                ftepServerClient,
                 okHttpClient,
-                iptHttpProperties.getAuthEndpoint(),
-                iptHttpProperties.getAuthDomain());
-    }
-
-    @Bean
-    public S2IptDownloader s2IptDownloader(DownloaderFacade downloaderFacade, IptHttpDownloader iptDownloader, IoConfigurationProperties properties) {
-        IoConfigurationProperties.Downloader.S2Ipt s2IptProperties = properties.getDownloader().getS2Ipt();
-        return new S2IptDownloader(downloaderFacade, iptDownloader, ProtocolPriority.builder().overallPriority(s2IptProperties.getOverallPriority()).build());
+                ftepServerClient,
+                downloaderFacade,
+                IptHttpDownloader.Properties.builder()
+                        .iptSearchUrl(iptHttpProperties.getIptSearchUrl())
+                        .iptDownloadUrl(iptHttpProperties.getDownloadUrlBase())
+                        .authEndpoint(iptHttpProperties.getAuthEndpoint())
+                        .authDomain(iptHttpProperties.getAuthDomain())
+                        .build(),
+                ProtocolPriority.builder().overallPriority(iptHttpProperties.getOverallPriority()).build());
     }
 
 }

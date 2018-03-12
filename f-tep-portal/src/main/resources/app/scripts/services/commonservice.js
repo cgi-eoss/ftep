@@ -34,13 +34,17 @@ define(['../ftepmodules'], function (ftepmodules) {
             return false;
         };
 
-        this.confirm = function (event, message) {
+        this.confirm = function (event, message, title, okText, cancelText) {
+            title = title || 'Confirmation needed';
+            okText = okText || 'Confirm';
+            cancelText = cancelText || 'Cancel';
+
             var deferred = $q.defer();
             var dialog = $mdDialog.confirm()
-                .title('Confirmation needed')
+                .title(title)
                 .targetEvent(event)
-                .ok('Confirm')
-                .cancel('Cancel');
+                .ok(okText)
+                .cancel(cancelText);
 
             if (message.indexOf('\n') > -1) {
                 dialog.htmlContent(getHtml(message));

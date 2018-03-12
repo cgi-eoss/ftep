@@ -12,6 +12,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('ServiceCtrl', ['$scope', 'ProductService', 'CommonService', '$mdDialog', function ($scope, ProductService, CommonService, $mdDialog) {
 
         var editmode = false;
+        var cachedFileContent;
 
         $scope.serviceParams = ProductService.params.development;
         $scope.serviceOwnershipFilters = ProductService.serviceOwnershipFilters;
@@ -84,8 +85,27 @@ define(['../../ftepmodules'], function (ftepmodules) {
             ProductService.getServicesByFilter('development');
         };
 
-        $scope.openFile = function(file) {
-            $scope.serviceParams.openedFile = file;
+        $scope.openFile = function(file, event) {
+            // If content has changed prompt to either save or discard changes, then open the file
+            if (cachedFileContent && $scope.serviceParams.openedFile.content !== cachedFileContent) {
+                CommonService.confirm(
+                    event,
+                    'Do you wish to save or discard the changes made to ' + file.filename + "?",
+                    'Save changes?',
+                    'Save',
+                    'Discard'
+                ).then(function(confirmed) {
+                    if (confirmed === true) {
+                        $scope.saveService();
+                    }
+                    $scope.serviceParams.openedFile = file;
+                    cachedFileContent = $scope.serviceParams.openedFile.content;
+                });
+            // If no changes have been made open the selected file
+            } else {
+                $scope.serviceParams.openedFile = file;
+                cachedFileContent = $scope.serviceParams.openedFile.content;
+            }
         };
 
         // The modes
@@ -195,8 +215,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                             executable: $scope.file.executable
                     };
                     ProductService.addFile(newFile).then(function(data){
-                        ProductService.params.development.selectedService.files.push(data);
-                        ProductService.getFileList('development');
+                        ProductService.refreshSelectedService('development');
                     });
                     $mdDialog.hide();
                 };
@@ -216,14 +235,13 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.deleteFileDialog = function(event, file){
-            CommonService.confirm(event, 'Are you sure you want to delete the file ' + file.filename + "?").then(function(confirmed) {
+        $scope.deleteFileDialog = function(file, event){
+            CommonService.confirm(event, 'Are you sure you want to delete the file ' + file.name + "?").then(function(confirmed) {
                 if (confirmed === false) {
                     return;
                 }
                 ProductService.removeServiceFile(file).then(function(){
                     ProductService.refreshSelectedService('development');
-                    $scope.serviceParams.openedFile = $scope.serviceParams.selectedService.files[0];
                 });
             });
         };

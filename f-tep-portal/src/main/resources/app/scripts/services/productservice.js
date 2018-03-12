@@ -132,7 +132,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                 }
                                 $q.all(promises).then(function() {
                                     self.params[page].selectedService.files.sort(sortFiles);
-                                    self.params[page].openedFile = self.params[page].selectedService.files[0];
+                                    // If no file is selected, select the top file
+                                    if (!self.params[page].openedFile) {
+                                        self.params[page].openedFile = self.params[page].selectedService.files[0];
+                                    }
                                     self.getFileList(page);
                                     self.setFileType();
                                 });
@@ -329,7 +332,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 deferred.reject();
             });
             return deferred.promise;
-        }
+        };
 
         /* Fetch a new page */
         this.getServicesPage = function(page, url){
@@ -559,7 +562,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.removeServiceFile = function(file){
             return $q(function(resolve, reject) {
-                deleteAPI.from(file._links.self.href)
+                deleteAPI.from(file.contents._links.self.href)
                          .newRequest()
                          .delete()
                          .result

@@ -10,11 +10,11 @@ MAINTAINER Rakesh
 # Set environment variables
 
 # User/Group Id gui app will be executed as default are 99 and 100
-ENV USER_ID=99
-ENV GROUP_ID=100
+ENV USER_ID=996
+ENV GROUP_ID=1002
 
 # Gui App Name default is "GUI_APPLICATION"
-ENV APP_NAME SNAP5-Sentinel-Toolbox
+ENV APP_NAME SNAP6-Sentinel-Toolbox
 
 # Default resolution, change if you like
 ENV WIDTH=1280
@@ -41,8 +41,8 @@ CMD ["/sbin/my_init"]
 #RUN apt-get install -y libx11-6 libxext6 libxau6 libxxf86vm1 libxdmcp6 libdrm2 libglu1 libgtk2.0-0
 
 ENV \
-  TBX="esa-snap_sentinel_unix_5_0.sh" \
-  STB_URL="http://step.esa.int/downloads/5.0/installers" 
+  TBX="esa-snap_sentinel_unix_6_0.sh" \
+  STB_URL="http://step.esa.int/downloads/6.0/installers" 
 
 RUN wget $STB_URL/$TBX && chmod +x $TBX
 
@@ -52,7 +52,10 @@ RUN ./$TBX -q -varfile /tmp/snap.varfile
 
 ENV PATH=/opt/snap/bin:$PATH
 
-RUN snap --nosplash --nogui --modules --update-all
+RUN echo "snap.versionCheck.interval=NEVER" >>/opt/snap/etc/snap.properties \
+  && sed 's/^\(default_options.*\)"/\1 -J-Dplugin.manager.check.interval=NEVER"/' -i /opt/snap/etc/snap.conf
+
+#RUN echo "nobody  ALL=NOPASSWD: ALL" >>/etc/sudoers
 
 # Copy X app start script to right location
 COPY startapp.sh /startapp.sh

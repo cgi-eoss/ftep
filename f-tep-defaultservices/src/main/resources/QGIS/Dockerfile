@@ -10,8 +10,8 @@ MAINTAINER Rakesh
 # Set environment variables
 
 # User/Group Id gui app will be executed as default are 99 and 100
-ENV USER_ID=99
-ENV GROUP_ID=100
+ENV USER_ID=996
+ENV GROUP_ID=1002
 
 # Gui App Name default is "GUI_APPLICATION"
 ENV APP_NAME QGIS
@@ -27,7 +27,7 @@ CMD ["/sbin/my_init"]
 ##    REPOSITORIES AND DEPENDENCIES    ##
 #########################################
 RUN echo 'deb http://qgis.org/debian trusty main' > /etc/apt/sources.list.d/qgis.list
-RUN curl -sL http://qgis.org/downloads/qgis-2016.gpg.key | apt-key add -
+RUN curl -sL http://qgis.org/downloads/qgis-2017.gpg.key | apt-key add -
 
 # Install packages needed for app
 
@@ -39,6 +39,8 @@ RUN curl -sL http://qgis.org/downloads/qgis-2016.gpg.key | apt-key add -
 RUN apt-get update && apt-get install -y\
  qgis\
  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+#RUN echo "nobody  ALL=NOPASSWD: ALL" >>/etc/sudoers
 
 # Copy X app start script to right location
 COPY startapp.sh /startapp.sh

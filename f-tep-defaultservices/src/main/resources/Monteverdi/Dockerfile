@@ -10,8 +10,8 @@ MAINTAINER Rakesh
 # Set environment variables
 
 # User/Group Id gui app will be executed as default are 99 and 100
-ENV USER_ID=99
-ENV GROUP_ID=100
+ENV USER_ID=996
+ENV GROUP_ID=1002
 
 # Gui App Name default is "GUI_APPLICATION"
 ENV APP_NAME Monteverdi
@@ -72,6 +72,8 @@ RUN chown -R ${USER_ID}:${GROUP_ID} /opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB
 # Configure environment
 RUN echo "/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/lib" >>/etc/ld.so.conf.d/otb.conf && ldconfig
 ENV PATH=/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/bin:${PATH}
+
+#RUN echo "nobody  ALL=NOPASSWD: ALL" >>/etc/sudoers
 
 # Copy X app start script to right location
 COPY startapp.sh /startapp.sh

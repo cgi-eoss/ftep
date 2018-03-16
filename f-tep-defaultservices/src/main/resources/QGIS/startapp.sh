@@ -9,4 +9,5 @@ INPUT_FILES=$(find -L ${IN_DIR} -maxdepth 3 -iname '*.tif')
 ln -snf ${IN_DIR} /nobody/inDir
 ln -snf ${OUT_DIR} /nobody/outDir
 
+cd "${WORKER_DIR}/workDir"
 /usr/bin/qgis ${INPUT_FILES}

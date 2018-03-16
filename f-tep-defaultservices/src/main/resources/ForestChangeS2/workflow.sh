@@ -30,11 +30,14 @@ PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
 S2_CHANGE_MAG="${WORKFLOW}/S2_changeMag.xml"
 OUTPUT_FILE="${OUT_DIR}/result/FTEP_FORESTCHANGES2_${TIMESTAMP}.tif"
 
-START_PRODUCT=$(ls -1 ${IN_DIR}/startproduct/*.xml | grep -v 'INSPIRE.xml' | head -1)
-END_PRODUCT=$(ls -1 ${IN_DIR}/endproduct/*.xml | grep -v 'INSPIRE.xml' | head -1)
+START_PRODUCT=$(ls -1 ${IN_DIR}/startproduct/*/*.xml | grep -v 'INSPIRE.xml' | head -1)
+END_PRODUCT=$(ls -1 ${IN_DIR}/endproduct/*/*.xml | grep -v 'INSPIRE.xml' | head -1)
 
 START_PRODUCT_CLOUD_MASK="${PROC_DIR}/start_product_cloud_mask.tif"
 END_PRODUCT_CLOUD_MASK="${PROC_DIR}/end_product_cloud_mask.tif"
+
+# Below: a way to get the cloud mask information for debugging purposes.
+#zip ${OUT_DIR}/result/cloudmask_gml.zip $(dirname ${START_PRODUCT})/GRANULE/*/QI_DATA/MSK_CLOUDS_B00.gml ${START_PRODUCT_CLOUD_MASK} $(dirname ${END_PRODUCT})/GRANULE/*/QI_DATA/MSK_CLOUDS_B00.gml ${END_PRODUCT_CLOUD_MASK}
 
 # Extract cloud masks from start and end products, using gdal tools
 time ${EXTRACT_CLOUD_MASK} $(dirname ${START_PRODUCT})/GRANULE/*/IMG_DATA/*_B02.jp2 $(dirname ${START_PRODUCT})/GRANULE/*/QI_DATA/MSK_CLOUDS_B00.gml ${START_PRODUCT_CLOUD_MASK}

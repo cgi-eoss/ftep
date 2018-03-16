@@ -16,6 +16,7 @@ S2PRODUCTZONES="python ${WORKFLOW}/s2ProductZones.py"
 
 mkdir -p ${PROC_DIR}
 mkdir -p ${OUT_DIR}/result
+mkdir -p "${PROC_DIR}/preprocessed"
 
 # Input params
 source ${WPS_PROPS}
@@ -29,9 +30,9 @@ SCALING_FACTOR=$(echo "scale=2;${TARGET_RESOLUTION}/10" | bc)
 
 # Internal params
 S2_PREPROCESS="${WORKFLOW}/F-TEP_S2_preprocessNew.xml"
-PREPROCESSED_PREFIX="${WORKER_DIR}/preprocessed"
-MOSAIC_OUTPUT="${WORKER_DIR}/mosaic.tif"
-VI_INPUT="${WORKER_DIR}/vi_input.tif"
+PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
+MOSAIC_OUTPUT="${PREPROCESSED_PREFIX}/mosaic.tif"
+VI_INPUT="${PREPROCESSED_PREFIX}/vi_input.tif"
 VI_OUTPUT="${OUT_DIR}/result/FTEP_VEGETATION_INDICES_${VEG_INDEX}_${TIMESTAMP}.tif"
 
 # Bounds of given AOI
@@ -51,7 +52,7 @@ NMIN=${LR[1]}
 
 # Preprocess S2 input: extract correct bands and resample
 I=0
-for IN in ${IN_DIR}/inputfile; do
+for IN in ${IN_DIR}/inputfile/*; do
     I=$((I+1))
     INPUT_FILE=$(ls -1 ${IN}/*.xml | grep -v 'INSPIRE.xml' | head -1)
     time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"

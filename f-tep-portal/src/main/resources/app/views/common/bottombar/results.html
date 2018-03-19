@@ -17,16 +17,16 @@
             <div class="row geo-item">
 
                 <div class="col-xs-1 no-padding draghandle">
-                     <div class="md-avatar" alt="drag handle">
+                    <div class="md-avatar" alt="drag handle">
                         <i class="material-icons"
-                           uib-tooltip="Drag Result"
-                           tooltip-placement="top"
-                           tooltip-trigger="mouseenter"
-                           tooltip-append-to-body="true">drag_handle</i>
+                            uib-tooltip="Drag Result"
+                            tooltip-placement="top"
+                            tooltip-trigger="mouseenter"
+                            tooltip-append-to-body="true">drag_handle</i>
                     </div>
                 </div>
 
-                <div class="col-xs-10 no-padding details">
+                <div class="col-xs-9 no-padding details">
 
                     <div class="row">
                         <div class="col-md-12 title">
@@ -54,48 +54,70 @@
 
                 </div>
 
-                <div class="col-xs-1 no-padding buttons">
+                <div class="col-xs-2 no-padding buttons">
                     <div class="row">
-                        <div class="col-sm-4 no-padding">
-                              <md-button class="toolbar-button md-secondary"
-                                         ng-click="showMetadata($event, item); $event.stopPropagation()"
-                                         aria-label="Show Metadata"
-                                         uib-tooltip="Show Metadata"
-                                         tooltip-placement="top"
-                                         tooltip-trigger="mouseenter"
-                                         tooltip-append-to-body="true">
+                        <div class="col-sm-3 col-xs-6 no-padding">
+                            <md-button class="toolbar-button md-secondary"
+                                ng-show="hasWmsLink(item) && !isSearchResWmsVisible(item)"
+                                ng-click="toggleSearchResWMS($event, item, true); $event.stopPropagation()"
+                                aria-label="WMS Layer Not Visible"
+                                uib-tooltip="Show WMS Layer"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
+                                <i class="material-icons">layers</i>
+                            </md-button>
+                            <md-button class="toolbar-button md-secondary"
+                                ng-show="hasWmsLink(item) && isSearchResWmsVisible(item)"
+                                ng-click="toggleSearchResWMS($event, item, false); $event.stopPropagation()"
+                                aria-label="WMS Layer Visible"
+                                uib-tooltip="Hide WMS Layer"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
+                                <i class="material-icons">layers_clear</i>
+                            </md-button>
+                        </div>
+                        <div class="col-sm-3 col-xs-6 no-padding">
+                            <md-button class="toolbar-button md-secondary"
+                                ng-click="showMetadata($event, item); $event.stopPropagation()"
+                                aria-label="Show Metadata"
+                                uib-tooltip="Show Metadata"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
                                 <i class="material-icons">info_outline</i>
                             </md-button>
                         </div>
-                        <div class="col-sm-4 no-padding">
+                        <div class="col-sm-3 col-xs-6 no-padding">
                             <md-button class="toolbar-button md-secondary"
-                                       ng-if="item.properties.ftepUsable"
-                                       aria-label="Usable in services"
-                                       uib-tooltip="Usable in services"
-                                       tooltip-placement="top"
-                                       tooltip-trigger="mouseenter"
-                                       tooltip-append-to-body="true">
+                                ng-if="item.properties.ftepUsable"
+                                aria-label="Usable in services"
+                                uib-tooltip="Usable in services"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
                                 <i class="material-icons">check_circle</i>
                             </md-button>
                             <md-button class="toolbar-button md-secondary"
-                                       ng-if="!item.properties.ftepUsable"
-                                       aria-label="Not usable in services"
-                                       uib-tooltip="Not usable in services"
-                                       tooltip-placement="top"
-                                       tooltip-trigger="mouseenter"
-                                       tooltip-append-to-body="true">
+                                ng-if="!item.properties.ftepUsable"
+                                aria-label="Not usable in services"
+                                uib-tooltip="Not usable in services"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
                                 <i class="material-icons">remove_circle</i>
                             </md-button>
                         </div>
-                        <div class="col-sm-4 no-padding">
+                        <div class="col-sm-3 col-xs-6 no-padding" ng-if="item.properties._links.download.href">
                             <md-button class="toolbar-button md-secondary"
-                                       ng-click="estimateDownloadCost($event, item.properties._links.download.href); $event.stopPropagation()"
-                                       ng-if="item.properties._links.download.href"
-                                       aria-label="Download"
-                                       uib-tooltip="Download"
-                                       tooltip-placement="top"
-                                       tooltip-trigger="mouseenter"
-                                       tooltip-append-to-body="true">
+                                ng-click="estimateDownloadCost($event, item.properties._links.download.href); $event.stopPropagation()"
+
+                                aria-label="Download"
+                                uib-tooltip="Download"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
                                 <i class="material-icons">file_download</i>
                             </md-button>
                         </div>

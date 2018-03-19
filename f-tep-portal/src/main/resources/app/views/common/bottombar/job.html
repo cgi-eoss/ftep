@@ -15,7 +15,7 @@
         <div class="col-lg-8 col-md-12 job-title no-padding">
             <h3>Job ID: {{jobParams.selectedJob.id}}
                 <md-button class="md-secondary icon-button-accent"
-                           ng-show="!jobParams.wms.isAllVisible"
+                           ng-show="selectedJobHasAnyWmsLinks() && !jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(true)"
                            uib-tooltip="Show WMS Layers"
                            tooltip-placement="top"
@@ -24,7 +24,7 @@
                     <i class="material-icons">layers</i>
                 </md-button>
                 <md-button class="md-secondary icon-button-accent"
-                           ng-show="jobParams.wms.isAllVisible"
+                           ng-show="selectedJobHasAnyWmsLinks() && jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(false)"
                            uib-tooltip="Hide WMS Layers"
                            tooltip-placement="top"
@@ -90,7 +90,7 @@
             </div>
 
             <md-button class="toolbar-button md-secondary icon-button-accent"
-                       ng-show="!isWmsVisible(outputFile)"
+                       ng-show="hasWmsLink(outputFile) && !isWmsVisible(outputFile)"
                        ng-click="toggleWMS(outputFile, true); $event.stopPropagation()"
                        uib-tooltip="Show WMS Layer"
                        tooltip-placement="top"
@@ -100,7 +100,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary icon-button-accent"
-                       ng-show="isWmsVisible(outputFile)"
+                       ng-show="hasWmsLink(outputFile) && isWmsVisible(outputFile)"
                        ng-click="toggleWMS(outputFile, false); $event.stopPropagation()"
                        uib-tooltip="Hide WMS Layer"
                        tooltip-placement="top"

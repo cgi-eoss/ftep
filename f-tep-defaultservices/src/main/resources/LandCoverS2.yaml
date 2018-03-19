@@ -1,92 +1,99 @@
 ---
 id: "LandCoverS2"
-title: "Calculate land coverage (a forest map) from Sentinel-2 data"
-description: "Land cover mapping using Sentinel-2 images, with image classification trained by Random Forest model. A core F-TEP service."
-version: "1.0"
-storeSupported: true
-statusSupported: true
+title: "LandCoverS2SingleTile"
+description: "Land cover mapping using Sentinel-2 images, with image classification\
+  \ trained by Random Forest model"
+version: "0.1"
+storeSupported: false
+statusSupported: false
 serviceType: "Java"
 serviceProvider: "LandCoverS2"
 dataInputs:
-  - id: "inputfile"
-    title: "Input data"
-    description: "The input Sentinel-2 data file"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
-  - id: "refDataShapefile"
-    title: "Reference data archive containing shapefile for image classification training"
-    description: "Expected is a .zip with flat content structure containing one *.shp and associated files"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
-  - id: "shapefileAttribute"
-    title: "String identifying the field in the shapefile to be used for training the model"
-    description: "E.g. 'Class'"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
-  - id: "crs"
-    title: "Target CRS identifier"
-    description: "EPSG coordinate reference system identifier of the target product, i.e. EPSG:326XX/327XX for the Northern/Southern hemisphere, where XX is the UTM zone, e.g. EPSG:32635"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
-  - id: "aoi"
-    title: "Area of interest"
-    description: "Well-known text POLYGON describing the AOI to be processed"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
-  - id: "targetResolution"
-    title: "Target image resolution"
-    description: "Desired image resolution in metres. Controls resampling of the input data. Example: '10'"
-    minOccurs: 1
-    maxOccurs: 1
-    data: "LITERAL"
-    defaultAttrs:
-      dataType: "string"
-    supportedAttrs: []
+- id: "inputfile"
+  title: "input file"
+  description: "The input Sentinel-2 L1C product"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "refDataShapefile"
+  title: "Reference data archive (zipped)"
+  description: "Zip file with all shapefile components"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "shapefileAttribute"
+  title: "Field (int) identifying class code"
+  description: "E.g. 'Class'"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "crs"
+  title: "Target coord. system identier"
+  description: "EPSG code e.g. 32635"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "aoi"
+  title: "Area Of Interest"
+  description: "WKT POLYGON string"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "targetResolution"
+  title: "Target image resolution (m)"
+  description: "Output pixel spacing (m)"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
 dataOutputs:
-  - id: "result"
-    title: "GeoTiff image file"
-    description: "The requested vegetation index image"
-    data: "COMPLEX"
-    defaultAttrs:
-      mimeType: "image/tiff"
-      extension: "tif"
-      asReference: "true"
-    supportedAttrs: []
-  - id: "model"
-    title: "Training model"
-    description: "The output of the image classification training step"
-    data: "COMPLEX"
-    defaultAttrs:
-      mimeType: "text/plain"
-      extension: "txt"
-      asReference: "true"
-    supportedAttrs: []
-  - id: "confusionMatrix"
-    title: "Confusion matrix"
-    description: "The CSV confusion matrix output of the image classification training step"
-    data: "COMPLEX"
-    defaultAttrs:
-      mimeType: "text/csv"
-      extension: "csv"
-      asReference: "true"
-    supportedAttrs: []
+- id: "result"
+  title: "GeoTiff image file"
+  description: "Land cover map"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "image/tiff"
+    extension: "tif"
+  supportedAttrs: null
+- id: "model"
+  title: "Model"
+  description: "Random Forest model"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "text/plain"
+    extension: "txt"
+  supportedAttrs: null
+- id: "confusionMatrix"
+  title: "Confusion matrix"
+  description: "Confusion matrix with training data"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "text/csv"
+    extension: "csv"
+  supportedAttrs: null

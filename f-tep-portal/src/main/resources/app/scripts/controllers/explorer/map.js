@@ -1,12 +1,12 @@
 /**
-* @ngdoc function
-* @name ftepApp.controller:MapCtrl
-* @description
-* # MapCtrl
-* Controller of the ftepApp
-*/
+ * @ngdoc function
+ * @name ftepApp.controller:MapCtrl
+ * @description
+ * # MapCtrl
+ * Controller of the ftepApp
+ */
+'use strict';
 define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, ol, X2JS, clipboard) {
-    'use strict';
 
     ftepmodules.controller('MapCtrl', [ '$scope', '$rootScope', '$mdDialog', 'ftepProperties', 'MapService', 'SearchService', '$timeout', function($scope, $rootScope, $mdDialog, ftepProperties, MapService, SearchService, $timeout) {
 
@@ -25,6 +25,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.aoi = MapService.aoi;
 
         /** ----- MAP STYLES TYPES ----- **/
+        /* Red highlight */
         var resultStyle = new ol.style.Style({
             fill: new ol.style.Fill({ color: 'rgba(255,128,171,0.2)' }),
             stroke: new ol.style.Stroke({ color: 'rgba(255,64,129,0.6)', width: 2 }),
@@ -40,9 +41,10 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             })
         });
 
+        /* Blue highlight */
         var searchBoxStyle = new ol.style.Style({
             fill: new ol.style.Fill({ color: 'rgba(188,223,241,0.4)' }),
-            stroke: new ol.style.Stroke({ color: '#31708f', width: 2, lineDash: [15, 5] })
+            stroke: new ol.style.Stroke({ color: 'rgba(49,112,143,0.4)', width: 2, lineDash: [15, 5] })
         });
         /** ----- END OF MAP STYLES TYPES ----- **/
 
@@ -82,6 +84,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             ]
         });
 
+        /* Green highlight */
         var selectClick = new ol.interaction.Select({
             condition: ol.events.condition.click,
             toggleCondition: ol.events.condition.shiftKeyOnly,
@@ -117,6 +120,9 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 }
             }
             $rootScope.$broadcast('map.item.toggled', selectedItems);
+            // Refresh Map: avoid invisible-selection glitch and non-refreshed selection problem
+            $scope.map.changed();
+            resultsLayer.changed();
         });
 
         /** ----- END OF MAP INTERACTIONS FOR POLYGONS ----- **/
@@ -345,25 +351,30 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.clearMap = function() {
             $scope.clearSearchPolygon();
             SearchService.params.geoResults = [];
-            if(resultsLayer) {
-                resultsLayer.getSource().clear()
+            if (resultsLayer) {
+                resultsLayer.getSource().clear();
+                // Also removing the highlighted results from the Map
+                selectClick.getFeatures().clear();
             }
-            if(basketLayer) {
-                basketLayer.getSource().clear()
+            if (basketLayer) {
+                basketLayer.getSource().clear();
             }
-            if(searchAreaLayer) {
-                searchAreaLayer.getSource().clear();
-            }
-            if(productLayers && productLayers.length > 0) {
-                for(var i = 0; i < productLayers.length; i++){
+            if (productLayers) {
+                for (var i = 0; i < productLayers.length; i++) {
                     $scope.map.removeLayer(productLayers[i]);
                 }
                 productLayers = [];
             }
+            SearchService.params.geoResults = [];
             $scope.map.getView().setZoom(4);
             $scope.map.getView().setCenter(ol.proj.fromLonLat([0, 51.28]));
             $rootScope.$broadcast('map.cleared');
         };
+
+        /* Clear map when results is reset */
+        $scope.$on('results.cleared', function () {
+            $scope.clearMap();
+        });
         /* ----- END OF MAP BUTTONS ----- */
 
         /* ----- VARIOUS MAP FUNCTIONS ----- */
@@ -498,7 +509,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             var features = resultsLayer.getSource().getFeatures();
             for (var i in features) {
                 var feature = features[i];
-                if(item.id && item.id === feature.get('data').properties.productIdentifier){
+                if(item.properties.productIdentifier && item.properties.productIdentifier === feature.get('data').properties.productIdentifier){
                     if(selected){
                         selectClick.getFeatures().push(feature);
                         $scope.map.getView().fit(feature.getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
@@ -517,6 +528,9 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     break;
                 }
             }
+            // Refresh Map: avoid invisible-selection glitch and non-refreshed selection problem
+            $scope.map.changed();
+            resultsLayer.changed();
         }
 
         $scope.$on('results.select.all', function(event, selected) {
@@ -608,15 +622,15 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
         $scope.$on('update.wmslayer', function(event, files) {
             /* Remove previous product layers */
-            for(var i = 0; i < productLayers.length; i++){
+            for (var i = 0; i < productLayers.length; i++) {
                 $scope.map.removeLayer(productLayers[i]);
             }
             productLayers = [];
 
-            if(files.length > 0) {
+            if (files.length > 0) {
                 // Create layer for each output file
-                for(var i = 0; i < files.length; i++) {
-                    if(files[i]._links.wms){
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i]._links && files[i]._links.wms) {
                         var source = new ol.source.ImageWMS({
                             url: files[i]._links.wms.href,
                             params: {
@@ -632,9 +646,12 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     }
                 }
 
-                // Zoom into place
-                var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
-                $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
+                // For example the Product Search result items apparently don't have this field
+                if (files[files.length-1].metadata) {
+                    // Zoom into place
+                    var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
+                    $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
+                }
             }
         });
         /* ----- END OF WMS LAYER ----- */

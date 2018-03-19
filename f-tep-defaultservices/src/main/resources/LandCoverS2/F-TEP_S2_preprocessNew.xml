@@ -18,14 +18,30 @@
             <bandNamePattern/>
         </parameters>
     </node>
+    <node id="Resample">
+      <operator>Resample</operator>
+      <sources>
+	<sourceProduct refid="BandSelect"/>
+      </sources>
+      <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+	<referenceBand/>
+	<targetWidth/>
+	<targetHeight/>
+	<targetResolution>10</targetResolution>
+	<upsampling>Nearest</upsampling>
+	<downsampling>First</downsampling>
+	<flagDownsampling>First</flagDownsampling>
+	<resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+      </parameters>
+    </node>
     <node id="Subset">
         <operator>Subset</operator>
         <sources>
-            <sourceProduct refid="BandSelect"/>
+            <sourceProduct refid="Resample"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <sourceBands/>
-            <geoRegion>$aoi</geoRegion>
+            <geoRegion>${aoi}</geoRegion>
             <subSamplingX>1</subSamplingX>
             <subSamplingY>1</subSamplingY>
             <fullSwath>false</fullSwath>
@@ -33,7 +49,7 @@
             <copyMetadata>true</copyMetadata>
         </parameters>
     </node>
-    <node id="Resample">
+    <node id="Resample2">
         <operator>Resample</operator>
         <sources>
             <sourceProduct refid="Subset"/>
@@ -52,7 +68,7 @@
     <node id="Write">
         <operator>Write</operator>
         <sources>
-            <sourceProduct refid="Resample"/>
+            <sourceProduct refid="Resample2"/>
         </sources>
         <parameters class="com.bc.ceres.binding.dom.XppDomElement">
             <file>$ofile</file>

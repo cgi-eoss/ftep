@@ -13,7 +13,7 @@ apply plugin: 'nebula.ospackage'
 ospackage {
     packageName 'resto'
     version '2.4'
-    release '6'
+    release '7'
     arch X86_64
     os LINUX
     packageDescription 'Resto Earth Observation products search engine (with F-TEP modifications)'

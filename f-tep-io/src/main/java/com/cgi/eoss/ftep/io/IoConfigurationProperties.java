@@ -30,27 +30,23 @@ public class IoConfigurationProperties {
         private boolean unzipAllDownloads = true;
         private Ceda ceda = new Ceda();
         private IptHttp iptHttp = new IptHttp();
-        private S2Ipt s2Ipt = new S2Ipt();
 
         @Data
         static class Ceda {
             private String cedaSearchUrl = "http://opensearch.ceda.ac.uk/opensearch/json";
             private String ftpUrlBase = "ftp://ftp.ceda.ac.uk";
-            private int overallPriority = 0;
+            private int overallPriority = 10;
         }
 
         @Data
         static class IptHttp {
+            private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
+            private String downloadUrlBase = "https://static.eocloud.eu/v1/AUTH_8f07679eeb0a43b19b33669a4c888c45";
             // TODO Add these to the credentials/datasource object?
             private String authEndpoint = "https://finder.eocloud.eu/resto/api/authidentity";
-            private String authDomain;
+            private String authDomain = "__secret__";
+            private int overallPriority = 0;
         }
-
-        @Data
-        static class S2Ipt {
-            private int overallPriority = 10;
-        }
-
     }
 
 }

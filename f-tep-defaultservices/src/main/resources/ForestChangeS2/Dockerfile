@@ -4,6 +4,7 @@ MAINTAINER Forestry TEP
 
 # Dependencies
 RUN apt-get update && apt-get install -y\
+ zip\
  bc\
  curl\
  libfreetype6\
@@ -59,3 +60,6 @@ ENV PATH=/opt/OTB-${OTB_MAJ_VER}.${OTB_MIN_VER}.${OTB_POINT_VER}-Linux64/bin:/op
 RUN mkdir -p /home/worker/processor
 COPY * /home/worker/processor/
 ENTRYPOINT ["/home/worker/processor/workflow.sh"]
+
+RUN echo "-Xmx8192m" >>/opt/snap/bin/gpt.vmoptions
+RUN echo "-Xms512m" >>/opt/snap/bin/gpt.vmoptions

@@ -225,16 +225,13 @@ public class CedaSearchProvider implements SearchProvider {
         extraParams.put("ftepStartTime", result.getTemporal().getStartTime());
         extraParams.put("ftepEndTime", result.getTemporal().getEndTime());
 
-        Optional.ofNullable((Map<String, Object>) result.getMisc().get("quality_info"))
-                .map(qi -> qi.get("Cloud Coverage Assessment"))
+        Optional.ofNullable((Map<String, Object>) result.getMisc().get("quality_info")).map(qi -> qi.get("Cloud Coverage Assessment"))
                 .ifPresent(cloudCoverage -> extraParams.put("ftepCloudCoverage", cloudCoverage));
 
-        Optional.ofNullable((Map<String, Object>) result.getMisc().get("orbit_info"))
-                .map(oi -> oi.get("Pass Direction"))
+        Optional.ofNullable((Map<String, Object>) result.getMisc().get("orbit_info")).map(oi -> oi.get("Pass Direction"))
                 .ifPresent(orbitDirection -> extraParams.put("ftepOrbitDirection", orbitDirection));
 
-        Optional.ofNullable((Map<String, Object>) result.getMisc().get("product_info"))
-                .map(pi -> pi.get("Product Type"))
+        Optional.ofNullable((Map<String, Object>) result.getMisc().get("product_info")).map(pi -> pi.get("Product Type"))
                 .ifPresent(productType -> extraParams.put("ftepProductType", productType));
 
         // CEDA only has quicklooks for S-2

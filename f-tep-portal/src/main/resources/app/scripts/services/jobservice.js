@@ -34,7 +34,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             { title: "Error", name: "ERROR" },
             { title: "Created", name: "CREATED" },
             { title: "Cancelled", name: "CANCELLED" }
-         ];
+        ];
 
         /** PRESERVE USER SELECTIONS **/
         this.params = {
@@ -111,7 +111,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .newRequest()
                     .getResource()
                     .result
-                 .then(
+                .then(
                 function (document) {
                     if(startPolling) {
                         pollJobs(page);
@@ -185,10 +185,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJob = function (job) {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/' + job.id + "?projection=detailedJob")
-                         .newRequest()
-                         .getResource()
-                         .result
-                         .then(
+                    .newRequest()
+                    .getResource()
+                    .result
+                .then(
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
@@ -202,11 +202,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJobOwner = function (job) {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/' + job.id)
-                         .newRequest()
-                         .follow('owner')
-                         .getResource()
-                         .result
-                         .then(
+                    .newRequest()
+                    .follow('owner')
+                    .getResource()
+                    .result
+                .then(
                 function (document) {
                     deferred.resolve(document);
                 }, function (error) {
@@ -315,8 +315,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         }
 
-        this.refreshJobs = function (page, action, job) {
+        // Switch the boolean flag to initiate the proper behavior with the Jobs List scroll action
+        this.broadcastNewjob = function(){
+            $rootScope.$broadcast('newjob.started.init');
+        };
 
+        this.refreshJobs = function (page, action, job) {
             /* Get job list */
             filterJobs(page);
             getJobs(page).then(function (data) {
@@ -328,6 +332,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     for (job in self.params[page].jobs) {
                         if (self.params[page].jobs[job].id === launchedJobID) {
                             self.params[page].selectedJob = self.params[page].jobs[job];
+                            _this.params[page].selectedJob = self.params[page].jobs[job];
+                            // Notify the Explorer to trigger the Job List scroll when the Bottombar has opened
+                            $rootScope.$broadcast('newjob.started.show', job);
                         }
                     }
                 }
@@ -398,15 +405,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .post()
                     .result
                     .then(
-             function (document) {
-                 launchedJobID = JSON.parse(document.data).content.id;
-                 MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
-                 deferred.resolve();
-             },
-             function(error){
-                 MessageService.addError('Could not launch Job', error);
-                 deferred.reject();
-             });
+            function (document) {
+                launchedJobID = JSON.parse(document.data).content.id;
+                MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
+                deferred.resolve();
+            },
+            function(error){
+                MessageService.addError('Could not launch Job', error);
+                deferred.reject();
+            });
 
             return deferred.promise;
         };
@@ -422,12 +429,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     })
                     .result
                     .then(
-                 function (document) {
-                     resolve(JSON.parse(document.body));
-                 }, function (error) {
-                     MessageService.addError('Could not create JobConfig', error);
-                     reject();
-                 });
+                function (document) {
+                    resolve(JSON.parse(document.body));
+                }, function (error) {
+                    MessageService.addError('Could not create JobConfig', error);
+                    reject();
+                });
             });
         };
 
@@ -439,7 +446,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .result
                 .then(function (document) {
                      resolve(document);
-                 }, function (error) {
+                }, function (error) {
                     if (error.httpStatus === 402) {
                         MessageService.addError('Balance exceeded', error);
                     } else {
@@ -458,14 +465,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .post()
                     .result
                     .then(
-             function (document) {
-                 MessageService.addInfo('Job ' + job.id + ' cancelled', 'Job ' + job.id + ' terminated by the user.');
-                 deferred.resolve();
-             },
-             function(error){
-                 MessageService.addError('Could not terminate the Job', error);
-                 deferred.reject();
-             });
+            function (document) {
+                MessageService.addInfo('Job ' + job.id + ' cancelled', 'Job ' + job.id + ' terminated by the user.');
+                deferred.resolve();
+            },
+            function(error){
+                MessageService.addError('Could not terminate the Job', error);
+                deferred.reject();
+            });
 
             return deferred.promise;
         };

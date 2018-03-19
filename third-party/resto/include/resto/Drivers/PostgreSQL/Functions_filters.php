@@ -167,7 +167,7 @@ class Functions_filters {
             $visibilities[] = '\'' . pg_escape_string($groups[$i]) . '\'';
         }
 
-        return $model->properties['visibility']['name'] . ' IN (' . join(',', $visibilities) . ')';
+        return ' LOWER(' . $model->properties['visibility']['name'] . ') IN (' . join(',', 'LOWER(' . $visibilities . ')') . ')';
 
     }
 
@@ -194,7 +194,7 @@ class Functions_filters {
          * Special case identifier - use productIdentifier or identifier
          */
         if ($filterName === 'geo:uid' && !RestoUtil::isValidUUID($requestParams['geo:uid'])) {
-            return $model->getDbKey('productIdentifier') . ' = \'' . pg_escape_string($requestParams['geo:uid']) . '\'';
+            return ' LOWER(' . $model->getDbKey('productIdentifier') . ') = \'' . pg_escape_string(strtolower($requestParams['geo:uid'])) . '\'';
         }
 
         /*
@@ -313,13 +313,13 @@ class Functions_filters {
                 if  (strlen($values[$i]) < 3) {
                     RestoLogUtil::httpError(400, '% is only allowed for string with 3+ characters');
                 }
-                $ors[] = $model->getDbKey($model->searchFilters[$filterName]['key']) . ' LIKE ' . $quote . pg_escape_string($values[$i]) . $quote;
+                $ors[] = $model->getDbKey($model->searchFilters[$filterName]['key']) . ' ILIKE ' . $quote . pg_escape_string($values[$i]) . $quote;
             }
             /*
              * Otherwise use operation
              */
             else {
-                $ors[] = $model->getDbKey($model->searchFilters[$filterName]['key']) . ' ' . $operation . ' ' . $quote . pg_escape_string($values[$i]) . $quote;
+                $ors[] = ' LOWER(' . $model->getDbKey($model->searchFilters[$filterName]['key']) . ') ' . $operation . ' ' . $quote . pg_escape_string(strtolower($values[$i])) . $quote;
             }
         }
         return $ors;

@@ -21,7 +21,7 @@ mkdir -p ${OUT_DIR}/{result,model,confusionMatrix}
 source ${WPS_PROPS}
 EPSG="${crs}"
 AOI="${aoi}"
-TRAINING_SHAPEFILE=$(ls -1 ${IN_DIR}/refDataShapefile/*.shp | head -1)
+TRAINING_SHAPEFILE=$(ls -1 ${IN_DIR}/refDataShapefile/*/*.shp | head -1)
 SHAPEFILE_ATTR="${shapefileAttribute}"
 TARGET_RESOLUTION="${targetResolution}"
 
@@ -31,8 +31,7 @@ FORMAT_NAME="SENTINEL-2-MSI-MultiRes-UTM${UTM_ZONE}"
 SCALING_FACTOR=$(echo "scale=2;${TARGET_RESOLUTION}/10" | bc)
 
 # Internal params
-S2_PREPROCESS="${WORKFLOW}/S2_preprocess.xml"
-S2_MOSAIC="${WORKFLOW}/S2_mosaic.xml"
+S2_PREPROCESS="${WORKFLOW}/F-TEP_S2_preprocessNew.xml"
 PREPROCESSED_PREFIX="${PROC_DIR}/preprocessed"
 MOSAIC_OUTPUT="${PROC_DIR}/mosaic.tif"
 TRAINING_INPUT="${PROC_DIR}/training_input.tif"
@@ -48,29 +47,37 @@ if [ "" != "${AOI}" ]; then
     EAST_BOUND=${AOI_EXTENTS[2]}
     WEST_BOUND=${AOI_EXTENTS[3]}
 fi
+UL=($(echo "${WEST_BOUND} ${NORTH_BOUND}" | cs2cs +init=epsg:4326 +to +init=epsg:${EPSG#EPSG:}))
+LR=($(echo "${EAST_BOUND} ${SOUTH_BOUND}" | cs2cs +init=epsg:4326 +to +init=epsg:${EPSG#EPSG:}))
+EMIN=${UL[0]}
+NMAX=${UL[1]}
+EMAX=${LR[0]}
+NMIN=${LR[1]}
 
 # Preprocess S2 input: extract correct bands and resample
 I=0
 for IN in ${IN_DIR}/inputfile; do
     I=$((I+1))
-    INPUT_FILE=$(ls -1 ${IN}/*.xml | grep -v 'INSPIRE.xml' | head -1)
+    INPUT_FILE=$(ls -1 ${IN}/*/*.xml | grep -v 'INSPIRE.xml' | head -1)
     time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"
+    time gdalwarp -t_srs ${EPSG} -te $EMIN $NMIN $EMAX $NMAX -tr $TARGET_RESOLUTION $TARGET_RESOLUTION -tap -ot Int16 -dstnodata "0 0 0 0" -r near -of GTiff -overwrite ${PREPROCESSED_PREFIX}-${I}.tif ${PREPROCESSED_PREFIX}-${I}r.tif
 done
-
-# Preprocess S2 input(s): mosaic multiple CRS values
-AOI_BOUNDS_PARAMETERS="-PnorthBound=${NORTH_BOUND} -PsouthBound=${SOUTH_BOUND} -PeastBound=${EAST_BOUND} -PwestBound=${WEST_BOUND}"
-time gpt ${S2_MOSAIC} -t ${MOSAIC_OUTPUT} -f GeoTIFF-BigTIFF -Pepsg="${EPSG}" -PtargetResolution="${TARGET_RESOLUTION}" ${AOI_BOUNDS_PARAMETERS} ${PREPROCESSED_PREFIX}-*.tif
-time gpt BandSelect -t ${TRAINING_INPUT} -f GeoTIFF-BigTIFF -PsourceBands=B2,B3,B4,B8 ${MOSAIC_OUTPUT}
+if [ 1 == ${I} ]; then
+    mv ${PREPROCESSED_PREFIX}-${I}r.tif ${TRAINING_INPUT}
 
 # OTB training with "random forest" model + reference data
-time otbcli_TrainImagesClassifier \
- -io.il ${TRAINING_INPUT} -io.vd ${TRAINING_SHAPEFILE} \
- -sample.mv -1 -sample.mt -1 -sample.vtr 0.5 -sample.edg false -sample.vfn ${SHAPEFILE_ATTR} \
- -classifier rf -classifier.rf.max 5 -classifier.rf.min 10 -classifier.rf.var 0 -classifier.rf.nbtrees 100 \
- -io.out ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} -io.confmatout ${TRAINING_OUTPUT_CONFUSION_MATRIX_CSV}
+    time otbcli_TrainImagesClassifier \
+	-io.il ${TRAINING_INPUT} -io.vd ${TRAINING_SHAPEFILE} \
+	-sample.mv -1 -sample.mt -1 -sample.vtr 0.5 -sample.edg false -sample.vfn ${SHAPEFILE_ATTR} \
+	-classifier rf -classifier.rf.max 5 -classifier.rf.min 10 -classifier.rf.var 0 -classifier.rf.nbtrees 100 \
+	-io.out ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} -io.confmatout ${TRAINING_OUTPUT_CONFUSION_MATRIX_CSV}
 
 # Final calculation using trained model
-time otbcli_ImageClassifier \
- -in ${TRAINING_INPUT} \
- -model ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} \
- -out ${OUTPUT_FILE}
+    time otbcli_ImageClassifier \
+	-in ${TRAINING_INPUT} \
+	-model ${TRAINING_OUTPUT_CLASSIFICATION_MODEL} \
+	-out ${OUTPUT_FILE}
+else
+    echo "Single tile products only, now: ", $I
+fi
+exit 0

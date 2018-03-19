@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '2.1.0'
+version '2.2.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -21,8 +21,8 @@ dependencies {
     compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
-    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
-    compile 'org.springframework.cloud:spring-cloud-starter-zuul'
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    compile 'org.springframework.cloud:spring-cloud-starter-netflix-zuul'
 
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'

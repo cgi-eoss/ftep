@@ -12,13 +12,14 @@
 
             <div class="row" ng-if="item.properties._links.download">
                 <div class="col-md-12">
-                    <md-button ng-href="{{item.properties._links.download.href}}"
-                               target="_blank"
-                               class="download-button"
-                               aria-label="Download"
-                               tooltip-trigger="mouseenter"
-                               tooltip-append-to-body="true">
-                        Download <i class="material-icons">file_download</i>
+                    <md-button class="download-button"
+                        ng-click="estimateAndDownload()"
+                        target="_blank"
+                        uib-tooltip="Download"
+                        aria-label="Download"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                    Download <i class="material-icons">file_download</i>
                     </md-button>
                 </div>
             </div>

@@ -61,29 +61,9 @@ identifier:
 platform:
   title: 'Platform'
   type: 'select'
-  defaultValue: 'Sentinel-2A'
+  defaultValue: 'Landsat-8'
   allowed:
     values:
-      - value: 'Sentinel-1A'
-        title: 'S1A'
-        onlyIf:
-          'mission':
-            - 'sentinel1'
-      - value: 'Sentinel-S1B'
-        title: 'S1B'
-        onlyIf:
-          'mission':
-            - 'sentinel1'
-      - value: 'Sentinel-2A'
-        title: 'S2A'
-        onlyIf:
-          'mission':
-            - 'sentinel2'
-      - value: 'Sentinel-3A'
-        title: 'S3A'
-        onlyIf:
-          'mission':
-            - 'sentinel3'
       - value: 'Landsat-5'
         title: 'Landsat-5'
         onlyIf:
@@ -101,9 +81,6 @@ platform:
             - 'landsat'
   onlyIf:
     'mission':
-      - 'sentinel1'
-      - 'sentinel2'
-      - 'sentinel3'
       - 'landsat'
 
 maxCloudCover:
@@ -117,7 +94,78 @@ maxCloudCover:
   onlyIf:
     'mission':
       - 'sentinel2'
+      - 'landsat'
+
+s1ProcessingLevel:
+  title: 'Processing level (S-1)'
+  type: 'select'
+  defaultValue: '1'
+  allowed:
+    values:
+      - value: '1'
+        title: '1'
+      - value: '2'
+        title: '2'
+  onlyIf:
+    'mission':
+      - 'sentinel1'
+
+s2ProcessingLevel:
+  title: 'Processing level (S-2)'
+  type: 'select'
+  defaultValue: 'L1C'
+  allowed:
+    values:
+      - value: 'L1C'
+        title: 'L1C'
+      - value: 'L2A'
+        title: 'L2A'
+  onlyIf:
+    'mission':
+      - 'sentinel2'
+
+s3ProcessingLevel:
+  title: 'Processing level (S-3)'
+  type: 'select'
+  defaultValue: '1'
+  allowed:
+    values:
+      - value: '1'
+        title: '1'
+      - value: '2'
+        title: '2'
+  onlyIf:
+    'mission':
       - 'sentinel3'
+
+landsatProcessingLevel:
+  title: 'Processing level (Landsat)'
+  type: 'select'
+  defaultValue: '1GT'
+  allowed:
+    values:
+      - value: '1G'
+        title: '1G'
+        onlyIf:
+          'platform':
+            - 'Landsat-5'
+            - 'Landsat-7'
+            - 'Landsat-8'
+      - value: '1T'
+        title: '1T'
+        onlyIf:
+          'platform':
+            - 'Landsat-5'
+            - 'Landsat-7'
+            - 'Landsat-8'
+      - value: '1GT'
+        title: '1GT'
+        onlyIf:
+          'platform':
+            - 'Landsat-7'
+            - 'Landsat-8'
+  onlyIf:
+    'mission':
       - 'landsat'
 
 s1ProductType:
@@ -130,6 +178,10 @@ s1ProductType:
         title: 'GRD'
       - value: 'SLC'
         title: 'SLC'
+      - value: 'OCN'
+        title: 'OCN'
+      - value: 'RAW'
+        title: 'RAW'
   onlyIf:
     'mission':
       - 'sentinel1'
@@ -147,3 +199,4 @@ orbitDirection:
   onlyIf:
     'mission':
       - 'sentinel1'
+      - 'sentinel3'

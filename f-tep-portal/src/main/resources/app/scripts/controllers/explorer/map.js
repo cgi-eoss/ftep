@@ -246,8 +246,6 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 $scope.map.getLayers().insertAt(0, layerMapBox);
                 $scope.mapType.active = "MapBox";
             }
-
-            $scope.map.addLayer(searchAreaLayer);
         };
         /** ----- END OF MAP CONFIG & DRAW INTERACTION ----- **/
 

@@ -15,7 +15,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.resultParams = $scope.searchParams.results;
 
         /* Set results and display the results section */
-        function setResults(results){
+        function setResults(results) {
             $scope.resultParams.geoResults = results;
 
             /* Set paging info if there are results */
@@ -69,7 +69,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Toggle selection of result */
         $scope.toggleSelection = function(item, fromMap) {
-            if(item) {
+            if (item) {
                 var index = $scope.resultParams.selectedResultItems.indexOf(item);
                 if (index < 0) {
                     $scope.resultParams.selectedResultItems.push(item);
@@ -79,10 +79,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 } else {
                     $scope.resultParams.selectedResultItems.splice(index, 1);
                 }
-                if(!fromMap){
+                if (!fromMap) {
                     $rootScope.$broadcast('results.item.selected', item, index < 0);
                 }
             }
+        };
+
+        /* Handle displaying items on map on result hover */
+        $scope.mouseEntersResultItem = function(item) {
+            $rootScope.$broadcast('results.item.hover', item);
+        };
+        $scope.mouseLeavesResultItem = function(item) {
+            $rootScope.$broadcast('results.item.unhover', item);
         };
 
         /* Toggle result on map */

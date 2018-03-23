@@ -46,6 +46,7 @@ public class IoConfigurationProperties {
             private String authEndpoint = "https://finder.eocloud.eu/resto/api/authidentity";
             private String authDomain = "__secret__";
             private int overallPriority = 0;
+            private int searchTimeout = 120;
         }
     }
 

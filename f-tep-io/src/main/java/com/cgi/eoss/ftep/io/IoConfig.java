@@ -96,6 +96,7 @@ public class IoConfig {
         IoConfigurationProperties.Downloader.IptHttp iptHttpProperties = properties.getDownloader().getIptHttp();
         return new IptHttpDownloader(
                 okHttpClient,
+                iptHttpProperties.getSearchTimeout(),
                 ftepServerClient,
                 downloaderFacade,
                 IptHttpDownloader.Properties.builder()

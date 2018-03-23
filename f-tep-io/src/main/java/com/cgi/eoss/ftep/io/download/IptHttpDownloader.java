@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.io.download;
 
 import com.cgi.eoss.ftep.io.ServiceIoException;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
@@ -21,10 +22,13 @@ import okhttp3.Response;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
+import org.apache.logging.log4j.CloseableThreadContext;
+import org.apache.logging.log4j.ThreadContext;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Set;
@@ -45,10 +49,10 @@ public class IptHttpDownloader implements Downloader {
     private final Properties properties;
     private final ProtocolPriority protocolPriority;
 
-    public IptHttpDownloader(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
+    public IptHttpDownloader(OkHttpClient okHttpClient, int searchTimeout, FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
         this.httpClient = okHttpClient;
         // Use a long timeout as the search query takes a while...
-        this.searchClient = okHttpClient.newBuilder().readTimeout(60, TimeUnit.SECONDS).build();
+        this.searchClient = okHttpClient.newBuilder().readTimeout(searchTimeout, TimeUnit.SECONDS).build();
         this.ftepServerClient = ftepServerClient;
         this.downloaderFacade = downloaderFacade;
         this.objectMapper = new ObjectMapper();
@@ -161,6 +165,11 @@ public class IptHttpDownloader implements Downloader {
                     .addPathSegments(productPath.replaceFirst("^/eodata/", "eorepo/") + ".zip")
                     .addQueryParameter("token", authToken)
                     .build();
+        } catch (SocketTimeoutException timeout) {
+            try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                LOG.error("Timeout locating EO product data for {}; please try again and contact the F-TEP support team if the error persists", uri);
+            }
+            throw new ServiceIoException("Timeout locating IPT product data for " + uri);
         }
     }
 

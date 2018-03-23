@@ -255,7 +255,8 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
                 } catch (Exception e1) {
                     LOG.error("Unable to clean up failed cache directory", e1);
                 }
-                throw new ServiceIoException("Failed to populate cache directory: " + inProgressDir, e);
+                LOG.error("Failed to populate cache directory: {}", inProgressDir, e);
+                throw new ServiceIoException("Failed to download: " + e.getMessage(), e);
             }
 
             return resolveCacheSymlink(cacheDir).orElse(cacheDir);

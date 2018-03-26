@@ -11,7 +11,7 @@
     <div class="panel-body">
 
         <form id="searchForm" name="searchForm" ng-submit="search()">
-            <md-list id="active-catalog" class="catalogs" ng-show="searchParams.savedSearch.catalogue">
+            <md-list id="active-catalog" class="catalogs" ng-show="searchParams.selectedCatalog.value">
                 <md-list-item class="md-2-line" ng-click="null">
                     <md-icon class="material-icons md-24">{{getCatalogIcon(searchParams.selectedCatalog)}}</md-icon>
                     <div class="md-list-item-text">
@@ -27,7 +27,7 @@
 
             <div ng-repeat="(index, field) in catalogues">
 
-                <section ng-if="field.type === 'catalogue' && !searchParams.savedSearch.catalogue">
+                <section ng-if="field.type === 'catalogue' && !searchParams.selectedCatalog.value">
 
                     <div class="row">
                         <div class="col-xs-12">
@@ -48,7 +48,7 @@
 
                 </section>
 
-                <div ng-if="searchParams.savedSearch.catalogue">
+                <div ng-if="searchParams.selectedCatalog.value">
 
                     <section ng-if="displayField(field, 'select')" ng-init="getValues()">
                         <div class="row">

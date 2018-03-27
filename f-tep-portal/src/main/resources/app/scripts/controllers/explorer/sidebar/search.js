@@ -12,7 +12,7 @@ define(['../../../ftepmodules'], function(ftepmodules) {
     ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
 
         $scope.searchParams = SearchService.params;
-        $scope.mapAoi = MapService.aoi;
+        $scope.mapAoi = MapService.mapstore.aoi;
         $scope.allowedValues = {};
 
         SearchService.getSearchParameters().then(function(data) {

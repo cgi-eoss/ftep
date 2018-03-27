@@ -3,14 +3,14 @@
             class="btn btn-control map-item map-type"
             ng-click="$mdOpenMenu($event)"
             aria-label="Menu"
-            title="{{mapType.active}} (Map Layer)">
+            title="{{mapstore.type.active}} (Map Layer)">
         <i class="material-icons">layers</i>
     </button>
     <md-menu-content id="map-layer">
-        <md-menu-item ng-class="{'active': mapType.active == 'Open Street'}">
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Open Street'}">
             <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
         </md-menu-item>
-        <md-menu-item ng-class="{'active': mapType.active == 'MapBox'}">
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'MapBox'}">
             <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
         </md-menu-item>
     </md-menu-content>
@@ -43,7 +43,7 @@
 <button type="button"
         class="btn btn-control map-item polygon-copy"
         ng-click="copyPolygon()"
-        ng-disabled="aoi === undefined || aoi.wkt === undefined"
+        ng-disabled="mapstore.aoi === undefined || mapstore.aoi.wkt === undefined"
         aria-label="Copy Polygon to Clipboard"
         title="Copy Polygon to Clipboard">
     <i class="material-icons">content_copy</i>

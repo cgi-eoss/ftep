@@ -19,10 +19,9 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             BOX : {type: 'LineString', img: 'images/box.png', location: 'box-selection', name:"Square"}
         };
 
+        $scope.mapstore = MapService.mapstore;
         $scope.drawType = SHAPE.NONE;
         var searchLayerFeatures = MapService.searchLayerFeatures;
-        $scope.mapType = MapService.mapType;
-        $scope.aoi = MapService.aoi;
 
         /** ----- MAP STYLES TYPES ----- **/
         /* Red highlight */
@@ -60,6 +59,14 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 url: ftepProperties.MAPBOX_URL
             })
         });
+
+        /* Set active layer on map load */
+        if($scope.mapstore.type.active === "MapBox") {
+            $scope.activelayer = layerMapBox;
+        } else if ($scope.mapstore.type.active === "Open Street") {
+            $scope.activelayer = layerOSM;
+        }
+
         /** ----- END OF MAP LAYER TYPES ----- **/
 
         /** ----- MAP INTERACTIONS FOR POLYGONS ----- **/
@@ -180,11 +187,17 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 mousePositionControl
             ]),
             target: 'map',
-            layers: [layerMapBox],
+            layers: [$scope.activelayer],
             view: new ol.View({
-                center: ol.proj.fromLonLat([0, 51.28]),
-                zoom: 4
+                center: ol.proj.fromLonLat($scope.mapstore.location),
+                zoom: $scope.mapstore.zoom
             })
+        });
+
+        /* On map view change store position/zoom to service */
+        $scope.map.on("moveend", function(e){
+            $scope.mapstore.location = ol.proj.transform($scope.map.getView().getCenter(), EPSG_3857, EPSG_4326);
+            $scope.mapstore.zoom = $scope.map.getView().getZoom();
         });
 
         var draw; // global so we can remove it later
@@ -237,14 +250,14 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         addInteraction();
 
         $scope.setMapType = function(newType) {
-            if(newType === 'OSM' && $scope.mapType.active !== "Open Street") {
+            if(newType === 'OSM' && $scope.mapstore.type.active !== "Open Street") {
                 $scope.map.removeLayer(layerMapBox);
                 $scope.map.getLayers().insertAt(0, layerOSM);
-                $scope.mapType.active = "Open Street";
-            } else if (newType === 'MB' &&  $scope.mapType.active !== "MapBox") {
+                $scope.mapstore.type.active = "Open Street";
+            } else if (newType === 'MB' &&  $scope.mapstore.type.active !== "MapBox") {
                 $scope.map.removeLayer(layerOSM);
                 $scope.map.getLayers().insertAt(0, layerMapBox);
-                $scope.mapType.active = "MapBox";
+                $scope.mapstore.type.active = "MapBox";
             }
         };
         /** ----- END OF MAP CONFIG & DRAW INTERACTION ----- **/
@@ -259,11 +272,11 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.map.addLayer(searchAreaLayer);
 
         function updateSearchPolygon(geom, editedWkt, refit){
-            $scope.aoi.selectedArea = geom.clone();
+            $scope.mapstore.aoi.selectedArea = geom.clone();
 
             //set the WKT when editing AOI manually
-            var area = angular.copy($scope.aoi.selectedArea);
-            $scope.aoi.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
+            var area = angular.copy($scope.mapstore.aoi.selectedArea);
+            $scope.mapstore.aoi.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
 
             // re-fit when user has edited AOI manually
             if(refit && refit === true){
@@ -280,8 +293,8 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         /* ----- MAP BUTTONS ----- */
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
-            if($scope.aoi.wkt){
-                clipboard.copy($scope.aoi.wkt);
+            if($scope.mapstore.aoi.wkt){
+                clipboard.copy($scope.mapstore.aoi.wkt);
             }
         };
 
@@ -302,7 +315,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             $event.preventDefault();
             function EditPolygonController($scope, $mdDialog, MapService) {
                 $scope.polygon = { wkt: MapService.getPolygonWkt(), valid: false};
-                if(MapService.aoi.selectedArea) {
+                if($scope.mapstore.aoi.selectedArea) {
                     $scope.polygon.valid = true;
                 }
                 $scope.closeDialog = function() {
@@ -627,10 +640,10 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
             if (files.length > 0) {
                 // Create layer for each output file
-                for (var i = 0; i < files.length; i++) {
-                    if (files[i]._links && files[i]._links.wms) {
+                for (var j = 0; j < files.length; j++) {
+                    if (files[j]._links && files[j]._links.wms) {
                         var source = new ol.source.ImageWMS({
-                            url: files[i]._links.wms.href,
+                            url: files[j]._links.wms.href,
                             params: {
                                 format: 'image/png'
                             },

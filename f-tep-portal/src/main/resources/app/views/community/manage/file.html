@@ -12,6 +12,16 @@
                 <i class="material-icons">close</i>
             </md-button>
 
+            <md-button id="download-file-button"
+                       class="save-button md-fab md-mini right"
+                       ng-click="estimateDownloadCost($event, fileParams.selectedFile)"
+                       uib-tooltip="Download"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">file_download</i>
+            </md-button>
+
             <md-button id="update-file"
                        class="save-button md-fab md-mini right"
                        ng-click="refreshFile()"

@@ -19,10 +19,13 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             BOX : {type: 'LineString', img: 'images/box.png', location: 'box-selection', name:"Square"}
         };
 
+        /* Padding for bottom and sidebar when padding to feature */
+        var padding = [0, 0, 300, 0];
+
+        /* Map defaults */
+        $scope.mapstore = MapService.mapstore;
         $scope.drawType = SHAPE.NONE;
         var searchLayerFeatures = MapService.searchLayerFeatures;
-        $scope.mapType = MapService.mapType;
-        $scope.aoi = MapService.aoi;
 
         /** ----- MAP STYLES TYPES ----- **/
         /* Red highlight */
@@ -37,6 +40,46 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 stroke: new ol.style.Stroke({
                   color: 'rgba(255,64,129,0.6)',
                   width: 3
+                })
+            })
+        });
+
+        var selectStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(174,213,129,0.8)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(85,139,47,0.8)',
+                width: 3
+            }),
+            image: new ol.style.Circle({
+                fill: new ol.style.Fill({
+                    color: 'rgba(174,213,129,0.8)'
+                }),
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(85,139,47,0.8)',
+                    width: 3
+                })
+            })
+        });
+
+        var hoverStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(41, 182, 246, 0.8)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(2, 119, 189, 0.8)',
+                width: 3
+            }),
+            image: new ol.style.Circle({
+                fill: new ol.style.Fill({
+                    color: 'rgba(41, 182, 246, 0.8)'
+                }),
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(2, 119, 189, 0.8)',
+                    width: 3
                 })
             })
         });
@@ -60,6 +103,14 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 url: ftepProperties.MAPBOX_URL
             })
         });
+
+        /* Set active layer on map load */
+        if($scope.mapstore.type.active === "MapBox") {
+            $scope.activelayer = layerMapBox;
+        } else if ($scope.mapstore.type.active === "Open Street") {
+            $scope.activelayer = layerOSM;
+        }
+
         /** ----- END OF MAP LAYER TYPES ----- **/
 
         /** ----- MAP INTERACTIONS FOR POLYGONS ----- **/
@@ -88,25 +139,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         var selectClick = new ol.interaction.Select({
             condition: ol.events.condition.click,
             toggleCondition: ol.events.condition.shiftKeyOnly,
-            style: new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'rgba(174,213,129,0.8)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(85,139,47,0.8)',
-                    width: 3
-                }),
-                image: new ol.style.Circle({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(174,213,129,0.8)'
-                    }),
-                    radius: 5,
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(85,139,47,0.8)',
-                        width: 3
-                    })
-                })
-            }),
+            style: selectStyle,
             filter: function(feature, layer) {
                 return feature.get('data') !== undefined;
             }
@@ -180,11 +213,17 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 mousePositionControl
             ]),
             target: 'map',
-            layers: [layerMapBox],
+            layers: [$scope.activelayer],
             view: new ol.View({
-                center: ol.proj.fromLonLat([0, 51.28]),
-                zoom: 4
+                center: ol.proj.fromLonLat($scope.mapstore.location),
+                zoom: $scope.mapstore.zoom
             })
+        });
+
+        /* On map view change store position/zoom to service */
+        $scope.map.on("moveend", function(e){
+            $scope.mapstore.location = ol.proj.transform($scope.map.getView().getCenter(), EPSG_3857, EPSG_4326);
+            $scope.mapstore.zoom = $scope.map.getView().getZoom();
         });
 
         var draw; // global so we can remove it later
@@ -237,17 +276,15 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         addInteraction();
 
         $scope.setMapType = function(newType) {
-            if(newType === 'OSM' && $scope.mapType.active !== "Open Street") {
+            if(newType === 'OSM' && $scope.mapstore.type.active !== "Open Street") {
                 $scope.map.removeLayer(layerMapBox);
                 $scope.map.getLayers().insertAt(0, layerOSM);
-                $scope.mapType.active = "Open Street";
-            } else if (newType === 'MB' &&  $scope.mapType.active !== "MapBox") {
+                $scope.mapstore.type.active = "Open Street";
+            } else if (newType === 'MB' &&  $scope.mapstore.type.active !== "MapBox") {
                 $scope.map.removeLayer(layerOSM);
                 $scope.map.getLayers().insertAt(0, layerMapBox);
-                $scope.mapType.active = "MapBox";
+                $scope.mapstore.type.active = "MapBox";
             }
-
-            $scope.map.addLayer(searchAreaLayer);
         };
         /** ----- END OF MAP CONFIG & DRAW INTERACTION ----- **/
 
@@ -261,15 +298,15 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         $scope.map.addLayer(searchAreaLayer);
 
         function updateSearchPolygon(geom, editedWkt, refit){
-            $scope.aoi.selectedArea = geom.clone();
+            $scope.mapstore.aoi.selectedArea = geom.clone();
 
             //set the WKT when editing AOI manually
-            var area = angular.copy($scope.aoi.selectedArea);
-            $scope.aoi.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
+            var area = angular.copy($scope.mapstore.aoi.selectedArea);
+            $scope.mapstore.aoi.wkt = (editedWkt ? editedWkt : new ol.format.WKT().writeGeometry(area.transform(EPSG_3857, EPSG_4326)));
 
             // re-fit when user has edited AOI manually
             if(refit && refit === true){
-                $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+                $scope.map.getView().fit(geom.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()), { padding: padding });
             }
 
             // If no digest/apply is in progress, trigger it to update bound components
@@ -282,8 +319,8 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         /* ----- MAP BUTTONS ----- */
         // Copy the coordinates to clipboard which can be then pasted to service input fields
         $scope.copyPolygon = function(){
-            if($scope.aoi.wkt){
-                clipboard.copy($scope.aoi.wkt);
+            if($scope.mapstore.aoi.wkt){
+                clipboard.copy($scope.mapstore.aoi.wkt);
             }
         };
 
@@ -304,7 +341,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             $event.preventDefault();
             function EditPolygonController($scope, $mdDialog, MapService) {
                 $scope.polygon = { wkt: MapService.getPolygonWkt(), valid: false};
-                if(MapService.aoi.selectedArea) {
+                if($scope.mapstore.aoi.selectedArea) {
                     $scope.polygon.valid = true;
                 }
                 $scope.closeDialog = function() {
@@ -464,7 +501,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     })
                 });
                 $scope.map.addLayer(droppedFileLayer);
-                $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize()));
+                $scope.map.getView().fit(vectorSource.getExtent(), /** @type {ol.Size} */ ($scope.map.getSize(), { padding: padding }));
             }
         });
         /* ----- END OF DROPPED FILE LAYER ----- */
@@ -478,6 +515,15 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             style: resultStyle
         });
         $scope.map.addLayer(resultsLayer);
+
+        function getFeature(item) {
+            var features = resultsLayer.getSource().getFeatures();
+            for (var feature in features) {
+                if(item.properties.productIdentifier === features[feature].get('data').properties.productIdentifier) {
+                    return features[feature];
+                }
+            }
+        }
 
         $scope.$on('update.geoResults', function(event, results) {
             selectAll(false);
@@ -496,39 +542,49 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     resultLayerFeatures.push(resultItem);
                 }
                 if (zoomToPlace) {
-                    $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize());
+                    $scope.map.getView().fit(resultsLayer.getSource().getExtent(), $scope.map.getSize(), { padding: padding });
                 }
             }
         });
 
-        $scope.$on('results.item.selected', function(event, item, selected) {
-            selectItem(item, selected);
+        $scope.$on('results.item.hover', function(event, item) {
+            var feature = getFeature(item);
+            var style = feature.getStyle();
+            feature.set('prevstyle', style);
+            feature.setStyle(hoverStyle);
+            $scope.map.changed();
         });
 
-        function selectItem(item, selected) {
+        $scope.$on('results.item.unhover', function(event, item) {
+            var feature = getFeature(item);
+            var prevstyle = feature.get('prevstyle') ? feature.get('prevstyle') : resultStyle;
+            feature.setStyle(prevstyle);
+            $scope.map.changed();
+        });
+
+        $scope.$on('results.item.selected', function(event, item, toSelect) {
+            selectItem(item, toSelect);
+        });
+
+        function selectItem(item, toSelect) {
+
             var features = resultsLayer.getSource().getFeatures();
-            for (var i in features) {
-                var feature = features[i];
-                if(item.properties.productIdentifier && item.properties.productIdentifier === feature.get('data').properties.productIdentifier){
-                    if(selected){
-                        selectClick.getFeatures().push(feature);
-                        $scope.map.getView().fit(feature.getGeometry().getExtent(), $scope.map.getSize()); //center the map to the selected vector
-                        var zoomLevel = 3;
-                        if(feature.getGeometry() instanceof ol.geom.Point){
-                            zoomLevel = 6;
-                        }
-                        else if($scope.map.getView().getZoom() > 3){
-                            zoomLevel = $scope.map.getView().getZoom()-2;
-                        }
-                        $scope.map.getView().setZoom(zoomLevel); //zoom out a bit, to show the location better
-                    }
-                    else {
-                        selectClick.getFeatures().remove(feature);
-                    }
-                    break;
-                }
+            var feature = getFeature(item);
+            if(toSelect) {
+                selectClick.getFeatures().push(feature);
+                feature.set('prevstyle', selectStyle);
+                feature.setStyle(selectStyle);
+
+                // Move to the correct map location and zoom, then update the relevant layers
+                $scope.map.getView().fit(feature.getGeometry().getExtent(), $scope.map.getSize(), { padding: padding });
+                $scope.map.getView().setZoom($scope.map.getView().getZoom() - 2);
+
+            } else {
+                selectClick.getFeatures().remove(feature);
+                feature.set('prevstyle', resultStyle);
+                feature.setStyle(resultStyle);
             }
-            // Refresh Map: avoid invisible-selection glitch and non-refreshed selection problem
+
             $scope.map.changed();
             resultsLayer.changed();
         }
@@ -581,7 +637,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                     }
                 }
                 $scope.map.addLayer(basketLayer);
-                $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize());
+                $scope.map.getView().fit(basketLayer.getSource().getExtent(), $scope.map.getSize(), { padding: padding });
             }
         });
 
@@ -601,12 +657,8 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 if((item.id && item.id === features[i].get('data').properties.productIdentifier)){
                     if(selected){
                         selectClick.getFeatures().push(features[i]);
-                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize());
-                        var zoomLevel = 3;
-                        if($scope.map.getView().getZoom() > 3) {
-                            zoomLevel = $scope.map.getView().getZoom()-2;
-                        }
-                        $scope.map.getView().setZoom(zoomLevel);
+                        $scope.map.getView().fit(features[i].getGeometry().getExtent(), $scope.map.getSize(), { padding: padding });
+                        $scope.map.getView().setZoom($scope.map.getView().getZoom() - 2);
                     } else {
                         selectClick.getFeatures().remove(features[i]);
                     }
@@ -629,10 +681,10 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
 
             if (files.length > 0) {
                 // Create layer for each output file
-                for (var i = 0; i < files.length; i++) {
-                    if (files[i]._links && files[i]._links.wms) {
+                for (var j = 0; j < files.length; j++) {
+                    if (files[j]._links && files[j]._links.wms) {
                         var source = new ol.source.ImageWMS({
-                            url: files[i]._links.wms.href,
+                            url: files[j]._links.wms.href,
                             params: {
                                 format: 'image/png'
                             },
@@ -650,7 +702,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
                 if (files[files.length-1].metadata) {
                     // Zoom into place
                     var polygon = getOlGeometryObject(files[files.length-1].metadata.geometry);
-                    $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize());
+                    $scope.map.getView().fit(polygon.getExtent(), $scope.map.getSize(), { padding: padding });
                 }
             }
         });

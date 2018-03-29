@@ -212,7 +212,7 @@ public class AclsApi {
 
         // First delete all existing ACEs in reverse order...
         int aceCount = acl.getEntries().size();
-        Seq.range(0, aceCount - 1).reverse().forEach(acl::deleteAce);
+        Seq.range(0, aceCount).reverse().forEach(acl::deleteAce);
 
         // ... then ensure the owner ACE is present (always ADMIN)
         if (owner != null) {

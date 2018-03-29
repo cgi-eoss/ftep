@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityManageFileCtrl', ['CommunityService', 'FileService', '$scope', function (CommunityService, FileService, $scope) {
+    ftepmodules.controller('CommunityManageFileCtrl', ['CommunityService', 'FileService', 'CommonService', '$scope', function (CommunityService, FileService, CommonService, $scope) {
 
         /* Get stored File details */
         $scope.fileParams = FileService.params.community;
@@ -45,7 +45,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.getGeometryStr = function(geoJson){
             return JSON.stringify(geoJson);
-        }
+        };
+
+        /* Estimate Download cost */
+        $scope.estimateDownloadCost = function($event, file) {
+            CommonService.estimateDownloadCost($event, file);
+        };
 
     }]);
 });

@@ -12,7 +12,7 @@ define(['../../../ftepmodules'], function(ftepmodules) {
     ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
 
         $scope.searchParams = SearchService.params;
-        $scope.mapAoi = MapService.aoi;
+        $scope.mapAoi = MapService.mapstore.aoi;
         $scope.allowedValues = {};
 
         SearchService.getSearchParameters().then(function(data) {
@@ -40,13 +40,17 @@ define(['../../../ftepmodules'], function(ftepmodules) {
                         }
                     }
                 } else if (field.type === 'daterange') {
-                    var startPeriod = new Date();
-                    startPeriod.setMonth(startPeriod.getMonth() + parseInt(field.defaultValue[0]));
-                    $scope.searchParams.savedSearch[index + 'Start'] = startPeriod;
-
-                    var endPeriod = new Date();
-                    endPeriod.setMonth(endPeriod.getMonth() + parseInt(field.defaultValue[1]));
-                    $scope.searchParams.savedSearch[index + 'End'] = endPeriod;
+                    /* Daterange requires an additional check as start/end are stored in their own props  */
+                    if(!$scope.searchParams.savedSearch[index + 'Start']) {
+                        var startPeriod = new Date();
+                        startPeriod.setMonth(startPeriod.getMonth() + parseInt(field.defaultValue[0]));
+                        $scope.searchParams.savedSearch[index + 'Start'] = startPeriod;
+                    }
+                    if(!$scope.searchParams.savedSearch[index + 'End']) {
+                        var endPeriod = new Date();
+                        endPeriod.setMonth(endPeriod.getMonth() + parseInt(field.defaultValue[1]));
+                        $scope.searchParams.savedSearch[index + 'End'] = endPeriod;
+                    }
                 }
             }
         };
@@ -57,7 +61,6 @@ define(['../../../ftepmodules'], function(ftepmodules) {
         };
 
         $scope.closeCatalog = function(field) {
-            $scope.searchParams.savedSearch = {};
             $scope.searchParams.selectedCatalog = {};
         };
 
@@ -104,7 +107,7 @@ define(['../../../ftepmodules'], function(ftepmodules) {
         };
 
         $scope.$watch('mapAoi.wkt', function(wkt) {
-            $scope.searchParams.savedSearch['aoi'] = wkt;
+            $scope.searchParams.savedSearch.aoi = wkt;
         });
 
         /* For all values*/

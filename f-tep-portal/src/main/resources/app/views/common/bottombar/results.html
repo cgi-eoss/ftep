@@ -12,7 +12,9 @@
             ng-repeat="item in resultParams.geoResults.features"
             ng-click="toggleSelection(item)"
             ng-class="(resultParams.selectedResultItems.indexOf(item) > -1) ? 'resulthighlight' : 'resultnormal'"
-            dnd-draggable="getSelectedItemsLinks(item)">
+            dnd-draggable="getSelectedItemsLinks(item)"
+            ng-mouseleave="mouseLeavesResultItem(item)"
+            ng-mouseenter="mouseEntersResultItem(item)">
 
             <div class="row geo-item">
 

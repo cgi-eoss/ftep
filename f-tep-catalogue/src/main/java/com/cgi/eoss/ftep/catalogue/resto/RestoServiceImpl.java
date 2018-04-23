@@ -174,7 +174,7 @@ public class RestoServiceImpl implements RestoService {
                 LOG.info("Created new Resto object with ID: {}", uuid);
                 return UUID.fromString(uuid);
             } else {
-                LOG.error("Failed to ingest Resto object to collection '{}': {} {}: {}", collection, response.code(), response.message(), response.body());
+                LOG.error("Failed to ingest Resto object to collection '{}': {} {}: {}", collection, response.code(), response.message(), response.body().string());
                 throw new IngestionException("Failed to ingest Resto object");
             }
         } catch (Exception e) {

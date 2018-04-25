@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.List;
 
 import static com.cgi.eoss.ftep.model.QJob.job;
@@ -64,6 +65,11 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     }
 
     @Override
+    public List<Job> findByStartIn(YearMonth yearMonth) {
+        return dao.findAll(job.startTime.year().eq(yearMonth.getYear()).and(job.startTime.month().eq(yearMonth.getMonthValue())));
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
         User owner = userDataService.getByName(ownerId);
@@ -74,6 +80,13 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         config.setInputs(inputs);
 
         return buildNew(jobConfigDataService.save(config), extId, owner);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Job updateJobConfig(Job job) {
+        jobConfigDataService.save(job.getConfig());
+        return job;
     }
 
     private Job buildNew(JobConfig jobConfig, String extId, User owner) {

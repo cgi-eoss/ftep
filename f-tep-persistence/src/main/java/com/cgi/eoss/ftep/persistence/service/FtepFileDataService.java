@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.model.User;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface FtepFileDataService extends
@@ -18,4 +19,6 @@ public interface FtepFileDataService extends
     List<FtepFile> findByOwner(User user);
 
     List<FtepFile> getByType(FtepFile.Type type);
+
+    Optional<FtepFile> maybeGetByUri(URI uri);
 }

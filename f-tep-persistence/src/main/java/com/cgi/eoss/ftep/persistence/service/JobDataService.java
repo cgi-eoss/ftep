@@ -5,7 +5,9 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.Multimap;
 
+import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface JobDataService extends
         FtepEntityDataService<Job> {
@@ -16,5 +18,10 @@ public interface JobDataService extends
 
     List<Job> findByOwnerAndService(User user, FtepService service);
 
+    List<Job> findByStartIn(YearMonth yearMonth);
+
     Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs);
+
+    Job updateJobConfig(Job job);
+
 }

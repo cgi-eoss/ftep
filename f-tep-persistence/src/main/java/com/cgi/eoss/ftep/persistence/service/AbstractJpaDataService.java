@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
 abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEntityDataService<T> {
@@ -32,6 +33,16 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
     @Override
     public List<T> getAllFull() {
         return getDao().findAll();
+    }
+
+    @Override
+    public Stream<T> streamAll() {
+        return getDao().streamAll();
+    }
+
+    @Override
+    public List<Long> getAllIds() {
+        return getDao().findAllIds();
     }
 
     @Override

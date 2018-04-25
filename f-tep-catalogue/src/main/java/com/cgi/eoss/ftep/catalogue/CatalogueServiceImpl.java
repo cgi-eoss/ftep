@@ -46,6 +46,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Component
 @GRpcService
@@ -172,6 +173,21 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             }
 
             return true;
+        }
+    }
+
+    @Override
+    public Optional<FtepFile> get(URI uri) {
+        return ftepFileDataService.maybeGetByUri(uri);
+    }
+
+    @Override
+    public Stream<URI> expand(URI uri) {
+        if (uri.getScheme().equals("ftep") && uri.getHost() != null && uri.getHost().equals("databasket")) {
+            Databasket databasket = getDatabasketFromUri(uri.toASCIIString());
+            return databasket.getFiles().stream().map(FtepFile::getUri);
+        } else {
+            return Stream.of(uri);
         }
     }
 

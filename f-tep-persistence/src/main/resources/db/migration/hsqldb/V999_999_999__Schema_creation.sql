@@ -257,6 +257,15 @@ CREATE INDEX ftep_publishing_requests_owner_idx
 CREATE UNIQUE INDEX ftep_publishing_requests_owner_object_idx
   ON ftep_publishing_requests (owner, type, associated_id);
 
+-- JobConfig-input file relationships
+
+CREATE TABLE ftep_job_config_input_files (
+  job_config_id BIGINT NOT NULL REFERENCES ftep_job_configs (id),
+  file_id       BIGINT NOT NULL REFERENCES ftep_files (id)
+);
+CREATE UNIQUE INDEX ftep_job_config_input_files_job_config_file_idx
+  ON ftep_job_config_input_files (job_config_id, file_id);
+
 -- Job-output file relationships
 
 CREATE TABLE ftep_job_output_files (

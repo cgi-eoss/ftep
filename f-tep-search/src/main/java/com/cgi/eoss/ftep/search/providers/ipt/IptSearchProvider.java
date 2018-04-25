@@ -169,7 +169,7 @@ public class IptSearchProvider extends RestoSearchProvider {
     private void addFtepProperties(Feature feature, SearchParameters parameters) {
         String collection = feature.getProperty("collection");
         String productSource = SUPPORTED_MISSIONS.inverse().get(collection).getMission();
-        String productIdentifier = feature.getProperty("title");
+        String productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
         URI ftepUri = externalProductService.getUri(productSource, productIdentifier);
 
         // Shuffle the IPT properties into a sub-object for consistency across all search providers

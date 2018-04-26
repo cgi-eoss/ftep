@@ -64,8 +64,8 @@ allprojects {
     ext['netty-tcnative-boringssl-static.version'] = '2.0.6.Final'
 
     // Spring BOM versions
-    ext['spring-cloud.version'] = 'Edgware.SR2'
-    ext['spring-boot.version'] = '1.5.10.RELEASE'
+    ext['spring-cloud.version'] = 'Edgware.SR3'
+    ext['spring-boot.version'] = '1.5.12.RELEASE'
 
     // Dependency versions overriding those from the Spring BOMs
     ext['flyway.version'] = '4.2.0'

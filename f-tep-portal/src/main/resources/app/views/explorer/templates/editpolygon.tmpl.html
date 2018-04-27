@@ -3,7 +3,7 @@
         <h4>Edit the Polygon:</h4>
         <div class="dialog-content-area">
             <md-input-container class="md-block" flex-gt-sm>
-                <textarea ng-model="polygon.wkt" rows="10" ng-change="validateWkt(polygon.wkt)" md-select-on-focus></textarea>
+                <textarea ng-model="polygon.wkt" rows="10" ng-change="validateWkt(polygon.wkt)" md-select-on-focus aria-label="polygon wkt"></textarea>
             </md-input-container>
             <div class="error-text" ng-if="polygon.valid === false">
                 The polygon provided is not valid.

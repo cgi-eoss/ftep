@@ -340,6 +340,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             $event.stopPropagation();
             $event.preventDefault();
             function EditPolygonController($scope, $mdDialog, MapService) {
+                $scope.mapstore = MapService.mapstore;
                 $scope.polygon = { wkt: MapService.getPolygonWkt(), valid: false};
                 if($scope.mapstore.aoi.selectedArea) {
                     $scope.polygon.valid = true;

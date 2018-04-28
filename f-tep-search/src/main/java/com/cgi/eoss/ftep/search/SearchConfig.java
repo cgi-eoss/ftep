@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.search;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.search.api.SearchProvider;
@@ -33,8 +34,8 @@ public class SearchConfig {
     private String searchParametersFile;
 
     @Bean
-    public SearchFacade searchFacade(Collection<SearchProvider> searchProviders) {
-        return new SearchFacade(searchProviders, searchParametersFile);
+    public SearchFacade searchFacade(Collection<SearchProvider> searchProviders, CatalogueService catalogueService) {
+        return new SearchFacade(searchProviders, searchParametersFile, catalogueService);
     }
 
     @Bean

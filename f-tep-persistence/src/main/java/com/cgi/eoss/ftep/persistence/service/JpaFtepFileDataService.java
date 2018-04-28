@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.cgi.eoss.ftep.model.QFtepFile.ftepFile;
@@ -59,6 +60,11 @@ public class JpaFtepFileDataService extends AbstractJpaDataService<FtepFile> imp
     @Override
     public List<FtepFile> getByType(FtepFile.Type type) {
         return dao.findByType(type);
+    }
+
+    @Override
+    public Optional<FtepFile> maybeGetByUri(URI uri) {
+        return Optional.ofNullable(dao.findOneByUri(uri));
     }
 
 }

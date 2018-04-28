@@ -53,7 +53,7 @@ RUN yum install -y \
 ENV PATH=/opt/puppetlabs/bin:${PATH}
 
 # Gradle
-ENV GRADLE_VERSION 4.6
+ENV GRADLE_VERSION 4.7
 RUN cd /opt && curl -sL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip >/tmp/gradle.zip && unzip -q /tmp/gradle.zip
 ENV GRADLE_HOME /opt/gradle-${GRADLE_VERSION}
 ENV PATH=${GRADLE_HOME}/bin:${PATH}

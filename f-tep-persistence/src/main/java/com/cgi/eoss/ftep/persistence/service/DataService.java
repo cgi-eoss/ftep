@@ -4,6 +4,7 @@ import org.springframework.core.convert.converter.Converter;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  */
@@ -23,6 +24,11 @@ public interface DataService<T, I> extends Converter<I, T> {
      * @return All persistent instances of this type.
      */
     List<T> getAll();
+
+    /**
+     * @return All persistent instances of this type, as a stream.
+     */
+    Stream<T> streamAll();
 
     /**
      * @return All persistent instances of this type, with lazy-loaded properties initialised.
@@ -47,6 +53,11 @@ public interface DataService<T, I> extends Converter<I, T> {
      * @return All persistent instances matching the given unique identifiers.
      */
     List<T> getByIds(Collection<I> ids);
+
+    /**
+     * @return All persistent instance identifiers.
+     */
+    List<I> getAllIds();
 
     /**
      * @return True if the given object would be unique in the database.

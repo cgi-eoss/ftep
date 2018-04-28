@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.persistence.service.WorkerLocatorExpressionDataService;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
+import com.cgi.eoss.ftep.search.SearchConfig;
 import com.cgi.eoss.ftep.security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -33,6 +34,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
         InProcessRpcConfig.class,
         MetricsConfig.class,
         PersistenceConfig.class,
+        SearchConfig.class,
         SecurityConfig.class
 })
 @EnableEurekaClient

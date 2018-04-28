@@ -12,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * <p>Centralised access to the F-TEP catalogues of reference data, output products, and external product
@@ -95,4 +98,15 @@ public interface CatalogueService {
      * @return
      */
     boolean canUserRead(User user, URI uri);
+
+    /**
+     * @return The FtepFile representation of the given URI, or empty if no such FtepFile exists.
+     */
+    Optional<FtepFile> get(URI uri);
+
+    /**
+     * @return A Stream representing the products identified by the given URI - either the URI itself, or the expanded
+     * database contents.
+     */
+    Stream<URI> expand(URI uri);
 }

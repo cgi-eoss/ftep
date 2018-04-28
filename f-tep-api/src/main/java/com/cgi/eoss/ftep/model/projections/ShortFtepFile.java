@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
 import org.springframework.hateoas.Identifiable;
 
+import java.net.URI;
 import java.util.UUID;
 
 /**
@@ -16,6 +17,7 @@ public interface ShortFtepFile extends Identifiable<Long> {
     UUID getRestoId();
     ShortUser getOwner();
     String getFilename();
+    URI getUri();
     FtepFile.Type getType();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepFile), target.id)}")
     FtepAccess getAccess();

@@ -28,6 +28,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -37,6 +39,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Component
 @Log4j2
 public class RestoServiceImpl implements RestoService {
+
+    private static final Pattern FEATURE_ALREADY_EXISTS = Pattern.compile(".*Feature (\\S+) already in database.*");
 
     private final OkHttpClient client;
 
@@ -161,8 +165,9 @@ public class RestoServiceImpl implements RestoService {
             throw new IngestionException("Failed to get/create Resto collection", e);
         }
 
+        ((Feature) object).setId(null);
         String geojson = GeoUtil.geojsonToString(object);
-        LOG.debug("Ingesting GeoJSON to {}: {}", geojson);
+        LOG.debug("Ingesting GeoJSON to Resto: {}", geojson);
         Request request = new Request.Builder()
                 .url(url)
                 .post(RequestBody.create(MediaType.parse(APPLICATION_JSON_VALUE), geojson))
@@ -174,8 +179,16 @@ public class RestoServiceImpl implements RestoService {
                 LOG.info("Created new Resto object with ID: {}", uuid);
                 return UUID.fromString(uuid);
             } else {
-                LOG.error("Failed to ingest Resto object to collection '{}': {} {}: {}", collection, response.code(), response.message(), response.body());
-                throw new IngestionException("Failed to ingest Resto object");
+                String responseBody = response.body().string();
+                Matcher featureMatcher = FEATURE_ALREADY_EXISTS.matcher(responseBody);
+                if (featureMatcher.matches()) {
+                    String uuid = featureMatcher.group(1);
+                    LOG.info("Found existing Resto product with ID: {}" + uuid);
+                    return UUID.fromString(uuid);
+                }else {
+                    LOG.error("Failed to ingest Resto object to collection '{}': {} {}: {}", collection, response.code(), response.message(), responseBody);
+                    throw new IngestionException("Failed to ingest Resto object");
+                }
             }
         } catch (Exception e) {
             throw new IngestionException(e);

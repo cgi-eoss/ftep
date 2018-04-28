@@ -123,7 +123,9 @@ public class IptSearchProvider extends RestoSearchProvider {
     @Override
     public boolean supports(SearchParameters parameters) {
         String catalogue = parameters.getValue("catalogue", "UNKNOWN");
-        return catalogue.equals("SATELLITE") && SUPPORTED_MISSIONS.containsKey(getMissionPlatform(parameters));
+        String mission = parameters.getValue("mission", "UNKNOWN");
+        return catalogue.equals("SATELLITE") &&
+                (SUPPORTED_MISSIONS.keySet().stream().map(MissionPlatform::getMission).anyMatch(m -> m.equals(mission)) || mission.equals("httpipt"));
     }
 
     @Override
@@ -148,8 +150,15 @@ public class IptSearchProvider extends RestoSearchProvider {
     @Override
     protected String getCollection(SearchParameters parameters) {
         MissionPlatform missionPlatform = getMissionPlatform(parameters);
-        return Optional.ofNullable(SUPPORTED_MISSIONS.get(missionPlatform))
-                .orElseThrow(() -> new IllegalArgumentException("Could not identify IPT Resto collection for mission: " + missionPlatform));
+        String mission = parameters.getValue("mission", "UNKNOWN");
+        if (SUPPORTED_MISSIONS.containsKey(missionPlatform)) {
+            return SUPPORTED_MISSIONS.get(missionPlatform);
+        } else if (parameters.getValue("mission").isPresent()) {
+            // We know it's here *somewhere*...
+            return "";
+        } else {
+            throw new IllegalArgumentException("Could not identify IPT Resto collection for mission: " + missionPlatform);
+        }
     }
 
     private MissionPlatform getMissionPlatform(SearchParameters parameters) {
@@ -169,7 +178,7 @@ public class IptSearchProvider extends RestoSearchProvider {
     private void addFtepProperties(Feature feature, SearchParameters parameters) {
         String collection = feature.getProperty("collection");
         String productSource = SUPPORTED_MISSIONS.inverse().get(collection).getMission();
-        String productIdentifier = feature.getProperty("title");
+        String productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
         URI ftepUri = externalProductService.getUri(productSource, productIdentifier);
 
         // Shuffle the IPT properties into a sub-object for consistency across all search providers

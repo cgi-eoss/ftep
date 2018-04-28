@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '2.3.0'
+version '2.4.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -14,6 +14,7 @@ dependencies {
     compile project(':f-tep-model')
     compile project(':f-tep-persistence')
     compile project(':f-tep-rpc')
+    compile project(':f-tep-search')
     compile project(':f-tep-security')
 
     compile 'org.awaitility:awaitility'

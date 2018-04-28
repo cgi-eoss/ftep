@@ -138,7 +138,7 @@ public class FtepFilesApiIT {
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")))
                 .andExpect(jsonPath("$._links.wms").doesNotExist())
-                .andExpect(jsonPath("$._links.ftep").doesNotExist());
+                .andExpect(jsonPath("$._links.ftep.href").value(testFile1.getUri().toASCIIString()));
     }
 
     @Test

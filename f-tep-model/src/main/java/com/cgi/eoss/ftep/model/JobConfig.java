@@ -17,10 +17,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>Configuration representing the inputs of a specific service execution.</p>
@@ -73,6 +77,18 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     private String label;
 
     /**
+     * <p>The FtepFiles required as job inputs.</p>
+     */
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "ftep_job_config_input_files",
+            joinColumns = @JoinColumn(name = "job_config_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "file_id", nullable = false),
+            indexes = @Index(name = "ftep_job_config_input_files_job_config_file_idx", columnList = "job_config_id, file_id", unique = true)
+    )
+    private Set<FtepFile> inputFiles = new HashSet<>();
+
+    /**
      * <p>Create a new JobConfig instance with the minimum required parameters.</p>
      *
      * @param owner   The user who owns the job
@@ -81,6 +97,10 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     public JobConfig(User owner, FtepService service) {
         this.owner = owner;
         this.service = service;
+    }
+
+    public void addInputFile(FtepFile inputFile) {
+        inputFiles.add(inputFile);
     }
 
     @Override

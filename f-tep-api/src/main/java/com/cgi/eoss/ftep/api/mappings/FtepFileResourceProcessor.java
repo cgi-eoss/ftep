@@ -93,6 +93,7 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
 
             addSelfLink(resource, entity);
             addDownloadLink(resource, entity.getType());
+            addFtepLink(resource, entity.getUri());
 
             return resource;
         }

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * <p>A generic DAO interface for F-TEP entity objects.</p>
@@ -33,5 +34,8 @@ public interface FtepEntityDao<T extends FtepEntity<T>> extends JpaRepository<T,
 
     @Query("select distinct t.id from #{#entityName} t")
     List<Long> findAllIds();
+
+    @Query("select t from #{#entityName} t")
+    Stream<T> streamAll();
 
 }

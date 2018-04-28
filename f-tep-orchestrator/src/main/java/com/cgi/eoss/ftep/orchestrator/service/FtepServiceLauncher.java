@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
-import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.logging.Logging;
@@ -51,9 +50,7 @@ import com.google.common.io.MoreFiles;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
-import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,13 +58,11 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,16 +96,16 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
     private final WorkerFactory workerFactory;
     private final JobDataService jobDataService;
     private final FtepGuiServiceManager guiService;
-    private final CatalogueService catalogueService;
+    private final FtepFileRegistrar ftepFileRegistrar;
     private final CostingService costingService;
     private final FtepSecurityService securityService;
 
     @Autowired
-    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, CatalogueService catalogueService, CostingService costingService, FtepSecurityService securityService) {
+    public FtepServiceLauncher(WorkerFactory workerFactory, JobDataService jobDataService, FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar, CostingService costingService, FtepSecurityService securityService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
-        this.catalogueService = catalogueService;
+        this.ftepFileRegistrar = ftepFileRegistrar;
         this.costingService = costingService;
         this.securityService = securityService;
     }
@@ -140,12 +135,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
 
             checkCost(job.getOwner(), job.getConfig());
 
-            if (!checkInputs(job.getOwner(), rpcInputs)) {
-                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                    LOG.error("User does not have read access to all requested inputs", userId);
-                }
-                throw new ServiceExecutionException("User does not have read access to all requested inputs");
-            }
+            // Creates FtepFile records for each input, and validates user access
+            ftepFileRegistrar.registerAndCheckInputs(job);
 
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
             jobWorkers.put(rpcJob, worker);
@@ -215,25 +206,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             throw new ServiceExecutionException("Estimated cost (" + estimatedCost + " coins) exceeds current wallet balance");
         }
         // TODO Should estimated balance be "locked" in the wallet?
-    }
-
-    private boolean checkInputs(User user, List<JobParam> inputsList) {
-        Multimap<String, String> inputs = GrpcUtil.paramsListToMap(inputsList);
-
-        Set<URI> inputUris = inputs.entries().stream()
-                .filter(e -> this.isValidUri(e.getValue()))
-                .flatMap(e -> Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create))
-                .collect(Collectors.toSet());
-
-        return inputUris.stream().allMatch(uri -> catalogueService.canUserRead(user, uri));
-    }
-
-    private boolean isValidUri(String test) {
-        try {
-            return URI.create(test).getScheme() != null;
-        } catch (Exception unused) {
-            return false;
-        }
     }
 
     private Map<String, FtepFile> executeJob(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) throws IOException, InterruptedException {
@@ -436,7 +408,7 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
                                     .build()))
                             .build();
 
-                    setOutputPath(catalogueService.provisionNewOutputProduct(outputProduct, fileMeta.getFilename()));
+                    setOutputPath(ftepFileRegistrar.prepareNewOutputProduct(outputProduct, fileMeta.getFilename()));
                     LOG.info("Writing output file for job {}: {}", job.getExtId(), getOutputPath());
                     return new BufferedOutputStream(Files.newOutputStream(getOutputPath(), CREATE, TRUNCATE_EXISTING, WRITE));
                 }
@@ -457,14 +429,8 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
             LOG.info("Retrieved all outputs for job {}: {}", job.getExtId(), outputsByRelativePath.keySet());
         }
 
-        postProcessOutputProducts(outputProducts).forEach(Unchecked.biConsumer(
-                (outputProduct, outputPath) -> {
-                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
-                        LOG.info("Ingesting output file to F-TEP catalogue: {}", outputProduct.getOutputId());
-                    }
-                    outputFtepFiles.put(outputProduct.getOutputId(), catalogueService.ingestOutputProduct(outputProduct, outputPath));
-                }
-        ));
+        postProcessOutputProducts(outputProducts)
+                .forEach((outputProduct, outputPath) -> outputFtepFiles.put(outputProduct.getOutputId(), ftepFileRegistrar.registerOutput(outputProduct, outputPath)));
 
         return outputFtepFiles;
     }

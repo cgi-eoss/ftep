@@ -21,6 +21,7 @@ public interface DetailedFtepFile extends Identifiable<Long> {
     FtepFile.Type getType();
     ShortUser getOwner();
     String getFilename();
+    Long getFilesize();
     @Value("#{@restoServiceImpl.getGeoJsonSafe(target)}")
     GeoJsonObject getMetadata();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepFile), target.id)}")

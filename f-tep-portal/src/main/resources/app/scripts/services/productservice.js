@@ -132,10 +132,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                 }
                                 $q.all(promises).then(function() {
                                     self.params[page].selectedService.files.sort(sortFiles);
-                                    // If no file is selected, select the top file
-                                    if (!self.params[page].openedFile) {
-                                        self.params[page].openedFile = self.params[page].selectedService.files[0];
-                                    }
+                                    self.params[page].openedFile = self.params[page].selectedService.files[0];
                                     self.getFileList(page);
                                     self.setFileType();
                                 });

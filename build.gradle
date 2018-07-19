@@ -65,12 +65,13 @@ allprojects {
 
     // Spring BOM versions
     ext['spring-cloud.version'] = 'Edgware.SR3'
-    ext['spring-boot.version'] = '1.5.12.RELEASE'
+    ext['spring-boot.version'] = '1.5.14.RELEASE'
 
     // Dependency versions overriding those from the Spring BOMs
     ext['flyway.version'] = '4.2.0'
     ext['hibernate.version'] = '5.2.12.Final'
     ext['jackson.version'] = '2.9.4'
+    ext['lombok.version'] = '1.18.2'
     ext['mockito.version'] = '2.9.0'
 
     apply plugin: 'io.spring.dependency-management'
@@ -162,12 +163,12 @@ subprojects {
 def depVersions = [
         // Build plugin versions
         clientDependenciesPlugin     : '1.4.0',
-        dependencyManagementPlugin   : '1.0.4.RELEASE',
-        osDetectorPlugin             : '1.4.0',
-        osPackagePlugin              : '4.5.1',
-        protobufPlugin               : '0.8.4',
-        querydslPlugin               : '1.0.9',
-        shadowPlugin                 : '2.0.2',
+        dependencyManagementPlugin   : '1.0.6.RELEASE',
+        osDetectorPlugin             : '1.6.0',
+        osPackagePlugin              : '4.9.3',
+        protobufPlugin               : '0.8.6',
+        querydslPlugin               : '1.0.10',
+        shadowPlugin                 : '2.0.3',
         shadowLog4j2TransformerPlugin: '2.1.1',
         springBootPlugin             : ext['spring-boot.version'],
 ]
@@ -192,8 +193,8 @@ buildscript {
     }
     dependencies {
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
-        classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.6.RELEASE'
     }
 }
 

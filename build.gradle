@@ -84,7 +84,7 @@ allprojects {
         dependencies {
             dependency group: 'commons-io', name: 'commons-io', version: ext['commons-io.version']
             dependency group: 'commons-net', name: 'commons-net', version: ext['commons-net.version']
-            dependency group: 'com.github.docker-java', name: 'docker-java', version: ext['docker-java.version']
+            dependency group: 'com.aries', name: 'docker-java-shaded', version: ext['docker-java.version']
             dependency group: 'com.google.guava', name: 'guava', version: ext['guava.version']
             dependency group: 'com.google.jimfs', name: 'jimfs', version: ext['jimfs.version']
             dependency group: 'com.google.protobuf', name: 'protoc', version: ext['protoc.version']

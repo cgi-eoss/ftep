@@ -24,11 +24,9 @@ dependencies {
     compile project(':f-tep-logging')
     compile project(':f-tep-rpc')
 
-    // Pre-built shaded docker-java jar
-    compile project(path: ':docker-java', configuration: 'shadow')
-
     compile 'commons-io:commons-io'
     compile 'commons-net:commons-net'
+    compile 'com.aries:docker-java-shaded'
     compile 'com.jayway.jsonpath:json-path'
     compile 'com.lmax:disruptor'
     compile 'com.squareup.okhttp3:okhttp'

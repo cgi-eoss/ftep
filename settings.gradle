@@ -25,9 +25,6 @@ include 'f-tep-zoomanager'
 include 'zoo-project'
 project(':zoo-project').projectDir = file('third-party/cxx/zoo-project')
 
-include 'docker-java'
-project(':docker-java').projectDir = file('third-party/java/docker-java')
-
 include 'jai_core'
 project(':jai_core').projectDir = file('third-party/java/jai_core')
 

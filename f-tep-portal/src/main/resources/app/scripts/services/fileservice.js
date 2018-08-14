@@ -171,6 +171,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 properties: {
                     productSource: item.properties.productSource,
                     productIdentifier: item.properties.productIdentifier,
+                    ftepUrl: item.properties._links.ftep.href,
                     originalUrl: item.properties._links.ftep.href,
                     extraParams: item.properties.extraParams
                 },

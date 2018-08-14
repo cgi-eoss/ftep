@@ -41,7 +41,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         Long filesize = Optional.ofNullable((Long) feature.getProperties().get("filesize")).orElse(getFilesize(feature));
         feature.getProperties().put("filesize", filesize);
 
-        URI uri = Optional.ofNullable(feature.getProperties().get("ftepUrl").toString()).map(URI::create).orElse(getUri(productSource, productId));
+        URI uri = Optional.ofNullable(feature.getProperties().get("ftepUrl")).map(Object::toString).map(URI::create).orElse(getUri(productSource, productId));
         feature.getProperties().put("ftepUrl", uri);
 
         return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {

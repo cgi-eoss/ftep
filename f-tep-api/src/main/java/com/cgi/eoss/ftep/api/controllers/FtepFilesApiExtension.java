@@ -56,7 +56,7 @@ public class FtepFilesApiExtension {
     @ResponseBody
     public ResponseEntity saveExternalProductMetadata(@RequestBody Feature geoJsonFeature) throws Exception {
         FtepFile ftepFile = Optional
-                .ofNullable(ftepFileDataService.getByUri((String) geoJsonFeature.getProperties().get("originalUrl")))
+                .ofNullable(ftepFileDataService.getByUri((String) geoJsonFeature.getProperties().get("ftepUrl")))
                 .orElseGet(() -> catalogueService.indexExternalProduct(geoJsonFeature));
         return ResponseEntity.created(ftepFile.getUri()).body(new Resource<>(ftepFile));
     }

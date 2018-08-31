@@ -162,7 +162,7 @@ public class IptHttpDownloader implements Downloader {
             String productPath = JsonPath.read(responseBody, "$.features[0].properties.productIdentifier");
 
             return HttpUrl.parse(properties.getIptDownloadUrl()).newBuilder()
-                    .addPathSegments(productPath.replaceFirst("^/eodata/", "eorepo/") + ".zip")
+                    .addPathSegments(productPath.replaceFirst("^/eodata/", ""))
                     .addQueryParameter("token", authToken)
                     .build();
         } catch (SocketTimeoutException timeout) {

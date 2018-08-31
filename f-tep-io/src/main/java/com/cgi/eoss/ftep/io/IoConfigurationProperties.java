@@ -41,7 +41,7 @@ public class IoConfigurationProperties {
         @Data
         static class IptHttp {
             private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
-            private String downloadUrlBase = "https://static.eocloud.eu/v1/AUTH_8f07679eeb0a43b19b33669a4c888c45";
+            private String downloadUrlBase = "http://185.48.233.249";
             // TODO Add these to the credentials/datasource object?
             private String authEndpoint = "https://finder.eocloud.eu/resto/api/authidentity";
             private String authDomain = "__secret__";

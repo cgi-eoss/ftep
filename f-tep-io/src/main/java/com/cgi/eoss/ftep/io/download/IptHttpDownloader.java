@@ -7,8 +7,9 @@ import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.jayway.jsonpath.JsonPath;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,6 @@ import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
 import org.apache.logging.log4j.CloseableThreadContext;
-import org.apache.logging.log4j.ThreadContext;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>Downloader for accessing data from <a href="https://finder.eocloud.eu">EO Cloud</a>. Uses IPT's token
@@ -40,6 +42,16 @@ import java.util.concurrent.TimeUnit;
  */
 @Log4j2
 public class IptHttpDownloader implements Downloader {
+
+    private static final Multimap<String, String> PROTOCOL_COLLECTIONS = ImmutableMultimap.<String, String>builder()
+            .put("sentinel1", "Sentinel1")
+            .put("sentinel2", "Sentinel2")
+            .put("sentinel3", "Sentinel3")
+            .put("landsat", "Landsat5")
+            .put("landsat", "Landsat7")
+            .put("landsat", "Landsat8")
+            .put("envisat", "Envisat")
+            .build();
 
     private final FtepServerClient ftepServerClient;
     private final OkHttpClient httpClient;
@@ -72,7 +84,7 @@ public class IptHttpDownloader implements Downloader {
 
     @Override
     public Set<String> getProtocols() {
-        return ImmutableSet.of("sentinel1", "sentinel2", "sentinel3", "landsat", "envisat");
+        return PROTOCOL_COLLECTIONS.keySet();
     }
 
     @Override
@@ -104,7 +116,7 @@ public class IptHttpDownloader implements Downloader {
             throw new ServiceIoException("Unsuccessful HTTP response: " + response);
         }
 
-        String filename = Iterables.getLast(downloadUrl.pathSegments());
+        String filename = Iterables.getLast(downloadUrl.pathSegments()) + ".zip";
         Path outputFile = targetDir.resolve(filename);
 
         try (BufferedSource source = response.body().source();
@@ -142,14 +154,22 @@ public class IptHttpDownloader implements Downloader {
     private HttpUrl getDownloadUrl(URI uri, String authToken) throws IOException {
         // Trim the leading slash from the path and get the search URL
         String productId = uri.getPath().substring(1);
-        HttpUrl searchUrl = HttpUrl.parse(properties.getIptSearchUrl()).newBuilder()
-                .addPathSegments("api/collections/search.json")
-                .addQueryParameter("maxRecords", "1")
-                .addQueryParameter("productIdentifier", "%" + productId + "%")
-                .build();
 
-        LOG.debug("Searching IPT to find download URL: {}", searchUrl);
+        List<HttpUrl> searchUrls = PROTOCOL_COLLECTIONS.get(uri.getScheme()).stream()
+                .map(collection -> buildSearchUrl(collection, productId))
+                .collect(Collectors.toList());
 
+        for (HttpUrl searchUrl : searchUrls) {
+            try {
+                return findDownloadUrl(uri, searchUrl, authToken);
+            } catch (Exception e) {
+                LOG.debug("Failed to locate download URL: {}", e.getMessage());
+            }
+        }
+        throw new ServiceIoException("Unable to locate IPT product data for " + uri);
+    }
+
+    private HttpUrl findDownloadUrl(URI uri, HttpUrl searchUrl, String authToken) throws IOException {
         Request request = new Request.Builder().url(searchUrl).get().build();
 
         try (Response response = searchClient.newCall(request).execute()) {
@@ -171,6 +191,16 @@ public class IptHttpDownloader implements Downloader {
             }
             throw new ServiceIoException("Timeout locating IPT product data for " + uri);
         }
+    }
+
+    private HttpUrl buildSearchUrl(String collection, String productId) {
+        return HttpUrl.parse(properties.getIptSearchUrl()).newBuilder()
+                .addPathSegments("api/collections")
+                .addPathSegment(collection)
+                .addPathSegment("search.json")
+                .addQueryParameter("maxRecords", "1")
+                .addQueryParameter("productIdentifier", "%" + productId + "%")
+                .build();
     }
 
     @Data

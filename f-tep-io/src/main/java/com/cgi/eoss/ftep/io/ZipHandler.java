@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -24,10 +26,10 @@ public class ZipHandler {
      * (tree), the targetDir will contain the contents of this directory rather than the single directory itself
      * (equivalent to <code>tar --strip-components=1</code>).</p>
      *
-     * @param file The zip archive to be extracted.
+     * @param file      The zip archive to be extracted.
      * @param targetDir The directory to be used for extraction.
      */
-    public static void unzip(Path file, Path targetDir) throws IOException {
+    public static void unzipStreaming(Path file, Path targetDir) throws IOException {
         LOG.debug("Unzipping file {} to {}", file, targetDir);
 
         // Read all the zip file entries to check the contents and see if we have to extract with subdir stripping ...
@@ -84,10 +86,90 @@ public class ZipHandler {
     }
 
     /**
+     * <p>Unzip the given archive into the given target directory.</p> <p>If the zip consists of a single directory
+     * (tree), the targetDir will contain the contents of this directory rather than the single directory itself
+     * (equivalent to <code>tar --strip-components=1</code>).</p>
+     *
+     * @param file      The zip archive to be extracted.
+     * @param targetDir The directory to be used for extraction.
+     * @throws IOException
+     */
+
+    public static void unzip(Path file, Path targetDir) throws IOException {
+        if (isFile(file)) {
+            unzipFile(file, targetDir);
+        } else {
+            unzipStreaming(file, targetDir);
+        }
+    }
+
+    private static Boolean isFile(Path path) {
+        try {
+            assert path.toFile() != null;
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void unzipFile(Path file, Path targetDir) throws IOException {
+        LOG.debug("Unzipping file {} to {}", file, targetDir);
+
+        // Read all the zip file entries to check the contents and see if we have to extract with subdir stripping ...
+        boolean stripTopDirectory = true;
+        Path testRoot = Paths.get("/");
+        Path topDirectory = null;
+        ZipFile zipFile = new ZipFile(file.toFile());
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry ze = entries.nextElement();
+            Path zipEntryPath = testRoot.resolve(ze.getName());
+
+            // If it's a file in the top level directory, do not strip
+            if (!ze.isDirectory() && zipEntryPath.getParent().equals(testRoot)) {
+                stripTopDirectory = false;
+                break;
+            }
+
+            // If multiple top level directories are detected, do not strip
+            Path topLevelDir = zipEntryPath.subpath(0, 1);
+            if (topDirectory != null && !topLevelDir.equals(topDirectory)) {
+                stripTopDirectory = false;
+                break;
+            }
+            topDirectory = topLevelDir;
+        }
+
+        zipFile.close();
+
+        // ... then walk the file again to actually do the unzip operation
+        zipFile = new ZipFile(file.toFile());
+        entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry ze = entries.nextElement();
+            // Mangle the zip entry path to get the path with/without the top level directory
+            Path dest = stripTopDirectory
+                    ? targetDir.resolve(topDirectory.relativize(Paths.get(ze.getName())).toString())
+                    : targetDir.resolve(ze.getName());
+
+            LOG.trace("Extracting from zip: {} -> {}", ze.getName(), dest);
+
+            if (ze.isDirectory()) {
+                Files.createDirectories(dest);
+            } else {
+                Files.createDirectories(dest.getParent());
+                Files.copy(zipFile.getInputStream(ze), dest, REPLACE_EXISTING);
+            }
+        }
+
+        zipFile.close();
+    }
+
+    /**
      * <p>Add the contents of dirToZip to a new zip archive. The resulting zip archive will contain dirToZip as its
      * top-level element.</p>
      *
-     * @param zipFile The target zip file to create.
+     * @param zipFile  The target zip file to create.
      * @param dirToZip The directory to be added to the new zip file.
      */
     public static void zip(Path zipFile, Path dirToZip) throws IOException {

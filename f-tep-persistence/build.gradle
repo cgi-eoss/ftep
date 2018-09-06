@@ -27,7 +27,8 @@ dependencies {
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.springframework:spring-test'
     testCompile 'org.springframework.boot:spring-boot-test'
-    testCompile 'org.testcontainers:postgresql'
+    testCompile 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testCompile 'io.zonky.test:embedded-database-spring-test'
 
     testRuntime 'org.hsqldb:hsqldb'
     testRuntime 'org.postgresql:postgresql'

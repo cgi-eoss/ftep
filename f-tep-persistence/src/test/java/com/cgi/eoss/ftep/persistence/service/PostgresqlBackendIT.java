@@ -10,57 +10,32 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import org.junit.ClassRule;
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {PersistenceConfig.class}, initializers = {PostgresqlBackendIT.Initializer.class})
-@TestPropertySource("classpath:test-persistence-postgresql.properties")
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {PersistenceConfig.class})
+@AutoConfigureEmbeddedDatabase
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@DataJpaTest
+@TestPropertySource(properties = {
+        "flyway.locations=db/migration/postgresql",
+        "spring.jpa.hibernate.ddl-auto=validate",
+        "spring.datasource.hikari.autoCommit=false"
+})
 @Transactional
 public class PostgresqlBackendIT {
-
-    private static PostgreSQLContainer postgres;
-
-    @ClassRule
-    public static PostgreSQLContainer init() {
-        // Shortcut if docker socket is not accessible to the current user
-        assumeTrue("Unable to write to Docker socket; disabling Docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
-        // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
-
-        PostgresqlBackendIT.postgres = new PostgreSQLContainer()
-                .withDatabaseName("ftep_v2")
-                .withUsername("ftepdb")
-                .withPassword("ftepdb");
-        return postgres;
-    }
-
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            EnvironmentTestUtils.addEnvironment("testcontainers", configurableApplicationContext.getEnvironment(),
-                    "spring.datasource.url=jdbc:postgresql://" + postgres.getContainerIpAddress() + ":" + postgres.getMappedPort(5432) + "/ftep_v2?stringtype=unspecified",
-                    "spring.datasource.username=ftepdb",
-                    "spring.datasource.password=ftepdb"
-            );
-        }
-    }
 
     @Autowired
     private ServiceDataService serviceDataService;

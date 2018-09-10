@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "ipt.search.ipt.enabled", havingValue = "true", matchIfMissing = true)
 public class IptSearchConfiguration {
 
-    @Value("${ipt.search.ipt.baseUrl:http://finder.eocloud.eu/resto/}")
+    @Value("${ipt.search.ipt.baseUrl:https://finder.eocloud.eu/resto/}")
     private String baseUrl;
 
     @Bean

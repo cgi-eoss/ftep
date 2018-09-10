@@ -61,7 +61,7 @@ public abstract class RestoSearchProvider implements SearchProvider {
                     .links(getLinks(parameters.getRequestUrl(), page, restoResult))
                     .build());
         } catch (Exception e) {
-            LOG.error("Could not perform HTTP request for Resto search", e);
+            LOG.error("Could not perform HTTP request for Resto search at {}", request.url(), e);
             throw e;
         }
     }

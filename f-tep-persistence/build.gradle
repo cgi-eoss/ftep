@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '2.4.3'
+version '2.4.4'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -27,7 +27,8 @@ dependencies {
     testCompile 'org.hamcrest:hamcrest-junit'
     testCompile 'org.springframework:spring-test'
     testCompile 'org.springframework.boot:spring-boot-test'
-    testCompile 'org.testcontainers:postgresql'
+    testCompile 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testCompile 'io.zonky.test:embedded-database-spring-test'
 
     testRuntime 'org.hsqldb:hsqldb'
     testRuntime 'org.postgresql:postgresql'

@@ -5,8 +5,10 @@ import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.stub.StreamObserver;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -126,6 +129,38 @@ public class JobsApiExtension {
                 LOG.debug("Graylog response: {}", response.body());
             }
         }
+    }
+
+    /**
+     * This function executes a custom search on the Graylog search REST API and
+     * return the results mapped into Map<String, Object>.
+     */
+    public Map<String, Object> loadGraylogCustomSearch(String urlPathSegments, Map<String, String> queryParameters) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(graylogApiUrl).newBuilder().addPathSegments(urlPathSegments);
+        queryParameters.forEach(urlBuilder::addQueryParameter);
+        Request request = new Request.Builder()
+                .get()
+                .header("Accept", "application/json")
+                .url(urlBuilder.build())
+                .build();
+        try {
+            Response response = httpClient.newCall(request).execute();
+            if (response.isSuccessful()) {
+                // Map up the JSON into key-value pairs
+                String respBodyString = response.body().string();
+                ObjectMapper mapper = new ObjectMapper();
+                LOG.debug("Body:\n" + respBodyString);
+                return mapper.readValue(respBodyString, new TypeReference<Map<String, Object>>(){});
+            } else {
+                if (response.code() != 503) {
+                    LOG.error("Failed to retrieve custom search results: {} -- {}", response.code(), response.message());
+                }
+                LOG.debug("Graylog response: {}", response.body());
+            }
+        } catch (IOException ioe) {
+            LOG.warn("Unsuccesful mapping on JSON data; reason:\n" + ioe.getMessage());
+        }
+        return Collections.EMPTY_MAP;
     }
 
     @PostMapping("/{jobId}/terminate")

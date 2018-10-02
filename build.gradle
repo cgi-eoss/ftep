@@ -64,6 +64,7 @@ allprojects {
     ext['sshj.version'] = '0.23.0'
     ext['testcontainers.version'] = '1.5.1'
     ext['netty-tcnative-boringssl-static.version'] = '2.0.6.Final'
+    ext['apache-poi.version'] = '3.17'
 
     // Spring BOM versions
     ext['spring-cloud.version'] = 'Edgware.SR3'
@@ -117,6 +118,7 @@ allprojects {
             dependency group: 'it.geosolutions', name: 'geoserver-manager', version: ext['geoserver-manager.version']
             dependency group: 'org.apache.commons', name: 'commons-lang3', version: ext['commons-lang3.version']
             dependency group: 'org.apache.commons', name: 'commons-text', version: ext['commons-text.version']
+            dependency group: 'org.apache.poi', name: 'poi', version: ext['apache-poi.version']
             dependency group: 'org.awaitility', name: 'awaitility', version: ext['awaitility.version']
             dependencySet(group: 'org.geotools', version: ext['geotools.version']) {
                 // project(':third-party/java/jai_core') must be manually included

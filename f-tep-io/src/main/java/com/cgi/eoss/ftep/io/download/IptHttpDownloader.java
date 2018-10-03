@@ -61,8 +61,9 @@ public class IptHttpDownloader implements Downloader {
     private final Properties properties;
     private final ProtocolPriority protocolPriority;
 
-    public IptHttpDownloader(OkHttpClient okHttpClient, int searchTimeout, FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
-        this.httpClient = okHttpClient;
+    public IptHttpDownloader(OkHttpClient okHttpClient, int downloadTimeout, int searchTimeout, FtepServerClient ftepServerClient, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
+        // Use a long timeout as the data access can be slow
+        this.httpClient = okHttpClient.newBuilder().connectTimeout(downloadTimeout, TimeUnit.SECONDS).readTimeout(downloadTimeout, TimeUnit.SECONDS).build();
         // Use a long timeout as the search query takes a while...
         this.searchClient = okHttpClient.newBuilder().readTimeout(searchTimeout, TimeUnit.SECONDS).build();
         this.ftepServerClient = ftepServerClient;

@@ -56,7 +56,8 @@ public class IoConfig {
                 Paths.get(properties.getCache().getBaseDir()),
                 properties.getCache().getConcurrency(),
                 properties.getCache().getMaxWeight(),
-                properties.getDownloader().isUnzipAllDownloads()
+                properties.getDownloader().isUnzipAllDownloads(),
+                properties.getDownloader().getRetryLimit()
         );
     }
 

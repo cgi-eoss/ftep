@@ -28,6 +28,8 @@ public class IoConfigurationProperties {
     @Data
     static class Downloader {
         private boolean unzipAllDownloads = true;
+        private int retryLimit = 5;
+
         private Ceda ceda = new Ceda();
         private IptHttp iptHttp = new IptHttp();
 

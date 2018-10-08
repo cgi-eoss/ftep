@@ -34,8 +34,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.lang.Thread.sleep;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 
 /**
@@ -58,12 +60,13 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
     private final boolean unzipAllDownloads;
     private final LoadingCache<URI, Path> cache;
     private final Set<Downloader> downloaders = new HashSet<>();
+    private final int retryLimit;
 
     public CachingSymlinkDownloaderFacade(Path cacheRoot) {
-        this(cacheRoot, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, true);
+        this(cacheRoot, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_MAX_WEIGHT, true, 1);
     }
 
-    public CachingSymlinkDownloaderFacade(Path cacheRoot, Integer concurrencyLevel, Integer maximumWeight, Boolean unzipAllDownloads) {
+    public CachingSymlinkDownloaderFacade(Path cacheRoot, Integer concurrencyLevel, Integer maximumWeight, Boolean unzipAllDownloads, Integer retryLimit) {
         this.cacheRoot = cacheRoot;
         this.unzipAllDownloads = unzipAllDownloads;
         this.cache = CacheBuilder.newBuilder()
@@ -72,6 +75,7 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
                 .weigher(new GigabyteWeigher())
                 .removalListener(new PathDeletingRemovalListener())
                 .build(new UriCacheLoader());
+        this.retryLimit = retryLimit;
     }
 
     @Override
@@ -262,14 +266,23 @@ public class CachingSymlinkDownloaderFacade implements DownloaderFacade {
             return resolveCacheSymlink(cacheDir).orElse(cacheDir);
         }
 
-        private Path doDownload(Path targetDir, URI uri) {
+        private Path doDownload(Path targetDir, URI uri) throws InterruptedException {
             List<Downloader> availableDownloaders = getAvailableDownloaders(uri);
             for (Downloader downloader : availableDownloaders) {
-                try {
-                    LOG.debug("Attempting download with {} for uri: {}", downloader, uri);
-                    return downloader.download(targetDir, uri);
-                } catch (Exception e) {
-                    LOG.error("Failed to download with {} uri: {}", downloader, uri, e);
+                for (int attempt : IntStream.rangeClosed(1, retryLimit).toArray()) {
+                    LOG.debug("Attempting download with {} (attempt {}) for uri: {}", downloader, attempt, uri);
+                    try {
+                        return downloader.download(targetDir, uri);
+                    } catch (Exception e) {
+                        if (attempt == retryLimit) {
+                            LOG.error("Failed to download with {} for uri {} after {} attempt(s)", downloader, uri, attempt, e);
+                        } else {
+                            long backoff = (long) Math.pow(1.5, attempt) * 1000;
+                            LOG.info("Failed attempt number {} to download resource from {} with {}. Retrying after {}ms", attempt, uri, downloader, backoff);
+                            LOG.info("Exception from attempt: {}", e.toString());
+                            sleep(backoff);
+                        }
+                    }
                 }
             }
             throw new ServiceIoException("No downloader was able to process the URI: " + uri);

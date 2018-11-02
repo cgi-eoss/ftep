@@ -4,8 +4,6 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.orchestrator.service.FtepFileRegistrar;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
-import java.io.IOException;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -23,14 +21,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>Functionality for accessing the F-TEP unifying search facade.</p>
@@ -55,7 +55,8 @@ public class ReportsApi {
     @PostMapping("/updateJobFiles")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public ResponseEntity updateJobFiles() {
-        jobDataService.getAllIds().forEach(this::updateJobFiles);
+        ForkJoinPool jobUpdatePool = new ForkJoinPool(12);
+        jobUpdatePool.submit(() -> jobDataService.getAllIds().forEach(this::updateJobFiles)).join();
         LOG.info("Finished indexing job input files");
         return ResponseEntity.ok().build();
     }

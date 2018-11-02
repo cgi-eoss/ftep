@@ -25,9 +25,12 @@ import java.io.OutputStream;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -38,6 +41,8 @@ import java.util.stream.IntStream;
 @Service
 @Log4j2
 public class ReportsCollector {
+    private static final DateTimeFormatter GRAYLOG_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     // Database connection handler
     private final JobDataService jobDataService;
 
@@ -118,19 +123,19 @@ public class ReportsCollector {
 
         // Fetch data
 
-        String urlPartUploadRefData = "response:201+AND+request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/refData+AND+verb:POST";
-        String urlPartDownloadProdAndRefData = "response:200+AND+request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/*\\/dl";
+        String urlPartUploadRefData = "response:201 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/refData AND verb:POST";
+        String urlPartDownloadProdAndRefData = "response:200 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/*\\/dl";
         Map<String, String> qParamUploadRefData = ImmutableMap.<String, String>builder()
                 .put("fields", "timestamp")
-                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT))
-                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT))
+                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
                 .put("limit", "1000")
                 .put("query", urlPartUploadRefData)
                 .build();
         Map<String, String> qParamDownloadProdAndRefData = ImmutableMap.<String, String>builder()
                 .put("fields", "timestamp")
-                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT))
-                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT))
+                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
                 .put("limit", "1000")
                 .put("query", urlPartDownloadProdAndRefData)
                 .build();

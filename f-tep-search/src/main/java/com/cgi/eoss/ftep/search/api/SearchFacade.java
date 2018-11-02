@@ -101,7 +101,7 @@ public class SearchFacade {
         return productUri;
     }
 
-    private Optional<FtepFile> searchForAndCreateSatelliteProductReference(URI uri) {
+    public Optional<FtepFile> searchForAndCreateSatelliteProductReference(URI uri) {
         // Shortcut return things which are probably not identifiable products
         ImmutableSet<String> genericProtocols = ImmutableSet.of("http", "https", "file", "ftp", "ftep");
         if (Strings.isNullOrEmpty(uri.getPath()) || genericProtocols.contains(uri.getScheme())) {

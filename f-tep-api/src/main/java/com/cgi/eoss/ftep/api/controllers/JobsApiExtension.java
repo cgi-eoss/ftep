@@ -143,8 +143,7 @@ public class JobsApiExtension {
                 .header("Accept", "application/json")
                 .url(urlBuilder.build())
                 .build();
-        try {
-            Response response = httpClient.newCall(request).execute();
+        try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 // Map up the JSON into key-value pairs
                 String respBodyString = response.body().string();
@@ -155,10 +154,10 @@ public class JobsApiExtension {
                 if (response.code() != 503) {
                     LOG.error("Failed to retrieve custom search results: {} -- {}", response.code(), response.message());
                 }
-                LOG.debug("Graylog response: {}", response.body());
+                LOG.debug("Graylog response for URL: {}\n{}", request.url(), response);
             }
         } catch (IOException ioe) {
-            LOG.warn("Unsuccesful mapping on JSON data; reason:\n" + ioe.getMessage());
+            LOG.warn("Unsuccessful mapping on JSON data; reason:\n" + ioe.getMessage());
         }
         return Collections.EMPTY_MAP;
     }

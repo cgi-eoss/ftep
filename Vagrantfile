@@ -8,7 +8,7 @@
 # They may be installed with "vagrant plugin install <plugin>"
 
 Vagrant.configure('2') do |config|
-  config.puppet_install.puppet_version = :latest
+  config.puppet_install.puppet_version = '5.5.7'
 
   config.vm.define 'build', primary: false, autostart: false do |build|
     build.ssh.username = 'ftep'

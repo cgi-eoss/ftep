@@ -19,7 +19,9 @@
                 // Build F-TEP
                 stage('Build F-TEP') {
                     try {
-                        sh "${gradle} build --parallel"
+                        timeout(20) {
+                            sh "${gradle} build --parallel"
+                        }
                     } finally {
                         junit allowEmptyResults: true, testResults: '**/target/test-results/test/TEST-*.xml'
                     }

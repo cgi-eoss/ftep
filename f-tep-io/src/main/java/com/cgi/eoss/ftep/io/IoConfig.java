@@ -6,6 +6,8 @@ import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.io.download.FtepDownloader;
 import com.cgi.eoss.ftep.io.download.FtpDownloader;
 import com.cgi.eoss.ftep.io.download.HttpDownloader;
+import com.cgi.eoss.ftep.io.download.IptEodataServerAuthenticator;
+import com.cgi.eoss.ftep.io.download.IptEodataServerDownloader;
 import com.cgi.eoss.ftep.io.download.IptHttpDownloader;
 import com.cgi.eoss.ftep.io.download.ProtocolPriority;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
@@ -108,6 +110,27 @@ public class IoConfig {
                         .authDomain(iptHttpProperties.getAuthDomain())
                         .build(),
                 ProtocolPriority.builder().overallPriority(iptHttpProperties.getOverallPriority()).build());
+    }
+
+    @Bean
+    public IptEodataServerAuthenticator iptEodataServerAuthenticator(FtepServerClient ftepServerClient) {
+        return new IptEodataServerAuthenticator(ftepServerClient);
+    }
+
+    @Bean
+    public IptEodataServerDownloader iptEodataServerDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, IptEodataServerAuthenticator iptEodataServerAuthenticator, IoConfigurationProperties properties) {
+        IoConfigurationProperties.Downloader.IptEodataServer iptEodataServerProperties = properties.getDownloader().getIptEodataServer();
+        return new IptEodataServerDownloader(
+                okHttpClient,
+                iptEodataServerProperties.getDownloadTimeout(),
+                iptEodataServerProperties.getSearchTimeout(),
+                iptEodataServerAuthenticator,
+                downloaderFacade,
+                IptEodataServerDownloader.Properties.builder()
+                        .iptSearchUrl(iptEodataServerProperties.getIptSearchUrl())
+                        .iptDownloadUrl(iptEodataServerProperties.getDownloadUrlBase())
+                        .build(),
+                ProtocolPriority.builder().overallPriority(iptEodataServerProperties.getOverallPriority()).build());
     }
 
 }

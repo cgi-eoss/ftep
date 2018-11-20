@@ -161,6 +161,7 @@ subprojects {
             sonarqube {
                 properties {
                     property 'sonar.jacoco.reportPaths', "${project.buildDir}/jacoco/test.exec, ${rootProject.buildDir}/jacoco/aggregateCoverage.exec"
+                    property 'sonar.sourceEncoding', 'UTF-8'
                 }
             }
         }

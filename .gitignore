@@ -1,5 +1,6 @@
 .idea/
 *.iml
+.nb-gradle/
 */out/
 .dist/
 .repository/

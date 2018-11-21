@@ -11,11 +11,9 @@ import com.cgi.eoss.ftep.model.Wallet;
 public interface CostingService {
 
     Integer estimateJobCost(JobConfig jobConfig);
-
+    Integer estimateSingleRunJobCost(JobConfig jobConfig);
     Integer estimateDownloadCost(FtepFile download);
 
     void chargeForJob(Wallet wallet, Job job);
-
     void chargeForDownload(Wallet wallet, FtepFile download);
-
 }

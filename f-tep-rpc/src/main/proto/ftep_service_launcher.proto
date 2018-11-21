@@ -9,8 +9,28 @@ option java_package = "com.cgi.eoss.ftep.rpc";
 
 service FtepServiceLauncher {
     rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
-    rpc ListWorkers (ListWorkersParams) returns (WorkersList);
     rpc StopService (StopServiceParams) returns (StopServiceResponse);
+}
+
+service FtepJobLauncher {
+    rpc BuildService (BuildServiceParams) returns (BuildServiceResponse);
+
+    rpc SubmitJob (FtepServiceParams) returns (stream FtepServiceResponse);
+    rpc CancelJob (CancelJobParams) returns (CancelJobResponse);
+    rpc StopJob (StopServiceParams) returns (StopServiceResponse);
+}
+
+service FtepWorkerManager {
+    rpc ListWorkers (ListWorkersParams) returns (WorkersList);
+}
+
+message BuildServiceParams {
+    string userId = 1;
+    string serviceId = 2;
+    string buildFingerprint = 3;
+}
+
+message BuildServiceResponse {
 }
 
 message FtepServiceParams {
@@ -19,6 +39,7 @@ message FtepServiceParams {
     string serviceId = 3;
     repeated JobParam inputs = 4;
     string jobConfigLabel = 5;
+    string jobParent = 6;
 }
 
 message FtepServiceResponse {
@@ -49,4 +70,11 @@ message StopServiceParams {
 }
 
 message StopServiceResponse {
+}
+
+message CancelJobParams {
+    Job job = 1;
+}
+
+message CancelJobResponse {
 }

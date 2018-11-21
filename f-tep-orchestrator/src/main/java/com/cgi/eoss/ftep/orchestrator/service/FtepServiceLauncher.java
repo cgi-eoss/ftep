@@ -171,7 +171,6 @@ public class FtepServiceLauncher extends FtepServiceLauncherGrpc.FtepServiceLaun
         }
     }
 
-    @Override
     public void listWorkers(ListWorkersParams request, StreamObserver<WorkersList> responseObserver) {
         try {
             responseObserver.onNext(workerFactory.listWorkers());

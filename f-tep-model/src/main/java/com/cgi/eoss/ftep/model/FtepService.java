@@ -30,11 +30,11 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"id", "contextFiles"})
 @ToString(exclude = {"serviceDescriptor", "contextFiles"})
 @Table(name = "ftep_services",
-    indexes = {
-        @Index(name = "ftep_services_name_idx", columnList = "name"),
-        @Index(name = "ftep_services_owner_idx", columnList = "owner")
-    },
-    uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
+        indexes = {
+                @Index(name = "ftep_services_name_idx", columnList = "name"),
+                @Index(name = "ftep_services_owner_idx", columnList = "owner")
+        },
+        uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
 public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable {
@@ -110,6 +110,11 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<FtepServiceContextFile> contextFiles = new HashSet<>();
+
+    @Lob
+    @org.hibernate.annotations.Type(type = "com.cgi.eoss.ftep.model.converters.FtepServiceDockerBuildInfoYamlConverter")
+    @Column(name = "docker_build_info")
+    private FtepServiceDockerBuildInfo dockerBuildInfo;
 
     /**
      * <p>Create a new Service with the minimum required parameters.</p>

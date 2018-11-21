@@ -20,7 +20,7 @@ public class IoConfigurationProperties {
 
     @Data
     static class Cache {
-        private String baseDir = "/data/cache/dl";
+        private String baseDir = "/data/dl";
         private int concurrency = 4;
         private int maxWeight = 1024;
     }

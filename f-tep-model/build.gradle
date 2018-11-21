@@ -12,9 +12,9 @@ apply plugin: 'jacoco'
 apply plugin: 'com.ewerk.gradle.plugins.querydsl'
 
 sourceSets {
-    querydsl {
-        resources {
-            srcDirs = []
+    main {
+        java {
+            srcDirs += 'target/generated/java/'
         }
     }
 }

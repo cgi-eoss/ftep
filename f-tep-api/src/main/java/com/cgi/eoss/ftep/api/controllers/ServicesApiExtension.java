@@ -40,10 +40,8 @@ public class ServicesApiExtension {
     public Resources<FtepService> getDefaultServices() {
         // Use the default service list, but retrieve updated objects from the database
         return new Resources<>(DefaultFtepServices.getDefaultServices().stream()
-                .map(s -> serviceDataService.getByName(s.getName()))
-                .collect(Collectors.toList()));
+            .map(s -> serviceDataService.getByName(s.getName())).collect(Collectors.toList()));
     }
-
 
     @GetMapping("/export/available")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
@@ -104,5 +102,4 @@ public class ServicesApiExtension {
 
         Files.write(zipBase.resolve(service.getName() + ".yaml"), service.getServiceDescriptor().toYaml().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
-
 }

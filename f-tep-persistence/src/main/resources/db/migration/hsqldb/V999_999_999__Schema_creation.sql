@@ -40,6 +40,7 @@ CREATE TABLE ftep_services (
   licence        CHARACTER VARYING(255) NOT NULL CHECK (licence IN ('OPEN', 'RESTRICTED')),
   name           CHARACTER VARYING(255) NOT NULL,
   wps_descriptor LONGVARCHAR,
+  docker_build_info LONGVARCHAR,
   status         CHARACTER VARYING(255) NOT NULL CHECK (status IN ('IN_DEVELOPMENT', 'AVAILABLE')),
   type           CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'BULK_PROCESSOR', 'APPLICATION', 'PARALLEL_PROCESSOR')),
   owner          BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
@@ -83,10 +84,11 @@ CREATE UNIQUE INDEX ftep_group_member_user_group_idx
 CREATE TABLE ftep_job_configs (
   id      BIGINT IDENTITY PRIMARY KEY,
   inputs  LONGVARCHAR,
+  parent  BIGINT,
   owner   BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   service BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
   label   CHARACTER VARYING(255),
-  UNIQUE (owner, service, inputs)
+  UNIQUE (owner, service, inputs, parent)
 );
 CREATE INDEX ftep_job_configs_service_idx
   ON ftep_job_configs (service);
@@ -100,12 +102,16 @@ CREATE TABLE ftep_jobs (
   end_time   TIMESTAMP WITHOUT TIME ZONE,
   ext_id     CHARACTER VARYING(255) NOT NULL,
   gui_url    CHARACTER VARYING(255),
+  gui_endpoint CHARACTER VARYING(255),
+  is_parent  BOOLEAN DEFAULT FALSE,
   outputs    LONGVARCHAR,
   stage      CHARACTER VARYING(255),
   start_time TIMESTAMP WITHOUT TIME ZONE,
   status     CHARACTER VARYING(255) NOT NULL CHECK (status IN ('CREATED', 'RUNNING', 'COMPLETED', 'ERROR', 'CANCELLED')),
   job_config BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_job_configs (id),
-  owner      BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid)
+  owner      BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  parent_job_id BIGINT              REFERENCES ftep_jobs (id),
+  worker_id  CHARACTER VARYING(255)
 );
 CREATE UNIQUE INDEX ftep_jobs_ext_id_idx
   ON ftep_jobs (ext_id);
@@ -113,6 +119,9 @@ CREATE INDEX ftep_jobs_job_config_idx
   ON ftep_jobs (job_config);
 CREATE INDEX ftep_jobs_owner_idx
   ON ftep_jobs (owner);
+
+--Reference to parent in job config
+ALTER TABLE ftep_job_configs ADD FOREIGN KEY (parent) REFERENCES ftep_jobs (id);
 
 -- Data sources
 

@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.rpc;
 
+import com.cgi.eoss.ftep.model.FtepService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;

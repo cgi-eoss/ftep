@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.querydsl.core.types.Predicate;
@@ -71,15 +72,21 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob) {
         User owner = userDataService.getByName(ownerId);
         FtepService service = serviceDataService.getByName(serviceId);
 
         JobConfig config = new JobConfig(owner, service);
         config.setLabel(Strings.isNullOrEmpty(jobConfigLabel) ? null : jobConfigLabel);
         config.setInputs(inputs);
+        config.setParent(parentJob);
+        return buildNew(jobConfigDataService.save(config), extId, owner, parentJob);
+    }
 
-        return buildNew(jobConfigDataService.save(config), extId, owner);
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
+        return buildNew(extId, ownerId, serviceId, jobConfigLabel, inputs, null);
     }
 
     @Override
@@ -89,8 +96,7 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         return job;
     }
 
-    private Job buildNew(JobConfig jobConfig, String extId, User owner) {
-        return dao.save(new Job(jobConfig, extId, owner));
+    private Job buildNew(JobConfig jobConfig, String extId, User owner, Job parentJob) {
+        return dao.save(new Job(jobConfig, extId, owner, parentJob));
     }
-
 }

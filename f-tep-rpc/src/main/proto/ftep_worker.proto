@@ -9,6 +9,8 @@ option java_package = "com.cgi.eoss.ftep.rpc.worker";
 
 service FtepWorker {
     rpc PrepareEnvironment (JobInputs) returns (JobEnvironment);
+    rpc PrepareInputs (JobInputs) returns (JobEnvironment);
+    rpc PrepareDockerImage (DockerImageConfig) returns (PrepareDockerImageResponse);
     rpc LaunchContainer (JobDockerConfig) returns (LaunchContainerResponse);
     rpc ExecuteServiceCmd (ServiceCmd) returns (ServiceCmdResponse);
     rpc GetPortBindings (Job) returns (PortBindings);
@@ -20,9 +22,44 @@ service FtepWorker {
     rpc CleanUp (Job) returns (CleanUpResponse);
 }
 
+message JobSpec {
+    Service service = 1;
+    Job job = 2;
+    repeated JobParam inputs = 3;
+    bool hasTimeout = 4;
+    int32 timeoutValue = 5;
+    repeated string exposedPorts = 6;
+    repeated string userBinds = 7;
+    ResourceRequest resourceRequest = 8;
+    map<string, string> environmentVariables = 9;
+}
+
+message ResourceRequest{
+    int32 storage = 1;
+}
+
 message JobInputs {
     Job job = 1;
     repeated JobParam inputs = 2;
+}
+
+message JobEvent{
+    JobEventType jobEventType = 1;
+}
+
+enum JobEventType{
+    DATA_FETCHING_STARTED = 0;
+    DATA_FETCHING_COMPLETED = 1;
+    PROCESSING_STARTED = 2;
+}
+
+message JobError{
+    string errorDescription = 1;
+}
+
+message ContainerExit {
+    int32 exitCode = 1;
+    JobEnvironment jobEnvironment = 2;
 }
 
 message JobEnvironment {
@@ -38,6 +75,12 @@ message JobDockerConfig {
     string dockerImage = 3;
     repeated string binds = 4;
     repeated string ports = 5;
+    map<string, string> environmentVariables = 6;
+}
+
+message DockerImageConfig {
+    string serviceName = 1;
+    string dockerImage = 2;
 }
 
 message LaunchContainerResponse {
@@ -97,6 +140,9 @@ message OutputFileItem {
 message GetOutputFileParam {
     Job job = 1;
     string path = 2;
+}
+
+message PrepareDockerImageResponse {
 }
 
 message CleanUpResponse {

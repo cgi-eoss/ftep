@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.rpc;
 
-
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.springframework.scheduling.annotation.Async;
@@ -13,6 +12,12 @@ public class LocalServiceLauncher {
     }
 
     @Async
+    public void asyncSubmitJob(FtepServiceParams serviceParams, StreamObserver<FtepServiceResponse> responseObserver) {
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.submitJob(serviceParams, responseObserver);
+    }
+
+    @Async
     public void asyncLaunchService(FtepServiceParams serviceParams, StreamObserver<FtepServiceResponse> responseObserver) {
         FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
         serviceLauncher.launchService(serviceParams, responseObserver);
@@ -22,5 +27,23 @@ public class LocalServiceLauncher {
     public void asyncStopService(StopServiceParams stopParams, StreamObserver<StopServiceResponse> responseObserver) {
         FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
         serviceLauncher.stopService(stopParams, responseObserver);
+    }
+
+    @Async
+    public void asyncCancelJob(CancelJobParams cancelJobParams, StreamObserver<CancelJobResponse> responseObserver) {
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.cancelJob(cancelJobParams, responseObserver);
+    }
+
+    @Async
+    public void asyncStopJob(StopServiceParams stopServiceParams, StreamObserver<StopServiceResponse> responseObserver) {
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.stopJob(stopServiceParams, responseObserver);
+    }
+
+    @Async
+    public void asyncBuildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
+        FtepJobLauncherGrpc.FtepJobLauncherStub serviceLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        serviceLauncher.buildService(buildServiceParams, responseObserver);
     }
 }

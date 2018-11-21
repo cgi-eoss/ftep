@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
  * <p>A class for receiving and writing locally a FileStream, utilising flow control.</p>
  * <p>This exposes a {@link CountDownLatch} which will tick once, in the {@link StreamObserver#onCompleted()} and {@link
  * StreamObserver#onError(Throwable)} methods. To retain synchronous behaviour, use
- * <code>fileStreamClient.getLatch().await()</code> after making the gRPC call.</code></p>
+ * <code>fileStreamClient.getLatch().await()</code> after making the gRPC call.</p>
  *
  * @param <T> The gRPC request parameter type. Unused in the default implementation.
  */
@@ -98,5 +98,4 @@ public abstract class FileStreamClient<T extends Message> implements Closeable {
             FileStreamClient.this.outputStream = outputStream;
         }
     }
-
 }

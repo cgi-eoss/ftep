@@ -1,6 +1,9 @@
 package com.cgi.eoss.ftep.model;
 
 import com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,23 +24,17 @@ import java.util.Map;
 public class FtepServiceDescriptor {
 
     private String id;
-
     private String title;
-
     private String description;
-
     private String version;
 
     private boolean storeSupported;
-
     private boolean statusSupported;
 
     private String serviceType;
-
     private String serviceProvider;
 
     private List<Parameter> dataInputs;
-
     private List<Parameter> dataOutputs;
 
     public String toYaml() {
@@ -53,28 +50,25 @@ public class FtepServiceDescriptor {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Parameter {
-
         public enum DataNodeType {
             LITERAL, COMPLEX, BOUNDING_BOX
         }
 
         private String id;
-
         private String title;
-
         private String description;
 
         private int minOccurs;
-
         private int maxOccurs;
 
         private DataNodeType data;
+
+        @JsonInclude(Include.NON_NULL)
+        private String timeRegexp;
 
         private Map<String, String> defaultAttrs;
 
         @Singular
         private List<Map<String, String>> supportedAttrs;
-
     }
-
 }

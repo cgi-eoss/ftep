@@ -6,6 +6,12 @@ option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc";
 option java_outer_classname = "Messages";
 
+message Service {
+    string id = 1;
+    string name = 2;
+    string dockerImageTag = 3;
+}
+
 message Job {
     string id = 1;
     string intJobId = 2;

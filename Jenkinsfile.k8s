@@ -39,7 +39,9 @@ spec:
             steps {
                 gerritReview message: "Starting build: ${BUILD_URL}"
                 container('ftep-build') {
-                    sh "gradle --parallel --configure-on-demand build"
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        sh "gradle --parallel --configure-on-demand build"
+                    }
                 }
             }
             post {
@@ -52,7 +54,9 @@ spec:
         stage('buildDist') {
             steps {
                 container('ftep-build') {
-                    sh "gradle --parallel --configure-on-demand buildDist -pdistribution"
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        sh "gradle --parallel --configure-on-demand buildDist -pdistribution"
+                    }
                 }
             }
         }
@@ -63,8 +67,10 @@ spec:
             }
             steps {
                 container('ftep-build') {
-                    withSonarQubeEnv('CGI CI SonarQube') {
-                        sh "gradle --parallel --configure-on-demand sonarqube"
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        withSonarQubeEnv('CGI CI SonarQube') {
+                            sh "gradle --parallel --configure-on-demand sonarqube"
+                        }
                     }
                 }
             }

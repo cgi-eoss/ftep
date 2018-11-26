@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.metrics;
 
-import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.Role;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;

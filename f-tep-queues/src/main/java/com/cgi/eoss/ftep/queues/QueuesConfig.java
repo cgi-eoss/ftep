@@ -76,7 +76,14 @@ public class QueuesConfig {
     @Bean(name = "brokerService", initMethod = "start", destroyMethod = "stop")
     public BrokerService brokerService() throws Exception {
         if ("vm://embeddedBroker".equals(brokerUrl) && BrokerRegistry.getInstance().lookup("embeddedBroker") == null) {
-            BrokerService broker = new BrokerService();
+            BrokerService broker = new BrokerService() {
+                @Override
+                public void stop() throws Exception {
+                    super.stop();
+                    // Removes Exceptions related to the Queue shutdown chain
+                    waitUntilStopped();
+                }
+            };
             broker.setBrokerName("embeddedBroker");
             broker.setPlugins(new BrokerPlugin[]{new StatisticsBrokerPlugin()});
             broker.setPersistent(false);
@@ -90,6 +97,8 @@ public class QueuesConfig {
             connector.setUri(new URI(brokerUrl));
             broker.addConnector(connector);
             broker.start();
+            // Ensures no calls can reach the Queue before it is fully started up
+            broker.waitUntilStarted();
             return broker;
         } else {
             // The broker will be autocreated by Spring

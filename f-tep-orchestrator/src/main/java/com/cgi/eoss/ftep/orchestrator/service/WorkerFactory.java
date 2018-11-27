@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.persistence.service.WorkerLocatorExpressionDataService;
 import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc.FtepWorkerBlockingStub;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -14,7 +15,9 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.expression.ExpressionParser;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>Service providing access to F-TEP Worker nodes based on environment requests.</p>
@@ -27,6 +30,8 @@ public class WorkerFactory {
     private final ExpressionParser expressionParser;
     private final WorkerLocatorExpressionDataService workerLocatorExpressionDataService;
     private final WorkerLocatorExpression defaultWorkerLocatorExpression;
+
+    private final Map<String, FtepWorkerBlockingStub> workerStubCache = new ConcurrentHashMap<>();
 
     public WorkerFactory(DiscoveryClient discoveryClient, String workerServiceId, ExpressionParser expressionParser, WorkerLocatorExpressionDataService workerLocatorExpressionDataService, String defaultWorkerExpression) {
         this.discoveryClient = discoveryClient;
@@ -61,7 +66,7 @@ public class WorkerFactory {
     /**
      * @return The worker with the specified id
      */
-    public FtepWorkerGrpc.FtepWorkerBlockingStub getWorkerById(String workerId) {
+    private FtepWorkerGrpc.FtepWorkerBlockingStub createStubForWorker(String workerId) {
         LOG.debug("Locating worker with id {}", workerId);
         ServiceInstance worker = discoveryClient.getInstances(workerServiceId).stream()
                 .filter(si -> si.getMetadata().get("workerId").equals(workerId))
@@ -75,6 +80,17 @@ public class WorkerFactory {
                 .build();
 
         return FtepWorkerGrpc.newBlockingStub(managedChannel);
+    }
+
+    public FtepWorkerBlockingStub getWorkerById(String workerId) {
+        FtepWorkerBlockingStub existingWorkerStub = workerStubCache.get(workerId);
+        if (existingWorkerStub != null) {
+            return existingWorkerStub;
+        } else {
+            FtepWorkerBlockingStub newWorkerStub = createStubForWorker(workerId);
+            workerStubCache.put(workerId, newWorkerStub);
+            return newWorkerStub;
+        }
     }
 
     /**

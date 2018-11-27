@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.util;
 
+import lombok.extern.log4j.Log4j2;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
@@ -33,6 +34,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@Log4j2
 public class FtepWebClient {
 
     private static final String API_BASE = "/secure/api/v2.0";
@@ -124,7 +126,7 @@ public class FtepWebClient {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.error("Thread Interrupted: {}", e);
             }
             Point finalLocation = ((Locatable) element).getCoordinates().inViewPort();
             return initialLocation.equals(finalLocation);

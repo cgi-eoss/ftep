@@ -12,13 +12,13 @@ public class LocalServiceLauncher {
     }
 
     @Async
-    public void asyncSubmitJob(FtepServiceParams serviceParams, StreamObserver<FtepServiceResponse> responseObserver) {
+    public void asyncSubmitJob(FtepServiceParams serviceParams, StreamObserver<FtepJobResponse> responseObserver) {
         FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
         jobLauncher.submitJob(serviceParams, responseObserver);
     }
 
     @Async
-    public void asyncLaunchService(FtepServiceParams serviceParams, StreamObserver<FtepServiceResponse> responseObserver) {
+    public void asyncLaunchService(FtepServiceParams serviceParams, StreamObserver<FtepJobResponse> responseObserver) {
         FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
         jobLauncher.launchService(serviceParams, responseObserver);
     }

@@ -34,12 +34,12 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"id", "parent"})
 @ToString(exclude = {"inputs", "parent"})
 @Table(name = "ftep_job_configs",
-    indexes = {
-        @Index(name = "ftep_job_configs_service_idx", columnList = "service"),
-        @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"),
-        @Index(name = "ftep_job_configs_label_idx", columnList = "label")
-    },
-    uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs", "parent"}))
+        indexes = {
+                @Index(name = "ftep_job_configs_service_idx", columnList = "service"),
+                @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"),
+                @Index(name = "ftep_job_configs_label_idx", columnList = "label")
+        },
+        uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs", "parent"}))
 @NoArgsConstructor
 @Entity
 public class JobConfig implements FtepEntityWithOwner<JobConfig> {
@@ -86,6 +86,12 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
      */
     @Column(name = "label")
     private String label;
+
+    /**
+     * <p>Tag and identify parameter that will be dynamically getting values.</p>
+     */
+    @Column(name = "systematic_parameter")
+    private String systematicParameter;
 
     /**
      * <p>The FtepFiles required as job inputs.</p>

@@ -20,8 +20,8 @@ import javax.sql.DataSource;
 @Configuration
 @ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = false)
 @EnableJpaRepositories(basePackageClasses = QueueMetricsRepository.class,
-    entityManagerFactoryRef = "queueMetricsEntityManager",
-    transactionManagerRef = "queueMetricsTransactionManager")
+        entityManagerFactoryRef = "queueMetricsEntityManager",
+        transactionManagerRef = "queueMetricsTransactionManager")
 @EntityScan(basePackageClasses = QueueMetric.class)
 public class QueueMetricsPersistenceConfig {
 

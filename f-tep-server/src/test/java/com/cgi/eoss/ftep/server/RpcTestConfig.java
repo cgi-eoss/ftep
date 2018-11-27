@@ -10,11 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import static org.mockito.Mockito.mock;
 
 @Configuration
-// TODO Use grpc-starter in-process server
-//@TestPropertySource(properties = {
-//        "grpc.enabled=false",
-//        "grpc.inProcessServerName=RpcTestConfig"
-//})
 public class RpcTestConfig {
 
     @Bean
@@ -31,5 +26,4 @@ public class RpcTestConfig {
     public ManagedChannelBuilder channelBuilder() {
         return InProcessChannelBuilder.forName(getClass().getName()).directExecutor();
     }
-
 }

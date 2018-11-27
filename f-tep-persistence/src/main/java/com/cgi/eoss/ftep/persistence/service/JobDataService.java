@@ -21,5 +21,5 @@ public interface JobDataService extends FtepEntityDataService<Job> {
 
     Job updateJobConfig(Job job);
 
-    Job reload(Long id); // Peter would remove it
+    Job reload(Long id); // It is used at JobStatus updates
 }

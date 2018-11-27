@@ -1,12 +1,16 @@
 package com.cgi.eoss.ftep.worker;
 
 import com.cgi.eoss.ftep.clouds.CloudsConfig;
+import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.IoConfig;
 import com.cgi.eoss.ftep.queues.QueuesConfig;
-import com.cgi.eoss.ftep.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
+import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,16 +24,18 @@ import java.nio.file.Paths;
 
 @Configuration
 @ComponentScan(
-        basePackageClasses = {WorkerConfig.class},
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FtepWorkerApplication.class)
+    basePackageClasses = {WorkerConfig.class},
+    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FtepWorkerApplication.class)
 )
 @Import({
-        CloudsConfig.class,
-        IoConfig.class,
-        QueuesConfig.class
+    CloudsConfig.class,
+    InProcessRpcConfig.class,
+    IoConfig.class,
+    QueuesConfig.class
 })
 @EnableEurekaClient
 @EnableScheduling
+@Log4j2
 public class WorkerConfig {
 
     @Bean
@@ -65,13 +71,18 @@ public class WorkerConfig {
         return maxJobsPerNode;
     }
 
+    // The cloud node manager that replaces the use of the NodeFactory
     @Bean
-    public Integer cacheConcurrencyLevel(@Value("${ftep.worker.cache.concurrency:4}") int concurrencyLevel) {
-        return concurrencyLevel;
+    public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory, @Qualifier("cacheRoot") Path dataBaseDir, @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {
+        return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxJobsPerNode);
     }
 
     @Bean
-    public FtepServerClient ftepServerClient(DiscoveryClient discoveryClient, @Value("${ftep.worker.server.eurekaServiceId:f-tep server}") String ftepServerServiceId) {
-        return new FtepServerClient(discoveryClient, ftepServerServiceId);
+    @ConditionalOnProperty("ftep.worker.dockerRegistryUrl")
+    public DockerRegistryConfig dockerRegistryConfig(
+            @Value("${ftep.worker.dockerRegistryUrl}") String dockerRegistryUrl,
+            @Value("${ftep.worker.dockerRegistryUsername}") String dockerRegistryUsername,
+            @Value("${ftep.worker.dockerRegistryPassword}") String dockerRegistryPassword) {
+        return new DockerRegistryConfig(dockerRegistryUrl, dockerRegistryUsername, dockerRegistryPassword);
     }
 }

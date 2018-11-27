@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.rpc;
 
+import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
@@ -37,5 +38,10 @@ public class LocalWorker {
     public ContainerExitCode waitForContainerExit(ExitParams request) {
         FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.waitForContainerExit(request);
+    }
+
+    public CleanUpResponse cleanUp(Job request) {
+        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
+        return worker.cleanUp(request);
     }
 }

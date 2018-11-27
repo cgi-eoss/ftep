@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
 @Log4j2
 public class JobsApiExtension {
 
-    // TODO Make configurable
     @Value("${ftep.api.logs.graylogApiQuery:contextStack%3A%22%5BIn-Docker%2C%20F-TEP%20Worker%5D%22%20AND%20zooId%3A@{zooId}}")
     private String dockerJobLogQuery;
 

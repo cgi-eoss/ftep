@@ -14,12 +14,15 @@ import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
-import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.worker.FtepWorkerApplication;
+import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
+import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
 
 import com.google.common.collect.ImmutableList;
@@ -28,6 +31,11 @@ import com.google.common.io.MoreFiles;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -44,12 +52,6 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -61,11 +63,16 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = {
         FtepServerApplicationTest.FtepServerApplicationTestConfig.class
 })
+@Configuration
+@Import({
+        FtepWorkerApplication.class,
+        WorkerConfig.class
+})
 @TestPropertySource
 public class FtepServerApplicationTest {
     private static final String SERVICE_NAME = "service1";
-
     private static final User TESTUSER = new User("testuser");
+    private static final UUID FTEP_JOB_ID = UUID.randomUUID();
 
     @Autowired
     private InProcessServerBuilder serverBuilder;
@@ -81,6 +88,9 @@ public class FtepServerApplicationTest {
 
     @Autowired
     private ServiceDataService serviceDataService;
+
+    @Autowired
+    private FtepWorkerNodeManager nodeManager;
 
     @MockBean
     private WorkerFactory workerFactory;
@@ -149,7 +159,7 @@ public class FtepServerApplicationTest {
         when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
 
         serverBuilder.addService(ftepJobLauncher);
-        serverBuilder.addService(new FtepWorker(nodeFactory, new JobEnvironmentService(workspace), ioManager, 1));
+        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1));
         server = serverBuilder.build().start();
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
@@ -159,12 +169,10 @@ public class FtepServerApplicationTest {
         FtepService testservice = new FtepService(SERVICE_NAME, owner, "test/testservice1");
         FtepServiceDescriptor serviceDescriptor = new FtepServiceDescriptor();
         serviceDescriptor.setDataOutputs(ImmutableList.of(FtepServiceDescriptor.Parameter.builder().id("output").build()));
-
         testservice.setServiceDescriptor(serviceDescriptor);
-
-        when(restoService.ingestOutputProduct(any())).thenReturn(UUID.randomUUID());
-
         serviceDataService.save(testservice);
+
+        when(restoService.ingestOutputProduct(any())).thenReturn(FTEP_JOB_ID);
     }
 
     @After
@@ -175,9 +183,10 @@ public class FtepServerApplicationTest {
     @Test
     public void test() {
         FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
-        Iterator<FtepServiceResponse> serviceResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
+        Iterator<FtepJobResponse> jobResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
                 .setServiceId(SERVICE_NAME)
                 .setUserId(TESTUSER.getName())
+                .setJobId(String.valueOf(FTEP_JOB_ID))
                 .addAllInputs(GrpcUtil.mapToParams(
                         ImmutableMultimap.<String, String>builder()
                                 .put("inputKey1", "inputVal1")
@@ -186,9 +195,9 @@ public class FtepServerApplicationTest {
                 ))
                 .build());
 
-        Job job = serviceResponseIterator.next().getJob();
+        Job job = jobResponseIterator.next().getJob();
         assertThat(job, is(notNullValue()));
-        FtepServiceResponse.JobOutputs jobOutputs = serviceResponseIterator.next().getJobOutputs();
+        FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
         assertThat(jobOutputs, is(notNullValue()));
     }
 }

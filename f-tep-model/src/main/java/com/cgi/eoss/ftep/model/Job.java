@@ -37,11 +37,11 @@ import java.util.Set;
 @ToString(exclude = {"parentJob"})
 @EqualsAndHashCode(exclude = {"id", "subJobs"})
 @Table(name = "ftep_jobs",
-    indexes = {
-        @Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"),
-        @Index(name = "ftep_jobs_owner_idx", columnList = "owner")
-    },
-    uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
+        indexes = {
+                @Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"),
+                @Index(name = "ftep_jobs_owner_idx", columnList = "owner")
+        },
+        uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
 @NoArgsConstructor
 @Entity
 public class Job implements FtepEntityWithOwner<Job> {

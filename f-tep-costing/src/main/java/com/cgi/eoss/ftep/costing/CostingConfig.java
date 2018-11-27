@@ -15,8 +15,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Configuration
 @Import({
-    PropertyPlaceholderAutoConfiguration.class,
-    PersistenceConfig.class
+        PropertyPlaceholderAutoConfiguration.class,
+        PersistenceConfig.class
 })
 public class CostingConfig {
 

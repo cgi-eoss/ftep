@@ -9,9 +9,9 @@ option java_package = "com.cgi.eoss.ftep.rpc";
 
 service FtepJobLauncher {
     rpc BuildService (BuildServiceParams) returns (BuildServiceResponse);
-    rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
+    rpc LaunchService (FtepServiceParams) returns (stream FtepJobResponse);
 
-    rpc SubmitJob (FtepServiceParams) returns (stream FtepServiceResponse);
+    rpc SubmitJob (FtepServiceParams) returns (stream FtepJobResponse);
     rpc CancelJob (CancelJobParams) returns (CancelJobResponse);
     rpc StopJob (StopServiceParams) returns (StopServiceResponse);
 }
@@ -39,6 +39,16 @@ message FtepServiceParams {
 }
 
 message FtepServiceResponse {
+    message JobOutputs {
+        repeated JobParam outputs = 1;
+    }
+    oneof Payload {
+        Job job = 1;
+        JobOutputs jobOutputs = 2;
+    }
+}
+
+message FtepJobResponse {
     message JobOutputs {
         repeated JobParam outputs = 1;
     }

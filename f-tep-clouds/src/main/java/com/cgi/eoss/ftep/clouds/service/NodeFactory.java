@@ -21,6 +21,12 @@ public interface NodeFactory {
     Node provisionNode(Path environmentBaseDir);
 
     /**
+     * <p>Provision a Node suitable for running F-TEP services with Docker.
+     * Sets a custom tag and dataBaseDir.</p>
+     */
+    Node provisionNode(String tag, Path environmentBaseDir, Path dataBaseDir) throws NodeProvisioningException;
+
+    /**
      * <p>Tear down the given node, releasing its resources.</p>
      */
     void destroyNode(Node node);
@@ -31,8 +37,15 @@ public interface NodeFactory {
     Set<Node> getCurrentNodes();
 
     /**
+     * <p>Return the current set of provisioned nodes identified by the given tag and managed by this factory.</p>
+     */
+    Set<Node> getCurrentNodes(String tag);
+
+    /**
      * <p>Get current available and in-use node statistics.</p>
      */
     NodePoolStatus getNodePoolStatus();
 
+    String allocateStorageForNode(Node node, int storageGB, String mountPoint) throws StorageProvisioningException;
+    void removeStorageForNode(Node node, String storageId) throws StorageProvisioningException;
 }

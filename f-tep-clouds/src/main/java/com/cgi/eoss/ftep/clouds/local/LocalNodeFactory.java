@@ -3,12 +3,16 @@ package com.cgi.eoss.ftep.clouds.local;
 import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.clouds.service.NodePoolStatus;
+
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 /**
@@ -22,7 +26,6 @@ public class LocalNodeFactory implements NodeFactory {
     private final Set<Node> currentNodes = new HashSet<>();
 
     private final int maxPoolSize;
-
     private final String dockerHostUrl;
 
     public LocalNodeFactory(int maxPoolSize, String dockerHostUrl) {
@@ -32,7 +35,7 @@ public class LocalNodeFactory implements NodeFactory {
 
     @Override
     public Node provisionNode(Path environmentBaseDir) {
-        // TODO Check against maxPoolSize
+        // TODO - Check against maxPoolSize
         LOG.info("Provisioning LOCAL node");
         Node node = Node.builder()
                 .id(UUID.randomUUID().toString())
@@ -41,6 +44,39 @@ public class LocalNodeFactory implements NodeFactory {
                 .build();
         currentNodes.add(node);
         return node;
+    }
+
+    @Override
+    public Node provisionNode(String tag, Path environmentBaseDir, Path dataBaseDir) {
+        LOG.info("Provisioning LOCAL node");
+        Node node = Node.builder()
+                .id(UUID.randomUUID().toString())
+                .name("LOCAL node")
+                .tag(tag)
+                .creationEpochSecond(Instant.now().getEpochSecond())
+                .dockerEngineUrl(dockerHostUrl)
+                .build();
+        currentNodes.add(node);
+        return node;
+    }
+
+    @Override
+    public Set<Node> getCurrentNodes(String tag) {
+        try {
+            return currentNodes.stream().filter(node -> node.getTag().equals(tag)).collect(Collectors.toSet());
+        } catch (NullPointerException npe) {
+            return Collections.EMPTY_SET;
+        }
+    }
+
+    @Override
+    public String allocateStorageForNode(Node jobNode, int storage, String mountPoint) {
+        return "";
+    }
+
+    @Override
+    public void removeStorageForNode(Node node, String storageId) {
+        // Not yet supported
     }
 
     @Override
@@ -56,5 +92,4 @@ public class LocalNodeFactory implements NodeFactory {
                 .used(currentNodes.size())
                 .build();
     }
-
 }

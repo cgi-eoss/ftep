@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.clouds.service.Node;
-import com.cgi.eoss.ftep.clouds.service.NodeFactory;
+import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.logging.Logging;
@@ -87,7 +87,7 @@ import java.util.stream.Stream;
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    private final NodeFactory nodeFactory;
+    private final FtepWorkerNodeManager nodeManager;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
 
@@ -105,8 +105,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final int minWorkerNodes;
 
     @Autowired
-    public FtepWorker(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes) {
-        this.nodeFactory = nodeFactory;
+    public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes) {
+        this.nodeManager = nodeManager;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
         this.minWorkerNodes = minWorkerNodes;
@@ -114,7 +114,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     @PostConstruct
     public void allocateMinNodes() {
-        // TODO determine current node count, start nodes if necessary
+        int currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG).size();
+        if (currentNodes < minWorkerNodes) {
+            try {
+                nodeManager.provisionNodes(minWorkerNodes - currentNodes, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
+            } catch (NodeProvisioningException e) {
+                LOG.error("Failed initial node provisioning: {}", e.getMessage());
+            }
+        }
     }
 
     private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
@@ -130,15 +137,27 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
             try {
-                Node node = nodeFactory.provisionNode(jobEnvironmentService.getBaseDir());
-                DockerClient dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
-                jobNodes.put(jobId, node);
-                jobClients.put(jobId, dockerClient);
-            } catch (Exception e) {
-                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                    LOG.error("Failed to prepare Docker context: {}", e.getMessage());
+                Node node = null;
+                if (!nodeManager.reserveNodeForJob(jobId)) {
+                    node = nodeManager.provisionNodeForJob(jobEnvironmentService.getBaseDir(), jobId);
                 }
-                LOG.error("Failed to prepare Docker context for {}", jobId, e);
+                try {
+                    if (null == node) {
+                        node = nodeManager.getJobNode(jobId);
+                    }
+                    LOG.info("docker URL for Node: " + node.getDockerEngineUrl());
+                    DockerClient dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
+                    jobNodes.putIfAbsent(jobId, node);
+                    jobClients.putIfAbsent(jobId, dockerClient);
+                } catch (Exception e) {
+                    try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                        LOG.error("Failed to prepare Docker context: {}", e.getMessage());
+                    }
+                    LOG.error("Failed to prepare Docker context for {}", jobId, e);
+                    responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
+                }
+            } catch (NodeProvisioningException e) {
+                LOG.error("Failed to provision Node for the task {}", jobId, e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
             try {
@@ -174,7 +193,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                     LOG.error("Failed to prepare job inputs: {}", e.getMessage());
                 }
                 LOG.error("Failed to prepare job inputs for {}", jobId, e);
-                cleanUpJob(jobId);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
@@ -232,7 +250,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 LOG.error("Failed to launch Docker container {}", request.getDockerImage(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
-                    cleanUpJob(jobId);
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -267,7 +284,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             } catch (Exception e) {
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
-                    cleanUpJob(request.getId());
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -292,9 +308,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             } catch (Exception e) {
                 LOG.error("Failed to stop job: {}", request.getId(), e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
-            } finally {
-                removeContainer(dockerClient, containerId);
-                cleanUpJob(request.getId());
             }
         }
     }
@@ -318,7 +331,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             } finally {
                 removeContainer(dockerClient, containerId);
-                cleanUpJob(jobId);
             }
         }
     }
@@ -348,7 +360,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             } finally {
                 removeContainer(dockerClient, containerId);
-                cleanUpJob(jobId);
             }
         }
     }
@@ -418,26 +429,24 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void cleanUp(Job job, StreamObserver<CleanUpResponse> responseObserver) {
+    public void cleanUp(com.cgi.eoss.ftep.rpc.Job job, io.grpc.stub.StreamObserver<com.cgi.eoss.ftep.rpc.worker.CleanUpResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
-            LOG.info("Clean up requested for job {}", job.getId());
-            cleanUpJob(job.getId());
+            String jobId = job.getId();
+            LOG.info("Clean up requested for job {}", jobId);
+            jobContainers.remove(jobId);
+            jobClients.remove(jobId);
+            Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
+            Optional.ofNullable(jobNodes.remove(jobId));
+            nodeManager.releaseJobNode(jobId);
+            Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
+            LOG.debug("Finished job URIs: {}", finishedJobInputs);
+            Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
+            LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
+            inputOutputManager.cleanUp(unusedUris);
         } finally {
             responseObserver.onNext(CleanUpResponse.newBuilder().build());
             responseObserver.onCompleted();
         }
-    }
-
-    private void cleanUpJob(String jobId) {
-        jobContainers.remove(jobId);
-        jobClients.remove(jobId);
-        Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
-        Optional.ofNullable(jobNodes.remove(jobId)).ifPresent(nodeFactory::destroyNode);
-        Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
-        LOG.debug("Finished job URIs: {}", finishedJobInputs);
-        Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
-        LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
-        inputOutputManager.cleanUp(unusedUris);
     }
 
     private void destroyEnvironment(com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment) {

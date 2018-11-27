@@ -1,5 +1,3 @@
-
-
 buildscript {
     dependencies {
         classpath pl.osPackage
@@ -127,4 +125,3 @@ sonarqube {
         property "sonar.exclusions", "src/main/resources/app/scripts/vendor/**/*"
     }
 }
-

@@ -36,6 +36,11 @@ public class InProcessRpcConfig {
         return new LocalServiceLauncher(inProcessChannelBuilder);
     }
 
+    @Bean
+    public LocalWorker localWorker(ManagedChannelBuilder inProcessChannelBuilder) {
+        return new LocalWorker(inProcessChannelBuilder);
+    }
+
     private static final class InProcessRpcServer {
 
         private final Server server;

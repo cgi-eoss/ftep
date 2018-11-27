@@ -1,8 +1,8 @@
 package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
-import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 
@@ -39,7 +39,6 @@ public class FtepServicesClient {
      */
     public FtepServicesClient(String host, int port) {
         // TLS is unused since this should only be active in the F-TEP infrastructure, i.e. not public
-        // TODO Investigate feasibility of certificate security
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
     }
 
@@ -77,14 +76,14 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        Iterator<FtepServiceResponse> responseIterator = ftepJobLauncherBlockingStub.submitJob(request);
+        Iterator<FtepJobResponse> responseIterator = ftepJobLauncherBlockingStub.submitJob(request);
 
         // First message is the persisted job metadata
         Job jobInfo = responseIterator.next().getJob();
         LOG.info("Instantiated job: {}", jobInfo);
 
         // Second message is the outputs
-        FtepServiceResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
+        FtepJobResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
         return GrpcUtil.paramsListToMap(jobOutputs.getOutputsList());
     }
 
@@ -94,7 +93,7 @@ public class FtepServicesClient {
     @SuppressWarnings("unchecked")
     public static int launch(String serviceId, HashMap conf, HashMap inputs, HashMap outputs) {
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("ZOO entry point")) {
-            Map<String, String> ftepConf = (Map<String, String>) conf.get("ftep");
+            Map<String, String> ftepConf = (HashMap<String, String>) conf.get("ftep");
 
             String jobIdKey = ftepConf.getOrDefault("zooConfKeyJobId", "uusid");
             String usernameHeaderKey = ftepConf.getOrDefault("zooConfKeyUsernameHeader", "HTTP_REMOTE_USER");
@@ -125,7 +124,6 @@ public class FtepServicesClient {
 
             FtepServicesClient client = new FtepServicesClient(ftepServerHost, ftepServerPort);
 
-            // TODO Translate ftep:// internal URLs for external users
             Multimap<String, String> result = client.launchService(userId, serviceId, jobId, inputParams);
 
             LOG.info("Received result for job {}: {}", jobId, result);

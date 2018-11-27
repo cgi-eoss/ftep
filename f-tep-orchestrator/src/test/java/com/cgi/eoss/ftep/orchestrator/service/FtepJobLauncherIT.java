@@ -28,5 +28,4 @@ public class FtepJobLauncherIT {
     public void test() {
         assertThat(ftepJobLauncher, is(notNullValue()));
     }
-
 }

@@ -38,7 +38,7 @@ dependencies {
     runtime 'org.postgresql:postgresql'
 
     testCompile project(':f-tep-worker')
-
+    testCompile 'org.apache.activemq:activemq-kahadb-store'
     testCompile 'com.aries:docker-java-shaded'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 }

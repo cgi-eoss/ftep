@@ -100,7 +100,7 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         return dao.save(new Job(jobConfig, extId, owner, parentJob));
     }
 
-    @Override // Peter would remove it
+    @Override // It is used at JobStatus updates
     public Job reload(Long id) {
         Job job = getById(id);
         job.getOwner().getGroups().size();

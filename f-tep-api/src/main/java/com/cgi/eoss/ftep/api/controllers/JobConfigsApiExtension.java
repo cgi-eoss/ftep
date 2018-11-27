@@ -176,9 +176,11 @@ public class JobConfigsApiExtension {
 
         @Override
         public void onNext(FtepJobResponse value) {
-            this.intJobId = Long.parseLong(value.getJob().getIntJobId());
-            LOG.info("Received job ID: {}", this.intJobId);
-            latch.countDown();
+            if (latch.getCount() != 0) {
+                this.intJobId = Long.parseLong(value.getJob().getIntJobId());
+                LOG.info("Received job ID: {}", this.intJobId);
+                latch.countDown();
+            }
         }
 
         @Override

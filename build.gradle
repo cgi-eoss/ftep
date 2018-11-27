@@ -67,7 +67,7 @@ allprojects {
     ext['testcontainers.version'] = '1.5.1'
     ext['netty-tcnative-boringssl-static.version'] = '2.0.6.Final'
     ext['apache-poi.version'] = '3.17'
-    ext['activemq.version'] = '5.15.8'
+    ext['activemq.version'] = '5.14.5'
 
     // Spring BOM versions
     ext['spring-cloud.version'] = 'Edgware.SR5'
@@ -116,6 +116,7 @@ allprojects {
                 entry 'grpc-netty'
                 entry 'grpc-protobuf'
                 entry 'grpc-stub'
+                entry 'grpc-testing'
                 entry 'protoc-gen-grpc-java'
             }
             dependency group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: ext['netty-tcnative-boringssl-static.version']
@@ -125,8 +126,11 @@ allprojects {
             dependency group: 'org.apache.commons', name: 'commons-lang3', version: ext['commons-lang3.version']
             dependency group: 'org.apache.commons', name: 'commons-text', version: ext['commons-text.version']
             dependency group: 'org.apache.poi', name: 'poi', version: ext['apache-poi.version']
-            dependency group: 'org.apache.activemq', name: 'activemq-pool', version: ext['activemq.version']
-            dependency group: 'org.apache.activemq', name: 'activemq-kahadb-store', version: ext['activemq.version']
+            dependencySet(group: 'org.apache.activemq', version: ext['activemq.version']) {
+                entry 'activemq-kahadb-store'
+//                entry 'activemq-optional'
+                entry 'activemq-pool'
+            }
             dependency group: 'org.awaitility', name: 'awaitility', version: ext['awaitility.version']
             dependencySet(group: 'org.geotools', version: ext['geotools.version']) {
                 // project(':third-party/java/jai_core') must be manually included

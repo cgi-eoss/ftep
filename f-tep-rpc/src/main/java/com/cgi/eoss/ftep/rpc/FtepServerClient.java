@@ -7,9 +7,27 @@ import io.grpc.ManagedChannelBuilder;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 public class FtepServerClient {
     private final DiscoveryClient discoveryClient;
     private final String ftepServerServiceId;
+    private final Supplier<ManagedChannel> channel =
+            new Supplier<ManagedChannel>() {
+                ManagedChannel value;
+
+                @Override
+                public ManagedChannel get() {
+                    return Optional.ofNullable(value).orElseGet(() -> {
+                        ServiceInstance ftepServer = Iterables.getOnlyElement(discoveryClient.getInstances(ftepServerServiceId));
+
+                        return ManagedChannelBuilder.forAddress(ftepServer.getHost(), Integer.parseInt(ftepServer.getMetadata().get("grpcPort")))
+                                .usePlaintext(true)
+                                .build();
+                    });
+                }
+            };
 
     public FtepServerClient(DiscoveryClient discoveryClient, String ftepServerServiceId) {
         this.discoveryClient = discoveryClient;
@@ -17,27 +35,19 @@ public class FtepServerClient {
     }
 
     public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub() {
-        return ServiceContextFilesServiceGrpc.newBlockingStub(getChannel());
+        return ServiceContextFilesServiceGrpc.newBlockingStub(channel.get());
     }
 
     public CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsServiceBlockingStub() {
-        return CredentialsServiceGrpc.newBlockingStub(getChannel());
+        return CredentialsServiceGrpc.newBlockingStub(channel.get());
     }
 
     public CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueServiceBlockingStub() {
-        return CatalogueServiceGrpc.newBlockingStub(getChannel());
+        return CatalogueServiceGrpc.newBlockingStub(channel.get());
     }
 
     public CatalogueServiceGrpc.CatalogueServiceStub catalogueServiceStub() {
-        return CatalogueServiceGrpc.newStub(getChannel());
-    }
-
-    private ManagedChannel getChannel() {
-        ServiceInstance ftepServer = Iterables.getOnlyElement(discoveryClient.getInstances(ftepServerServiceId));
-
-        return ManagedChannelBuilder.forAddress(ftepServer.getHost(), Integer.parseInt(ftepServer.getMetadata().get("grpcPort")))
-                .usePlaintext(true)
-                .build();
+        return CatalogueServiceGrpc.newStub(channel.get());
     }
 
 }

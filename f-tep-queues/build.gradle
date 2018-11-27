@@ -5,7 +5,6 @@ apply plugin: 'java'
 apply plugin: 'jacoco'
 
 dependencies {
-
     compileOnly 'org.projectlombok:lombok'
 
     compile 'org.springframework.boot:spring-boot-starter-activemq'

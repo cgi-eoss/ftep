@@ -16,7 +16,6 @@ import com.cgi.eoss.ftep.rpc.worker.JobEventType;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
-
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * <p>Service for executing F-TEP (WPS) services inside Docker containers.</p>
@@ -44,7 +45,7 @@ public class FtepWorkerDispatcher {
     private final FtepWorkerNodeManager nodeManager;
 
     private static final long QUEUE_SCHEDULER_INTERVAL_MS = 10L * 1000L;
-    private static final SecureRandom random = new SecureRandom();
+    private static final Function<String, String> RANDOM_DIR_NAME = prefix -> prefix + UUID.randomUUID();
 
     @Autowired
     public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker, @Qualifier("workerId") String workerId, FtepWorkerNodeManager nodeManager) {
@@ -56,18 +57,33 @@ public class FtepWorkerDispatcher {
 
     @Scheduled(fixedRate = QUEUE_SCHEDULER_INTERVAL_MS, initialDelay = 10000L)
     public void getNewJobs() {
-        while (nodeManager.hasCapacity()) {
-            LOG.debug("Checking for available jobs in the queue");
-            JobSpec nextJobSpec = (JobSpec) queueService.receiveObjectWithTimeout(FtepQueueService.jobQueueName, 100);
-            if (nextJobSpec != null) {
-                LOG.info("Dequeued job {}", nextJobSpec.getJob().getId());
-                nodeManager.reserveNodeForJob(nextJobSpec.getJob().getId());
-                Thread t = new Thread(new JobExecutor(nextJobSpec, queueService));
-                t.start();
+        LOG.debug("Checking for available jobs in the queue");
+        long queueLength = queueService.getQueueLength(FtepQueueService.jobQueueName);
+        if (queueLength > 0) {
+            LOG.debug("Found {} queued jobs, checking for available node capacity", queueLength);
+            if (nodeManager.hasCapacity()) {
+                consumeJobQueue();
             } else {
-                LOG.debug("Job queue currently empty");
+                LOG.debug("No nodes have capacity to execute queued jobs");
             }
+        } else {
+            LOG.debug("Job queue currently empty");
         }
+    }
+
+    private void consumeJobQueue() {
+        LOG.debug("Consuming job queue until no remaining node capacity or queue is empty");
+        JobSpec nextJobSpec;
+        while (nodeManager.hasCapacity() && (nextJobSpec = getNextJobSpec()) != null) {
+            LOG.info("Dequeued job {}", nextJobSpec.getJob().getId());
+            nodeManager.reserveNodeForJob(nextJobSpec.getJob().getId());
+            Thread t = new Thread(new JobExecutor(nextJobSpec, queueService));
+            t.start();
+        }
+    }
+
+    private JobSpec getNextJobSpec() {
+        return (JobSpec) queueService.receiveObjectWithTimeout(FtepQueueService.jobQueueName, 100);
     }
 
     public interface JobUpdateListener {
@@ -92,7 +108,6 @@ public class FtepWorkerDispatcher {
         public void jobUpdate(Object object) {
             queueService.sendObject(FtepQueueService.jobUpdatesQueueName, messageHeaders, object);
         }
-
     }
 
     // Entry point after Job is dequeued
@@ -126,15 +141,15 @@ public class FtepWorkerDispatcher {
                 binds.add(storageTempDir.getAbsolutePath() + ":" + "/home/worker/procDir:rw");
             }
 
-            JobDockerConfig request
-                = JobDockerConfig.newBuilder().setJob(jobSpec.getJob()).setServiceName(jobSpec.getService().getName())
-                .setDockerImage(jobSpec.getService().getDockerImageTag()).addAllBinds(binds).addAllPorts(ports).putAllEnvironmentVariables(environmentVariables).build();
+            JobDockerConfig request =
+                    JobDockerConfig.newBuilder().setJob(jobSpec.getJob()).setServiceName(jobSpec.getService().getName())
+                            .setDockerImage(jobSpec.getService().getDockerImageTag()).addAllBinds(binds).addAllPorts(ports).putAllEnvironmentVariables(environmentVariables).build();
             localWorker.launchContainer(request);
             jobUpdateListener.jobUpdate(JobEvent.newBuilder().setJobEventType(JobEventType.PROCESSING_STARTED).build());
             int exitCode;
             if (jobSpec.getHasTimeout()) {
                 ExitWithTimeoutParams exitRequest
-                    = ExitWithTimeoutParams.newBuilder().setJob(jobSpec.getJob()).setTimeout(jobSpec.getTimeoutValue()).build();
+                        = ExitWithTimeoutParams.newBuilder().setJob(jobSpec.getJob()).setTimeout(jobSpec.getTimeoutValue()).build();
                 ContainerExitCode containerExitCode = localWorker.waitForContainerExitWithTimeout(exitRequest);
                 exitCode = containerExitCode.getExitCode();
             } else {
@@ -161,6 +176,8 @@ public class FtepWorkerDispatcher {
             localWorker.cleanUp(jobSpec.getJob());
         }
     }
+
+    private static final SecureRandom random = new SecureRandom();
 
     private String generateRandomDirName(String prefix) {
         long n = random.nextLong();

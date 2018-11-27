@@ -2,8 +2,6 @@ package com.cgi.eoss.ftep.server;
 
 import com.cgi.eoss.ftep.catalogue.geoserver.GeoserverService;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
-import com.cgi.eoss.ftep.clouds.local.LocalNodeFactory;
-import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.model.FtepService;
@@ -18,13 +16,13 @@ import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
+import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.worker.FtepWorkerApplication;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.MoreFiles;
@@ -61,18 +59,19 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        FtepServerApplicationTest.FtepServerApplicationTestConfig.class
+        FtepServerApplicationIT.FtepServerApplicationTestConfig.class
+}, properties = {
+        "logging.level.com.cgi.eoss.ftep=debug"
 })
-@Configuration
 @Import({
         FtepWorkerApplication.class,
         WorkerConfig.class
 })
 @TestPropertySource
-public class FtepServerApplicationTest {
-    private static final String SERVICE_NAME = "service1";
+public class FtepServerApplicationIT {
+    private static final String PROCESSOR_NAME = "service1";
+    private static final String GUI_APPLICATION_NAME = "service2";
     private static final User TESTUSER = new User("testuser");
-    private static final UUID FTEP_JOB_ID = UUID.randomUUID();
 
     @Autowired
     private InProcessServerBuilder serverBuilder;
@@ -101,7 +100,7 @@ public class FtepServerApplicationTest {
     @MockBean // Keep this to avoid instantiating a real Bean which needs a data dir
     private DownloaderFacade downloaderFacade;
 
-    @MockBean
+    @MockBean // Keep this to avoid instantiating a real Bean
     private GeoserverService geoserverService;
 
     @MockBean
@@ -110,9 +109,12 @@ public class FtepServerApplicationTest {
     @Autowired
     private Path workspace;
 
-    private Path ingestedOutputsDir;
+    @Autowired
+    private Path outputProductBasedir;
 
     private Server server;
+
+    private UUID ftepJobId;
 
     @BeforeClass
     public static void precondition() {
@@ -128,7 +130,7 @@ public class FtepServerApplicationTest {
     public static class FtepServerApplicationTestConfig {
         @Bean
         public Path workspace() throws IOException {
-            Path workspace = Files.createTempDirectory(Paths.get("target"), FtepServerApplicationTest.class.getSimpleName());
+            Path workspace = Files.createTempDirectory(Paths.get("target"), FtepServerApplicationIT.class.getSimpleName());
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     MoreFiles.deleteRecursively(workspace);
@@ -147,32 +149,49 @@ public class FtepServerApplicationTest {
         public Path referenceDataBasedir(Path workspace) throws IOException {
             return Files.createDirectory(workspace.resolve("refData"));
         }
+
+        @Bean
+        public Path cacheRoot(Path workspace) throws IOException {
+            return Files.createDirectory(workspace.resolve("cache"));
+        }
+
+        @Bean
+        public Path jobEnvironmentRoot(Path workspace) throws IOException {
+            return Files.createDirectory(workspace.resolve("jobs"));
+        }
     }
 
     @Before
     public void setUp() throws Exception {
-        ingestedOutputsDir = workspace.resolve("ingestedOutputsDir");
-        Files.createDirectories(ingestedOutputsDir);
+        ftepJobId = UUID.randomUUID();
 
-        NodeFactory nodeFactory = new LocalNodeFactory(-1, "unix:///var/run/docker.sock");
-
-        when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
+        when(ioManager.getServiceContext(PROCESSOR_NAME)).thenReturn(Paths.get("src/test/resources/" + PROCESSOR_NAME).toAbsolutePath());
+        when(ioManager.getServiceContext(GUI_APPLICATION_NAME)).thenReturn(Paths.get("src/test/resources/" + GUI_APPLICATION_NAME).toAbsolutePath());
 
         serverBuilder.addService(ftepJobLauncher);
         serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1));
         server = serverBuilder.build().start();
 
-        when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
+        FtepWorkerGrpc.FtepWorkerBlockingStub workerStub = FtepWorkerGrpc.newBlockingStub(channelBuilder.build());
+        when(workerFactory.getWorker(any())).thenReturn(workerStub);
+        when(workerFactory.getWorkerById(any())).thenReturn(workerStub);
 
         User owner = userDataService.save(TESTUSER);
 
-        FtepService testservice = new FtepService(SERVICE_NAME, owner, "test/testservice1");
-        FtepServiceDescriptor serviceDescriptor = new FtepServiceDescriptor();
-        serviceDescriptor.setDataOutputs(ImmutableList.of(FtepServiceDescriptor.Parameter.builder().id("output").build()));
-        testservice.setServiceDescriptor(serviceDescriptor);
-        serviceDataService.save(testservice);
+        FtepService testProcessor = new FtepService(PROCESSOR_NAME, owner, "test/" + PROCESSOR_NAME);
+        FtepServiceDescriptor testProcessorDescriptor = new FtepServiceDescriptor();
+        testProcessorDescriptor.setDataOutputs(ImmutableList.of(FtepServiceDescriptor.Parameter.builder().id("output").minOccurs(1).maxOccurs(1).build()));
+        testProcessor.setServiceDescriptor(testProcessorDescriptor);
 
-        when(restoService.ingestOutputProduct(any())).thenReturn(FTEP_JOB_ID);
+        FtepService testApplication = new FtepService(GUI_APPLICATION_NAME, owner, "test/" + GUI_APPLICATION_NAME);
+        testApplication.setType(FtepService.Type.APPLICATION);
+        FtepServiceDescriptor testApplicationDescriptor = new FtepServiceDescriptor();
+        testApplicationDescriptor.setDataOutputs(ImmutableList.of(FtepServiceDescriptor.Parameter.builder().id("output").minOccurs(1).maxOccurs(7).build()));
+        testApplication.setServiceDescriptor(testApplicationDescriptor);
+
+        serviceDataService.save(ImmutableList.of(testProcessor, testApplication));
+
+        when(restoService.ingestOutputProduct(any())).thenReturn(UUID.randomUUID());
     }
 
     @After
@@ -181,12 +200,12 @@ public class FtepServerApplicationTest {
     }
 
     @Test
-    public void test() {
+    public void testProcessor() {
         FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
         Iterator<FtepJobResponse> jobResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
-                .setServiceId(SERVICE_NAME)
+                .setServiceId(PROCESSOR_NAME)
                 .setUserId(TESTUSER.getName())
-                .setJobId(String.valueOf(FTEP_JOB_ID))
+                .setJobId(String.valueOf(ftepJobId))
                 .addAllInputs(GrpcUtil.mapToParams(
                         ImmutableMultimap.<String, String>builder()
                                 .put("inputKey1", "inputVal1")
@@ -199,5 +218,43 @@ public class FtepServerApplicationTest {
         assertThat(job, is(notNullValue()));
         FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
         assertThat(jobOutputs, is(notNullValue()));
+        assertThat(jobOutputs.getOutputsCount(), is(1));
+        JobParam output = jobOutputs.getOutputs(0);
+        Path relativeOutputPath = Paths.get(output.getParamValue(0).replace("ftep://outputProduct/", ""));
+        assertThat(Files.exists(outputProductBasedir.resolve(relativeOutputPath)), is(true));
+        assertThat(relativeOutputPath.getFileName().toString(), is("output_file_1"));
     }
+
+    @Test
+    public void testGuiApplication() {
+        FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
+        Iterator<FtepJobResponse> jobResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
+                .setServiceId(GUI_APPLICATION_NAME)
+                .setUserId(TESTUSER.getName())
+                .setJobId(String.valueOf(ftepJobId))
+                .addAllInputs(GrpcUtil.mapToParams(
+                        ImmutableMultimap.<String, String>builder()
+                                .put("inputKey1", "inputVal1")
+                                .putAll("inputKey2", ImmutableList.of("inputVal2-1", "inputVal2-2"))
+                                .build()
+                ))
+                .build());
+
+        Job job = jobResponseIterator.next().getJob();
+        assertThat(job, is(notNullValue()));
+        FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
+        assertThat(jobOutputs, is(notNullValue()));
+        assertThat(jobOutputs.getOutputsCount(), is(2));
+
+        JobParam output = jobOutputs.getOutputs(0);
+        Path relativeOutputPath = Paths.get(output.getParamValue(0).replace("ftep://outputProduct/", ""));
+        assertThat(Files.exists(outputProductBasedir.resolve(relativeOutputPath)), is(true));
+        assertThat(relativeOutputPath.getFileName().toString(), is("output_file_1"));
+
+        JobParam shapefile = jobOutputs.getOutputs(1);
+        Path relativeShapefilePath = Paths.get(shapefile.getParamValue(0).replace("ftep://outputProduct/", ""));
+        assertThat(Files.exists(outputProductBasedir.resolve(relativeShapefilePath)), is(true));
+        assertThat(relativeShapefilePath.getFileName().toString(), is("A_plot.zip"));
+    }
+
 }

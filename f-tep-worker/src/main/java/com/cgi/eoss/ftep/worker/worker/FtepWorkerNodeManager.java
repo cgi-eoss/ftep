@@ -4,15 +4,16 @@ import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,11 +24,8 @@ public class FtepWorkerNodeManager {
     private final Path dataBaseDir;
     private final NodeFactory nodeFactory;
 
-    // Track how many jobs are running on each node
-    private final Map<Node, Integer> jobsPerNode = new HashMap<>();
-
     // Track which Node is used for each job
-    private final Map<String, Node> jobNodes = new HashMap<>();
+    private final SetMultimap<Node, String> nodeJobs = HashMultimap.create();
 
     public static final String POOLED_WORKER_TAG = "pooled-worker-node";
     public static final String DEDICATED_WORKER_TAG = "dedicated-worker-node";
@@ -43,24 +41,35 @@ public class FtepWorkerNodeManager {
     }
 
     @Synchronized
-    public boolean reserveNodeForJob(String jobId) {
+    public void reserveNodeForJob(String jobId) {
         Node availableNode = findAvailableNode();
         if (availableNode != null) {
-            jobNodes.put(jobId, availableNode);
-            jobsPerNode.put(availableNode, jobsPerNode.getOrDefault(availableNode, 0) + 1);
-            return true;
-        } else {
-            return false;
+            LOG.debug("Adding job {} to node {}", jobId, availableNode);
+            nodeJobs.put(availableNode, jobId);
         }
     }
 
     public Node getJobNode(String jobId) {
-        return jobNodes.get(jobId);
+        return nodeJobs.entries().stream()
+                .filter(e -> e.getValue().equals(jobId)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("Could not find a node for job " + jobId))
+                .getKey();
+    }
+
+    public Optional<Node> findJobNode(String jobId) {
+        return nodeJobs.entries().stream()
+                .filter(e -> e.getValue().equals(jobId)).findFirst()
+                .map(Map.Entry::getKey);
     }
 
     private Node findAvailableNode() {
+        LOG.debug("Finding available node");
+        LOG.debug("POOLED workers: {}", nodeFactory.getCurrentNodes(POOLED_WORKER_TAG));
+        LOG.debug("DEDICATED workers: {}", nodeFactory.getCurrentNodes(DEDICATED_WORKER_TAG));
+
         for (Node node : nodeFactory.getCurrentNodes(POOLED_WORKER_TAG)) {
-            if (jobsPerNode.getOrDefault(node, 0) < maxJobsPerNode) {
+            LOG.debug("Found {} jobs running on node {}", nodeJobs.get(node).size(), node);
+            if (nodeJobs.get(node).size() < maxJobsPerNode) {
                 return node;
             }
         }
@@ -72,15 +81,11 @@ public class FtepWorkerNodeManager {
     }
 
     public void releaseJobNode(String jobId) {
-        LOG.debug("Releasing node for job {}", jobId);
-        Node jobNode = jobNodes.remove(jobId);
-        if (jobNode != null) {
-            LOG.debug("Releasing node {} for job {}", jobNode.getId(), jobId);
-            if (jobNode.getTag().equals(DEDICATED_WORKER_TAG)) {
-                nodeFactory.destroyNode(jobNode);
-            } else {
-                jobsPerNode.put(jobNode, jobsPerNode.get(jobNode) - 1);
-            }
+        Node jobNode = getJobNode(jobId);
+        LOG.debug("Releasing node {} for job {}", jobNode.getId(), jobId);
+        nodeJobs.get(jobNode).remove(jobId);
+        if (jobNode.getTag().equals(DEDICATED_WORKER_TAG)) {
+            nodeFactory.destroyNode(jobNode);
         }
     }
 
@@ -90,9 +95,9 @@ public class FtepWorkerNodeManager {
         }
     }
 
-    public Node provisionNodeForJob(Path jobDir, String jobId) throws NodeProvisioningException{
+    public Node provisionNodeForJob(Path jobDir, String jobId) throws NodeProvisioningException {
         Node node = nodeFactory.provisionNode(DEDICATED_WORKER_TAG, jobDir, dataBaseDir);
-        jobNodes.put(jobId, node);
+        nodeJobs.put(node, jobId);
         return node;
     }
 
@@ -111,7 +116,7 @@ public class FtepWorkerNodeManager {
         Set<Node> currentNodes = nodeFactory.getCurrentNodes(tag);
         long currentEpochSecond = Instant.now().getEpochSecond();
         for (Node node : currentNodes) {
-            if (jobsPerNode.getOrDefault(node, 0) == 0 && ((currentEpochSecond - node.getCreationEpochSecond()) % 3600 > minimumHourFractionUptimeSeconds)) {
+            if (nodeJobs.get(node).isEmpty() && ((currentEpochSecond - node.getCreationEpochSecond()) % 3600 > minimumHourFractionUptimeSeconds)) {
                 freeWorkerNodes.add(node);
                 if (freeWorkerNodes.size() == n) {
                     return freeWorkerNodes;
@@ -122,7 +127,7 @@ public class FtepWorkerNodeManager {
     }
 
     public String allocateStorageForJob(String jobId, int requiredStorage, String mountPoint) throws StorageProvisioningException {
-        Node jobNode = jobNodes.get(jobId);
+        Node jobNode = getJobNode(jobId);
         if (jobNode != null) {
             return nodeFactory.allocateStorageForNode(jobNode, requiredStorage, mountPoint);
         } else {
@@ -136,6 +141,6 @@ public class FtepWorkerNodeManager {
     }
 
     public int getNumberOfFreeNodes(String tag) {
-        return nodeFactory.getCurrentNodes(tag).stream().filter(n -> jobsPerNode.getOrDefault(n, 0) == 0).collect(Collectors.toSet()).size();
+        return nodeFactory.getCurrentNodes(tag).stream().filter(n -> nodeJobs.get(n).isEmpty()).collect(Collectors.toSet()).size();
     }
 }

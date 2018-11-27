@@ -50,7 +50,7 @@ public class WorkerFactory {
         String env = expressionParser.parseExpression(expression.getExpression()).getValue(jobConfig).toString();
 
         ServiceInstance worker = discoveryClient.getInstances(workerServiceId).stream()
-                .filter(si -> si.getMetadata().get("workerEnv").equals(env))
+                .filter(si -> si.getMetadata().get("workerId").equals(env))
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedOperationException("Unable to find registered worker for environment: " + env));
 
@@ -117,7 +117,7 @@ public class WorkerFactory {
                 .map(si -> Worker.newBuilder()
                         .setHost(si.getHost())
                         .setPort(Integer.parseInt(si.getMetadata().get("grpcPort")))
-                        .setEnvironment(si.getMetadata().get("workerEnv"))
+                        .setEnvironment(si.getMetadata().get("workerId"))
                         .build())
                 .forEach(result::addWorkers);
 

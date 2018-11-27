@@ -38,6 +38,7 @@ Vagrant.configure('2') do |config|
     #ftep.vm.network 'forwarded_port', guest: 6567, host: 6567 # f-tep-zoomanager grpc
     #ftep.vm.network 'forwarded_port', guest: 8761, host: 8761 # f-tep-serviceregistry http
     ftep.vm.network 'forwarded_port', guest: 12201, host: 12201 # graylog gelf tcp
+    ftep.vm.network 'forwarded_port', guest: 61616, host: 61616 # activemq broker tcp
 
     # Create a private network, which allows host-only access to the machine
     # using a specific IP.
@@ -52,6 +53,7 @@ Vagrant.configure('2') do |config|
     # folders (which may be confused by symlinks)
     ftep.vm.provider 'virtualbox' do |vb|
       ftep.vm.synced_folder '.', '/vagrant', type: 'virtualbox'
+      ftep.vm.synced_folder '/data', '/data', type: 'virtualbox'
       vb.memory = 4096
       vb.cpus = 2
     end

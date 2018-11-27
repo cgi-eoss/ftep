@@ -1,8 +1,10 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.catalogue.geoserver.GeoServerSpec;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.logging.Logging;
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
@@ -12,8 +14,12 @@ import com.cgi.eoss.ftep.model.Job.Status;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
+import com.cgi.eoss.ftep.model.internal.Pair;
+import com.cgi.eoss.ftep.model.internal.RetrievedOutputFile;
 import com.cgi.eoss.ftep.model.internal.Shapefile;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
@@ -26,7 +32,6 @@ import com.cgi.eoss.ftep.rpc.FileStreamClient;
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
-import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
@@ -34,30 +39,21 @@ import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExit;
-import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
-import com.cgi.eoss.ftep.rpc.worker.ExitParams;
-import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc.FtepWorkerBlockingStub;
 import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
-import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobError;
 import com.cgi.eoss.ftep.rpc.worker.JobEvent;
 import com.cgi.eoss.ftep.rpc.worker.JobEventType;
-import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
-import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
-
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -65,12 +61,15 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.MoreFiles;
+import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.CloseableThreadContext;
+import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -85,17 +84,25 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -128,13 +135,19 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private final FtepSecurityService securityService;
     private final FtepQueueService ftepQueueService;
     private final ServiceDataService serviceDataService;
+    private final DatabasketDataService databasketDataService;
+
+    @Value("${ftep.orchestrator.gui.baseUrl:http://ftep}")
+    private String baseUrl;
+
+    private final Map<String, StreamObserver<FtepJobResponse>> responseObservers = new HashMap<>();
 
     @Autowired
     public FtepJobLauncher(WorkerFactory workerFactory, JobDataService jobDataService,
-        FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
-        CostingService costingService, FtepSecurityService securityService,
-        FtepQueueService ftepQueueService, ServiceDataService serviceDataService
-    ) {
+                           FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
+                           CostingService costingService, FtepSecurityService securityService,
+                           FtepQueueService ftepQueueService, ServiceDataService serviceDataService,
+                           DatabasketDataService databasketDataService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
@@ -143,6 +156,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         this.securityService = securityService;
         this.ftepQueueService = ftepQueueService;
         this.serviceDataService = serviceDataService;
+        this.databasketDataService = databasketDataService;
     }
 
     @Override
@@ -164,7 +178,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         Multimap<String, String> inputs = GrpcUtil.paramsListToMap(rpcInputs);
 
         Job job = null;
-        com.cgi.eoss.ftep.rpc.Job rpcJob = null;
+        com.cgi.eoss.ftep.rpc.Job rpcJob;
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
                 .put("userId", userId).put("serviceId", serviceId).put("zooId", zooId)) {
             if (!Strings.isNullOrEmpty(parentId)) {
@@ -191,12 +205,15 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
                 // Creates FtepFile records for each input, and validates user access
                 ftepFileRegistrar.registerAndCheckInputs(job);
+
+                //TODO: Check that the user can use the geoserver spec
                 if (!checkAccessToOutputCollection(job.getOwner(), rpcInputs)) {
                     LOG.error("User {} does not have read access to all requested output collections", userId);
                     throw new ServiceExecutionException("User does not have read access to all requested output collections");
                 }
 
                 jobDataService.save(job);
+                responseObservers.put(job.getExtId(), responseObserver);
 
                 List<Job> subJobs = createSubJobs(job, userId, service, newInputs, inputs);
                 int p = 0;
@@ -210,47 +227,26 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
                 // Creates FtepFile records for each input, and validates user access
                 ftepFileRegistrar.registerAndCheckInputs(job);
-//==============
-                // ORIGINAL FTEP LINES -- not sure if needed, please check!
-                FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
-                jobWorkers.put(rpcJob, worker);
 
-                SetMultimap<String, FtepFile> jobOutputFiles = MultimapBuilder.hashKeys().hashSetValues().build();
-
-                Multimap<String, FtepFile> jobOutputs = executeJob(job, rpcJob, rpcInputs, worker);
-                jobOutputs.forEach(jobOutputFiles::put);
-// - - - - - - -
-                // NEW VERSION
+                //TODO: Check that the user can use the geoserver spec
                 if (!checkAccessToOutputCollection(job.getOwner(), rpcInputs)) {
                     LOG.error("User {} does not have read access to all requested output collections", userId);
                     throw new ServiceExecutionException("User does not have read access to all requested output collections");
                 }
-//==============
+
                 chargeUser(job.getOwner(), job);
 
-//==============
-                // ORIGINAL FTEP LINES -- not sure if needed, please check!
-                // Transform the results for the WPS response
-                List<JobParam> outputs = jobOutputFiles.asMap().entrySet().stream()
-                        .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addAllParamValue(e.getValue().stream().map(f -> f.getUri().toASCIIString()).collect(toSet())).build())
-                        .collect(toList());
+                responseObservers.put(job.getExtId(), responseObserver);
 
-                responseObserver.onNext(FtepJobResponse.newBuilder()
-                        .setJobOutputs(FtepJobResponse.JobOutputs.newBuilder().addAllOutputs(outputs).build())
-                        .build());
-// - - - - - - -
-                // Removed in the NEW VERSION
-//==============
                 submitJobRequestToQueue(job, rpcJob, rpcInputs, SINGLE_JOB_PRIORITY);
             }
         } catch (Exception e) {
             if (job != null) {
-                endJobWithError(job);
+                endJobWithError(job, e);
+            } else {
+                LOG.error("Failed to instantiate job. Notifying gRPC client", e);
+                responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
             }
-            LOG.error("Failed to run processor; notifying gRPC client", e);
-            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
-        } finally {
-            Optional.ofNullable(rpcJob).ifPresent(j -> Optional.ofNullable(jobWorkers.remove(j)).ifPresent(worker -> worker.cleanUp(j)));
         }
     }
 
@@ -259,12 +255,14 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         Multimap<String, String> inputs = GrpcUtil.paramsListToMap(rpcInputs);
 
         JobSpec.Builder jobSpecBuilder = JobSpec.newBuilder().setService(GrpcUtil.toRpcService(service)).setJob(rpcJob).addAllInputs(rpcInputs);
+
         if (service.getType() == FtepService.Type.APPLICATION) {
             jobSpecBuilder.addExposedPorts(FtepGuiServiceManager.GUACAMOLE_PORT);
         }
+
         if (inputs.containsKey(TIMEOUT_PARAM)) {
             int timeout = Integer.parseInt(Iterables.getOnlyElement(inputs.get(TIMEOUT_PARAM)));
-            jobSpecBuilder = jobSpecBuilder.setHasTimeout(true).setTimeoutValue(timeout);
+            jobSpecBuilder.setHasTimeout(true).setTimeoutValue(timeout);
         }
 
         JobSpec jobSpec = jobSpecBuilder.build();
@@ -282,19 +280,21 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     public void buildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
         Long serviceId = Long.parseLong(buildServiceParams.getServiceId());
         FtepService service = serviceDataService.getById(serviceId);
-        responseObserver.onNext(BuildServiceResponse.newBuilder().build());
-        DockerImageConfig dockerImageConfig = DockerImageConfig.newBuilder()
-            .setDockerImage(service.getDockerTag())
-            .setServiceName(service.getName())
-            .build();
         try {
-            workerFactory.getOne().prepareDockerImage(dockerImageConfig);
+            FtepWorkerBlockingStub worker = workerFactory.getOne();
+            responseObserver.onNext(BuildServiceResponse.newBuilder().build());
+            DockerImageConfig dockerImageConfig = DockerImageConfig.newBuilder()
+                    .setDockerImage(service.getDockerTag())
+                    .setServiceName(service.getName())
+                    .build();
+            worker.prepareDockerImage(dockerImageConfig);
             service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.COMPLETED);
             service.getDockerBuildInfo().setLastBuiltFingerprint(buildServiceParams.getBuildFingerprint());
-        } catch (StatusRuntimeException e) {
+            serviceDataService.save(service);
+        } catch (Exception e) {
             service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.ERROR);
+            serviceDataService.save(service);
         }
-        serviceDataService.save(service);
         responseObserver.onCompleted();
     }
 
@@ -341,6 +341,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     }
 
     private boolean checkAccessToOutputCollection(User user, List<JobParam> rpcInputs) {
+        // TODO Implement output collections
         return true;
     }
 
@@ -348,7 +349,8 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         List<String> results = new ArrayList<>();
         for (String inputUri : inputUris) {
             if (inputUri.startsWith("ftep://databasket")) {
-                // TODO -- Databasket dataBasket update
+                Databasket dataBasket = getDatabasketFromUri(inputUri);
+                results.addAll(dataBasket.getFiles().stream().map(f -> f.getUri().toString()).collect(toList()));
             } else if (inputUri.contains((","))) {
                 results.addAll(Arrays.asList(inputUri.split(",")));
             } else {
@@ -356,6 +358,18 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             }
         }
         return results;
+    }
+
+    private Databasket getDatabasketFromUri(String uri) {
+        Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(uri);
+        if (!uriIdMatcher.matches()) {
+            throw new ServiceExecutionException("Failed to load databasket for URI: " + uri);
+        }
+        Long databasketId = Long.parseLong(uriIdMatcher.group(1));
+        Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId))
+                .orElseThrow(() -> new ServiceExecutionException("Failed to load databasket for ID " + databasketId));
+        LOG.debug("Listing databasket contents for id {}", databasketId);
+        return databasket;
     }
 
     private List<Job> createSubJobs(Job parentJob, String userId, FtepService service, List<String> newInputs, Multimap<String, String> inputs) {
@@ -379,6 +393,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     @JmsListener(destination = FtepQueueService.jobUpdatesQueueName)
     public void receiveJobUpdate(@Payload ObjectMessage objectMessage, @Header("workerId") String workerId, @Header("jobId") String internalJobId) {
         Job job = jobDataService.reload(Long.parseLong(internalJobId));
+        // TODO change into Chain of Responsibility type pattern
         Serializable update = null;
         try {
             update = objectMessage.getObject();
@@ -446,12 +461,10 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 // Normal exit
                 break;
             case 137:
-                LOG.info("Docker container for {} terminated via SIGKILL (exit code 137)",
-                    job.getExtId());
+                LOG.info("Docker container for {} terminated via SIGKILL (exit code 137)", job.getExtId());
                 break;
             case 143:
-                LOG.info("Docker container for {} terminated via SIGTERM (exit code 143)",
-                    job.getExtId());
+                LOG.info("Docker container for {} terminated via SIGTERM (exit code 143)", job.getExtId());
                 break;
             default:
                 throw new Exception("Docker container returned with exit code " + exitCode);
@@ -469,46 +482,50 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     }
 
     private void onJobError(Job job, String description) {
-        LOG.error("Error in Job {}: {}", job.getExtId(), description);
-        endJobWithError(job);
+        endJobWithError(job, new ServiceExecutionException(description));
     }
 
     private void onJobError(Job job, Throwable t) {
-        LOG.error("Error in Job " + job.getExtId(), t);
-        endJobWithError(job);
+        endJobWithError(job, t);
     }
 
-    private void endJobWithError(Job job) {
+    private void endJobWithError(Job job, Throwable cause) {
+        LOG.error("Error in Job {}", job.getExtId(), cause);
         job.setStatus(Job.Status.ERROR);
         job.setEndTime(LocalDateTime.now(ZoneOffset.UTC));
         jobDataService.save(job);
+        responseObservers.get(job.getExtId())
+                .onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(cause)));
     }
 
-    private void ingestOutput(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws IOException, Exception {
+    private void ingestOutput(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws IOException, InterruptedException, StatusException {
         // Enumerate files in the job output directory
         Multimap<String, String> outputsByRelativePath = listOutputFiles(job, rpcJob, worker, jobEnvironment);
         // Repatriate output files
-        Multimap<String, FtepFile> outputFiles = repatriateAndIngestOutputFiles(job, rpcJob, worker, job.getConfig().getInputs(), jobEnvironment, outputsByRelativePath);
+        SetMultimap<String, FtepFile> outputFiles = repatriateAndIngestOutputFiles(job, rpcJob, worker, job.getConfig().getInputs(), jobEnvironment, outputsByRelativePath);
         job.setStatus(Job.Status.COMPLETED);
         job.setOutputs(outputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), MultimapBuilder.hashKeys().hashSetValues()::build)));
         job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
         jobDataService.save(job);
+
         if (job.getConfig().getService().getType() == FtepService.Type.BULK_PROCESSOR) {
             // Auto-publish the output files
             ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));
         }
+
         Job parentJob = job.getParentJob();
         if (parentJob != null) {
             completeParentJob(parentJob);
         } else {
-            List<JobParam> outputs = outputFiles.entries().stream().map(e -> JobParam.newBuilder().setParamName(e.getKey()).addParamValue(e.getValue().getUri().toASCIIString()).build()).collect(toList());
+            notifyResponseObserverJobComplete(job, outputFiles);
         }
     }
 
-    private void completeParentJob(Job parentJob) {
+    private void completeParentJob(Job parentJob) throws StatusException {
         if (allChildJobCompleted(parentJob)) {
+
             // Must collect all child jobs, save for parent and send a response
-            SetMultimap<String, FtepFile> jobOutputFiles = MultimapBuilder.hashKeys().hashSetValues().build();
+            SetMultimap<String, FtepFile> jobOutputFiles = HashMultimap.create();
             // Only collect outputs from SUCCESSFUL subjobs
             for (Job subJob : parentJob.getSubJobs()) {
                 if (subJob.getStatus().equals(Status.COMPLETED)) {
@@ -522,17 +539,31 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             parentJob.setEndTime(LocalDateTime.now());
             parentJob.setGuiUrl(null);
             parentJob.setGuiEndpoint(null);
-            parentJob.setOutputs(jobOutputFiles.entries().stream().collect(toMultimap(
-                    e -> e.getKey(),
-                    e -> e.getValue().getUri().toString(),
-                    MultimapBuilder.hashKeys().hashSetValues()::build)));
+            parentJob.setOutputs(jobOutputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), HashMultimap::create)));
             parentJob.setOutputFiles(ImmutableSet.copyOf(jobOutputFiles.values()));
             jobDataService.save(parentJob);
-            List<JobParam> outputs = jobOutputFiles.asMap().entrySet().stream()
-                    .map(e -> JobParam.newBuilder().setParamName(e.getKey())
-                            .addAllParamValue(e.getValue().stream().map(f -> f.getUri().toASCIIString()).collect(toSet()))
-                            .build())
-                    .collect(toList());
+
+            notifyResponseObserverJobComplete(parentJob, jobOutputFiles);
+        }
+        // TODO shall an error be sent in case of any subjobs error?
+    }
+
+    private void notifyResponseObserverJobComplete(Job job, SetMultimap<String, FtepFile> jobOutputFiles) throws StatusException {
+        List<JobParam> outputs = jobOutputFiles.entries().stream()
+                .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addParamValue(e.getValue().getUri().toASCIIString()).build())
+                .collect(toList());
+        StreamObserver<FtepJobResponse> responseObserver = responseObservers.get(job.getExtId());
+        if (responseObserver != null) {
+            responseObserver.onNext(FtepJobResponse.newBuilder()
+                    .setJob(GrpcUtil.toRpcJob(job))
+                    .setJobOutputs(FtepJobResponse.JobOutputs.newBuilder().addAllOutputs(outputs).build())
+                    .build());
+            responseObserver.onCompleted();
+        } else {
+            String description = "Failed to ingest outputs? TODO fix this note!";
+            LOG.error("Failed to run processor: {}; notifying gRPC client", description);
+            io.grpc.Status status = io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withDescription(description);
+            throw status.asException();
         }
     }
 
@@ -540,7 +571,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         return !parentJob.getSubJobs().stream().anyMatch(j -> j.getStatus() != Job.Status.COMPLETED && j.getStatus() != Job.Status.ERROR);
     }
 
-    private Multimap<String, String> listOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws Exception {
+    private SetMultimap<String, String> listOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) {
         FtepService service = job.getConfig().getService();
 
         OutputFileList outputFileList = worker.listOutputFiles(ListOutputFilesParam.newBuilder()
@@ -549,142 +580,238 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 .build());
         List<String> relativePaths = outputFileList.getItemsList().stream()
                 .map(OutputFileItem::getRelativePath)
-                .collect(Collectors.toList());
+                .collect(toList());
 
-        Multimap<String, String> outputsByRelativePath;
+        SetMultimap<String, String> outputsByRelativePath;
         if (service.getType() == FtepService.Type.APPLICATION) {
             // Collect all files in the output directory with simple index IDs
             outputsByRelativePath = IntStream.range(0, relativePaths.size()).boxed()
-                    .collect(ArrayListMultimap::create, (mm, i) -> mm.put(Integer.toString(i + 1), relativePaths.get(i)), Multimap::putAll);
+                    .collect(HashMultimap::create, (mm, i) -> mm.put(Integer.toString(i + 1), relativePaths.get(i)), Multimap::putAll);
         } else {
-            // Ensure we have one file per expected output
-            Set<String> expectedServiceOutputIds = service.getServiceDescriptor().getDataOutputs().stream()
-                    .map(FtepServiceDescriptor.Parameter::getId).collect(toSet());
-            outputsByRelativePath = ArrayListMultimap.create();
+            // Ensure outputs are in the
+            List<FtepServiceDescriptor.Parameter> expectedServiceOutputs = service.getServiceDescriptor().getDataOutputs();
+            outputsByRelativePath = HashMultimap.create();
 
-            for (String expectedOutputId : expectedServiceOutputIds) {
-                Optional<String> relativePath = relativePaths.stream()
-                        .filter(path -> path.startsWith(expectedOutputId + "/"))
-                        .reduce((a, b) -> null);
-                if (relativePath.isPresent()) {
-                    outputsByRelativePath.put(expectedOutputId, relativePath.get());
-                } else {
-                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
-                        LOG.info("Service defined output with ID '{}' but no matching directory was found in the job outputs", expectedOutputId);
+            for (FtepServiceDescriptor.Parameter expectedOutput : expectedServiceOutputs) {
+                List<String> relativePathValues = relativePaths.stream()
+                        .filter(path -> path.startsWith(expectedOutput.getId() + "/"))
+                        .collect(Collectors.toList());
+
+                if (relativePathValues.isEmpty()) {
+                    try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                        if (expectedOutput.getMinOccurs() == 0) {
+                            LOG.info("Service defined optional output with ID '{}' which was not found in the job outputs", expectedOutput.getId());
+                        } else {
+                            LOG.info("Service defined required output with ID '{}' which was not found in the job outputs", expectedOutput.getId());
+                            throw new ServiceExecutionException(String.format("Did not find expected single output for '%s' in outputs list: %s", expectedOutput.getId(), relativePaths));
+                        }
                     }
-                    throw new ServiceExecutionException(String.format("Did not find expected single output for '%s' in outputs list: %s", expectedOutputId, relativePaths));
+                } else if (expectedOutput.getMinOccurs() <= relativePathValues.size() && relativePathValues.size() <= expectedOutput.getMaxOccurs()) {
+                    LOG.debug("Found acceptable number of output files for ID {} (min {}, max {})", expectedOutput.getId(), expectedOutput.getMinOccurs(), expectedOutput.getMaxOccurs());
+                    outputsByRelativePath.putAll(expectedOutput.getId(), relativePathValues);
+                } else {
+                    try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                        LOG.info("Service defined output with ID '{}' with between {} and {} files, but found {}", expectedOutput.getId(), expectedOutput.getMinOccurs(), expectedOutput.getMaxOccurs(), relativePathValues.size());
+                        throw new ServiceExecutionException(String.format("Did not find acceptable number of outputs for '%s' in outputs list: %s", expectedOutput.getId(), relativePaths));
+                    }
                 }
             }
         }
         return outputsByRelativePath;
     }
 
-    private Multimap<String, FtepFile> repatriateAndIngestOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker,
-            Multimap<String, String> inputs, JobEnvironment jobEnvironment, Multimap<String, String> outputsByRelativePath) throws IOException, InterruptedException {
-        BiMap<OutputProductMetadata, Path> outputProducts = HashBiMap.create(outputsByRelativePath.size());
-        Multimap<String, FtepFile> outputFtepFiles = ArrayListMultimap.create();
+    private SetMultimap<String, FtepFile> repatriateAndIngestOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob,
+                                                                         FtepWorkerGrpc.FtepWorkerBlockingStub worker,
+                                                                         Multimap<String, String> inputs,
+                                                                         JobEnvironment jobEnvironment,
+                                                                         Multimap<String, String> outputsByRelativePath) throws IOException, InterruptedException {
+        List<RetrievedOutputFile> retrievedOutputFiles = new ArrayList<>(outputsByRelativePath.size());
 
-        for (Map.Entry<String, String> output : outputsByRelativePath.entries()) {
-            String outputId = output.getKey();
-            String relativePath = output.getValue();
-            GetOutputFileParam getOutputFileParam = GetOutputFileParam.newBuilder()
-                    .setJob(rpcJob)
-                    .setPath(Paths.get(jobEnvironment.getOutputDir()).resolve(relativePath).toString())
-                    .build();
+        SetMultimap<String, FtepFile> outputFiles = HashMultimap.create();
+        Map<String, GeoServerSpec> geoServerSpecs = getGeoServerSpecs(inputs);
+        Map<String, String> collectionSpecs = getCollectionSpecs(inputs);
 
-            FtepWorkerGrpc.FtepWorkerStub asyncWorker = FtepWorkerGrpc.newStub(worker.getChannel());
+        for (String outputId : outputsByRelativePath.keySet()) {
+            OutputProductMetadata outputProduct = getOutputMetadata(job, geoServerSpecs, collectionSpecs, outputId);
 
-            try (FileStreamClient<GetOutputFileParam> fileStreamClient = new FileStreamClient<GetOutputFileParam>() {
-                private OutputProductMetadata outputProduct;
+            for (String relativePath : outputsByRelativePath.get(outputId)) {
+                GetOutputFileParam getOutputFileParam = GetOutputFileParam.newBuilder().setJob(rpcJob)
+                        .setPath(Paths.get(jobEnvironment.getOutputDir()).resolve(relativePath).toString()).build();
 
-                @Override
-                public OutputStream buildOutputStream(FileStream.FileMeta fileMeta) throws IOException {
-                    try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
-                        LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(), fileMeta.getSize());
+                FtepWorkerGrpc.FtepWorkerStub asyncWorker = FtepWorkerGrpc.newStub(worker.getChannel());
+
+                try (FileStreamClient<GetOutputFileParam> fileStreamClient = new FileStreamClient<GetOutputFileParam>() {
+                    private OutputFileMetadata outputFileMetadata;
+
+                    @Override
+                    public OutputStream buildOutputStream(FileStream.FileMeta fileMeta) throws IOException {
+                        LOG.info("Collecting output '{}' with filename {} ({} bytes)", outputId, fileMeta.getFilename(),
+                                fileMeta.getSize());
+
+                        OutputFileMetadata.OutputFileMetadataBuilder outputFileMetadataBuilder = OutputFileMetadata.builder();
+
+                        outputFileMetadata = outputFileMetadataBuilder.outputProductMetadata(outputProduct)
+                                .build();
+
+                        setOutputPath(ftepFileRegistrar.prepareNewOutputProduct(outputProduct, relativePath.toString()));
+                        LOG.info("Writing output file for job {}: {}", job.getExtId(), getOutputPath());
+                        return new BufferedOutputStream(Files.newOutputStream(getOutputPath(), CREATE, TRUNCATE_EXISTING, WRITE));
                     }
 
-                    this.outputProduct = OutputProductMetadata.builder()
-                            .owner(job.getOwner())
-                            .service(job.getConfig().getService())
-                            .outputId(outputId)
-                            .jobId(job.getExtId())
-                            .crs(Iterables.getOnlyElement(inputs.get("crs"), null))
-                            .geometry(Iterables.getOnlyElement(inputs.get("aoi"), null))
-                            .properties(new HashMap<>(ImmutableMap.<String, Object>builder()
-                                    .put("jobId", job.getExtId())
-                                    .put("intJobId", job.getId())
-                                    .put("serviceName", job.getConfig().getService().getName())
-                                    .put("jobOwner", job.getOwner().getName())
-                                    .put("jobStartTime", job.getStartTime().atOffset(ZoneOffset.UTC).toString())
-                                    .put("jobEndTime", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
-                                    .put("filename", fileMeta.getFilename())
-                                    .build()))
-                            .build();
+                    @Override
+                    public void onCompleted() {
+                        super.onCompleted();
+                        Pair<OffsetDateTime, OffsetDateTime> startEndDateTimes = getStartEndDateTimes(outputId);
+                        outputFileMetadata.setStartDateTime(startEndDateTimes.getKey());
+                        outputFileMetadata.setEndDateTime(startEndDateTimes.getValue());
+                        retrievedOutputFiles.add(new RetrievedOutputFile(outputFileMetadata, getOutputPath()));
+                    }
 
-                    setOutputPath(ftepFileRegistrar.prepareNewOutputProduct(outputProduct, fileMeta.getFilename()));
-                    LOG.info("Writing output file for job {}: {}", job.getExtId(), getOutputPath());
-                    return new BufferedOutputStream(Files.newOutputStream(getOutputPath(), CREATE, TRUNCATE_EXISTING, WRITE));
-                }
+                    private Pair<OffsetDateTime, OffsetDateTime> getStartEndDateTimes(String outputId) {
+                        try {
+                            //Retrieve the parameter
+                            Optional<FtepServiceDescriptor.Parameter> outputParameter = getServiceOutputParameter(outputId);
+                            if (outputParameter.isPresent()) {
+                                String regexp = outputParameter.get().getTimeRegexp();
+                                if (regexp != null) {
+                                    Pattern p = Pattern.compile(regexp);
+                                    Matcher m = p.matcher(getOutputPath().getFileName().toString());
+                                    if (m.find()) {
+                                        if (regexp.contains("?<startEnd>")) {
+                                            OffsetDateTime startEndDateTime = parseOffsetDateTime(m.group("startEnd"), LocalTime.MIDNIGHT);
+                                            return Pair.of(startEndDateTime, startEndDateTime);
+                                        } else {
+                                            OffsetDateTime start = null, end = null;
+                                            if (regexp.contains("?<start>")) {
+                                                start = parseOffsetDateTime(m.group("start"), LocalTime.MIDNIGHT);
+                                            }
 
-                @Override
-                public void onCompleted() {
-                    LOG.info("Completed writing output file for job {}: {}", job.getExtId(), getOutputPath());
-                    outputProducts.put(outputProduct, getOutputPath());
+                                            if (regexp.contains("?<end>")) {
+                                                end = parseOffsetDateTime(m.group("end"), LocalTime.MIDNIGHT);
+                                            }
+                                            return Pair.of(start, end);
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (RuntimeException e) {
+                            LOG.error("Unable to parse date from regexp");
+                        }
+                        return Pair.of(null, null);
+                    }
+
+                    private Optional<FtepServiceDescriptor.Parameter> getServiceOutputParameter(String outputId) {
+                        return job.getConfig().getService().getServiceDescriptor().getDataOutputs().stream().filter(p -> p.getId().equals(outputId)).findFirst();
+                    }
+
+                    private OffsetDateTime parseOffsetDateTime(String startDateStr, LocalTime defaultTime) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd[[ ]['T']HHmm[ss][.SSS][XXX]]");
+                        TemporalAccessor temporalAccessor = formatter.parseBest(startDateStr, OffsetDateTime::from, LocalDate::from);
+                        if (temporalAccessor instanceof OffsetDateTime) {
+                            return (OffsetDateTime) temporalAccessor;
+                        } else if (temporalAccessor instanceof LocalDateTime) {
+                            return ((LocalDateTime) temporalAccessor).atOffset(ZoneOffset.UTC);
+                        } else {
+                            return ((LocalDate) temporalAccessor).atTime(defaultTime).atOffset(ZoneOffset.UTC);
+                        }
+                    }
+                }) {
+                    asyncWorker.getOutputFile(getOutputFileParam, fileStreamClient.getFileStreamObserver());
+                    fileStreamClient.getLatch().await();
                 }
-            }) {
-                asyncWorker.getOutputFile(getOutputFileParam, fileStreamClient.getFileStreamObserver());
-                fileStreamClient.getLatch().await();
-                LOG.info("Retrieved output for job {}: {}", job.getExtId(), output.getKey());
             }
         }
 
-        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
-            LOG.info("Retrieved all outputs for job {}: {}", job.getExtId(), outputsByRelativePath.keySet());
-        }
-
-        postProcessOutputProducts(outputProducts)
-                .forEach((outputProduct, outputPath) -> outputFtepFiles.put(outputProduct.getOutputId(), ftepFileRegistrar.registerOutput(outputProduct, outputPath)));
-
-        return outputFtepFiles;
+        postProcessOutputProducts(retrievedOutputFiles).forEach(Unchecked.consumer(retrievedOutputFile -> {
+            outputFiles.put(
+                    retrievedOutputFile.getOutputFileMetadata().getOutputProductMetadata().getOutputId(),
+                    ftepFileRegistrar.registerOutput(retrievedOutputFile.getOutputFileMetadata(), retrievedOutputFile.getPath()));
+        }));
+        return outputFiles;
     }
 
-    private BiMap<OutputProductMetadata, Path> postProcessOutputProducts(BiMap<OutputProductMetadata, Path> outputProducts) throws IOException {
+    private Map<String, GeoServerSpec> getGeoServerSpecs(Multimap<String, String> inputs) {
+        // TODO Implement GeoServer output control
+        return Collections.emptyMap();
+    }
+
+    private Map<String, String> getCollectionSpecs(Multimap<String, String> inputs) {
+        // TODO Implement output collections
+        return Collections.emptyMap();
+    }
+
+    private OutputProductMetadata getOutputMetadata(Job job, Map<String, GeoServerSpec> geoServerSpecs,
+                                                    Map<String, String> collectionSpecs, String outputId) {
+        OutputProductMetadata.OutputProductMetadataBuilder outputProductMetadataBuilder = OutputProductMetadata.builder()
+                .owner(job.getOwner())
+                .service(job.getConfig().getService())
+                .outputId(outputId)
+                .jobId(job.getExtId());
+
+        HashMap<String, Object> properties = new HashMap<>(ImmutableMap.<String, Object>builder()
+                .put("jobId", job.getExtId()).put("intJobId", job.getId())
+                .put("serviceName", job.getConfig().getService().getName())
+                .put("jobOwner", job.getOwner().getName())
+                .put("jobStartTime",
+                        job.getStartTime().atOffset(ZoneOffset.UTC).toString())
+                .put("jobEndTime", job.getEndTime().atOffset(ZoneOffset.UTC).toString())
+                .build());
+
+        GeoServerSpec geoServerSpecForOutput = geoServerSpecs.get(outputId);
+        if (geoServerSpecForOutput != null) {
+            properties.put("geoServerSpec", geoServerSpecForOutput);
+        }
+
+        String collectionSpecForOutput = collectionSpecs.get(outputId);
+        if (collectionSpecForOutput != null) {
+            properties.put("collection", collectionSpecForOutput);
+        }
+
+        return outputProductMetadataBuilder.productProperties(properties).build();
+    }
+
+    private List<RetrievedOutputFile> postProcessOutputProducts(List<RetrievedOutputFile> retrievedOutputFiles) throws IOException {
+        // TODO Extract post-process possibilities to separate classes
+
         // Detect and zip up shapefiles
-        Set<Path> shapefiles = outputProducts.values().stream()
-                .filter(p -> MoreFiles.getFileExtension(p).equals("shp"))
+        Set<RetrievedOutputFile> shapefiles = retrievedOutputFiles.stream()
+                .filter(output -> MoreFiles.getFileExtension(output.getPath()).equals("shp"))
                 .collect(toSet());
-        for (Path shapefile : shapefiles) {
+        for (RetrievedOutputFile shapefile : shapefiles) {
             LOG.info("Processing detected shapefile: {}", shapefile);
-            postProcessShapefile(shapefile, outputProducts);
+            postProcessShapefile(shapefile, retrievedOutputFiles);
         }
 
-        // Try to read CRS/AOI from all files if not set by input parameters - note that CRS/AOI may still be null after this
-        outputProducts.forEach((outputProduct, outputPath) -> {
-            outputProduct.setCrs(Optional.ofNullable(outputProduct.getCrs()).orElseGet(() -> getOutputCrs(outputPath)));
-            outputProduct.setGeometry(Optional.ofNullable(outputProduct.getGeometry()).orElseGet(() -> getOutputGeometry(outputPath)));
-        });
-
-        return outputProducts;
+        // Try to read CRS/AOI from all files - note that CRS/AOI may still be null after this
+        retrievedOutputFiles.stream()
+                .peek(retrievedOutputFile -> LOG.debug("Attempting to extract geometry from output file {}", retrievedOutputFile.getPath()))
+                .forEach(retrievedOutputFile -> {
+                    retrievedOutputFile.getOutputFileMetadata().setCrs(getOutputCrs(retrievedOutputFile.getPath()));
+                    retrievedOutputFile.getOutputFileMetadata().setGeometry(getOutputGeometry(retrievedOutputFile.getPath()));
+                });
+        return retrievedOutputFiles;
     }
 
-    private void postProcessShapefile(Path shapefile, BiMap<OutputProductMetadata, Path> outputProducts) throws IOException {
+    private void postProcessShapefile(RetrievedOutputFile shapefile, List<RetrievedOutputFile> outputProducts) throws IOException {
         // Clone the metadata of the .shp
-        OutputProductMetadata originalMetadata = outputProducts.inverse().get(shapefile);
-        OutputProductMetadata shapefileMetadata = OutputProductMetadata.builder()
-                .owner(originalMetadata.getOwner())
-                .service(originalMetadata.getService())
-                .outputId(originalMetadata.getOutputId())
-                .jobId(originalMetadata.getJobId())
-                .crs(Optional.ofNullable(originalMetadata.getCrs()).orElseGet(() -> getOutputCrs(shapefile)))
-                .geometry(Optional.ofNullable(originalMetadata.getGeometry()).orElseGet(() -> getOutputGeometry(shapefile)))
-                .properties(originalMetadata.getProperties())
+        OutputFileMetadata originalMetadata = shapefile.getOutputFileMetadata();
+        OutputFileMetadata shapefileMetadata = OutputFileMetadata.builder()
+                .outputProductMetadata(OutputProductMetadata.builder()
+                        .owner(originalMetadata.getOutputProductMetadata().getOwner())
+                        .service(originalMetadata.getOutputProductMetadata().getService())
+                        .outputId(originalMetadata.getOutputProductMetadata().getOutputId())
+                        .jobId(originalMetadata.getOutputProductMetadata().getJobId())
+                        .productProperties(originalMetadata.getOutputProductMetadata().getProductProperties())
+                        .build())
+                .crs(Optional.ofNullable(originalMetadata.getCrs()).orElseGet(() -> getOutputCrs(shapefile.getPath())))
+                .geometry(Optional.ofNullable(originalMetadata.getGeometry()).orElseGet(() -> getOutputGeometry(shapefile.getPath())))
                 .build();
 
-        Shapefile zippedShapefile = GeoUtil.zipShapeFile(shapefile, true);
+        Shapefile zippedShapefile = GeoUtil.zipShapeFile(shapefile.getPath(), true);
 
         // Remove the individual shapefile sidecar files from the outputProducts list, then add the new zip
-        zippedShapefile.getContents().forEach(f -> outputProducts.inverse().remove(f));
-        outputProducts.put(shapefileMetadata, zippedShapefile.zip);
+        zippedShapefile.getContents().forEach(f -> outputProducts.removeIf(p -> p.getPath().equals(f)));
+        outputProducts.add(new RetrievedOutputFile(shapefileMetadata, zippedShapefile.zip));
     }
 
     private String getOutputCrs(Path outputPath) {
@@ -715,7 +842,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                     cancelJob(subJob);
                 }
             }
-            // TODO Check if this implies "parent complete"
+            //TODO Check if this implies parent is completed
         } else if (job.getStatus() != Job.Status.CANCELLED) {
             cancelJob(job);
         }
@@ -739,14 +866,15 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         com.cgi.eoss.ftep.rpc.Job rpcJob = request.getJob();
         try {
             Job job = jobDataService.getById(Long.parseLong(rpcJob.getIntJobId()));
+            //FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(workerFactory.getWorkerById(job.getWorkerId())).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(jobWorkers.get(rpcJob)).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
             LOG.info("Stop requested for job {}", rpcJob.getId());
             worker.stopContainer(rpcJob);
             LOG.info("Successfully stopped job {}", rpcJob.getId());
             responseObserver.onNext(StopServiceResponse.newBuilder().build());
             responseObserver.onCompleted();
-        } catch (Exception e) {
-            LOG.error("Failed to stop job {}; notifying gRPC client", rpcJob.getId(), e);
+        } catch (NumberFormatException e) {
+            LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         } finally {
             jobWorkers.remove(rpcJob);
@@ -762,117 +890,5 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             LOG.error("Failed to enumerate workers", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         }
-    }
-
-    private Multimap<String, FtepFile> executeJob(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) throws Exception, IOException, InterruptedException {
-        String zooId = job.getExtId();
-        String userId = job.getOwner().getName();
-        FtepService service = job.getConfig().getService();
-        Multimap<String, String> inputs = GrpcUtil.paramsListToMap(rpcInputs);
-
-        // Create workspace and prepare inputs
-        JobEnvironment jobEnvironment = prepareEnvironment(job, rpcJob, rpcInputs, worker);
-
-        // Configure and launch the docker container
-        launchContainer(job, rpcJob, worker, jobEnvironment);
-
-        // Update GUI endpoint URL for client access
-        if (service.getType() == FtepService.Type.APPLICATION) {
-            String guiUrl = guiService.getGuiUrl(worker, rpcJob);
-            LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
-            job.setGuiUrl(guiUrl);
-            jobDataService.save(job);
-        }
-
-        // Wait for exit, with timeout if necessary
-        waitForContainerExit(job, rpcJob, worker, inputs);
-
-        // Enumerate files in the job output directory
-        Multimap<String, String> outputsByRelativePath = listOutputFiles(job, rpcJob, worker, jobEnvironment);
-
-        // Repatriate output files
-        Multimap<String, FtepFile> outputFiles = repatriateAndIngestOutputFiles(job, rpcJob, worker, inputs, jobEnvironment, outputsByRelativePath);
-
-        job.setStatus(Job.Status.COMPLETED);
-        job.setOutputs(outputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), MultimapBuilder.hashKeys().hashSetValues()::build)));
-        job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
-        jobDataService.save(job);
-
-        // Ensure output files inherit the ACEs of the job which created them
-        securityService.setParentAcl(Job.class, job.getId(), FtepFile.class, job.getOutputFiles().stream().map(FtepFile::getId).collect(toSet()));
-
-        if (service.getType() == FtepService.Type.BULK_PROCESSOR) {
-            // Auto-publish the output files
-            ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));
-        }
-
-        return outputFiles;
-    }
-
-    private JobEnvironment prepareEnvironment(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, List<JobParam> rpcInputs, FtepWorkerGrpc.FtepWorkerBlockingStub worker) {
-        LOG.info("Downloading input data for {}", job.getExtId());
-        job.setStartTime(LocalDateTime.now(ZoneOffset.UTC));
-        job.setStatus(Job.Status.RUNNING);
-        job.setStage(JobStep.DATA_FETCH.getText());
-        jobDataService.save(job);
-
-        return worker.prepareInputs(JobInputs.newBuilder()
-                .setJob(rpcJob)
-                .addAllInputs(rpcInputs)
-                .build());
-    }
-
-    private void launchContainer(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) {
-        FtepService service = job.getConfig().getService();
-        String dockerImageTag = service.getDockerTag();
-
-        JobDockerConfig.Builder dockerConfigBuilder = JobDockerConfig.newBuilder()
-                .setJob(rpcJob)
-                .setServiceName(service.getName())
-                .setDockerImage(dockerImageTag)
-                .addBinds("/data:/data:ro")
-                .addBinds(jobEnvironment.getWorkingDir() + "/FTEP-WPS-INPUT.properties:" + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro")
-                .addBinds(jobEnvironment.getInputDir() + ":" + "/home/worker/workDir/inDir:ro")
-                .addBinds(jobEnvironment.getOutputDir() + ":" + "/home/worker/workDir/outDir:rw")
-                .addBinds(jobEnvironment.getTempDir() + ":" + "/home/worker/procDir:rw");
-
-        if (service.getType() == FtepService.Type.APPLICATION) {
-            dockerConfigBuilder.addPorts(FtepGuiServiceManager.GUACAMOLE_PORT);
-        }
-
-        LOG.info("Launching docker container for job {}", job.getExtId());
-        job.setStage(JobStep.PROCESSING.getText());
-        jobDataService.save(job);
-        LaunchContainerResponse launchContainerResponse = worker.launchContainer(dockerConfigBuilder.build());
-        LOG.info("Job {} ({}) launched for service: {}", job.getId(), job.getExtId(), service.getName());
-    }
-
-    private void waitForContainerExit(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, Multimap<String, String> inputs) {
-        ContainerExitCode exitCode;
-        if (inputs.containsKey(TIMEOUT_PARAM)) {
-            int timeout = Integer.parseInt(Iterables.getOnlyElement(inputs.get(TIMEOUT_PARAM)));
-            exitCode = worker.waitForContainerExitWithTimeout(ExitWithTimeoutParams.newBuilder().setJob(rpcJob).setTimeout(timeout).build());
-        } else {
-            exitCode = worker.waitForContainerExit(ExitParams.newBuilder().setJob(rpcJob).build());
-        }
-
-        switch (exitCode.getExitCode()) {
-            case 0:
-                // Normal exit
-                break;
-            case 137:
-                LOG.info("Docker container for {} terminated via SIGKILL (exit code 137)", job.getExtId());
-                break;
-            case 143:
-                LOG.info("Docker container for {} terminated via SIGTERM (exit code 143)", job.getExtId());
-                break;
-            default:
-                throw new ServiceExecutionException("Docker container returned with exit code " + exitCode);
-        }
-
-        job.setStage(JobStep.OUTPUT_LIST.getText());
-        job.setEndTime(LocalDateTime.now(ZoneOffset.UTC)); // End time is when processing ends
-        job.setGuiUrl(null); // Any GUI services will no longer be available
-        jobDataService.save(job);
     }
 }

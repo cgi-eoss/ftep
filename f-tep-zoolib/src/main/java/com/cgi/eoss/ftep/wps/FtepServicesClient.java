@@ -128,7 +128,10 @@ public class FtepServicesClient {
 
             LOG.info("Received result for job {}: {}", jobId, result);
 
-            Multimaps.asMap(result).forEach((k, v) -> outputs.put(k, Joiner.on(',').join(v)));
+            Multimaps.asMap(result).forEach((k, v) -> {
+                String join = Joiner.on(',').join(v);
+                outputs.put(k, join);
+            });
             return ZOO.SERVICE_SUCCEEDED;
         } catch (Exception e) {
             LOG.error("Service execution failed", e);

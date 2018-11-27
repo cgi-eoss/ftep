@@ -3,14 +3,20 @@ package com.cgi.eoss.ftep.worker;
 import com.cgi.eoss.ftep.clouds.CloudsConfig;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.IoConfig;
+////import com.cgi.eoss.ftep.worker.QueueMetricsPersistenceConfig;
 import com.cgi.eoss.ftep.queues.QueuesConfig;
+//import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
 import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
 
+/*import com.google.common.base.Strings;
+import okhttp3.OkHttpClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;*/
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+//import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,9 +24,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
+//import org.springframework.scheduling.TaskScheduler;
+//import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+/*import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URI;*/
 
 @Configuration
 @ComponentScan(
@@ -31,6 +42,7 @@ import java.nio.file.Paths;
     CloudsConfig.class,
     InProcessRpcConfig.class,
     IoConfig.class,
+////    QueueMetricsPersistenceConfig.class,
     QueuesConfig.class
 })
 @EnableEurekaClient

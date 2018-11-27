@@ -93,22 +93,20 @@ public class IptEodataServerDownloader implements Downloader {
 
         LOG.debug("Resolved IPT download URL: {}", downloadUrl);
 
-        Request request = new Request.Builder().url(downloadUrl).build();
-        Response response = httpClient.newCall(request).execute();
-
-        if (!response.isSuccessful()) {
-            throw new ServiceIoException("Unsuccessful HTTP response: " + response);
-        }
-
         String filename = Iterables.getLast(downloadUrl.pathSegments()) + ".zip";
         Path outputFile = targetDir.resolve(filename);
 
-        try (BufferedSource source = response.body().source();
-             BufferedSink sink = Okio.buffer(Okio.sink(outputFile))) {
-            long downloadedBytes = sink.writeAll(source);
-            LOG.debug("Downloaded {} bytes for {}", downloadedBytes, uri);
+        Request request = new Request.Builder().url(downloadUrl).build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new ServiceIoException("Unsuccessful HTTP response: " + response);
+            }
+
+            try (BufferedSink sink = Okio.buffer(Okio.sink(outputFile))) {
+                long downloadedBytes = sink.writeAll(response.body().source());
+                LOG.debug("Downloaded {} bytes for {}", downloadedBytes, uri);
+            }
         }
-        response.close();
 
         LOG.info("Successfully downloaded via IPT: {}", outputFile);
         return outputFile;

@@ -14,34 +14,29 @@ import io.grpc.ManagedChannelBuilder;
 
 public class LocalWorker {
 
-    private final ManagedChannelBuilder inProcessChannelBuilder;
+    private final FtepWorkerGrpc.FtepWorkerBlockingStub worker;
 
     public LocalWorker(ManagedChannelBuilder inProcessChannelBuilder) {
-        this.inProcessChannelBuilder = inProcessChannelBuilder;
+        this.worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
     }
 
     public JobEnvironment prepareInputs(JobInputs request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.prepareInputs(request);
     }
 
     public LaunchContainerResponse launchContainer(JobDockerConfig request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.launchContainer(request);
     }
 
     public ContainerExitCode waitForContainerExitWithTimeout(ExitWithTimeoutParams request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.waitForContainerExitWithTimeout(request);
     }
 
     public ContainerExitCode waitForContainerExit(ExitParams request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.waitForContainerExit(request);
     }
 
     public CleanUpResponse cleanUp(Job request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.cleanUp(request);
     }
 }

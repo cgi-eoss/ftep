@@ -12,10 +12,8 @@ import java.util.Map;
 @Data
 @Builder
 public class ReferenceDataMetadata {
-
     private User owner;
     private String filename;
     private String geometry;
     private Map<String, Object> properties;
-
 }

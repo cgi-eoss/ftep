@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
 import com.cgi.eoss.ftep.model.internal.Shapefile;
+import com.cgi.eoss.ftep.model.internal.ShpFileType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +19,6 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverage.grid.io.UnknownFormat;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.Hints;
 import org.geotools.geojson.geom.GeometryJSON;
@@ -157,8 +157,6 @@ public class GeoUtil {
             LOG.debug("Extracted EPSG from file {}: {}", file.getFileName(), epsg);
             return epsg;
         } catch (Exception e) {
-            LOG.error("Could not extract bounding box from file: {}", file);
-            LOG.trace(e);
             throw new GeometryException(e);
         }
     }

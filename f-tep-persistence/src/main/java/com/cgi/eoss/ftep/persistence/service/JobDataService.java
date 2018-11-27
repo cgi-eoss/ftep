@@ -20,4 +20,6 @@ public interface JobDataService extends FtepEntityDataService<Job> {
     Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob);
 
     Job updateJobConfig(Job job);
+
+    Job reload(Long id); // Peter would remove it
 }

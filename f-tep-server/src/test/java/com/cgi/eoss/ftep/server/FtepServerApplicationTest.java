@@ -5,14 +5,15 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.clouds.local.LocalNodeFactory;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
+import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.User;
-import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
+import com.cgi.eoss.ftep.orchestrator.service.FtepJobLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
-import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
@@ -20,19 +21,14 @@ import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.MoreFiles;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +43,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -72,7 +74,7 @@ public class FtepServerApplicationTest {
     private ManagedChannelBuilder channelBuilder;
 
     @Autowired
-    private FtepServiceLauncher ftepServiceLauncher;
+    private FtepJobLauncher ftepJobLauncher;
 
     @Autowired
     private UserDataService userDataService;
@@ -85,6 +87,9 @@ public class FtepServerApplicationTest {
 
     @MockBean
     private ServiceInputOutputManager ioManager;
+
+    @MockBean // Keep this to avoid instantiating a real Bean which needs a data dir
+    private DownloaderFacade downloaderFacade;
 
     @MockBean
     private GeoserverService geoserverService;
@@ -146,7 +151,7 @@ public class FtepServerApplicationTest {
 
         when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
 
-        serverBuilder.addService(ftepServiceLauncher);
+        serverBuilder.addService(ftepJobLauncher);
         serverBuilder.addService(new FtepWorker(nodeFactory, new JobEnvironmentService(workspace), ioManager, 1));
         server = serverBuilder.build().start();
 
@@ -172,8 +177,8 @@ public class FtepServerApplicationTest {
 
     @Test
     public void test() {
-        FtepServiceLauncherGrpc.FtepServiceLauncherBlockingStub serviceLauncher = FtepServiceLauncherGrpc.newBlockingStub(channelBuilder.build());
-        Iterator<FtepServiceResponse> serviceResponseIterator = serviceLauncher.launchService(FtepServiceParams.newBuilder()
+        FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
+        Iterator<FtepServiceResponse> serviceResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
                 .setServiceId(SERVICE_NAME)
                 .setUserId(TESTUSER.getName())
                 .addAllInputs(GrpcUtil.mapToParams(

@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.metrics;
+package com.cgi.eoss.ftep.worker.metrics;
 
 import java.io.Serializable;
 import java.util.List;

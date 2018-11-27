@@ -19,14 +19,14 @@ public class LocalServiceLauncher {
 
     @Async
     public void asyncLaunchService(FtepServiceParams serviceParams, StreamObserver<FtepServiceResponse> responseObserver) {
-        FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
-        serviceLauncher.launchService(serviceParams, responseObserver);
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.launchService(serviceParams, responseObserver);
     }
 
     @Async
     public void asyncStopService(StopServiceParams stopParams, StreamObserver<StopServiceResponse> responseObserver) {
-        FtepServiceLauncherGrpc.FtepServiceLauncherStub serviceLauncher = FtepServiceLauncherGrpc.newStub(inProcessChannelBuilder.build());
-        serviceLauncher.stopService(stopParams, responseObserver);
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.stopService(stopParams, responseObserver);
     }
 
     @Async
@@ -43,7 +43,7 @@ public class LocalServiceLauncher {
 
     @Async
     public void asyncBuildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
-        FtepJobLauncherGrpc.FtepJobLauncherStub serviceLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
-        serviceLauncher.buildService(buildServiceParams, responseObserver);
+        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
+        jobLauncher.buildService(buildServiceParams, responseObserver);
     }
 }

@@ -1,4 +1,7 @@
-package com.cgi.eoss.ftep.metrics;
+package com.cgi.eoss.ftep.worker;
+
+import com.cgi.eoss.ftep.worker.metrics.QueueMetric;
+import com.cgi.eoss.ftep.worker.metrics.QueueMetricsRepository;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

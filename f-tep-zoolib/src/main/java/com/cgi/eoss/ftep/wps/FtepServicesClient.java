@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.wps;
 
-import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 public class FtepServicesClient {
 
     private final ManagedChannel channel;
-    private final FtepServiceLauncherGrpc.FtepServiceLauncherBlockingStub ftepServiceLauncherBlockingStub;
-    private final FtepServiceLauncherGrpc.FtepServiceLauncherStub ftepServiceLauncherStub;
+    private final FtepJobLauncherGrpc.FtepJobLauncherBlockingStub ftepJobLauncherBlockingStub;
+    private final FtepJobLauncherGrpc.FtepJobLauncherStub ftepJobLauncherStub;
 
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
@@ -47,8 +47,8 @@ public class FtepServicesClient {
      */
     public FtepServicesClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
-        ftepServiceLauncherBlockingStub = FtepServiceLauncherGrpc.newBlockingStub(channel);
-        ftepServiceLauncherStub = FtepServiceLauncherGrpc.newStub(channel);
+        ftepJobLauncherBlockingStub = FtepJobLauncherGrpc.newBlockingStub(channel);
+        ftepJobLauncherStub = FtepJobLauncherGrpc.newStub(channel);
     }
 
     /**
@@ -76,7 +76,7 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        Iterator<FtepServiceResponse> responseIterator = ftepServiceLauncherBlockingStub.launchService(request);
+        Iterator<FtepServiceResponse> responseIterator = ftepJobLauncherBlockingStub.launchService(request);
 
         // First message is the persisted job metadata
         Job jobInfo = responseIterator.next().getJob();

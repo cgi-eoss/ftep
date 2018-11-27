@@ -1,9 +1,10 @@
 package com.cgi.eoss.ftep.wps;
 
-import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.clouds.local.LocalNodeFactory;
 import com.cgi.eoss.ftep.clouds.service.NodeFactory;
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.costing.CostingService;
+import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
@@ -13,15 +14,22 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.orchestrator.service.FtepFileRegistrar;
 import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
-import com.cgi.eoss.ftep.orchestrator.service.FtepServiceLauncher;
+import com.cgi.eoss.ftep.orchestrator.service.FtepJobLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
-import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.RemoteApiVersion;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -30,19 +38,9 @@ import com.google.common.io.MoreFiles;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.RemoteApiVersion;
-import com.github.dockerjava.core.command.PullImageResultCallback;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,6 +49,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -142,13 +145,14 @@ public class FtepServicesClientIT {
         FtepSecurityService securityService = mock(FtepSecurityService.class);
         SearchFacade searchFacade = mock(SearchFacade.class);
         FtepFileRegistrar ftepFileRegistrar = new FtepFileRegistrar(jobDataService, searchFacade, catalogueService);
+        FtepQueueService ftepQueueService = mock(FtepQueueService.class);
 
-        FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, guiService, ftepFileRegistrar, costingService, securityService);
+        FtepJobLauncher ftepJobLauncher = new FtepJobLauncher(workerFactory, jobDataService, guiService, ftepFileRegistrar, costingService, securityService, ftepQueueService);
         FtepWorker ftepWorker = new FtepWorker(nodeFactory, jobEnvironmentService, ioManager, 1);
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
 
-        inProcessServerBuilder.addService(ftepServiceLauncher);
+        inProcessServerBuilder.addService(ftepJobLauncher);
         inProcessServerBuilder.addService(ftepWorker);
 
         server = inProcessServerBuilder.build().start();
@@ -271,5 +275,4 @@ public class FtepServicesClientIT {
 
         verify(costingService).chargeForJob(eq(wallet), any());
     }
-
 }

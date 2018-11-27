@@ -1,4 +1,4 @@
-package com.cgi.eoss.ftep.metrics;
+package com.cgi.eoss.ftep.worker.metrics;
 
 import java.time.Instant;
 import java.util.List;

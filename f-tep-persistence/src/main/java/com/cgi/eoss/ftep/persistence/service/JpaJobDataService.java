@@ -99,4 +99,12 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     private Job buildNew(JobConfig jobConfig, String extId, User owner, Job parentJob) {
         return dao.save(new Job(jobConfig, extId, owner, parentJob));
     }
+
+    @Override // Peter would remove it
+    public Job reload(Long id) {
+        Job job = getById(id);
+        job.getOwner().getGroups().size();
+        job.getOutputFiles().size();
+        return job;
+    }
 }

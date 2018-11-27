@@ -7,13 +7,10 @@ import "common_messages.proto";
 option java_multiple_files = true;
 option java_package = "com.cgi.eoss.ftep.rpc";
 
-service FtepServiceLauncher {
-    rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
-    rpc StopService (StopServiceParams) returns (StopServiceResponse);
-}
-
 service FtepJobLauncher {
     rpc BuildService (BuildServiceParams) returns (BuildServiceResponse);
+    rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
+    rpc StopService (StopServiceParams) returns (StopServiceResponse);
 
     rpc SubmitJob (FtepServiceParams) returns (stream FtepServiceResponse);
     rpc CancelJob (CancelJobParams) returns (CancelJobResponse);

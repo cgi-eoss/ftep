@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.persistence.service.WorkerLocatorExpressionDataService;
 import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.log4j.Log4j2;
@@ -57,6 +58,42 @@ public class WorkerFactory {
         return FtepWorkerGrpc.newBlockingStub(managedChannel);
     }
 
+    /**
+     * @return The worker with the specified id
+     */
+    public FtepWorkerGrpc.FtepWorkerBlockingStub getWorkerById(String workerId) {
+        LOG.debug("Locating worker with id {}", workerId);
+        ServiceInstance worker = discoveryClient.getInstances(workerServiceId).stream()
+                .filter(si -> si.getMetadata().get("workerId").equals(workerId))
+                .findFirst()
+                .orElseThrow(() -> new UnsupportedOperationException("Unable to find worker with id: " + workerId));
+
+        LOG.info("Located {} worker: {}:{}", workerId, worker.getHost(), worker.getMetadata().get("grpcPort"));
+
+        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(worker.getHost(), Integer.parseInt(worker.getMetadata().get("grpcPort")))
+                .usePlaintext(true)
+                .build();
+
+        return FtepWorkerGrpc.newBlockingStub(managedChannel);
+    }
+
+    /**
+     * @return An existing instance of a worker
+     */
+    public FtepWorkerGrpc.FtepWorkerBlockingStub getOne() {
+        ServiceInstance worker = discoveryClient.getInstances(workerServiceId).stream()
+                .findFirst()
+                .orElseThrow(() -> new UnsupportedOperationException("Unable to find a worker"));
+
+        LOG.info("Located worker: {}:{}", worker.getHost(), worker.getMetadata().get("grpcPort"));
+
+        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(worker.getHost(), Integer.parseInt(worker.getMetadata().get("grpcPort")))
+                .usePlaintext(true)
+                .build();
+
+        return FtepWorkerGrpc.newBlockingStub(managedChannel);
+    }
+
     public WorkersList listWorkers() {
         WorkersList.Builder result = WorkersList.newBuilder();
 
@@ -74,5 +111,4 @@ public class WorkerFactory {
     private WorkerLocatorExpression getWorkerLocatorExpression(JobConfig jobConfig) {
         return Optional.ofNullable(workerLocatorExpressionDataService.getByService(jobConfig.getService())).orElse(defaultWorkerLocatorExpression);
     }
-
 }

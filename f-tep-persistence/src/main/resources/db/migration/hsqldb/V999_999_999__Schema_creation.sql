@@ -330,11 +330,15 @@ CREATE TABLE acl_entry (
 INSERT INTO ftep_users (name, mail) VALUES ('ftep', 'forestry-tep@esa.int');
 
 -- Default project
-INSERT INTO ftep_projects (name, owner) VALUES ('Default Project', (SELECT uid
-                                                                    FROM ftep_users
-                                                                    WHERE name = 'ftep'));
+INSERT INTO ftep_projects (name, owner) VALUES
+  ('Default Project', (SELECT uid FROM ftep_users WHERE name = 'ftep'));
 
 -- F-TEP datasource
-INSERT INTO ftep_data_sources (name, owner) VALUES ('F-TEP', (SELECT uid
-                                                              FROM ftep_users
-                                                              WHERE name = 'ftep'));
+INSERT INTO ftep_data_sources (name, owner) VALUES
+  ('F-TEP', (SELECT uid FROM ftep_users WHERE name = 'ftep'));
+
+--QueueMetrics data
+--CREATE TABLE IF NOT EXISTS queue_metrics (
+--  epoch        BIGINT,
+--  queue_length BIGINT
+--);

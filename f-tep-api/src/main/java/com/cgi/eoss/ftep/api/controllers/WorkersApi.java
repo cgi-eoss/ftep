@@ -1,6 +1,6 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepWorkerManagerGrpc;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
 import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Collectors;
 
 /**
- * <p>Functionality for admins to examine F-TEP worker metrics.</p>
+ * <p>Admin functionality to examine F-TEP worker metrics.</p>
  */
 @RestController
 @BasePathAwareController
@@ -36,9 +36,9 @@ public class WorkersApi {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity getWorkers() {
-        FtepServiceLauncherGrpc.FtepServiceLauncherBlockingStub serviceLauncher = FtepServiceLauncherGrpc.newBlockingStub(inProcessChannelBuilder.build());
+        FtepWorkerManagerGrpc.FtepWorkerManagerBlockingStub workerManager = FtepWorkerManagerGrpc.newBlockingStub(inProcessChannelBuilder.build());
 
-        WorkersList workersList = serviceLauncher.listWorkers(ListWorkersParams.getDefaultInstance());
+        WorkersList workersList = workerManager.listWorkers(ListWorkersParams.getDefaultInstance());
 
         return ResponseEntity.ok(workersList.getWorkersList().stream().map(WorkerResponse::new).collect(Collectors.toList()));
     }
@@ -55,5 +55,4 @@ public class WorkersApi {
             this.environment = worker.getEnvironment();
         }
     }
-
 }

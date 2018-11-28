@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
+import com.google.common.collect.Sets;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
@@ -18,11 +19,12 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Log4j2
@@ -58,16 +60,28 @@ public class FtepFileRegistrar {
 
     public Set<FtepFile> registerInputFiles(Job job) {
         try {
-            Set<FtepFile> inputFiles = job.getConfig().getInputs().entries().stream()
+            List<FtepFile> inputFiles = job.getConfig().getInputs().entries().stream()
                     .map(Map.Entry::getValue)
                     .filter(FtepFileRegistrar::isValidUri) // Find inputs which look like URIs
                     .flatMap(e -> Arrays.stream(StringUtils.split(e, ',')).map(URI::create)) // Split multi-valued URI inputs
                     .flatMap(searchFacade::findProducts) // Register each URI to an FtepFile (or an empty stream if it couldn't be done)
-                    .collect(toSet());
+                    .distinct()
+                    .collect(toList());
 
-            job.getConfig().setInputFiles(inputFiles);
+            // If the FtepFile has no size, we should force a reload to see if we can get it
+            inputFiles.replaceAll(f -> {
+                if (f.getFilesize() == null || f.getFilesize().equals(0L)) {
+                    return searchFacade.searchForAndCreateSatelliteProductReference(f.getUri())
+                            .orElse(f);
+                } else {
+                    return f;
+                }
+            });
+
+            Set<FtepFile> ftepFiles = Sets.newHashSet(inputFiles);
+            job.getConfig().setInputFiles(ftepFiles);
             jobDataService.updateJobConfig(job);
-            return inputFiles;
+            return ftepFiles;
         } catch (Exception e) {
             LOG.warn("Failed to update job {} configuration files", job.getId(), e);
             return Collections.emptySet();

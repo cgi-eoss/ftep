@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.Striped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.geojson.Feature;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 
 /**
  * <p>Handler for external product (e.g. S-1, S-2, Landsat) metadata and files.</p>
@@ -29,6 +31,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
 
     private final FtepFileDataService ftepFileDataService;
     private final RestoService resto;
+    private final Striped<Lock> externalProductLock = Striped.lock(1);
 
     @Override
     public FtepFile ingest(GeoJsonObject geoJson) {
@@ -44,22 +47,35 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
         URI uri = Optional.ofNullable(feature.getProperties().get("ftepUrl")).map(Object::toString).map(URI::create).orElse(getUri(productSource, productId));
         feature.getProperties().put("ftepUrl", uri);
 
-        return Optional.ofNullable(ftepFileDataService.getByUri(uri)).orElseGet(() -> {
-            UUID restoId;
-            try {
-                restoId = resto.ingestExternalProduct(productSource, feature);
-                LOG.info("Ingested external product with Resto id {} and URI {}", restoId, uri);
-            } catch (Exception e) {
-                LOG.error("Failed to ingest external product to Resto, continuing...", e);
-                // TODO Add GeoJSON to FtepFile model
-                restoId = UUID.randomUUID();
-            }
-            FtepFile ftepFile = new FtepFile(uri, restoId);
-            ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
-            ftepFile.setFilename(productId);
-            ftepFile.setFilesize(filesize);
-            return ftepFileDataService.save(ftepFile);
-        });
+        Lock lock = externalProductLock.get(uri);
+        lock.lock();
+        try {
+            Optional<FtepFile> existingFile = Optional.ofNullable(ftepFileDataService.getByUri(uri));
+
+            // Update the existing file with new attributes, or save the new file
+            return ftepFileDataService.save(existingFile.map(ftepFile -> {
+                ftepFile.setFilename(productId);
+                ftepFile.setFilesize(filesize);
+                return ftepFile;
+            }).orElseGet(() -> {
+                UUID restoId;
+                try {
+                    restoId = resto.ingestExternalProduct(productSource, feature);
+                    LOG.info("Ingested external product with Resto id {} and URI {}", restoId, uri);
+                } catch (Exception e) {
+                    LOG.error("Failed to ingest external product to Resto, continuing...", e);
+                    // TODO Add GeoJSON to FtepFile model
+                    restoId = UUID.randomUUID();
+                }
+                FtepFile ftepFile = new FtepFile(uri, restoId);
+                ftepFile.setType(FtepFile.Type.EXTERNAL_PRODUCT);
+                ftepFile.setFilename(productId);
+                ftepFile.setFilesize(filesize);
+                return ftepFile;
+            }));
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override

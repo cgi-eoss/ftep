@@ -1,5 +1,5 @@
 group 'com.cgi.eoss.f-tep'
-version '2.4.6'
+version '2.5.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -23,6 +23,7 @@ dependencies {
     compile 'de.grundid.opendatalab:geojson-jackson'
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-text'
+    compile 'org.apache.poi:poi'
     compile 'org.aspectj:aspectjweaver'
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-webmvc'

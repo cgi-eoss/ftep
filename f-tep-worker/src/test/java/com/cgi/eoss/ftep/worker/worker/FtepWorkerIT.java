@@ -7,6 +7,8 @@ import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.command.PullImageResultCallback;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -21,8 +23,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.core.command.PullImageResultCallback;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +41,7 @@ public class FtepWorkerIT {
     @MockBean
     private ServiceInputOutputManager ioManager;
 
-    @MockBean
+    @MockBean // Keep this to avoid instantiating a real Bean which needs a data dir
     private DownloaderFacade downloaderFacade;
 
     @Autowired

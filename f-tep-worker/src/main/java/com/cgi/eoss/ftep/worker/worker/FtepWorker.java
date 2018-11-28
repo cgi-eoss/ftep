@@ -59,7 +59,9 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.jooq.lambda.Unchecked;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
@@ -84,8 +86,6 @@ import java.util.stream.Stream;
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    private static final int FILE_STREAM_CHUNK_BYTES = 8192;
-
     private final NodeFactory nodeFactory;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
@@ -101,11 +101,19 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     // Track which input URIs are used for each job
     private final Multimap<String, URI> jobInputs = MultimapBuilder.hashKeys().hashSetValues().build();
 
+    private final int minWorkerNodes;
+
     @Autowired
-    public FtepWorker(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager) {
+    public FtepWorker(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes) {
         this.nodeFactory = nodeFactory;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
+        this.minWorkerNodes = minWorkerNodes;
+    }
+
+    @PostConstruct
+    public void allocateMinNodes() {
+        // TODO determine current node count, start nodes if necessary
     }
 
     private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
@@ -119,24 +127,24 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void prepareEnvironment(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            String jobId = request.getJob().getId();
             try {
                 Node node = nodeFactory.provisionNode(jobEnvironmentService.getBaseDir());
                 DockerClient dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
-                jobNodes.put(request.getJob().getId(), node);
-                jobClients.put(request.getJob().getId(), dockerClient);
+                jobNodes.put(jobId, node);
+                jobClients.put(jobId, dockerClient);
             } catch (Exception e) {
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.error("Failed to prepare Docker context: {}", e.getMessage());
                 }
-                LOG.error("Failed to prepare Docker context for {}", request.getJob().getId(), e);
+                LOG.error("Failed to prepare Docker context for {}", jobId, e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
-
             try {
                 Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
 
                 // Create workspace directories and input parameters file
-                com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(request.getJob().getId(), inputs);
+                com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(jobId, inputs);
 
                 // Resolve and download any URI-type inputs
                 for (Map.Entry<String, String> e : inputs.entries()) {
@@ -146,7 +154,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         // Just hope no one has used a comma in their url...
                         Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(Collectors.toSet());
                         inputOutputManager.prepareInput(subdirPath, inputUris);
-                        jobInputs.putAll(request.getJob().getId(), inputUris);
+                        jobInputs.putAll(jobId, inputUris);
                     }
                 }
 
@@ -156,7 +164,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         .setWorkingDir(jobEnv.getWorkingDir().toAbsolutePath().toString())
                         .setTempDir(jobEnv.getTempDir().toAbsolutePath().toString())
                         .build();
-                jobEnvironments.put(request.getJob().getId(), jobEnv);
+                jobEnvironments.putIfAbsent(jobId, jobEnv);
 
                 responseObserver.onNext(ret);
                 responseObserver.onCompleted();
@@ -164,19 +172,24 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.error("Failed to prepare job inputs: {}", e.getMessage());
                 }
-                LOG.error("Failed to prepare job inputs for {}", request.getJob().getId(), e);
-                cleanUpJob(request.getJob().getId());
+                LOG.error("Failed to prepare job inputs for {}", jobId, e);
+                cleanUpJob(jobId);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
     }
 
     @Override
+    public void prepareInputs(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
+    }
+
+    @Override
     public void launchContainer(JobDockerConfig request, StreamObserver<LaunchContainerResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
+            String jobId = request.getJob().getId();
+            Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
 
-            DockerClient dockerClient = jobClients.get(request.getJob().getId());
+            DockerClient dockerClient = jobClients.get(jobId);
             String containerId = null;
 
             try {
@@ -185,7 +198,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 // Launch tag
                 try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage())) {
                     createContainerCmd.withLabels(ImmutableMap.of(
-                            "jobId", request.getJob().getId(),
+                            "jobId", jobId,
                             "intJobId", request.getJob().getIntJobId(),
                             "userId", request.getJob().getUserId(),
                             "serviceId", request.getJob().getServiceId()
@@ -204,10 +217,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                                     .collect(Collectors.toList()));
 
                     containerId = createContainerCmd.exec().getId();
-                    jobContainers.put(request.getJob().getId(), containerId);
+                    jobContainers.put(jobId, containerId);
                 }
 
-                LOG.info("Launching container {} for job {}", containerId, request.getJob().getId());
+                LOG.info("Launching container {} for job {}", containerId, jobId);
                 dockerClient.startContainerCmd(containerId).exec();
 
                 dockerClient.logContainerCmd(containerId).withStdErr(true).withStdOut(true).withFollowStream(true).withTailAll()
@@ -222,7 +235,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 LOG.error("Failed to launch Docker container {}", request.getDockerImage(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
-                    cleanUpJob(request.getJob().getId());
+                    cleanUpJob(jobId);
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -277,7 +290,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
             try {
                 stopContainer(dockerClient, containerId);
-
                 responseObserver.onNext(StopContainerResponse.newBuilder().build());
                 responseObserver.onCompleted();
             } catch (Exception e) {
@@ -293,11 +305,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID %s does not have a known container ID", request.getJob().getId());
+            String jobId = request.getJob().getId();
+            Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
+            Preconditions.checkArgument(jobContainers.containsKey(jobId), "Job ID %s does not have a known container ID", jobId);
 
-            DockerClient dockerClient = jobClients.get(request.getJob().getId());
-            String containerId = jobContainers.get(request.getJob().getId());
+            DockerClient dockerClient = jobClients.get(jobId);
+            String containerId = jobContainers.get(jobId);
             try {
                 int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode();
                 LOG.info("Received exit code from container {}: {}", containerId, exitCode);
@@ -308,7 +321,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             } finally {
                 removeContainer(dockerClient, containerId);
-                cleanUpJob(request.getJob().getId());
+                cleanUpJob(jobId);
             }
         }
     }
@@ -316,11 +329,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getJob().getId()), "Job ID %s is not attached to a DockerClient", request.getJob().getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getJob().getId()), "Job ID %s does not have a known container ID", request.getJob().getId());
+            String jobId = request.getJob().getId();
+            Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
+            Preconditions.checkArgument(jobContainers.containsKey(jobId), "Job ID %s does not have a known container ID", jobId);
 
-            DockerClient dockerClient = jobClients.get(request.getJob().getId());
-            String containerId = jobContainers.get(request.getJob().getId());
+            DockerClient dockerClient = jobClients.get(jobId);
+            String containerId = jobContainers.get(jobId);
             try {
                 int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode(request.getTimeout(), TimeUnit.MINUTES);
                 responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
@@ -337,7 +351,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             } finally {
                 removeContainer(dockerClient, containerId);
-                cleanUpJob(request.getJob().getId());
+                cleanUpJob(jobId);
             }
         }
     }
@@ -422,7 +436,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         jobClients.remove(jobId);
         Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
         Optional.ofNullable(jobNodes.remove(jobId)).ifPresent(nodeFactory::destroyNode);
-
         Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
         LOG.debug("Finished job URIs: {}", finishedJobInputs);
         Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
@@ -538,5 +551,4 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     Map<String, String> getJobContainers() {
         return jobContainers;
     }
-
 }

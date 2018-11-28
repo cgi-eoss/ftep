@@ -68,7 +68,7 @@ public class FtepServiceDescriptorYamlConverter implements AttributeConverter<Ft
 
     @Override
     public Class returnedClass() {
-        return Multimap.class;
+        return FtepServiceDescriptor.class;
     }
 
     @Override
@@ -136,4 +136,3 @@ public class FtepServiceDescriptorYamlConverter implements AttributeConverter<Ft
     }
 
 }
-

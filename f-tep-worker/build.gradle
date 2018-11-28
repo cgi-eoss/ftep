@@ -7,7 +7,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '2.4.6'
+version '2.5.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -22,13 +22,12 @@ dependencies {
     compile project(':f-tep-clouds')
     compile project(':f-tep-io')
     compile project(':f-tep-logging')
+    compile project(':f-tep-queues')
     compile project(':f-tep-rpc')
-
-    // Pre-built shaded docker-java jar
-    compile project(path: ':docker-java', configuration: 'shadow')
 
     compile 'commons-io:commons-io'
     compile 'commons-net:commons-net'
+    compile 'com.aries:docker-java-shaded'
     compile 'com.jayway.jsonpath:json-path'
     compile 'com.lmax:disruptor'
     compile 'com.squareup.okhttp3:okhttp'
@@ -48,6 +47,9 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
     compile 'org.springframework.boot:spring-boot-starter-undertow'
     compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    compile 'org.springframework.data:spring-data-jpa'
+    compile 'org.springframework:spring-orm'
+    compile 'org.hsqldb:hsqldb' 
 
     testCompile project(':f-tep-catalogue')
     testCompile project(':f-tep-persistence')
@@ -56,7 +58,6 @@ dependencies {
     testCompile 'com.squareup.okhttp3:mockwebserver'
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'
-    testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockftpserver:MockFtpServer'
     testCompile 'org.mockito:mockito-core'
     testCompile 'org.springframework:spring-test'

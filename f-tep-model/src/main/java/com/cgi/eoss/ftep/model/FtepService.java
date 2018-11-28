@@ -30,7 +30,10 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"id", "contextFiles"})
 @ToString(exclude = {"serviceDescriptor", "contextFiles"})
 @Table(name = "ftep_services",
-        indexes = {@Index(name = "ftep_services_name_idx", columnList = "name"), @Index(name = "ftep_services_owner_idx", columnList = "owner")},
+        indexes = {
+                @Index(name = "ftep_services_name_idx", columnList = "name"),
+                @Index(name = "ftep_services_owner_idx", columnList = "owner")
+        },
         uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 @NoArgsConstructor
 @Entity
@@ -108,6 +111,11 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @JsonIgnore
     private Set<FtepServiceContextFile> contextFiles = new HashSet<>();
 
+    @Lob
+    @org.hibernate.annotations.Type(type = "com.cgi.eoss.ftep.model.converters.FtepServiceDockerBuildInfoYamlConverter")
+    @Column(name = "docker_build_info")
+    private FtepServiceDockerBuildInfo dockerBuildInfo;
+
     /**
      * <p>Create a new Service with the minimum required parameters.</p>
      *
@@ -135,7 +143,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     }
 
     public enum Type {
-        PROCESSOR, BULK_PROCESSOR, APPLICATION
+        PROCESSOR, BULK_PROCESSOR, APPLICATION, PARALLEL_PROCESSOR
     }
 
     public enum Status {
@@ -145,5 +153,4 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     public enum Licence {
         OPEN, RESTRICTED
     }
-
 }

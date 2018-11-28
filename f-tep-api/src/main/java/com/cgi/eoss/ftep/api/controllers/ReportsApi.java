@@ -10,6 +10,9 @@ import lombok.Singular;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,12 +21,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -37,17 +43,20 @@ public class ReportsApi {
 
     private final JobDataService jobDataService;
     private final FtepFileRegistrar ftepFileRegistrar;
+    private final ReportsCollector reportsCollector;
 
     @Autowired
-    public ReportsApi(JobDataService jobDataService, FtepFileRegistrar ftepFileRegistrar) {
+    public ReportsApi(JobDataService jobDataService, FtepFileRegistrar ftepFileRegistrar, ReportsCollector reportsCollector) {
         this.jobDataService = jobDataService;
         this.ftepFileRegistrar = ftepFileRegistrar;
+        this.reportsCollector = reportsCollector;
     }
 
     @PostMapping("/updateJobFiles")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public ResponseEntity updateJobFiles() {
-        jobDataService.getAllIds().forEach(this::updateJobFiles);
+        ForkJoinPool jobUpdatePool = new ForkJoinPool(12);
+        jobUpdatePool.submit(() -> jobDataService.getAllIds().forEach(this::updateJobFiles)).join();
         LOG.info("Finished indexing job input files");
         return ResponseEntity.ok().build();
     }
@@ -87,6 +96,28 @@ public class ReportsApi {
         }
 
         return reportBuilder.build();
+    }
+
+    /**
+     * Providing year/month will result in downloading an Excel sheet with the
+     * monthly statistics for the given date.
+     * The parameter "HttpServletResponse response" is autowired.
+     */
+    @GetMapping("/dataUsage/{year}/{month}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
+    public void getDataUsageReportYearMonth(@PathVariable("year") int year, @PathVariable("month") int month, HttpServletResponse response) {
+        String filename = "ReportOf_" + month + "_" + year + ".xls";
+        LOG.info("Preparing downloadable xls: " + filename + ".");
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        try {
+            long bodyLength = reportsCollector.generateUsageReport(YearMonth.of(year, month), response.getOutputStream());
+            response.setContentLengthLong(bodyLength);
+            response.setStatus(HttpStatus.OK.value());
+            response.flushBuffer();
+        } catch (IOException ioe) {
+            LOG.info("Problem while preparing the file: " + filename + ", cannot flush HTTP buffer. Exception:\n" + ioe.getMessage());
+        }
     }
 
     private JobDataUsage getJobDataUsage(Job job) {

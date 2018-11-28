@@ -147,7 +147,7 @@ public class FtepServerApplicationTest {
         when(ioManager.getServiceContext(SERVICE_NAME)).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
 
         serverBuilder.addService(ftepServiceLauncher);
-        serverBuilder.addService(new FtepWorker(nodeFactory, new JobEnvironmentService(workspace), ioManager));
+        serverBuilder.addService(new FtepWorker(nodeFactory, new JobEnvironmentService(workspace), ioManager, 1));
         server = serverBuilder.build().start();
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));

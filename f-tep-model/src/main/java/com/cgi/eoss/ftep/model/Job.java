@@ -5,8 +5,10 @@ import com.google.common.collect.Multimap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -32,10 +34,14 @@ import java.util.Set;
  * <p>Representation of a single {@link JobConfig} execution.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@ToString(exclude = {"parentJob"})
+@EqualsAndHashCode(exclude = {"id", "subJobs"})
 @Table(name = "ftep_jobs",
-        indexes = {@Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"), @Index(name = "ftep_jobs_owner_idx", columnList = "owner")},
-        uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
+    indexes = {
+        @Index(name = "ftep_jobs_job_config_idx", columnList = "job_config"),
+        @Index(name = "ftep_jobs_owner_idx", columnList = "owner")
+    },
+    uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
 @NoArgsConstructor
 @Entity
 public class Job implements FtepEntityWithOwner<Job> {
@@ -88,6 +94,12 @@ public class Job implements FtepEntityWithOwner<Job> {
     private Status status = Status.CREATED;
 
     /**
+     * <p>The id of the worker executing the job.</p>
+     */
+    @Column(name = "worker_id")
+    private String workerId;
+
+    /**
      * <p>Current stage of execution. Maybe arbitrarily set by service implementations to inform the user of
      * progress.</p>
      */
@@ -99,6 +111,12 @@ public class Job implements FtepEntityWithOwner<Job> {
      */
     @Column(name = "gui_url")
     private String guiUrl;
+
+    /**
+     * <p>Backend endpoint for GUI if this is a {@link FtepService.Type#APPLICATION}.</p>
+     */
+    @Column(name = "gui_endpoint")
+    private String guiEndpoint;
 
     /**
      * <p>The job execution outputs.</p>
@@ -120,10 +138,37 @@ public class Job implements FtepEntityWithOwner<Job> {
     )
     private Set<FtepFile> outputFiles = new HashSet<>();
 
+    /**
+     * <p>The subjobs produced from a job related to a parallel processor</p>
+     */
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parentJob")
+    private Set<Job> subJobs = new HashSet<>();
+
+    /**
+     * <p>The parent job of a subjob</p>
+     */
+    @ManyToOne
+    private Job parentJob;
+
+    /**
+     * <p>Tells if a job is a parent job</p>
+     */
+    @Column(name = "is_parent")
+    private boolean parent = false;
+
+    public Job(JobConfig config, String extId, User owner, Job parentJob) {
+        this(config, extId, owner);
+        this.parentJob = parentJob;
+    }
+
     public Job(JobConfig config, String extId, User owner) {
         this.config = config;
         this.extId = extId;
         this.owner = owner;
+    }
+
+    public void addSubJob(Job job) {
+        subJobs.add(job);
     }
 
     public void addOutputFile(FtepFile outputFile) {

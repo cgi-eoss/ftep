@@ -1,0 +1,102 @@
+pipeline {
+    options {
+        buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '1', daysToKeepStr: '30', numToKeepStr: ''))
+        timeout(time: 1, unit: 'HOURS')
+    }
+    agent {
+        kubernetes {
+            label 'ftep-build'
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
+  containers:
+  - name: ftep-build
+    image: cgici/ftep-build-container:1.1.0
+    imagePullPolicy: IfNotPresent
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+    resources:
+      requests:
+        cpu: 2
+        memory: 4Gi
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
+    }
+    stages {
+        stage('build') {
+            steps {
+                gerritReview message: "Starting build: ${BUILD_URL}"
+                container('ftep-build') {
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        sh "gradle --parallel --configure-on-demand build"
+                    }
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/test-results/test/TEST-*.xml'
+                }
+            }
+        }
+
+        stage('buildDist') {
+            steps {
+                container('ftep-build') {
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        sh "gradle --parallel --configure-on-demand buildDist -pdistribution"
+                    }
+                }
+            }
+        }
+
+        stage('sonarqube') {
+            when {
+                branch 'development'
+            }
+            steps {
+                container('ftep-build') {
+                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                        withSonarQubeEnv('CGI CI SonarQube') {
+                            sh "gradle --parallel --configure-on-demand sonarqube"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('deploy rpms') {
+            when {
+                branch 'master'
+            }
+            steps {
+                container('ftep-build') {
+                    withCredentials([usernameColonPassword(credentialsId: '597ee7f1-63fc-4036-be52-0cea3e3d8d37', variable: 'NEXUS_USERPASS')]) {
+                        sh """
+                        cd .rpms
+                        for rpm in * ; do
+                          curl -v --user '${NEXUS_USERPASS}' --upload-file \${rpm} https://nexus.observing.earth/repository/yum-ftep/${branch}/\${rpm}
+                        done
+                    """
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success { gerritReview labels: [Verified: 1], message: "Build successful: ${BUILD_URL}" }
+        unstable { gerritReview labels: [Verified: -1], message: "Build is unstable: ${BUILD_URL}" }
+        failure { gerritReview labels: [Verified: -1], message: "Build failure: ${BUILD_URL}" }
+    }
+}

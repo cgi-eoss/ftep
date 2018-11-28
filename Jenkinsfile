@@ -9,7 +9,7 @@ node {
         stash name: 'source', useDefaultExcludes: false
     }
 
-    load '.fetch/build/pipeline.groovy'
+    load '.fetch/pipeline.groovy'
 }()
 
 // vi: syntax=groovy

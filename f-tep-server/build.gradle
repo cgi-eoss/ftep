@@ -7,7 +7,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '2.4.6'
+version '2.5.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -38,7 +38,8 @@ dependencies {
     runtime 'org.postgresql:postgresql'
 
     testCompile project(':f-tep-worker')
-    testCompile project(path: ':docker-java', configuration: 'shadow')
+
+    testCompile 'com.aries:docker-java-shaded'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 

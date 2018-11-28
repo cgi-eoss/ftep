@@ -1,6 +1,5 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
@@ -8,6 +7,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
 import io.grpc.stub.StreamObserver;
 import lombok.Getter;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +50,7 @@ public class JobConfigsApiExtension {
     }
 
     /**
-     * <p>Provides a direct interface to the service orchestrator, allowing users to launch job configurations without
-     * going via WPS.</p>
+     * <p>Provides a direct interface to the service orchestrator, allowing users to launch job configurations without going via WPS.</p>
      * <p>Service are launched asynchronously; the gRPC response is discarded.</p>
      */
     @PostMapping("/{jobConfigId}/launch")
@@ -65,6 +65,9 @@ public class JobConfigsApiExtension {
         if (!Strings.isNullOrEmpty(jobConfig.getLabel())) {
             serviceParamsBuilder.setJobConfigLabel(jobConfig.getLabel());
         }
+
+        Optional.ofNullable(jobConfig.getParent())
+                .ifPresent(parent -> serviceParamsBuilder.setJobParent(String.valueOf(parent.getId())));
 
         FtepServiceParams serviceParams = serviceParamsBuilder.build();
 
@@ -108,5 +111,4 @@ public class JobConfigsApiExtension {
             // No-op, the user has long stopped listening here
         }
     }
-
 }

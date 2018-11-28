@@ -31,11 +31,15 @@ import java.util.Set;
  * <p>This object is suitable for sharing for re-execution, independent of the actual run status and outputs.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id"})
-@ToString(exclude = {"inputs"})
+@EqualsAndHashCode(exclude = {"id", "parent"})
+@ToString(exclude = {"inputs", "parent"})
 @Table(name = "ftep_job_configs",
-        indexes = {@Index(name = "ftep_job_configs_service_idx", columnList = "service"), @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"), @Index(name = "ftep_job_configs_label_idx", columnList = "label")},
-        uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs"}))
+    indexes = {
+        @Index(name = "ftep_job_configs_service_idx", columnList = "service"),
+        @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"),
+        @Index(name = "ftep_job_configs_label_idx", columnList = "label")
+    },
+    uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs", "parent"}))
 @NoArgsConstructor
 @Entity
 public class JobConfig implements FtepEntityWithOwner<JobConfig> {
@@ -54,6 +58,13 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
+
+    /**
+     * <p>Parent job to attach to, if any.</p>
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "parent")
+    private Job parent;
 
     /**
      * <p>The service this job is configuring.</p>
@@ -107,5 +118,4 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     public int compareTo(JobConfig o) {
         return ComparisonChain.start().compare(service, o.service).result();
     }
-
 }

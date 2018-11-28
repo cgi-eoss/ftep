@@ -6,7 +6,7 @@ buildscript {
 }
 
 group 'com.cgi.eoss.f-tep'
-version '2.4.6'
+version '2.5.0'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -28,7 +28,7 @@ dependencies {
     testCompile project(':f-tep-persistence')
     testCompile project(':f-tep-worker')
 
-    testCompile 'com.github.docker-java:docker-java'
+    testCompile 'com.aries:docker-java-shaded'
     testCompile 'com.google.jimfs:jimfs'
     testCompile 'junit:junit'
     testCompile 'org.hamcrest:hamcrest-junit'

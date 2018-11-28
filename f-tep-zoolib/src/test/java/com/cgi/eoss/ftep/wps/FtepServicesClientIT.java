@@ -144,7 +144,7 @@ public class FtepServicesClientIT {
         FtepFileRegistrar ftepFileRegistrar = new FtepFileRegistrar(jobDataService, searchFacade, catalogueService);
 
         FtepServiceLauncher ftepServiceLauncher = new FtepServiceLauncher(workerFactory, jobDataService, guiService, ftepFileRegistrar, costingService, securityService);
-        FtepWorker ftepWorker = new FtepWorker(nodeFactory, jobEnvironmentService, ioManager);
+        FtepWorker ftepWorker = new FtepWorker(nodeFactory, jobEnvironmentService, ioManager, 1);
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));
 

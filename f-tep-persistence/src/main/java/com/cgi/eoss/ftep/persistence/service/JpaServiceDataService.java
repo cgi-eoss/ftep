@@ -35,12 +35,12 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
     }
 
     @Override
-    FtepEntityDao<FtepService> getDao() {
+    public FtepEntityDao<FtepService> getDao() {
         return ftepServiceDao;
     }
 
     @Override
-    Predicate getUniquePredicate(FtepService entity) {
+    public Predicate getUniquePredicate(FtepService entity) {
         return ftepService.name.eq(entity.getName());
     }
 

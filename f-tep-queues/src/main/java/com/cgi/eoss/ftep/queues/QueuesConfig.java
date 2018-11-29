@@ -3,12 +3,6 @@ package com.cgi.eoss.ftep.queues;
 import com.cgi.eoss.ftep.queues.service.FtepJMSQueueService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 
-import java.net.URI;
-import java.util.Arrays;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerRegistry;
@@ -26,6 +20,12 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import java.net.URI;
+import java.util.Arrays;
 
 /**
  * <p>Spring configuration for the F-TEP Queues component.</p>

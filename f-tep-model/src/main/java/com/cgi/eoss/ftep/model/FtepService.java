@@ -111,6 +111,9 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @JsonIgnore
     private Set<FtepServiceContextFile> contextFiles = new HashSet<>();
 
+    /**
+     * <p>Docker container build information.</p>
+     */
     @Lob
     @org.hibernate.annotations.Type(type = "com.cgi.eoss.ftep.model.converters.FtepServiceDockerBuildInfoYamlConverter")
     @Column(name = "docker_build_info")
@@ -121,6 +124,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
      *
      * @param name  Name of the service.
      * @param owner The user owning the service.
+     * @param dockerTag The tag used at build.
      */
     public FtepService(String name, User owner, String dockerTag) {
         this.name = name;

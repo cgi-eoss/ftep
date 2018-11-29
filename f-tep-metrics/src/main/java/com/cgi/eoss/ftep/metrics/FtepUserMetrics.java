@@ -31,7 +31,7 @@ import static com.cgi.eoss.ftep.model.QUser.user;
 @Log4j2
 public class FtepUserMetrics implements PublicMetrics {
 
-    // Use a cache to allow simple throttling of the metrics lookups
+    // Cache to allow simple throttling of the metrics lookups
     private final LoadingCache<Boolean, Collection<Metric<?>>> metricsCache;
 
     FtepUserMetrics(EntityManager em) {

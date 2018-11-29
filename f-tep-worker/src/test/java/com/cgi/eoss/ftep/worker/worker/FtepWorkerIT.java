@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
+
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import io.grpc.ManagedChannelBuilder;
@@ -64,7 +65,6 @@ public class FtepWorkerIT {
     public static void precondition() {
         // Shortcut if docker socket is not accessible to the current user
         assumeTrue("Unable to write to Docker socket; disabling docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
-        // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
     }
 
     @Before
@@ -104,5 +104,4 @@ public class FtepWorkerIT {
             dockerClient.removeImageCmd(tag).exec();
         }
     }
-
 }

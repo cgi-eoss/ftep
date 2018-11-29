@@ -122,7 +122,7 @@ public class ServicesApiExtension {
         Files.write(zipBase.resolve(service.getName() + ".yaml"), service.getServiceDescriptor().toYaml().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    // ** DOCKER BUILD SERVICE FINGERPRINT - BEGIN ** ----------------------------------- //
+    // DOCKER BUILD SERVICE FINGERPRINT - BEGIN ----------------------------------- //
 
     /**
      * <p>Provides information on the status of the service Docker build</p>
@@ -208,5 +208,5 @@ public class ServicesApiExtension {
         public void onCompleted() {}
     }
 
-    // ** DOCKER BUILD SERVICE FINGERPRINT - END ** ------------------------------------- //
+    // DOCKER BUILD SERVICE FINGERPRINT - END ------------------------------------- //
 }

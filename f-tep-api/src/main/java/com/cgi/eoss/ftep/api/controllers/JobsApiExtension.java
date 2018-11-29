@@ -1,10 +1,10 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.rpc.CancelJobParams;
+import com.cgi.eoss.ftep.rpc.CancelJobResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
-import com.cgi.eoss.ftep.rpc.StopServiceParams;
-import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
+import okhttp3.Interceptor.Chain;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -66,19 +66,14 @@ public class JobsApiExtension {
     public JobsApiExtension(@Value("${ftep.api.logs.username:admin}") String username,
                             @Value("${ftep.api.logs.password:graylogpass}") String password,
                             LocalServiceLauncher localServiceLauncher) {
-        this.httpClient = new OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request();
-                        Request authenticatedRequest = request.newBuilder()
-                                .header("Authorization", Credentials.basic(username, password))
-                                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-                                .build();
-                        return chain.proceed(authenticatedRequest);
-                    }
-                })
-                .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
+        this.httpClient = new OkHttpClient.Builder().addInterceptor((Chain chain) -> {
+                    Request request = chain.request();
+                    Request authenticatedRequest = request.newBuilder()
+                        .header("Authorization", Credentials.basic(username, password))
+                        .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+                        .build();
+                    return chain.proceed(authenticatedRequest);
+                }).addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
         this.objectMapper = new ObjectMapper();
         this.localServiceLauncher = localServiceLauncher;
@@ -164,16 +159,11 @@ public class JobsApiExtension {
 
     @PostMapping("/{jobId}/terminate")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'write')")
-    public ResponseEntity stop(@ModelAttribute("jobId") Job job) throws InterruptedException {
-        StopServiceParams stopServiceParams = StopServiceParams.newBuilder()
-                .setJob(GrpcUtil.toRpcJob(job))
-                .build();
-
+    public ResponseEntity cancelJob(@ModelAttribute("jobId") Job job) throws InterruptedException {
+        CancelJobParams cancelJobParams = CancelJobParams.newBuilder().setJob(GrpcUtil.toRpcJob(job)).build();
         final CountDownLatch latch = new CountDownLatch(1);
-        JobStopObserver responseObserver = new JobStopObserver(latch);
-
-        localServiceLauncher.asyncStopService(stopServiceParams, responseObserver);
-
+        JobCancelObserver responseObserver = new JobCancelObserver(latch);
+        localServiceLauncher.asyncCancelJob(cancelJobParams, responseObserver);
         latch.await(1, TimeUnit.MINUTES);
         return ResponseEntity.noContent().build();
     }
@@ -199,15 +189,15 @@ public class JobsApiExtension {
         private String message;
     }
 
-    private static final class JobStopObserver implements StreamObserver<StopServiceResponse> {
+    private static final class JobCancelObserver implements StreamObserver<CancelJobResponse> {
         private final CountDownLatch latch;
 
-        JobStopObserver(CountDownLatch latch) {
+        JobCancelObserver(CountDownLatch latch) {
             this.latch = latch;
         }
 
         @Override
-        public void onNext(StopServiceResponse value) {
+        public void onNext(CancelJobResponse value) {
             LOG.debug("Received StopServiceResponse: {}", value);
             latch.countDown();
         }
@@ -222,5 +212,4 @@ public class JobsApiExtension {
             // No-op, the user has long stopped listening here
         }
     }
-
 }

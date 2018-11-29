@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -76,7 +77,7 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        Iterator<FtepServiceResponse> responseIterator = ftepJobLauncherBlockingStub.launchService(request);
+        Iterator<FtepServiceResponse> responseIterator = ftepJobLauncherBlockingStub.submitJob(request);
 
         // First message is the persisted job metadata
         Job jobInfo = responseIterator.next().getJob();
@@ -136,5 +137,4 @@ public class FtepServicesClient {
             return ZOO.SERVICE_FAILED;
         }
     }
-
 }

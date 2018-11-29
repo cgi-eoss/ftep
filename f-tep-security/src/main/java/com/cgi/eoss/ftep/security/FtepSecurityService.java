@@ -1,12 +1,12 @@
 package com.cgi.eoss.ftep.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
-import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
@@ -191,7 +191,6 @@ public class FtepSecurityService {
         return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
-
     /**
      * <p>Verify that the given user has the given permission on the given object.</p>
      *
@@ -261,7 +260,7 @@ public class FtepSecurityService {
         List<Sid> sids = getSids(getCurrentAuthentication());
         List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(toList());
 
-        Map<ObjectIdentity, Acl> objectIdentityAclMap = null;
+        Map<ObjectIdentity, Acl> objectIdentityAclMap;
         try {
             objectIdentityAclMap = aclService.readAclsById(objectIdentities, sids);
         } catch (NotFoundException e) {
@@ -313,5 +312,4 @@ public class FtepSecurityService {
             saveAcl(acl);
         });
     }
-
 }

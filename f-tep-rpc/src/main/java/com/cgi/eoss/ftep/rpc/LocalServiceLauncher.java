@@ -24,12 +24,6 @@ public class LocalServiceLauncher {
     }
 
     @Async
-    public void asyncStopService(StopServiceParams stopParams, StreamObserver<StopServiceResponse> responseObserver) {
-        FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
-        jobLauncher.stopService(stopParams, responseObserver);
-    }
-
-    @Async
     public void asyncCancelJob(CancelJobParams cancelJobParams, StreamObserver<CancelJobResponse> responseObserver) {
         FtepJobLauncherGrpc.FtepJobLauncherStub jobLauncher = FtepJobLauncherGrpc.newStub(inProcessChannelBuilder.build());
         jobLauncher.cancelJob(cancelJobParams, responseObserver);

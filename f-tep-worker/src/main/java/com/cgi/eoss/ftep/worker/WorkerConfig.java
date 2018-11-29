@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.clouds.CloudsConfig;
 import com.cgi.eoss.ftep.io.IoConfig;
 import com.cgi.eoss.ftep.queues.QueuesConfig;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -46,19 +47,19 @@ public class WorkerConfig {
         return workerId;
     }
 
-    // MIN Number of workers available
+    // Minimum Number of workers available
     @Bean
     public Integer minWorkerNodes(@Value("${ftep.worker.minWorkerNodes:1}") int minWorkerNodes) {
         return minWorkerNodes;
     }
 
-    // MAX Number of workers available
+    // Maximum Number of workers available
     @Bean
     public Integer maxWorkerNodes(@Value("${ftep.worker.maxWorkerNodes:1}") int maxWorkerNodes) {
         return maxWorkerNodes;
     }
 
-    // Number of concurrent jobs on each worker node
+    // Actual Number of concurrent jobs on each worker node
     @Bean
     public Integer maxJobsPerNode(@Value("${ftep.worker.maxJobsPerNode:2}") int maxJobsPerNode) {
         return maxJobsPerNode;

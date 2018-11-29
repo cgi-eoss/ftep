@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.queues.service;
 
-import java.io.Serializable;
-import java.util.Map;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -9,10 +11,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
+import java.io.Serializable;
+import java.util.Map;
 
 @Log4j2
 public class FtepJMSQueueService implements FtepQueueService {
@@ -45,7 +45,7 @@ public class FtepJMSQueueService implements FtepQueueService {
                 try {
                     message.setObjectProperty(k, v);
                 } catch (JMSException e) {
-                    LOG.warn(e.getMessage());
+                    LOG.error("Error sending message to JMS Queue " + queueName, e);
                 }
             });
             return message;
@@ -59,7 +59,7 @@ public class FtepJMSQueueService implements FtepQueueService {
                 try {
                     message.setObjectProperty(k, v);
                 } catch (JMSException e) {
-                    LOG.warn(e.getMessage());
+                    LOG.error("Error sending message to JMS Queue " + queueName, e);
                 }
             });
             message.setJMSPriority(priority);

@@ -108,7 +108,6 @@ public class FtepServerApplicationTest {
     public static void precondition() {
         // Shortcut if docker socket is not accessible to the current user
         assumeTrue("Unable to write to Docker socket; disabling docker tests", Files.isWritable(Paths.get("/var/run/docker.sock")));
-        // TODO Pass in a DOCKER_HOST env var to allow remote docker engine use
     }
 
     @Configuration
@@ -117,7 +116,6 @@ public class FtepServerApplicationTest {
             FtepServerApplication.class
     })
     public static class FtepServerApplicationTestConfig {
-
         @Bean
         public Path workspace() throws IOException {
             Path workspace = Files.createTempDirectory(Paths.get("target"), FtepServerApplicationTest.class.getSimpleName());
@@ -140,7 +138,6 @@ public class FtepServerApplicationTest {
             return Files.createDirectory(workspace.resolve("refData"));
         }
     }
-
 
     @Before
     public void setUp() throws Exception {
@@ -189,13 +186,9 @@ public class FtepServerApplicationTest {
                 ))
                 .build());
 
-        // TODO Check outputs, but as a smoke test we are mainly just looking to avoid failure in #launchService
-
         Job job = serviceResponseIterator.next().getJob();
         assertThat(job, is(notNullValue()));
         FtepServiceResponse.JobOutputs jobOutputs = serviceResponseIterator.next().getJobOutputs();
         assertThat(jobOutputs, is(notNullValue()));
-
     }
-
 }

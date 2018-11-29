@@ -1,20 +1,20 @@
 package com.cgi.eoss.ftep.queues.service;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import org.springframework.stereotype.Component;
 
 @Component
 public interface FtepQueueService {
 
-    final static String jobQueueName = "ftep-jobs";
-    final static String jobUpdatesQueueName = "ftep-jobs-updates";
+    public final static String jobQueueName = "ftep-jobs";
+    public final static String jobUpdatesQueueName = "ftep-jobs-updates";
 
-    void sendObject(String queueName, Object object);
-    void sendObject(String queueName, Object object, int priority);
-    void sendObject(String queueName, Map<String, Object> additionalHeaders, Object object);
-    void sendObject(String queueName, Map<String, Object> additionalHeaders, Object object, int priority);
+    public void sendObject(String queueName, Object object);
+    public void sendObject(String queueName, Object object, int priority);
+    public void sendObject(String queueName, Map<String, Object> additionalHeaders, Object object);
+    public void sendObject(String queueName, Map<String, Object> additionalHeaders, Object object, int priority);
 
     public Object sendAndReceiveObject(String queueName, Serializable message);
 

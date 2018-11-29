@@ -168,5 +168,4 @@ public class FtepWebClient {
             return validCookies.get(true).stream().filter(c -> c.matches(url)).collect(toList());
         }
     }
-
 }

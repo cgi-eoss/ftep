@@ -10,7 +10,6 @@ option java_package = "com.cgi.eoss.ftep.rpc";
 service FtepJobLauncher {
     rpc BuildService (BuildServiceParams) returns (BuildServiceResponse);
     rpc LaunchService (FtepServiceParams) returns (stream FtepServiceResponse);
-    rpc StopService (StopServiceParams) returns (StopServiceResponse);
 
     rpc SubmitJob (FtepServiceParams) returns (stream FtepServiceResponse);
     rpc CancelJob (CancelJobParams) returns (CancelJobResponse);

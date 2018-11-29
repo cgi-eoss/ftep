@@ -14,6 +14,7 @@ classes:
 #  - ftep::webapp
 #  - ftep::worker
 #  - ftep::wps
+#  - ftep::broker
 
 # MANDATORY PARAMETER. The example here should work for Vagrant environments
 #ftep::repo::location: file:///vagrant/.dist/repo
@@ -43,6 +44,8 @@ classes:
 #  ftep-worker:
 #    ip: 127.0.0.1
 #  ftep-wps:
+#    ip: 127.0.0.1
+#  ftep-broker:
 #    ip: 127.0.0.1
 
 # Note that ftep::workers are self-registering with the ftep::server but the remoting IP can be controlled:

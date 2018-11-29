@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
@@ -27,10 +28,13 @@ import static org.junit.Assert.assertThat;
 @TestPropertySource("classpath:test-persistence.properties")
 @Transactional
 public class ServiceFileDataServiceIT {
+
     @Autowired
     private ServiceFileDataService dataService;
+
     @Autowired
     private ServiceDataService serviceDataService;
+
     @Autowired
     private UserDataService userService;
 

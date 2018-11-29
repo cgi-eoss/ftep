@@ -29,6 +29,7 @@ import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
+
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.command.CreateContainerCmd;
@@ -125,7 +126,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void prepareEnvironment(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
+    public void prepareInputs(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
             try {
@@ -177,10 +178,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
         }
-    }
-
-    @Override
-    public void prepareInputs(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
     }
 
     @Override

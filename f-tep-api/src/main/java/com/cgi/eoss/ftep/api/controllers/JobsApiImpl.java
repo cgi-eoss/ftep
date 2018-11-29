@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+
 import com.google.common.base.Strings;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
@@ -31,29 +32,29 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
     private final JobDao dao;
 
     @Override
-    NumberPath<Long> getIdPath() {
+    public NumberPath<Long> getIdPath() {
         return QJob.job.id;
     }
 
     @Override
-    QUser getOwnerPath() {
+    public QUser getOwnerPath() {
         return QJob.job.owner;
     }
 
     @Override
-    Class<Job> getEntityClass() {
+    public Class<Job> getEntityClass() {
         return Job.class;
     }
 
-    BooleanExpression isNotSubjob() {
+    public BooleanExpression isNotSubjob() {
         return QJob.job.parentJob.isNull();
     }
 
-    BooleanExpression isChildOf(Long parentId) {
+    public BooleanExpression isChildOf(Long parentId) {
         return QJob.job.parentJob.id.eq(parentId);
     }
 
-    // ---
+    // --- Filter
 
     @Override
     public Page<Job> findByFilterOnly(String filter, Collection<Status> statuses, Pageable pageable) {
@@ -70,7 +71,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         return getFilteredResults(getOwnerPath().ne(user).and(getFilterPredicate(filter, statuses)), pageable);
     }
 
-    // ---
+    // --- Filter / Not Subjob
 
     @Override
     public Page<Job> findByFilterAndIsNotSubjob(String filter, Collection<Status> statuses, Pageable pageable) {
@@ -87,7 +88,7 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         return getFilteredResults(isNotSubjob().and(getOwnerPath().ne(user)).and(getFilterPredicate(filter, statuses)), pageable);
     }
 
-    // ---
+    // --- Filter / Parent
 
     @Override
     public Page<Job> findByFilterAndParent(String filter, Collection<Status> statuses, Long parentId, Pageable pageable) {
@@ -104,13 +105,13 @@ public class JobsApiImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCu
         return getFilteredResults((getOwnerPath().ne(user)).and(getFilterPredicate(filter, statuses, parentId)), pageable);
     }
 
-    // ---
+    // --- Filter Predicate
 
-    private Predicate getFilterPredicate(String filter, Collection<Status> statuses) {
+    public Predicate getFilterPredicate(String filter, Collection<Status> statuses) {
         return getFilterPredicate(filter, statuses, null);
     }
 
-    private Predicate getFilterPredicate(String filter, Collection<Status> statuses, Long parentId) {
+    public Predicate getFilterPredicate(String filter, Collection<Status> statuses, Long parentId) {
         BooleanBuilder builder = new BooleanBuilder(Expressions.asBoolean(true).isTrue());
 
         if (!Strings.isNullOrEmpty(filter)) {

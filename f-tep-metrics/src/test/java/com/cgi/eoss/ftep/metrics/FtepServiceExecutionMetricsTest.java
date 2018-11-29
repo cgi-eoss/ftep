@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.persistence.service.JobConfigDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,31 +42,34 @@ public class FtepServiceExecutionMetricsTest {
 
     @Autowired
     private UserDataService userDataService;
+
     @Autowired
     private ServiceDataService serviceDataService;
+
     @Autowired
     private JobConfigDataService jobConfigDataService;
+
     @Autowired
     private JobDataService jobDataService;
 
-    private List<User> users = Lists.newArrayList(
+    private final List<User> users = Lists.newArrayList(
             new User("user-1"),
             new User("user-2")
     );
 
-    private List<FtepService> services = Lists.newArrayList(
+    private final List<FtepService> services = Lists.newArrayList(
             newService("service-1", users.get(0), FtepService.Type.PROCESSOR),
             newService("service-2", users.get(0), FtepService.Type.BULK_PROCESSOR),
             newService("service-3", users.get(0), FtepService.Type.APPLICATION)
     );
 
-    private List<JobConfig> jobConfigs = Lists.newArrayList(
+    private final List<JobConfig> jobConfigs = Lists.newArrayList(
             new JobConfig(users.get(0), services.get(0)),
             new JobConfig(users.get(0), services.get(1)),
             new JobConfig(users.get(0), services.get(2))
     );
 
-    private List<Job> jobs = Lists.newArrayList(
+    private final List<Job> jobs = Lists.newArrayList(
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.CREATED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(1), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
@@ -74,7 +78,7 @@ public class FtepServiceExecutionMetricsTest {
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
             newJob(jobConfigs.get(0), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(1)),
-            //
+
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.CREATED, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
@@ -83,7 +87,7 @@ public class FtepServiceExecutionMetricsTest {
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(31)),
             newJob(jobConfigs.get(1), UUID.randomUUID().toString(), users.get(0), Job.Status.ERROR, LocalDateTime.now(ZoneOffset.UTC).minusDays(1)),
-            //
+
             newJob(jobConfigs.get(2), UUID.randomUUID().toString(), users.get(0), Job.Status.CREATED, LocalDateTime.now(ZoneOffset.UTC).minusDays(1)),
             newJob(jobConfigs.get(2), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(91)),
             newJob(jobConfigs.get(2), UUID.randomUUID().toString(), users.get(0), Job.Status.COMPLETED, LocalDateTime.now(ZoneOffset.UTC).minusDays(1)),
@@ -121,6 +125,7 @@ public class FtepServiceExecutionMetricsTest {
         assertThat(metrics.get("ftep.jobs.application.created"), is(1));
         assertThat(metrics.get("ftep.jobs.application.error"), is(3));
         assertThat(metrics.get("ftep.jobs.application.running"), is(1));
+
         assertThat(metrics.get("ftep.jobs.bulk_processor.30d.cancelled"), is(0));
         assertThat(metrics.get("ftep.jobs.bulk_processor.30d.completed"), is(0));
         assertThat(metrics.get("ftep.jobs.bulk_processor.30d.created"), is(0));
@@ -136,6 +141,7 @@ public class FtepServiceExecutionMetricsTest {
         assertThat(metrics.get("ftep.jobs.bulk_processor.created"), is(1));
         assertThat(metrics.get("ftep.jobs.bulk_processor.error"), is(3));
         assertThat(metrics.get("ftep.jobs.bulk_processor.running"), is(1));
+
         assertThat(metrics.get("ftep.jobs.processor.30d.cancelled"), is(0));
         assertThat(metrics.get("ftep.jobs.processor.30d.completed"), is(0));
         assertThat(metrics.get("ftep.jobs.processor.30d.created"), is(0));
@@ -151,6 +157,7 @@ public class FtepServiceExecutionMetricsTest {
         assertThat(metrics.get("ftep.jobs.processor.created"), is(1));
         assertThat(metrics.get("ftep.jobs.processor.error"), is(3));
         assertThat(metrics.get("ftep.jobs.processor.running"), is(1));
+
         assertThat(metrics.get("ftep.jobs.total.30d.cancelled"), is(0));
         assertThat(metrics.get("ftep.jobs.total.30d.completed"), is(1));
         assertThat(metrics.get("ftep.jobs.total.30d.created"), is(1));
@@ -184,5 +191,4 @@ public class FtepServiceExecutionMetricsTest {
         job.setStartTime(startTime);
         return job;
     }
-
 }

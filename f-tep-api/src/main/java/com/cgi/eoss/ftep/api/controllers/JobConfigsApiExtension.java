@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+
 import com.google.common.base.Strings;
 import io.grpc.stub.StreamObserver;
 import lombok.Getter;
@@ -52,6 +53,8 @@ public class JobConfigsApiExtension {
     /**
      * <p>Provides a direct interface to the service orchestrator, allowing users to launch job configurations without going via WPS.</p>
      * <p>Service are launched asynchronously; the gRPC response is discarded.</p>
+     *
+     * @throws InterruptedException
      */
     @PostMapping("/{jobConfigId}/launch")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read')")
@@ -85,10 +88,11 @@ public class JobConfigsApiExtension {
 
     private static final class JobLaunchObserver implements StreamObserver<FtepServiceResponse> {
         private final CountDownLatch latch;
+
         @Getter
         private long intJobId;
 
-        JobLaunchObserver(CountDownLatch latch) {
+        public JobLaunchObserver(CountDownLatch latch) {
             this.latch = latch;
         }
 

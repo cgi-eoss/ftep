@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.rpc.FtepWorkerManagerGrpc;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
 import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
+
 import io.grpc.ManagedChannelBuilder;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -37,9 +38,7 @@ public class WorkersApi {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity getWorkers() {
         FtepWorkerManagerGrpc.FtepWorkerManagerBlockingStub workerManager = FtepWorkerManagerGrpc.newBlockingStub(inProcessChannelBuilder.build());
-
         WorkersList workersList = workerManager.listWorkers(ListWorkersParams.getDefaultInstance());
-
         return ResponseEntity.ok(workersList.getWorkersList().stream().map(WorkerResponse::new).collect(Collectors.toList()));
     }
 

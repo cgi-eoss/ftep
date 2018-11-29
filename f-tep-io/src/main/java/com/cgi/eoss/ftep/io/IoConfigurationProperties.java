@@ -45,7 +45,6 @@ public class IoConfigurationProperties {
         static class IptHttp {
             private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
             private String downloadUrlBase = "http://185.48.233.249";
-            // TODO Add these to the credentials/datasource object?
             private String authEndpoint = "https://finder.eocloud.eu/resto/api/authidentity";
             private String authDomain = "__secret__";
             private int overallPriority = 5;
@@ -62,5 +61,4 @@ public class IoConfigurationProperties {
             private int searchTimeout = 120;
         }
     }
-
 }

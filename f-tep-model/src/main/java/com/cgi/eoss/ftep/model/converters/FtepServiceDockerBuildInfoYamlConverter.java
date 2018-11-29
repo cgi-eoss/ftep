@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model.converters;
 
 import com.cgi.eoss.ftep.model.FtepServiceDockerBuildInfo;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,5 +126,4 @@ public class FtepServiceDockerBuildInfoYamlConverter implements AttributeConvert
     private FtepServiceDockerBuildInfo getNullSafeValue(Object value) {
         return value == null ? new FtepServiceDockerBuildInfo() : (FtepServiceDockerBuildInfo) value;
     }
-
 }

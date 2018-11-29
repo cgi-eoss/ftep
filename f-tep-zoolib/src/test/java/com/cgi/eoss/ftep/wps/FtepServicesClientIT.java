@@ -17,6 +17,7 @@ import com.cgi.eoss.ftep.orchestrator.service.FtepGuiServiceManager;
 import com.cgi.eoss.ftep.orchestrator.service.FtepJobLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
@@ -146,8 +147,9 @@ public class FtepServicesClientIT {
         SearchFacade searchFacade = mock(SearchFacade.class);
         FtepFileRegistrar ftepFileRegistrar = new FtepFileRegistrar(jobDataService, searchFacade, catalogueService);
         FtepQueueService ftepQueueService = mock(FtepQueueService.class);
+        ServiceDataService serviceDataService = mock(ServiceDataService.class);
 
-        FtepJobLauncher ftepJobLauncher = new FtepJobLauncher(workerFactory, jobDataService, guiService, ftepFileRegistrar, costingService, securityService, ftepQueueService);
+        FtepJobLauncher ftepJobLauncher = new FtepJobLauncher(workerFactory, jobDataService, guiService, ftepFileRegistrar, costingService, securityService, ftepQueueService, serviceDataService);
         FtepWorker ftepWorker = new FtepWorker(nodeFactory, jobEnvironmentService, ioManager, 1);
 
         when(workerFactory.getWorker(any())).thenReturn(FtepWorkerGrpc.newBlockingStub(channelBuilder.build()));

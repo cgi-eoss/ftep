@@ -10,4 +10,6 @@ public interface ServiceDataService extends FtepEntityDataService<FtepService>, 
     List<FtepService> findByOwner(User user);
 
     FtepService getByName(String serviceName);
+
+    String computeServiceFingerprint(FtepService ftepService);
 }

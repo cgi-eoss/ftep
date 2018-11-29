@@ -3,18 +3,23 @@ package com.cgi.eoss.ftep.orchestrator.service;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.logging.Logging;
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor.Parameter;
+import com.cgi.eoss.ftep.model.FtepServiceDockerBuildInfo;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.Job.Status;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.JobStep;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
+import com.cgi.eoss.ftep.model.internal.OutputProductMetadata.OutputProductMetadataBuilder;
 import com.cgi.eoss.ftep.model.internal.Shapefile;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 import com.cgi.eoss.ftep.rpc.BuildServiceParams;
 import com.cgi.eoss.ftep.rpc.BuildServiceResponse;
@@ -31,7 +36,9 @@ import com.cgi.eoss.ftep.rpc.ListWorkersParams;
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.cgi.eoss.ftep.rpc.WorkersList;
+import com.cgi.eoss.ftep.rpc.worker.ContainerExit;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
+import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
@@ -39,6 +46,9 @@ import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc.FtepWorkerBlockingStub;
 import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
 import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
+import com.cgi.eoss.ftep.rpc.worker.JobError;
+import com.cgi.eoss.ftep.rpc.worker.JobEvent;
+import com.cgi.eoss.ftep.rpc.worker.JobEventType;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
@@ -138,6 +148,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private final CostingService costingService;
     private final FtepSecurityService securityService;
     private final FtepQueueService ftepQueueService;
+    private final ServiceDataService serviceDataService;
 
     private final Map<String, StreamObserver<FtepServiceResponse>> responseObservers = new HashMap<>();
     private final Map<String, FtepWorkerBlockingStub> workerStubCache = new ConcurrentHashMap<>();
@@ -146,7 +157,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     public FtepJobLauncher(WorkerFactory workerFactory, JobDataService jobDataService,
         FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
         CostingService costingService, FtepSecurityService securityService,
-        FtepQueueService ftepQueueService
+        FtepQueueService ftepQueueService, ServiceDataService serviceDataService
     ) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
@@ -155,6 +166,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         this.costingService = costingService;
         this.securityService = securityService;
         this.ftepQueueService = ftepQueueService;
+        this.serviceDataService = serviceDataService;
     }
 
     @Override
@@ -263,6 +275,23 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     // gRPC interface
     @Override
     public void buildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
+        FtepWorkerBlockingStub worker = workerFactory.getOne();
+        Long serviceId = Long.parseLong(buildServiceParams.getServiceId());
+        FtepService service = serviceDataService.getById(serviceId);
+        responseObserver.onNext(BuildServiceResponse.newBuilder().build());
+        DockerImageConfig dockerImageConfig = DockerImageConfig.newBuilder()
+            .setDockerImage(service.getDockerTag())
+            .setServiceName(service.getName())
+            .build();
+        try {
+            worker.prepareDockerImage(dockerImageConfig);
+            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.COMPLETED);
+            service.getDockerBuildInfo().setLastBuiltFingerprint(buildServiceParams.getBuildFingerprint());
+        } catch (StatusRuntimeException e) {
+            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.ERROR);
+        }
+        serviceDataService.save(service);
+        responseObserver.onCompleted();
     }
 
     private int getJobPriority(int messageNumber) {

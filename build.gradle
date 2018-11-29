@@ -36,6 +36,7 @@ allprojects {
 
     // Dependency versions
     ext['awaitility.version'] = '2.0.0'
+    ext['commons-codec.version'] = '1.6'
     ext['commons-io.version'] = '2.5'
     ext['commons-lang3.version'] = '3.6'
     ext['commons-net.version'] = '3.6'
@@ -90,6 +91,7 @@ allprojects {
         }
 
         dependencies {
+            dependency group: 'commons-codec', name: 'commons-codec', version: ext['commons-codec.version']
             dependency group: 'commons-io', name: 'commons-io', version: ext['commons-io.version']
             dependency group: 'commons-net', name: 'commons-net', version: ext['commons-net.version']
             dependency group: 'com.aries', name: 'docker-java-shaded', version: ext['docker-java.version']

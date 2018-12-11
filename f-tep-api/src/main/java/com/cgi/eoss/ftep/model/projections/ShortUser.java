@@ -12,5 +12,6 @@ import org.springframework.hateoas.Identifiable;
 public interface ShortUser extends Identifiable<Long> {
     String getName();
     String getEmail();
+    String getOrganisation();
     Role getRole();
 }

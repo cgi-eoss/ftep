@@ -71,7 +71,7 @@ terms of the license are as follows:
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-[F-TEP]: https://forestry-tep.eo.esa.int/
+[F-TEP]: https://f-tep.com/
 [TEP]: http://tep.eo.esa.int/
 [Github]: https://github.com/cgi-eoss/f-tep
 [Puppet]: https://puppet.com/

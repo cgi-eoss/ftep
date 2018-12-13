@@ -7,11 +7,6 @@
         ftepConfig: "empty:" // this is loaded manually, and managed (by Puppet) outside the requireJs context
     },
     preserveLicenseComments: false,
-    optimize: "closure",
-    closure: {
-        CompilerOptions: {
-            languageIn: com.google.javascript.jscomp.CompilerOptions.LanguageMode.ECMASCRIPT5
-        }
-    },
+    logLevel: 4,
     generateSourceMaps: true
 })

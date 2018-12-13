@@ -177,9 +177,9 @@ subprojects {
 
 def depVersions = [
         // Build plugin versions
-        clientDependenciesPlugin     : '1.4.0',
         dependencyCheckPlugin        : '3.3.2',
         dependencyManagementPlugin   : '1.0.6.RELEASE',
+        nodePlugin                   : '1.3.0',
         osDetectorPlugin             : '1.6.0',
         osPackagePlugin              : '4.9.3',
         protobufPlugin               : '0.8.6',
@@ -190,7 +190,6 @@ def depVersions = [
 ]
 
 ext.pl = [
-        clientDependencies     : 'gradle.plugin.com.craigburke.gradle:client-dependencies:' + depVersions.clientDependenciesPlugin,
         dependencyCheck        : 'org.owasp:dependency-check-gradle:' + depVersions.dependencyCheckPlugin,
         dependencyManagement   : 'io.spring.gradle:dependency-management-plugin:' + depVersions.dependencyManagementPlugin,
         osPackage              : 'com.netflix.nebula:gradle-ospackage-plugin:' + depVersions.osPackagePlugin,
@@ -199,7 +198,8 @@ ext.pl = [
         shadowLog4j2Transformer: 'de.sebastianboegl.gradle.plugins:shadow-log4j-transformer:' + depVersions.shadowLog4j2TransformerPlugin,
         springBoot             : 'org.springframework.boot:spring-boot-gradle-plugin:' + depVersions.springBootPlugin,
         osDetector             : 'com.google.gradle:osdetector-gradle-plugin:' + depVersions.osDetectorPlugin,
-        querydsl               : 'gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:' + depVersions.querydslPlugin
+        querydsl               : 'gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:' + depVersions.querydslPlugin,
+        node                   : 'com.github.node-gradle:gradle-node-plugin:' + depVersions.nodePlugin
 ]
 
 buildscript {

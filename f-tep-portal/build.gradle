@@ -1,7 +1,9 @@
+
+
 buildscript {
     dependencies {
         classpath pl.osPackage
-        classpath pl.clientDependencies
+        classpath pl.node
     }
 }
 
@@ -10,7 +12,7 @@ version '2.6.0-SNAPSHOT'
 
 apply plugin: 'java-base'
 apply plugin: 'nebula.ospackage'
-apply plugin: 'com.craigburke.client-dependencies'
+apply plugin: 'com.github.node-gradle.node'
 
 sourceSets {
     main {
@@ -31,98 +33,25 @@ sourceSets {
     }
 }
 
-clientDependencies {
-    installDir = "${projectDir}/src/main/resources/app/scripts/vendor"
-
-    // Use a custom repo to allow local override of npmUrl
-    registry 'npmR', type: 'npm', url: npmUrl
-
-    npmR {
-        'angular'('1.4.14')
-        'angular-animate'('1.4.14')
-        'angular-aria'('1.4.14')
-        'angular-cookies'('1.4.14')
-        'angular-drag-and-drop-lists'('1.4.0')
-        'angular-material'('1.1.1')
-        'angular-messages'('1.4.14')
-        'angular-moment'('1.0.1')
-        'angular-openlayers-directive'('1.15.2')
-        'angular-paging'('2.2.2')
-        'angular-resource'('1.4.14')
-        'angular-route'('1.4.14')
-        'angular-sanitize'('1.4.14')
-        'angular-touch'('1.4.14')
-        'angular-ui-bootstrap'('2.3.0')
-        'angular-ui-codemirror'('0.3.0')
-        'angular-ui-grid'('4.0.4')
-        'angular-ui-layout'('1.4.2')
-        'bootstrap'('3.2.0')
-        'clipboard-js'('0.3.1')
-        'codemirror'('5.25.2')
-        'jquery'('3.1.1')
-        'moment'('2.17.0')
-        'requirejs'('2.3.3')
-        'requirejs-domready'('2.0.3', into: 'domready')
-        'ng-file-upload'('12.2.13')
-        'traverson'('6.0.1')
-        'traverson-angular'('6.0.0')
-        'traverson-hal'('6.0.0')
-        'x2js'('3.1.1')
-    }
-}
-
 dependencies {
     compile 'com.google.javascript:closure-compiler:v20170806'
 }
 
-task requireJs(type: RequireJsTask) {
-    classpath = sourceSets.main.compileClasspath
-    rJs = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
-    buildJs = file("${projectDir}/src/main/requireJs/build.js")
-    sourceJs = fileTree("${projectDir}/src/main/resources/app/scripts") {
-        include '**/*.js'
-    }
-    appJsFile = "app.js"
-    outputDir = file("${buildDir}/requireJs")
-
-    dependsOn clientInstall
+node {
+    download = true
 }
 
-@CacheableTask
-class RequireJsTask extends DefaultTask {
-    @Input
-    File jjs = project.file("${System.properties['java.home']}/bin/jjs")
-
-    @Classpath @InputFiles
-    Iterable<File> classpath
-
-    @InputFile
-    File rJs
-
-    @InputFile
-    File buildJs
-
-    @InputFiles
-    Iterable<File> sourceJs
-
-    @Input
-    String appJsFile
-
-    @OutputDirectory
-    File outputDir
-
-    @TaskAction
-    def requireJs() {
-        project.exec {
-            standardOutput new FileOutputStream("${project.buildDir}/requireJs.log")
-            errorOutput new FileOutputStream("${project.buildDir}/requireJs.err")
-            commandLine jjs, "-scripting",
-                    "-cp", classpath.asPath,
-                    rJs, "--",
-                    "-o", buildJs,
-                    "out=${outputDir}/${appJsFile}"
-        }
-    }
+task requireJs(type: NodeTask) {
+    script = file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js")
+    args = [
+            "-o", file("${projectDir}/src/main/requireJs/build.js"),
+            "out=${buildDir}/requireJs/app.js"
+    ]
+    inputs.file("${projectDir}/src/main/requireJs/build.js")
+    inputs.files(fileTree("${projectDir}/src/main/resources/app/scripts") {
+        include '**/*.js'
+    })
+    outputs.file("${buildDir}/requireJs/app.js")
 }
 
 task stageApp(type: Sync) {

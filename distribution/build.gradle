@@ -1,6 +1,3 @@
-import java.nio.file.Files
-import java.nio.file.Paths
-
 group 'com.cgi.eoss.f-tep'
 version '2.6.0-SNAPSHOT'
 
@@ -39,24 +36,6 @@ task distPackages(type: Sync) {
     }
 }
 
-task createrepo(type: Exec) {
-    dependsOn distPackages
-    // TODO More rigorous checking for createrepo binary
-    onlyIf { Files.isExecutable(Paths.get('/usr/bin/createrepo')) }
-
-    def repoDir = Paths.get("${buildDir}/yumrepo")
-
-    executable '/usr/bin/createrepo'
-    args "--outputdir=${repoDir}", "${buildDir}/repo"
-
-    inputs.files distPackages.outputs.files
-    outputs.files fileTree(repoDir.toString())
-
-    doFirst {
-        Files.createDirectories(repoDir)
-    }
-}
-
 task distPuppet(type: Sync) {
     dependsOn configurations.puppetModules
 
@@ -73,8 +52,12 @@ task distPuppet(type: Sync) {
 task buildDist(type: Sync) {
     into "${rootDir}/.dist"
 
+    preserve {
+        include 'puppet/modules/**'
+        include 'repo/repodata/**'
+    }
+
     into('repo') {
-        from createrepo
         from distPackages
     }
     into('puppet') {

@@ -56,6 +56,13 @@ Vagrant.configure('2') do |config|
       vb.cpus = 2
     end
 
+    # Generate yum repo metadata
+    ftep.vm.provision 'shell', inline: <<EOF
+[ -x /usr/bin/createrepo ] || yum install -y createrepo
+
+createrepo --output=/vagrant/.dist/repo /vagrant/.dist/repo
+EOF
+
     # Puppet provisioning
     #
     # Configure the local environment by editing distribution/puppet/hieradata/standalone.local.yaml

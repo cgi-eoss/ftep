@@ -29,6 +29,8 @@ import com.google.common.io.MoreFiles;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -246,15 +248,25 @@ public class FtepServerApplicationIT {
         assertThat(jobOutputs, is(notNullValue()));
         assertThat(jobOutputs.getOutputsCount(), is(2));
 
-        JobParam output = jobOutputs.getOutputs(0);
-        Path relativeOutputPath = Paths.get(output.getParamValue(0).replace("ftep://outputProduct/", ""));
-        assertThat(Files.exists(outputProductBasedir.resolve(relativeOutputPath)), is(true));
-        assertThat(relativeOutputPath.getFileName().toString(), is("output_file_1"));
+        assertThat(jobOutputs.getOutputsList(), Matchers.containsInAnyOrder(
+                new JobOutputParamMatcher("Output Param: output_file_1", "output_file_1"),
+                new JobOutputParamMatcher("Output Param: A_plot.zip", "A_plot.zip")));
+    }
 
-        JobParam shapefile = jobOutputs.getOutputs(1);
-        Path relativeShapefilePath = Paths.get(shapefile.getParamValue(0).replace("ftep://outputProduct/", ""));
-        assertThat(Files.exists(outputProductBasedir.resolve(relativeShapefilePath)), is(true));
-        assertThat(relativeShapefilePath.getFileName().toString(), is("A_plot.zip"));
+    private final class JobOutputParamMatcher extends CustomTypeSafeMatcher<JobParam> {
+        private final String expectedFileName;
+
+        JobOutputParamMatcher(String description, String expectedFileName) {
+            super(description);
+            this.expectedFileName = expectedFileName;
+        }
+
+        @Override
+        protected boolean matchesSafely(JobParam output) {
+            Path relativeOutputPath = Paths.get(output.getParamValue(0).replace("ftep://outputProduct/", ""));
+            return Files.exists(outputProductBasedir.resolve(relativeOutputPath))
+                    && relativeOutputPath.getFileName().toString().equals(expectedFileName);
+        }
     }
 
 }

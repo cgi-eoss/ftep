@@ -6,6 +6,8 @@ import com.cgi.eoss.ftep.rpc.CancelJobResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 
+import com.cgi.eoss.ftep.rpc.StopServiceParams;
+import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -158,11 +160,11 @@ public class JobsApiExtension {
 
     @PostMapping("/{jobId}/terminate")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'write')")
-    public ResponseEntity cancelJob(@ModelAttribute("jobId") Job job) throws InterruptedException {
-        CancelJobParams cancelJobParams = CancelJobParams.newBuilder().setJob(GrpcUtil.toRpcJob(job)).build();
+    public ResponseEntity terminateJob(@ModelAttribute("jobId") Job job) throws InterruptedException {
+        StopServiceParams stopServiceParams = StopServiceParams.newBuilder().setJob(GrpcUtil.toRpcJob(job)).build();
         final CountDownLatch latch = new CountDownLatch(1);
-        JobCancelObserver responseObserver = new JobCancelObserver(latch);
-        localServiceLauncher.asyncCancelJob(cancelJobParams, responseObserver);
+        JobTerminateObserver responseObserver = new JobTerminateObserver(latch);
+        localServiceLauncher.asyncStopJob(stopServiceParams, responseObserver);
         latch.await(1, TimeUnit.MINUTES);
         return ResponseEntity.noContent().build();
     }
@@ -188,15 +190,15 @@ public class JobsApiExtension {
         private String message;
     }
 
-    private static final class JobCancelObserver implements StreamObserver<CancelJobResponse> {
+    private static final class JobTerminateObserver implements StreamObserver<StopServiceResponse> {
         private final CountDownLatch latch;
 
-        JobCancelObserver(CountDownLatch latch) {
+        JobTerminateObserver(CountDownLatch latch) {
             this.latch = latch;
         }
 
         @Override
-        public void onNext(CancelJobResponse value) {
+        public void onNext(StopServiceResponse value) {
             LOG.debug("Received StopServiceResponse: {}", value);
             latch.countDown();
         }

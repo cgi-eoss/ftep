@@ -49,6 +49,7 @@ dependencies {
     compile 'io.grpc:grpc-netty'
     compile 'io.grpc:grpc-protobuf'
     compile 'io.grpc:grpc-stub'
+    compile 'org.lognet:grpc-spring-boot-starter'
     compile 'org.springframework:spring-context'
     compile 'org.springframework:spring-tx'
 }

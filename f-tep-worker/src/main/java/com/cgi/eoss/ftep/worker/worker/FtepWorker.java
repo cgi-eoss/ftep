@@ -57,9 +57,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.MoreFiles;
+import com.google.common.util.concurrent.Striped;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -87,6 +89,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,7 +118,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     // Track which container ID is used for each job
     private final Map<String, String> jobContainers = new HashMap<>();
     // Track which input URIs are used for each job
-    private final SetMultimap<String, URI> jobInputs = HashMultimap.create();
+    private final SetMultimap<String, URI> jobInputs = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+
+    private final Striped<Lock> dockerBuildLock = Striped.lazyWeakLock(1);
 
     private final int minWorkerNodes;
 
@@ -157,7 +162,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
             Node node;
+            DockerClient dockerClient;
             try {
+                LOG.info("Finding node for {}", jobId);
                 node = nodeManager.findJobNode(jobId).orElseGet(() -> {
                     LOG.warn("Provisioning new node for {}, this should already have happened!", jobId);
                     nodeManager.reserveNodeForJob(jobId);
@@ -169,14 +176,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 return;
             }
             try {
-                DockerClient dockerClient;
+                LOG.info("Finding Docker client for {}", jobId);
                 if (dockerRegistryConfig != null) {
                     dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl(), dockerRegistryConfig);
                 } else {
                     dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
                 }
-                jobNodes.putIfAbsent(jobId, node);
-                jobClients.putIfAbsent(jobId, dockerClient);
             } catch (Exception e) {
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.error("Failed to prepare Docker context: {}", e.getMessage());
@@ -185,6 +190,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
                 return;
             }
+
+            LOG.debug("Tracking job {} on node {}", jobId, node);
+            jobNodes.putIfAbsent(jobId, node);
+            LOG.debug("Tracking job {} on Docker client {}", jobId, dockerClient);
+            jobClients.putIfAbsent(jobId, dockerClient);
+
             try {
                 Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
 
@@ -463,10 +474,11 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             jobContainers.remove(jobId);
             jobClients.remove(jobId);
             Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
-            Optional.ofNullable(jobNodes.remove(jobId));//.ifPresent(nodeFactory::destroyNode);
+            jobNodes.remove(jobId);
             nodeManager.releaseJobNode(jobId);
             Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
-            LOG.debug("Finished job URIs: {}", finishedJobInputs);
+            LOG.debug("Finished job using URIs: {}", finishedJobInputs);
+            LOG.debug("Finding the difference between {} and {}", finishedJobInputs, jobInputs.values());
             Set<URI> unusedUris = Sets.difference(finishedJobInputs, ImmutableSet.copyOf(jobInputs.values()));
             LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
             inputOutputManager.cleanUp(unusedUris);
@@ -480,7 +492,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         try {
             MoreFiles.deleteRecursively(jobEnvironment.getTempDir());
         } catch (IOException e) {
-            LOG.warn("Failed to clean up job environment tempDir: {}", jobEnvironment.getTempDir(), e);
+            LOG.warn("Failed to clean up job environment tempDir: {}: {}", jobEnvironment.getTempDir(), e.getMessage());
+            LOG.trace("Exception cleaning up job environment {}", jobEnvironment.getTempDir(), e);
         }
     }
 
@@ -553,6 +566,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImage) throws IOException {
+        Lock lock = dockerBuildLock.get(dockerImage); // Avoid multiple parallel jobs trying to build at exactly the same time
+        lock.lock();
         try {
             // Retrieve service context files
             Path serviceContext = inputOutputManager.getServiceContext(serviceName);
@@ -597,6 +612,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             }
             LOG.error("Failed to build Docker context for service {}", serviceName, e);
             throw e;
+        } finally {
+            lock.unlock();
         }
     }
 

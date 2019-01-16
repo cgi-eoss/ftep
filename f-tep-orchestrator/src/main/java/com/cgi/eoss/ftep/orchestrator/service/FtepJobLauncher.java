@@ -494,8 +494,8 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         job.setStatus(Job.Status.ERROR);
         job.setEndTime(LocalDateTime.now(ZoneOffset.UTC));
         jobDataService.save(job);
-        responseObservers.get(job.getExtId())
-                .onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(cause)));
+        Optional.ofNullable(responseObservers.get(job.getExtId()))
+                .ifPresent(o -> o.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(cause))));
     }
 
     private void ingestOutput(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws IOException, InterruptedException, StatusException {
@@ -865,14 +865,17 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     public void stopJob(StopServiceParams request, StreamObserver<StopServiceResponse> responseObserver) {
         com.cgi.eoss.ftep.rpc.Job rpcJob = request.getJob();
         try {
-            Job job = jobDataService.getById(Long.parseLong(rpcJob.getIntJobId()));
-            //FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(workerFactory.getWorkerById(job.getWorkerId())).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
             FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(jobWorkers.get(rpcJob)).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
             LOG.info("Stop requested for job {}", rpcJob.getId());
             worker.stopContainer(rpcJob);
             LOG.info("Successfully stopped job {}", rpcJob.getId());
             responseObserver.onNext(StopServiceResponse.newBuilder().build());
             responseObserver.onCompleted();
+        } catch (IllegalStateException e) {
+            LOG.warn("Could not find F-TEP worker for job {}; marking as closed in the DB anyway", rpcJob.getId());
+            Job job = jobDataService.getById(Long.parseLong(rpcJob.getIntJobId()));
+            job.setStatus(Status.CANCELLED);
+            jobDataService.save(job);
         } catch (NumberFormatException e) {
             LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));

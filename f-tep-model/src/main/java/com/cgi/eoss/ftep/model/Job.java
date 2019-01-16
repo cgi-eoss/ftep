@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Multimap;
 import lombok.Data;
@@ -141,7 +142,8 @@ public class Job implements FtepEntityWithOwner<Job> {
     /**
      * <p>The subjobs produced from a job related to a parallel processor</p>
      */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parentJob")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "parentJob")
+    @JsonIgnore
     private Set<Job> subJobs = new HashSet<>();
 
     /**

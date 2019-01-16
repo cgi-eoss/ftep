@@ -10,44 +10,26 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class FtepServerClient {
-    private final DiscoveryClient discoveryClient;
-    private final String ftepServerServiceId;
-    private final Supplier<ManagedChannel> channel =
-            new Supplier<ManagedChannel>() {
-                ManagedChannel value;
+public class FtepServerClient extends GrpcClient {
 
-                @Override
-                public ManagedChannel get() {
-                    return Optional.ofNullable(value).orElseGet(() -> {
-                        ServiceInstance ftepServer = Iterables.getOnlyElement(discoveryClient.getInstances(ftepServerServiceId));
-
-                        return ManagedChannelBuilder.forAddress(ftepServer.getHost(), Integer.parseInt(ftepServer.getMetadata().get("grpcPort")))
-                                .usePlaintext(true)
-                                .build();
-                    });
-                }
-            };
-
-    public FtepServerClient(DiscoveryClient discoveryClient, String ftepServerServiceId) {
-        this.discoveryClient = discoveryClient;
-        this.ftepServerServiceId = ftepServerServiceId;
+    public FtepServerClient(DiscoveryClientResolverFactory discoveryClientResolverFactory, String ftepServerServiceId) {
+        super(discoveryClientResolverFactory, ftepServerServiceId);
     }
 
     public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub() {
-        return ServiceContextFilesServiceGrpc.newBlockingStub(channel.get());
+        return ServiceContextFilesServiceGrpc.newBlockingStub(getChannel());
     }
 
     public CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsServiceBlockingStub() {
-        return CredentialsServiceGrpc.newBlockingStub(channel.get());
+        return CredentialsServiceGrpc.newBlockingStub(getChannel());
     }
 
     public CatalogueServiceGrpc.CatalogueServiceBlockingStub catalogueServiceBlockingStub() {
-        return CatalogueServiceGrpc.newBlockingStub(channel.get());
+        return CatalogueServiceGrpc.newBlockingStub(getChannel());
     }
 
     public CatalogueServiceGrpc.CatalogueServiceStub catalogueServiceStub() {
-        return CatalogueServiceGrpc.newStub(channel.get());
+        return CatalogueServiceGrpc.newStub(getChannel());
     }
 
 }

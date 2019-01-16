@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Data
@@ -40,6 +42,8 @@ import java.util.Set;
 public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable {
 
     private static final String DATA_SOURCE_NAME_PREFIX = "FTEP_";
+
+    private static final String DEFAULT_APPLICATION_PORT = "8080/tcp";
 
     /**
      * <p>Internal unique identifier of the service.</p>
@@ -120,10 +124,16 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     private FtepServiceDockerBuildInfo dockerBuildInfo;
 
     /**
+     * <p>Application port to access GUI services.</p>
+     */
+    @Column(name = "application_port")
+    private String applicationPort;
+
+    /**
      * <p>Create a new Service with the minimum required parameters.</p>
      *
-     * @param name  Name of the service.
-     * @param owner The user owning the service.
+     * @param name      Name of the service.
+     * @param owner     The user owning the service.
      * @param dockerTag The tag used at build.
      */
     public FtepService(String name, User owner, String dockerTag) {
@@ -144,6 +154,13 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
 
     public String getDataSourceName() {
         return DATA_SOURCE_NAME_PREFIX + this.name;
+    }
+
+    /**
+     * <p>Application port to access GUI services.</p>
+     */
+    public String getApplicationPort() {
+        return Optional.ofNullable(Strings.emptyToNull(applicationPort)).orElse(DEFAULT_APPLICATION_PORT);
     }
 
     public enum Type {

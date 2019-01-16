@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class FtepGuiServiceManager {
 
-    static final String GUACAMOLE_PORT = "8080/tcp";
-
     @Value("${ftep.orchestrator.gui.urlPattern:/gui/:__PORT__/}")
     private String guiUrlPattern;
 
@@ -28,9 +26,9 @@ public class FtepGuiServiceManager {
      * Job running on the given worker.
      */
     // TODO Expose the GUI URL via a reverse proxy with F-TEP access controls
-    public String getGuiUrl(FtepWorkerGrpc.FtepWorkerBlockingStub worker, Job rpcJob) {
+    public String getGuiUrl(FtepWorkerGrpc.FtepWorkerBlockingStub worker, Job rpcJob, String applicationPort) {
         PortBinding portBinding = worker.getPortBindings(rpcJob).getBindingsList().stream()
-                .filter(b -> b.getPortDef().equals(GUACAMOLE_PORT))
+                .filter(b -> b.getPortDef().equals(applicationPort))
                 .findFirst()
                 .orElseThrow(() -> new ServiceExecutionException("Could not find GUI port on docker container for job: " + rpcJob.getId()));
 

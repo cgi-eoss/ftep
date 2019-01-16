@@ -370,6 +370,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             DockerClient dockerClient = jobClients.get(jobId);
             String containerId = jobContainers.get(jobId);
             try {
+                LOG.info("Waiting {} minutes for application to exit (job {})", request.getTimeout(), jobId);
                 int exitCode = waitForContainer(dockerClient, containerId).awaitStatusCode(request.getTimeout(), TimeUnit.MINUTES);
                 responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(exitCode).build());
                 responseObserver.onCompleted();

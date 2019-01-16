@@ -257,7 +257,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         JobSpec.Builder jobSpecBuilder = JobSpec.newBuilder().setService(GrpcUtil.toRpcService(service)).setJob(rpcJob).addAllInputs(rpcInputs);
 
         if (service.getType() == FtepService.Type.APPLICATION) {
-            jobSpecBuilder.addExposedPorts(FtepGuiServiceManager.GUACAMOLE_PORT);
+            jobSpecBuilder.addExposedPorts(service.getApplicationPort());
         }
 
         if (inputs.containsKey(TIMEOUT_PARAM)) {
@@ -445,7 +445,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         if (service.getType() == FtepService.Type.APPLICATION) {
             String zooId = job.getExtId();
             FtepWorkerBlockingStub worker = workerFactory.getWorkerById(workerId);
-            String guiUrl = guiService.getGuiUrl(worker, GrpcUtil.toRpcJob(job));
+            String guiUrl = guiService.getGuiUrl(worker, GrpcUtil.toRpcJob(job), service.getApplicationPort());
             LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
             job.setGuiUrl(guiUrl);
             job.setGuiEndpoint(null); // No reverse-proxy implemented

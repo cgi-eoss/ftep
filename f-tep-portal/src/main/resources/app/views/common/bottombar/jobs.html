@@ -60,6 +60,13 @@
                 </md-radio-group>
             </div>
 
+            <md-chips readonly="true" md-removable="true" ng-if="jobParams.parentId">
+                <md-chip>
+                    <div class="md-chip-content">&nbsp; Parent job ID: {{jobParams.parentId}}</div>
+                    <button class="md-chip-remove" ng-click="setParentJobFilter(null)"><i class="material-icons">close</i></button>
+                </md-chip>
+            </md-chips>
+
         </ul>
     </section>
 
@@ -70,10 +77,11 @@
                       ng-click="selectJob(job)"
                       ng-class="{active: job.id == jobParams.selectedJob.id}">
 
-            <div class="md-avatar" alt="{{job.stage}}" style="{{getColor(job.status)}}" ng-click="selectJob(job)">
+            <div class="md-avatar" alt="{{job.stage}}" style="{{getColor(job.status)}}" ng-click="selectJob(job)" >
                 <i class="material-icons" ng-if="job.status === 'COMPLETED'">done</i>
                 <i class="material-icons" ng-if="job.status === 'ERROR'">error</i>
                 <i class="material-icons" ng-if="job.status === 'RUNNING'">hourglass_empty</i>
+                <i class="material-icons" ng-if="job.status === 'CREATED'">schedule</i>
             </div>
 
             <div class="md-list-item-text" layout="row" ng-click="selectJob(job)">
@@ -83,6 +91,17 @@
                     <h4 ng-if="job.label" class="truncate">{{job.label}}</h4>
                 </div>
             </div>
+
+            <md-button class="toolbar-button md-secondary"
+                       ng-show="job.parent"
+                       ng-click="setParentJobFilter(job)"
+                       aria-label="View subjobs"
+                       uib-tooltip="View subjobs"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">subdirectory_arrow_right</i>
+            </md-button>
 
             <md-button class="toolbar-button md-secondary"
                     aria-label="Job Info"

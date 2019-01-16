@@ -91,6 +91,17 @@
             </div>
 
             <md-button class="toolbar-button md-secondary"
+                       ng-show="job.parent"
+                       ng-click="setParentJobFilter(job)"
+                       aria-label="View subjobs"
+                       uib-tooltip="View subjobs"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">subdirectory_arrow_right</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
                        aria-label="Job Info"
                        uib-popover-template="'views/common/templates/jobinfo.tmpl.html'"
                        popover-placement="right"

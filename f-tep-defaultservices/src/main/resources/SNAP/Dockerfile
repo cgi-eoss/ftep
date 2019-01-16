@@ -55,7 +55,7 @@ ENV PATH=/opt/snap/bin:$PATH
 RUN echo "snap.versionCheck.interval=NEVER" >>/opt/snap/etc/snap.properties \
   && sed 's/^\(default_options.*\)"/\1 -J-Dplugin.manager.check.interval=NEVER"/' -i /opt/snap/etc/snap.conf
 
-#RUN echo "nobody  ALL=NOPASSWD: ALL" >>/etc/sudoers
+RUN echo -e '#!/bin/sh\n/opt/snap/bin/snap --nosplash --nogui --modules --update-all 2>&1 | while read -r line; do\n    echo "$line"\n    [ "$line" = "updates=0" ] && sleep 2 && pkill -TERM -f "snap/jre/bin/java"\ndone\n' >/opt/snap/bin/update_plugins.sh && chmod +x /opt/snap/bin/update_plugins.sh && /opt/snap/bin/update_plugins.sh
 
 # Copy X app start script to right location
 COPY startapp.sh /startapp.sh

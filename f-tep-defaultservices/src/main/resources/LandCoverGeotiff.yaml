@@ -1,0 +1,82 @@
+---
+id: "LandCoverGeotiff"
+title: "Land cover by random forest"
+description: "Land cover by random forest"
+version: "0.1"
+storeSupported: false
+statusSupported: false
+serviceType: "Java"
+serviceProvider: "LandCoverGeotiff"
+dataInputs:
+- id: "inputmosaic"
+  title: "Input GeoTiff image from products"
+  description: "Input Geotiff image from products list"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "refDataShapefile"
+  title: "Reference data archive (zipped shapefile)"
+  description: "Zip file with all shape file compoinents"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "shapefileAttribute"
+  title: "Field (int) identifying class"
+  description: "E.g. 'Class'"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "OutNameBase"
+  title: "Output label"
+  description: "Output label"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+    value: "rf_out"
+  supportedAttrs: null
+dataOutputs:
+- id: "result"
+  title: "GeoTiff image file"
+  description: "Land cover map"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "image/tiff"
+    extension: ".tif"
+    value: "rf_out"
+  supportedAttrs: null
+- id: "model"
+  title: "Random-forest model"
+  description: "Random forest model"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "text/plain"
+    extension: ".txt"
+  supportedAttrs: null
+- id: "confusionMatrix"
+  title: "Confusion matrix"
+  description: "Confusion matrix with training data"
+  minOccurs: 0
+  maxOccurs: 0
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "text/csv"
+    extension: ".csv"
+  supportedAttrs: null

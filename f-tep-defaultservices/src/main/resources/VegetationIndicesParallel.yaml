@@ -1,0 +1,61 @@
+---
+id: "VegetationIndicesParallel"
+title: "Calculate a variety of radiometric indices for vegetation (parallel product processing version)"
+description: "Radiometric indices for multiple single-tile Sentinel-2 images, provided by Orfeo\
+  \ Toolbox. A core F-TEP service."
+version: "1.0"
+storeSupported: false
+statusSupported: false
+serviceType: "Java"
+serviceProvider: "VegetationIndicesParallel"
+dataInputs:
+- id: "parallelInputs"
+  title: "Input data"
+  description: "One or more single-tile input Sentinel-2 data file"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "vegIndex"
+  title: "Radiometric index algorithm"
+  description: "Vegetation index to calculate"
+  minOccurs: 1
+  maxOccurs: 2
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+    allowedValues: "GEMI,IPVI,MSAVI,MSAVI2,NDVI,RVI,SAVI,TNDVI,TSAVI"
+  supportedAttrs: null
+- id: "aoi"
+  title: "Area Of Interest"
+  description: "AOI to be processed, in the Well-known text (WKT) format, e.g. POLYGON((\
+    \ etc."
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "targetResolution"
+  title: "Output pixel spacing"
+  description: "Requested output spacing in meters. Valid values e.g. 10 or 20."
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+dataOutputs:
+- id: "result"
+  title: "Output Veg. Index"
+  description: "Chosen indewx"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "COMPLEX"
+  defaultAttrs:
+    asReference: "false"
+    mimeType: "image/tiff"
+    extension: ".tif"
+  supportedAttrs: null

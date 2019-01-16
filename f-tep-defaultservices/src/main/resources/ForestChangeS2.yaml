@@ -1,9 +1,10 @@
 ---
 id: "ForestChangeS2"
 title: "Change mapping using Sentinel-2 data"
-description: "Forest change mapped by difference in red band between two Sentinel-2\
-  \ images. A core F-TEP service"
-version: "1.0"
+description: "Forest change mapped by difference in the red band between two Sentinel-2\
+  \ images. A core F-TEP service. Updated in April 2018 to handle non-existing cloud\
+  \ metadata in the source products, and to better manage the user-given parameters."
+version: "1.1"
 storeSupported: true
 statusSupported: true
 serviceType: "Java"
@@ -29,10 +30,11 @@ dataInputs:
   supportedAttrs: []
 - id: "crs"
   title: "Target CRS identifier"
-  description: "EPSG coordinate reference system identifier of the target product,\
-    \ i.e. EPSG:326XX/327XX for the Northern/Southern hemisphere, where XX is the\
-    \ UTM zone, e.g. EPSG:32635"
-  minOccurs: 1
+  description: "OPTIONAL. Defines the target coordinate reference system (CRS). If\
+    \ left empty, the CRS of the input data is used as default. Format (an example):\
+    \ EPSG:32635, where \"EPSG:\" is compulsory; then \"6\" or \"7\" defines Northern/Southern\
+    \ hemisphere, and 35 represents the UTM zone."
+  minOccurs: 0
   maxOccurs: 1
   data: "LITERAL"
   defaultAttrs:
@@ -40,8 +42,10 @@ dataInputs:
   supportedAttrs: []
 - id: "aoi"
   title: "Area of interest"
-  description: "Well-known text POLYGON describing the AOI to be processed"
-  minOccurs: 1
+  description: "OPTIONAL. Defines the AOI that the output image is cropped to. The\
+    \ full Sentinel tiles are processed. If left empty, an image covering the entire\
+    \ tile area is produced. Format: Well-known text (WKT) formatted POLYGON string."
+  minOccurs: 0
   maxOccurs: 1
   data: "LITERAL"
   defaultAttrs:
@@ -49,9 +53,10 @@ dataInputs:
   supportedAttrs: []
 - id: "targetResolution"
   title: "Target image resolution"
-  description: "Desired image resolution in metres. Controls resampling of the input\
-    \ data. Example: '20'"
-  minOccurs: 1
+  description: "OPTIONAL. Desired image resolution in metres. Controls resampling\
+    \ of the output image. If left empty, resolution of the input data (10) is used\
+    \ as default."
+  minOccurs: 0
   maxOccurs: 1
   data: "LITERAL"
   defaultAttrs:

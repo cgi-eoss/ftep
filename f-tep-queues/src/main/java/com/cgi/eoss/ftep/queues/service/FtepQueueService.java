@@ -4,9 +4,9 @@ import java.util.Map;
 
 public interface FtepQueueService {
 
-    final static String jobQueueName = "fstep-jobs";
+    final static String jobQueueName = "ftep-jobs";
 
-    final static String jobUpdatesQueueName = "fstep-jobs-updates";
+    final static String jobUpdatesQueueName = "ftep-jobs-updates";
     
     void sendObject(String queueName, Object object);
 

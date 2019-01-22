@@ -18,12 +18,6 @@ public interface NodeFactory {
      * @param environmentBaseDir The base path containing job environments, to be made available to the returned node.
      * @return A Node appropriate for the configured implementation.
      */
-    Node provisionNode(Path environmentBaseDir);
-
-    /**
-     * <p>Provision a Node suitable for running F-TEP services with Docker.
-     * Sets a custom tag and dataBaseDir.</p>
-     */
     Node provisionNode(String tag, Path environmentBaseDir, Path dataBaseDir) throws NodeProvisioningException;
 
     /**
@@ -47,5 +41,6 @@ public interface NodeFactory {
     NodePoolStatus getNodePoolStatus();
 
     String allocateStorageForNode(Node node, int storageGB, String mountPoint) throws StorageProvisioningException;
+
     void removeStorageForNode(Node node, String storageId) throws StorageProvisioningException;
 }

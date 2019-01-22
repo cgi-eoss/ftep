@@ -1,9 +1,9 @@
 package com.cgi.eoss.ftep.clouds.ipt;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 final class ProvisioningConfig {
     private final String defaultNodeFlavor;
@@ -11,5 +11,9 @@ final class ProvisioningConfig {
     private final String sshUser;
     private final String securityGroupName;
     private final String floatingIpPool;
+    private final String networkId;
     private final String nfsHost;
+    private final String additionalNfsMounts;
+    private boolean provisionFloatingIp;
+    private String insecureRegistries;
 }

@@ -5,14 +5,15 @@ import com.cgi.eoss.ftep.model.internal.ShpFileType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.MoreFiles;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.geojson.GeoJsonObject;
-import org.geojson.LngLatAlt;
+import org.geojson.Point;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridFormatFinder;
@@ -22,19 +23,13 @@ import org.geotools.data.DataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.Hints;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.geometry.text.WKTParser;
+import org.geotools.geometry.jts.WKTReader2;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.filter.Filter;
-import org.opengis.geometry.coordinate.LineString;
-import org.opengis.geometry.coordinate.PointArray;
-import org.opengis.geometry.coordinate.Position;
-import org.opengis.geometry.primitive.Curve;
-import org.opengis.geometry.primitive.Point;
-import org.opengis.geometry.primitive.Surface;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
@@ -42,7 +37,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -56,53 +50,22 @@ import java.util.zip.ZipOutputStream;
 public class GeoUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private static final GeometryBuilder GEOMETRY_BUILDER = new GeometryBuilder(DefaultGeographicCRS.WGS84);
+    private static final WKTReader2 WKT_READER = new WKTReader2(JTSFactoryFinder.getGeometryFactory());
 
-    private static final WKTParser WKT_PARSER = new WKTParser(GEOMETRY_BUILDER);
+    private static final String DEFAULT_POINT_WKT = "POINT(0 0)";
 
-    private static final String DEFAULT_POINT = "POINT(0 0)";
+    private static final org.geojson.Point DEFAULT_POINT = (org.geojson.Point) getGeoJsonGeometry(DEFAULT_POINT_WKT);
 
-    public static org.geojson.Point defaultPoint() {
-        return wktToGeojsonPoint(DEFAULT_POINT);
+    public static Point defaultPoint() {
+        return DEFAULT_POINT;
     }
 
-    public static GeoJsonObject getGeoJsonGeometry(String geometry) {
+    public static GeoJsonObject getGeoJsonGeometry(String wkt) {
         try {
-            // TODO Check for other ISO Geometry types
-            return GeoUtil.wktToGeojsonPolygon(geometry);
-        } catch (GeometryException e) {
-            return GeoUtil.defaultPoint();
-        }
-    }
-
-    public static org.geojson.Polygon wktToGeojsonPolygon(String wkt) {
-        try {
-            Surface surface = (Surface) WKT_PARSER.parse(wkt);
-            Curve curve = (Curve) Iterables.getOnlyElement(surface.getBoundary().getExterior().getElements());
-            LineString lineString = (LineString) Iterables.getOnlyElement(curve.getSegments());
-            PointArray controlPoints = lineString.getControlPoints();
-
-            List<LngLatAlt> geojsonCoords = controlPoints.stream()
-                    .map(Position::getDirectPosition)
-                    .map(p -> new LngLatAlt(p.getOrdinate(0), p.getOrdinate(1)))
-                    .collect(Collectors.toList());
-
-            return new org.geojson.Polygon(geojsonCoords);
-        } catch (Exception e) {
-            LOG.error("Could not convert WKT to GeoJson Polygon: {}", wkt, e);
-            throw new GeometryException(e);
-        }
-    }
-
-    public static org.geojson.Point wktToGeojsonPoint(String wkt) {
-        try {
-            Point point = (Point) WKT_PARSER.parse(wkt);
-            return new org.geojson.Point(
-                    point.getDirectPosition().getOrdinate(0),
-                    point.getDirectPosition().getOrdinate(1));
-        } catch (Exception e) {
-            LOG.error("Could not convert WKT to GeoJson Point: {}", wkt, e);
-            throw new GeometryException(e);
+            Geometry geometry = WKT_READER.read(wkt);
+            return stringToGeojson(new GeometryJSON(15).toString(geometry));
+        } catch (GeometryException | ParseException e) {
+            return DEFAULT_POINT;
         }
     }
 
@@ -139,7 +102,7 @@ public class GeoUtil {
 
             Polygon polygon = JTS.toGeometry(envelope.toBounds(DefaultGeographicCRS.WGS84));
             LOG.debug("Extracted WKT bounding box from file {}: {}", file.getFileName(), polygon);
-            return wktToGeojsonPolygon(polygon.toString());
+            return (org.geojson.Polygon) getGeoJsonGeometry(polygon.toString());
         } catch (Exception e) {
             LOG.error("Could not extract bounding box from file: {}", file);
             LOG.trace(e);

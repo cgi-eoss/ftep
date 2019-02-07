@@ -8,8 +8,11 @@ import com.google.common.collect.Multimap;
 
 import java.time.YearMonth;
 import java.util.List;
+import java.util.UUID;
 
 public interface JobDataService extends FtepEntityDataService<Job> {
+
+    Job getByExtId(UUID extId);
 
     List<Job> findByOwner(User user);
     List<Job> findByService(FtepService service);

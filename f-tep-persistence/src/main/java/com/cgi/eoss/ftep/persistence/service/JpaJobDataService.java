@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.util.List;
+import java.util.UUID;
 
 import static com.cgi.eoss.ftep.model.QJob.job;
 
@@ -48,6 +49,11 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     @Override
     Predicate getUniquePredicate(Job entity) {
         return job.extId.eq(entity.getExtId());
+    }
+
+    @Override
+    public Job getByExtId(UUID extId) {
+        return dao.findOne(job.extId.eq(extId.toString()));
     }
 
     @Override

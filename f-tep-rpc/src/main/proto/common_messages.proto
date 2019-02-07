@@ -22,6 +22,8 @@ message Job {
 message JobParam {
     string paramName = 1;
     repeated string paramValue = 2;
+    bool searchParameter = 3;
+    bool parallelParameter = 4;
 }
 
 message ShortFile {

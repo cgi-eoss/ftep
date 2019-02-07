@@ -17,6 +17,8 @@ import java.util.Set;
 @Data
 public class SearchParameters {
 
+    public static final HttpUrl DEFAULT_REQUEST_URL = HttpUrl.parse("http://example.com");
+
     @JsonIgnore
     private HttpUrl requestUrl;
     @JsonProperty

@@ -41,7 +41,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 newRole: undefined,
                 wallet: undefined,
                 coins: 0,
-                searchText: ''
+                searchText: '',
+                reportMonth: 'January',
+                reportYear: 2019
             }
         };
 

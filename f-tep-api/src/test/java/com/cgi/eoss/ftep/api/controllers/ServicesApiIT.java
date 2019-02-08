@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.cgi.eoss.ftep.api.TestUtil.userUri;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -54,7 +55,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class ServicesApiIT {
 
-    private static final JsonPath USER_HREF_JSONPATH = JsonPath.compile("$._links.self.href");
     private static final JsonPath OBJ_ID_JSONPATH = JsonPath.compile("$.id");
 
     @Autowired
@@ -157,7 +157,7 @@ public class ServicesApiIT {
 
     @Test
     public void testCreateWithValidRole() throws Exception {
-        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(ftepAdmin) + "\"}"))
+        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(mockMvc, ftepAdmin) + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/services/\\d+$")));
         mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepContentAuthority.getName()).content("{\"name\": \"service-2\", \"dockerTag\": \"dockerTag\"}"))
@@ -172,13 +172,13 @@ public class ServicesApiIT {
 
     @Test
     public void testCreateWithInvalidRole() throws Exception {
-        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepUser.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(ftepUser) + "\"}"))
+        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepUser.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(mockMvc, ftepUser) + "\"}"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     public void testWriteAccessControl() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(ftepAdmin) + "\"}"))
+        MvcResult result = mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepAdmin.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(mockMvc, ftepAdmin) + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/services/\\d+$")))
                 .andReturn();
@@ -200,13 +200,6 @@ public class ServicesApiIT {
                 .andExpect(status().isNoContent());
         mockMvc.perform(patch(serviceLocation).header("REMOTE_USER", ftepGuest.getName()).content("{\"name\": \"service-1-guest-updated\"}"))
                 .andExpect(status().isForbidden());
-    }
-
-    private String userUri(User user) throws Exception {
-        String jsonResult = mockMvc.perform(
-                get("/api/users/" + user.getId()).header("REMOTE_USER", ftepAdmin.getName()))
-                .andReturn().getResponse().getContentAsString();
-        return USER_HREF_JSONPATH.read(jsonResult);
     }
 
     private Long getJsonObjectId(String location) throws Exception {

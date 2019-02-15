@@ -49,8 +49,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 selectedTypeFilter: self.serviceTypeFilters.ALL_SERVICES,
                 searchText: '',
                 inputValues: {},
-                label: undefined,
-                dropLists: {}
+                label: undefined
             },
             community: {
                 services: undefined,

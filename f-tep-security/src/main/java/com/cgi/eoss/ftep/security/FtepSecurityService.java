@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -47,6 +47,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Component
 @Log4j2
+@Transactional(readOnly = true)
 public class FtepSecurityService {
     public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
@@ -218,7 +219,7 @@ public class FtepSecurityService {
     }
 
     private Authentication getAuthentication(User user) {
-        SecurityUser securityUser = new SecurityUser(user);
+        SecurityUser securityUser = new SecurityUser(userDataService.refresh(user));
         return new PreAuthenticatedAuthenticationToken(securityUser.getUsername(), securityUser.getPassword(), securityUser.getAuthorities());
     }
 

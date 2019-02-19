@@ -103,7 +103,7 @@ public class SystematicProcessingScheduler {
                     inputs.putAll(configTemplate.getInputs());
                     inputs.replaceValues(configTemplate.getSystematicParameter(), Arrays.asList(new String[]{url}));
                     configTemplate.getInputs().put(configTemplate.getSystematicParameter(), url);
-                    int jobCost = costingService.estimateSingleRunJobCost(configTemplate);
+                    int jobCost = costingService.estimateJobCost(configTemplate);
                     if (jobCost > systematicProcessing.getOwner().getWallet().getBalance()) {
                         systematicProcessing.setStatus(Status.BLOCKED);
                         systematicProcessingDataService.save(systematicProcessing);
@@ -167,7 +167,7 @@ public class SystematicProcessingScheduler {
 
         @Override
         public void onNext(FtepJobResponse value) {
-            this.intJobId = Long.parseLong(value.getJob().getIntJobId());
+            this.intJobId = value.getJob().getIntJobId();
             LOG.info("Received job ID: {}", this.intJobId);
             latch.countDown();
         }

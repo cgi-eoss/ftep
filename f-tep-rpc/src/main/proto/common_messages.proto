@@ -14,7 +14,7 @@ message Service {
 
 message Job {
     string id = 1;
-    string intJobId = 2;
+    int64 intJobId = 2;
     string userId = 3;
     string serviceId = 4;
 }

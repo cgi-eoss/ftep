@@ -100,7 +100,7 @@ public class FtepWorkerDispatcher {
         public void run() {
             messageHeaders = new HashMap<>();
             messageHeaders.put("workerId", workerId);
-            messageHeaders.put("jobId", jobSpec.getJob().getIntJobId());
+            messageHeaders.put("jobId", String.valueOf(jobSpec.getJob().getIntJobId()));
             executeJob(jobSpec, this);
         }
 

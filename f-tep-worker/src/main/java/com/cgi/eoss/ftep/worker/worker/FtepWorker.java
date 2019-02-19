@@ -152,7 +152,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
         return CloseableThreadContext.push("F-TEP Worker")
                 .put("zooId", job.getId())
-                .put("jobId", job.getIntJobId())
+                .put("jobId", String.valueOf(job.getIntJobId()))
                 .put("userId", job.getUserId())
                 .put("serviceId", job.getServiceId());
     }
@@ -250,7 +250,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage())) {
                     createContainerCmd.withLabels(ImmutableMap.of(
                             "jobId", jobId,
-                            "intJobId", request.getJob().getIntJobId(),
+                            "intJobId", String.valueOf(request.getJob().getIntJobId()),
                             "userId", request.getJob().getUserId(),
                             "serviceId", request.getJob().getServiceId()
                     ));

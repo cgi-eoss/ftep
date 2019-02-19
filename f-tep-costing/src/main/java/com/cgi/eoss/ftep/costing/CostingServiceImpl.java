@@ -47,16 +47,6 @@ public class CostingServiceImpl implements CostingService {
 
     @Override
     public Integer estimateJobCost(JobConfig jobConfig) {
-        int singleJobCost = estimateSingleRunJobCost(jobConfig);
-        if (jobConfig.getService().getType() == FtepService.Type.PARALLEL_PROCESSOR) {
-            return calculateNumberOfInputs(jobConfig.getInputs().get("parallelInputs")) * singleJobCost;
-        } else {
-            return singleJobCost;
-        }
-    }
-
-    @Override
-    public Integer estimateSingleRunJobCost(JobConfig jobConfig) {
         CostingExpression costingExpression = getCostingExpression(jobConfig.getService());
         String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
                 ? costingExpression.getCostExpression()

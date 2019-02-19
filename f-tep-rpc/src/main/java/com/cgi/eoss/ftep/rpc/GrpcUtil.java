@@ -48,7 +48,7 @@ public class GrpcUtil {
     public static Job toRpcJob(com.cgi.eoss.ftep.model.Job job) {
         return Job.newBuilder()
                 .setId(job.getExtId())
-                .setIntJobId(String.valueOf(job.getId()))
+                .setIntJobId(job.getId())
                 .setUserId(job.getOwner().getName())
                 .setServiceId(job.getConfig().getService().getName())
                 .build();

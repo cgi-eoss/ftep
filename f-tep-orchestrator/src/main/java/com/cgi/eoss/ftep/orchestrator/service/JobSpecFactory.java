@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -147,7 +148,8 @@ public class JobSpecFactory {
         } else {
             parallelParams.stream()
                     .peek(p -> LOG.info("Expanding parallel parameter {}", p.getParamName()))
-                    .forEach(parallelParam -> parallelParam.getParamValueList()
+                    .forEach(parallelParam -> parallelParam.getParamValueList().stream()
+                            .flatMap(v -> Arrays.stream(v.split(","))) // TODO Remove when values are reliably not comma-separated
                             .forEach(value -> expandedParams.add(ImmutableList.<JobParam>builder()
                                     .addAll(staticParams)
                                     .add(parallelParam.toBuilder().clearParamValue().addParamValue(value).build())

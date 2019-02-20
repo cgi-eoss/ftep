@@ -94,6 +94,7 @@ public class FtepSecurityService {
      * @param objectClass The class of the entity being published.
      * @param identifier  The identifier of the entity being published.
      */
+    @Transactional
     public void publish(Class<?> objectClass, Long identifier) {
         LOG.info("Publishing entity: {} (id: {})", objectClass, identifier);
 
@@ -105,6 +106,7 @@ public class FtepSecurityService {
      *
      * @param objectIdentity The identifier of the entity being published.
      */
+    @Transactional
     public void publish(ObjectIdentity objectIdentity) {
         MutableAcl acl = getAcl(objectIdentity);
 
@@ -116,6 +118,7 @@ public class FtepSecurityService {
         saveAcl(acl);
     }
 
+    @Transactional
     public void unpublish(Class<?> objectClass, Long identifier) {
         if (!isPublic(new ObjectIdentityImpl(objectClass, identifier))) {
             LOG.warn("Attempted to unpublish non-public object: {} {}", objectClass, identifier);

@@ -3,15 +3,14 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.SystematicProcessing;
-import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.cgi.eoss.ftep.persistence.dao.JobConfigDao;
+import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.cgi.eoss.ftep.persistence.dao.SystematicProcessingDao;
 import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
-import com.cgi.eoss.ftep.rpc.GrpcUtil;
+import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -83,8 +82,15 @@ public class JobConfigsApiExtension {
         FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
                 .setUserId(ftepSecurityService.getCurrentUser().getName())
-                .setServiceId(jobConfig.getService().getName())
-                .addAllInputs(GrpcUtil.mapToParams(jobConfig.getInputs()));
+                .setServiceId(jobConfig.getService().getName());
+
+        jobConfig.getInputs().keySet().forEach(
+                k -> serviceParamsBuilder.addInputs(JobParam.newBuilder()
+                        .setParamName(k)
+                        .addAllParamValue(jobConfig.getInputs().get(k))
+                        .setParallelParameter(jobConfig.getParallelParameters().contains(k))
+                        .setSearchParameter(jobConfig.getSearchParameters().contains(k))
+                        .build()));
 
         if (!Strings.isNullOrEmpty(jobConfig.getLabel())) {
             serviceParamsBuilder.setJobConfigLabel(jobConfig.getLabel());

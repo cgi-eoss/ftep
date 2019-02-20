@@ -88,8 +88,10 @@ CREATE TABLE ftep_job_configs (
   owner   BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   service BIGINT NOT NULL FOREIGN KEY REFERENCES ftep_services (id),
   systematic_parameter CHARACTER VARYING(255),
+  parallel_parameters CHARACTER VARYING(255) DEFAULT '' NOT NULL,
+  search_parameters CHARACTER VARYING(255) DEFAULT '' NOT NULL,
   label   CHARACTER VARYING(255),
-  UNIQUE (owner, service, inputs, parent, systematic_parameter)
+  UNIQUE (owner, service, inputs, parent, systematic_parameter, parallel_parameters, search_parameters)
 );
 CREATE INDEX ftep_job_configs_service_idx
   ON ftep_job_configs (service);

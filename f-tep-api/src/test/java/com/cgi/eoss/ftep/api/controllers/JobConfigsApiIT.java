@@ -74,7 +74,8 @@ public class JobConfigsApiIT {
                         "    \"input3\" : [ \"http://baz/?q=x,y&z={}\" ]\n" +
                         "  },\n" +
                         "  \"label\" : null,\n" +
-                        "  \"service\" : \"" + serviceUrl + "\"\n" +
+                        "  \"service\" : \"" + serviceUrl + "\",\n" +
+                        "  \"parallelParameters\" : [\"input2\"]\n" +
                         "}"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern(".*/jobConfigs/\\d+$")))
@@ -85,7 +86,8 @@ public class JobConfigsApiIT {
                 .andExpect(jsonPath("$.inputs.input1[0]").value("foo"))
                 .andExpect(jsonPath("$.inputs.input2[0]").value("bar1"))
                 .andExpect(jsonPath("$.inputs.input2[1]").value("bar2"))
-                .andExpect(jsonPath("$.inputs.input3[0]").value("http://baz/?q=x,y&z={}"));
+                .andExpect(jsonPath("$.inputs.input3[0]").value("http://baz/?q=x,y&z={}"))
+                .andExpect(jsonPath("$.parallelParameters[0]").value("input2"));
     }
 
 }

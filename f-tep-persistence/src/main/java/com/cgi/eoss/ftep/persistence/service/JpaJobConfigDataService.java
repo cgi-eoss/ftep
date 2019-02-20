@@ -34,7 +34,16 @@ public class JpaJobConfigDataService extends AbstractJpaDataService<JobConfig> i
     Predicate getUniquePredicate(JobConfig entity) {
         return jobConfig.owner.eq(entity.getOwner())
                 .and(jobConfig.service.eq(entity.getService()))
-                .and(jobConfig.inputs.eq(entity.getInputs()));
+                .and(jobConfig.inputs.eq(entity.getInputs()))
+                .and(entity.getParent() != null
+                        ? jobConfig.parent.eq(entity.getParent())
+                        : jobConfig.parent.isNull()
+                )
+                .and(entity.getSystematicParameter() != null
+                        ? jobConfig.systematicParameter.eq(entity.getSystematicParameter())
+                        : jobConfig.systematicParameter.isNull()
+                );
+        // TODO QueryDSL for parallel/searchParameters
     }
 
     @Override

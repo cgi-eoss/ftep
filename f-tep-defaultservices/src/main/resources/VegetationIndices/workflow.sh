@@ -20,13 +20,14 @@ mkdir -p "${PROC_DIR}/preprocessed"
 
 # Input params
 source ${WPS_PROPS}
-EPSG="${crs}"
 AOI="${aoi}"
 TARGET_RESOLUTION="${targetResolution:-10}"
 VEG_INDEX="${vegIndex}"
 
 # Calculated input params
 SCALING_FACTOR=$(echo "scale=2;${TARGET_RESOLUTION}/10" | bc)
+GRANULE_METADATA=$(ls -1 ${IN_DIR}/input/*/GRANULE/*/MTD_TL.xml | head -1)
+EPSG=$(${S2PRODUCTZONES} ${GRANULE_METADATA})
 
 # Internal params
 S2_PREPROCESS="${WORKFLOW}/F-TEP_S2_preprocessNew.xml"
@@ -52,7 +53,7 @@ NMIN=${LR[1]}
 
 # Preprocess S2 input: extract correct bands and resample
 I=0
-for IN in ${IN_DIR}/inputfile/*; do
+for IN in ${IN_DIR}/input/*; do
     I=$((I+1))
     INPUT_FILE=$(ls -1 ${IN}/*.xml | grep -v 'INSPIRE.xml' | head -1)
     time gpt ${S2_PREPROCESS} -Pifile=${INPUT_FILE} -Paoi="${AOI}" -PtargetResolution="${TARGET_RESOLUTION}" -Pofile="${PREPROCESSED_PREFIX}-${I}.tif"

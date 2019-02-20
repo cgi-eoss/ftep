@@ -9,35 +9,27 @@ statusSupported: false
 serviceType: "Java"
 serviceProvider: "VegetationIndices"
 dataInputs:
-- id: "inputfile"
+- id: "input"
   title: "Input data"
   description: "Single-tile input Sentinel-2 data file"
   minOccurs: 1
-  maxOccurs: 1
+  maxOccurs: 50
   data: "LITERAL"
   defaultAttrs:
     dataType: "string"
   supportedAttrs: null
+  dataReference: true
+  parallelParameter: true
+  searchParameter: false
 - id: "vegIndex"
   title: "Radiometric index algorithm"
   description: "Vegetation index to calculate"
   minOccurs: 1
-  maxOccurs: 2
+  maxOccurs: 9
   data: "LITERAL"
   defaultAttrs:
     dataType: "string"
     allowedValues: "GEMI,IPVI,MSAVI,MSAVI2,NDVI,RVI,SAVI,TNDVI,TSAVI"
-  supportedAttrs: null
-- id: "crs"
-  title: "Target coordinate system"
-  description: "EPSG coordinate reference system identifier of the target product,\
-    \ i.e. EPSG:326XX/327XX for the Northern/Southern hemisphere, where XX is the\
-    \ UTM zone, e.g. EPSG:32635"
-  minOccurs: 1
-  maxOccurs: 1
-  data: "LITERAL"
-  defaultAttrs:
-    dataType: "string"
   supportedAttrs: null
 - id: "aoi"
   title: "Area Of Interest"

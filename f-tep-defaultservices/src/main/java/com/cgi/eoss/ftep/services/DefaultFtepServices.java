@@ -40,7 +40,6 @@ public class DefaultFtepServices {
             .put("S1Biomass", FtepService.Type.PROCESSOR)
             .put("S1stack", FtepService.Type.PROCESSOR)
             .put("VegetationIndices", FtepService.Type.PROCESSOR)
-            .put("VegetationIndicesParallel", FtepService.Type.PARALLEL_PROCESSOR)
             .put("Monteverdi", FtepService.Type.APPLICATION)
             .put("QGIS", FtepService.Type.APPLICATION)
             .put("SNAP", FtepService.Type.APPLICATION)
@@ -52,7 +51,7 @@ public class DefaultFtepServices {
         return DEFAULT_SERVICES.keySet().stream().map(DefaultFtepServices::importDefaultService).collect(Collectors.toSet());
     }
 
-    private static FtepService importDefaultService(String serviceId) {
+    public static FtepService importDefaultService(String serviceId) {
         try {
             FtepService service = new FtepService(serviceId, User.DEFAULT, "ftep/" + serviceId.toLowerCase());
             service.setLicence(FtepService.Licence.OPEN);

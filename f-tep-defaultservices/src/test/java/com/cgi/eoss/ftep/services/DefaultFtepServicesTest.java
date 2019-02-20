@@ -13,7 +13,7 @@ public class DefaultFtepServicesTest {
     @Test
     public void getDefaultServices() throws Exception {
         Set<FtepService> defaultServices = DefaultFtepServices.getDefaultServices();
-        assertThat(defaultServices.size(), is(11));
+        assertThat(defaultServices.size(), is(10));
 
         FtepService forestChangeS2 = defaultServices.stream().filter(s -> s.getName().equals("ForestChangeS2")).findFirst().get();
         assertThat(forestChangeS2.getServiceDescriptor().getDataInputs().size(), is(5));
@@ -22,16 +22,13 @@ public class DefaultFtepServicesTest {
         assertThat(forestChangeS2.getContextFiles().stream().anyMatch(f -> f.getFilename().equals("workflow.sh") && f.isExecutable()), is(true));
 
         FtepService vegInd = defaultServices.stream().filter(s -> s.getName().equals("VegetationIndices")).findFirst().get();
-        assertThat(vegInd.getServiceDescriptor().getDataInputs().size(), is(5));
+        assertThat(vegInd.getServiceDescriptor().getDataInputs().size(), is(4));
+        assertThat(vegInd.getServiceDescriptor().getDataInputs().get(0).isDataReference(), is(true));
+        assertThat(vegInd.getServiceDescriptor().getDataInputs().get(0).isParallelParameter(), is(true));
+        assertThat(vegInd.getServiceDescriptor().getDataInputs().get(0).isSearchParameter(), is(false));
         assertThat(vegInd.getContextFiles().size(), is(6));
         assertThat(vegInd.getContextFiles().stream().anyMatch(f -> f.getFilename().equals("Dockerfile") && !f.isExecutable()), is(true));
         assertThat(vegInd.getContextFiles().stream().anyMatch(f -> f.getFilename().equals("workflow.sh") && f.isExecutable()), is(true));
-
-        FtepService vegIndParallel = defaultServices.stream().filter(s -> s.getName().equals("VegetationIndicesParallel")).findFirst().get();
-        assertThat(vegIndParallel.getServiceDescriptor().getDataInputs().size(), is(4));
-        assertThat(vegIndParallel.getContextFiles().size(), is(6));
-        assertThat(vegIndParallel.getContextFiles().stream().anyMatch(f -> f.getFilename().equals("Dockerfile") && !f.isExecutable()), is(true));
-        assertThat(vegIndParallel.getContextFiles().stream().anyMatch(f -> f.getFilename().equals("workflow.sh") && f.isExecutable()), is(true));
     }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,22 +50,15 @@ public class ContentAuthorityApi {
         Set<FtepService> defaultServices = DefaultFtepServices.getDefaultServices();
 
         for (FtepService service : defaultServices) {
-            LOG.info("Restoring default service: {}", service.getName());
-
-            // If the service already exists, synchronise the IDs (and associated file IDs) to avoid constraint errors
-            Optional.ofNullable(serviceDataService.getByName(service.getName())).ifPresent((FtepService existing) -> {
-                service.setId(existing.getId());
-                service.getContextFiles().forEach(newFile ->
-                        existing.getContextFiles().stream()
-                                .filter(existingFile -> existingFile.getFilename().equals(newFile.getFilename()))
-                                .findFirst()
-                                .ifPresent(existingFile -> newFile.setId(existingFile.getId())));
-            });
-
-            service.setOwner(ftepSecurityService.refreshPersistentUser(service.getOwner()));
-            serviceDataService.save(service);
-            publishService(service);
+            resetService(service);
         }
+    }
+
+    @PostMapping("/services/restoreDefault/{serviceId}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
+    public void restoreDefaultService(@PathVariable("serviceId") String serviceId) {
+        FtepService service = DefaultFtepServices.importDefaultService(serviceId);
+        resetService(service);
     }
 
     @PostMapping("/services/wps/syncAllPublic")
@@ -94,6 +88,24 @@ public class ContentAuthorityApi {
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
     public void unpublishService(@ModelAttribute("serviceId") FtepService service) {
         ftepSecurityService.unpublish(FtepService.class, service.getId());
+    }
+
+    private void resetService(FtepService service) {
+        LOG.info("Restoring default service: {}", service.getName());
+
+        // If the service already exists, synchronise the IDs (and associated file IDs) to avoid constraint errors
+        Optional.ofNullable(serviceDataService.getByName(service.getName())).ifPresent((FtepService existing) -> {
+            service.setId(existing.getId());
+            service.getContextFiles().forEach(newFile ->
+                    existing.getContextFiles().stream()
+                            .filter(existingFile -> existingFile.getFilename().equals(newFile.getFilename()))
+                            .findFirst()
+                            .ifPresent(existingFile -> newFile.setId(existingFile.getId())));
+        });
+
+        service.setOwner(ftepSecurityService.refreshPersistentUser(service.getOwner()));
+        serviceDataService.save(service);
+        publishService(service);
     }
 
 }

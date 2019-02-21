@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.net.ftp.FTP;
@@ -75,13 +76,14 @@ public class FtpDownloader implements Downloader {
             ftpClient.enterLocalPassiveMode();
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
-            FTPFile[] ftpFile = ftpClient.listFiles(uri.getPath());
+            String rootDir = uri.getPath();
+            FTPFile[] ftpFile = ftpClient.listFiles(rootDir);
             if (ftpFile[0].isDirectory()) {
-                downloadRecursive(ftpClient, Paths.get(uri.getPath()), Paths.get(""), targetDir);
+                downloadRecursive(ftpClient, rootDir, "", targetDir);
                 return targetDir;
             } else {
-                Path outputFile = targetDir.resolve(Paths.get(uri.getPath()).getFileName().toString());
-                downloadFile(ftpClient, Paths.get(uri.getPath()), outputFile);
+                Path outputFile = targetDir.resolve(Paths.get(rootDir).getFileName().toString());
+                downloadFile(ftpClient, rootDir, outputFile);
                 return outputFile;
             }
         } finally {
@@ -92,28 +94,41 @@ public class FtpDownloader implements Downloader {
         }
     }
 
-    private void downloadRecursive(FTPClient ftpClient, Path rootDir, Path currentRelativeDir, Path targetDir) throws IOException {
-        Path currentFtpDir = rootDir.resolve(currentRelativeDir);
-        Path currentTargetDir = Files.createDirectories(targetDir.resolve(currentRelativeDir.toString()));
+    private void downloadRecursive(FTPClient ftpClient, String rootDir, String currentRelativeDir, Path targetDir) throws IOException {
+        String currentFtpDir = appendSegmentToPath(rootDir, currentRelativeDir);
+        Path currentTargetDir = Files.createDirectories(targetDir.resolve(currentRelativeDir));
 
-        FTPFile[] currentFiles = ftpClient.listFiles(currentFtpDir.toString());
+        FTPFile[] currentFiles = ftpClient.listFiles(currentFtpDir);
 
         Map<Boolean, List<FTPFile>> currentPathEntries = Arrays.stream(currentFiles)
                 .filter(f -> !f.getName().equals(".") && !f.getName().equals(".."))
                 .collect(Collectors.partitioningBy(FTPFile::isDirectory));
 
-        currentPathEntries.get(true).forEach(Unchecked.consumer(f -> downloadRecursive(ftpClient, rootDir, currentRelativeDir.resolve(f.getName()), targetDir)));
-        currentPathEntries.get(false).forEach(Unchecked.consumer(f -> downloadFile(ftpClient, rootDir.resolve(currentRelativeDir).resolve(f.getName()), currentTargetDir.resolve(f.getName()))));
+        currentPathEntries.get(true).forEach(Unchecked.consumer(f -> downloadRecursive(ftpClient, rootDir, appendSegmentToPath(currentRelativeDir, f.getName()), targetDir)));
+        currentPathEntries.get(false).forEach(Unchecked.consumer(f -> downloadFile(ftpClient, appendSegmentToPath(appendSegmentToPath(rootDir, currentRelativeDir), f.getName()), currentTargetDir.resolve(f.getName()))));
     }
 
-    private void downloadFile(FTPClient ftpClient, Path ftpPath, Path targetFile) throws IOException {
+    private void downloadFile(FTPClient ftpClient, String ftpPath, Path targetFile) throws IOException {
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(targetFile))) {
-            boolean success = ftpClient.retrieveFile(ftpPath.toString(), os);
+            boolean success = ftpClient.retrieveFile(ftpPath, os);
             if (!success) {
                 ServiceIoException cause = new ServiceIoException("FTP download error: " + ftpClient.getReplyString());
                 throw new ServiceIoException("Failed to download via FTP: " + ftpClient.getPassiveHost() + ftpPath, cause);
             }
             LOG.info("Successfully downloaded via FTP: {}", targetFile);
         }
+    }
+
+    private String appendSegmentToPath(String path, String segment) {
+        if (Strings.isNullOrEmpty(path)) {
+            return segment;
+        }
+        if (Strings.isNullOrEmpty(segment)) {
+            return path;
+        }
+        if (path.charAt(path.length() - 1) == '/' || segment.charAt(0) == '/') {
+            return path + segment;
+        }
+        return path + "/" + segment;
     }
 }

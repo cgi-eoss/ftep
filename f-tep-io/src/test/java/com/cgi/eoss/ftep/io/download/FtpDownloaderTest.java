@@ -118,10 +118,12 @@ public class FtpDownloaderTest {
         Set<String> result = Files.walk(targetPath).filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toSet());
         assertThat(result, is(ImmutableSet.of(
                 "/target/testfile.txt",
-                "/target/subdir/testfile.txt"
+                "/target/subdir/testfile.txt",
+                "/target/subdir/subsubdir/testfile.txt"
         )));
         assertThat(Files.readAllLines(targetPath.resolve("testfile.txt")), is(ImmutableList.of("foo bar baz")));
         assertThat(Files.readAllLines(targetPath.resolve("subdir/testfile.txt")), is(ImmutableList.of("foo bar baz")));
+        assertThat(Files.readAllLines(targetPath.resolve("subdir/subsubdir/testfile.txt")), is(ImmutableList.of("foo bar baz")));
     }
 
     private FakeFtpServer buildFakeFtpServer() throws Exception {
@@ -134,6 +136,7 @@ public class FtpDownloaderTest {
         fileSystem.add(new DirectoryEntry("/data"));
         fileSystem.add(new DirectoryEntry("/recursiveData"));
         fileSystem.add(new DirectoryEntry("/recursiveData/subdir"));
+        fileSystem.add(new DirectoryEntry("/recursiveData/subdir/subsubdir"));
 
         FileEntry testFile = new FileEntry("/data/testfile.txt");
         byte[] testFileBytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
@@ -149,6 +152,11 @@ public class FtpDownloaderTest {
         byte[] testFile3Bytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
         testFile3.setContents(testFile3Bytes);
         fileSystem.add(testFile3);
+
+        FileEntry testFile4 = new FileEntry("/recursiveData/subdir/subsubdir/testfile.txt");
+        byte[] testFile4Bytes = Files.readAllBytes(Paths.get(FtpDownloaderTest.class.getResource("/testfile.txt").toURI()));
+        testFile4.setContents(testFile4Bytes);
+        fileSystem.add(testFile4);
 
         ftpServer.setFileSystem(fileSystem);
 

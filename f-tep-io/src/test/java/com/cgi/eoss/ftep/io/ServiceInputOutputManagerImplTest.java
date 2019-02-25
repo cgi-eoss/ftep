@@ -54,6 +54,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -102,8 +103,8 @@ public class ServiceInputOutputManagerImplTest {
         workDir = this.fs.getPath("/work");
         Files.createDirectories(workDir);
 
-        when(credentialsDataService.getByHost(any())).thenReturn(
-                DownloaderCredentials.basicBuilder().username("ftepuser").password("fteppass").build());
+        when(credentialsDataService.getByHost(any())).thenReturn(Optional.of(
+                DownloaderCredentials.builder().username("ftepuser").password("fteppass").build()));
 
         InProcessServerBuilder inProcessServerBuilder = InProcessServerBuilder.forName(getClass().getName()).directExecutor();
         InProcessChannelBuilder channelBuilder = InProcessChannelBuilder.forName(getClass().getName()).directExecutor();

@@ -450,15 +450,12 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                     .build());
             responseObserver.onCompleted();
         } else {
-            String description = "Failed to ingest outputs? TODO fix this note!";
-            LOG.error("Failed to run processor: {}; notifying gRPC client", description);
-            io.grpc.Status status = io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withDescription(description);
-            throw status.asException();
+            LOG.warn("Failed to locate response observer for job {}; we are finished so no further action", job.getId());
         }
     }
 
     private boolean allChildJobCompleted(Job parentJob) {
-        return !parentJob.getSubJobs().stream().anyMatch(j -> j.getStatus() != Job.Status.COMPLETED && j.getStatus() != Job.Status.ERROR);
+        return parentJob.getSubJobs().stream().noneMatch(j -> j.getStatus() != Status.COMPLETED && j.getStatus() != Status.ERROR);
     }
 
     private SetMultimap<String, String> listOutputFiles(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerGrpc.FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) {

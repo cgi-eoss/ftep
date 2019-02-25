@@ -62,14 +62,12 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
         FtepServerApplicationIT.FtepServerApplicationTestConfig.class
-}, properties = {
-        "logging.level.com.cgi.eoss.ftep=debug"
 })
 @Import({
         FtepWorkerApplication.class,
         WorkerConfig.class
 })
-@TestPropertySource
+@TestPropertySource("classpath:test-server.properties")
 public class FtepServerApplicationIT {
     private static final String PROCESSOR_NAME = "service1";
     private static final String GUI_APPLICATION_NAME = "service2";
@@ -132,7 +130,7 @@ public class FtepServerApplicationIT {
     public static class FtepServerApplicationTestConfig {
         @Bean
         public Path workspace() throws IOException {
-            Path workspace = Files.createTempDirectory(Paths.get("target"), FtepServerApplicationIT.class.getSimpleName());
+            Path workspace = Files.createTempDirectory(FtepServerApplicationIT.class.getSimpleName());
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     MoreFiles.deleteRecursively(workspace);

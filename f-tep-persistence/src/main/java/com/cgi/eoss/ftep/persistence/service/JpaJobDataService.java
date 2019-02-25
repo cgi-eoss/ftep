@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.querydsl.core.types.Predicate;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +53,8 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
 
     @Override
     public Job getByExtId(UUID extId) {
-        return dao.findOne(job.extId.eq(extId.toString()));
+        return dao.findOne(job.extId.eq(extId.toString()))
+                .orElseThrow(() -> new EntityNotFoundException("No Job found for extId: " + extId));
     }
 
     @Override

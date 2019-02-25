@@ -6,8 +6,8 @@ import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.FtepServiceDao;
 
+import com.google.common.hash.Hashing;
 import com.querydsl.core.types.Predicate;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +56,8 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
 
     @Override
     public FtepService getByName(String serviceName) {
-        return ftepServiceDao.findOne(ftepService.name.eq(serviceName));
+        return ftepServiceDao.findOne(ftepService.name.eq(serviceName))
+                .orElse(null); // TODO Return Optional<FtepService>
     }
 
     @Override
@@ -76,11 +77,10 @@ public class JpaServiceDataService extends AbstractJpaDataService<FtepService> i
                 oos.writeObject(contextFile.getFilename());
                 oos.writeObject(contextFile.getContent());
             }
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] serviceSerialized = bos.toByteArray();
             digest.update(serviceSerialized);
-            String md5 = Hex.encodeHexString(digest.digest());
-            return md5;
+            return Hashing.md5().hashBytes(digest.digest()).toString();
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new IllegalStateException();
         }

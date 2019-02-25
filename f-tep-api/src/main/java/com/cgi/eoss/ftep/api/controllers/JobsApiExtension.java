@@ -1,11 +1,8 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
-import com.cgi.eoss.ftep.rpc.CancelJobParams;
-import com.cgi.eoss.ftep.rpc.CancelJobResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
-
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

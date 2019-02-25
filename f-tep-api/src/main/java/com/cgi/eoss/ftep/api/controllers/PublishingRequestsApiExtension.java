@@ -1,9 +1,9 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.PublishingRequest;
 import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;

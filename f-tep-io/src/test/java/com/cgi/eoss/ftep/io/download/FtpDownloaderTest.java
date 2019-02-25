@@ -29,6 +29,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -92,10 +93,10 @@ public class FtpDownloaderTest {
     public void testDownload() throws Exception {
         String ftpHost = "localhost:" + ftpServer.getServerControlPort();
 
-        when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
+        when(credentialsDataService.getByHost(any())).thenReturn(Optional.of(DownloaderCredentials.builder()
                 .username("ftpuser")
                 .password("ftppass")
-                .build());
+                .build()));
 
         Path download = dl.download(targetPath, URI.create("ftp://" + ftpHost + "/data/testfile.txt"));
 
@@ -107,10 +108,10 @@ public class FtpDownloaderTest {
     public void testDownloadDirectory() throws Exception {
         String ftpHost = "localhost:" + ftpServer.getServerControlPort();
 
-        when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
+        when(credentialsDataService.getByHost(any())).thenReturn(Optional.of(DownloaderCredentials.builder()
                 .username("ftpuser")
                 .password("ftppass")
-                .build());
+                .build()));
 
         Path download = dl.download(targetPath, URI.create("ftp://" + ftpHost + "/recursiveData"));
 

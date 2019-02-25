@@ -4,7 +4,6 @@ import com.cgi.eoss.ftep.rpc.FtepWorkerManagerGrpc;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
 import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
-
 import io.grpc.ManagedChannelBuilder;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;

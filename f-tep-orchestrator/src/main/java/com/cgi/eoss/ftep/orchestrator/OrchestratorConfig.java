@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.orchestrator;
 
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.costing.CostingConfig;
-import com.cgi.eoss.ftep.metrics.MetricsConfig;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.queues.QueuesConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
@@ -33,7 +32,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
         CatalogueConfig.class,
         CostingConfig.class,
         InProcessRpcConfig.class,
-        MetricsConfig.class,
         PersistenceConfig.class,
         QueuesConfig.class,
         SearchConfig.class,

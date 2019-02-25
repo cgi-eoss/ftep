@@ -1,5 +1,0 @@
----
-classes:
-  - ftep::worker
-
-docker::manage_service: false

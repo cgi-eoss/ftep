@@ -10,7 +10,7 @@ import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.core.lookup.StrSubstitutor;
+import org.apache.commons.lang.text.StrSubstitutor;
 
 import java.io.IOException;
 import java.net.URI;

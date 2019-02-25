@@ -10,7 +10,6 @@ import com.cgi.eoss.ftep.rpc.BuildServiceResponse;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
-
 import com.google.common.io.MoreFiles;
 import io.grpc.stub.StreamObserver;
 import lombok.Data;
@@ -18,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.PathResource;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -90,7 +89,7 @@ public class ServicesApiExtension {
 
     @GetMapping("/export/{serviceId}")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (hasPermission(#service, 'administration'))")
-    public void exportAvailableServices(@ModelAttribute("serviceId") @P("service") FtepService service, HttpServletResponse response) throws IOException {
+    public void exportAvailableServices(@ModelAttribute("serviceId") @Param("service") FtepService service, HttpServletResponse response) throws IOException {
         Path zipBase = Files.createTempDirectory("servicesexport");
         Path zipFile = Files.createTempFile(service.getName(), ".zip");
 

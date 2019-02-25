@@ -26,7 +26,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -309,11 +308,11 @@ public class FtepSecurityService {
     @Transactional
     public void setParentAcl(Class<?> parentObjectClass, Long parentObjectId, Class<?> childObjectClass, Set<Long> childObjectIds) {
         MutableAcl parentAcl = getAcl(new ObjectIdentityImpl(parentObjectClass, parentObjectId));
-        Set<MutableAcl> childAcls = childObjectIds.stream().map(id -> getAcl(new ObjectIdentityImpl(childObjectClass, id))).collect(toSet());
-
-        childAcls.forEach(acl -> {
-            acl.setParent(parentAcl);
-            saveAcl(acl);
-        });
+        childObjectIds.stream()
+                .map(id -> getAcl(new ObjectIdentityImpl(childObjectClass, id)))
+                .forEach(acl -> {
+                    acl.setParent(parentAcl);
+                    saveAcl(acl);
+                });
     }
 }

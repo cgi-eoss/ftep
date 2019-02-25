@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collection;
 
-public interface PublishingRequestsApiCustom {
+public interface PublishingRequestsApiCustom extends BaseRepositoryApi<PublishingRequest> {
 
-    Page<PublishingRequest> findByStatus(Collection<PublishingRequest.Status> statuses, Pageable pageable);
+    Page<PublishingRequest> searchByStatus(Collection<PublishingRequest.Status> statuses, Pageable pageable);
 
 }

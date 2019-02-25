@@ -13,11 +13,11 @@ Vagrant.configure('2') do |config|
   config.vm.define 'build', primary: false, autostart: false do |build|
     build.ssh.username = 'ftep'
     build.ssh.password = 'ftep'
-    build.vm.synced_folder '.', '/home/ftep/build'
+    build.vm.synced_folder '.', '/home/ftep/buildImg'
     build.vm.synced_folder `echo $HOME`.chomp + '/.gradle', '/home/ftep/.gradle'
 
     build.vm.provider 'docker' do |d|
-      d.build_dir = './build'
+      d.build_dir = './buildImg'
       d.build_args = ['--build-arg=http_proxy', '--build-arg=https_proxy', '--build-arg=no_proxy']
       # Change the internal 'ftep' uid to the current user's uid, and launch sshd
       d.cmd = ['/usr/sbin/sshdBootstrap.sh', `id -u`.chomp, `id -g`.chomp, '/usr/sbin/sshd', '-D', '-e']

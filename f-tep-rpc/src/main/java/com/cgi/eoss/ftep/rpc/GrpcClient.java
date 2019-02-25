@@ -4,7 +4,6 @@ import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 import lombok.extern.log4j.Log4j2;
 import org.lognet.springboot.grpc.autoconfigure.GRpcServerProperties;
 
@@ -50,7 +49,6 @@ abstract class GrpcClient {
                 .<Supplier<ManagedChannel>>map(s -> () -> InProcessChannelBuilder.forName(s).build())
                 .orElseGet(() -> () -> ManagedChannelBuilder.forTarget(serviceInstanceId)
                         .nameResolverFactory(discoveryClientResolverFactory) // TODO Use java service loading
-                        .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
                         .usePlaintext() // TODO TLS
                         .build());
     }

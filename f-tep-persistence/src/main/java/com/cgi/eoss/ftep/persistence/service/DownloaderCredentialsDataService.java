@@ -2,6 +2,8 @@ package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.DownloaderCredentials;
 
+import java.util.Optional;
+
 public interface DownloaderCredentialsDataService extends
         FtepEntityDataService<DownloaderCredentials> {
     /**
@@ -9,5 +11,5 @@ public interface DownloaderCredentialsDataService extends
      * @return The credentials required to download from the given host, or null if no credentials were found for the
      * host.
      */
-    DownloaderCredentials getByHost(String host);
+    Optional<DownloaderCredentials> getByHost(String host);
 }

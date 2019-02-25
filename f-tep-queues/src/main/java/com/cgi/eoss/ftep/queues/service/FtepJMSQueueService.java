@@ -1,21 +1,13 @@
 package com.cgi.eoss.ftep.queues.service;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Map;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.Optional;
 
 @Log4j2
 public class FtepJMSQueueService implements FtepQueueService {
@@ -94,9 +86,9 @@ public class FtepJMSQueueService implements FtepQueueService {
 
     @Override
     public long getQueueLength(String queueName) {
-        return jmsTemplate.execute(session -> {
+        return Optional.ofNullable(jmsTemplate.execute(session -> {
             QueueBrowser queueBrowser = session.createBrowser(session.createQueue(queueName));
-            return Long.valueOf(Collections.list(queueBrowser.getEnumeration()).size());
-        }, true);
+            return (long) Collections.list(queueBrowser.getEnumeration()).size();
+        }, true)).orElse(0L);
     }
 }

@@ -123,7 +123,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services[0].access.publishRequested").value(false))
                 .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("ADMIN"))
                 .andExpect(jsonPath("$._embedded.services[0]._links.self.href").value(endsWith("/services/" + service.getId())))
-                .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner")));
+                .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner{?projection}")));
     }
 
     @Test

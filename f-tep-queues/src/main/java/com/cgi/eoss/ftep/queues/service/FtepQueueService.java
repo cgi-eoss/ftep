@@ -4,9 +4,9 @@ import java.util.Map;
 
 public interface FtepQueueService {
 
-    final static String jobQueueName = "ftep-jobs";
+    String jobQueueName = "ftep-jobs";
 
-    final static String jobUpdatesQueueName = "ftep-jobs-updates";
+    String jobUpdatesQueueName = "ftep-jobs-updates";
     
     void sendObject(String queueName, Object object);
 
@@ -16,14 +16,14 @@ public interface FtepQueueService {
     
     void sendObject(String queueName, Map<String, Object> additionalHeaders, Object object, int priority);
 
-    public Object receiveObject(String queueName);
+    Object receiveObject(String queueName);
     
-    public Object receiveObjectWithTimeout(String queueName, long timeout);
+    Object receiveObjectWithTimeout(String queueName, long timeout);
    
-    public Object receiveSelectedObject(String queueName, String messageSelector);
+    Object receiveSelectedObject(String queueName, String messageSelector);
     
-    public Object receiveSelectedObjectWithTimeout(String queueName, String messageSelector, long timeout);
+    Object receiveSelectedObjectWithTimeout(String queueName, String messageSelector, long timeout);
 
-    public long getQueueLength(String queueName);
+    long getQueueLength(String queueName);
 
 }

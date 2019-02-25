@@ -25,9 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.WebMvcRegistrationsAdapter;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +39,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -46,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -70,23 +71,24 @@ import static org.springframework.data.rest.core.mapping.RepositoryDetectionStra
         SecurityConfig.class
 })
 @EnableJpaRepositories(basePackageClasses = ApiConfig.class)
-@EnableWebMvc
 @ComponentScan(basePackageClasses = ApiConfig.class)
 @Log4j2
 public class ApiConfig {
 
     @Bean
-    public Jackson2ObjectMapperBuilder jacksonBuilder() {
-        return new Jackson2ObjectMapperBuilder()
-                .modulesToInstall(
-                        new GuavaModule(),
-                        new Hibernate5Module(),
-                        new JavaTimeModule());
+    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
+        return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.modulesToInstall(
+                new GuavaModule(),
+                new Hibernate5Module(),
+                new JavaTimeModule());
     }
 
+    @Value("${ftep.api.basePath:/api}")
+    private String apiBasePath;
+
     @Bean
-    public WebMvcRegistrationsAdapter webMvcRegistrationsHandlerMapping(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
-        return new WebMvcRegistrationsAdapter() {
+    public WebMvcRegistrations webMvcRegistrationsHandlerMapping() {
+        return new WebMvcRegistrations() {
             @Override
             public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
                 return new RequestMappingHandlerMapping() {
@@ -108,6 +110,14 @@ public class ApiConfig {
                 };
             }
         };
+    }
+
+    // Handle X-Forwarded-* headers
+    @Bean
+    public FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter() {
+        FilterRegistrationBean<ForwardedHeaderFilter> bean = new FilterRegistrationBean<>();
+        bean.setFilter(new ForwardedHeaderFilter());
+        return bean;
     }
 
     @Bean
@@ -150,13 +160,13 @@ public class ApiConfig {
     // Spring Security configuration for anonymous/open access
     @Component
     @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "NONE", matchIfMissing = true)
-    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
     public static class ApiNoneSecurityConfigurer extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity httpSecurity) throws Exception {
             httpSecurity
                     .authorizeRequests()
-                    .anyRequest().anonymous();
+                    .anyRequest().permitAll();
             httpSecurity
                     .csrf().disable();
             httpSecurity

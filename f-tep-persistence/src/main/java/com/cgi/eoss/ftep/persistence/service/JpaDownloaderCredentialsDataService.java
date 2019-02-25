@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.cgi.eoss.ftep.model.QDownloaderCredentials.downloaderCredentials;
 
 @Service
@@ -32,7 +34,7 @@ public class JpaDownloaderCredentialsDataService extends AbstractJpaDataService<
     }
 
     @Override
-    public DownloaderCredentials getByHost(String host) {
+    public Optional<DownloaderCredentials> getByHost(String host) {
         return downloaderCredentialsDao.findOne(downloaderCredentials.host.eq(host));
     }
 

@@ -109,7 +109,8 @@ public class JobConfigsApiExtension {
 
         // Block until the latch counts down (i.e. one message from the server
         latch.await(1, TimeUnit.MINUTES);
-        Job job = jobRepository.getOne(responseObserver.getIntJobId());
+        Job job = jobRepository.findById(responseObserver.getIntJobId())
+                .orElseThrow(() -> new IllegalStateException("Could not locate just-created job with ID " + responseObserver.getIntJobId()));
         return ResponseEntity.accepted().body(new Resource<>(job));
     }
 

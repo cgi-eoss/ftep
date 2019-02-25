@@ -14,8 +14,10 @@ import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -26,11 +28,14 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {PersistenceConfig.class})
+@Transactional
+@AutoConfigureCache
+@AutoConfigureDataJpa
 @AutoConfigureEmbeddedDatabase
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest
+@AutoConfigureTestEntityManager
 @TestPropertySource(properties = {
-        "flyway.locations=db/migration/postgresql",
+        "spring.flyway.locations=db/migration/postgresql",
         "spring.jpa.hibernate.ddl-auto=validate",
         "spring.datasource.hikari.autoCommit=false"
 })

@@ -5,10 +5,10 @@ import com.cgi.eoss.ftep.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface ProjectsApiCustom {
-    Page<Project> findByFilterOnly(String filter, Pageable pageable);
+public interface ProjectsApiCustom extends BaseRepositoryApi<Project> {
+    Page<Project> searchByFilterOnly(String filter, Pageable pageable);
 
-    Page<Project> findByFilterAndOwner(String filter, User user, Pageable pageable);
+    Page<Project> searchByFilterAndOwner(String filter, User user, Pageable pageable);
 
-    Page<Project> findByFilterAndNotOwner(String filter, User user, Pageable pageable);
+    Page<Project> searchByFilterAndNotOwner(String filter, User user, Pageable pageable);
 }

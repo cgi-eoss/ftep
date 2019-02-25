@@ -9,7 +9,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.apache.commons.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -86,9 +86,9 @@ public class CEDADownloader implements Downloader {
 
             URI ftpUri;
             if (uri.getScheme().equals("landsat")) {
-                ftpUri = new URI(StrSubstitutor.replace(CEDA_FTP_DIRECTORY_URI_FORMAT, ImmutableMap.of("FTP_URL_BASE", ftpUrlBase, "DIRECTORY", productDirectory)));
+                ftpUri = new URI(StringSubstitutor.replace(CEDA_FTP_DIRECTORY_URI_FORMAT, ImmutableMap.of("FTP_URL_BASE", ftpUrlBase, "DIRECTORY", productDirectory)));
             } else {
-                ftpUri = new URI(StrSubstitutor.replace(CEDA_FTP_FILE_URI_FORMAT, ImmutableMap.of("FTP_URL_BASE", ftpUrlBase, "DIRECTORY", productDirectory, "DATAFILE", productDataFile)));
+                ftpUri = new URI(StringSubstitutor.replace(CEDA_FTP_FILE_URI_FORMAT, ImmutableMap.of("FTP_URL_BASE", ftpUrlBase, "DIRECTORY", productDirectory, "DATAFILE", productDataFile)));
             }
             LOG.info("Resolved product URI {} into CEDA URI {}", uri, ftpUri);
             return downloaderFacade.download(ftpUri, targetDir.resolve(productId));

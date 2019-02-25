@@ -60,7 +60,7 @@ public class KeypairRepositoryTest {
     public void testKeypairRetrieval() {
         Keypair kp = new Keypair("servId", samplePrivateKey, samplePublicKey);
         keypairRepository.save(kp);
-        Keypair kpRetrieved = keypairRepository.findOne("servId");
+        Keypair kpRetrieved = keypairRepository.findById("servId").orElse(null);
         assertNotNull(kpRetrieved);
         assertEquals(kp.getPrivateKey(), samplePrivateKey);
     }
@@ -70,7 +70,7 @@ public class KeypairRepositoryTest {
         Keypair kp = new Keypair("servId", "privKey", "pubKey");
         kp = keypairRepository.save(kp);
         keypairRepository.delete(kp);
-        Keypair kpRetrieved = keypairRepository.findOne("servId");
+        Keypair kpRetrieved = keypairRepository.findById("servId").orElse(null);
         assertNull(kpRetrieved);
     }
 

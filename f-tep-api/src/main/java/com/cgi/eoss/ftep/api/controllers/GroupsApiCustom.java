@@ -5,7 +5,7 @@ import com.cgi.eoss.ftep.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface GroupsApiCustom {
+public interface GroupsApiCustom extends BaseRepositoryApi<Group> {
     Page<Group> findByFilterOnly(String filter, Pageable pageable);
 
     Page<Group> findByFilterAndOwner(String filter, User user, Pageable pageable);

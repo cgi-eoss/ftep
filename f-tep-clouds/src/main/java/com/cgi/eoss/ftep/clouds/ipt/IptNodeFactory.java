@@ -347,7 +347,7 @@ public class IptNodeFactory implements NodeFactory {
 
         //Remove the keypair
         keyPairApi.delete(server.getKeyName());
-        keypairRepository.delete(server.getId());
+        keypairRepository.deleteById(server.getId());
 
         Optional<Address> floatingIpAddress = getServerFloatingIpAddress(server);
         if (floatingIpAddress.isPresent()) {
@@ -385,7 +385,8 @@ public class IptNodeFactory implements NodeFactory {
     @Override
     public String allocateStorageForNode(Node node, int storageGB, String mountPoint) throws StorageProvisioningException {
         Server server = serverApi.get(node.getId());
-        com.cgi.eoss.ftep.clouds.ipt.persistence.Keypair kp = keypairRepository.findOne(server.getId());
+        com.cgi.eoss.ftep.clouds.ipt.persistence.Keypair kp = keypairRepository.findById(server.getId())
+                .orElseThrow(() -> new IllegalStateException("No keypair found for server " + server.getId()));
         final Volume volume = createAdditionalVolume(storageGB);
         VolumeAttachment volumeAttachment = volumeAttachmentApi.attachVolumeToServerAsDevice(volume.getId(), server.getId(), "/dev/next");
         with().pollInterval(FIVE_SECONDS)
@@ -418,7 +419,8 @@ public class IptNodeFactory implements NodeFactory {
         try {
             for (VolumeAttachment volumeAttachment : volume.getAttachments()) {
                 Server server = serverApi.get(volumeAttachment.getServerId());
-                com.cgi.eoss.ftep.clouds.ipt.persistence.Keypair kp = keypairRepository.findOne(server.getId());
+                com.cgi.eoss.ftep.clouds.ipt.persistence.Keypair kp = keypairRepository.findById(server.getId())
+                        .orElseThrow(() -> new IllegalStateException("No keypair found for server " + server.getId()));
                 SSHSession ssh = openSshSession(kp.getPrivateKey(), kp.getPublicKey(), server);
                 LOG.debug("Unmounting volume from server: {} to {}", volume.getId(), server.getId());
                 ssh.exec("sudo umount " + volumeAttachment.getDevice() + "1 ");

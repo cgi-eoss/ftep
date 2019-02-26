@@ -103,9 +103,9 @@ s1ProcessingLevel:
   allowed:
     values:
       - value: '1'
-        title: '1'
+        title: 'Level 1'
       - value: '2'
-        title: '2'
+        title: 'Level 2'
   onlyIf:
     'mission':
       - 'sentinel1'
@@ -113,13 +113,15 @@ s1ProcessingLevel:
 s2ProcessingLevel:
   title: 'Processing level (S-2)'
   type: 'select'
-  defaultValue: 'L1C'
+  defaultValue: '1C'
   allowed:
     values:
-      - value: 'L1C'
-        title: 'L1C'
-      - value: 'L2A'
-        title: 'L2A'
+      - value: '1C'
+        title: 'Level 1'
+      - value: '2A'
+        title: 'Level 2A'
+      - value: '2AP'
+        title: 'Level 2A'
   onlyIf:
     'mission':
       - 'sentinel2'
@@ -131,9 +133,9 @@ s3ProcessingLevel:
   allowed:
     values:
       - value: '1'
-        title: '1'
+        title: 'Level 1'
       - value: '2'
-        title: '2'
+        title: 'Level 2'
   onlyIf:
     'mission':
       - 'sentinel3'
@@ -200,3 +202,16 @@ orbitDirection:
     'mission':
       - 'sentinel1'
       - 'sentinel3'
+
+s1Platform:
+  title: 'S-1 Platform'
+  type: 'select'
+  allowed:
+    values:
+      - value: 'S1A'
+        title: 'S1A'
+      - value: 'S1B'
+        title: 'S1B'
+  onlyIf:
+    'mission':
+      - 'sentinel1'

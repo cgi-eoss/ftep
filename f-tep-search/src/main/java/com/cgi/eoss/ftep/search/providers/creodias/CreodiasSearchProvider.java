@@ -1,11 +1,10 @@
-package com.cgi.eoss.ftep.search.providers.ipt;
+package com.cgi.eoss.ftep.search.providers.creodias;
 
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.cgi.eoss.ftep.search.providers.resto.RestoResult;
 import com.cgi.eoss.ftep.search.providers.resto.RestoSearchProvider;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
@@ -35,7 +34,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Log4j2
-public class IptSearchProvider extends RestoSearchProvider {
+public class CreodiasSearchProvider extends RestoSearchProvider {
 
     @Data
     @Builder
@@ -74,7 +73,7 @@ public class IptSearchProvider extends RestoSearchProvider {
     private static final Map<String, Function<String, String>> PARAMETER_VALUE_MAPPING = ImmutableMap.<String, Function<String, String>>builder()
             .put("identifier", v -> "%" + v + "%")
             .put("s1ProcessingLevel", v -> "LEVEL" + v)
-            .put("s2ProcessingLevel", v -> "LEVELL" + v)
+            .put("s2ProcessingLevel", v -> "LEVEL" + v)
             .put("s3ProcessingLevel", v -> "LEVEL" + v)
             .put("landsatProcessingLevel", v -> "LEVEL" + v)
             .put("maxCloudCover", v -> "[0," + v + "]")
@@ -82,15 +81,17 @@ public class IptSearchProvider extends RestoSearchProvider {
             .build();
 
     private final int priority;
+    private final boolean usableProductsOnly;
     private final ExternalProductDataService externalProductService;
 
-    public IptSearchProvider(int priority, IptSearchProperties searchProperties, OkHttpClient httpClient, ObjectMapper objectMapper, ExternalProductDataService externalProductService) {
+    public CreodiasSearchProvider(int priority, CreodiasSearchProperties searchProperties, OkHttpClient httpClient, ObjectMapper objectMapper, ExternalProductDataService externalProductService) {
         super(searchProperties.getBaseUrl(),
                 httpClient.newBuilder()
                         .addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                         .build(),
                 objectMapper);
         this.priority = priority;
+        this.usableProductsOnly = searchProperties.isUsableProductsOnly();
         this.externalProductService = externalProductService;
     }
 
@@ -102,6 +103,12 @@ public class IptSearchProvider extends RestoSearchProvider {
     @Override
     public Map<String, String> getQueryParameters(SearchParameters parameters) {
         Map<String, String> queryParameters = new HashMap<>();
+
+        if (usableProductsOnly) {
+            queryParameters.put("status", "0|34");
+        } else {
+            queryParameters.put("status", "all");
+        }
 
         parameters.getParameters().asMap().entrySet().stream()
                 .filter(p -> !INTERNAL_FTEP_PARAMS.contains(p.getKey()) && !p.getValue().isEmpty() && !Strings.isNullOrEmpty(Iterables.getFirst(p.getValue(), null)))
@@ -125,7 +132,7 @@ public class IptSearchProvider extends RestoSearchProvider {
         String catalogue = parameters.getValue("catalogue", "UNKNOWN");
         String mission = parameters.getValue("mission", "UNKNOWN");
         return catalogue.equals("SATELLITE") &&
-                (SUPPORTED_MISSIONS.keySet().stream().map(MissionPlatform::getMission).anyMatch(m -> m.equals(mission)) || mission.equals("httpipt"));
+                (SUPPORTED_MISSIONS.keySet().stream().map(MissionPlatform::getMission).anyMatch(m -> m.equals(mission)) || mission.equals("httpcreodias"));
     }
 
     @Override
@@ -157,7 +164,7 @@ public class IptSearchProvider extends RestoSearchProvider {
             // We know it's here *somewhere*...
             return "";
         } else {
-            throw new IllegalArgumentException("Could not identify IPT Resto collection for mission: " + missionPlatform);
+            throw new IllegalArgumentException("Could not identify CREODIAS Resto collection for mission: " + missionPlatform);
         }
     }
 
@@ -181,16 +188,19 @@ public class IptSearchProvider extends RestoSearchProvider {
         String productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
         URI ftepUri = externalProductService.getUri(productSource, productIdentifier);
 
-        // Shuffle the IPT properties into a sub-object for consistency across all search providers
+        // Shuffle the CREODIAS properties into a sub-object for consistency across all search providers
         Map<String, Object> extraParams = new HashMap<>(feature.getProperties());
         feature.getProperties().clear();
 
         Set<Link> featureLinks = new HashSet<>();
         featureLinks.add(new Link(ftepUri.toASCIIString(), "ftep"));
 
-        Long filesize = Optional.ofNullable((Map<String, Map<String, Object>>) extraParams.get("services"))
-                .map(services -> Optional.ofNullable(services.get("download")).map(dl -> ((Number) dl.get("size")).longValue()).orElse(0L))
-                .orElse(0L);
+        Long filesize;
+        if (extraParams.get("services") != null && Map.class.isAssignableFrom(extraParams.get("services").getClass())) {
+            filesize = Optional.ofNullable(((Map<String, Map<String, Object>>) extraParams.get("services")).get("download")).map(dl -> ((Number) dl.get("size")).longValue()).orElse(0L);
+        } else {
+            filesize = 0L;
+        }
 
         // Required parameters for FtepFile ingestion
         feature.setProperty("productSource", productSource);

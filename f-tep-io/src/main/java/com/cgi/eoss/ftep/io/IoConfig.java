@@ -2,6 +2,8 @@ package com.cgi.eoss.ftep.io;
 
 import com.cgi.eoss.ftep.io.download.CEDADownloader;
 import com.cgi.eoss.ftep.io.download.CachingSymlinkDownloaderFacade;
+import com.cgi.eoss.ftep.io.download.CreodiasHttpAuthenticator;
+import com.cgi.eoss.ftep.io.download.CreodiasHttpDownloader;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.io.download.FtepDownloader;
 import com.cgi.eoss.ftep.io.download.FtpDownloader;
@@ -134,6 +136,29 @@ public class IoConfig {
                         .iptDownloadUrl(iptEodataServerProperties.getDownloadUrlBase())
                         .build(),
                 ProtocolPriority.builder().overallPriority(iptEodataServerProperties.getOverallPriority()).build());
+    }
+
+    @Bean
+    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
+        return new CreodiasHttpAuthenticator(
+                ftepServerClient,
+                properties.getDownloader().getCreodiasHttp().getAuthEndpoint(),
+                properties.getDownloader().getCreodiasHttp().getAuthClientId());
+    }
+
+    @Bean
+    public CreodiasHttpDownloader creodiasHttpDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, CreodiasHttpAuthenticator creodiasHttpAuthenticator, IoConfigurationProperties properties) {
+        return new CreodiasHttpDownloader(
+                okHttpClient,
+                properties.getDownloader().getCreodiasHttp().getDownloadTimeout(),
+                properties.getDownloader().getCreodiasHttp().getSearchTimeout(),
+                creodiasHttpAuthenticator,
+                downloaderFacade,
+                CreodiasHttpDownloader.Properties.builder()
+                        .creodiasDownloadUrl(properties.getDownloader().getCreodiasHttp().getDownloadUrlBase())
+                        .creodiasSearchUrl(properties.getDownloader().getCreodiasHttp().getSearchUrl())
+                        .build(),
+                ProtocolPriority.builder().overallPriority(properties.getDownloader().getCreodiasHttp().getOverallPriority()).build());
     }
 
 }

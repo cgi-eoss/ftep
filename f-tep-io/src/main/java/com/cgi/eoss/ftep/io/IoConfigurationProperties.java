@@ -33,6 +33,7 @@ public class IoConfigurationProperties {
         private Ceda ceda = new Ceda();
         private IptHttp iptHttp = new IptHttp();
         private IptEodataServer iptEodataServer = new IptEodataServer();
+        private CreodiasHttp creodiasHttp = new CreodiasHttp();
 
         @Data
         static class Ceda {
@@ -56,6 +57,17 @@ public class IoConfigurationProperties {
         static class IptEodataServer {
             private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
             private String downloadUrlBase = "https://ipteodataserver.observing.earth";
+            private int overallPriority = 2;
+            private int downloadTimeout = 120;
+            private int searchTimeout = 120;
+        }
+
+        @Data
+        static class CreodiasHttp {
+            private String searchUrl = "https://finder.creodias.eu/resto/";
+            private String downloadUrlBase = "https://zipper.creodias.eu/download/";
+            private String authEndpoint = "https://auth.creodias.eu/auth/realms/DIAS/protocol/openid-connect/token";
+            private String authClientId = "CLOUDFERRO_PUBLIC";
             private int overallPriority = 0;
             private int downloadTimeout = 120;
             private int searchTimeout = 120;

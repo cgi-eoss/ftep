@@ -39,8 +39,11 @@ spec:
             steps {
                 gerritReview message: "Starting build: ${BUILD_URL}"
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
-                        sh "gradle build"
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
+                        sh "gradle -I init.gradle.kts build"
                     }
                 }
             }
@@ -54,8 +57,11 @@ spec:
         stage('buildDist') {
             steps {
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
-                        sh "gradle :distribution:buildDist"
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
+                        sh "gradle -I init.gradle.kts :distribution:buildDist"
                     }
                 }
             }
@@ -67,9 +73,12 @@ spec:
             }
             steps {
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
                         withSonarQubeEnv('CGI CI SonarQube') {
-                            sh "gradle sonarqube"
+                            sh "gradle -I init.gradle.kts sonarqube"
                         }
                     }
                 }

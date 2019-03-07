@@ -13,7 +13,7 @@ public class DefaultFtepServicesTest {
     @Test
     public void getDefaultServices() throws Exception {
         Set<FtepService> defaultServices = DefaultFtepServices.getDefaultServices();
-        assertThat(defaultServices.size(), is(10));
+        assertThat(defaultServices.size(), is(11));
 
         FtepService forestChangeS2 = defaultServices.stream().filter(s -> s.getName().equals("ForestChangeS2")).findFirst().get();
         assertThat(forestChangeS2.getServiceDescriptor().getDataInputs().size(), is(5));

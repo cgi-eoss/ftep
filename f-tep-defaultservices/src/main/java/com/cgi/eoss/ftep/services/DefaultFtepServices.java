@@ -42,6 +42,7 @@ public class DefaultFtepServices {
             .put("VegetationIndices", FtepService.Type.PROCESSOR)
             .put("Monteverdi", FtepService.Type.APPLICATION)
             .put("QGIS", FtepService.Type.APPLICATION)
+            .put("QGIS3", FtepService.Type.APPLICATION)
             .put("SNAP", FtepService.Type.APPLICATION)
             .build();
 

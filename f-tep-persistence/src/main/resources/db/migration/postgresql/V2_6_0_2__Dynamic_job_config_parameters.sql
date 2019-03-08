@@ -5,7 +5,7 @@ ALTER TABLE ftep_job_configs
 DROP INDEX IF EXISTS ftep_job_configs_owner_service_inputs_idx;
 
 CREATE UNIQUE INDEX ftep_job_configs_unique_idx ON ftep_job_configs
-  (owner, service, inputs, parent, systematic_parameter, parallel_parameters, search_parameters);
+  (owner, service, md5(inputs), parent, systematic_parameter, parallel_parameters, search_parameters);
 
 -- Remove PARALLEL_PROCESSOR enum value
 

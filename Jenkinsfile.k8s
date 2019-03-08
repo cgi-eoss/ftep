@@ -94,7 +94,7 @@ spec:
                     withCredentials([usernameColonPassword(credentialsId: '597ee7f1-63fc-4036-be52-0cea3e3d8d37', variable: 'NEXUS_USERPASS')]) {
                         sh """
                         for rpm in \$(find .dist/repo/ -name '*.rpm') ; do
-                          curl -v --user '${NEXUS_USERPASS}' --upload-file \${rpm} https://nexus.observing.earth/repository/yum-ftep/${branch}/\${rpm}
+                          curl -v --user '${NEXUS_USERPASS}' --upload-file \${rpm} https://nexus.observing.earth/repository/yum-ftep/\${BRANCH_NAME}/\${rpm}
                         done
                     """
                     }

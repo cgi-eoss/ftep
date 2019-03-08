@@ -73,7 +73,7 @@ public class DownloaderCredentials implements FtepEntity<DownloaderCredentials> 
     @Column(name = "certificate_path")
     private String certificatePath;
 
-    @Builder(builderMethodName = "basicBuilder")
+    @Builder
     public DownloaderCredentials(String host, String username, String password) {
         this.host = host;
         this.type = Type.BASIC;
@@ -81,7 +81,6 @@ public class DownloaderCredentials implements FtepEntity<DownloaderCredentials> 
         this.password = password;
     }
 
-    @Builder(builderMethodName = "x509Builder")
     public DownloaderCredentials(String host, String certificatePath) {
         this.host = host;
         this.type = Type.X509;

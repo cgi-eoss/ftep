@@ -1,0 +1,2 @@
+ALTER TABLE ftep_services
+  ADD COLUMN IF NOT EXISTS application_port CHARACTER VARYING(32);

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.cgi.eoss.ftep.model.QCostingExpression.costingExpression;
 
 @Service
@@ -34,20 +36,21 @@ public class JpaCostingExpressionDataService extends AbstractJpaDataService<Cost
     }
 
     @Override
-    public CostingExpression getServiceCostingExpression(FtepService service) {
+    public Optional<CostingExpression> getServiceCostingExpression(FtepService service) {
         return costingExpressionDao.findOne(
                 costingExpression.type.eq(CostingExpression.Type.SERVICE)
                         .and(costingExpression.associatedId.eq(service.getId())));
     }
 
     @Override
-    public CostingExpression getDownloadCostingExpression(FtepFile ftepFile) {
-        if (ftepFile.getDataSource() != null) {
-            return costingExpressionDao.findOne(
-                    costingExpression.type.eq(CostingExpression.Type.DOWNLOAD)
-                            .and(costingExpression.associatedId.eq(ftepFile.getDataSource().getId())));
+    public Optional<CostingExpression> getDownloadCostingExpression(FtepFile ftepFile) {
+        if (ftepFile.getDataSource() == null) {
+            return Optional.empty();
         }
-        return null;
+
+        return costingExpressionDao.findOne(
+                costingExpression.type.eq(CostingExpression.Type.DOWNLOAD)
+                        .and(costingExpression.associatedId.eq(ftepFile.getDataSource().getId())));
     }
 
 }

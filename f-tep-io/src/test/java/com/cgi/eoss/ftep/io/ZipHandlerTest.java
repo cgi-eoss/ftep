@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 
 public class ZipHandlerTest {
 
-    private String targetDir = "/target";
+    private final String targetDir = "/target";
 
     private FileSystem fs;
 
@@ -111,5 +111,4 @@ public class ZipHandlerTest {
                 "/target/subdir2/subdir2File2"
         )));
     }
-
 }

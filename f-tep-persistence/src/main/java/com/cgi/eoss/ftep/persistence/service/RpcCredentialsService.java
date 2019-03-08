@@ -26,7 +26,7 @@ public class RpcCredentialsService extends CredentialsServiceGrpc.CredentialsSer
     @Override
     public void getCredentials(GetCredentialsParams request, StreamObserver<Credentials> responseObserver) {
         try {
-            DownloaderCredentials result = Optional.ofNullable(dataService.getByHost(request.getHost()))
+            DownloaderCredentials result = dataService.getByHost(request.getHost())
                     .orElseThrow(() -> new EntityNotFoundException("No credentials found for host " + request.getHost()));
 
             // TODO Use mapstruct for type conversion

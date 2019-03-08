@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
@@ -87,15 +88,17 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     }
 
     @Override
-    public FtepFile ingestOutputProduct(OutputProductMetadata outputProduct, Path path) throws IOException {
+    public FtepFile ingestOutputProduct(OutputFileMetadata outputFileMetadata, Path path) throws IOException {
+        OutputProductMetadata outputProductMetadata = outputFileMetadata.getOutputProductMetadata();
+        // TODO Implement output collections
         FtepFile ftepFile = outputProductService.ingest(
-                outputProduct.getOwner(),
-                outputProduct.getJobId(),
-                outputProduct.getCrs(),
-                outputProduct.getGeometry(),
-                outputProduct.getProperties(),
+                outputProductMetadata.getOwner(),
+                outputProductMetadata.getJobId(),
+                outputFileMetadata.getCrs(),
+                outputFileMetadata.getGeometry(),
+                outputProductMetadata.getProductProperties(),
                 path);
-        ftepFile.setDataSource(dataSourceDataService.getForService(outputProduct.getService()));
+        ftepFile.setDataSource(dataSourceDataService.getForService(outputProductMetadata.getService()));
         return ftepFileDataService.save(ftepFile);
     }
 

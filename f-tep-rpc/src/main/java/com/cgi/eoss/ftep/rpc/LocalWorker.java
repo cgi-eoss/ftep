@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.rpc;
 
+import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
@@ -13,29 +14,29 @@ import io.grpc.ManagedChannelBuilder;
 
 public class LocalWorker {
 
-    private final ManagedChannelBuilder inProcessChannelBuilder;
+    private final FtepWorkerGrpc.FtepWorkerBlockingStub worker;
 
     public LocalWorker(ManagedChannelBuilder inProcessChannelBuilder) {
-        this.inProcessChannelBuilder = inProcessChannelBuilder;
+        this.worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
     }
 
     public JobEnvironment prepareInputs(JobInputs request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.prepareInputs(request);
     }
 
     public LaunchContainerResponse launchContainer(JobDockerConfig request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.launchContainer(request);
     }
 
     public ContainerExitCode waitForContainerExitWithTimeout(ExitWithTimeoutParams request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.waitForContainerExitWithTimeout(request);
     }
 
     public ContainerExitCode waitForContainerExit(ExitParams request) {
-        FtepWorkerGrpc.FtepWorkerBlockingStub worker = FtepWorkerGrpc.newBlockingStub(inProcessChannelBuilder.build());
         return worker.waitForContainerExit(request);
+    }
+
+    public CleanUpResponse cleanUp(Job request) {
+        return worker.cleanUp(request);
     }
 }

@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator;
 
+import com.cgi.eoss.ftep.search.api.SearchFacade;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -25,6 +26,11 @@ public class OrchestratorTestConfig {
     @Bean
     public ManagedChannelBuilder channelBuilder() {
         return InProcessChannelBuilder.forName(getClass().getName()).directExecutor();
+    }
+
+    @Bean
+    public SearchFacade searchFacade() {
+        return mock(SearchFacade.class);
     }
 
 }

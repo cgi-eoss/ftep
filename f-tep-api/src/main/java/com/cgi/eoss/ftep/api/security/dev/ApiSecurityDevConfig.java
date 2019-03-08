@@ -4,7 +4,7 @@ import com.cgi.eoss.ftep.security.FtepUserDetailsService;
 import com.cgi.eoss.ftep.security.FtepWebAuthenticationDetailsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,8 +26,6 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Configuration
 @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
@@ -45,11 +42,6 @@ public class ApiSecurityDevConfig {
     }
 
     @Bean
-    public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
-        return new AclPermissionEvaluator(aclService);
-    }
-
-    @Bean
     public MethodSecurityExpressionHandler createExpressionHandler(AclPermissionEvaluator aclPermissionEvaluator) {
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(aclPermissionEvaluator);
@@ -58,21 +50,18 @@ public class ApiSecurityDevConfig {
 
     @Component
     @ConditionalOnProperty(value = "ftep.api.security.mode", havingValue = "DEVELOPMENT_BECOME_ANY_USER")
-    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
     public static class ApiDevSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
-        private final ManagementServerProperties managementServerProperties;
         private final String usernameRequestHeader;
         private final String emailRequestHeader;
         private final String organisationRequestHeader;
 
         @Autowired
         public ApiDevSecurityConfigurer(
-                Optional<ManagementServerProperties> managementServerProperties,
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
                 @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader,
                 @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader) {
-            this.managementServerProperties = managementServerProperties.orElse(null);
             this.usernameRequestHeader = usernameRequestHeader;
             this.emailRequestHeader = emailRequestHeader;
             this.organisationRequestHeader = organisationRequestHeader;
@@ -97,6 +86,7 @@ public class ApiSecurityDevConfig {
                     .addFilterBefore(exceptionTranslationFilter, SessionUserAttributeInjectorFilter.class)
                     .addFilter(filter);
             httpSecurity.authorizeRequests()
+                    .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                     .antMatchers("/**/dev/user/become/*").permitAll()
                     .anyRequest().authenticated();
             httpSecurity
@@ -107,13 +97,6 @@ public class ApiSecurityDevConfig {
             httpSecurity
                     .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
-        }
-
-        @Override
-        public void configure(WebSecurity web) throws Exception {
-            if (managementServerProperties != null && !managementServerProperties.getSecurity().isEnabled()) {
-                web.ignoring().antMatchers(managementServerProperties.getContextPath() + "/**");
-            }
         }
     }
 

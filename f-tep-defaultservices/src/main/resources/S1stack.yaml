@@ -1,0 +1,76 @@
+---
+id: "S1stack"
+title: "Create a Sentinel-1 stack"
+description: "Create a Sentinel-1 stack (SDV) by mosaicking images from a date into\
+  \ a single layer and assigning each daily layer to bands of an output geotiff file."
+version: "0.1"
+storeSupported: false
+statusSupported: false
+serviceType: "Java"
+serviceProvider: "S1stack"
+dataInputs:
+- id: "inputfiles"
+  title: "S1/GRDH/SDV images"
+  description: "A set of S1/GRDH/SDV images"
+  minOccurs: 2
+  maxOccurs: 300
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "crs"
+  title: "Coordinate system"
+  description: "EPSG:number"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "aoi"
+  title: "Area Of Interst"
+  description: "A WKT Polygon"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "ext_dem"
+  title: "DEM file"
+  description: "An external DEM or empty for \"SRTM 1Sec HGT\""
+  minOccurs: 0
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+- id: "outname"
+  title: "Output label for file name"
+  description: "Output label for file name"
+  minOccurs: 0
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+    value: "S1stack"
+  supportedAttrs: null
+- id: "targetResolution"
+  title: "Output pixel spacing"
+  description: "Output pixel spacing (m), e.g. 20"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null
+dataOutputs:
+- id: "result"
+  title: "Directory for S1 stack file"
+  description: "Stack file (GeoTiff/BigTiff)"
+  minOccurs: 1
+  maxOccurs: 1
+  data: "LITERAL"
+  defaultAttrs:
+    dataType: "string"
+  supportedAttrs: null

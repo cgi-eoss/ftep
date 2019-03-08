@@ -5,7 +5,7 @@
 
         def buildImg
         stage('Bake build container') {
-            buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy --build-arg no_proxy build/')
+            buildImg = docker.build('eossci/f-tep_build', '--build-arg http_proxy --build-arg https_proxy --build-arg no_proxy buildImg/')
         }
 
         def gid = sh script: 'stat -c %g /var/run/docker.sock', returnStdout: true

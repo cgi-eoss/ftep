@@ -7,13 +7,13 @@ import io.grpc.ManagedChannelBuilder;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
-public class FtepServerClient {
-    private final DiscoveryClient discoveryClient;
-    private final String ftepServerServiceId;
+import java.util.Optional;
+import java.util.function.Supplier;
 
-    public FtepServerClient(DiscoveryClient discoveryClient, String ftepServerServiceId) {
-        this.discoveryClient = discoveryClient;
-        this.ftepServerServiceId = ftepServerServiceId;
+public class FtepServerClient extends GrpcClient {
+
+    public FtepServerClient(DiscoveryClientResolverFactory discoveryClientResolverFactory, String ftepServerServiceId) {
+        super(discoveryClientResolverFactory, ftepServerServiceId);
     }
 
     public ServiceContextFilesServiceGrpc.ServiceContextFilesServiceBlockingStub serviceContextFilesServiceBlockingStub() {
@@ -30,14 +30,6 @@ public class FtepServerClient {
 
     public CatalogueServiceGrpc.CatalogueServiceStub catalogueServiceStub() {
         return CatalogueServiceGrpc.newStub(getChannel());
-    }
-
-    private ManagedChannel getChannel() {
-        ServiceInstance ftepServer = Iterables.getOnlyElement(discoveryClient.getInstances(ftepServerServiceId));
-
-        return ManagedChannelBuilder.forAddress(ftepServer.getHost(), Integer.parseInt(ftepServer.getMetadata().get("grpcPort")))
-                .usePlaintext(true)
-                .build();
     }
 
 }

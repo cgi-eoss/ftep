@@ -11,7 +11,6 @@ import com.cgi.eoss.ftep.model.WalletTransaction;
 import com.cgi.eoss.ftep.persistence.service.CostingExpressionDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.WalletDataService;
-
 import com.google.common.base.Strings;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +35,7 @@ public class CostingServiceImpl implements CostingService {
     private final WalletDataService walletDataService;
 
     public CostingServiceImpl(ExpressionParser costingExpressionParser, CostingExpressionDataService costingDataService,
-            WalletDataService walletDataService, DatabasketDataService databasketDataService, String defaultJobCostingExpression, String defaultDownloadCostingExpression) {
+                              WalletDataService walletDataService, DatabasketDataService databasketDataService, String defaultJobCostingExpression, String defaultDownloadCostingExpression) {
         this.expressionParser = costingExpressionParser;
         this.costingDataService = costingDataService;
         this.walletDataService = walletDataService;
@@ -47,16 +46,6 @@ public class CostingServiceImpl implements CostingService {
 
     @Override
     public Integer estimateJobCost(JobConfig jobConfig) {
-        int singleJobCost = estimateSingleRunJobCost(jobConfig);
-        if (jobConfig.getService().getType() == FtepService.Type.PARALLEL_PROCESSOR) {
-            return calculateNumberOfInputs(jobConfig.getInputs().get("parallelInputs")) * singleJobCost;
-        } else {
-            return singleJobCost;
-        }
-    }
-
-    @Override
-    public Integer estimateSingleRunJobCost(JobConfig jobConfig) {
         CostingExpression costingExpression = getCostingExpression(jobConfig.getService());
         String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
                 ? costingExpression.getCostExpression()
@@ -128,10 +117,10 @@ public class CostingServiceImpl implements CostingService {
     }
 
     private CostingExpression getCostingExpression(FtepService ftepService) {
-        return Optional.ofNullable(costingDataService.getServiceCostingExpression(ftepService)).orElse(defaultJobCostingExpression);
+        return costingDataService.getServiceCostingExpression(ftepService).orElse(defaultJobCostingExpression);
     }
 
     private CostingExpression getCostingExpression(FtepFile ftepFile) {
-        return Optional.ofNullable(costingDataService.getDownloadCostingExpression(ftepFile)).orElse(defaultDownloadCostingExpression);
+        return costingDataService.getDownloadCostingExpression(ftepFile).orElse(defaultDownloadCostingExpression);
     }
 }

@@ -14,7 +14,7 @@ message Service {
 
 message Job {
     string id = 1;
-    string intJobId = 2;
+    int64 intJobId = 2;
     string userId = 3;
     string serviceId = 4;
 }
@@ -22,6 +22,8 @@ message Job {
 message JobParam {
     string paramName = 1;
     repeated string paramValue = 2;
+    bool searchParameter = 3;
+    bool parallelParameter = 4;
 }
 
 message ShortFile {

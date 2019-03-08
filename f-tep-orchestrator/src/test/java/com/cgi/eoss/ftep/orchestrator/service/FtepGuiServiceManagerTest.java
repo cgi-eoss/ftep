@@ -60,7 +60,7 @@ public class FtepGuiServiceManagerTest {
 
     @Test
     public void getGuiUrl() throws Exception {
-        String guiUrl = ftepGuiServiceManager.getGuiUrl(worker, Job.getDefaultInstance());
+        String guiUrl = ftepGuiServiceManager.getGuiUrl(worker, Job.getDefaultInstance(), "8080/tcp");
         assertThat(guiUrl, is("/gui/:12345/"));
     }
 

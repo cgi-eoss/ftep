@@ -15,7 +15,7 @@ spec:
     fsGroup: 1000
   containers:
   - name: ftep-build
-    image: cgici/ftep-build-container:1.1.0
+    image: cgici/ftep-build-container:1.2.0
     imagePullPolicy: IfNotPresent
     command:
     - cat
@@ -39,8 +39,11 @@ spec:
             steps {
                 gerritReview message: "Starting build: ${BUILD_URL}"
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
-                        sh "gradle --parallel --configure-on-demand build"
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
+                        sh "gradle -I init.gradle.kts build"
                     }
                 }
             }
@@ -54,8 +57,11 @@ spec:
         stage('buildDist') {
             steps {
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
-                        sh "gradle --parallel --configure-on-demand buildDist -pdistribution"
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
+                        sh "gradle -I init.gradle.kts :distribution:buildDist"
                     }
                 }
             }
@@ -67,9 +73,12 @@ spec:
             }
             steps {
                 container('ftep-build') {
-                    configFileProvider([configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties')]) {
+                    configFileProvider([
+                            configFile(fileId: '94044412-c82f-49de-963c-85be2f409f39', targetLocation: 'gradle.properties'),
+                            configFile(fileId: '2f168dcd-2466-4bde-a27c-9a4c74d766a3', targetLocation: 'init.gradle.kts')
+                    ]) {
                         withSonarQubeEnv('CGI CI SonarQube') {
-                            sh "gradle --parallel --configure-on-demand sonarqube"
+                            sh "gradle -I init.gradle.kts sonarqube"
                         }
                     }
                 }
@@ -84,8 +93,7 @@ spec:
                 container('ftep-build') {
                     withCredentials([usernameColonPassword(credentialsId: '597ee7f1-63fc-4036-be52-0cea3e3d8d37', variable: 'NEXUS_USERPASS')]) {
                         sh """
-                        cd .rpms
-                        for rpm in * ; do
+                        for rpm in \$(find .dist/repo/ -name '*.rpm') ; do
                           curl -v --user '${NEXUS_USERPASS}' --upload-file \${rpm} https://nexus.observing.earth/repository/yum-ftep/${branch}/\${rpm}
                         done
                     """

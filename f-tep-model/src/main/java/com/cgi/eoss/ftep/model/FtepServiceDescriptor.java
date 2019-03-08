@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
 import com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.AllArgsConstructor;
@@ -70,5 +69,12 @@ public class FtepServiceDescriptor {
 
         @Singular
         private List<Map<String, String>> supportedAttrs;
+
+        @JsonInclude(Include.NON_DEFAULT)
+        private boolean dataReference;
+        @JsonInclude(Include.NON_DEFAULT)
+        private boolean parallelParameter;
+        @JsonInclude(Include.NON_DEFAULT)
+        private boolean searchParameter;
     }
 }

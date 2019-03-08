@@ -2,13 +2,6 @@ package com.cgi.eoss.ftep.queues;
 
 import com.cgi.eoss.ftep.queues.service.FtepJMSQueueService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
-
-import java.net.URI;
-import java.util.Arrays;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerRegistry;
@@ -19,39 +12,40 @@ import org.apache.activemq.broker.region.policy.PolicyMap;
 import org.apache.activemq.plugin.StatisticsBrokerPlugin;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import java.net.URI;
+import java.util.Arrays;
+
 /**
- * <p>Spring configuration for the F-TEP Queues component.</p>
- * <p>Manages job and job updates queues.</p>
+ * <p>
+ * Spring configuration for the FS-TEP Queues component.
+ * </p>
+ * <p>
+ * Manages job and job updates queues
+ * </p>
  */
 @Configuration
+@Import({PropertyPlaceholderAutoConfiguration.class})
 @EnableJms
 @ComponentScan(basePackageClasses = QueuesConfig.class)
 public class QueuesConfig {
 
     @Bean
-    public JmsTemplate jmsTemplate() {
-        return new JmsTemplate(new PooledConnectionFactory(activeMQConnectionFactory())) {
-            @Override
-            protected void doSend(MessageProducer producer, Message message) throws JMSException {
-                producer.send(message, getDeliveryMode(), message.getJMSPriority(), getTimeToLive());
-            }
-        };
-    }
-
-    @Bean
-    public FtepQueueService ftepQueueService(JmsTemplate jmsTemplate) {
+    public FtepQueueService queueService(JmsTemplate jmsTemplate) {
         return new FtepJMSQueueService(jmsTemplate);
     }
-
-    public static final String Q_ftepWorker_prepareEnvironment = "Q_ftepWorker_prepareEnvironment";
 
     @Value("${spring.activemq.broker-url:vm://embeddedBroker}")
     private String brokerUrl;
@@ -68,10 +62,12 @@ public class QueuesConfig {
         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory();
         activeMQConnectionFactory.setUserName(brokerUserName);
         activeMQConnectionFactory.setPassword(brokerPassword);
-        activeMQConnectionFactory.setTrustedPackages(Arrays.asList("com.google.protobuf", "com.cgi.eoss.ftep"));
+        activeMQConnectionFactory.setTrustedPackages(Arrays.asList("com.google.protobuf"));
         activeMQConnectionFactory.setBrokerURL(brokerUrl);
+
         return activeMQConnectionFactory;
     }
+
 
     @Bean(name = "brokerService", initMethod = "start", destroyMethod = "stop")
     public BrokerService brokerService() throws Exception {
@@ -80,7 +76,6 @@ public class QueuesConfig {
             broker.setBrokerName("embeddedBroker");
             broker.setPlugins(new BrokerPlugin[]{new StatisticsBrokerPlugin()});
             broker.setPersistent(false);
-            broker.setUseJmx(true);
             PolicyMap pm = new PolicyMap();
             PolicyEntry pe = new PolicyEntry();
             pe.setPrioritizedMessages(true);
@@ -92,9 +87,19 @@ public class QueuesConfig {
             broker.start();
             return broker;
         } else {
-            // The broker will be autocreated by Spring
+            //Broker will be autocreated by spring
             return null;
         }
+    }
+
+    @Bean
+    public JmsTemplate jmsTemplate() {
+        return new JmsTemplate(new PooledConnectionFactory(activeMQConnectionFactory())) {
+            @Override
+            protected void doSend(MessageProducer producer, Message message) throws JMSException {
+                producer.send(message, getDeliveryMode(), message.getJMSPriority(), getTimeToLive());
+            }
+        };
     }
 
     @Bean
@@ -104,4 +109,5 @@ public class QueuesConfig {
         factory.setConcurrency("1-1");
         return factory;
     }
+
 }

@@ -37,9 +37,7 @@ public class WorkersApi {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity getWorkers() {
         FtepWorkerManagerGrpc.FtepWorkerManagerBlockingStub workerManager = FtepWorkerManagerGrpc.newBlockingStub(inProcessChannelBuilder.build());
-
         WorkersList workersList = workerManager.listWorkers(ListWorkersParams.getDefaultInstance());
-
         return ResponseEntity.ok(workersList.getWorkersList().stream().map(WorkerResponse::new).collect(Collectors.toList()));
     }
 

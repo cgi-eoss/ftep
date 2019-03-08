@@ -6,8 +6,10 @@ import com.cgi.eoss.ftep.model.User;
 import java.util.List;
 
 public interface ServiceDataService extends FtepEntityDataService<FtepService>, SearchableDataService<FtepService> {
-    List<FtepService> findAllAvailable();
-    List<FtepService> findByOwner(User user);
+    public List<FtepService> findAllAvailable();
+    public List<FtepService> findByOwner(User user);
 
-    FtepService getByName(String serviceName);
+    public FtepService getByName(String serviceName);
+
+    public String computeServiceFingerprint(FtepService ftepService);
 }

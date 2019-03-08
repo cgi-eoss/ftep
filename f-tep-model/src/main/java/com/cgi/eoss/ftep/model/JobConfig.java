@@ -1,5 +1,7 @@
 package com.cgi.eoss.ftep.model;
 
+import com.cgi.eoss.ftep.model.converters.StringListConverter;
+import com.cgi.eoss.ftep.model.converters.UriStringConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -10,6 +12,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -23,7 +26,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,15 +36,15 @@ import java.util.Set;
  * <p>This object is suitable for sharing for re-execution, independent of the actual run status and outputs.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id", "parent"})
-@ToString(exclude = {"inputs", "parent"})
+@EqualsAndHashCode(exclude = {"id", "parent", "inputFiles"})
+@ToString(exclude = {"inputs", "parent", "inputFiles"})
 @Table(name = "ftep_job_configs",
-    indexes = {
-        @Index(name = "ftep_job_configs_service_idx", columnList = "service"),
-        @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"),
-        @Index(name = "ftep_job_configs_label_idx", columnList = "label")
-    },
-    uniqueConstraints = @UniqueConstraint(columnNames = {"owner", "service", "inputs", "parent"}))
+        indexes = {
+                @Index(name = "ftep_job_configs_service_idx", columnList = "service"),
+                @Index(name = "ftep_job_configs_owner_idx", columnList = "owner"),
+                @Index(name = "ftep_job_configs_label_idx", columnList = "label")
+        },
+        uniqueConstraints = @UniqueConstraint(name = "ftep_job_configs_unique_idx", columnNames = {"owner", "service", "inputs", "parent", "systematic_parameter", "parallel_parameters", "search_parameters"}))
 @NoArgsConstructor
 @Entity
 public class JobConfig implements FtepEntityWithOwner<JobConfig> {
@@ -86,6 +91,20 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
      */
     @Column(name = "label")
     private String label;
+
+    /**
+     * <p>Tag and identify parameter that will be dynamically getting values.</p>
+     */
+    @Column(name = "systematic_parameter")
+    private String systematicParameter;
+
+    @Column(name = "parallel_parameters", nullable = false)
+    @Convert(converter = StringListConverter.class)
+    private List<String> parallelParameters = new ArrayList<>();
+
+    @Column(name = "search_parameters",  nullable = false)
+    @Convert(converter = StringListConverter.class)
+    private List<String> searchParameters = new ArrayList<>();
 
     /**
      * <p>The FtepFiles required as job inputs.</p>

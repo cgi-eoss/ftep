@@ -1,16 +1,14 @@
 package com.cgi.eoss.ftep.queues;
 
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {QueuesConfig.class})
@@ -30,17 +28,17 @@ public class QueuesTest {
         ftepQueueService.sendObject(TEST_STRING_QUEUE, sentMessage);
         ftepQueueService.receiveObject(TEST_STRING_QUEUE);
         long queueLength = ftepQueueService.getQueueLength(TEST_STRING_QUEUE);
-        assertTrue(queueLength == initialQueueLength);
+        assertEquals(queueLength, initialQueueLength);
 
         ftepQueueService.sendObject(TEST_STRING_QUEUE, sentMessage);
         queueLength = ftepQueueService.getQueueLength(TEST_STRING_QUEUE);
-        assertTrue(queueLength == initialQueueLength + 1);
+        assertEquals(queueLength, initialQueueLength + 1);
 
         String receivedStringMessage = (String) ftepQueueService.receiveObject(TEST_STRING_QUEUE);
-        assertTrue(receivedStringMessage.equals(sentMessage));
+        assertEquals(receivedStringMessage, sentMessage);
 
         queueLength = ftepQueueService.getQueueLength(TEST_STRING_QUEUE);
-        assertTrue(queueLength == initialQueueLength);
+        assertEquals(queueLength, initialQueueLength);
     }
 
     @Test
@@ -50,6 +48,6 @@ public class QueuesTest {
         ftepQueueService.sendObject(TEST_STRING_QUEUE, firstMessage, 1);
         ftepQueueService.sendObject(TEST_STRING_QUEUE, secondMessage, 5);
         String receivedStringMessage = (String) ftepQueueService.receiveObject(TEST_STRING_QUEUE);
-        assertTrue(receivedStringMessage.equals(secondMessage));
+        assertEquals(receivedStringMessage, secondMessage);
     }
 }

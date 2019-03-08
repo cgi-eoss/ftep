@@ -28,6 +28,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -106,10 +107,10 @@ public class HttpDownloaderTest {
         webServer.enqueue(new MockResponse().setResponseCode(401));
         webServer.enqueue(new MockResponse().setBody(new Buffer().readFrom(testFileIs)));
 
-        when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
+        when(credentialsDataService.getByHost(any())).thenReturn(Optional.of(DownloaderCredentials.builder()
                 .username("httpuser")
                 .password("httppass")
-                .build());
+                .build()));
 
         Path download = dl.download(targetPath, uri);
 

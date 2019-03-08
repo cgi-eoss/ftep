@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -90,10 +91,10 @@ public class CEDADownloaderTest {
         CredentialsServiceGrpc.CredentialsServiceBlockingStub credentialsService = CredentialsServiceGrpc.newBlockingStub(channelBuilder.build());
         when(ftepServerClient.credentialsServiceBlockingStub()).thenReturn(credentialsService);
 
-        when(credentialsDataService.getByHost(any())).thenReturn(DownloaderCredentials.basicBuilder()
+        when(credentialsDataService.getByHost(any())).thenReturn(Optional.of(DownloaderCredentials.builder()
                 .username("ftpuser")
                 .password("ftppass")
-                .build());
+                .build()));
 
         this.dl = new CEDADownloader(downloaderFacade, new OkHttpClient.Builder().build(), this.webServer.url(""), "ftp://localhost:" + ftpServer.getServerControlPort(), ProtocolPriority.builder().build());
 

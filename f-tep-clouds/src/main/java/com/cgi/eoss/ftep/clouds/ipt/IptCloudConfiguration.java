@@ -1,23 +1,34 @@
 package com.cgi.eoss.ftep.clouds.ipt;
 
+import com.cgi.eoss.ftep.clouds.ipt.persistence.KeypairRepository;
+import com.google.common.collect.ImmutableSet;
 import net.schmizz.sshj.SSHClient;
-import org.openstack4j.api.client.IOSClientBuilder;
-import org.openstack4j.core.transport.Config;
-import org.openstack4j.model.common.Identifier;
-import org.openstack4j.openstack.OSFactory;
+import org.jclouds.ContextBuilder;
+import org.jclouds.config.ContextLinking;
+import org.jclouds.http.okhttp.config.OkHttpCommandExecutorServiceModule;
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.jclouds.openstack.keystone.config.KeystoneProperties;
+import org.jclouds.openstack.neutron.v2.NeutronApi;
+import org.jclouds.openstack.nova.v2_0.NovaApi;
+import org.jclouds.rest.ApiContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+import java.util.Properties;
 
 @Configuration
+@Import({IptPersistenceConfiguration.class})
 @ConditionalOnProperty(value = "ftep.clouds.ipt.enabled", havingValue = "true")
 public class IptCloudConfiguration {
 
     @Value("${ftep.clouds.ipt.maxPoolSize:-1}")
     private int maxPoolSize;
 
-    @Value("${ftep.clouds.ipt.os.identityEndpoint:https://eocloud.eu:5000/v3}")
+    @Value("${ftep.clouds.ipt.os.identityEndpoint}")
     private String osIdentityEndpoint;
 
     @Value("${ftep.clouds.ipt.os.username}")
@@ -29,39 +40,75 @@ public class IptCloudConfiguration {
     @Value("${ftep.clouds.ipt.os.domainName}")
     private String osDomainName;
 
-    @Value("${ftep.clouds.ipt.os.projectWithEoId}")
-    private String osProjectWithEoId;
+    @Value("${ftep.clouds.ipt.os.projectName}")
+    private String osProjectName;
 
-    @Value("${ftep.clouds.ipt.os.projectWithoutEoId}")
-    private String osProjectWithoutEoId;
+    @Value("${ftep.clouds.ipt.os.projectId}")
+    private String osProjectId;
 
-    @Value("${ftep.clouds.ipt.node.flavorName:eo1.large}")
+    @Value("${ftep.clouds.ipt.node.flavorName}")
     private String nodeFlavorName;
 
     @Value("${ftep.clouds.ipt.node.imageId}")
     private String nodeImageId;
 
-    @Value("${ftep.clouds.ipt.node.floatingIpPool:external-network}")
+    @Value("${ftep.clouds.ipt.node.provisionFloatingIp}")
+    private boolean provisionFloatingIp;
+
+    @Value("${ftep.clouds.ipt.node.floatingIpPool:floatingIpPool}")
     private String floatingIpPool;
 
-    @Value("${ftep.clouds.ipt.node.securityGroupName:allow_ftep_services}")
+    @Value("${ftep.clouds.ipt.node.securityGroupName}")
     private String securityGroupName;
 
-    @Value("${ftep.clouds.ipt.node.sshUsername:eouser}")
+    @Value("${ftep.clouds.ipt.node.sshUsername}")
     private String sshUsername;
+
+    @Value("${ftep.clouds.ipt.node.networkId}")
+    private String networkId;
 
     @Value("${ftep.clouds.ipt.node.nfsHost}")
     private String nfsHost;
 
+    @Value("${ftep.clouds.ipt.node.additionalNfsMounts:#{null}}")
+    private String additionalNfsMounts;
+
+    @Value("${ftep.clouds.ipt.node.insecureRegistries:#{null}}")
+    private String insecureRegistries;
+
+    @Autowired
+    KeypairRepository keypairRepository;
+
     @Bean
-    public IOSClientBuilder.V3 osClientBuilder() {
-        return OSFactory.builderV3()
-                .withConfig(Config.newConfig()
-                        .withConnectionTimeout(60000)
-                        .withReadTimeout(60000))
+    public OpenstackAPIs openstackAPIs() {
+        String identity = osDomainName + ":" + osUsername; // tenantName:userName
+        String credential = osPassword;
+
+        Properties keystoneProperties = new Properties();
+        keystoneProperties.put(KeystoneProperties.KEYSTONE_VERSION, "3");
+        keystoneProperties.put(KeystoneProperties.SCOPE, "project:" + osProjectName);
+        Properties neutronOverrides = new Properties(keystoneProperties);
+
+        ApiContext<NeutronApi> neutronContext = ContextBuilder.newBuilder("openstack-neutron")
                 .endpoint(osIdentityEndpoint)
-                .credentials(osUsername, osPassword, Identifier.byName(osDomainName))
-                .scopeToProject(Identifier.byId(osProjectWithoutEoId));
+                .credentials(identity, credential)
+                .modules(ImmutableSet.of(new SLF4JLoggingModule(), new OkHttpCommandExecutorServiceModule()))
+                .overrides(neutronOverrides)
+                .build();
+
+        Properties novaOverrides = new Properties(keystoneProperties);
+
+        ApiContext<NovaApi> novaContext = ContextBuilder.newBuilder("openstack-nova")
+                .endpoint(osIdentityEndpoint)
+                .credentials(identity, credential)
+                .modules(ImmutableSet.of(new SLF4JLoggingModule(), ContextLinking.linkContext(neutronContext), new OkHttpCommandExecutorServiceModule()))
+                .overrides(novaOverrides)
+                .build();
+
+        return OpenstackAPIs.builder()
+                .neutronApi(neutronContext.getApi())
+                .novaApi(novaContext.getApi())
+                .build();
     }
 
     @Bean
@@ -70,17 +117,24 @@ public class IptCloudConfiguration {
     }
 
     @Bean
-    public IptNodeFactory iptNodeFactory(IOSClientBuilder.V3 osClientBuilder) {
-        return new IptNodeFactory(maxPoolSize, osClientBuilder,
-                ProvisioningConfig.builder()
-                        .defaultNodeFlavor(nodeFlavorName)
-                        .floatingIpPool(floatingIpPool)
-                        .nodeImageId(nodeImageId)
-                        .sshUser(sshUsername)
-                        .securityGroupName(securityGroupName)
-                        .nfsHost(nfsHost)
-                        .build()
-        );
+    public ProvisioningConfig provisioningConfig() {
+        return ProvisioningConfig.builder()
+                .defaultNodeFlavor(nodeFlavorName)
+                .floatingIpPool(floatingIpPool)
+                .nodeImageId(nodeImageId)
+                .sshUser(sshUsername)
+                .securityGroupName(securityGroupName)
+                .networkId(networkId)
+                .nfsHost(nfsHost)
+                .additionalNfsMounts(additionalNfsMounts)
+                .provisionFloatingIp(provisionFloatingIp)
+                .insecureRegistries(insecureRegistries)
+                .build();
+    }
+
+    @Bean
+    public IptNodeFactory iptNodeFactory(OpenstackAPIs openstackAPIs) {
+        return new IptNodeFactory(maxPoolSize, openstackAPIs, provisioningConfig(), keypairRepository);
     }
 
 }

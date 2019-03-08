@@ -21,6 +21,8 @@ f-tep-portal/src/main/resources/app/styles/**.css
 f-tep-portal/src/main/resources/package.json
 f-tep-portal/src/main/resources/bower.json
 
+activemq-data/
+
 ########
 
 # Created by https://www.gitignore.io/api/gradle,intellij,maven,eclipse,vagrant,vim
@@ -163,7 +165,7 @@ tags
 
 ### Gradle ###
 .gradle
-/target/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting

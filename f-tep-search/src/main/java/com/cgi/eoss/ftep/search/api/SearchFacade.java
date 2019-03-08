@@ -114,7 +114,7 @@ public class SearchFacade {
                     .replace(".zip", "");
 
             SearchParameters searchParameters = new SearchParameters();
-            searchParameters.setRequestUrl(HttpUrl.parse("http://example.com"));
+            searchParameters.setRequestUrl(SearchParameters.DEFAULT_REQUEST_URL);
             searchParameters.setParameters(ImmutableListMultimap.<String, String>builder()
                     .put("catalogue", "SATELLITE")
                     .put("mission", uri.getScheme())

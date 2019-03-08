@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
@@ -100,12 +101,12 @@ public class FtepFileRegistrar {
         }
     }
 
-    public FtepFile registerOutput(OutputProductMetadata outputProduct, Path outputPath) {
+    public FtepFile registerOutput(OutputFileMetadata outputFileMetadata, Path outputPath) {
         try {
             try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
-                LOG.info("Ingesting output file to F-TEP catalogue: {}", outputProduct.getOutputId());
+                LOG.info("Ingesting output file to F-TEP catalogue: {}", outputFileMetadata.getOutputProductMetadata().getOutputId());
             }
-            return catalogueService.ingestOutputProduct(outputProduct, outputPath);
+            return catalogueService.ingestOutputProduct(outputFileMetadata, outputPath);
         } catch (IOException e) {
             throw new ServiceExecutionException("Failed to ingest Output Product", e);
         }

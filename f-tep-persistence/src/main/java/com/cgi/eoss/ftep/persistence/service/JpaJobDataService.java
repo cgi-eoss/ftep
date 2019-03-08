@@ -6,7 +6,6 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.querydsl.core.types.Predicate;
@@ -15,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.UUID;
 
 import static com.cgi.eoss.ftep.model.QJob.job;
 
@@ -48,6 +49,12 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     @Override
     Predicate getUniquePredicate(Job entity) {
         return job.extId.eq(entity.getExtId());
+    }
+
+    @Override
+    public Job getByExtId(UUID extId) {
+        return dao.findOne(job.extId.eq(extId.toString()))
+                .orElseThrow(() -> new EntityNotFoundException("No Job found for extId: " + extId));
     }
 
     @Override
@@ -98,5 +105,13 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
 
     private Job buildNew(JobConfig jobConfig, String extId, User owner, Job parentJob) {
         return dao.save(new Job(jobConfig, extId, owner, parentJob));
+    }
+
+    @Override // It is used at JobStatus updates
+    public Job reload(Long id) {
+        Job job = getById(id);
+        job.getOwner().getGroups().size();
+        job.getOutputFiles().size();
+        return job;
     }
 }

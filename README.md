@@ -8,9 +8,12 @@ ESA's [Thematic Exploitation Platform][TEP] initiative.
 
 The latest and greatest F-TEP source code can be found on [GitHub][GitHub].
 
+Note that we are using Git submodules, so after checking out this repo, make
+sure to `git submodule init` and `git submodule update`.
+
 ## Building
 
-F-TEP may be built and packaged using the shell scripts in the `build/`
+F-TEP may be built and packaged using the shell scripts in the `buildImg/`
 subdirectory. The main part of the project may be built simply via Gradle.
 
 To simplify the use of third-party dependencies in the full packaging pipeline,
@@ -19,7 +22,7 @@ CI or locally.
 
 To set up the build container and build the full distribution:
 
-    docker build -t ftep-build ./build/
+    docker build -t ftep-build ./buildImg/
     docker run -v $PWD:$PWD -w $PWD ftep-build gradle build buildDist --parallel
 
 Note that some additional paths or environment variables may be required for
@@ -71,7 +74,7 @@ terms of the license are as follows:
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-[F-TEP]: https://forestry-tep.eo.esa.int/
+[F-TEP]: https://f-tep.com/
 [TEP]: http://tep.eo.esa.int/
 [Github]: https://github.com/cgi-eoss/f-tep
 [Puppet]: https://puppet.com/

@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Ordering;
 import com.google.common.io.CountingOutputStream;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -25,12 +26,9 @@ import java.io.OutputStream;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -66,8 +64,8 @@ public class ReportsCollector {
         List<Job> jobs = jobDataService.findByStartIn(period);
 
         jobs.forEach(j -> {
-            String userMail = j.getOwner().getEmail();
-            String serviceName = j.getConfig().getService().getName();
+            UserService userService = UserService.of(j.getOwner().getEmail(), j.getOwner().getName(), j.getConfig().getService().getName());
+
             JobMetrics metrics = new JobMetrics(
                     1,
                     (null == j.getEndTime() || null == j.getStartTime()) ? 0 :
@@ -82,7 +80,6 @@ public class ReportsCollector {
 
             // Fill Map of job data per user per service
 
-            UserService userService = UserService.of(userMail, serviceName);
             if (null != (userPerServiceDetails.putIfAbsent(userService, metrics))) {
                 ++(userPerServiceDetails.get(userService).totalNumOfJobsInService);
                 userPerServiceDetails.get(userService).totalTime += metrics.totalTime;
@@ -91,15 +88,12 @@ public class ReportsCollector {
             }
 
             // Fill Map of unique products
-
             j.getConfig().getInputFiles().forEach(i -> productList.putIfAbsent(i.getUri().toString(), Optional.ofNullable(i.getFilesize()).orElse(0L)));
             j.getOutputFiles().forEach(o -> productList.putIfAbsent(o.getUri().toString(), Optional.ofNullable(o.getFilesize()).orElse(0L)));
         });
 
         // Return number of generated products
-        int generatedProds = jobs.stream().mapToInt(j -> j.getOutputFiles().size()).sum();
-
-        return generatedProds;
+        return jobs.stream().mapToInt(j -> j.getOutputFiles().size()).sum();
     }
 
     /**
@@ -281,11 +275,16 @@ public class ReportsCollector {
     @Value(staticConstructor = "of")
     private static final class UserService implements Comparable<UserService> {
         private String userMail;
+        private String userName;
         private String serviceName;
 
         @Override
         public int compareTo(UserService o) {
-            return ComparisonChain.start().compare(userMail, o.userMail).compare(serviceName, o.serviceName).result();
+            return ComparisonChain.start()
+                    .compare(userMail, o.userMail, Ordering.natural().nullsFirst())
+                    .compare(userName, o.userName)
+                    .compare(serviceName, o.serviceName)
+                    .result();
         }
     }
 

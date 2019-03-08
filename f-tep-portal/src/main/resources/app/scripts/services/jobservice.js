@@ -22,9 +22,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var deleteAPI = traverson.from(rootUri).useAngularHttp();
 
         this.jobOwnershipFilters = {
-            ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterOnly'},
-            MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndOwner' },
-            SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndNotOwner' }
+            ALL_JOBS: { id: 0, name: 'All', searchUrl: 'search/findByFilterAndIsNotSubjob', subjobsSearchUrl: 'search/findByFilterAndParent'},
+            MY_JOBS: { id: 1, name: 'Mine', searchUrl: 'search/findByFilterAndIsNotSubjobAndOwner', subjobsSearchUrl: 'search/findByFilterAndParentAndOwner' },
+            SHARED_JOBS: { id: 2, name: 'Shared', searchUrl: 'search/findByFilterAndIsNotSubjobAndNotOwner', subjobsSearchUrl: 'search/findByFilterAndParentAndNotOwner' }
         };
 
         var JOB_STATUSES_STRING = "COMPLETED,RUNNING,ERROR,CREATED,CANCELLED";
@@ -52,6 +52,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 displayFilters: false, //whether filter section is opened or not
                 selectedStatuses: [],
                 selectedOwnershipFilter: this.jobOwnershipFilters.MY_JOBS,
+                parentId: null,
                 jobCategoryInfo: {} //info about job categories, which ones are opened, etc.
             },
             community: {
@@ -143,6 +144,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getJobsByFilter = function (page) {
             filterJobs(page);
+            self.params[page].jobs = [];
             getJobs(page).then(function (data) {
                 self.params[page].jobs = data;
             });
@@ -151,8 +153,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function filterJobs(page) {
             if (_this.params[page] && UserService.params.activeUser._links) {
 
+                var searchUrlKey =  _this.params[page].parentId ? 'subjobsSearchUrl' : 'searchUrl';
+
                 /* Set base URL */
-                _this.params[page].pollingUrl = rootUri + '/jobs/' + _this.params[page].selectedOwnershipFilter.searchUrl;
+                _this.params[page].pollingUrl = rootUri + '/jobs/' + _this.params[page].selectedOwnershipFilter[searchUrlKey];
+
 
                 /* Get sort parameter */
                 _this.params[page].pollingUrl += '?sort=id,DESC';
@@ -160,6 +165,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 /* Get owner parameter */
                 if(_this.params[page].selectedOwnershipFilter !== _this.jobOwnershipFilters.ALL_JOBS) {
                     _this.params[page].pollingUrl += '&owner=' + UserService.params.activeUser._links.self.href;
+                }
+
+                if (_this.params[page].parentId) {
+                    _this.params[page].pollingUrl += '&parentId=' + _this.params[page].parentId;
                 }
 
                 /* Get status parameter */

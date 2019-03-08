@@ -5,11 +5,10 @@ import com.cgi.eoss.ftep.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface DatabasketsApiCustom {
+public interface DatabasketsApiCustom extends BaseRepositoryApi<Databasket> {
+    Page<Databasket> searchByFilterOnly(String filter, Pageable pageable);
 
-    Page<Databasket> findByFilterOnly(String filter, Pageable pageable);
+    Page<Databasket> searchByFilterAndOwner(String filter, User user, Pageable pageable);
 
-    Page<Databasket> findByFilterAndOwner(String filter, User user, Pageable pageable);
-
-    Page<Databasket> findByFilterAndNotOwner(String filter, User user, Pageable pageable);
+    Page<Databasket> searchByFilterAndNotOwner(String filter, User user, Pageable pageable);
 }

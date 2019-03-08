@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.catalogue;
 
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import okhttp3.HttpUrl;
@@ -48,12 +49,12 @@ public interface CatalogueService {
      * <p>Process an already-existing file, to be treated as an {@link FtepFile.Type#OUTPUT_PRODUCT}.</p>
      * <p>This will return a persisted entity.</p>
      *
-     * @param outputProduct
+     * @param outputFileMetadata
      * @param path
      * @return
      * @throws IOException
      */
-    FtepFile ingestOutputProduct(OutputProductMetadata outputProduct, Path path) throws IOException;
+    FtepFile ingestOutputProduct(OutputFileMetadata outputFileMetadata, Path path) throws IOException;
 
     /**
      * <p>Store an external product's metadata for later reference by F-TEP.</p>

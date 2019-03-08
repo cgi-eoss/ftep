@@ -24,6 +24,8 @@ public interface DetailedJob extends Identifiable<Long> {
     String getStage();
     LocalDateTime getStartTime();
     LocalDateTime getEndTime();
+    boolean isParent();
+    Set<Job> getSubJobs();
     @Value("#{target.config.service.name}")
     String getServiceName();
     Multimap<String, String> getOutputs();

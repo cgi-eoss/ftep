@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -49,11 +50,12 @@ public class JpaPublishingRequestDataService extends AbstractJpaDataService<Publ
 
     @Override
     public List<PublishingRequest> findOpenByAssociated(Class<?> objectClass, Long identifier) {
-        if (PublishingRequest.Type.of(objectClass) == null) {
-            return ImmutableList.of();
+        PublishingRequest.Type type = PublishingRequest.Type.of(objectClass);
+        if (type == null) {
+            return Collections.emptyList();
         }
 
-        return dao.findAll(QPublishingRequest.publishingRequest.type.eq(PublishingRequest.Type.of(objectClass))
+        return dao.findAll(QPublishingRequest.publishingRequest.type.eq(type)
                 .and(QPublishingRequest.publishingRequest.associatedId.eq(identifier))
                 .and(QPublishingRequest.publishingRequest.status.in(PublishingRequest.Status.REQUESTED, PublishingRequest.Status.NEEDS_INFO)));
     }

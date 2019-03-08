@@ -7,6 +7,6 @@
 	url = https://github.com/OSGeo/zoo-project.git
 	branch = master
 [submodule "build"]
-	path = build
+	path = buildImg
 	url = https://github.com/cgi-eoss/ftep-build-container
 	branch = master

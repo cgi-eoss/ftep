@@ -75,10 +75,6 @@
             </form>
         </md-card>
 
-    </section>
-
-    <section id="role-container" class="column-container col-md-12 col-lg-4 no-padding">
-
         <md-card md-theme-watch class="ftep-card">
             <form id="editRoleForm" name="editRoleForm">
                 <md-card-title>
@@ -107,6 +103,55 @@
                                ng-click="updateRole(userParams.newRole)">Save</md-button>
                 </md-card-actions>
             </form>
+        </md-card>
+
+    </section>
+
+    <section id="role-container" class="column-container col-md-12 col-lg-4 no-padding">
+
+        <md-card md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Usage Report</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+
+
+                <section>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <md-subheader class="md-subheader-title">Month / Year</md-subheader>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <md-input-container md-no-float>
+                                <md-select ng-model="userParams.reportMonth" aria-label="report month">
+                                    <md-option ng-repeat="month in months" ng-value="month">
+                                        {{month}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-input-container md-no-float>
+                                <md-select ng-model="userParams.reportYear" aria-label="report year">
+                                    <md-option ng-repeat="year in years" ng-value="year">
+                                        {{year}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </section>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center">
+                <md-button id="update-role"
+                           aria-label="Download Usage Report"
+                           ng-href="{{rootUri}}/reports/dataUsage/{{ userParams.reportYear }}/{{ months.indexOf(userParams.reportMonth) + 1 }}"
+                           target="_blank">
+                    Download Report
+                </md-button>
+            </md-card-actions>
         </md-card>
 
     </section>

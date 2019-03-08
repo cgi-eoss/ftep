@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
-import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
@@ -47,6 +46,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Component
 @Log4j2
+@Transactional(readOnly = true)
 public class FtepSecurityService {
     public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
@@ -93,6 +93,7 @@ public class FtepSecurityService {
      * @param objectClass The class of the entity being published.
      * @param identifier  The identifier of the entity being published.
      */
+    @Transactional
     public void publish(Class<?> objectClass, Long identifier) {
         LOG.info("Publishing entity: {} (id: {})", objectClass, identifier);
 
@@ -104,6 +105,7 @@ public class FtepSecurityService {
      *
      * @param objectIdentity The identifier of the entity being published.
      */
+    @Transactional
     public void publish(ObjectIdentity objectIdentity) {
         MutableAcl acl = getAcl(objectIdentity);
 
@@ -115,6 +117,7 @@ public class FtepSecurityService {
         saveAcl(acl);
     }
 
+    @Transactional
     public void unpublish(Class<?> objectClass, Long identifier) {
         if (!isPublic(new ObjectIdentityImpl(objectClass, identifier))) {
             LOG.warn("Attempted to unpublish non-public object: {} {}", objectClass, identifier);
@@ -191,7 +194,6 @@ public class FtepSecurityService {
         return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
-
     /**
      * <p>Verify that the given user has the given permission on the given object.</p>
      *
@@ -219,7 +221,7 @@ public class FtepSecurityService {
     }
 
     private Authentication getAuthentication(User user) {
-        SecurityUser securityUser = new SecurityUser(user);
+        SecurityUser securityUser = new SecurityUser(userDataService.refresh(user));
         return new PreAuthenticatedAuthenticationToken(securityUser.getUsername(), securityUser.getPassword(), securityUser.getAuthorities());
     }
 
@@ -261,7 +263,7 @@ public class FtepSecurityService {
         List<Sid> sids = getSids(getCurrentAuthentication());
         List<ObjectIdentity> objectIdentities = allIds.stream().map(id -> new ObjectIdentityImpl(objectClass, id)).collect(toList());
 
-        Map<ObjectIdentity, Acl> objectIdentityAclMap = null;
+        Map<ObjectIdentity, Acl> objectIdentityAclMap;
         try {
             objectIdentityAclMap = aclService.readAclsById(objectIdentities, sids);
         } catch (NotFoundException e) {
@@ -306,12 +308,11 @@ public class FtepSecurityService {
     @Transactional
     public void setParentAcl(Class<?> parentObjectClass, Long parentObjectId, Class<?> childObjectClass, Set<Long> childObjectIds) {
         MutableAcl parentAcl = getAcl(new ObjectIdentityImpl(parentObjectClass, parentObjectId));
-        Set<MutableAcl> childAcls = childObjectIds.stream().map(id -> getAcl(new ObjectIdentityImpl(childObjectClass, id))).collect(toSet());
-
-        childAcls.forEach(acl -> {
-            acl.setParent(parentAcl);
-            saveAcl(acl);
-        });
+        childObjectIds.stream()
+                .map(id -> getAcl(new ObjectIdentityImpl(childObjectClass, id)))
+                .forEach(acl -> {
+                    acl.setParent(parentAcl);
+                    saveAcl(acl);
+                });
     }
-
 }

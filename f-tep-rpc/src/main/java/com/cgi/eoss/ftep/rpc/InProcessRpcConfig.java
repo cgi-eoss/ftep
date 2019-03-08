@@ -7,7 +7,9 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -20,6 +22,11 @@ import java.util.UUID;
 public class InProcessRpcConfig {
 
     private static final String IN_PROCESS_RPC_NAME = UUID.randomUUID().toString();
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        return new ThreadPoolTaskExecutor();
+    }
 
     @Bean(name = "inProcessChannelBuilder")
     public ManagedChannelBuilder inProcessChannelBuilder() {
@@ -34,6 +41,11 @@ public class InProcessRpcConfig {
     @Bean
     public LocalServiceLauncher localServiceLauncher(ManagedChannelBuilder inProcessChannelBuilder) {
         return new LocalServiceLauncher(inProcessChannelBuilder);
+    }
+
+    @Bean
+    public LocalWorker localWorker(ManagedChannelBuilder inProcessChannelBuilder) {
+        return new LocalWorker(inProcessChannelBuilder);
     }
 
     private static final class InProcessRpcServer {

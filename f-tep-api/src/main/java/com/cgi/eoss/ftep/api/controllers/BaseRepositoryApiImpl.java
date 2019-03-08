@@ -1,10 +1,10 @@
 package com.cgi.eoss.ftep.api.controllers;
 
-import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -40,7 +40,7 @@ public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> im
     }
 
     @Override
-    public Page<T> findByNotOwner(User user, Pageable pageable) {
+    public Page<T> findByOwnerNot(User user, Pageable pageable) {
         return getFilteredResults(getOwnerPath().ne(user), pageable);
     }
 

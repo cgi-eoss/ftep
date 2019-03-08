@@ -1,10 +1,11 @@
 package com.cgi.eoss.ftep.wps;
 
-import com.cgi.eoss.ftep.rpc.FtepServiceLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
+import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
-import com.cgi.eoss.ftep.rpc.FtepServiceResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -30,15 +31,14 @@ import java.util.concurrent.TimeUnit;
 public class FtepServicesClient {
 
     private final ManagedChannel channel;
-    private final FtepServiceLauncherGrpc.FtepServiceLauncherBlockingStub ftepServiceLauncherBlockingStub;
-    private final FtepServiceLauncherGrpc.FtepServiceLauncherStub ftepServiceLauncherStub;
+    private final FtepJobLauncherGrpc.FtepJobLauncherBlockingStub ftepJobLauncherBlockingStub;
+    private final FtepJobLauncherGrpc.FtepJobLauncherStub ftepJobLauncherStub;
 
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
      */
     public FtepServicesClient(String host, int port) {
         // TLS is unused since this should only be active in the F-TEP infrastructure, i.e. not public
-        // TODO Investigate feasibility of certificate security
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(true));
     }
 
@@ -47,8 +47,8 @@ public class FtepServicesClient {
      */
     public FtepServicesClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
-        ftepServiceLauncherBlockingStub = FtepServiceLauncherGrpc.newBlockingStub(channel);
-        ftepServiceLauncherStub = FtepServiceLauncherGrpc.newStub(channel);
+        ftepJobLauncherBlockingStub = FtepJobLauncherGrpc.newBlockingStub(channel);
+        ftepJobLauncherStub = FtepJobLauncherGrpc.newStub(channel);
     }
 
     /**
@@ -76,14 +76,14 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        Iterator<FtepServiceResponse> responseIterator = ftepServiceLauncherBlockingStub.launchService(request);
+        Iterator<FtepJobResponse> responseIterator = ftepJobLauncherBlockingStub.submitJob(request);
 
         // First message is the persisted job metadata
         Job jobInfo = responseIterator.next().getJob();
         LOG.info("Instantiated job: {}", jobInfo);
 
         // Second message is the outputs
-        FtepServiceResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
+        FtepJobResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
         return GrpcUtil.paramsListToMap(jobOutputs.getOutputsList());
     }
 
@@ -93,7 +93,7 @@ public class FtepServicesClient {
     @SuppressWarnings("unchecked")
     public static int launch(String serviceId, HashMap conf, HashMap inputs, HashMap outputs) {
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("ZOO entry point")) {
-            Map<String, String> ftepConf = (Map<String, String>) conf.get("ftep");
+            Map<String, String> ftepConf = (HashMap<String, String>) conf.get("ftep");
 
             String jobIdKey = ftepConf.getOrDefault("zooConfKeyJobId", "uusid");
             String usernameHeaderKey = ftepConf.getOrDefault("zooConfKeyUsernameHeader", "HTTP_REMOTE_USER");
@@ -124,17 +124,18 @@ public class FtepServicesClient {
 
             FtepServicesClient client = new FtepServicesClient(ftepServerHost, ftepServerPort);
 
-            // TODO Translate ftep:// internal URLs for external users
             Multimap<String, String> result = client.launchService(userId, serviceId, jobId, inputParams);
 
             LOG.info("Received result for job {}: {}", jobId, result);
 
-            Multimaps.asMap(result).forEach((k, v) -> outputs.put(k, Joiner.on(',').join(v)));
+            Multimaps.asMap(result).forEach((k, v) -> {
+                String join = Joiner.on(',').join(v);
+                outputs.put(k, join);
+            });
             return ZOO.SERVICE_SUCCEEDED;
         } catch (Exception e) {
             LOG.error("Service execution failed", e);
             return ZOO.SERVICE_FAILED;
         }
     }
-
 }

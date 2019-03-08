@@ -2,6 +2,8 @@ package com.cgi.eoss.ftep.io;
 
 import com.cgi.eoss.ftep.io.download.CEDADownloader;
 import com.cgi.eoss.ftep.io.download.CachingSymlinkDownloaderFacade;
+import com.cgi.eoss.ftep.io.download.CreodiasHttpAuthenticator;
+import com.cgi.eoss.ftep.io.download.CreodiasHttpDownloader;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.io.download.FtepDownloader;
 import com.cgi.eoss.ftep.io.download.FtpDownloader;
@@ -10,16 +12,18 @@ import com.cgi.eoss.ftep.io.download.IptEodataServerAuthenticator;
 import com.cgi.eoss.ftep.io.download.IptEodataServerDownloader;
 import com.cgi.eoss.ftep.io.download.IptHttpDownloader;
 import com.cgi.eoss.ftep.io.download.ProtocolPriority;
+import com.cgi.eoss.ftep.rpc.DiscoveryClientResolverFactory;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
+import com.cgi.eoss.ftep.rpc.RpcClientConfig;
 import com.google.common.base.Strings;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -29,6 +33,7 @@ import java.nio.file.Paths;
 @Configuration
 @EnableConfigurationProperties(IoConfigurationProperties.class)
 @EnableEurekaClient
+@Import({RpcClientConfig.class})
 public class IoConfig {
 
     @Bean
@@ -47,9 +52,9 @@ public class IoConfig {
 
     @Bean
     @ConditionalOnMissingBean(FtepServerClient.class)
-    public FtepServerClient ftepServerClient(DiscoveryClient discoveryClient,
+    public FtepServerClient ftepServerClient(DiscoveryClientResolverFactory discoveryClientResolverFactory,
                                              IoConfigurationProperties properties) {
-        return new FtepServerClient(discoveryClient, properties.getServer().getEurekaServiceId());
+        return new FtepServerClient(discoveryClientResolverFactory, properties.getServer().getEurekaServiceId());
     }
 
     @Bean
@@ -131,6 +136,29 @@ public class IoConfig {
                         .iptDownloadUrl(iptEodataServerProperties.getDownloadUrlBase())
                         .build(),
                 ProtocolPriority.builder().overallPriority(iptEodataServerProperties.getOverallPriority()).build());
+    }
+
+    @Bean
+    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
+        return new CreodiasHttpAuthenticator(
+                ftepServerClient,
+                properties.getDownloader().getCreodiasHttp().getAuthEndpoint(),
+                properties.getDownloader().getCreodiasHttp().getAuthClientId());
+    }
+
+    @Bean
+    public CreodiasHttpDownloader creodiasHttpDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, CreodiasHttpAuthenticator creodiasHttpAuthenticator, IoConfigurationProperties properties) {
+        return new CreodiasHttpDownloader(
+                okHttpClient,
+                properties.getDownloader().getCreodiasHttp().getDownloadTimeout(),
+                properties.getDownloader().getCreodiasHttp().getSearchTimeout(),
+                creodiasHttpAuthenticator,
+                downloaderFacade,
+                CreodiasHttpDownloader.Properties.builder()
+                        .creodiasDownloadUrl(properties.getDownloader().getCreodiasHttp().getDownloadUrlBase())
+                        .creodiasSearchUrl(properties.getDownloader().getCreodiasHttp().getSearchUrl())
+                        .build(),
+                ProtocolPriority.builder().overallPriority(properties.getDownloader().getCreodiasHttp().getOverallPriority()).build());
     }
 
 }

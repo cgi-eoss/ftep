@@ -1,12 +1,11 @@
 package com.cgi.eoss.ftep.rpc;
 
 import com.cgi.eoss.ftep.model.FtepService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import lombok.experimental.UtilityClass;
-
-import java.util.List;
 
 /**
  * <p>Utility class providing helper methods for dealing with Protobuf/Grpc services and objects.</p>
@@ -21,7 +20,7 @@ public class GrpcUtil {
      * @param params The parameters to be converted.
      * @return The params input collection mapped to &lt;String, String&gt; entries.
      */
-    public static Multimap<String, String> paramsListToMap(List<JobParam> params) {
+    public static Multimap<String, String> paramsListToMap(Iterable<JobParam> params) {
         ImmutableMultimap.Builder<String, String> mapBuilder = ImmutableMultimap.builder();
         params.forEach(p -> mapBuilder.putAll(p.getParamName(), p.getParamValueList()));
         return mapBuilder.build();
@@ -49,10 +48,23 @@ public class GrpcUtil {
     public static Job toRpcJob(com.cgi.eoss.ftep.model.Job job) {
         return Job.newBuilder()
                 .setId(job.getExtId())
-                .setIntJobId(String.valueOf(job.getId()))
+                .setIntJobId(job.getId())
                 .setUserId(job.getOwner().getName())
                 .setServiceId(job.getConfig().getService().getName())
                 .build();
     }
 
+    /**
+     * <p>Convert a {@link com.cgi.eoss.ftep.model.FtepService} to its gRPC {@link Service} representation.</p>
+     *
+     * @param job The service to be converted.
+     * @return The input service mapped to {@link Service}.
+     */
+    public static Service toRpcService(FtepService service) {
+        return Service.newBuilder()
+                .setId(String.valueOf(service.getId()))
+                .setName(service.getName())
+                .setDockerImageTag(service.getDockerTag())
+            .build();
+    }
 }

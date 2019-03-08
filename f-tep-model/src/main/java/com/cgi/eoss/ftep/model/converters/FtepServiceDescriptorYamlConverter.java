@@ -1,11 +1,11 @@
 package com.cgi.eoss.ftep.model.converters;
 
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Multimap;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -134,5 +134,4 @@ public class FtepServiceDescriptorYamlConverter implements AttributeConverter<Ft
     private FtepServiceDescriptor getNullSafeValue(Object value) {
         return value == null ? new FtepServiceDescriptor() : (FtepServiceDescriptor) value;
     }
-
 }

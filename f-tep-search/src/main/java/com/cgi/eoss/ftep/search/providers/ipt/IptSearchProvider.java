@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.cgi.eoss.ftep.search.providers.resto.RestoResult;
 import com.cgi.eoss.ftep.search.providers.resto.RestoSearchProvider;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 
 @Log4j2
 public class IptSearchProvider extends RestoSearchProvider {
-
 
     @Data
     @Builder
@@ -74,7 +74,7 @@ public class IptSearchProvider extends RestoSearchProvider {
     private static final Map<String, Function<String, String>> PARAMETER_VALUE_MAPPING = ImmutableMap.<String, Function<String, String>>builder()
             .put("identifier", v -> "%" + v + "%")
             .put("s1ProcessingLevel", v -> "LEVEL" + v)
-            .put("s2ProcessingLevel", v -> "LEVEL" + v)
+            .put("s2ProcessingLevel", v -> "LEVELL" + v)
             .put("s3ProcessingLevel", v -> "LEVEL" + v)
             .put("landsatProcessingLevel", v -> "LEVEL" + v)
             .put("maxCloudCover", v -> "[0," + v + "]")
@@ -214,6 +214,8 @@ public class IptSearchProvider extends RestoSearchProvider {
                 .ifPresent(productType -> extraParams.put("ftepProductType", productType));
         Optional.ofNullable(extraParams.get("updated"))
                 .ifPresent(updated -> extraParams.put("ftepUpdated", updated));
+        Optional.ofNullable(extraParams.get("published"))
+                .ifPresent(published -> extraParams.put("ftepUpdated", published));
         feature.setProperty("extraParams", extraParams);
 
         // TODO Find an abstract quicklook representation
@@ -225,5 +227,4 @@ public class IptSearchProvider extends RestoSearchProvider {
                 l -> ImmutableMap.of("href", l.getHref())
         )));
     }
-
 }

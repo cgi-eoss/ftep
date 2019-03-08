@@ -8,7 +8,9 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', function ($scope, UserService, MessageService, WalletService, TabService) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, ftepProperties) {
+
+        $scope.rootUri = ftepProperties.URLv2;
 
         /* Sidenav & Bottombar */
         $scope.navInfo = TabService.navInfo.admin;
@@ -27,6 +29,15 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.userParams = UserService.params.admin;
         $scope.roles = ['USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN'];
+        $scope.months = [ 'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December' ];
+
+        /* Populate report years between 2018-current */
+        let initialYear = 2018;
+        $scope.years = [];
+        while ( initialYear <= new Date().getFullYear() ) {
+            $scope.years.push(initialYear++);
+        }
 
         /* Paging */
         $scope.getPage = function(url){
@@ -46,7 +57,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 });
 
                 WalletService.getUserWallet($scope.userParams.selectedUser).then(function(wallet){
-                   $scope.userParams.wallet = wallet;
+                    $scope.userParams.wallet = wallet;
                 });
             }
         };

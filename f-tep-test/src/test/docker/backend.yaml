@@ -1,7 +1,0 @@
----
-classes:
-  - ftep::db
-  - ftep::server
-  - ftep::wps
-
-ftep::db::trust_local_network: true

@@ -6,9 +6,9 @@ import com.querydsl.core.types.Predicate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
@@ -57,7 +57,7 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
     public Collection<T> save(Collection<T> entities) {
         entities.forEach(this::resyncId);
         try {
-            return getDao().save(entities);
+            return getDao().saveAll(entities);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -68,12 +68,12 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public T getById(Long id) {
-        return getDao().findOne(id);
+        return getDao().findById(id).orElseThrow(() -> new EmptyResultDataAccessException(1));
     }
 
     @Override
     public List<T> getByIds(Collection<Long> ids) {
-        return getDao().findAll(ids);
+        return getDao().findAllById(ids);
     }
 
     @Override
@@ -88,12 +88,12 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public T findOneByExample(T example) {
-        return getDao().findOne(getUniquePredicate(example));
+        return getDao().findOne(getUniquePredicate(example)).orElse(null);
     }
 
     @Override
     public T refresh(T obj) {
-        return Optional.ofNullable(getDao().findOne(getUniquePredicate(obj))).orElseThrow(() -> new EmptyResultDataAccessException(1));
+        return getDao().findOne(getUniquePredicate(obj)).orElseThrow(() -> new EmptyResultDataAccessException(1));
     }
 
     @Override
@@ -110,10 +110,8 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
      * @param entity The potentially detached entity
      */
     private void resyncId(T entity) {
-        T tmp = getDao().findOne(getUniquePredicate(entity));
-        if (tmp != null) {
-            entity.setId(tmp.getId());
-        }
+        getDao().findOne(getUniquePredicate(entity))
+                .ifPresent(existing -> entity.setId(existing.getId()));
     }
 
     abstract FtepEntityDao<T> getDao();

@@ -28,11 +28,11 @@ public interface ServiceFilesApi extends ServiceFilesApiCustom, PagingAndSorting
     List<FtepServiceContextFile> findAll();
 
     @Override
-    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject.get().service, 'read')")
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject.get().service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'read')")
     Optional<FtepServiceContextFile> findById(Long id);
 
     @Override
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceFile.service, 'write')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceFile.service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'write')")
     <S extends FtepServiceContextFile> S save(@Param("serviceFile") S serviceFile);
 
     @Override
@@ -40,8 +40,8 @@ public interface ServiceFilesApi extends ServiceFilesApiCustom, PagingAndSorting
     <S extends FtepServiceContextFile> Iterable<S> saveAll(@Param("serviceFiles") Iterable<S> serviceFiles);
 
     @Override
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceFile.service, 'administration')")
-    void delete(@Param("serviceFile") FtepServiceContextFile service);
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceFile.service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'administration')")
+    void delete(@Param("serviceFile") FtepServiceContextFile serviceFile);
 
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'read')")
     Page<FtepServiceContextFile> findByService(@Param("service") FtepService service, Pageable pageable);

@@ -116,6 +116,30 @@ public class ServiceFilesApiIT {
                 .andExpect(jsonPath("$._embedded.serviceFiles.length()").value(2));
     }
 
+    @Test
+    public void testReadPermissions() throws Exception {
+        // Shortcut to populate data
+        testSave();
+        String svcUrl = getServiceUrl();
+
+        // Results are filtered by ACL
+        mockMvc.perform(get("/api/serviceFiles/search/findByService").param("service", svcUrl).header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+        String serviceFilesJson = mockMvc.perform(get("/api/serviceFiles/search/findByService").param("service", svcUrl).header("REMOTE_USER", ftepContentAuthority.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.serviceFiles").isArray())
+                .andExpect(jsonPath("$._embedded.serviceFiles.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+
+        String serviceFileUrl = JsonPath.read(serviceFilesJson, "$._embedded.serviceFiles[0]._links.self.href");
+        mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepContentAuthority.getName()))
+                .andExpect(status().isOk());
+        mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepExpertUser.getName()))
+                .andExpect(status().isOk());
+        mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+    }
+
     private String getServiceUrl() throws Exception {
         return JsonPath.compile("$._links.self.href").read(
                 mockMvc.perform(get("/api/services/" + svc.getId()).header("REMOTE_USER", ftepContentAuthority.getName()))

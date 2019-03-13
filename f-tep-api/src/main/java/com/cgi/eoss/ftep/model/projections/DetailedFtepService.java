@@ -21,6 +21,7 @@ public interface DetailedFtepService extends Identifiable<Long> {
     String getDockerTag();
     FtepService.Licence getLicence();
     FtepService.Status getStatus();
+    String getApplicationPort();
     FtepServiceDescriptor getServiceDescriptor();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepService), target.id)}")
     FtepAccess getAccess();

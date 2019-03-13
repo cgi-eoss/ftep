@@ -17,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
@@ -38,6 +41,22 @@ public class GroupsApiCustomImpl extends BaseRepositoryApiImpl<Group> implements
     @Override
     Class<Group> getEntityClass() {
         return Group.class;
+    }
+
+    @Override
+    public <S extends Group> S save(S entity) {
+        if (entity.getOwner() == null) {
+            getSecurityService().updateOwnerWithCurrentUser(entity);
+        }
+
+        // If the group is being created for the first time, add the current user as the initial member
+        if (entity.getId() == null) {
+            Set<User> initialMembers = new HashSet<>();
+            initialMembers.add(getSecurityService().getCurrentUser());
+            entity.setMembers(initialMembers);
+        }
+
+        return getDao().save(entity);
     }
 
     @Override

@@ -6,9 +6,9 @@ import com.querydsl.core.types.Predicate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
@@ -78,7 +78,7 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public boolean isUnique(T entity) {
-        return !getDao().exists(getUniquePredicate(entity));
+        return !findOne(entity).isPresent();
     }
 
     @Override
@@ -88,12 +88,12 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
 
     @Override
     public T findOneByExample(T example) {
-        return getDao().findOne(getUniquePredicate(example)).orElse(null);
+        return findOne(example).orElse(null);
     }
 
     @Override
     public T refresh(T obj) {
-        return getDao().findOne(getUniquePredicate(obj)).orElseThrow(() -> new EmptyResultDataAccessException(1));
+        return findOne(obj).orElseThrow(() -> new EmptyResultDataAccessException(1));
     }
 
     @Override
@@ -110,12 +110,16 @@ abstract class AbstractJpaDataService<T extends FtepEntity<T>> implements FtepEn
      * @param entity The potentially detached entity
      */
     private void resyncId(T entity) {
-        getDao().findOne(getUniquePredicate(entity))
+        findOne(entity)
                 .ifPresent(existing -> entity.setId(existing.getId()));
     }
 
     abstract FtepEntityDao<T> getDao();
 
     abstract Predicate getUniquePredicate(T entity);
+
+    protected Optional<T> findOne(T obj) {
+        return getDao().findOne(getUniquePredicate(obj));
+    }
 
 }

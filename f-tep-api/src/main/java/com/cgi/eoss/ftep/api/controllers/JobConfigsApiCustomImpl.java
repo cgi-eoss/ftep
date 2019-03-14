@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.QJobConfig;
 import com.cgi.eoss.ftep.model.QUser;
 import com.cgi.eoss.ftep.persistence.dao.JobConfigDao;
+import com.cgi.eoss.ftep.persistence.service.JobConfigDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
@@ -18,18 +19,14 @@ public class JobConfigsApiCustomImpl extends BaseRepositoryApiImpl<JobConfig> im
 
     private final FtepSecurityService securityService;
     private final JobConfigDao dao;
+    private final JobConfigDataService dataService;
 
     @Override
     public <S extends JobConfig> S save(S entity) {
         if (entity.getOwner() == null) {
             getSecurityService().updateOwnerWithCurrentUser(entity);
         }
-
-        getDao().findOne(QJobConfig.jobConfig.owner.eq(entity.getOwner())
-                .and(QJobConfig.jobConfig.service.eq(entity.getService()))
-                .and(QJobConfig.jobConfig.inputs.eq(entity.getInputs())))
-                .ifPresent(existing -> entity.setId(existing.getId()));
-        return getDao().save(entity);
+        return (S) dataService.save(entity);
     }
 
     @Override

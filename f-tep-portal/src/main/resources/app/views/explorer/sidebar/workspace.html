@@ -64,6 +64,17 @@
                                         tooltip-trigger="mouseenter"
                                         tooltip-append-to-body="true">{{fieldDesc.title}}</span>
                                     <span class="required-asterisk" ng-show="fieldDesc.minOccurs > 0">*</span>
+
+                                    <md-checkbox ng-model="serviceParams.parallelParameters[fieldDesc.id]"
+                                                 aria-label="Enable Parallel Processing" class="workspace-header-checkbox"
+                                                 ng-if="fieldDesc.parallelParameter"
+                                                 uib-tooltip="If checked, this Job will execute in 'parallel' mode. Each value of this parameter will result in its own Sub-Job, in which the other parameters are kept constant. The results may be viewed individually or as a group from the parent Job."
+                                                 tooltip-placement="top"
+                                                 tooltip-trigger="mouseenter"
+                                                 tooltip-append-to-body="true">
+                                        Enable Parallel Processing
+                                    </md-checkbox>
+
                                 <button type="button input-button"
                                         class="btn"
                                         ng-show="fieldDesc.id == 'aoi'"
@@ -75,6 +86,7 @@
                                         tooltip-append-to-body="true">
                                     <i class="material-icons">content_copy</i>
                                 </button>
+
                                 </md-subheader>
                             </div>
 
@@ -95,7 +107,7 @@
                                                    aria-label="{{fieldDesc.id}}">
                                             <md-icon style="display:inline-block;">
                                                 <md-button class="toolbar-button md-secondary add-input-value-button" ng-click="addItem(fieldDesc.id, inputVal); inputVal=''">
-                                                    <i class="material-icons">add_circle_outline</i>
+                                                    <i class="material-icons">add</i>
                                                 </md-button>
                                             </md-icon>
                                             <div class="hint" ng-show="true">{{fieldDesc.description}}</div>

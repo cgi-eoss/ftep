@@ -2164,6 +2164,14 @@
 #workspace-panel .workspace-content .service-field .md-subheader {
   color: rgba(0, 0, 0, 0.87);
 }
+#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox {
+  float: right;
+  padding-right: 1rem;
+}
+#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox .md-label {
+  font-size: 0.6rem;
+  padding-top: 0.2rem;
+}
 #workspace-panel .workspace-content .service-field .md-subheader button {
   background-color: rgba(50, 50, 50, 0.3);
   color: rgba(255, 255, 255, 0.87);

@@ -16,21 +16,32 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.resultParams = $scope.searchParams.results;
         $scope.isWorkspaceLoading = false;
 
-        $scope.$on('update.selectedService', function(event, service, inputs, label) {
+        $scope.$on('update.selectedService', function(event, config) {
+
             $scope.isWorkspaceLoading = true;
             $scope.serviceParams.inputValues = {};
-            $scope.serviceParams.label = label;
-            if(inputs){
-                for (var key in inputs) {
-                    if (inputs[key].length > 1) {
-                        $scope.serviceParams.inputValues[key] = inputs[key].split(',');
+            $scope.serviceParams.label = config.label;
+            $scope.serviceParams.parallelParameters = config.parallelParameters;
+            if(config.inputs){
+                for (var key in config.inputs) {
+                    if (config.inputs[key].length > 1) {
+                        $scope.serviceParams.inputValues[key] = config.inputs[key];
                     } else {
-                        $scope.serviceParams.inputValues[key] = inputs[key][0].split(',');
+                        $scope.serviceParams.inputValues[key] = config.inputs[key][0].split(',');
                     }
                 }
             }
 
-            ProductService.getService(service).then(function(detailedService){
+            // Converts parallelParameters into correct format for data-binding
+            $scope.serviceParams.parallelParameters = [];
+            if (config.parallelParameters) {
+                for (var k in config.parallelParameters) {
+                    let key = config.parallelParameters[k];
+                    $scope.serviceParams.parallelParameters[key] = true;
+                }
+            }
+
+            ProductService.getService(config.service).then(function(detailedService){
                 $scope.serviceParams.selectedService = detailedService;
                 $scope.isWorkspaceLoading = false;
             });
@@ -44,26 +55,44 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.requiredFields = $scope.serviceParams.selectedService.serviceDescriptor.dataInputs;
 
             var iparams={};
-
             for(var key in $scope.serviceParams.inputValues){
                 var value = $scope.serviceParams.inputValues[key];
-
-                if (typeof value === 'object') {
+                // Grab the selection value from service-input fields (e.g. radiometric index algorithm)
+                if (typeof value === 'object' && !Array.isArray(value)) {
                     value = value[0];
-                }
-                if (Array.isArray(value)) {
-                    value = value.toString();
                 }
                 if(value === undefined){
                     value = '';
                 }
+                // All parameters should be stored in arrays
+                if (Array.isArray(value)) {
+                    iparams[key] = value;
+                } else {
+                    iparams[key] = [value];
+                }
 
-                iparams[key] = [value];
             }
 
-            JobService.createJobConfig($scope.serviceParams.selectedService, iparams, $scope.serviceParams.label).then(function(jobConfig){
-                JobService.estimateJob(jobConfig, $event).then(function(estimation){
+            var parallelParameters = [];
 
+            for(var k in $scope.serviceParams.parallelParameters) {
+                if ($scope.serviceParams.parallelParameters[k] === true) {
+                    parallelParameters.push(k);
+                }
+            }
+
+            // Create job config format to parse to createJobConfig
+            var jobParams = {
+                "service": $scope.serviceParams.selectedService._links.self.href,
+                "inputs" : iparams,
+                "label" : $scope.serviceParams.label,
+                "systematicParameter" : null,
+                "parallelParameters" : parallelParameters,
+                "searchParameters" : [ ]
+            };
+
+            JobService.createJobConfig(jobParams).then(function(jobConfig){
+                JobService.estimateJob(jobConfig, $event).then(function(estimation){
                     var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
                     CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
                             '\nAre you sure you want to continue?').then(function (confirmed) {
@@ -72,7 +101,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         }
                         JobService.broadcastNewjob();
                         $scope.displayTab($scope.bottomNavTabs.JOBS);
-                        JobService.launchJob(jobConfig, $scope.serviceParams.selectedService, 'explorer').then(function () {
+                        JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
                             JobService.refreshJobs("explorer", "Create");
                         });
                     });

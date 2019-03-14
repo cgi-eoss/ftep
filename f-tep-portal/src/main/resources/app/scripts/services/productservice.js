@@ -28,8 +28,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             ALL_SERVICES: { id: 0, name: 'All Service Types' },
             APPLICATION: { id: 1, name: 'Application Services', value: 'APPLICATION' },
             PROCESSOR: { id: 2, name: 'Processor Services', value: 'PROCESSOR' },
-            BULK_PROCESSOR: { id: 3, name: 'Bulk Processor Services', value: 'BULK_PROCESSOR' },
-            PARALLEL_PROCESSOR: { id: 4, name: 'Parallel Processor Services', value: 'PARALLEL_PROCESSOR' }
+            BULK_PROCESSOR: { id: 3, name: 'Bulk Processor Services', value: 'BULK_PROCESSOR' }
         };
 
         this.servicePublicationFilters = {
@@ -49,6 +48,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 selectedTypeFilter: self.serviceTypeFilters.ALL_SERVICES,
                 searchText: '',
                 inputValues: {},
+                parallelParameters: [],
                 label: undefined
             },
             community: {

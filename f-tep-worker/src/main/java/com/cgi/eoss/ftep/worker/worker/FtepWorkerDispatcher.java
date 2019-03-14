@@ -18,6 +18,7 @@ import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -101,7 +102,9 @@ public class FtepWorkerDispatcher {
             messageHeaders = new HashMap<>();
             messageHeaders.put("workerId", workerId);
             messageHeaders.put("jobId", String.valueOf(jobSpec.getJob().getIntJobId()));
-            executeJob(jobSpec, this);
+            try (CloseableThreadContext.Instance ctc = getJobLoggingContext(jobSpec)) {
+                executeJob(jobSpec, this);
+            }
         }
 
         @Override
@@ -184,5 +187,13 @@ public class FtepWorkerDispatcher {
         n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
         String name = prefix + Long.toString(n);
         return name;
+    }
+
+    private static CloseableThreadContext.Instance getJobLoggingContext(JobSpec jobSpec) {
+        return CloseableThreadContext.push("F-TEP Worker Queue Dispatcher")
+                .put("zooId", jobSpec.getJob().getId())
+                .put("jobId", String.valueOf(jobSpec.getJob().getIntJobId()))
+                .put("userId", jobSpec.getJob().getUserId())
+                .put("serviceId", jobSpec.getJob().getServiceId());
     }
 }

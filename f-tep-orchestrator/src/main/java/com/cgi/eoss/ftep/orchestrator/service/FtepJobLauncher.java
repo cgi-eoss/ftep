@@ -4,7 +4,6 @@ import com.cgi.eoss.ftep.catalogue.geoserver.GeoServerSpec;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.logging.Logging;
-import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
@@ -130,7 +129,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private final FtepSecurityService securityService;
     private final FtepQueueService ftepQueueService;
     private final ServiceDataService serviceDataService;
-    private final DatabasketDataService databasketDataService;
     private final JobSpecFactory jobSpecFactory;
 
     @Value("${ftep.orchestrator.gui.baseUrl:http://ftep}")
@@ -143,7 +141,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                            FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
                            CostingService costingService, FtepSecurityService securityService,
                            FtepQueueService ftepQueueService, ServiceDataService serviceDataService,
-                           DatabasketDataService databasketDataService, JobSpecFactory jobSpecFactory) {
+                           JobSpecFactory jobSpecFactory) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
@@ -152,7 +150,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         this.securityService = securityService;
         this.ftepQueueService = ftepQueueService;
         this.serviceDataService = serviceDataService;
-        this.databasketDataService = databasketDataService;
         this.jobSpecFactory = jobSpecFactory;
     }
 
@@ -213,6 +210,10 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 messageHeaders.put("jobId", job.getId());
                 ftepQueueService.sendObject(FtepQueueService.jobQueueName, messageHeaders, jobSpec, getJobPriority(priorityIdx++));
 
+                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
+                    LOG.info("Submitted job to work queue: {} (UUID {})", job.getId(), job.getExtId());
+                }
+
                 // Gets the actual worker node and stores in the map
                 FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
                 jobWorkers.put(jobSpec.getJob(), worker);
@@ -268,61 +269,53 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         return true;
     }
 
-    private Databasket getDatabasketFromUri(String uri) {
-        Matcher uriIdMatcher = Pattern.compile(".*/([0-9]+)$").matcher(uri);
-        if (!uriIdMatcher.matches()) {
-            throw new ServiceExecutionException("Failed to load databasket for URI: " + uri);
-        }
-        Long databasketId = Long.parseLong(uriIdMatcher.group(1));
-        Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId))
-                .orElseThrow(() -> new ServiceExecutionException("Failed to load databasket for ID " + databasketId));
-        LOG.debug("Listing databasket contents for id {}", databasketId);
-        return databasket;
-    }
-
     @JmsListener(destination = FtepQueueService.jobUpdatesQueueName)
     public void receiveJobUpdate(@Payload ObjectMessage objectMessage, @Header("workerId") String workerId, @Header("jobId") String internalJobId) {
         Job job = jobDataService.reload(Long.parseLong(internalJobId));
-        // TODO change into Chain of Responsibility type pattern
-        Serializable update = null;
-        try {
-            update = objectMessage.getObject();
-        } catch (JMSException e) {
-            onJobError(job, e);
-        }
-        if (update instanceof JobEvent) {
-            JobEvent jobEvent = (JobEvent) update;
-            JobEventType jobEventType = jobEvent.getJobEventType();
-            if (null != jobEventType) switch (jobEventType) {
-                case DATA_FETCHING_STARTED:
-                    onJobDataFetchingStarted(job, workerId);
-                    break;
-                case DATA_FETCHING_COMPLETED:
-                    LOG.info("Launching docker container for job {}", job.getExtId());
-                    break;
-                case PROCESSING_STARTED:
-                    onJobProcessingStarted(job, workerId);
-                    break;
-                default:
-                    break;
-            }
-        } else if (update instanceof JobError) {
-            JobError jobError = (JobError) update;
-            onJobError(job, jobError.getErrorDescription());
-        } else if (update instanceof ContainerExit) {
-            ContainerExit containerExit = (ContainerExit) update;
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
+            // TODO change into Chain of Responsibility type pattern
+            Serializable update = null;
             try {
-                onContainerExit(job, workerId, containerExit.getJobEnvironment(), containerExit.getExitCode());
-            } catch (Exception e) {
+                update = objectMessage.getObject();
+            } catch (JMSException e) {
                 onJobError(job, e);
+            }
+            if (update instanceof JobEvent) {
+                JobEvent jobEvent = (JobEvent) update;
+                JobEventType jobEventType = jobEvent.getJobEventType();
+                if (null != jobEventType) switch (jobEventType) {
+                    case DATA_FETCHING_STARTED:
+                        onJobDataFetchingStarted(job, workerId);
+                        break;
+                    case DATA_FETCHING_COMPLETED:
+                        LOG.info("Launching docker container for job {}", job.getExtId());
+                        break;
+                    case PROCESSING_STARTED:
+                        onJobProcessingStarted(job, workerId);
+                        break;
+                    default:
+                        break;
+                }
+            } else if (update instanceof JobError) {
+                JobError jobError = (JobError) update;
+                onJobError(job, jobError.getErrorDescription());
+            } else if (update instanceof ContainerExit) {
+                ContainerExit containerExit = (ContainerExit) update;
+                try {
+                    onContainerExit(job, workerId, containerExit.getJobEnvironment(), containerExit.getExitCode());
+                } catch (Exception e) {
+                    onJobError(job, e);
+                }
             }
         }
     }
 
     private void onJobDataFetchingStarted(Job job, String workerId) {
-        LOG.info("Downloading input data for {}", job.getExtId());
+        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+            LOG.info("Downloading input data for job {} (UUID {})", job.getId(), job.getExtId());
+        }
         job.setWorkerId(workerId);
-        job.setStartTime(LocalDateTime.now());
+        job.setStartTime(LocalDateTime.now(ZoneOffset.UTC));
         job.setStatus(Job.Status.RUNNING);
         job.setStage(JobStep.DATA_FETCH.getText());
         jobDataService.save(job);
@@ -330,7 +323,9 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
     private void onJobProcessingStarted(Job job, String workerId) {
         FtepService service = job.getConfig().getService();
-        LOG.info("Job {} ({}) launched for service: {}", job.getId(), job.getExtId(), service.getName());
+        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+            LOG.info("Processing started for job {} (UUID {}), service {}", job.getId(), job.getExtId(), service.getName());
+        }
         // Update GUI endpoint URL for client access
         if (service.getType() == FtepService.Type.APPLICATION) {
             String zooId = job.getExtId();
@@ -348,19 +343,28 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private void onContainerExit(Job job, String workerId, JobEnvironment jobEnvironment, int exitCode) throws Exception {
         switch (exitCode) {
             case 0:
-                // Normal exit
+                try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                    LOG.info("Docker container terminated normally (exit code 0) for job {} (UUID {})", job.getId(), job.getExtId());
+                }
                 break;
             case 137:
-                LOG.info("Docker container for {} terminated via SIGKILL (exit code 137)", job.getExtId());
+                try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                    LOG.info("Docker container terminated via SIGKILL (exit code 137) for job {} (UUID {})", job.getId(), job.getExtId());
+                }
                 break;
             case 143:
-                LOG.info("Docker container for {} terminated via SIGTERM (exit code 143)", job.getExtId());
+                try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                    LOG.info("Docker container terminated via SIGTERM (exit code 143) for job {} (UUID {})", job.getId(), job.getExtId());
+                }
                 break;
             default:
+                try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+                    LOG.error("Docker container terminated abnormally (exit code {}) for job {} (UUID {})", exitCode, job.getId(), job.getExtId());
+                }
                 throw new Exception("Docker container returned with exit code " + exitCode);
         }
         job.setStage(JobStep.OUTPUT_LIST.getText());
-        job.setEndTime(LocalDateTime.now()); // End time is when processing ends
+        job.setEndTime(LocalDateTime.now(ZoneOffset.UTC)); // End time is when processing ends
         job.setGuiUrl(null); // Any GUI services will no longer be available
         job.setGuiEndpoint(null); // Any GUI services will no longer be available
         jobDataService.save(job);
@@ -389,6 +393,9 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     }
 
     private void ingestOutput(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws IOException, InterruptedException, StatusException {
+        try (CloseableThreadContext.Instance ctc = Logging.userLoggingContext()) {
+            LOG.info("Ingesting outputs for job {} (UUID {})", job.getId(), job.getExtId());
+        }
         // Enumerate files in the job output directory
         Multimap<String, String> outputsByRelativePath = listOutputFiles(job, rpcJob, worker, jobEnvironment);
         // Repatriate output files
@@ -426,7 +433,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             // Wrap up the parent job
             parentJob.setStatus(Job.Status.COMPLETED);
             parentJob.setStage(JobStep.OUTPUT_LIST.getText());
-            parentJob.setEndTime(LocalDateTime.now());
+            parentJob.setEndTime(LocalDateTime.now(ZoneOffset.UTC));
             parentJob.setGuiUrl(null);
             parentJob.setGuiEndpoint(null);
             parentJob.setOutputs(jobOutputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), HashMultimap::create)));
@@ -771,7 +778,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         }
     }
 
-    // gRPC interface
     public void listWorkers(ListWorkersParams request, StreamObserver<WorkersList> responseObserver) {
         try {
             responseObserver.onNext(workerFactory.listWorkers());
@@ -780,5 +786,13 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             LOG.error("Failed to enumerate workers", e);
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
         }
+    }
+
+    private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
+        return CloseableThreadContext.push("F-TEP Service Orchestrator")
+                .put("zooId", job.getExtId())
+                .put("jobId", String.valueOf(job.getId()))
+                .put("userId", job.getOwner().getName())
+                .put("serviceId", job.getConfig().getService().getName());
     }
 }

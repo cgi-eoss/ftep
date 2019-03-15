@@ -98,21 +98,21 @@ public class CreodiasHttpDownloader implements Downloader {
         LOG.debug("Resolved CREODIAS download URL with auth token: {}", downloadUrl);
 
         Request request = new Request.Builder().url(downloadUrl).build();
-        Response response = httpClient.newCall(request).execute();
+        Path outputFile;
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new ServiceIoException("Unsuccessful HTTP response: " + response);
+            }
 
-        if (!response.isSuccessful()) {
-            throw new ServiceIoException("Unsuccessful HTTP response: " + response);
+            String filename = Iterables.getLast(downloadUrl.pathSegments()) + ".zip";
+            outputFile = targetDir.resolve(filename);
+
+            try (BufferedSource source = response.body().source();
+                 BufferedSink sink = Okio.buffer(Okio.sink(outputFile))) {
+                long downloadedBytes = sink.writeAll(source);
+                LOG.debug("Downloaded {} bytes for {}", downloadedBytes, uri);
+            }
         }
-
-        String filename = Iterables.getLast(downloadUrl.pathSegments()) + ".zip";
-        Path outputFile = targetDir.resolve(filename);
-
-        try (BufferedSource source = response.body().source();
-             BufferedSink sink = Okio.buffer(Okio.sink(outputFile))) {
-            long downloadedBytes = sink.writeAll(source);
-            LOG.debug("Downloaded {} bytes for {}", downloadedBytes, uri);
-        }
-        response.close();
 
         LOG.info("Successfully downloaded via CREODIAS: {}", outputFile);
         return outputFile;

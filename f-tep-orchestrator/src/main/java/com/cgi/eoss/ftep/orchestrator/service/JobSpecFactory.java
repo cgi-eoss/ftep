@@ -63,6 +63,9 @@ public class JobSpecFactory {
         String jobConfigLabel = request.getJobConfigLabel();
         String parentId = request.getJobParent();
         List<JobParam> originalParams = request.getInputsList();
+        String systematicParameter = request.getSystematicParameter();
+        List<String> parallelParameters = request.getParallelParametersList();
+        List<String> searchParameters = request.getSearchParametersList();
 
         // Replace any "dynamic" parameter values, e.g. search parameters
         // TODO Expand databaskets?
@@ -79,7 +82,7 @@ public class JobSpecFactory {
             parentJob = Optional.of(jobDataService.reload(Long.valueOf(parentId)));
         } else if (expandedParams.size() > 1) {
             LOG.debug("Creating new parent for {} child jobs", expandedParams.size());
-            Job newParentJob = jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, GrpcUtil.paramsListToMap(populatedParams));
+            Job newParentJob = jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, GrpcUtil.paramsListToMap(populatedParams), systematicParameter, parallelParameters, searchParameters);
             newParentJob.setParent(true);
             parentJob = Optional.of(jobDataService.save(newParentJob));
         } else {
@@ -88,8 +91,8 @@ public class JobSpecFactory {
 
         return expandedParams.stream()
                 .map(params -> parentJob
-                        .map(parent -> jobDataService.buildNew(UUID.randomUUID().toString(), userId, serviceId, parent.getConfig().getLabel(), GrpcUtil.paramsListToMap(params), parent))
-                        .orElseGet(() -> jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, GrpcUtil.paramsListToMap(params))))
+                        .map(parent -> jobDataService.buildNew(UUID.randomUUID().toString(), userId, serviceId, parent.getConfig().getLabel(), GrpcUtil.paramsListToMap(params), parent, systematicParameter, parallelParameters, searchParameters))
+                        .orElseGet(() -> jobDataService.buildNew(zooId, userId, serviceId, jobConfigLabel, GrpcUtil.paramsListToMap(params), systematicParameter, parallelParameters, searchParameters)))
                 .map(this::jobToSpec)
                 .collect(toList());
     }

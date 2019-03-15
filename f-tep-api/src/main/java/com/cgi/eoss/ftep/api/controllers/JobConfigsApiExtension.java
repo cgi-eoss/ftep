@@ -82,7 +82,9 @@ public class JobConfigsApiExtension {
         FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
                 .setUserId(ftepSecurityService.getCurrentUser().getName())
-                .setServiceId(jobConfig.getService().getName());
+                .setServiceId(jobConfig.getService().getName())
+                .addAllParallelParameters(jobConfig.getParallelParameters())
+                .addAllSearchParameters(jobConfig.getSearchParameters());
 
         jobConfig.getInputs().keySet().forEach(
                 k -> serviceParamsBuilder.addInputs(JobParam.newBuilder()
@@ -94,6 +96,10 @@ public class JobConfigsApiExtension {
 
         if (!Strings.isNullOrEmpty(jobConfig.getLabel())) {
             serviceParamsBuilder.setJobConfigLabel(jobConfig.getLabel());
+        }
+
+        if (!Strings.isNullOrEmpty(jobConfig.getSystematicParameter())) {
+            serviceParamsBuilder.setSystematicParameter(jobConfig.getSystematicParameter());
         }
 
         Optional.ofNullable(jobConfig.getParent())

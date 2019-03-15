@@ -15,12 +15,53 @@
         }
     }
     .workspace-content {
+        .drag-list-subheader {
+            span {
+                color: @brand;
+                font-size: 0.7rem;
+            }
+        }
+        .drag-list-item {
+            padding: 1rem 0;
+            md-list-item:first-child {
+                border-top: #d2d2d2 solid 1px;
+            }
+            button {
+                min-width: auto;
+            }
+            .even {
+                background-color: #fff;
+            }
+            .odd {
+                background-color: #f0f0f0;
+            }
+            small {
+                //overflow-wrap: break-word;
+                word-wrap: break-word;
+            }
+            md-list-item:hover {
+                background-color: @alert-border;
+            }
+        }
         .service-field {
             .input-item {
                 padding: 0 0.5rem;
+                .add-input-value-button {
+                    color: @accent;
+                    line-height: unset;
+                    min-height: unset;
+                }
             }
             .md-subheader {
                 color: @text;
+                .workspace-header-checkbox {
+                    float: right;
+                    padding-right: 1rem;
+                    .md-label {
+                        font-size: 0.6rem;
+                        padding-top: 0.2rem;
+                    }
+                }
                 button {
                     background-color: @dark-button;
                     color: @text-light;

@@ -139,8 +139,9 @@ public class IoConfig {
     }
 
     @Bean
-    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
+    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
         return new CreodiasHttpAuthenticator(
+                okHttpClient,
                 ftepServerClient,
                 properties.getDownloader().getCreodiasHttp().getAuthEndpoint(),
                 properties.getDownloader().getCreodiasHttp().getAuthClientId());

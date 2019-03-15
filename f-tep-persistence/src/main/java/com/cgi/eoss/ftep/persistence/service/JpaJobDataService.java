@@ -79,7 +79,7 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob) {
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob, String systematicParameter, List<String> parallelParameters, List<String> searchParameters) {
         User owner = userDataService.getByName(ownerId);
         FtepService service = serviceDataService.getByName(serviceId);
 
@@ -87,13 +87,16 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         config.setLabel(Strings.isNullOrEmpty(jobConfigLabel) ? null : jobConfigLabel);
         config.setInputs(inputs);
         config.setParent(parentJob);
+        config.setSystematicParameter(Strings.isNullOrEmpty(systematicParameter) ? null : systematicParameter);
+        config.setParallelParameters(parallelParameters);
+        config.setSearchParameters(searchParameters);
         return buildNew(jobConfigDataService.save(config), extId, owner, parentJob);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs) {
-        return buildNew(extId, ownerId, serviceId, jobConfigLabel, inputs, null);
+    public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, String systematicParameter, List<String> parallelParameters, List<String> searchParameters) {
+        return buildNew(extId, ownerId, serviceId, jobConfigLabel, inputs, null, systematicParameter, parallelParameters, searchParameters);
     }
 
     @Override

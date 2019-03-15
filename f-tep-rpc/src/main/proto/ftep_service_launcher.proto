@@ -36,6 +36,9 @@ message FtepServiceParams {
     repeated JobParam inputs = 4;
     string jobConfigLabel = 5;
     string jobParent = 6;
+    string systematicParameter = 7;
+    repeated string parallelParameters = 8;
+    repeated string searchParameters = 9;
 }
 
 message FtepServiceResponse {

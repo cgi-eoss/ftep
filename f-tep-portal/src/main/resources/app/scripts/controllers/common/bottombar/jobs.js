@@ -46,13 +46,13 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.repeatJob = function(job){
             JobService.getJobConfig(job).then(function(config){
-                //rerun single batch processing subjob
-                if (config._embedded.service.type === 'PARALLEL_PROCESSOR' && !config.inputs.parallelInputs) {
-                    if (config.inputs.input) {
-                        config.inputs.parallelInputs = [config.inputs.input];
-                    }
-                }
-                $rootScope.$broadcast('update.selectedService', config._embedded.service, config.inputs, config.label);
+                let repeatConfig = {
+                    service: config._embedded.service,
+                    inputs: config.inputs,
+                    label: config.label,
+                    parallelParameters: config.parallelParameters
+                };
+                $rootScope.$broadcast('update.selectedService', repeatConfig);
             });
         };
 
@@ -64,7 +64,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.setParentJobFilter = function(job) {
             $scope.jobParams.parentId = job ? job.id : null;
-            console.log(job);
             JobService.getJobsByFilter('explorer');
         };
 

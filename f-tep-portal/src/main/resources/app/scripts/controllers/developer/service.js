@@ -26,8 +26,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceTypes = {
             APPLICATION: { id: 0, name: 'Application', value: 'APPLICATION'},
             PROCESSOR: { id: 0, name: 'Processor', value: 'PROCESSOR'},
-            BULK_PROCESSOR: { id: 0, name: 'Bulk Processor', value: 'BULK_PROCESSOR'},
-            PARALLEL_PROCESSOR: { id: 0, name: 'Parallel Processor', value: 'PARALLEL_PROCESSOR'}
+            BULK_PROCESSOR: { id: 0, name: 'Bulk Processor', value: 'BULK_PROCESSOR'}
         };
 
         $scope.toggleServiceFilter = function(){

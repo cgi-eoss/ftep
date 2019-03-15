@@ -5,6 +5,8 @@ import com.cgi.eoss.ftep.model.converters.UriStringConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.querydsl.core.annotations.PropertyType;
+import com.querydsl.core.annotations.QueryType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -100,10 +102,12 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
 
     @Column(name = "parallel_parameters", nullable = false)
     @Convert(converter = StringListConverter.class)
+    @QueryType(PropertyType.SIMPLE)
     private List<String> parallelParameters = new ArrayList<>();
 
     @Column(name = "search_parameters",  nullable = false)
     @Convert(converter = StringListConverter.class)
+    @QueryType(PropertyType.SIMPLE)
     private List<String> searchParameters = new ArrayList<>();
 
     /**

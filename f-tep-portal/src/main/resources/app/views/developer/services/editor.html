@@ -35,7 +35,13 @@
                     <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" aria-label="Docker Tag" disabled>
                 </md-input-container>
             </div>
-            <div class="col-md-7 service-field no-padding">
+            <div class="service-field col-md-2 no-padding">
+                <md-input-container md-no-float>
+                    <label>Application Port</label>
+                    <input ng-model="serviceParams.selectedService.applicationPort" type="text" placeholder="8080/tcp" aria-label="Application Port">
+                </md-input-container>
+            </div>
+            <div class="col-md-5 service-field no-padding">
                 <md-input-container id="service-summary" md-no-float>
                     <label>Title</label>
                     <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Title" aria-label="Title">
@@ -175,6 +181,7 @@
                 <th>Default Value</th>
                 <th>Min Occurs</th>
                 <th>Max Occurs</th>
+                <th ng-if="serviceParams.activeArea.title === 'Input Definitions'">Enable Parallel Processing</th>
                 <th></th>
             </tr>
             <tr ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
@@ -235,6 +242,14 @@
                 <td>
                     <md-input-container md-no-float>
                         <input ng-model="input.maxOccurs" type="number" min="0" placeholder="Max Occurs" aria-label="Max Occurs"/>
+                    </md-input-container>
+                </td>
+                <td ng-if="serviceParams.activeArea.title === 'Input Definitions'">
+                    <md-input-container md-no-float>
+                        <md-select ng-model="input.parallelParameter">
+                            <md-option ng-value="false" ng-selected="!input.parallelParameter">False</md-option>
+                            <md-option ng-value="true">True</md-option>
+                        </md-select>
                     </md-input-container>
                 </td>
                 <td>

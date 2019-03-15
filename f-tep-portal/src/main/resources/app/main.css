@@ -2128,11 +2128,49 @@
 #workspace-panel .workspace-header .service-description {
   border-bottom: #d2d2d2 solid 1px;
 }
+#workspace-panel .workspace-content .drag-list-subheader span {
+  color: #558b2f;
+  font-size: 0.7rem;
+}
+#workspace-panel .workspace-content .drag-list-item {
+  padding: 1rem 0;
+}
+#workspace-panel .workspace-content .drag-list-item md-list-item:first-child {
+  border-top: #d2d2d2 solid 1px;
+}
+#workspace-panel .workspace-content .drag-list-item button {
+  min-width: auto;
+}
+#workspace-panel .workspace-content .drag-list-item .even {
+  background-color: #fff;
+}
+#workspace-panel .workspace-content .drag-list-item .odd {
+  background-color: #f0f0f0;
+}
+#workspace-panel .workspace-content .drag-list-item small {
+  word-wrap: break-word;
+}
+#workspace-panel .workspace-content .drag-list-item md-list-item:hover {
+  background-color: #bcdff1;
+}
 #workspace-panel .workspace-content .service-field .input-item {
   padding: 0 0.5rem;
 }
+#workspace-panel .workspace-content .service-field .input-item .add-input-value-button {
+  color: #ff4081;
+  line-height: unset;
+  min-height: unset;
+}
 #workspace-panel .workspace-content .service-field .md-subheader {
   color: rgba(0, 0, 0, 0.87);
+}
+#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox {
+  float: right;
+  padding-right: 1rem;
+}
+#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox .md-label {
+  font-size: 0.6rem;
+  padding-top: 0.2rem;
 }
 #workspace-panel .workspace-content .service-field .md-subheader button {
   background-color: rgba(50, 50, 50, 0.3);

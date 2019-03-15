@@ -64,6 +64,17 @@
                                         tooltip-trigger="mouseenter"
                                         tooltip-append-to-body="true">{{fieldDesc.title}}</span>
                                     <span class="required-asterisk" ng-show="fieldDesc.minOccurs > 0">*</span>
+
+                                    <md-checkbox ng-model="serviceParams.parallelParameters[fieldDesc.id]"
+                                                 aria-label="Enable Parallel Processing" class="workspace-header-checkbox"
+                                                 ng-if="fieldDesc.parallelParameter"
+                                                 uib-tooltip="If checked, this Job will execute in 'parallel' mode. Each value of this parameter will result in its own Sub-Job, in which the other parameters are kept constant. The results may be viewed individually or as a group from the parent Job."
+                                                 tooltip-placement="top"
+                                                 tooltip-trigger="mouseenter"
+                                                 tooltip-append-to-body="true">
+                                        Enable Parallel Processing
+                                    </md-checkbox>
+
                                 <button type="button input-button"
                                         class="btn"
                                         ng-show="fieldDesc.id == 'aoi'"
@@ -75,57 +86,67 @@
                                         tooltip-append-to-body="true">
                                     <i class="material-icons">content_copy</i>
                                 </button>
+
                                 </md-subheader>
                             </div>
 
                             <div class="row input-item">
                                <div class="col-md-12 no-padding">
-                                    <md-input-container md-no-float ng-if="fieldDesc.defaultAttrs.dataType === 'string' && (!fieldDesc.defaultAttrs.allowedValues || fieldDesc.defaultAttrs.allowedValues === '')">
-                                        <input ng-model="serviceParams.inputValues[fieldDesc.id]"
-                                               ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
-                                               type="{{fieldDesc.defaultAttrs.dataType}}"
-                                               ng-required="fieldDesc.minOccurs > 0"
-                                               dnd-list="serviceParams.dropLists[fieldDesc.id]"
-                                               dnd-drop="onDrop(item, fieldDesc.id)"
-                                               ng-change="updateDropList(fieldDesc.id)"
-                                               aria-label="{{fieldDesc.title}}">
-                                        <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
-                                     </md-input-container>
-                                     <service-input ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')"
-                                                    ng-model="serviceParams.inputValues[fieldDesc.id]"
-                                                    ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
-                                                    default-attrs="{{fieldDesc.defaultAttrs}}"
-                                                    ng-required="{{fieldDesc.minOccurs > 0}}"
-                                                    dnd-disable-if="true"
-                                                    description="{{fieldDesc.description}}"/>
+                                   <div ng-if="fieldDesc.dataReference">
+                                       <input ng-show="false" type="{{fieldDesc.defaultAttrs.dataType}}"
+                                              ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                              ng-required="fieldDesc.minOccurs > 0"
+                                              aria-label="hidden"
+                                              name="{{ fieldDesc.id }}">
+                                        <md-input-container md-no-float>
+                                            <input id="{{ fieldDesc.id }}"
+                                                   ng-model="inputVal"
+                                                   type="{{fieldDesc.defaultAttrs.dataType}}"
+                                                   dnd-list="serviceParams.inputValues[fieldDesc.id]"
+                                                   dnd-drop="onDrop(item, fieldDesc.id)"
+                                                   aria-label="{{fieldDesc.id}}">
+                                            <md-icon style="display:inline-block;">
+                                                <md-button class="toolbar-button md-secondary add-input-value-button" ng-click="addItem(fieldDesc.id, inputVal); inputVal=''">
+                                                    <i class="material-icons">add</i>
+                                                </md-button>
+                                            </md-icon>
+                                            <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
+                                        </md-input-container>
+                                   </div>
+
+                                   <div ng-if="!fieldDesc.dataReference && fieldDesc.defaultAttrs.dataType === 'string' && (!fieldDesc.defaultAttrs.allowedValues || fieldDesc.defaultAttrs.allowedValues === '')">
+                                       <md-input-container md-no-float>
+                                           <input id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
+                                                  ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                                  type="{{fieldDesc.defaultAttrs.dataType}}"
+                                                  ng-required="{{fieldDesc.minOccurs > 0}}"
+                                                  aria-label="{{fieldDesc.title}}">
+                                           <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
+                                       </md-input-container>
+                                   </div>
+                                   <service-input ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')"
+                                                  ng-model="serviceParams.inputValues[fieldDesc.id][0]"
+                                                  ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                                                  default-attrs="{{fieldDesc.defaultAttrs}}"
+                                                  ng-required="{{fieldDesc.minOccurs > 0}}"
+                                                  description="{{fieldDesc.description}}"
+                                                  aria-label="{{fieldDesc.id}}">
+                                   </service-input>
                                </div>
                            </div>
 
-                            <div class="row drop-items">
-                                <div class="chip-container col-xs-12 col-sm-2 col-md-4 no-padding"
-                                     ng-repeat="inputFile in serviceParams.dropLists[fieldDesc.id]">
-
-                                    <md-chip uib-popover-template="'views/explorer/templates/metadatainputfile.tmpl.html'"
-                                             popover-placement="right"
-                                             popover-trigger="'mouseenter'"
-                                             popover-append-to-body="true"
-                                             popover-class="dropped-file-popover">
-                                        <div class="md-chip-content  col-xs-9 no-padding">
-                                           <div class="chip-text">{{inputFile.name ? inputFile.name : inputFile.link}}</div>
-                                        </div>
-                                        <div class="md-chip-close col-xs-3 no-padding">
-                                            <i class="material-icons"
-                                               ng-click="removeSelectedItem(fieldDesc.id, inputFile)">
-                                                close
-                                            </i>
-                                        </div>
-                                    </md-chip>
-
-                                </div>
-                            </div>
+                            <md-list class="drag-list-item" ng-if="fieldDesc.dataReference === true">
+                                <md-list-item class="md-2-line" ng-repeat="item in serviceParams.inputValues[fieldDesc.id]" ng-class-odd="'odd'" ng-class-even="'even'">
+                                    <div class="md-list-item-text">
+                                        <p><small>{{item}}</small></p>
+                                    </div>
+                                    <md-button class="md-secondary">
+                                        <i class="material-icons" ng-click="removeSelectedItem(fieldDesc.id, item)">close</i>
+                                    </md-button>
+                                </md-list-item>
+                            </md-list>
 
                         </div>
-
                     </div>
 
                    <div class="service-field">

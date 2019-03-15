@@ -398,15 +398,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
-        function getTwoDigitNumber(num){
-            return (num > 9 ? num : '0'+num);
-        }
-
-        function getThreeDigitNumber(num){
-            return (num > 99 ? num : (num > 9 ? '0'+num : '00' + num));
-        }
-
-        this.launchJob = function(jobConfig, service, page) {
+        this.launchJob = function(jobConfig, service) {
             var deferred = $q.defer();
             // Launch the jobConfig
             halAPI.from(jobConfig._links.self.href + '/launch')
@@ -415,7 +407,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
             function (document) {
-                launchedJobID = JSON.parse(document.data).content.id;
+                launchedJobID = JSON.parse(document.data).id;
                 MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
                 deferred.resolve();
             },
@@ -427,15 +419,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createJobConfig = function(service, inputs, label){
+        this.createJobConfig = function(jobConfig){
             return $q(function(resolve, reject) {
                     halAPI.from(rootUri + '/jobConfigs/')
                     .newRequest()
-                    .post({
-                        service: service._links.self.href,
-                        inputs: inputs,
-                        label: label
-                    })
+                    .post(jobConfig)
                     .result
                     .then(
                 function (document) {

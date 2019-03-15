@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
@@ -93,12 +95,28 @@ public class JobConfigDataServiceIT {
         svcService.save(ImmutableSet.of(svc));
 
         JobConfig jobConfig = new JobConfig(owner, svc);
+        jobConfig.setInputs(ImmutableSetMultimap.of("foo", "bar"));
+        jobConfig.setParallelParameters(ImmutableList.of());
+        jobConfig = dataService.save(jobConfig);
 
-        JobConfig result = dataService.save(new JobConfig(owner, svc));
+        JobConfig jobConfig2 = new JobConfig(owner, svc);
+        jobConfig2.setInputs(ImmutableSetMultimap.of("foo", "bar"));
+        jobConfig2.setParallelParameters(ImmutableList.of());
+        jobConfig2 = dataService.save(jobConfig2);
 
-        // Verifies that a new JobConfig was not actually saved
-        assertThat(result, is(jobConfig));
-        assertThat(dataService.getAll(), is(ImmutableList.of(jobConfig)));
+        // Verifies that a new jobConfig was not actually created
+        assertThat(jobConfig2, is(jobConfig));
+
+        JobConfig result = new JobConfig(owner, svc);
+        result.setInputs(ImmutableSetMultimap.of("foo", "bar"));
+        result.setParallelParameters(ImmutableList.of("foo"));
+        result = dataService.save(result);
+
+        // Verifies that a new JobConfig was saved due to different parallelParameters
+        assertThat(result, is(not(jobConfig)));
+
+        // Verifies final database contents
+        assertThat(dataService.getAll(), is(ImmutableList.of(jobConfig, result)));
     }
 
 }

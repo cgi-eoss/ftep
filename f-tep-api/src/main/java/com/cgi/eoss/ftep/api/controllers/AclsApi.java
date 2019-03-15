@@ -76,7 +76,7 @@ public class AclsApi {
     }
 
     @GetMapping("/databasket/{databasketId}")
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#databasketId, T(com.cgi.eoss.ftep.model.Databasket), 'administration')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#databasketId, T(com.cgi.eoss.ftep.model.Databasket).name, 'administration')")
     public FtepAccessControlList getDatabasketAcls(@PathVariable("databasketId") Long databasketId) {
         return FtepAccessControlList.builder()
                 .entityId(databasketId)
@@ -156,7 +156,7 @@ public class AclsApi {
     }
 
     @GetMapping("/project/{projectId}")
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#project, T(com.cgi.eoss.ftep.model.Project).name, 'administration')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#projectId, T(com.cgi.eoss.ftep.model.Project).name, 'administration')")
     public FtepAccessControlList getProjectAcls(@PathVariable("projectId") Long projectId) {
         return FtepAccessControlList.builder()
                 .entityId(projectId)

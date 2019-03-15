@@ -4,16 +4,18 @@ import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.rpc.Credentials;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
 import com.cgi.eoss.ftep.rpc.GetCredentialsParams;
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Authenticator;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.Route;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
@@ -29,8 +31,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Slf4j
@@ -44,11 +47,11 @@ public class CreodiasHttpAuthenticator implements Authenticator {
 
     private OAuth2AccessTokenResponse tokenResponse;
 
-    public CreodiasHttpAuthenticator(FtepServerClient ftepServerClient, String authEndpoint, String clientId) {
+    public CreodiasHttpAuthenticator(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, String authEndpoint, String clientId) {
         this.ftepServerClient = ftepServerClient;
         this.authEndpoint = authEndpoint;
         this.clientId = clientId;
-        this.tokenClient = new PasswordTokenResponseClient();
+        this.tokenClient = new PasswordTokenResponseClient(okHttpClient);
     }
 
     @Override
@@ -101,10 +104,14 @@ public class CreodiasHttpAuthenticator implements Authenticator {
     private static final class PasswordTokenResponseClient implements OAuth2AccessTokenResponseClient<Oauth2PasswordGrantRequest> {
         private final RestTemplate restOperations;
 
-        PasswordTokenResponseClient() {
-            RestTemplate restTemplate = new RestTemplate(Arrays.asList(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
-            restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
-            this.restOperations = restTemplate;
+        PasswordTokenResponseClient(OkHttpClient okHttpClient) {
+            this.restOperations = new RestTemplateBuilder()
+                    .additionalMessageConverters(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter())
+                    .setConnectTimeout(Duration.of(5, ChronoUnit.SECONDS))
+                    .setReadTimeout(Duration.of(10, ChronoUnit.SECONDS))
+                    .errorHandler(new OAuth2ErrorResponseErrorHandler())
+                    .requestFactory(() -> new OkHttp3ClientHttpRequestFactory(okHttpClient))
+                    .build();
         }
 
         @Override

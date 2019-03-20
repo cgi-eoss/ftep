@@ -34,6 +34,8 @@ mission:
         title: 'Sentinel-2'
       - value: 'sentinel3'
         title: 'Sentinel-3'
+      - value: 'sentinel5'
+        title: 'Sentinel-5P'
       - value: 'landsat'
         title: 'Landsat'
   onlyIf:
@@ -121,7 +123,7 @@ s2ProcessingLevel:
       - value: '2A'
         title: 'Level 2A'
       - value: '2AP'
-        title: 'Level 2A'
+        title: 'Level 2AP'
   onlyIf:
     'mission':
       - 'sentinel2'

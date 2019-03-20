@@ -41,6 +41,7 @@ public class CreodiasHttpDownloader implements Downloader {
             .put("sentinel1", "Sentinel1")
             .put("sentinel2", "Sentinel2")
             .put("sentinel3", "Sentinel3")
+            .put("sentinel5", "Sentinel5P")
             .put("landsat", "Landsat5")
             .put("landsat", "Landsat7")
             .put("landsat", "Landsat8")

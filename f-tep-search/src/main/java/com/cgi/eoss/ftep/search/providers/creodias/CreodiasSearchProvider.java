@@ -51,6 +51,7 @@ public class CreodiasSearchProvider extends RestoSearchProvider {
             .put(MissionPlatform.builder().mission("sentinel1").platform(null).build(), "Sentinel1")
             .put(MissionPlatform.builder().mission("sentinel2").platform(null).build(), "Sentinel2")
             .put(MissionPlatform.builder().mission("sentinel3").platform(null).build(), "Sentinel3")
+            .put(MissionPlatform.builder().mission("sentinel5").platform(null).build(), "Sentinel5P")
             .build();
     private static final Set<String> INTERNAL_FTEP_PARAMS = ImmutableSet.of(
             "catalogue",

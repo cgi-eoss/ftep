@@ -1,10 +1,15 @@
 package com.cgi.eoss.ftep.api.controllers;
 
+import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.costing.CostingService;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,6 +29,7 @@ import org.apache.commons.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,11 +41,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -59,22 +67,49 @@ public class JobsApiExtension {
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final LocalServiceLauncher localServiceLauncher;
+    private final FtepSecurityService ftepSecurityService;
+    private final CatalogueService catalogueService;
+    private final CostingService costingService;
 
     @Autowired
     public JobsApiExtension(@Value("${ftep.api.logs.username:admin}") String username,
                             @Value("${ftep.api.logs.password:graylogpass}") String password,
-                            LocalServiceLauncher localServiceLauncher) {
+                            LocalServiceLauncher localServiceLauncher, FtepSecurityService ftepSecurityService, CatalogueService catalogueService, CostingService costingService) {
         this.httpClient = new OkHttpClient.Builder().addInterceptor((Chain chain) -> {
-                    Request request = chain.request();
-                    Request authenticatedRequest = request.newBuilder()
-                        .header("Authorization", Credentials.basic(username, password))
-                        .header("Accept", MediaType.APPLICATION_JSON_VALUE)
-                        .build();
-                    return chain.proceed(authenticatedRequest);
-                }).addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
+            Request request = chain.request();
+            Request authenticatedRequest = request.newBuilder()
+                    .header("Authorization", Credentials.basic(username, password))
+                    .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+                    .build();
+            return chain.proceed(authenticatedRequest);
+        }).addInterceptor(new HttpLoggingInterceptor(LOG::trace).setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
         this.objectMapper = new ObjectMapper();
         this.localServiceLauncher = localServiceLauncher;
+        this.ftepSecurityService = ftepSecurityService;
+        this.catalogueService = catalogueService;
+        this.costingService = costingService;
+    }
+
+    @GetMapping(value = "/{jobId}/dl")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#job, 'read')")
+    public void downloadOutputs(@ModelAttribute("jobId") Job job, HttpServletResponse response) throws IOException {
+        Set<FtepFile> outputFiles = job.getOutputFiles();
+
+        User user = ftepSecurityService.getCurrentUser();
+        int estimatedCost = outputFiles.stream().mapToInt(costingService::estimateDownloadCost).sum();
+        if (estimatedCost > user.getWallet().getBalance()) {
+            response.setStatus(HttpStatus.PAYMENT_REQUIRED.value());
+            String message = "Estimated download cost for all job outputs (" + estimatedCost + " coins) exceeds current wallet balance";
+            response.getOutputStream().write(message.getBytes());
+            response.flushBuffer();
+            return;
+        }
+        // TODO Should estimated cost be "locked" in the wallet?
+
+        Util.serveFileDownload(response, catalogueService.getAsZipResource(job.getExtId() + ".zip", outputFiles));
+
+        outputFiles.forEach(file -> costingService.chargeForDownload(user.getWallet(), file));
     }
 
     @GetMapping("/{jobId}/logs")
@@ -142,7 +177,8 @@ public class JobsApiExtension {
                 String respBodyString = response.body().string();
                 ObjectMapper mapper = new ObjectMapper();
                 LOG.debug("Body:\n" + respBodyString);
-                return mapper.readValue(respBodyString, new TypeReference<Map<String, Object>>(){});
+                return mapper.readValue(respBodyString, new TypeReference<Map<String, Object>>() {
+                });
             } else {
                 if (response.code() != 503) {
                     LOG.error("Failed to retrieve custom search results: {} -- {}", response.code(), response.message());

@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -71,6 +71,16 @@ public interface CatalogueService {
      * @return
      */
     Resource getAsResource(FtepFile file);
+
+    /**
+     * <p>Resolve the given {@link FtepFile}s into a zipping Spring Resource.</p>
+     *
+     *
+     * @param filename
+     * @param files
+     * @return
+     */
+    Resource getAsZipResource(String filename, Collection<FtepFile> files);
 
     /**
      * <p>Remove the given FtepFile from all associated external catalogues, and finally the F-TEP database itself.</p>

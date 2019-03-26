@@ -26,7 +26,9 @@ final class Util {
 
     static void serveFileDownload(HttpServletResponse response, Resource resource) throws IOException {
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setContentLengthLong(resource.contentLength());
+        if (resource.contentLength() != -1) {
+            response.setContentLengthLong(resource.contentLength());
+        }
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
         ByteStreams.copy(resource.getInputStream(), response.getOutputStream());
         response.setStatus(HttpStatus.OK.value());

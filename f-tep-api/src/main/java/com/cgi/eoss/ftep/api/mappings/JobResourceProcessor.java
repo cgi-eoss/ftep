@@ -48,6 +48,11 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
         resource.add(new Link(resource.getLink("self").getHref() + "/logs").withRel("logs"));
     }
 
+    private void addDownloadLink(Resource resource) {
+        // TODO Do this properly with a method reference
+        resource.add(new Link(resource.getLink("self").getHref() + "/dl").withRel("download"));
+    }
+
     private void addOutputLinks(Resource resource, Multimap<String, String> outputs) {
         // Transform any "ftep://" URIs into relation links
         if (outputs != null && !outputs.isEmpty()) {
@@ -76,6 +81,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             addSelfLink(resource, entity);
             addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
+            addDownloadLink(resource);
             addOutputLinks(resource, entity.getOutputs());
             addTerminateLink(resource, entity.getStatus());
 
@@ -92,6 +98,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             addSelfLink(resource, entity);
             addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
+            addDownloadLink(resource);
             addOutputLinks(resource, entity.getOutputs());
             addTerminateLink(resource, entity.getStatus());
 
@@ -108,6 +115,7 @@ public class JobResourceProcessor extends BaseResourceProcessor<Job> {
             addSelfLink(resource, entity);
             addGuiLink(resource, entity.getStatus(), entity.getGuiUrl());
             addLogsLink(resource);
+            addDownloadLink(resource);
             addTerminateLink(resource, entity.getStatus());
 
             return resource;

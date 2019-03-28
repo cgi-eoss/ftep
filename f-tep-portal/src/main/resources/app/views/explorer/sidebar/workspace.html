@@ -95,6 +95,7 @@
                                    <div ng-if="fieldDesc.dataReference">
                                        <input ng-show="false" type="{{fieldDesc.defaultAttrs.dataType}}"
                                               ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                              ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
                                               ng-required="fieldDesc.minOccurs > 0"
                                               aria-label="hidden"
                                               name="{{ fieldDesc.id }}">
@@ -118,6 +119,7 @@
                                        <md-input-container md-no-float>
                                            <input id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
                                                   ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                                  ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
                                                   type="{{fieldDesc.defaultAttrs.dataType}}"
                                                   ng-required="{{fieldDesc.minOccurs > 0}}"
                                                   aria-label="{{fieldDesc.title}}">

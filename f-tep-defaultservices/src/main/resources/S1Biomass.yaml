@@ -17,6 +17,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "refDataDem"
   title: "Reference data containing digital elevation model"
   description: "Expected is a single .tif (or a .zip containing same)"
@@ -35,6 +38,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "crs"
   title: "Target CRS identifier"
   description: "EPSG coordinate reference system identifier of the target product,\

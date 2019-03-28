@@ -19,6 +19,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "endproduct"
   title: "End product"
   description: "The Sentinel-2 product to be used as the end point of change calculation"
@@ -28,6 +31,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "crs"
   title: "Target CRS identifier"
   description: "OPTIONAL. Defines the target coordinate reference system (CRS). If\

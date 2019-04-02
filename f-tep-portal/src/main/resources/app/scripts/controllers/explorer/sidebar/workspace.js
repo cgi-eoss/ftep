@@ -24,11 +24,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.serviceParams.parallelParameters = config.parallelParameters;
             if(config.inputs){
                 for (var key in config.inputs) {
-                    if (config.inputs[key].length > 1) {
-                        $scope.serviceParams.inputValues[key] = config.inputs[key];
-                    } else {
-                        $scope.serviceParams.inputValues[key] = config.inputs[key][0].split(',');
-                    }
+                    $scope.serviceParams.inputValues[key] = config.inputs[key];
                 }
             }
 

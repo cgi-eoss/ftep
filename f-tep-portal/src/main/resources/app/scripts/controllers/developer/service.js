@@ -227,113 +227,119 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
-        $scope.addNewRow = function(key){
-            // Create a descriptor if none exists
-            if(!$scope.serviceParams.selectedService.serviceDescriptor){
-                $scope.serviceParams.selectedService.serviceDescriptor = {
-                        id: $scope.serviceParams.selectedService.name,
-                        serviceProvider: $scope.serviceParams.selectedService.name
-                };
-            }
-
-            // Initialize the Input/Output array if none exists
-            if(!$scope.serviceParams.selectedService.serviceDescriptor[key]){
-                $scope.serviceParams.selectedService.serviceDescriptor[key] = [];
-            }
-
-            $scope.serviceParams.selectedService.serviceDescriptor[key].push({
-                data: 'LITERAL',
-                defaultAttrs: {
-                    "dataType" : "string"
-                },
-                minOccurs: 0,
-                maxOccurs: 0
-            });
-        };
-
         $scope.removeRow = function(list, item){
             var index = list.indexOf(item);
             list.splice(index, 1);
         };
 
-        $scope.editTypeDialog = function($event, fieldDescriptor, constants){
+        $scope.definitionDialog = function($event, serviceDescriptor, key, index) {
+            function DefinitionController($scope, $mdDialog, ProductService) {
 
-            function EditTypeController($scope, $mdDialog) {
-                var backupCopy = angular.copy(fieldDescriptor);
+                $scope.serviceParams = ProductService.params.development;
+                $scope.idUnique = true;
+                $scope.constants = {
+                    serviceFields: ['dataInputs', 'dataOutputs'],
+                    fieldTypes: [{type: 'LITERAL'}, {type: 'COMPLEX'}], //{type: 'BOUNDING_BOX'}],
+                    literalTypes: [{dataType: 'string'}, {dataType: 'integer'}, {dataType: 'double'}]
+                };
 
-                $scope.input = fieldDescriptor;
-                $scope.constants = constants;
+                // Create a descriptor if none exists
+                if (!$scope.serviceParams.selectedService.serviceDescriptor) {
+                    $scope.serviceParams.selectedService.serviceDescriptor = {
+                        id: $scope.serviceParams.selectedService.name,
+                        serviceProvider: $scope.serviceParams.selectedService.name
+                    };
+                }
 
-                $scope.updateAttrs = function(){
-                    if($scope.input.data === 'LITERAL'){
+                // Initialize the Input/Output array if none exists
+                if (!$scope.serviceParams.selectedService.serviceDescriptor[key]) {
+                    $scope.serviceParams.selectedService.serviceDescriptor[key] = [];
+                }
+
+                // Initialize default values or populate from existing
+                if (!index && index !== 0) {
+                    $scope.input = {
+                        data: 'LITERAL',
+                        defaultAttrs: {
+                            "dataType" : "string"
+                        },
+                        minOccurs: 0,
+                        maxOccurs: 0,
+                        dataReference: false,
+                        searchParameter: false,
+                        parallelParameter: false
+                    };
+                    index = $scope.serviceParams.selectedService.serviceDescriptor[key].length;
+                } else {
+                    $scope.input = angular.copy(serviceDescriptor[key][index]);
+                }
+
+                /* Check that field id is unique*/
+                $scope.isValidFieldId = function(id){
+                    $scope.idUnique = true;
+                    for (var i = 0; i < serviceDescriptor[key].length; i++) {
+                        if (id === serviceDescriptor[key][i].id && index !== i) {
+                            $scope.idUnique = false;
+                            break;
+                        }
+                    }
+                };
+
+                /* Update attributes to save based on datatype */
+                $scope.updateAttrs = function() {
+                    if ($scope.input.data === 'LITERAL'){
                         delete $scope.input.defaultAttrs.mimeType;
                         delete $scope.input.defaultAttrs.extension;
                         delete $scope.input.defaultAttrs.asReference;
                         $scope.input.defaultAttrs.dataType = 'string';
-                    }
-                    else if($scope.input.data === 'COMPLEX'){
+                    } else if ($scope.input.data === 'COMPLEX'){
                         delete $scope.input.defaultAttrs.dataType;
                         $scope.input.defaultAttrs.asReference = false;
                     }
                 };
 
-                $scope.setAsReference = function(str){
+                $scope.setAsReference = function(str) {
                     $scope.input.defaultAttrs.asReference = (str === 'true');
                 };
 
-                $scope.addAllowedValue = function(newAllowedValue){
-                    if($scope.input.defaultAttrs.allowedValues && $scope.input.defaultAttrs.allowedValues !== ''){
+                /* Add new allowed value for LITERAL data types */
+                $scope.addAllowedValue = function(newAllowedValue) {
+                    if ($scope.input.defaultAttrs.allowedValues && $scope.input.defaultAttrs.allowedValues !== '') {
                         var array = $scope.input.defaultAttrs.allowedValues.split(',');
-                        if(array && array.indexOf(newAllowedValue) > -1){
+                        if (array && array.indexOf(newAllowedValue) > -1) {
                             return;
-                        }
-                        else {
+                        } else {
                             $scope.input.defaultAttrs.allowedValues += ',' + newAllowedValue;
                         }
+                    } else {
+                        $scope.input.defaultAttrs.allowedValues = newAllowedValue;
                     }
-                    else{
-                         $scope.input.defaultAttrs.allowedValues = newAllowedValue;
-                    }
+                    $scope.newAllowedVal = '';
                 };
 
-                $scope.removeAllowedValue = function(item){
+                /* Remove allowed value for LITERAL data types */
+                $scope.removeAllowedValue = function(item) {
                     var array = $scope.input.defaultAttrs.allowedValues.split(',');
-                    var index = array.indexOf(item);
-                    array.splice(index, 1);
+                    array.splice(array.indexOf(item), 1);
                     $scope.input.defaultAttrs.allowedValues = array.toString();
                 };
 
                 $scope.closeDialog = function (save) {
-                    // When user clicked Cancel, revert the changes
-                    if(!save){
-                        fieldDescriptor.data = backupCopy.data;
-                        fieldDescriptor.defaultAttrs = backupCopy.defaultAttrs;
+                    if(save) {
+                        $scope.serviceParams.selectedService.serviceDescriptor[key][index] = angular.copy($scope.input);
                     }
                     $mdDialog.hide();
                 };
             }
 
-            EditTypeController.$inject = ['$scope', '$mdDialog'];
+            DefinitionController.$inject = ['$scope', '$mdDialog', 'ProductService'];
             $mdDialog.show({
-                controller: EditTypeController,
-                templateUrl: 'views/developer/templates/edittype.tmpl.html',
+                controller: DefinitionController,
+                templateUrl: 'views/developer/templates/definition.tmpl.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
-                clickOutsideToClose: false
+                clickOutsideToClose: true
             });
-        };
-
-        /* Check that field id is unique*/
-        $scope.isValidFieldId = function(field, key){
-            var isValid = true;
-            for(var i = 0; i < $scope.serviceParams.selectedService.serviceDescriptor[key].length; i++){
-                if(field !== $scope.serviceParams.selectedService.serviceDescriptor[key][i] &&
-                   field.id === $scope.serviceParams.selectedService.serviceDescriptor[key][i].id){
-                    isValid = false;
-                    break;
-                }
-            }
-            return isValid;
         };
 
     }]);

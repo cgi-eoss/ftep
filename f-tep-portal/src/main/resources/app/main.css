@@ -1657,6 +1657,89 @@
   padding-right: 1rem;
 }
 
+#definition-dialog {
+  width: 40%;
+}
+#definition-dialog input:invalid {
+  background-color: #f2dede;
+  border-bottom: 1px solid #a94442;
+}
+#definition-dialog .error-message {
+  color: #a94442;
+}
+#definition-dialog legend {
+  border: none;
+  color: #558b2f;
+  margin: 2rem 0 0 0;
+  padding: 0 1rem;
+  width: auto;
+}
+#definition-dialog #basic-fields legend {
+  margin-top: 0;
+}
+#definition-dialog .input-with-button {
+  width: 60%;
+}
+#definition-dialog md-input-container {
+  width: 100%;
+}
+#definition-dialog md-input-container .hint {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.6rem;
+}
+#definition-dialog .md-block {
+  margin: 2rem 0;
+}
+@media (max-width: 991px) {
+  #definition-dialog {
+    width: 100%;
+  }
+}
+
+.field-definitions {
+  margin-top: 15px;
+}
+.field-definitions table {
+  border: #d2d2d2 solid 1px;
+  min-width: 767px;
+  width: 100%;
+}
+.field-definitions table th,
+.field-definitions table td {
+  border-left: #d2d2d2 solid 1px;
+  border-bottom: #d2d2d2 solid 1px;
+  padding: 0.25rem;
+}
+.field-definitions table th {
+  background-color: #f8f8f8;
+}
+.field-definitions table .icon-column {
+  width: 1%;
+}
+.field-definitions .edit-button {
+  min-width: 0;
+}
+.field-definitions .edit-button .material-icons {
+  background-color: #aed581;
+  color: white;
+  font-size: 1.4rem;
+}
+.field-definitions .edit-button .material-icons:hover {
+  background-color: #558b2f;
+}
+.field-definitions .add-button {
+  background-color: #aed581;
+  color: white;
+  float: right !important;
+  margin-top: 1rem;
+}
+.field-definitions .add-button.md-focused {
+  background-color: #aed581;
+}
+.field-definitions .add-button:hover {
+  background-color: #558b2f;
+}
+
 #developer-container .right-container {
   height: 100%;
   overflow-y: auto;
@@ -1710,162 +1793,6 @@
   border-color: #aed581;
   color: rgba(255, 255, 255, 0.87);
 }
-#developer-container .right-container #service-form #file-editor .CodeMirror {
-  height: 100%;
-  margin: 0 1rem 2rem 0;
-}
-#developer-container .right-container #service-form #file-editor .file-editor {
-  background-color: #f8f8f8;
-  border: #d2d2d2 solid 1px;
-  margin-top: 0;
-  padding: 0;
-}
-#developer-container .right-container #service-form #file-editor .file-editor textarea.md-input {
-  background-color: white;
-  font-family: 'Courier';
-  border: none;
-}
-#developer-container .right-container #service-form #file-editor #file-list {
-  font-size: 0.6rem;
-  list-style: none;
-  padding: 0 0 1.6rem 0;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active {
-  background-color: #aed581;
-  color: white;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active:hover {
-  background-color: #558b2f;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active:hover .material-icons {
-  color: #33691e;
-}
-#developer-container .right-container #service-form #file-editor #file-list .add-file {
-  font-size: 1rem;
-  padding: 0 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list .add-file:hover {
-  background-color: transparent;
-  color: #ff4081;
-  cursor: pointer;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .file {
-  cursor: pointer;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .file:hover {
-  background-color: #d9edf7;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .folder:hover {
-  background-color: #f8f8f8;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table {
-  width: 100%;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-icon {
-  width: 28px;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-icon .material-icons {
-  color: #558b2f;
-  font-size: 24px;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-name {
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 4rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .remove-file {
-  font-weight: bold;
-  text-align: right;
-  padding: 0 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .remove-file:hover {
-  color: #ff4081;
-}
-#developer-container .right-container #service-form #file-editor .file-settings {
-  padding: 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor .form-control {
-  display: inline-block;
-  font-size: 0.7rem;
-  padding-bottom: 0;
-  padding-top: 0;
-  vertical-align: top;
-  width: auto;
-}
-#developer-container .right-container #service-form #file-editor .executable {
-  margin: 0;
-  padding: 0.6rem;
-  padding-bottom: 0;
-}
-#developer-container .right-container #service-form #file-editor .executable md-checkbox {
-  margin: 0;
-}
-#developer-container .right-container #service-form #file-editor .input-label {
-  font-size: 1rem;
-  margin: 0;
-  position: inherit;
-  vertical-align: top;
-  width: auto;
-}
-#developer-container .right-container #service-form .add-button,
-#developer-container .right-container #service-form .remove-button,
-#developer-container .right-container #service-form .type-button {
-  min-width: 0;
-}
-#developer-container .right-container #service-form .add-button:hover,
-#developer-container .right-container #service-form .remove-button:hover,
-#developer-container .right-container #service-form .type-button:hover {
-  background-color: transparent;
-}
-#developer-container .right-container #service-form .add-button {
-  margin-top: 1rem;
-}
-#developer-container .right-container #service-form .add-button .material-icons {
-  color: #aed581;
-  font-size: 1.6rem;
-}
-#developer-container .right-container #service-form .remove-button .material-icons,
-#developer-container .right-container #service-form .type-button .material-icons {
-  font-size: 1rem;
-  color: white;
-  background-color: #aed581;
-}
-#developer-container .right-container #service-form .type-button {
-  margin: 20px 0px 0px 0px;
-  padding: 0;
-}
-#developer-container .right-container #service-form .field-definitions {
-  margin-top: 15px;
-}
-#developer-container .right-container #service-form .field-definitions table {
-  border: #d2d2d2 solid 1px;
-  min-width: 767px;
-  width: 100%;
-}
-#developer-container .right-container #service-form .field-definitions table th,
-#developer-container .right-container #service-form .field-definitions table td {
-  border-left: #d2d2d2 solid 1px;
-}
-#developer-container .right-container #service-form .field-definitions table th {
-  background-color: #f8f8f8;
-  border-bottom: #d2d2d2 solid 1px;
-  padding: 0.25rem;
-}
-#developer-container .right-container #service-form .field-definitions table td {
-  border-bottom: #d2d2d2 solid 1px;
-}
-#developer-container .right-container #service-form .field-definitions md-input-container {
-  width: 100%;
-}
-#developer-container .right-container #service-form .field-definitions input:invalid {
-  background-color: #f2dede;
-  border-bottom: 1px solid #a94442;
-}
-#developer-container .right-container #service-form .field-definitions .error-message {
-  color: #a94442;
-}
 @media (max-width: 991px) {
   #developer-container .right-container {
     height: auto;
@@ -1875,16 +1802,105 @@
     right: 4rem;
   }
 }
-#edit-type-dialog #allowedValuesList {
-  max-height: 6rem;
-  overflow-y: auto;
+
+#file-editor .CodeMirror {
+  height: 100%;
+  margin: 0 1rem 2rem 0;
 }
-#edit-type-dialog #addAllowedValue {
-  padding-top: 1rem;
+#file-editor .file-editor {
+  background-color: #f8f8f8;
+  border: #d2d2d2 solid 1px;
+  margin-top: 0;
+  padding: 0;
 }
-#edit-type-dialog #addAllowedValue md-input-container,
-#edit-type-dialog #addAllowedValue button {
+#file-editor .file-editor textarea.md-input {
+  background-color: white;
+  font-family: 'Courier';
+  border: none;
+}
+#file-editor #file-list {
+  font-size: 0.6rem;
+  list-style: none;
+  padding: 0 0 1.6rem 0;
+}
+#file-editor #file-list .active {
+  background-color: #aed581;
+  color: white;
+}
+#file-editor #file-list .active:hover {
+  background-color: #558b2f;
+}
+#file-editor #file-list .active:hover .material-icons {
+  color: #33691e;
+}
+#file-editor #file-list .add-file {
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+#file-editor #file-list .add-file:hover {
+  background-color: transparent;
+  color: #ff4081;
+  cursor: pointer;
+}
+#file-editor #file-list li .file {
+  cursor: pointer;
+}
+#file-editor #file-list li .file:hover {
+  background-color: #d9edf7;
+}
+#file-editor #file-list li .folder:hover {
+  background-color: #f8f8f8;
+}
+#file-editor #file-list li table {
+  width: 100%;
+}
+#file-editor #file-list li table .file-icon {
+  width: 28px;
+}
+#file-editor #file-list li table .file-icon .material-icons {
+  color: #558b2f;
+  font-size: 24px;
+}
+#file-editor #file-list li table .file-name {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 4rem;
+}
+#file-editor #file-list li table .remove-file {
+  font-weight: bold;
+  text-align: right;
+  padding: 0 0.5rem;
+}
+#file-editor #file-list li table .remove-file:hover {
+  color: #ff4081;
+}
+#file-editor .file-settings {
+  padding: 0.5rem;
+}
+#file-editor .form-control {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding-bottom: 0;
+  padding-top: 0;
+  vertical-align: top;
+  width: auto;
+}
+#file-editor .executable {
   margin: 0;
+  padding: 0.6rem;
+  padding-bottom: 0;
+}
+#file-editor .executable md-checkbox {
+  margin: 0;
+}
+#file-editor .input-label {
+  font-size: 1rem;
+  margin: 0;
+  position: inherit;
+  vertical-align: top;
+  width: auto;
 }
 
 #explorer-container,

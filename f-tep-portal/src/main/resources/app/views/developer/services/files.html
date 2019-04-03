@@ -1,0 +1,81 @@
+<ul id="file-list" class="col-md-4 col-lg-3 col-xl-2">
+    <li ng-repeat="file in serviceParams.fileTree">
+        <table ng-if="file.type == 'file'"
+               class="file"
+               ng-click="openFile(file.contents, $event); updateMode()"
+               ng-class="{'active': serviceParams.openedFile.filename == file.contents.filename}">
+            <tr>
+                <td class="file-icon">
+                    <i class="material-icons">insert_drive_file</i>
+                </td>
+                <td class="file-name" title="{{file.name}}">
+                    {{file.tree}} {{file.name}}
+                </td>
+                <td class="remove-file">
+                        <span ng-click="deleteFileDialog(file, $event); $event.stopPropagation()"
+                              ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
+                              aria-label="Delete File"
+                              uib-tooltip="Delete File"
+                              tooltip-placement="top"
+                              tooltip-trigger="mouseenter"
+                              tooltip-append-to-body="true">x
+                        </span>
+                </td>
+            </tr>
+        </table>
+        <table ng-if="file.type == 'folder'" class="folder">
+            <tr>
+                <td class="file-icon">
+                    <i class="material-icons">folder</i>
+                </td>
+                <td>
+                    {{file.tree}} <b>[ {{file.name}} ]</b>
+                </td>
+                <td>
+
+                </td>
+            </tr>
+        </table>
+    </li>
+    <li ng-click="createFileDialog($event)"
+        class="right add-file"
+        aria-label="Add File"
+        uib-tooltip="Add File"
+        tooltip-placement="top"
+        tooltip-trigger="mouseenter"
+        tooltip-append-to-body="true">
+        <span class="create-file">+</span>
+    </li>
+</ul>
+
+<md-input-container md-no-float class="md-block file-editor col-md-8 col-lg-9 col-xl-10">
+    <div class="row file-settings">
+        <div class="col-md-4 no-padding">
+            <label class="input-label">File Language:</label>
+            <select class="form-control"
+                    ng-model="serviceParams.activeMode"
+                    ng-options="m for m in modes"
+                    ng-change="modeChanged()" />
+        </div>
+        <div class="col-md-4 no-padding" />
+        <div class="col-md-4 no-padding">
+            <label class="input-label">Executable:</label>
+            <md-checkbox class="executable"
+                         ng-model="serviceParams.openedFile.executable"
+                         aria-label="Executable"
+                         ng-disabled="serviceParams.openedFile.filename === 'Dockerfile' || serviceParams.openedFile.filename === 'workflow.sh'">
+            </md-checkbox>
+        </div>
+    </div>
+
+    <textarea class="file-contents"
+              ui-codemirror="{ onLoad : codemirrorLoaded }"
+              ui-codemirror-opts="editorOptions"
+              ui-refresh="refreshMirror()"
+              ng-change="refreshMirror()"
+              ng-model="serviceParams.openedFile.content"
+              md-select-on-focus
+              placeholder="Add file content..">Loading...</textarea>
+</md-input-container>
+
+

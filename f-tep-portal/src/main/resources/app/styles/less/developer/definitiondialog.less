@@ -1,0 +1,39 @@
+@import "variable";
+#definition-dialog {
+    input:invalid {
+        background-color: @error;
+        border-bottom: 1px solid @error-text;
+    }
+    .error-message {
+        color: @error-text;
+    }
+    legend {
+        border: none;
+        color: @brand;
+        margin: 2rem 0 0 0;
+        padding: 0 1rem;
+        width: auto;
+    }
+    #basic-fields {
+        legend {
+            margin-top: 0;
+        }
+    }
+    .input-with-button {
+        width: 60%;
+    }
+    md-input-container {
+        width: 100%;
+        .hint {
+            color: @dark-gray;
+            font-size: 0.6rem;
+        }
+    }
+    .md-block {
+        margin: 2rem 0;
+    }
+    width: 40%;
+    @media (max-width: @sm-max-width) {
+        width: 100%;
+    }
+}

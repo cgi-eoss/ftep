@@ -1,0 +1,55 @@
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Data Type</th>
+        <th>Default Value</th>
+        <th>Min Occurs</th>
+        <th>Max Occurs</th>
+        <th>Input Defs</th>
+        <th>Search Param</th>
+        <th>Parallel</th>
+        <th class="icon-column">Edit</th>
+        <th class="icon-column">Remove</th>
+    </tr>
+    <tr ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
+        <td>{{ input.title }}</td>
+        <td>{{ input.description }}</td>
+        <td>{{ input.data === 'COMPLEX' ? input.defaultAttrs.mimeType : input.defaultAttrs.dataType }}</td>
+        <td>{{ input.defaultAttrs.value }}</td>
+        <td>{{ input.minOccurs}}</td>
+        <td>{{ input.maxOccurs }}</td>
+        <td>{{ input.dataReference ? "True" : "False" }}</td>
+        <td>{{ input.searchParameter ? "True" : "False" }}</td>
+        <td>{{ input.parallelParameter ? "True" : "False" }}</td>
+        <td class="icon-column">
+            <md-button ng-click="definitionDialog($event, serviceParams.selectedService.serviceDescriptor, key, $index); toggleEditMode(true)"
+                       class="edit-button"
+                       aria-label="Edit Row"
+                       uib-tooltip="Edit Row"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">edit</i>
+            </md-button>
+        </td>
+        <td class="icon-column">
+            <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input); toggleEditMode(true)"
+                       class="edit-button"
+                       aria-label="Remove Row"
+                       uib-tooltip="Remove Row"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">delete</i>
+            </md-button>
+        </td>
+    </tr>
+</table>
+
+<md-button ng-click="definitionDialog($event, serviceParams.selectedService.serviceDescriptor, key); toggleEditMode(true)"
+           class="add-button"
+           aria-label="Add New Row"
+           uib-tooltip="Add New Row"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">
+    Add
+</md-button>

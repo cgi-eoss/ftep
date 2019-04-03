@@ -126,6 +126,7 @@
                                            <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
                                        </md-input-container>
                                    </div>
+
                                    <md-input-container  ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')">
                                        <md-select ng-model="serviceParams.inputValues[fieldDesc.id]"
                                                   ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc).toString()"
@@ -139,6 +140,7 @@
                                        </md-select>
                                        <div class="hint">{{fieldDesc.description}}</div>
                                    </md-input-container>
+
                                </div>
                            </div>
 

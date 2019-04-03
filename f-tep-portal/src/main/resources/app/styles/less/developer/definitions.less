@@ -1,0 +1,43 @@
+@import "variable";
+.field-definitions {
+    margin-top: 15px;
+    table {
+        .border(border, @bg);
+        min-width: @xs-max-width;
+        width: 100%;
+        th, td {
+            .border(border-left, @bg);
+            .border(border-bottom, @bg);
+            padding: 0.25rem;
+        }
+        th {
+            background-color: @bg;
+        }
+        .icon-column {
+            width:1%;
+        }
+    }
+    .edit-button {
+        min-width: 0;
+        .material-icons {
+            background-color:  @brand-light;
+            color: @white;
+            font-size: 1.4rem;
+            &:hover {
+                background-color: @brand;
+            }
+        }
+    }
+    .add-button {
+        &.md-focused {
+            background-color: @brand-light;
+        }
+        background-color: @brand-light;
+        color: @white;
+        float: right !important;
+        margin-top: 1rem;
+        &:hover {
+            background-color: @brand;
+        }
+    }
+}

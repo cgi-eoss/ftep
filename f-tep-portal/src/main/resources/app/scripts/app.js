@@ -372,50 +372,5 @@ define([
         };
     });
 
-    app.directive('serviceInput', function(){
-        return {
-            restrict: 'E',
-            templateUrl: 'views/common/templates/serviceinput.tmpl.html',
-            link: function ($scope, element, attrs) {
-
-                function checkType(){
-                    var data = JSON.parse(attrs.defaultAttrs);
-                    var inputField = element.find('input');
-
-                    $scope.fieldData = {isSelection: (data.allowedValues && data.allowedValues !== '' ? true : false),
-                                        allowedValues: (data.allowedValues && data.allowedValues !== '' ? data.allowedValues.split(',') : []),
-                                        description: attrs.description};
-
-                    if($scope.fieldData.allowedValues.length > 0 && attrs.ngRequired === 'false'){
-                        $scope.fieldData.allowedValues.splice(0, 0, ''); //add empty value at the beginning
-                    }
-
-                    switch(data.dataType){
-                        case 'integer':
-                            inputField.attr('type', 'number');
-                            inputField.attr('step', '1');
-                            inputField.attr('required', attrs.ngRequired);
-                            break;
-                        case 'double':
-                            inputField.attr('type', 'number');
-                            inputField.attr('step', '0.1');
-                            inputField.attr('required', attrs.ngRequired);
-                            break;
-                        default:
-                            inputField.attr('type', 'text');
-                            inputField.attr('required', attrs.ngRequired);
-                    }
-                }
-
-                attrs.$observe('defaultAttrs', function() {
-                    checkType();
-                });
-            },
-            scope: {
-                value: '=ngModel'
-            }
-        };
-    });
-
     return app;
 });

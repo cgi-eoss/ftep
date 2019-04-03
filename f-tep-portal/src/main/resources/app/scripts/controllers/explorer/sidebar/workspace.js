@@ -53,7 +53,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var iparams={};
             for(var key in $scope.serviceParams.inputValues){
                 var value = $scope.serviceParams.inputValues[key];
-
                 if(value === undefined){
                     value = '';
                 }

@@ -53,10 +53,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var iparams={};
             for(var key in $scope.serviceParams.inputValues){
                 var value = $scope.serviceParams.inputValues[key];
-                // Grab the selection value from service-input fields (e.g. radiometric index algorithm)
-                if (typeof value === 'object' && !Array.isArray(value)) {
-                    value = value[0];
-                }
+
                 if(value === undefined){
                     value = '';
                 }
@@ -66,11 +63,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 } else {
                     iparams[key] = [value];
                 }
-
             }
 
             var parallelParameters = [];
-
             for(var k in $scope.serviceParams.parallelParameters) {
                 if ($scope.serviceParams.parallelParameters[k] === true) {
                     parallelParameters.push(k);

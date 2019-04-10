@@ -126,14 +126,19 @@
                                            <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
                                        </md-input-container>
                                    </div>
-                                   <service-input ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')"
-                                                  ng-model="serviceParams.inputValues[fieldDesc.id][0]"
-                                                  ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                                   <md-input-container  ng-if="fieldDesc.defaultAttrs.dataType !== 'string' || (fieldDesc.defaultAttrs.allowedValues && fieldDesc.defaultAttrs.allowedValues !== '')">
+                                       <md-select ng-model="serviceParams.inputValues[fieldDesc.id]"
+                                                  ng-init="serviceParams.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc).toString()"
                                                   default-attrs="{{fieldDesc.defaultAttrs}}"
                                                   ng-required="{{fieldDesc.minOccurs > 0}}"
                                                   description="{{fieldDesc.description}}"
                                                   aria-label="{{fieldDesc.id}}">
-                                   </service-input>
+                                           <md-option ng-repeat="attr in fieldDesc.defaultAttrs.allowedValues.split(',')" value="{{attr}}" >
+                                               {{attr}}
+                                           </md-option>
+                                       </md-select>
+                                       <div class="hint">{{fieldDesc.description}}</div>
+                                   </md-input-container>
                                </div>
                            </div>
 

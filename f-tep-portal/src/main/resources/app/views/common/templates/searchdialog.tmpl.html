@@ -1,0 +1,15 @@
+<md-dialog id="metadata-dialog" aria-label="Metadata dialog">
+    <h4>Search Parameters</h4>
+
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <form id="workspace-search-form" name="workspaceSearchForm">
+                <div ng-include src="'views/common/templates/searchfields.tmpl.html'"></div>
+            </form>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+        <md-button ng-click="addSearchParams()" ng-disabled="workspaceSearchForm.$invalid " class="md-primary">Add</md-button>
+    </md-dialog-actions>
+</md-dialog>

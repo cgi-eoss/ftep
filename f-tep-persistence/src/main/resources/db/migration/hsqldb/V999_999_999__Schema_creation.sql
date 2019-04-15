@@ -33,17 +33,19 @@ CREATE INDEX ftep_wallet_transactions_wallet_idx
   ON ftep_wallet_transactions (wallet);
 
 CREATE TABLE ftep_services (
-  id                BIGINT IDENTITY PRIMARY KEY,
-  description       CHARACTER VARYING(255),
-  docker_tag        CHARACTER VARYING(255),
-  licence           CHARACTER VARYING(255) NOT NULL CHECK (licence IN ('OPEN', 'RESTRICTED')),
-  name              CHARACTER VARYING(255) NOT NULL,
-  wps_descriptor    LONGVARCHAR,
-  docker_build_info LONGVARCHAR,
-  status            CHARACTER VARYING(255) NOT NULL CHECK (status IN ('IN_DEVELOPMENT', 'AVAILABLE')),
-  type              CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'BULK_PROCESSOR', 'APPLICATION', 'PARALLEL_PROCESSOR')),
-  owner             BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
-  application_port  CHARACTER VARYING(32)
+  id                           BIGINT IDENTITY PRIMARY KEY,
+  description                  CHARACTER VARYING(255),
+  docker_tag                   CHARACTER VARYING(255),
+  licence                      CHARACTER VARYING(255) NOT NULL CHECK (licence IN ('OPEN', 'RESTRICTED')),
+  name                         CHARACTER VARYING(255) NOT NULL,
+  wps_descriptor               LONGVARCHAR,
+  docker_build_info            LONGVARCHAR,
+  status                       CHARACTER VARYING(255) NOT NULL CHECK (status IN ('IN_DEVELOPMENT', 'AVAILABLE')),
+  type                         CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'BULK_PROCESSOR', 'APPLICATION', 'PARALLEL_PROCESSOR')),
+  owner                        BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
+  application_port             CHARACTER VARYING(32),
+  easy_mode_descriptor         LONGVARCHAR,
+  easy_mode_parameter_template LONGVARCHAR
 );
 CREATE UNIQUE INDEX ftep_services_name_idx
   ON ftep_services (name);

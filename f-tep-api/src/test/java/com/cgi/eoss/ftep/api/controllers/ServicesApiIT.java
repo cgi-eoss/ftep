@@ -2,13 +2,16 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
-import com.cgi.eoss.ftep.security.FtepPermission;
-import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.cgi.eoss.ftep.security.FtepPermission;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.After;
@@ -127,6 +130,74 @@ public class ServicesApiIT {
     }
 
     @Test
+    public void testGetDetailed() throws Exception {
+        FtepService service = new FtepService("service-1", ftepUser, "dockerTag");
+        service.setStatus(FtepService.Status.AVAILABLE);
+        service.setServiceDescriptor(FtepServiceDescriptor.builder()
+                .id("service-1")
+                .title("Test Service for DetailedFtepService projection")
+                .description("This service tests the F-TEP automatic zcfg file generation")
+                .version("1.0")
+                .serviceProvider("ftep_service_wrapper")
+                .serviceType("python")
+                .storeSupported(false)
+                .statusSupported(false)
+                .dataInputs(ImmutableList.of(
+                        FtepServiceDescriptor.Parameter.builder()
+                                .id("inputfile")
+                                .title("Input File 1")
+                                .description("The input data file")
+                                .minOccurs(1)
+                                .maxOccurs(1)
+                                .data(FtepServiceDescriptor.Parameter.DataNodeType.LITERAL)
+                                .defaultAttrs(ImmutableMap.<String, String>builder()
+                                        .put("dataType", "string")
+                                        .build())
+                                .build()))
+                .dataOutputs(ImmutableList.of(
+                        FtepServiceDescriptor.Parameter.builder()
+                                .id("result")
+                                .title("URL to service output")
+                                .description("see title")
+                                .data(FtepServiceDescriptor.Parameter.DataNodeType.LITERAL)
+                                .defaultAttrs(ImmutableMap.<String, String>builder()
+                                        .put("dataType", "string").build())
+                                .build()))
+                .build());
+        service.setEasyModeServiceDescriptor(FtepServiceDescriptor.builder()
+                .dataInputs(ImmutableList.of(
+                        FtepServiceDescriptor.Parameter.builder()
+                                .id("easyinput")
+                                .title("Easy mode")
+                                .description("The easy mode input string")
+                                .minOccurs(1)
+                                .maxOccurs(1)
+                                .data(FtepServiceDescriptor.Parameter.DataNodeType.LITERAL)
+                                .defaultAttrs(ImmutableMap.<String, String>builder()
+                                        .put("dataType", "string")
+                                        .build())
+                                .build()))
+                .build());
+        service.setEasyModeParameterTemplate("{{sometemplate}}");
+        dataService.save(service);
+
+        mockMvc.perform(get(getServiceUrl(service) + "?projection=detailedFtepService").header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(service.getId()))
+                .andExpect(jsonPath("$.name").value("service-1"))
+                .andExpect(jsonPath("$.dockerTag").value("dockerTag"))
+                .andExpect(jsonPath("$.owner.id").value(ftepUser.getId()))
+                .andExpect(jsonPath("$.serviceDescriptor.dataInputs[0].id").value("inputfile"))
+                .andExpect(jsonPath("$.easyModeServiceDescriptor.dataInputs[0].id").value("easyinput"))
+                .andExpect(jsonPath("$.easyModeParameterTemplate").value("{{sometemplate}}"))
+                .andExpect(jsonPath("$.access.published").value(false))
+                .andExpect(jsonPath("$.access.publishRequested").value(false))
+                .andExpect(jsonPath("$.access.currentLevel").value("ADMIN"))
+                .andExpect(jsonPath("$._links.self.href").value(endsWith("/services/" + service.getId())))
+                .andExpect(jsonPath("$._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner{?projection}")));
+    }
+
+    @Test
     public void testGetFilter() throws Exception {
         FtepService service = new FtepService("service-1", ftepAdmin, "dockerTag");
         service.setStatus(FtepService.Status.AVAILABLE);
@@ -229,6 +300,13 @@ public class ServicesApiIT {
 
         acl.insertAce(acl.getEntries().size(), p, sid, true);
         aclService.updateAcl(acl);
+    }
+
+    private String getServiceUrl(FtepService svc) throws Exception {
+        return JsonPath.compile("$._links.self.href").read(
+                mockMvc.perform(get("/api/services/" + svc.getId()).header("REMOTE_USER", ftepContentAuthority.getName()))
+                        .andReturn().getResponse().getContentAsString()
+        );
     }
 
 }

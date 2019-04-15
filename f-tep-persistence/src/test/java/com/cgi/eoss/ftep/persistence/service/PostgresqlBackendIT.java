@@ -90,6 +90,21 @@ public class PostgresqlBackendIT {
                                         .put("dataType", "string").build())
                                 .build()))
                 .build());
+        svc.setEasyModeServiceDescriptor(FtepServiceDescriptor.builder()
+                .dataInputs(ImmutableList.of(
+                        FtepServiceDescriptor.Parameter.builder()
+                                .id("easyinput")
+                                .title("Easy mode")
+                                .description("The easy mode input string")
+                                .minOccurs(1)
+                                .maxOccurs(1)
+                                .data(FtepServiceDescriptor.Parameter.DataNodeType.LITERAL)
+                                .defaultAttrs(ImmutableMap.<String, String>builder()
+                                        .put("dataType", "string")
+                                        .build())
+                        .build()))
+                .build());
+        svc.setEasyModeParameterTemplate("{{sometemplate}}");
         serviceDataService.save(svc);
         assertThat(serviceDataService.getAll(), is(ImmutableList.of(svc)));
 

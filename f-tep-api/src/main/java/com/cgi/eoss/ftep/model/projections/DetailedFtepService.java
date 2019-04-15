@@ -23,6 +23,8 @@ public interface DetailedFtepService extends Identifiable<Long> {
     FtepService.Status getStatus();
     String getApplicationPort();
     FtepServiceDescriptor getServiceDescriptor();
+    FtepServiceDescriptor getEasyModeServiceDescriptor();
+    String getEasyModeParameterTemplate();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepService), target.id)}")
     FtepAccess getAccess();
 

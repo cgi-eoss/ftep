@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -128,6 +129,21 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
      */
     @Column(name = "application_port")
     private String applicationPort;
+
+    /**
+     * <p>The 'easy mode' definition of the WPS service. Only {@link FtepServiceDescriptor#dataInputs} is used.</p>
+     */
+    @Basic(fetch = FetchType.LAZY)
+    @org.hibernate.annotations.Type(type = "com.cgi.eoss.ftep.model.converters.FtepServiceDescriptorYamlConverter")
+    @Column(name = "easy_mode_descriptor")
+    private FtepServiceDescriptor easyModeServiceDescriptor;
+
+    /**
+     * <p>The template to translate 'easy mode' parameters object into the full service parameters object (JSON to JSON).</p>
+     */
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "easy_mode_parameter_template")
+    private String easyModeParameterTemplate;
 
     /**
      * <p>Create a new Service with the minimum required parameters.</p>

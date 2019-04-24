@@ -1,0 +1,109 @@
+@import "variable";
+
+.workspace-header {
+    .service-header {
+        text-align: center;
+        .service-title {
+            color: @text;
+            font-size: 1.2rem;
+            margin-bottom: 0;
+            padding-top: 0.8rem;
+            .workspace-mode-toggle {
+                float: right;
+            }
+        }
+    }
+    .service-description {
+        .border(border-bottom, @bg);
+    }
+}
+.workspace-content {
+    .md-list-item-inner {
+        max-width: 100%;
+    }
+    .drag-list-subheader {
+        span {
+            color: @brand;
+            font-size: 0.7rem;
+        }
+    }
+    .drag-list-item {
+        padding: 1rem 0;
+        md-list-item:first-child {
+            border-top: #d2d2d2 solid 1px;
+        }
+        button {
+            min-width: auto;
+        }
+        .even {
+            background-color: #fff;
+        }
+        .odd {
+            background-color: #f0f0f0;
+        }
+        small {
+            overflow-wrap: break-word;
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+        md-list-item:hover {
+            background-color: @alert-border;
+        }
+        .md-list-item-text {
+            min-height: 0;
+            max-width: 80%;
+        }
+    }
+    .service-field {
+        .input-item {
+            padding: 0 0.5rem;
+            .add-input-value-button {
+                color: @accent;
+                line-height: unset;
+                min-height: unset;
+                &[disabled] {
+                    color: gray;
+                }
+            }
+        }
+        .md-subheader {
+            color: @text;
+            background-color: rgb(240,240,240) !important;
+            .workspace-header-checkbox {
+                float: right;
+                padding-right: 1rem;
+                .md-label {
+                    font-size: 0.6rem;
+                    padding-top: 0.2rem;
+                }
+            }
+            button {
+                background-color: @dark-button;
+                color: @text-light;
+                margin-left: 0.5rem;
+                padding: 2px 4px;
+                i {
+                    font-size: 0.7rem;
+                }
+                &:hover {
+                    background-color: @dark-button-hover;
+                }
+            }
+            .required-asterisk {
+                color: @accent;
+            }
+        }
+        md-input-container {
+            margin: 1.8rem 0 !important;
+            width: 100%;
+        }
+    }
+    input:invalid {
+        border-bottom: solid 1px @error-text;
+    }
+}
+
+.dropped-file-popover {
+    max-width: 1000px;
+    width: 800px;
+}

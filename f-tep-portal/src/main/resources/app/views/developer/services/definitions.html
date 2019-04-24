@@ -1,5 +1,14 @@
+<md-button ng-click="definitionDialog($event, serviceParams.activeArea === serviceParams.constants.tabs.easyMode, key.id); toggleEditMode(true)"
+           class="developer-definitions-button"
+           aria-label="Add New Row"
+           uib-tooltip="Add New Row"
+           tooltip-trigger="mouseenter"
+           tooltip-append-to-body="true">Add
+</md-button>
+
 <table>
     <tr>
+        <th>ID</th>
         <th>Title</th>
         <th>Description</th>
         <th>Data Type</th>
@@ -12,7 +21,8 @@
         <th class="icon-column">Edit</th>
         <th class="icon-column">Remove</th>
     </tr>
-    <tr ng-repeat="input in serviceParams.selectedService.serviceDescriptor[key]">
+    <tr ng-repeat="input in serviceParams.activeArea === serviceParams.constants.tabs.easyMode ? serviceParams.selectedService.easyModeServiceDescriptor.dataInputs: serviceParams.selectedService.serviceDescriptor[key.id]">
+        <td>{{ input.id }}</td>
         <td>{{ input.title }}</td>
         <td>{{ input.description }}</td>
         <td>{{ input.data === 'COMPLEX' ? input.defaultAttrs.mimeType : input.defaultAttrs.dataType }}</td>
@@ -23,7 +33,7 @@
         <td>{{ input.searchParameter ? "True" : "False" }}</td>
         <td>{{ input.parallelParameter ? "True" : "False" }}</td>
         <td class="icon-column">
-            <md-button ng-click="definitionDialog($event, serviceParams.selectedService.serviceDescriptor, key, $index); toggleEditMode(true)"
+            <md-button ng-click="definitionDialog($event, serviceParams.activeArea === serviceParams.constants.tabs.easyMode, key.id, $index); toggleEditMode(true)"
                        class="edit-button"
                        aria-label="Edit Row"
                        uib-tooltip="Edit Row"
@@ -33,7 +43,7 @@
             </md-button>
         </td>
         <td class="icon-column">
-            <md-button ng-click="removeRow(serviceParams.selectedService.serviceDescriptor[key], input); toggleEditMode(true)"
+            <md-button ng-click="removeRow(serviceParams.activeArea === serviceParams.constants.tabs.easyMode, input, key.id); toggleEditMode(true)"
                        class="edit-button"
                        aria-label="Remove Row"
                        uib-tooltip="Remove Row"
@@ -45,11 +55,88 @@
     </tr>
 </table>
 
-<md-button ng-click="definitionDialog($event, serviceParams.selectedService.serviceDescriptor, key); toggleEditMode(true)"
-           class="add-button"
-           aria-label="Add New Row"
-           uib-tooltip="Add New Row"
-           tooltip-trigger="mouseenter"
-           tooltip-append-to-body="true">
-    Add
-</md-button>
+<br class="clear">
+
+<div id="easy-mode-template-container" ng-show="serviceParams.activeArea === serviceParams.constants.tabs.easyMode" class="row equal">
+
+    <div id="template-container" class="col-xl-6">
+        <md-card  md-theme-watch class="ftep-card workspace-content">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>
+                        Template
+                        <a href="http://handlebarsjs.com/" target="_blank">
+                            <i class="material-icons right"
+                               aria-label="Handlebars help message"
+                               uib-tooltip="The templating engine is Handlebars v4.1.2"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">help</i>
+                        </a>
+                    </h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <md-input-container md-no-float class="md-block file-editor">
+                    <textarea class="file-contents"
+                              ui-codemirror="{ onLoad : codemirrorLoaded }"
+                              ui-codemirror-opts="editorOptions"
+                              ui-refresh="refreshMirror()"
+                              ng-change="changeMirror()"
+                              ng-model="serviceParams.selectedService.easyModeParameterTemplate"
+                              md-select-on-focus
+                              placeholder="Add file content..">Loading...
+                    </textarea>
+                </md-input-container>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center">
+                <md-button class="developer-definitions-button convert-button" ng-click="reformatCode()">Reformat Code</md-button>
+            </md-card-actions>
+        </md-card>
+    </div>
+
+    <div id="workspace-form-container" class="col-xl-6">
+        <md-card  md-theme-watch class="ftep-card workspace-content ">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Form</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <section>
+                    <div class="service-field" ng-repeat="fieldDesc in serviceParams.selectedService.easyModeServiceDescriptor.dataInputs" ng-include src="'views/common/templates/workspacefields.tmpl.html'"></div>
+
+                    <div class="service-field">
+                        <div class="input-container">
+                            <div class="row input-header">
+                                <md-subheader class="md-accent">
+                                    <span uib-tooltip="Label"
+                                          tooltip-placement="top"
+                                          tooltip-trigger="mouseenter"
+                                          tooltip-append-to-body="true">Label</span>
+                                </md-subheader>
+                            </div>
+                            <div class="row input-item">
+                                <div class="col-md-12 no-padding">
+                                    <md-input-container md-no-float>
+                                        <input ng-model="serviceParams.config.label"
+                                               type="string"
+                                               aria-label="Label">
+                                        <div class="hint" ng-show="true">Optional tag for identifying this job</div>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center">
+                <md-button class="developer-definitions-button convert-button" ng-click="generateRequest()">Validate Template</md-button>
+            </md-card-actions>
+        </md-card>
+    </div>
+</div>
+
+<div id="generated-request-container" ng-if="generatedJSONRequest">
+    <h2>Generated Request</h2>
+    <pre ng-bind-html="generatedJSONRequest"></pre>
+</div>

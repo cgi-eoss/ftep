@@ -29,6 +29,8 @@ define([
 
     './controllers/developer/developer',
     './controllers/developer/service',
+    './controllers/developer/fileeditor',
+    './controllers/developer/definitions',
 
     './controllers/explorer/explorer',
     './controllers/explorer/map',
@@ -41,6 +43,7 @@ define([
 
     //services
     './services/basketservice',
+    './services/editorservice',
     './services/commonservice',
     './services/communityservice',
     './services/fileservice',

@@ -10,84 +10,103 @@
 <md-button id="save-service"
            class="save-button md-fab md-mini right"
            ng-click="saveService(); toggleEditMode(false)"
-           ng-disabled="serviceForm.$invalid"
+           ng-disabled="serviceForm.$invalid || serviceParams.config.requiresValidation"
            aria-label="Save Service"
-           uib-tooltip="Save Service"
+           uib-tooltip="{{getServiceValidationMessage(serviceForm.$invalid, serviceParams.config.requiresValidation)}}"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">
         <i class="material-icons">save</i>
 </md-button>
 
-<form id="service-form" name="serviceForm" ng-model="serviceParams.selectedService" ng-keyup="toggleEditMode(true)">
+<div id="service-form">
 
-    <section id="service-header">
-        <div class="row">
-            <div class="service-field col-md-2 no-padding">
-                <md-input-container md-no-float>
-                    <label>Service Name</label>
-                    <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" aria-label="Name" required>
-                </md-input-container>
+    <form name="serviceForm" ng-model="serviceParams.selectedService" ng-keyup="toggleEditMode(true)">
+
+        <section id="service-header">
+            <div class="row">
+                <div class="service-field col-md-2 no-padding">
+                    <md-input-container md-no-float>
+                        <label>Service Name</label>
+                        <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" aria-label="Name" required>
+                    </md-input-container>
+                </div>
+                <div class="service-field col-md-2 no-padding">
+                    <md-input-container md-no-float>
+                        <label>Docker Tag</label>
+                        <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" aria-label="Docker Tag" disabled>
+                    </md-input-container>
+                </div>
+                <div class="service-field col-md-2 no-padding">
+                    <md-input-container md-no-float>
+                        <label>Application Port</label>
+                        <input ng-model="serviceParams.selectedService.applicationPort" type="text" placeholder="8080/tcp" aria-label="Application Port">
+                    </md-input-container>
+                </div>
+                <div class="col-md-5 service-field no-padding">
+                    <md-input-container id="service-summary" md-no-float>
+                        <label>Title</label>
+                        <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Title" aria-label="Title">
+                    </md-input-container>
+                </div>
+                <div class="col-md-1 service-field no-padding">
+                </div>
             </div>
-            <div class="service-field col-md-2 no-padding">
-                <md-input-container md-no-float>
-                    <label>Docker Tag</label>
-                    <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" aria-label="Docker Tag" disabled>
-                </md-input-container>
+            <div class="row">
+                <div class="service-field col-md-2 no-padding">
+                    <md-input-container md-no-float>
+                        <label>Version</label>
+                        <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version" aria-label="Version">
+                    </md-input-container>
+                </div>
+                <div class="service-field col-md-2 no-padding">
+                    <md-input-container md-no-float>
+                        <label>Service Type</label>
+                        <md-select ng-model="serviceParams.selectedService.type">
+                            <md-option ng-repeat="type in serviceTypes" ng-value="type.value">
+                                {{type.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="col-md-7 service-field no-padding">
+                    <md-input-container id="service-description" md-no-float>
+                        <label>Description</label>
+                        <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description" aria-label="Description">
+                    </md-input-container>
+                </div>
+                <div class="col-md-1 service-field no-padding">
+                </div>
             </div>
-            <div class="service-field col-md-2 no-padding">
-                <md-input-container md-no-float>
-                    <label>Application Port</label>
-                    <input ng-model="serviceParams.selectedService.applicationPort" type="text" placeholder="8080/tcp" aria-label="Application Port">
-                </md-input-container>
-            </div>
-            <div class="col-md-5 service-field no-padding">
-                <md-input-container id="service-summary" md-no-float>
-                    <label>Title</label>
-                    <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Title" aria-label="Title">
-                </md-input-container>
-            </div>
-            <div class="col-md-1 service-field no-padding">
-            </div>
-        </div>
-        <div class="row">
-            <div class="service-field col-md-2 no-padding">
-                <md-input-container md-no-float>
-                    <label>Version</label>
-                    <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version" aria-label="Version">
-                </md-input-container>
-            </div>
-            <div class="service-field col-md-2 no-padding">
-                <md-input-container md-no-float>
-                    <label>Service Type</label>
-                    <md-select ng-model="serviceParams.selectedService.type" ng-change="updateMissionParameters(searchParameters.mission)">
-                        <md-option ng-repeat="type in serviceTypes" ng-value="type.value">
-                            {{type.name}}
-                        </md-option>
-                    </md-select>
-                </md-input-container>
-            </div>
-            <div class="col-md-7 service-field no-padding">
-                <md-input-container id="service-description" md-no-float>
-                    <label>Description</label>
-                    <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description" aria-label="Description">
-                </md-input-container>
-            </div>
-            <div class="col-md-1 service-field no-padding">
-            </div>
-        </div>
-    </section>
+        </section>
+
+    </form>
 
     <section>
         <ul id="editor-area-list">
-            <li ng-class="{active: serviceParams.activeArea === formArea}" ng-repeat="formArea in serviceForms" ng-click="serviceParams.activeArea = formArea">
-                {{formArea.title | uppercase}}
-            </li>
+            <li ng-repeat="formArea in serviceParams.constants.tabs"
+                ng-if="formArea.title !== serviceParams.constants.tabs.easyMode.title || serviceParams.selectedService.easyModeServiceDescriptor.id"
+                ng-click="serviceParams.activeArea = formArea"
+                ng-class="{ active: serviceParams.activeArea === formArea }">
+                {{ formArea.title | uppercase }}
+
+            <li ng-click="addEasyMode()"
+                ng-if="!serviceParams.selectedService.easyModeServiceDescriptor.id"
+                aria-label="Add Simple Input Mode"
+                uib-tooltip="Add Simple Input Mode"
+                tooltip-trigger="mouseenter"
+                tooltip-append-to-body="true">
+                +
         </ul>
     </section>
 
-    <section id="file-editor" ng-include src="'views/developer/services/files.html'" ng-hide="serviceParams.activeArea !== serviceForms.files"/>
+    <section id="file-editor"
+             ng-include src="'views/developer/services/files.html'"
+             ng-hide="serviceParams.activeArea !== serviceParams.constants.tabs.files" ng-controller="FileEditorCtrl"></section>
 
-    <section class="field-definitions" ng-repeat="key in constants.serviceFields" ng-include src="'views/developer/services/definitions.html'" ng-show="serviceParams.activeArea === serviceForms[key]"/>
-
-</form>
+    <section ng-include src="'views/developer/services/definitions.html'"
+             ng-controller="DefinitionsCtrl"
+             ng-repeat="key in serviceParams.constants.tabs"
+             ng-show="serviceParams.activeArea === serviceParams.constants.tabs[key.id] && serviceParams.activeArea !== serviceParams.constants.tabs.files"
+             class="field-definitions"></section>
+</div>

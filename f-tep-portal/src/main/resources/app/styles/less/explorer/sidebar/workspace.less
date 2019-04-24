@@ -1,93 +1,18 @@
 @import "variable";
 #workspace-panel {
-    .workspace-header {
-        .service-header {
-            text-align: center;
-            .service-title {
-                color: @text;
-                font-size: 1.2rem;
-                margin-bottom: 0;
-                padding-top: 0.8rem;
-            }
-        }
-        .service-description {
-            .border(border-bottom, @bg);
-        }
+    .md-subheader {
+        color: @black;
     }
-    .workspace-content {
-        .drag-list-subheader {
+    .md-toolbar-tools {
+        .workspace-mode-toggle  {
+            font-size: 0.6rem;
+            float: right;
+            margin: 0.1rem;
             span {
-                color: @brand;
                 font-size: 0.7rem;
+                text-transform: unset;
             }
-        }
-        .drag-list-item {
-            padding: 1rem 0;
-            md-list-item:first-child {
-                border-top: #d2d2d2 solid 1px;
-            }
-            button {
-                min-width: auto;
-            }
-            .even {
-                background-color: #fff;
-            }
-            .odd {
-                background-color: #f0f0f0;
-            }
-            small {
-                //overflow-wrap: break-word;
-                word-wrap: break-word;
-            }
-            md-list-item:hover {
-                background-color: @alert-border;
-            }
-        }
-        .service-field {
-            .input-item {
-                padding: 0 0.5rem;
-                .add-input-value-button {
-                    color: @accent;
-                    line-height: unset;
-                    min-height: unset;
-                }
-            }
-            .md-subheader {
-                color: @text;
-                .workspace-header-checkbox {
-                    float: right;
-                    padding-right: 1rem;
-                    .md-label {
-                        font-size: 0.6rem;
-                        padding-top: 0.2rem;
-                    }
-                }
-                button {
-                    background-color: @dark-button;
-                    color: @text-light;
-                    margin-left: 0.5rem;
-                    padding: 2px 4px;
-                    i {
-                         font-size: 0.7rem;
-                    }
-                    &:hover {
-                        background-color: @dark-button-hover;
-                    }
-                }
-                .required-asterisk {
-                    color: @accent;
-                }
-            }
-            &:hover {
-                background-color: @alert;
-            }
-        }
-        input:invalid {
-            border-bottom: solid 1px @error-text;
         }
     }
 }
-.dropped-file-popover {
-    max-width: 1000px;
-    width: 800px;
-}
+

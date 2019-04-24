@@ -1,20 +1,47 @@
 @import "variable";
-#file-editor {
-    .CodeMirror {
-        height: 100%;
-        margin: 0 1rem 2rem 0;
+.CodeMirror {
+    height: 100%;
+    margin: 0 1rem 2rem 0;
+}
+.file-editor {
+    background-color: @bg;
+    .border(border, @lighter-gray);
+    margin-top: 0;
+    padding: 0;
+    textarea.md-input {
+        background-color: @white;
+        font-family: 'Courier';
+        border: none;
     }
-    .file-editor {
-        background-color: @bg;
-        .border(border, @lighter-gray);
-        margin-top: 0;
-        padding: 0;
-        textarea.md-input {
-            background-color: @white;
-            font-family: 'Courier';
-            border: none;
+    .file-settings {
+        padding: 0.5rem;
+    }
+    .input-label {
+        font-size: 1rem;
+        margin: 0;
+        position: inherit;
+        vertical-align: top;
+        width: auto;
+    }
+    .form-control {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding-bottom: 0;
+        padding-top: 0;
+        vertical-align: top;
+        width: auto;
+    }
+    .executable {
+        margin: 0;
+        padding: 0.6rem;
+        padding-bottom: 0;
+        md-checkbox {
+            margin: 0;
         }
     }
+}
+
+#file-editor {
     #file-list {
         font-size: 0.6rem;
         list-style: none;
@@ -77,30 +104,8 @@
             }
         }
     }
-    .file-settings {
-        padding: 0.5rem;
-    }
-    .form-control {
-        display: inline-block;
-        font-size: 0.7rem;
-        padding-bottom: 0;
-        padding-top: 0;
-        vertical-align: top;
-        width: auto;
-    }
-    .executable {
-        margin: 0;
-        padding: 0.6rem;
-        padding-bottom: 0;
-        md-checkbox {
-            margin: 0;
-        }
-    }
+
     .input-label {
-        font-size: 1rem;
-        margin: 0;
-        position: inherit;
-        vertical-align: top;
         width: auto;
     }
 }

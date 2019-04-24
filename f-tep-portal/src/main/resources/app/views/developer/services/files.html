@@ -2,7 +2,7 @@
     <li ng-repeat="file in serviceParams.fileTree">
         <table ng-if="file.type == 'file'"
                class="file"
-               ng-click="openFile(file.contents, $event); updateMode()"
+               ng-click="openFile(file.contents, $event); updateMode(file.name)"
                ng-class="{'active': serviceParams.openedFile.filename == file.contents.filename}">
             <tr>
                 <td class="file-icon">
@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <textarea class="file-contents"
+    <textarea id="file-editor" class="file-contents"
               ui-codemirror="{ onLoad : codemirrorLoaded }"
               ui-codemirror-opts="editorOptions"
               ui-refresh="refreshMirror()"

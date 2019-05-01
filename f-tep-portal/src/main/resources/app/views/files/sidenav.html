@@ -1,0 +1,18 @@
+<nav id="ftep-nav-wrapper">
+
+    <ul class="ftep-nav">
+
+        <li ng-click="toggleSidebar(filesSideNavs.SEARCH)" ng-class="{'active': navInfo.activeSideNav === filesSideNavs.SEARCH }">
+            <i class="material-icons" uib-tooltip="Files" tooltip-placement="right">search</i>
+        </li>
+        <li ng-click="toggleSidebar(filesSideNavs.UPLOAD)" ng-class="{'active': navInfo.activeSideNav === filesSideNavs.UPLOAD }">
+            <i class="material-icons" uib-tooltip="Upload" tooltip-placement="right">add_circle</i>
+        </li>
+
+        <li ng-click="toggleBottomView()" class="notification-container bottom-link" ng-class="{'active-bottom': navInfo.bottomViewVisible}">
+            <i class="material-icons" uib-tooltip="Messages" tooltip-placement="right">message</i>
+            <span class="notification" ng-show="message.count !== 0">{{message.count}}</span>
+        </li>
+    </ul>
+
+</nav>

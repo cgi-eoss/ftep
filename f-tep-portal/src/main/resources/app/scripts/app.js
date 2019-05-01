@@ -32,13 +32,14 @@ define([
     'traversonHal',
     'ngFileUpload',
     'uiCodeMirror',
+    'uiGrid',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
-                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror']);
+                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror',
+                                         'ui.grid', 'ui.grid.pagination', 'ui.grid.expandable', 'ui.grid.selection', 'ui.grid.resizeColumns']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
@@ -76,6 +77,19 @@ define([
                 templateUrl: 'views/explorer/explorer.html',
                 controller: 'ExplorerCtrl',
                 controllerAs: 'main'
+            })
+            .when('/files', {
+                templateUrl: 'views/files/files.html',
+                controller: 'FilesCtrl',
+                resolve:{
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUser().then(function(user){
+                            if(user.role !== 'ADMIN'){
+                                $location.path('/');  //redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/developer', {
                 templateUrl: 'views/developer/developer.html',

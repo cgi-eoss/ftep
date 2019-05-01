@@ -42,6 +42,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 progressPercentage: 0,
                 uploadStatus: 'pending',
                 uploadMessage: undefined
+             },
+             files: {
+                files: undefined,
+                pagingData: {},
+                params: null
              }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -87,7 +92,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 self.params[page].pollingUrl = url;
             }
             else {
-                self.params[page].pollingUrl = rootUri + '/ftepFiles/search/findByType' + '?type=' + fileType;
+                self.params[page].pollingUrl = rootUri + '/ftepFiles/';
             }
 
             var deferred = $q.defer();
@@ -252,6 +257,41 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
+        this.getFtepFilesWithParams = function (page, params) {
+            var url = rootUri + '/ftepFiles?sort=filename';
+
+            // If params add object values to qs
+            if (params !== undefined && Object.keys(params).length > 0) {
+                url = addParams(url, params);
+            }
+            
+            // Add query params based off object
+            function addParams(url, params) {
+                let esc = encodeURIComponent;
+                let query = Object.keys(params)
+                    .map(k => {
+                        if (params[k] != null) {
+                            return esc(k) + "=" + esc(params[k]);
+                        } else {
+                            return;
+                        }
+                    })
+                    .filter(x=> x)
+                    .join("&");
+
+                query.replace("&&", "&");
+
+                return url + "&" + query;
+            }
+
+            if(self.params[page].selectedOwnershipFilter !== self.fileOwnershipFilters.ALL_FILES) {
+                url += '&owner=' + UserService.params.activeUser._links.self.href;
+            }
+
+            /* Set files data */
+            return self.getFtepFiles(page, self.params[page].activeFileType, url);
+        };
+
         this.getFtepFilesByFilter = function (page) {
             if (self.params[page]) {
                 var url = rootUri + '/ftepFiles/' + self.params[page].selectedOwnershipFilter.searchUrl +
@@ -273,8 +313,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             if(self.params[page]){
 
                 self.getFtepFiles(page, self.params[page].activeFileType).then(function (data) {
-                    self.params[page].files = data;
 
+                    self.params[page].files = data;
+                         
                     /* Clear file if deleted */
                     if (action === "Remove" && self.params[page].selectedFile) {
                         if (file && file.id === self.params[page].selectedFile.id) {

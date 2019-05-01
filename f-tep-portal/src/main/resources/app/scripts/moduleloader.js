@@ -39,6 +39,10 @@ define([
     './controllers/explorer/sidebar/services',
     './controllers/explorer/sidebar/workspace',
 
+    './controllers/files/files',
+    './controllers/files/sidebar',
+    './controllers/files/ui-grid',
+
     './controllers/helpdesk/helpdesk',
 
     //services

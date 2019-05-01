@@ -34,6 +34,7 @@ require.config({
         ngFileUpload: 'vendor/ng-file-upload/ng-file-upload',
         codeMirror: 'vendor/codemirror/lib/codemirror',
         uiCodeMirror: 'js/ui-codemirror',
+        uiGrid: 'vendor/angular-ui-grid/ui-grid',
         x2js: 'vendor/x2js/x2js',
 
         // F-TEP modules
@@ -71,6 +72,7 @@ require.config({
         ngFileUpload: { deps: ['angular'], exports: 'ngFileUpload'},
         codemirror: { exports: 'codemirror' },
         uiCodeMirror: { deps: ['angular', 'codemirror'], exports: 'uiCodeMirror' },
+        uiGrid: { deps: ['angular'], exports: 'uiGrid' },
         // x2js: { exports: 'x2js' },
         ftepConfig: { exports: 'ftepConfig' }
     },

@@ -1,0 +1,17 @@
+<div>
+    <h3>URI</h3>
+    <div class="right-button">
+        <p ng-model="currentUri">{{ currentRowData.uri }}</p>
+        <md-button
+            class="md-secondary"
+            aria-label="Copy for workflow"
+            ng-click="copyToClipboard(currentRowData.uri)"
+            uib-tooltip="Copy for workflow"
+            tooltip-placement="left"
+            tooltip-trigger="mouseenter"
+            tooltip-append-to-body="true"
+        >
+            <i class="material-icons">filter_none</i>
+        </md-button>
+    </div>
+</div>

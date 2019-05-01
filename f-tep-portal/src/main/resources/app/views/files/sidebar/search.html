@@ -1,0 +1,60 @@
+<md-toolbar md-scroll-shrink class="sidebar-subheader">
+    <div class="md-toolbar-tools">
+        <div class="col-xs-12">
+            <span>Search</span>
+        </div>
+    </div>
+</md-toolbar>
+
+<section id="sidebar-list">
+    <div class="row">
+        <div class="col-xs-12">
+            <p class="file-length">(Displaying {{ filesParams.files.length }} files)</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <form novalidate>
+
+                <md-input-container>
+                    <label>Search by keyword</label>
+                    <input type="text" ng-model="inputs.keyword" ng-change="inputChange()" />
+                </md-input-container>
+
+                <md-input-container>
+                    <label>File type</label>
+                    <md-select ng-model="inputs.fileType" ng-change="inputChange()">
+                        <md-option value="all" ng-selected="true">All</md-option>
+                        <md-option value="outputProducts"
+                            >Output products</md-option
+                        >
+                        <md-option value="referenceData">Reference data</md-option>
+                        <md-option value="externalProducts"
+                            >External products</md-option
+                        >
+                    </md-select>
+                </md-input-container>
+
+                <label>Ownership</label>
+                <md-radio-group ng-model="inputs.ownership">
+                    <md-radio-button value="all">All</md-radio-button>
+                    <md-radio-button value="mine">Mine</md-radio-button>
+                    <md-radio-button value="shared">Shared</md-radio-button>
+                </md-radio-group>
+
+                <md-slider-container>
+                    <label>Max filesize</label>
+                    <md-slider
+                        ng-model="inputs.filesize"
+                        min="0"
+                        max="1000"
+                        aria-label="filesize"
+                        id="filesize-slider"
+                        class="md-accent"
+                    >
+                    </md-slider>
+                </md-slider-container>
+            </form>
+        </div>
+    </div>
+</section>

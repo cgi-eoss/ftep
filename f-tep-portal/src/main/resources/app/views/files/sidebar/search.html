@@ -9,51 +9,66 @@
 <section id="sidebar-list">
     <div class="row">
         <div class="col-xs-12">
-            <p class="file-length">(Displaying {{ filesParams.files.length }} files)</p>
+            <p class="file-length">(Displaying {{ filesParams.pagingData.page.totalElements ? filesParams.pagingData.page.totalElements : '0'  }} files)</p>
         </div>
     </div>
     <div class="row">
         <div class="col-xs-12">
             <form novalidate>
 
-                <md-input-container>
+                <md-subheader>
                     <label>Search by keyword</label>
-                    <input type="text" ng-model="inputs.keyword" ng-change="inputChange()" />
-                </md-input-container>
+                </md-subheader>
 
                 <md-input-container>
+
+                    <input type="text" ng-model="filesParams.params.filter" ng-change="inputChange()" aria-label="Search by keyword" />
+                </md-input-container>
+
+                <md-subheader>
                     <label>File type</label>
-                    <md-select ng-model="inputs.fileType" ng-change="inputChange()">
-                        <md-option value="all" ng-selected="true">All</md-option>
-                        <md-option value="outputProducts"
-                            >Output products</md-option
-                        >
-                        <md-option value="referenceData">Reference data</md-option>
-                        <md-option value="externalProducts"
-                            >External products</md-option
-                        >
+                </md-subheader>
+
+                <md-input-container>
+
+                    <md-select ng-model="filesParams.params.type" ng-change="inputChange()" aria-label="File Type Select">
+                        <md-option value="OUTPUT_PRODUCT">Output products</md-option>
+                        <md-option value="REFERENCE_DATA">Reference data</md-option>
                     </md-select>
                 </md-input-container>
 
-                <label>Ownership</label>
-                <md-radio-group ng-model="inputs.ownership">
-                    <md-radio-button value="all">All</md-radio-button>
-                    <md-radio-button value="mine">Mine</md-radio-button>
-                    <md-radio-button value="shared">Shared</md-radio-button>
+                <md-subheader>
+                    <label>Ownership</label>
+                </md-subheader>
+
+                <md-radio-group ng-model="filesParams.params.ownership" ng-change="inputChange()" aria-label="Ownership radio group">
+                    <md-radio-button value="findByFilterOnly">All</md-radio-button>
+                    <md-radio-button value="findByFilterAndOwner">Mine</md-radio-button>
+                    <md-radio-button value="findByFilterAndNotOwner">Shared</md-radio-button>
                 </md-radio-group>
 
-                <md-slider-container>
-                    <label>Max filesize</label>
-                    <md-slider
-                        ng-model="inputs.filesize"
-                        min="0"
-                        max="1000"
-                        aria-label="filesize"
-                        id="filesize-slider"
-                        class="md-accent"
-                    >
-                    </md-slider>
-                </md-slider-container>
+                <section>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-12 no-padding">
+                            <md-subheader>
+                                <label>Minimum File  (GB)</label>
+                            </md-subheader>
+                            <md-input-container>
+                                <input type="number" ng-model="filesParams.params.filesizemin" ng-change="inputChange()" aria-label="Minimum file size" />GB
+                            </md-input-container>
+                        </div>
+                        <div class="col-lg-6 col-md-12 no-padding">
+                            <md-subheader>
+                                <label>Maximum File Size (GB)</label>
+                            </md-subheader>
+
+                            <md-input-container>
+                                <input type="number" ng-model="filesParams.params.filesizemax" ng-change="inputChange()" aria-label="Maximum file size" />GB
+                            </md-input-container>
+                        </div>
+                    </div>
+                </section>
+
             </form>
         </div>
     </div>

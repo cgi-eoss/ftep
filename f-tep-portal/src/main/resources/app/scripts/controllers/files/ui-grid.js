@@ -9,7 +9,7 @@
 
 define(['../../ftepmodules'], function(ftepmodules) {
     
-    ftepmodules.controller('UiGridCtrl', [ '$scope',  'FileService', function($scope, FileService) {
+    ftepmodules.controller('UiGridCtrl', [ '$scope',  'FileService', 'CommonService', function($scope, FileService, CommonService) {
 
             // Service storage
             $scope.filesParams = FileService.params.files;
@@ -20,49 +20,71 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 useExternalPagination: true,
                 useExternalSorting: true,
                 expandableRowTemplate: '../../../views/files/ui-grid-subnav.html',
-                expandableRowHeight: 100,
+                expandableRowHeight: 420,
                 expandableRowScope: {
-                    currentRowData: null,
-                    copyToClipboard: copyToClipboard
+                    currentRowData: {},
+                    copyToClipboard: copyToClipboard,
+                    saveFile: saveFile,
+                    parseDatabasketsAsList: parseDatabasketsAsList,
+                    parseGroupsAsList: parseGroupsAsList,
+                    share: CommonService.shareObjectDialog,
+                    estimateDownloadCost: CommonService.estimateDownloadCost
                 },
                 onRegisterApi: gridUpdate,
                 columnDefs: [
-                    { name: "uri", visible: false },
-                    { name: "filename" },
-                    { name: "owner" },
-                    { name: "type"},
-                    { name: "filesize"}
+                    { name: 'id', visible: false },
+                    { name: 'uri', visible: false },
+                    { name: 'filename' },
+                    { name: 'owner' },
+                    { name: 'type'},
+                    { name: 'filesize'},
+                    { name: 'inDatabasket'},
                 ]
             };
 
             // API data => table mapping
             function apiMap(response) {
                 return {
+                    id: response.id,
                     uri: response.uri,
-                    filename: response.filename,
-                    owner: response.owner ? response.owner.name : "Not set",
+                    filename: response.filename.substring(response.filename.indexOf("/") + 1),
+                    owner: response.owner ? response.owner.name : 'Not set',
                     type: response.type,
-                    filesize: response.filesize
+                    filesize: (response.filesize / 1073741824).toFixed(2) + ' GB',
+                    inDatabasket: response.inDatabasket
                 };
             }
 
             // Initial pagination options
             var paginationOptions = {
-                page: 1,
+                page: 0,
                 size: 50,
                 sort: null
             };
-  
+
             /* Initial request for data */
-            getFtepFilesWithParams();
-            
+            setTimeout(function() { getFtepFilesWithParams($scope.filesParams.params); }, 300);
+
             /* Update files when polling */
-            $scope.$on("poll.ftepfiles", function(_, data) {
+            $scope.$on('poll.ftepfiles', function(_, data) {
                // checkForParamsThenGet(data);      // Disabled as resets table 
+            });
+
+            function getDetailedFile(row) {
+                FileService.getFile(row.entity, 'detailedFtepFileWorkspace').then(function (file) {
+                    if (row.isExpanded) {
+                        $scope.uiGridOptions.expandableRowScope.currentRowData[row.entity.id] = file;
+                        $scope.uiGridOptions.expandableRowScope.currentRowData[row.entity.id].geometry = JSON.stringify(file.geometry);
+                    }
+                });
+            }
+
+            $scope.$on('group.updated', function(_, row) {
+                getDetailedFile(row);
             });
             
             /* Stop Polling */
-            $scope.$on("$destroy", function() {
+            $scope.$on('$destroy', function() {
                 FileService.stopPolling();
             });
 
@@ -100,7 +122,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 $scope.uiGridOptions.totalItems = $scope.filesParams.pagingData.page.totalElements;
            
                 return data.map(function(thisFile) {
-                    return apiMap(thisFile)
+                    return apiMap(thisFile);
                 });
             }
 
@@ -120,28 +142,51 @@ define(['../../ftepmodules'], function(ftepmodules) {
 
                 // On paginate change
                 gridApi.pagination.on.paginationChanged($scope, function(newPage, size) {
-                    paginationOptions.page = newPage;
+                    paginationOptions.page = newPage -1;
                     paginationOptions.size = size;
                     checkForParamsThenGet();
                 });
 
                 // On row expand
                 gridApi.expandable.on.rowExpandedStateChanged($scope, function (row) {
-                    if (row.isExpanded) {
-                        $scope.uiGridOptions.expandableRowScope.currentRowData = row.entity;
-                    }
+                    getDetailedFile(row);
+                });
+            }
+
+            function saveFile(file) {
+                file.metadata.geometry = JSON.parse(file.metadata.geometry);
+                console.log(file);
+                FileService.updateFtepFile(file).then(function (data) {
+                    getFtepFilesWithParams($scope.filesParams.params);
                 });
             }
 
             // Copy text to clipboard
             function copyToClipboard(text) {
-                var textHolder = document.createElement("textarea");
+                var textHolder = document.createElement('textarea');
                 document.body.appendChild(textHolder);
                 textHolder.value = text;
                 textHolder.select();
-                document.execCommand("copy");
+                document.execCommand('copy');
                 document.body.removeChild(textHolder);
             }
+
+            function parseDatabasketsAsList(databaskets) {
+                var list = [];
+                for (var basket in databaskets) {
+                    list.push(databaskets[basket].name);
+                }
+                return list.toString();
+            }
+
+            function parseGroupsAsList(groups) {
+                var list = [];
+                for (var group in groups) {
+                    list.push(groups[group].group.name + ' [' + groups[group].permission + ']');
+                }
+                return list.toString();
+            }
+
         }
     ]);
 });

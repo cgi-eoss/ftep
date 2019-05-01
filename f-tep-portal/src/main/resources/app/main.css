@@ -2320,6 +2320,29 @@
   padding: 0;
   margin: 0;
 }
+#files-container .right-container .expandableRow {
+  overflow: auto;
+}
+#files-container .right-container .expandableRow md-input-container {
+  width: 100%;
+}
+#files-container .right-container .expandableRow .copy-button .material-icons {
+  color: #ff4081;
+}
+#files-container .right-container .expandableRow .md-subheader-inner {
+  font-weight: bold;
+  padding: 0.2rem 1rem;
+}
+#files-container .right-container .expandableRow .md-subheader-content {
+  line-height: 1.2rem;
+}
+#files-container .right-container .expandableRow .header-button {
+  color: #ff4081;
+  cursor: pointer;
+}
+#files-container .right-container .expandableRow a {
+  color: #ff4081;
+}
 
 @font-face {
   font-family: 'Roboto-Black';

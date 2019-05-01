@@ -1,9 +1,7 @@
 @import "variable";
-
 #files-container {
-
     #side-container {
-        
+
         .file-length {
             text-align: center;
             padding: 20px 0;
@@ -17,7 +15,6 @@
         overflow-y: auto;
         padding: 1rem;
         margin-left: @sidenav-width;
-
         > article, > article > section, > article > section > div, .ui-grid {
             height: 100%;
         }
@@ -31,10 +28,34 @@
         .right-button {
             display: flex;
             align-items: baseline;
-
             .md-button {
                 padding: 0;
                 margin: 0;
+            }
+        }
+        .expandableRow {
+            overflow: auto;
+            md-input-container {
+                width: 100%;
+            }
+            .copy-button {
+                .material-icons {
+                    color: @accent;
+                }
+            }
+            .md-subheader-inner {
+                font-weight: bold;
+                padding: 0.2rem 1rem;
+            }
+            .md-subheader-content {
+                line-height: 1.2rem;
+            }
+            .header-button {
+                color: @accent;
+                cursor: pointer;
+            }
+            a {
+                color: @accent;
             }
         }
     }

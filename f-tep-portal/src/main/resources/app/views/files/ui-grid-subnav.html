@@ -1,17 +1,89 @@
-<div>
-    <h3>URI</h3>
-    <div class="right-button">
-        <p ng-model="currentUri">{{ currentRowData.uri }}</p>
-        <md-button
-            class="md-secondary"
-            aria-label="Copy for workflow"
-            ng-click="copyToClipboard(currentRowData.uri)"
-            uib-tooltip="Copy for workflow"
-            tooltip-placement="left"
-            tooltip-trigger="mouseenter"
-            tooltip-append-to-body="true"
-        >
-            <i class="material-icons">filter_none</i>
-        </md-button>
+<section style="margin-top: 1rem;">
+    <div class="row">
+        <div class="col-xl-8 col-md-12 no-padding">
+            <md-subheader>URI</md-subheader>
+
+            <md-list-item class="secondary-button-padding">
+                <p>{{currentRowData[row.entity.id].uri}}</p>
+                <md-button
+                    class="md-secondary copy-button"
+                    aria-label="Copy for workflow"
+                    ng-click="copyToClipboard(currentRowData[row.entity.id].uri)"
+                    uib-tooltip="Copy for workflow"
+                    tooltip-placement="left"
+                    tooltip-trigger="mouseenter"
+                    tooltip-append-to-body="true">
+                    <i class="material-icons">filter_none</i>
+                </md-button>
+            </md-list-item>
+        </div>
+        <div class="col-xl-2 col-md-6 no-padding">
+            <section>
+                <md-subheader>JSON</md-subheader>
+                <md-list-item>
+                    <p>
+                        <a ng-href="{{currentRowData[row.entity.id]._links.self.href + '?projection=detailedFtepFile'}} " target="blank">Preview JSON</a>
+                    </p>
+                </md-list-item>
+            </section>
+        </div>
+        <div class="col-xl-2 col-md-6 no-padding">
+            <section>
+                <md-subheader>File</md-subheader>
+                <md-list-item>
+                    <p>
+                        <a style="cursor: pointer" ng-click="estimateDownloadCost($event, currentRowData[row.entity.id]._links.self.href); $event.stopPropagation()" target="blank">Download File</a>
+                    </p>
+                </md-list-item>
+            </section>
+        </div>
     </div>
-</div>
+</section>
+
+<section>
+    <div class="row">
+        <div class="col-lg-6 col-md-12 no-padding">
+            <md-subheader>Filename</md-subheader>
+            <md-input-container>
+                <input ng-readonly="true" ng-model="currentRowData[row.entity.id].filename">
+            </md-input-container>
+        </div>
+        <div class="col-lg-6 col-md-12 no-padding">
+            <md-subheader>Geometry</md-subheader>
+            <md-input-container md-no-float required>
+                <textarea ng-readonly="true" name="geometry" rows="3" placeholder="File geometry is required *" aria-label="Geometry" ng-model="currentRowData[row.entity.id].geometry"></textarea>
+            </md-input-container>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="row">
+        <div class="col-xl-6 col-md-12 no-padding">
+            <md-subheader>
+                Sharing List
+                <i class="header-button material-icons right"
+                   ng-click="share($event, currentRowData[row.entity.id], 'ftepFile', currentRowData[row.entity.id].sharedWithGroups.permissions, 'FileService', 'refreshSelectedFtepFile', 'files', row)"
+                   has-permission="ADMIN"
+                   permission-source="{{currentRowData[row.entity.id]}}"
+                   aria-label="Share"
+                   uib-tooltip="Share"
+                   tooltip-placement="top"
+                   tooltip-trigger="mouseenter"
+                   tooltip-append-to-body="true">share</i>
+            </md-subheader>
+            <md-input-container md-no-float required>
+                <textarea ng-readonly="true" name="shareinglist" rows="3" aria-label="Sharing List">{{parseGroupsAsList(currentRowData[row.entity.id].sharedWithGroups.permissions)}}</textarea>
+            </md-input-container>
+        </div>
+        <div class="col-xl-6 col-md-12 no-padding">
+            <md-subheader>
+                Databaskets
+                <i ng-if="false" class="header-button material-icons right">shopping_cart</i>
+            </md-subheader>
+            <md-input-container md-no-float required>
+                <textarea ng-readonly="true" name="databaskets" rows="3" aria-label="Databaskets">{{parseDatabasketsAsList(currentRowData[row.entity.id].containedInDatabaskets)}}</textarea>
+            </md-input-container>
+        </div>
+    </div>
+</section>

@@ -13,7 +13,6 @@ define(['../ftepmodules'], function (ftepmodules) {
         var communityTabs = { GROUPS: 0, PROJECTS: 1, DATABASKETS: 2, JOBS: 3, SERVICES: 4, FILES: 5};
         var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
         var developerSideNavs = { SERVICES: 0 };
-
         var filesSideNavs = { SEARCH: 0, UPLOAD: 1 };
 
         this.getTabs = function(){
@@ -33,9 +32,7 @@ define(['../ftepmodules'], function (ftepmodules) {
         };
 
         this.getFilesSideNavs = function(){
-
             return angular.copy(filesSideNavs);
-
         };
 
         /** PRESERVE USER SELECTIONS **/
@@ -48,19 +45,12 @@ define(['../ftepmodules'], function (ftepmodules) {
                 resultTabNameExtention: '',
                 bottomViewVisible: false
             },
-
             files: {
-
                 activeTab: tabs.FILES,
-
                 sideViewVisible: true,
-
                 activeSideNav: filesSideNavs.SEARCH,
-
                 activeBottomNav: undefined,
-
                 bottomViewVisible: false
-
             },
             developer: {
                 activeTab: tabs.DEVELOPER,

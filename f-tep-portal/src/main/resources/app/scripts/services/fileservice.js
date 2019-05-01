@@ -46,7 +46,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
              files: {
                 files: undefined,
                 pagingData: {},
-                params: null
+                params: {
+                    type: 'OUTPUT_PRODUCT',
+                    filter: null,
+                    filesizemin: 0,
+                    filesizemax: 50,
+                    ownership: 'findByFilterOnly',
+                    fileSize: null
+                }
              }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -225,9 +232,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.getFile = function (file) {
+        this.getFile = function (file, projection) {
+            if (!projection) {
+                projection = 'detailedFtepFile';
+            }
             var deferred = $q.defer();
-            halAPI.from(rootUri + '/ftepFiles/' + file.id + "?projection=detailedFtepFile")
+            halAPI.from(rootUri + '/ftepFiles/' + file.id + '?projection=' + projection)
                      .newRequest()
                      .getResource()
                      .result
@@ -257,37 +267,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
-        this.getFtepFilesWithParams = function (page, params) {
-            var url = rootUri + '/ftepFiles?sort=filename';
-
-            // If params add object values to qs
-            if (params !== undefined && Object.keys(params).length > 0) {
-                url = addParams(url, params);
+        this.getFtepFilesWithParams = function (page, searchParams) {
+            var params = angular.copy(searchParams);
+            var url = rootUri + '/ftepFiles/search/' + params.ownership;
+            delete params.ownership;
+            if (!params.sort) {
+                url += '?sort=filename';
             }
-            
-            // Add query params based off object
-            function addParams(url, params) {
-                let esc = encodeURIComponent;
-                let query = Object.keys(params)
-                    .map(k => {
-                        if (params[k] != null) {
-                            return esc(k) + "=" + esc(params[k]);
-                        } else {
-                            return;
-                        }
-                    })
-                    .filter(x=> x)
-                    .join("&");
-
-                query.replace("&&", "&");
-
-                return url + "&" + query;
+            for (var key in params) {
+                if (params[key]) {
+                    url += '&' + key + '=' + params[key];
+                }
             }
 
-            if(self.params[page].selectedOwnershipFilter !== self.fileOwnershipFilters.ALL_FILES) {
+            url += '&projection=shortFtepFileWorkspace';
+            if (UserService.params.activeUser && UserService.params.activeUser._links && UserService.params.activeUser._links.self.href) {
                 url += '&owner=' + UserService.params.activeUser._links.self.href;
             }
-
             /* Set files data */
             return self.getFtepFiles(page, self.params[page].activeFileType, url);
         };

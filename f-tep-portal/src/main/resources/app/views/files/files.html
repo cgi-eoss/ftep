@@ -16,6 +16,7 @@
                         md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
                 <div class="panel-container">
                     <div class="sidebar-item panel-container" ng-include src="'views/files/sidebar/search.html'" ng-show="navInfo.activeSideNav == filesSideNavs.SEARCH" onload="finishLoading('search')"/>
+                    <div class="sidebar-item panel-container" ng-include src="'views/files/sidebar/upload.html'" ng-show="navInfo.activeSideNav == filesSideNavs.UPLOAD"/>
                 </div>
             </md-sidenav>
         </section>

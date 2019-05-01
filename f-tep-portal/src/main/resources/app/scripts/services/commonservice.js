@@ -181,7 +181,7 @@ define(['../ftepmodules'], function (ftepmodules) {
             return deferred.promise;
         };
 
-        this.shareObjectDialog = function ($event, item, type, groups, serviceName, serviceMethod, page) {
+        this.shareObjectDialog = function ($event, item, type, groups, serviceName, serviceMethod, page, row) {
             function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
 
                 var service = $injector.get(serviceName);
@@ -198,6 +198,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 $scope.shareObject = function (item) {
                     CommunityService.shareObject($scope.ace, groups).then(function (data) {
                         service[serviceMethod](page);
+                        $rootScope.$broadcast('group.updated', row);
                     });
 
                     $mdDialog.hide();

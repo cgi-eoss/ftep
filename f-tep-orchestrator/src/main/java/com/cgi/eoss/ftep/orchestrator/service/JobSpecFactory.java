@@ -1,7 +1,9 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
@@ -22,9 +24,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.util.stream.Collectors.partitioningBy;
@@ -36,14 +40,17 @@ public class JobSpecFactory {
 
     private static final String MAGIC_PARALLEL_PARAM_KEY = "parallelInputs";
     private static final String MAGIC_TIMEOUT_PARAM_KEY = "timeout";
+    private static final String DATABASKET_URI_REGEX = "ftep://databasket/(\\d+)";
 
     private final SearchFacade searchFacade;
     private final JobDataService jobDataService;
+    private final DatabasketDataService databasketDataService;
 
     @Autowired
-    public JobSpecFactory(SearchFacade searchFacade, JobDataService jobDataService) {
+    public JobSpecFactory(SearchFacade searchFacade, JobDataService jobDataService, DatabasketDataService databasketDataService) {
         this.searchFacade = searchFacade;
         this.jobDataService = jobDataService;
+        this.databasketDataService = databasketDataService;
     }
 
     /**
@@ -67,10 +74,10 @@ public class JobSpecFactory {
         List<String> parallelParameters = request.getParallelParametersList();
         List<String> searchParameters = request.getSearchParametersList();
 
-        // Replace any "dynamic" parameter values, e.g. search parameters
-        // TODO Expand databaskets?
+        // Replace any "dynamic" parameter values, e.g. search parameters, and evaluate Databasket contents
         List<JobParam> populatedParams = originalParams.stream()
                 .map(this::evaluateSearchParam)
+                .map(this::evaluateDatabasket)
                 .collect(toList());
 
         // Expand parallel parameters
@@ -134,6 +141,30 @@ public class JobSpecFactory {
         } catch (UnsupportedEncodingException e) {
             throw new ServiceExecutionException("Could not expand search parameter: " + value, e);
         }
+    }
+
+    private JobParam evaluateDatabasket(JobParam param) {
+        if (!param.getParallelParameter()) {
+            return param;
+        }
+
+        Set<String> paramValues = new LinkedHashSet<>();
+
+        for (String value : param.getParamValueList()) {
+            if (value.matches(DATABASKET_URI_REGEX)) {
+                Long databasketId = Long.parseLong(value.substring((value.lastIndexOf("/") + 1)));
+                LOG.debug("Evaluating the contents of databasket with id " + databasketId);
+                Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new RuntimeException("Failed to load databasket for ID " + databasketId));
+                List<String> fileUris = databasket.getFiles().stream()
+                        .map(file -> file.getUri().toString())
+                        .collect(toList());
+
+                paramValues.addAll(fileUris);
+            } else {
+                paramValues.add(value);
+            }
+        }
+        return param.toBuilder().clearParamValue().addAllParamValue(paramValues).build();
     }
 
     private List<List<JobParam>> expandParallelParams(List<JobParam> originalParams) {

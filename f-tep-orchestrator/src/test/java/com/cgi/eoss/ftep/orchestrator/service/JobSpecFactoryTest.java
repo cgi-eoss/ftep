@@ -1,10 +1,14 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.model.Databasket;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorTestConfig;
+import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
+import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
@@ -26,6 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +52,12 @@ public class JobSpecFactoryTest {
 
     private static final String PRODUCT_1_URI = "sentinel2:///S2B_MSIL1C_20181117T114349_N0207_R123_T30VUH_20181117T134439";
     private static final String PRODUCT_2_URI = "sentinel2:///S2B_MSIL1C_20190105T103429_N0207_R108_T33VVE_20190105T122413";
+    private static final String FILE_11_URI = "ftep://ftepFile11";
+    private static final String FILE_12_URI = "ftep://ftepFile12";
+    private static final String FILE_21_URI = "ftep://ftepFile21";
+    private static final String FILE_22_URI = "ftep://ftepFile22";
+    private static final String FILE_31_URI = "ftep://ftepFile31";
+    private static final String FILE_32_URI = "ftep://ftepFile32";
 
     @Autowired
     private JobSpecFactory jobSpecFactory;
@@ -57,9 +69,15 @@ public class JobSpecFactoryTest {
     private ServiceDataService serviceDataService;
     @Autowired
     private JobDataService jobDataService;
+    @Autowired
+    private FtepFileDataService fileDataService;
+    @Autowired
+    private DatabasketDataService databasketDataService;
 
     private User ftepAdmin;
     private FtepService ftepService;
+    private Databasket databasket1;
+    private Databasket databasket2;
 
     @Before
     public void setUp() throws Exception {
@@ -79,6 +97,35 @@ public class JobSpecFactoryTest {
                                 .add(feature2)
                                 .build())
                         .build());
+
+        FtepFile ftepFile11 = new FtepFile(URI.create(FILE_11_URI), UUID.randomUUID());
+        ftepFile11.setOwner(ftepAdmin);
+
+        FtepFile ftepFile12 = new FtepFile(URI.create(FILE_12_URI), UUID.randomUUID());
+        ftepFile12.setOwner(ftepAdmin);
+
+        FtepFile ftepFile21 = new FtepFile(URI.create(FILE_21_URI), UUID.randomUUID());
+        ftepFile21.setOwner(ftepAdmin);
+
+        FtepFile ftepFile22 = new FtepFile(URI.create(FILE_22_URI), UUID.randomUUID());
+        ftepFile22.setOwner(ftepAdmin);
+
+        FtepFile ftepFile31 = new FtepFile(URI.create(FILE_31_URI), UUID.randomUUID());
+        ftepFile31.setOwner(ftepAdmin);
+
+        FtepFile ftepFile32 = new FtepFile(URI.create(FILE_32_URI), UUID.randomUUID());
+        ftepFile32.setOwner(ftepAdmin);
+
+        fileDataService.save(ImmutableSet.of(ftepFile11, ftepFile12, ftepFile21, ftepFile22, ftepFile31, ftepFile32));
+
+        databasket1 = new Databasket("Databasket1", ftepAdmin);
+        databasket1.setFiles(ImmutableSet.of(ftepFile11, ftepFile12));
+
+        databasket2 = new Databasket("Databasket2", ftepAdmin);
+        databasket2.setFiles(ImmutableSet.of(ftepFile21, ftepFile22));
+
+        databasketDataService.save(ImmutableSet.of(databasket1, databasket2));
+
     }
 
     @Test
@@ -178,4 +225,231 @@ public class JobSpecFactoryTest {
         assertThat(subJobIds, is(ImmutableSet.of(jobSpec1.getJob().getId(), jobSpec2.getJob().getId())));
     }
 
+    @Test
+    public void testEvaluateDatabasketSingle() throws Exception {
+        Long databasketId = databasket1.getId();
+        String jobId = UUID.randomUUID().toString();
+
+        FtepServiceParams request = FtepServiceParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(ftepAdmin.getName())
+                .setServiceId(ftepService.getName())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasketId)
+                        .build())
+                .build();
+
+        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        assertThat(jobSpecs, hasSize(2));
+
+        for (JobSpec jobSpec : jobSpecs) {
+            assertThat(jobSpec.getJob().getId(), is(not(jobId)));
+            assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
+            assertThat(jobSpec.getJob().getServiceId(), is(ftepService.getName()));
+            assertThat(jobSpec.getInputsCount(), is(1));
+
+            JobParam jobParam = jobSpec.getInputsList().get(0);
+            assertThat(jobParam.getParamName(), is("input"));
+            assertThat(jobParam.getParamValueList(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input"))
+                .flatMap(Collection::stream)
+                .collect(toSet());
+
+        assertThat(paramValueSet, hasSize(2));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketMultiple() throws Exception {
+        Long databasket1Id = databasket1.getId();
+        Long databasket2Id = databasket2.getId();
+        String jobId = UUID.randomUUID().toString();
+
+        FtepServiceParams request = FtepServiceParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(ftepAdmin.getName())
+                .setServiceId(ftepService.getName())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .addParamValue("ftep://databasket/" + databasket2Id)
+                        .build())
+                .build();
+
+        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        assertThat(jobSpecs, hasSize(4));
+
+        for (JobSpec jobSpec : jobSpecs) {
+            assertThat(jobSpec.getJob().getId(), is(not(jobId)));
+            assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
+            assertThat(jobSpec.getJob().getServiceId(), is(ftepService.getName()));
+            assertThat(jobSpec.getInputsCount(), is(1));
+
+            JobParam jobParam = jobSpec.getInputsList().get(0);
+            assertThat(jobParam.getParamName(), is("input"));
+            assertThat(jobParam.getParamValueList(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input"))
+                .flatMap(params -> params.stream())
+                .collect(toSet());
+
+        assertThat(paramValueSet, hasSize(4));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI, FILE_21_URI, FILE_22_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketNoParallel() throws Exception {
+        Long databasketId = databasket1.getId();
+        String jobId = UUID.randomUUID().toString();
+
+        FtepServiceParams request = FtepServiceParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(ftepAdmin.getName())
+                .setServiceId(ftepService.getName())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input")
+                        .setParallelParameter(false)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasketId)
+                        .build())
+                .build();
+
+        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        assertThat(jobSpecs, hasSize(1));
+
+        JobSpec jobSpec = jobSpecs.get(0);
+        assertThat(jobSpec.getJob().getId(), is(jobId));
+        assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
+        assertThat(jobSpec.getJob().getServiceId(), is(ftepService.getName()));
+        assertThat(jobSpec.getInputsCount(), is(1));
+
+        JobParam jobParam = jobSpec.getInputsList().get(0);
+        assertThat(jobParam.getParamName(), is("input"));
+        assertThat(jobParam.getParamValueList(), hasSize(1));
+        Multimap<String, String> params = GrpcUtil.paramsListToMap(jobSpec.getInputsList());
+        assertThat(params.get("input"), is(ImmutableList.of("ftep://databasket/" + databasketId)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketUriMixture() throws Exception {
+        Long databasket1Id = databasket1.getId();
+        String jobId = UUID.randomUUID().toString();
+
+        FtepServiceParams request = FtepServiceParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(ftepAdmin.getName())
+                .setServiceId(ftepService.getName())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input1")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .addParamValue(FILE_31_URI)
+                        .addParamValue(FILE_32_URI)
+                        .build())
+                .build();
+
+        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        assertThat(jobSpecs, hasSize(4));
+
+        for (JobSpec jobSpec : jobSpecs) {
+            assertThat(jobSpec.getJob().getId(), is(not(jobId)));
+            assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
+            assertThat(jobSpec.getJob().getServiceId(), is(ftepService.getName()));
+            assertThat(jobSpec.getInputsCount(), is(1));
+
+            JobParam jobParam = jobSpec.getInputsList().get(0);
+            assertThat(jobParam.getParamName(), is("input1"));
+            assertThat(jobParam.getParamValueList(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input1"))
+                .flatMap(params -> params.stream())
+                .collect(toSet());
+
+        assertThat(paramValueSet, hasSize(4));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI, FILE_31_URI, FILE_32_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketMultipleParams() throws Exception {
+        Long databasket1Id = databasket1.getId();
+        Long databasket2Id = databasket2.getId();
+        String jobId = UUID.randomUUID().toString();
+
+        FtepServiceParams request = FtepServiceParams.newBuilder()
+                .setJobId(jobId)
+                .setUserId(ftepAdmin.getName())
+                .setServiceId(ftepService.getName())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input1")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .build())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input2")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue("ftep://databasket/" + databasket2Id)
+                        .build())
+                .addInputs(JobParam.newBuilder()
+                        .setParamName("input3")
+                        .setParallelParameter(true)
+                        .setSearchParameter(false)
+                        .addParamValue(FILE_31_URI)
+                        .addParamValue(FILE_32_URI)
+                        .build())
+                .build();
+
+        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        assertThat(jobSpecs, hasSize(6));
+
+        for (JobSpec jobSpec : jobSpecs) {
+            assertThat(jobSpec.getJob().getId(), is(not(jobId)));
+            assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
+            assertThat(jobSpec.getJob().getServiceId(), is(ftepService.getName()));
+            assertThat(jobSpec.getInputsCount(), is(1));
+
+            JobParam jobParam = jobSpec.getInputsList().get(0);
+            assertThat(jobParam.getParamValueList(), hasSize(1));
+        }
+
+        Set<String> paramValueSet1 = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input1"))
+                .flatMap(params -> params.stream())
+                .collect(toSet());
+
+        assertThat(paramValueSet1, hasSize(2));
+        assertThat(paramValueSet1, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI)));
+
+        Set<String> paramValueSet2 = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input2"))
+                .flatMap(params -> params.stream())
+                .collect(toSet());
+
+        assertThat(paramValueSet2, hasSize(2));
+        assertThat(paramValueSet2, is(ImmutableSet.of(FILE_21_URI, FILE_22_URI)));
+
+        Set<String> paramValueSet3 = jobSpecs.stream()
+                .map(jobSpec -> GrpcUtil.paramsListToMap(jobSpec.getInputsList()).get("input3"))
+                .flatMap(params -> params.stream())
+                .collect(toSet());
+
+        assertThat(paramValueSet3, hasSize(2));
+        assertThat(paramValueSet3, is(ImmutableSet.of(FILE_31_URI, FILE_32_URI)));
+    }
 }
+
+

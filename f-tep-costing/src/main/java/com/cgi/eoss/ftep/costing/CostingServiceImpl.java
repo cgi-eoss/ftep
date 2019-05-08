@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.model.WalletTransaction;
 import com.cgi.eoss.ftep.persistence.service.CostingExpressionDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.WalletDataService;
+import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.google.common.base.Strings;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 /**
  * <p>Default implementation of {@link CostingService}.</p>
  */
@@ -33,24 +33,34 @@ public class CostingServiceImpl implements CostingService {
     private final DatabasketDataService databasketDataService;
     private final ExpressionParser expressionParser;
     private final WalletDataService walletDataService;
+    private final JobExpansionService jobExpansionService;
 
     public CostingServiceImpl(ExpressionParser costingExpressionParser, CostingExpressionDataService costingDataService,
-                              WalletDataService walletDataService, DatabasketDataService databasketDataService, String defaultJobCostingExpression, String defaultDownloadCostingExpression) {
+                              WalletDataService walletDataService, DatabasketDataService databasketDataService, String defaultJobCostingExpression, String defaultDownloadCostingExpression, JobExpansionService jobExpansionService) {
         this.expressionParser = costingExpressionParser;
         this.costingDataService = costingDataService;
         this.walletDataService = walletDataService;
         this.databasketDataService = databasketDataService;
         this.defaultJobCostingExpression = CostingExpression.builder().costExpression(defaultJobCostingExpression).build();
         this.defaultDownloadCostingExpression = CostingExpression.builder().costExpression(defaultDownloadCostingExpression).build();
+        this.jobExpansionService = jobExpansionService;
     }
 
     @Override
     public Integer estimateJobCost(JobConfig jobConfig) {
+        return estimateJobCost(jobConfig, false);
+    }
+
+    @Override
+    public Integer estimateJobCost(JobConfig jobConfig, boolean postLaunch) {
         CostingExpression costingExpression = getCostingExpression(jobConfig.getService());
         String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
                 ? costingExpression.getCostExpression()
                 : costingExpression.getEstimatedCostExpression();
-        return ((Number) expressionParser.parseExpression(expression).getValue(jobConfig)).intValue();
+
+        return jobExpansionService.expandJobParamsFromJobConfig(jobConfig, postLaunch).stream()
+                .mapToInt(config -> ((Number) expressionParser.parseExpression(expression).getValue(jobConfig)).intValue())
+                .sum();
     }
 
     @Override

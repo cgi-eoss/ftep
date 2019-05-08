@@ -1,12 +1,11 @@
-package com.cgi.eoss.ftep.orchestrator.service;
+package com.cgi.eoss.ftep.batch.service;
 
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
-import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
-import com.cgi.eoss.ftep.orchestrator.OrchestratorTestConfig;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
@@ -18,6 +17,8 @@ import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.search.api.SearchResults;
+import com.cgi.eoss.ftep.batch.JobExpansionConfig;
+import com.cgi.eoss.ftep.batch.JobExpansionTestConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -46,9 +47,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {OrchestratorConfig.class, OrchestratorTestConfig.class})
-@TestPropertySource("classpath:test-orchestrator.properties")
-public class JobSpecFactoryTest {
+@ContextConfiguration(classes = {JobExpansionConfig.class, JobExpansionTestConfig.class})
+@TestPropertySource("classpath:test-batch.properties")
+public class JobExpansionServiceTest {
 
     private static final String PRODUCT_1_URI = "sentinel2:///S2B_MSIL1C_20181117T114349_N0207_R123_T30VUH_20181117T134439";
     private static final String PRODUCT_2_URI = "sentinel2:///S2B_MSIL1C_20190105T103429_N0207_R108_T33VVE_20190105T122413";
@@ -60,7 +61,7 @@ public class JobSpecFactoryTest {
     private static final String FILE_32_URI = "ftep://ftepFile32";
 
     @Autowired
-    private JobSpecFactory jobSpecFactory;
+    private JobExpansionService jobExpansionService;
     @Autowired
     private SearchFacade searchFacade;
     @Autowired
@@ -125,7 +126,6 @@ public class JobSpecFactoryTest {
         databasket2.setFiles(ImmutableSet.of(ftepFile21, ftepFile22));
 
         databasketDataService.save(ImmutableSet.of(databasket1, databasket2));
-
     }
 
     @Test
@@ -139,7 +139,7 @@ public class JobSpecFactoryTest {
                 .addInputs(JobParam.newBuilder().setParamName("input2").addParamValue("bar1").addParamValue("bar2").build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(1));
 
         JobSpec jobSpec = jobSpecs.get(0);
@@ -168,7 +168,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(1));
 
         JobSpec jobSpec = jobSpecs.get(0);
@@ -198,7 +198,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(2));
 
         JobSpec jobSpec1 = jobSpecs.get(0);
@@ -242,7 +242,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(2));
 
         for (JobSpec jobSpec : jobSpecs) {
@@ -284,7 +284,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(4));
 
         for (JobSpec jobSpec : jobSpecs) {
@@ -324,7 +324,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(1));
 
         JobSpec jobSpec = jobSpecs.get(0);
@@ -359,7 +359,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(4));
 
         for (JobSpec jobSpec : jobSpecs) {
@@ -413,7 +413,7 @@ public class JobSpecFactoryTest {
                         .build())
                 .build();
 
-        List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+        List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(6));
 
         for (JobSpec jobSpec : jobSpecs) {
@@ -450,6 +450,342 @@ public class JobSpecFactoryTest {
         assertThat(paramValueSet3, hasSize(2));
         assertThat(paramValueSet3, is(ImmutableSet.of(FILE_31_URI, FILE_32_URI)));
     }
+
+    @Test
+    public void testExpandJobParamsNoDynamicFromJobConfig() throws Exception {
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("NoDynamic");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addParamValue("foo")
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input2")
+                        .addAllParamValue(ImmutableList.of("bar1", "bar2"))
+                        .build())
+                )
+        );
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(1));
+
+        JobConfig jobConfig1 = jobConfigs.get(0);
+        assertThat(jobConfig1.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig1.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig1.getInputs().keySet(), hasSize(2));
+        Multimap<String, String> params = jobConfig1.getInputs();
+        assertThat(params.get("input1"), is(ImmutableList.of("foo")));
+        assertThat(params.get("input2"), is(ImmutableList.of("bar1", "bar2")));
+    }
+
+    @Test
+    public void testExpandJobParamsToMultipleNoParallelFromJobConfig() throws Exception {
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("NoParallel");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addParamValue("foo")
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input2")
+                        .addAllParamValue(ImmutableList.of("searchparam1=a", "searchparam2=b", "searchparam3=c"))
+                        .setSearchParameter(true)
+                        .build())
+                )
+        );
+        config.setSearchParameters(ImmutableList.of("input2"));
+
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(1));
+
+        JobConfig jobConfig1 = jobConfigs.get(0);
+        assertThat(jobConfig1.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig1.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig1.getInputs().keySet(), hasSize(2));
+        Multimap<String, String> params = jobConfig1.getInputs();
+        assertThat(params.get("input1"), is(ImmutableList.of("foo")));
+        assertThat(params.get("input2"), is(ImmutableList.of(PRODUCT_1_URI, PRODUCT_2_URI)));
+    }
+
+    @Test
+    public void testExpandJobParamsToMultipleParallelFromJobConfig() throws Exception {
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("MultipleParallel");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addParamValue("foo")
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input2")
+                        .addAllParamValue(ImmutableList.of("searchparam1=a", "searchparam2=b", "searchparam3=c"))
+                        .setSearchParameter(true)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setSearchParameters(ImmutableList.of("input2"));
+        config.setParallelParameters(ImmutableList.of("input2"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(2));
+
+        JobConfig jobConfig1 = jobConfigs.get(0);
+        assertThat(jobConfig1.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig1.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig1.getInputs().keySet(), hasSize(2));
+        Multimap<String, String> params1 = jobConfig1.getInputs();
+        assertThat(params1.get("input1"), is(ImmutableList.of("foo")));
+        assertThat(params1.get("input2"), is(ImmutableList.of(PRODUCT_1_URI)));
+
+        JobConfig jobConfig2 = jobConfigs.get(0);
+        assertThat(jobConfig2.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig2.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig2.getInputs().keySet(), hasSize(2));
+        Multimap<String, String> params2 = jobConfig2.getInputs();
+        assertThat(params2.get("input1"), is(ImmutableList.of("foo")));
+        assertThat(params2.get("input2"), is(ImmutableList.of(PRODUCT_1_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketSingleFromJobConfig() throws Exception {
+        Long databasketId = databasket1.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("DatabasketSingle");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input")
+                        .addParamValue("ftep://databasket/" + databasketId)
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setParallelParameters(ImmutableList.of("input"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(2));
+
+        for (JobConfig jobConfig : jobConfigs) {
+            assertThat(jobConfig.getOwner().getName(), is(ftepAdmin.getName()));
+            assertThat(jobConfig.getService().getName(), is(ftepService.getName()));
+            assertThat(jobConfig.getInputs().keySet(), is(ImmutableSet.of("input")));
+            assertThat(jobConfig.getInputs().values(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet, hasSize(2));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketMultipleFromJobConfig() throws Exception {
+        Long databasket1Id = databasket1.getId();
+        Long databasket2Id = databasket2.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("DatabasketMultiple");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input")
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .addParamValue("ftep://databasket/" + databasket2Id)
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setParallelParameters(ImmutableList.of("input"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(4));
+
+        for (JobConfig jobConfig : jobConfigs) {
+            assertThat(jobConfig.getOwner().getName(), is(ftepAdmin.getName()));
+            assertThat(jobConfig.getService().getName(), is(ftepService.getName()));
+            assertThat(jobConfig.getInputs().keySet(), is(ImmutableSet.of("input")));
+            assertThat(jobConfig.getInputs().values(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet, hasSize(4));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI, FILE_21_URI, FILE_22_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketNoParallelFromJobConfig() throws Exception {
+        Long databasketId = databasket1.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("DatabasketNoParallel");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input")
+                        .addParamValue("ftep://databasket/" + databasketId)
+                        .setSearchParameter(false)
+                        .setParallelParameter(false)
+                        .build())
+                )
+        );
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(1));
+
+        JobConfig jobConfig = jobConfigs.get(0);
+        assertThat(jobConfig.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig.getInputs().keySet(), is(ImmutableSet.of("input")));
+        assertThat(jobConfig.getInputs().values(), hasSize(1));
+
+        Multimap<String, String> params = jobConfig.getInputs();
+        assertThat(params.get("input"), is(ImmutableList.of("ftep://databasket/" + databasketId)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketUriMixtureFromJobConfig() throws Exception {
+        Long databasket1Id = databasket1.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("DatabasketUriMixture");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addAllParamValue(ImmutableList.of("ftep://databasket/" + databasket1Id, FILE_31_URI, FILE_32_URI))
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setParallelParameters(ImmutableList.of("input1"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(4));
+
+        for (JobConfig jobConfig : jobConfigs) {
+            assertThat(jobConfig.getOwner().getName(), is(ftepAdmin.getName()));
+            assertThat(jobConfig.getService().getName(), is(ftepService.getName()));
+            assertThat(jobConfig.getInputs().keySet(), is(ImmutableSet.of("input1")));
+            assertThat(jobConfig.getInputs().values(), hasSize(1));
+        }
+
+        Set<String> paramValueSet = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input1"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet, hasSize(4));
+        assertThat(paramValueSet, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI, FILE_31_URI, FILE_32_URI)));
+    }
+
+    @Test
+    public void testEvaluateDatabasketMultipleParamsFromJobConfig() throws Exception {
+        Long databasket1Id = databasket1.getId();
+        Long databasket2Id = databasket2.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("DatabasketMultipleParams");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input2")
+                        .addParamValue("ftep://databasket/" + databasket2Id)
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input3")
+                        .addAllParamValue(ImmutableList.of(FILE_31_URI, FILE_32_URI))
+                        .setSearchParameter(false)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setParallelParameters(ImmutableList.of("input1", "input2", "input3"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, false);
+        assertThat(jobConfigs, hasSize(6));
+
+        for (JobConfig jobConfig : jobConfigs) {
+            assertThat(jobConfig.getOwner().getName(), is(ftepAdmin.getName()));
+            assertThat(jobConfig.getService().getName(), is(ftepService.getName()));
+            assertThat(jobConfig.getInputs().values(), hasSize(1));
+        }
+
+        Set<String> paramValueSet1 = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input1"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet1, hasSize(2));
+        assertThat(paramValueSet1, is(ImmutableSet.of(FILE_11_URI, FILE_12_URI)));
+
+        Set<String> paramValueSet2 = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input2"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet2, hasSize(2));
+        assertThat(paramValueSet2, is(ImmutableSet.of(FILE_21_URI, FILE_22_URI)));
+
+        Set<String> paramValueSet3 = jobConfigs.stream()
+                .map(jc -> jc.getInputs().get("input3"))
+                .flatMap(Collection::stream).collect(toSet());
+
+        assertThat(paramValueSet3, hasSize(2));
+        assertThat(paramValueSet3, is(ImmutableSet.of(FILE_31_URI, FILE_32_URI)));
+    }
+
+    @Test
+    public void testExpandJobParamsFromJobConfigAlreadyExpanded() throws Exception {
+        Long databasket1Id = databasket1.getId();
+
+        JobConfig config = new JobConfig(ftepAdmin, ftepService);
+        config.setLabel("NoParallel");
+        config.setInputs(GrpcUtil.paramsListToMap(ImmutableList.of(
+                JobParam.newBuilder()
+                        .setParamName("input1")
+                        .addParamValue("foo")
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input2")
+                        .addAllParamValue(ImmutableList.of("searchparam1=a", "nonsearchparam"))
+                        .setSearchParameter(true)
+                        .build(),
+                JobParam.newBuilder()
+                        .setParamName("input3")
+                        .addParamValue("ftep://databasket/" + databasket1Id)
+                        .setParallelParameter(true)
+                        .build())
+                )
+        );
+        config.setSearchParameters(ImmutableList.of("input2"));
+        config.setParallelParameters(ImmutableList.of("input3"));
+
+        List<JobConfig> jobConfigs = jobExpansionService.expandJobParamsFromJobConfig(config, true);
+        assertThat(jobConfigs, hasSize(1));
+
+        JobConfig jobConfig1 = jobConfigs.get(0);
+        assertThat(jobConfig1.getOwner().getName(), is(ftepAdmin.getName()));
+        assertThat(jobConfig1.getService().getName(), is(ftepService.getName()));
+        assertThat(jobConfig1.getInputs().keySet(), hasSize(3));
+        Multimap<String, String> params = jobConfig1.getInputs();
+        assertThat(params.get("input1"), is(ImmutableList.of("foo")));
+        assertThat(params.get("input2"), is(ImmutableList.of("searchparam1=a", "nonsearchparam")));
+        assertThat(params.get("input3"), is(ImmutableList.of("ftep://databasket/" + databasket1Id)));
+    }
 }
-
-

@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":f-tep-queues"))
     implementation(project(":f-tep-security"))
     implementation(project(":f-tep-logging"))
+	implementation(project(":f-tep-batch"))
     implementation("org.jooq:jool-java-8")
     implementation("org.springframework:spring-jms")
     implementation("org.apache.commons:commons-lang3")

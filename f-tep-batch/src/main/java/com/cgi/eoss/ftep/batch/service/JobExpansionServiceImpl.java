@@ -1,8 +1,10 @@
-package com.cgi.eoss.ftep.orchestrator.service;
+package com.cgi.eoss.ftep.batch.service;
 
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
+import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
@@ -15,6 +17,7 @@ import com.cgi.eoss.ftep.search.api.SearchResults;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Streams;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,9 +38,13 @@ import java.util.UUID;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.toList;
 
-@Service
+/**
+ * <p>Default implementation of {@link JobExpansionService}.</p>
+ */
+
 @Log4j2
-public class JobSpecFactory {
+@Service
+public class JobExpansionServiceImpl implements JobExpansionService {
 
     private static final String MAGIC_PARALLEL_PARAM_KEY = "parallelInputs";
     private static final String MAGIC_TIMEOUT_PARAM_KEY = "timeout";
@@ -47,23 +55,13 @@ public class JobSpecFactory {
     private final DatabasketDataService databasketDataService;
 
     @Autowired
-    public JobSpecFactory(SearchFacade searchFacade, JobDataService jobDataService, DatabasketDataService databasketDataService) {
+    public JobExpansionServiceImpl(SearchFacade searchFacade, JobDataService jobDataService, DatabasketDataService databasketDataService) {
         this.searchFacade = searchFacade;
         this.jobDataService = jobDataService;
         this.databasketDataService = databasketDataService;
     }
 
-    /**
-     * <p>Expand a service launching request into its decomposed job specifications. This includes:</p>
-     * <ol>
-     * <li>Evaluate JobParams with searchParameter=true and replace the values with the search results</li>
-     * <li>Evaluate JobParams with parallelParameter=true and expand to one JobSpec per value</li>
-     * </ol>
-     *
-     * @param request The service launch request to be expanded.
-     * @return The JobSpecs representing the expanded configuration.
-     */
-    public List<JobSpec> expandJobParams(FtepServiceParams request) {
+    public List<JobSpec> expandJobParamsFromRequest(FtepServiceParams request) {
         String zooId = request.getJobId();
         String userId = request.getUserId();
         String serviceId = request.getServiceId();
@@ -104,6 +102,47 @@ public class JobSpecFactory {
                 .collect(toList());
     }
 
+    public List<JobConfig> expandJobParamsFromJobConfig(JobConfig jobConfig, boolean alreadyExpanded) {
+        User owner = jobConfig.getOwner();
+        FtepService service = jobConfig.getService();
+        String jobConfigLabel = jobConfig.getLabel();
+        String systematicParameter = jobConfig.getSystematicParameter();
+        List<String> parallelParameters = jobConfig.getParallelParameters();
+        List<String> searchParameters = jobConfig.getSearchParameters();
+
+        // Add parallel and search parameter flags to the appropriate JobParams
+        List<JobParam> originalParams = Streams.stream(GrpcUtil.mapToParams(jobConfig.getInputs()))
+                .map(param -> param.toBuilder()
+                        .setParallelParameter(parallelParameters.contains(param.getParamName()) && !alreadyExpanded)
+                        .setSearchParameter(searchParameters.contains(param.getParamName()) && !alreadyExpanded)
+                        .build())
+                .collect(toList());
+
+        // Replace any "dynamic" parameter values, e.g. search parameters, and evaluate Databasket contents
+        List<JobParam> populatedParams = originalParams.stream()
+                .map(this::evaluateSearchParam)
+                .map(this::evaluateDatabasket)
+                .collect(toList());
+
+        // Expand parallel parameters
+        List<List<JobParam>> expandedParams = expandParallelParams(populatedParams);
+
+        List<JobConfig> jobConfigs = new ArrayList<>();
+
+        for (List<JobParam> paramList : expandedParams) {
+            JobConfig config = new JobConfig(owner, service);
+            config.setLabel(Strings.isNullOrEmpty(jobConfigLabel) ? null : jobConfigLabel);
+            config.setInputs(GrpcUtil.paramsListToMap(paramList));
+            config.setSystematicParameter(Strings.isNullOrEmpty(systematicParameter) ? null : systematicParameter);
+            config.setParallelParameters(parallelParameters);
+            config.setSearchParameters(searchParameters);
+            jobConfigs.add(config);
+        }
+
+        return jobConfigs;
+
+    }
+
     private JobParam evaluateSearchParam(JobParam param) {
         if (!param.getSearchParameter()) {
             return param;
@@ -131,7 +170,7 @@ public class JobSpecFactory {
             evaluatedSearchResults.addAllParamValue(resultUris);
             return evaluatedSearchResults.build();
         } catch (IOException e) {
-            throw new ServiceExecutionException("Could not evaluate search to expand job parameters", e);
+            throw new JobExpansionException("Could not evaluate search to expand job parameters", e);
         }
     }
 
@@ -139,7 +178,7 @@ public class JobSpecFactory {
         try {
             return URLDecoder.decode(value, StandardCharsets.UTF_8.toString()).split("=");
         } catch (UnsupportedEncodingException e) {
-            throw new ServiceExecutionException("Could not expand search parameter: " + value, e);
+            throw new JobExpansionException("Could not expand search parameter: " + value, e);
         }
     }
 
@@ -181,7 +220,7 @@ public class JobSpecFactory {
             expandedParams.add(staticParams);
         } else {
             parallelParams.stream()
-                    .peek(p -> LOG.info("Expanding parallel parameter {}", p.getParamName()))
+                    .peek(p -> LOG.debug("Expanding parallel parameter {}", p.getParamName()))
                     .forEach(parallelParam -> parallelParam.getParamValueList().stream()
                             .flatMap(v -> Arrays.stream(v.split(","))) // TODO Remove when values are reliably not comma-separated
                             .forEach(value -> expandedParams.add(ImmutableList.<JobParam>builder()
@@ -212,5 +251,6 @@ public class JobSpecFactory {
 
         return jobSpecBuilder.build();
     }
+
 
 }

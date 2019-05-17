@@ -5,7 +5,7 @@
  * # SearchService
  * Service in the ftepApp.
  */
-define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonHalAdapter) {
+define(['../ftepmodules', 'traversonHal', 'moment'], function (ftepmodules, TraversonJsonHalAdapter, moment) {
 
     'use strict';
 
@@ -127,10 +127,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 var date = new Date();
                 if(dateType === 'start') {
                     date.setUTCMonth(date.getUTCMonth() + parseInt(field.defaultValue[0]));
-                    date.setUTCHours(0,0,0,0);
                 } else if (dateType === 'end' ) {
                     date.setUTCMonth(date.getUTCMonth() + parseInt(field.defaultValue[1]));
-                    date.setUTCHours(0,0,0,-1);
                 }
                 return date;
             // Set default value for select types
@@ -214,12 +212,21 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return values;
         };
 
+        function formatDateRanges(date, dateType) {
+            if(dateType === 'start') {
+                return moment(date).format('YYYY-MM-DD') + 'T00:00:00.000Z';
+            } else if (dateType === 'end' ) {
+                return moment(date).format('YYYY-MM-DD') + 'T23:59:59.999Z';
+            }
+        }
+
         this.formatSearchRequest = function(activeSearch) {
             var search = angular.copy(activeSearch);
             for (var key in search) {
+                // Format date ranges correctly
                 if (search[key] && search[key].start && search[key].end) {
-                    search[key + 'Start'] = search[key].start;
-                    search[key + 'End'] = search[key].end;
+                    search[key + 'Start'] = formatDateRanges(search[key].start, 'start');
+                    search[key + 'End'] = formatDateRanges(search[key].end, 'end');
                     delete search[key];
                 }
             }

@@ -120,6 +120,21 @@ public class ReportsApi {
         }
     }
 
+    /**
+     * Retrieving the monthly statistics for a given month and a year in a JSON format.
+     * @param year
+     * @param month
+     * @return
+     */
+    @GetMapping("/dataUsage/application/json/{year}/{month}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
+    public ReportsCollector.UsageReport getDataUsageReportJsonYearMonth(@PathVariable("year") int year, @PathVariable("month") int month) {
+
+        return reportsCollector.generateUsageReportJson(YearMonth.of(year, month));
+    }
+
+
+
     private JobDataUsage getJobDataUsage(Job job) {
         JobDataUsage.JobDataUsageBuilder builder = JobDataUsage.builder();
 

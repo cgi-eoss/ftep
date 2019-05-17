@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.google.common.io.CountingOutputStream;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -64,7 +65,7 @@ public class ReportsCollector {
         List<Job> jobs = jobDataService.findByStartIn(period);
 
         jobs.forEach(j -> {
-            UserService userService = UserService.of(j.getOwner().getEmail(), j.getOwner().getName(), j.getConfig().getService().getName());
+            UserService userService = new UserService(j.getOwner().getEmail(), j.getOwner().getName(), j.getConfig().getService().getName());
 
             JobMetrics metrics = new JobMetrics(
                     1,
@@ -107,6 +108,84 @@ public class ReportsCollector {
         return jsonBody.containsKey("total_results") ? (Integer) (jsonBody.get("total_results")) : -1;
     }
 
+
+    /**
+     * Retrieving uploaded reference data for a given year and month
+     * @param period
+     * @return
+     */
+    private Map<String, String> getParamUploadRefData(YearMonth period) {
+        String urlPartUploadRefData = "response:201 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/refData AND verb:POST";
+        Map<String, String> qParamUploadRefData = ImmutableMap.<String, String>builder()
+                .put("fields", "timestamp")
+                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("limit", "1000")
+                .put("query", urlPartUploadRefData)
+                .build();
+        return qParamUploadRefData;
+    }
+
+    /**
+     * Retrieving downloaded products and reference data for a given year and month
+     * @param period
+     * @return
+     */
+    private Map<String, String> getParamDownloadProdAndRefData(YearMonth period) {
+        String urlPartDownloadProdAndRefData = "response:200 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/*\\/dl";
+        Map<String, String> qParamDownloadProdAndRefData = ImmutableMap.<String, String>builder()
+                .put("fields", "timestamp")
+                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
+                .put("limit", "1000")
+                .put("query", urlPartDownloadProdAndRefData)
+                .build();
+        return qParamDownloadProdAndRefData;
+    }
+
+    /**
+     * Generating a report in the form of a UsageReport object
+     * @param period
+     * @return
+     */
+
+    public UsageReport generateUsageReportJson(YearMonth period) {
+
+        // Fetch the data for populating the report
+
+        Map<String, String> qParamUploadRefData = getParamUploadRefData(period);
+        Map<String, String> qParamDownloadProdAndRefData = getParamDownloadProdAndRefData(period);
+
+        int paramUploadRefData = fetchJsonData(qParamUploadRefData);
+        int paramDownloadProdAndRefData = fetchJsonData(qParamDownloadProdAndRefData);
+
+        Map<UserService, JobMetrics> userPerServiceDetails = new HashMap<>();
+        Map<String, Long> productList = new HashMap<>();
+        int generatedProducts = fetchFromDatabase(period, userPerServiceDetails, productList);
+
+        // Create, populate and return a UsageReport object
+
+        UsageReport report = new UsageReport();
+        List<UserService> userServices = userPerServiceDetails.keySet().stream()
+                .map(key -> {
+                    key.jobMetrics = userPerServiceDetails.get(key);
+                    return key;
+                })
+                .collect(Collectors.toList());
+
+        report.setUserServices(userServices);
+        report.setTotalNumOfJobs(userServices.stream().mapToInt(userService -> userService.jobMetrics.totalNumOfJobsInService).sum());
+        report.setTotalInSize(userServices.stream().mapToLong(userService -> userService.jobMetrics.totalInSize).sum());
+        report.setTotalOutSize(userServices.stream().mapToLong(userService -> userService.jobMetrics.totalOutSize).sum());
+        report.setTotalTime(userServices.stream().mapToLong(userService -> userService.jobMetrics.totalTime).sum());
+        report.setGeneratedProducts(generatedProducts);
+        report.setUploadedReferenceData(paramUploadRefData);
+        report.setDownloadedProductsAndReferenceData(paramDownloadProdAndRefData);
+        report.setUniqueProducts(productList);
+
+        return report;
+    }
+
     /**
      * The main class-method that executes the other functions to retrieve data
      * and returns a byte-stream (excel sheet), filled with the monthly-statistics.
@@ -117,26 +196,15 @@ public class ReportsCollector {
 
         // Fetch data
 
-        String urlPartUploadRefData = "response:201 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/refData AND verb:POST";
-        String urlPartDownloadProdAndRefData = "response:200 AND request:\\/secure\\/api\\/v2.0\\/ftepFiles\\/*\\/dl";
-        Map<String, String> qParamUploadRefData = ImmutableMap.<String, String>builder()
-                .put("fields", "timestamp")
-                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
-                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
-                .put("limit", "1000")
-                .put("query", urlPartUploadRefData)
-                .build();
-        Map<String, String> qParamDownloadProdAndRefData = ImmutableMap.<String, String>builder()
-                .put("fields", "timestamp")
-                .put("from", period.atDay(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
-                .put("to", period.atEndOfMonth().plusDays(1).atStartOfDay(ZoneOffset.UTC).format(GRAYLOG_DATE_FORMAT))
-                .put("limit", "1000")
-                .put("query", urlPartDownloadProdAndRefData)
-                .build();
+        Map<String, String> qParamUploadRefData = getParamUploadRefData(period);
+        Map<String, String> qParamDownloadProdAndRefData = getParamDownloadProdAndRefData(period);
 
         Map<UserService, JobMetrics> userPerServiceDetails = new HashMap<>();
         Map<String, Long> productList = new HashMap<>();
         int generatedProducts = fetchFromDatabase(period, userPerServiceDetails, productList);
+
+        int paramUploadRefData = fetchJsonData(qParamUploadRefData);
+        int paramDownloadProdAndRefData = fetchJsonData(qParamDownloadProdAndRefData);
 
         // Create the Excel spreadsheet
 
@@ -212,10 +280,10 @@ public class ReportsCollector {
         Cell cellEx3 = rows.get(3).createCell(7);
         Cell cellEx4 = rows.get(4).createCell(7);
         cellEx1.setCellValue(generatedProducts);
-        cellEx2.setCellValue(fetchJsonData(qParamUploadRefData));
+        cellEx2.setCellValue(paramUploadRefData);
         cellEx3.setCellValue("Products & reference data downloaded by users");
         cellEx3.setCellStyle(boldNormalCellStyle);
-        cellEx4.setCellValue(fetchJsonData(qParamDownloadProdAndRefData));
+        cellEx4.setCellValue(paramDownloadProdAndRefData);
 
         // Product Unique List, right side
 
@@ -272,11 +340,18 @@ public class ReportsCollector {
         public long totalOutSize;
     }
 
-    @Value(staticConstructor = "of")
+    @Data
     private static final class UserService implements Comparable<UserService> {
         private String userMail;
         private String userName;
         private String serviceName;
+        private JobMetrics jobMetrics;
+
+        private UserService(String userMail, String userName, String serviceName) {
+            this.userMail = userMail;
+            this.userName = userName;
+            this.serviceName = serviceName;
+        }
 
         @Override
         public int compareTo(UserService o) {
@@ -286,6 +361,19 @@ public class ReportsCollector {
                     .compare(serviceName, o.serviceName)
                     .result();
         }
+    }
+
+    @Data
+    public final class UsageReport {
+        private List<UserService> userServices;
+        private int totalNumOfJobs;
+        private long totalTime;
+        private long totalInSize;
+        private long totalOutSize;
+        private int generatedProducts;
+        private int uploadedReferenceData;
+        private int downloadedProductsAndReferenceData;
+        private Map<String, Long> uniqueProducts;
     }
 
 }

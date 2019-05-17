@@ -5,11 +5,10 @@ import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
-import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
-
 import io.grpc.ManagedChannelBuilder;
 
 public class LocalWorker {
@@ -24,7 +23,7 @@ public class LocalWorker {
         return worker.prepareInputs(request);
     }
 
-    public LaunchContainerResponse launchContainer(JobDockerConfig request) {
+    public LaunchContainerResponse launchContainer(JobSpec request) {
         return worker.launchContainer(request);
     }
 

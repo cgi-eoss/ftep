@@ -3,11 +3,12 @@ package com.cgi.eoss.ftep.worker.worker;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.rpc.Job;
+import com.cgi.eoss.ftep.rpc.Service;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
-import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
+import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import io.grpc.ManagedChannelBuilder;
@@ -16,11 +17,14 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,8 +43,14 @@ import static org.junit.Assume.assumeTrue;
 @TestPropertySource("classpath:test-worker.properties")
 public class FtepWorkerIT {
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @MockBean
     private ServiceInputOutputManager ioManager;
+
+    @SpyBean
+    private JobEnvironmentService jobEnvironmentService;
 
     @MockBean // Keep this to avoid instantiating a real Bean which needs a data dir
     private DownloaderFacade downloaderFacade;
@@ -86,21 +96,22 @@ public class FtepWorkerIT {
     @Test
     public void testLaunchContainer() throws Exception {
         Mockito.when(ioManager.getServiceContext("service1")).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
+        Mockito.when(jobEnvironmentService.getBaseDir()).thenReturn(temporaryFolder.getRoot().toPath());
 
         String tag = UUID.randomUUID().toString();
 
         worker.getJobClients().put("jobid-1", dockerClient);
-
-        JobDockerConfig request = JobDockerConfig.newBuilder()
-                .setServiceName("service1")
+        JobSpec request = JobSpec.newBuilder()
+                .setService(Service.newBuilder().setName("service1").setDockerImageTag(tag))
                 .setJob(Job.newBuilder().setId("jobid-1"))
-                .setDockerImage(tag)
                 .build();
         try {
             assertThat(dockerClient.listImagesCmd().withImageNameFilter(tag).exec().size(), is(0));
+            workerClient.prepareInputs(JobInputs.newBuilder().setJob(request.getJob()).addAllInputs(request.getInputsList()).build());
             workerClient.launchContainer(request);
             assertThat(dockerClient.listImagesCmd().withImageNameFilter(tag).exec().size(), is(1));
         } finally {
+            workerClient.cleanUp(request.getJob());
             dockerClient.removeImageCmd(tag).exec();
         }
     }

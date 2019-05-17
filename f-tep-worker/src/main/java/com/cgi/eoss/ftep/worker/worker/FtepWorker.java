@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
+import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.logging.Logging;
@@ -18,9 +19,9 @@ import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
-import com.cgi.eoss.ftep.rpc.worker.JobDockerConfig;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
+import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.LaunchContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
@@ -28,6 +29,7 @@ import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.rpc.worker.PortBinding;
 import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.PrepareDockerImageResponse;
+import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.worker.DockerRegistryConfig;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
@@ -53,9 +55,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
@@ -74,6 +78,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
@@ -82,6 +87,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -123,6 +130,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final Striped<Lock> dockerBuildLock = Striped.lazyWeakLock(1);
 
     private final int minWorkerNodes;
+
+    //todo: probably can avoid this
+    //used for cleanup
+    private final Map<String, String> deviceIds = new HashMap<>();
+
+    //key = jobId and value list of paths for inputs
+//    private final Map<String, List<Path>> externalInputs = new HashMap<>();
+    private final ListMultimap<String, Path> externalInputs = ArrayListMultimap.create();
 
     @Autowired
     public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes) {
@@ -209,7 +224,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
                         // Just hope no one has used a comma in their url...
                         Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(Collectors.toSet());
-                        inputOutputManager.prepareInput(subdirPath, inputUris);
+                        inputOutputManager.prepareInput(subdirPath, inputUris).values().forEach(value -> externalInputs.get(jobId).add(value));
                         jobInputs.putAll(jobId, inputUris);
                     }
                 }
@@ -235,7 +250,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void launchContainer(JobDockerConfig request, StreamObserver<LaunchContainerResponse> responseObserver) {
+    public void launchContainer(JobSpec request, StreamObserver<LaunchContainerResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
             Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
@@ -244,19 +259,19 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             String containerId = null;
 
             try {
-                buildDockerImage(dockerClient, request.getServiceName(), request.getDockerImage());
+                buildDockerImage(dockerClient, request.getService().getName(), request.getService().getDockerImageTag());
 
                 // Launch tag
-                try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getDockerImage())) {
+                try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getService().getDockerImageTag())) {
                     createContainerCmd.withLabels(ImmutableMap.of(
                             "jobId", jobId,
                             "intJobId", String.valueOf(request.getJob().getIntJobId()),
                             "userId", request.getJob().getUserId(),
                             "serviceId", request.getJob().getServiceId()
                     ));
-                    createContainerCmd.withBinds(request.getBindsList().stream().map(Bind::parse).collect(Collectors.toList()));
-                    createContainerCmd.withExposedPorts(request.getPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
-                    createContainerCmd.withPortBindings(request.getPortsList().stream()
+                    createContainerCmd.withBinds(prepareBindsForDockerContainer(request).stream().map(Bind::parse).collect(Collectors.toList()));
+                    createContainerCmd.withExposedPorts(request.getExposedPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
+                    createContainerCmd.withPortBindings(request.getExposedPortsList().stream()
                             .map(p -> new com.github.dockerjava.api.model.PortBinding(new Ports.Binding(null, null), ExposedPort.parse(p)))
                             .collect(Collectors.toList()));
 
@@ -283,7 +298,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.error("Failed to launch Docker container: {}", e.getMessage());
                 }
-                LOG.error("Failed to launch Docker container {}", request.getDockerImage(), e);
+                LOG.error("Failed to launch Docker container {}", request.getService().getDockerImageTag(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
                     removeContainer(dockerClient, containerId);
                 }
@@ -470,6 +485,18 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void cleanUp(com.cgi.eoss.ftep.rpc.Job job, io.grpc.stub.StreamObserver<com.cgi.eoss.ftep.rpc.worker.CleanUpResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
             String jobId = job.getId();
+            Node jobNode = nodeManager.getJobNode(jobId);
+            //todo:needs testing
+            if (deviceIds.containsKey(jobId)) {
+                LOG.debug("Device id is: {}", deviceIds.get(jobId));
+                try {
+                    nodeManager.releaseStorageForJob(jobNode, jobId, deviceIds.get(jobId));
+                    deviceIds.remove(jobId);
+                } catch (StorageProvisioningException e) {
+                    LOG.error("Exception releasing storage ", e);
+                }
+            }
+            externalInputs.removeAll(jobId);
             LOG.info("Clean up requested for job {}", jobId);
             jobContainers.remove(jobId);
             jobClients.remove(jobId);
@@ -486,6 +513,43 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             responseObserver.onNext(CleanUpResponse.newBuilder().build());
             responseObserver.onCompleted();
         }
+    }
+
+    private List<String> prepareBindsForDockerContainer(JobSpec jobSpec) throws StorageProvisioningException {
+        List<String> binds = new ArrayList<>();
+        com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment = jobEnvironments.get(jobSpec.getJob().getId());
+
+        //todo: hasResourceRequest came from fs-tep, need nodemanager to handle local storage (currently can't use this bind)
+        if (jobSpec.hasResourceRequest()) {
+            ResourceRequest resourceRequest = jobSpec.getResourceRequest();
+            int requiredStorage = resourceRequest.getStorage();
+            String procDir = generateRandomDirName("proc");
+            File storageTempDir = new File("/dockerStorage", procDir);
+            deviceIds.putIfAbsent(jobSpec.getJob().getId(), nodeManager.allocateStorageForJob(jobSpec.getJob().getId(), requiredStorage, storageTempDir.getAbsolutePath()));
+            binds.add(storageTempDir.getAbsolutePath() + ":" + "/home/worker/procDir:rw");
+        }
+
+        externalInputs.get(jobSpec.getJob().getId())
+                .forEach((Path p) -> {
+                    try {
+                        String bind = String.format("%s:%s:ro", p.toRealPath().toAbsolutePath().toString(), p.toRealPath().toAbsolutePath().toString());
+                        binds.add(bind);
+                    } catch (Exception e) {
+                        LOG.debug("Failed to convert path toRealPath: {}: {}", p, e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        String dataBind = String.format("%s:%s:ro", inputOutputManager.getServiceContext(jobSpec.getService().getName()), inputOutputManager.getServiceContext(jobSpec.getService().getName()));
+        binds.add(dataBind);
+        binds.add(jobEnvironment.getWorkingDir().toAbsolutePath() + "/FTEP-WPS-INPUT.properties:"
+                + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro");
+        binds.add(jobEnvironment.getInputDir().toAbsolutePath() + ":" + "/home/worker/workDir/inDir:ro");
+        binds.add(jobEnvironment.getOutputDir().toAbsolutePath() + ":" + "/home/worker/workDir/outDir:rw");
+        //todo:remove, not sure if it is used in ftep (some feature from fs tep)?
+        binds.addAll(jobSpec.getUserBindsList());
+        LOG.debug("Docker binds: {}", binds);
+        return binds;
     }
 
     private void destroyEnvironment(com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment) {
@@ -656,6 +720,15 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             return false;
         }
         return true;
+    }
+
+    private static final SecureRandom random = new SecureRandom();
+
+    private String generateRandomDirName(String prefix) {
+        long n = random.nextLong();
+        n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
+        String name = prefix + Long.toString(n);
+        return name;
     }
 
     @VisibleForTesting

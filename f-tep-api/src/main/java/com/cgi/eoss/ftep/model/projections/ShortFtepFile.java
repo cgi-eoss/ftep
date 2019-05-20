@@ -19,6 +19,7 @@ public interface ShortFtepFile extends Identifiable<Long> {
     String getFilename();
     URI getUri();
     FtepFile.Type getType();
+    Long getFilesize();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepFile), target.id)}")
     FtepAccess getAccess();
 }

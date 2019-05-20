@@ -97,6 +97,12 @@ public class JobExpansionServiceTest {
                                 .add(feature1)
                                 .add(feature2)
                                 .build())
+                        .page(SearchResults.Page.builder()
+                                .number(0)
+                                .size(2)
+                                .totalPages(1)
+                                .totalElements(2)
+                                .build())
                         .build());
 
         FtepFile ftepFile11 = new FtepFile(URI.create(FILE_11_URI), UUID.randomUUID());

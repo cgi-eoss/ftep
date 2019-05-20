@@ -162,6 +162,9 @@ public class JobExpansionServiceImpl implements JobExpansionService {
             searchParameters.setParameters(paramParameters.build());
 
             SearchResults results = searchFacade.search(searchParameters);
+            if (results.getPage().getTotalElements() == 0) {
+                throw new JobExpansionException("No search results were found for job parameters!");
+            }
             List<String> resultUris = results.getFeatures().stream().map(f -> f.getProperty("ftepUrl").toString()).collect(toList());
 
             LOG.debug("Evaluated search-based input parameter to URIs: {}", resultUris);

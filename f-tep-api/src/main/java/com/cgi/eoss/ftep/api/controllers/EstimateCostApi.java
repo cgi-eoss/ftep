@@ -26,8 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class EstimateCostApi {
 
-    private final CostingService costingService;
-    private final FtepSecurityService ftepSecurityService;
+    private final CostingService costingService;    private final FtepSecurityService ftepSecurityService;
 
     @Autowired
     public EstimateCostApi(CostingService costingService, FtepSecurityService ftepSecurityService) {
@@ -39,11 +38,16 @@ public class EstimateCostApi {
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read')")
     public ResponseEntity estimateJobConfigCost(@ModelAttribute("jobConfigId") JobConfig jobConfig) {
         int walletBalance = ftepSecurityService.getCurrentUser().getWallet().getBalance();
-        int cost = costingService.estimateJobCost(jobConfig);
 
-        return ResponseEntity
-                .status(cost > walletBalance ? HttpStatus.PAYMENT_REQUIRED : HttpStatus.OK)
-                .body(CostEstimationResponse.builder().estimatedCost(cost).currentWalletBalance(walletBalance).build());
+        try {
+            int cost = costingService.estimateJobCost(jobConfig);
+            return ResponseEntity
+                    .status(cost > walletBalance ? HttpStatus.PAYMENT_REQUIRED : HttpStatus.OK)
+                    .body(CostEstimationResponse.builder().estimatedCost(cost).currentWalletBalance(walletBalance).build());
+        } catch (com.cgi.eoss.ftep.batch.service.JobExpansionException  e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error evaluating Job parameters: "+ e.getMessage());
+        }
     }
 
     @GetMapping("/download/{ftepFileId}")

@@ -58,6 +58,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
             var jobParams = null;
 
+            // If easy mode doesn't exist run advanced mode
+            if(!$scope.serviceParams.selectedService.easyModeServiceDescriptor || !$scope.serviceParams.selectedService.easyModeServiceDescriptor.dataInputs) {
+                $scope.serviceParams.config.advancedMode = true;
+            }
+
             if (!$scope.serviceParams.config.advancedMode) {
                 jobParams = ProductService.generateEasyJobConfig(
                     $scope.serviceParams.config.inputValues,
@@ -93,23 +98,29 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             } else {
                 JobService.createJobConfig(jobParams).then(function(jobConfig) {
                     JobService.estimateJob(jobConfig, $event).then(function(estimation) {
-                            var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';
-                            CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
-                                '\nAre you sure you want to continue?').then(function (confirmed) {
-                                if (confirmed === false) {
-                                    return;
-                                }
-                                JobService.broadcastNewjob();
-                                $scope.displayTab($scope.bottomNavTabs.JOBS);
-                                JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
-                                    JobService.refreshJobs('explorer', 'Create');
-                                });
+                        var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';
+                        CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
+                            '\nAre you sure you want to continue?').then(function (confirmed) {
+                            if (confirmed === false) {
+                                return;
+                            }
+                            JobService.broadcastNewjob();
+                            $scope.displayTab($scope.bottomNavTabs.JOBS);
+                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                                JobService.refreshJobs('explorer', 'Create');
                             });
-                        },
-                        function (error) {
+                        });
+                    },
+                    function (error) {
+                        if (error && error.estimatedCost) {
                             CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
                                 '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
-                        });
+                        } else if (error) {
+                            CommonService.infoBulletin($event, error);
+                        } else {
+                            CommonService.infoBulletin($event, 'Error occurred. Could not get Job cost estimation.');
+                        }
+                    });
                 });
             }
         };

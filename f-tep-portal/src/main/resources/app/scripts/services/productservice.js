@@ -362,7 +362,10 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
             selectedService.serviceDescriptor.description = selectedService.description;
             selectedService.serviceDescriptor.id = selectedService.name;
             selectedService.serviceDescriptor.serviceProvider = selectedService.name;
-            selectedService.easyModeServiceDescriptor.id = selectedService.name;
+
+            if (selectedService.easyModeServiceDescriptor) {
+                selectedService.easyModeServiceDescriptor.id = selectedService.name;
+            }
 
             var editService = {
                 name: selectedService.name,

@@ -97,6 +97,14 @@
                 tooltip-trigger="mouseenter"
                 tooltip-append-to-body="true">
                 +
+
+            <li ng-click="removeEasyMode()"
+                ng-if="serviceParams.selectedService.easyModeServiceDescriptor.id"
+                aria-label="Remove Simple Input Mode"
+                uib-tooltip="Remove Simple Input Mode"
+                tooltip-trigger="mouseenter"
+                tooltip-append-to-body="true">
+                x
         </ul>
     </section>
 

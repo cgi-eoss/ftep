@@ -67,7 +67,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
         // Adds the 'Simple Input Definitions' tab to the service, enabling Easy Mode
         $scope.addEasyMode = function() {
             $scope.serviceParams.activeArea = $scope.serviceParams.constants.tabs.easyMode;
-            $scope.serviceParams.selectedService.easyModeServiceDescriptor.id = $scope.serviceParams.selectedService.name;
+            $scope.serviceParams.selectedService.easyModeServiceDescriptor = {
+                id: $scope.serviceParams.selectedService.name
+            };
 
             // Build template from serviceDescriptor inputs
             var template = { inputs: {}, searchParameters: [] };
@@ -82,6 +84,13 @@ define(['../../ftepmodules'], function (ftepmodules) {
             // Broadcast template update message to trigger codemirror to refresh
             $rootScope.$broadcast('developer.definitions.editor.update', template);
         };
+
+        $scope.removeEasyMode = function() {
+            $scope.serviceParams.selectedService.easyModeParameterTemplate = null;
+            $scope.serviceParams.selectedService.easyModeServiceDescriptor = null;
+            $scope.serviceParams.activeArea = $scope.serviceParams.constants.tabs.files;
+        };
+
 
     }]);
 

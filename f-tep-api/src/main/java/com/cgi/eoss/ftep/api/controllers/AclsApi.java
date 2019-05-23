@@ -241,7 +241,7 @@ public class AclsApi {
 
     @Data
     @NoArgsConstructor
-    private static final class FtepAccessControlList {
+    public static final class FtepAccessControlList {
         private Long entityId;
         private List<FtepAccessControlEntry> permissions;
 

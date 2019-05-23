@@ -12,6 +12,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
@@ -80,7 +81,16 @@ public class GeoUtil {
 
     public static String geojsonToWkt(GeoJsonObject geojson) {
         try {
-            return new GeometryJSON().read(geojsonToString(geojson)).toString();
+            GeoJsonObject geoJsonGeometry;
+
+            // The geojson lib doesn't offer on the interface geometry...
+            if (geojson instanceof Feature) {
+                geoJsonGeometry = ((Feature) geojson).getGeometry();
+            } else {
+                geoJsonGeometry = geojson;
+            }
+
+            return new GeometryJSON().read(geojsonToString(geoJsonGeometry)).toString();
         } catch (Exception e) {
             LOG.error("Could not convert GeoJsonObject to WKT: {}", geojson, e);
             throw new GeometryException(e);

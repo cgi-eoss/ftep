@@ -63,12 +63,41 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.newReference = {};
                 $scope.validation = "Valid";
 
+                $scope.filetype = "";
+                $scope.autoDetectDisabled = true;
+                $scope.autoDetectGeometry = false;
+
+                // Fetch all file types
+                FileService.getCatalogueFileTypes().then(function (result) {
+                    $scope.types = result;
+                });
+
+                // called upon dropbox change
+                $scope.populateFileType = function(file) {
+
+                    if ($scope.validation === "Valid") {
+                        FileService.getFileTypeByExtension(file.name.substring(file.name.lastIndexOf(".") + 1)).then(function (result) {
+                            $scope.filetype = result;
+                            $scope.toggleEnableAutoDetectGeometry();
+                        });
+                    }
+                };
+
+                // called upon option value change
+                $scope.toggleEnableAutoDetectGeometry = function() {
+
+                    FileService.getAutoDetectFlag($scope.filetype).then(function (result) {
+                        $scope.autoDetectDisabled = !result;
+                        $scope.autoDetectGeometry = result;
+                    });
+                }
+
                 $scope.validateFile = function (file) {
                     if(!file) {
                         $scope.validation = "No file selected";
                     } else if (file.name.indexOf(' ') >= 0) {
                         $scope.validation = "Filename cannot contain white space";
-                    } else if (file.size >= (1024*1024*1024*10)) {
+                    } else if (file.size > (1024*1024*1024*10)) {
                         $scope.validation = "Filesize cannot exceed 10GB";
                     } else {
                         $scope.validation = "Valid";
@@ -77,6 +106,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 /* Upload the file */
                 $scope.addReferenceFile = function () {
+                    $scope.newReference.autoDetectGeometry = $scope.autoDetectGeometry;
+                    if ($scope.newReference.autoDetectGeometry) {
+                        $scope.newReference.geometry = "Auto-detected";
+                        $scope.newReference.filetype = $scope.filetype;
+                    }
                     FileService.uploadFile("community", $scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
                         FileService.refreshFtepFiles("community");

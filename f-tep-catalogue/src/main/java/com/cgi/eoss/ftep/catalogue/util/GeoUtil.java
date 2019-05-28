@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.catalogue.util;
 
 import com.cgi.eoss.ftep.model.internal.Shapefile;
 import com.cgi.eoss.ftep.model.internal.ShpFileType;
+import com.cgi.eoss.ftep.model.internal.UploadableFileType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -33,6 +34,8 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -41,8 +44,11 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
 
 /**
  * <p>Utility methods for dealing with geo-spatial data and its various java libraries.</p>
@@ -50,6 +56,8 @@ import java.util.zip.ZipOutputStream;
 @Log4j2
 @UtilityClass
 public class GeoUtil {
+    private static final String tempDirName = "tempDir";
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private static final WKTReader2 WKT_READER = new WKTReader2(JTSFactoryFinder.getGeometryFactory());
@@ -118,7 +126,6 @@ public class GeoUtil {
     public static org.geojson.Polygon extractBoundingBox(Path file) {
         try {
             ReferencedEnvelope envelope = getEnvelope(file);
-
             Polygon polygon = JTS.toGeometry(envelope.toBounds(DefaultGeographicCRS.WGS84));
             LOG.debug("Extracted WKT bounding box from file {}: {}", file.getFileName(), polygon);
             return (org.geojson.Polygon) getGeoJsonGeometry(polygon.toString());
@@ -209,5 +216,91 @@ public class GeoUtil {
                 .zip(shapefileZip)
                 .contents(shapefileComponents)
                 .build();
+    }
+
+    /**
+     * A function to unzip files from a zipped shapefile into a temporary folder.
+     * The *.shp file is returned.
+     * @param shapefile
+     * @param tempDir
+     * @return
+     */
+    // TODO: extract and reuse the unzip functionality from f-tep-io
+    public static Path unzipShapefile(Path shapefile, Path tempDir) {
+        try {
+            ZipInputStream zipIn = new ZipInputStream(Files.newInputStream(shapefile));
+            byte[] buffer = new byte[1024];
+            ZipEntry zipEntry;
+            File shpFile = null;
+            while ((zipEntry = zipIn.getNextEntry()) != null) {
+                File file = new File(tempDir.toFile(), zipEntry.getName());
+                if (zipEntry.isDirectory()) {
+                    file.mkdir();
+                } else {
+                    new File(file.getParent()).mkdirs();
+                    FileOutputStream fileOut = new FileOutputStream(file);
+                    int length;
+                    while ((length = zipIn.read(buffer)) > 0) {
+                        fileOut.write(buffer, 0, length);
+                    }
+                    if (zipEntry.getName().toLowerCase().endsWith(ShpFileType.SHP.extensionWithPeriod)) {
+                        shpFile = file;
+                    }
+                    fileOut.close();
+                }
+            }
+            zipIn.closeEntry();
+            zipIn.close();
+            return Optional.ofNullable(shpFile.toPath()).orElse(null);
+
+        } catch (IOException e) {
+            LOG.error("Error in unzipping the file {}:", shapefile.toUri(), e);
+            throw new GeometryException(e);
+        }
+    }
+
+    /**
+     * Cleaning up the temporary folder containing unzipped Shapefile files
+     * @param tempDir
+     */
+    public void cleanUp(Path tempDir) {
+        try {
+            MoreFiles.deleteRecursively(tempDir);
+        } catch (IOException e) {
+            LOG.error("Failed to recursively delete the directory {}:", tempDir.toUri(), e);
+            throw new GeometryException(e);
+        }
+    }
+
+    /**
+     * Geometry extraction controller function
+     * @param file
+     * @param fileType
+     * @param referenceDataBasedir
+     * @return
+     */
+    public static GeoJsonObject extractGeometry(Path file, UploadableFileType fileType, Path referenceDataBasedir) {
+        switch (fileType) {
+            case GEOTIFF:
+                return extractBoundingBox(file);
+            case SHAPEFILE:
+                Path tempDir = null;
+                try {
+                    tempDir = Files.createTempDirectory(referenceDataBasedir, tempDirName);
+                    Path geometryFile = unzipShapefile(file, tempDir);
+                    org.geojson.Polygon geometry = extractBoundingBox(geometryFile);
+                    return geometry;
+                } catch (IOException e) {
+                    LOG.error("Failed to create a temporary directory:", e);
+                    throw new GeometryException(e);
+                } finally {
+                    if (tempDir != null) {
+                        cleanUp(tempDir);
+                    }
+                }
+            default:
+                LOG.error("Illegal file type for extracting geometry: " + fileType);
+                return null;
+        }
     }
 }

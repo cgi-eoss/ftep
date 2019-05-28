@@ -191,7 +191,7 @@ public class FtepFilesApiIT {
         MockMultipartFile uploadFile = new MockMultipartFile("file", "testFile1", "text/plain", fileResource.getInputStream());
 
         when(catalogueService.ingestReferenceData(any(), any())).thenReturn(testFile1);
-        mockMvc.perform(fileUpload("/api/ftepFiles/refData").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)"))
+        mockMvc.perform(fileUpload("/api/ftepFiles/refData").file(uploadFile).header("REMOTE_USER", ftepUser.getName()).param("geometry", "POINT(0 0)").param("filetype", "OTHER").param("autoDetectGeometry", "false"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/ftepFiles/" + testFile1.getId())))
                 .andExpect(jsonPath("$._links.download.href").value(endsWith("/ftepFiles/" + testFile1.getId() + "/dl")));

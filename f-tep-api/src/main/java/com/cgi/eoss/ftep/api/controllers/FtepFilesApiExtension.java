@@ -6,6 +6,7 @@ import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
+import com.cgi.eoss.ftep.model.internal.UploadableFileType;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
@@ -63,7 +64,8 @@ public class FtepFilesApiExtension {
 
     @PostMapping("/refData")
     @ResponseBody
-    public ResponseEntity saveRefData(@RequestParam("geometry") String geometry, @RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity saveRefData(@RequestParam("geometry") String geometry, @RequestParam("file") MultipartFile file,
+                                      @RequestParam("autoDetectGeometry") boolean autoDetectGeometry, @RequestParam("filetype") UploadableFileType fileType) throws Exception {
         User owner = ftepSecurityService.getCurrentUser();
         String filename = file.getOriginalFilename();
 
@@ -85,6 +87,8 @@ public class FtepFilesApiExtension {
                     .owner(owner)
                     .filename(filename)
                     .geometry(geometry)
+                    .autoDetectGeometry(autoDetectGeometry)
+                    .fileType(fileType)
                     .properties(ImmutableMap.of()) // TODO Collect user-driven metadata properties
                     .build();
 

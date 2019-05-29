@@ -9,7 +9,7 @@
 <section id="sidebar-list">
     <div class="row">
         <div class="col-xs-12">
-            <p class="file-length">(Displaying {{ filesParams.pagingData.page.totalElements ? filesParams.pagingData.page.totalElements : '0'  }} files)</p>
+            <p class="file-length">(Found {{ filesParams.pagingData.page.totalElements ? filesParams.pagingData.page.totalElements : '0'  }} files)</p>
         </div>
     </div>
     <div class="row">
@@ -17,15 +17,16 @@
             <form novalidate>
 
                 <md-subheader>
+                    <i class="material-icons">search</i>
                     <label>Search by keyword</label>
                 </md-subheader>
 
                 <md-input-container>
-
-                    <input type="text" ng-model="filesParams.params.filter" ng-change="inputChange()" aria-label="Search by keyword" />
+                    <input type="text" ng-model="filesParams.params.filter" ng-change="inputChange()" aria-label="Search by keyword" placeholder="Enter a search term" />
                 </md-input-container>
 
                 <md-subheader>
+                    <i class="material-icons">folder</i>
                     <label>File type</label>
                 </md-subheader>
 
@@ -38,6 +39,7 @@
                 </md-input-container>
 
                 <md-subheader>
+                    <i class="material-icons">person</i>
                     <label>Ownership</label>
                 </md-subheader>
 
@@ -48,6 +50,7 @@
                 </md-radio-group>
 
                 <section>
+                    <br>
                     <div class="row">
                         <div class="col-lg-6 col-md-12 no-padding">
                             <md-subheader>

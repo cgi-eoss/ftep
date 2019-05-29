@@ -270,20 +270,28 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         this.getFtepFilesWithParams = function (page, searchParams) {
             var params = angular.copy(searchParams);
             var url = rootUri + '/ftepFiles/search/' + params.ownership;
+        
             delete params.ownership;
-            if (!params.sort) {
-                url += '?sort=filename';
+
+            var esc = encodeURIComponent;
+            var query = Object.keys(params).filter(function(k) {
+                return params[k] ? k : false;
+            }).map(function(k) {
+                return esc(k) + "=" + esc(params[k]);
+            }).join("&").replace("&&", "&");
+
+            if (url.includes("?")) {
+                url += "&" + query;
+            } else {
+                url += "?" + query;
             }
-            for (var key in params) {
-                if (params[key]) {
-                    url += '&' + key + '=' + params[key];
-                }
+
+            if(((UserService.params.activeUser||{})._links.self.href)) {
+                url += '&owner=' + UserService.params.activeUser._links.self.href;
             }
 
             url += '&projection=shortFtepFileWorkspace';
-            if (UserService.params.activeUser && UserService.params.activeUser._links && UserService.params.activeUser._links.self.href) {
-                url += '&owner=' + UserService.params.activeUser._links.self.href;
-            }
+
             /* Set files data */
             return self.getFtepFiles(page, self.params[page].activeFileType, url);
         };

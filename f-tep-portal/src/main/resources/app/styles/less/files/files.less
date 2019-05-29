@@ -9,6 +9,9 @@
         md-input-container, md-radio-group, md-slider-container {
             margin-bottom: 40px;
         }
+        .md-subheader .md-subheader-inner  {
+            padding-left: 0;
+        }
     }
     .right-container {
         height: 100%;
@@ -22,19 +25,36 @@
             margin: 0.3rem 0;
         }
         h3 {
+            font-weight: 600;
             font-size: 12px;
             margin: 30px 0 0;
+
+            & + a {
+                margin-top: 10px;
+            }
+        }
+        a {
+            display: inline-block;
         }
         .right-button {
             display: flex;
             align-items: baseline;
+
             .md-button {
                 padding: 0;
                 margin: 0;
             }
         }
+        .spaced-button {
+            margin-left: 20px;
+            position: relative;
+            top: 10px;
+        }
         .expandableRow {
             overflow: auto;
+            border: 1px solid #aaa;
+            padding-left: 20px;
+
             md-input-container {
                 width: 100%;
             }

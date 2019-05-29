@@ -181,3 +181,5 @@ gradle-app.setting
 
 # app.js
 ftepConfig.js
+f-tep-portal/src/main/resources/app/scripts/ftepConfig.js
+f-tep-portal/src/main/resources/app/scripts/app.js

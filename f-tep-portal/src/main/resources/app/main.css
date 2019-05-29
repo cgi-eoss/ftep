@@ -2291,6 +2291,9 @@
 #files-container #side-container md-slider-container {
   margin-bottom: 40px;
 }
+#files-container #side-container .md-subheader .md-subheader-inner {
+  padding-left: 0;
+}
 #files-container .right-container {
   height: 100%;
   overflow-y: auto;
@@ -2307,8 +2310,15 @@
   margin: 0.3rem 0;
 }
 #files-container .right-container h3 {
+  font-weight: 600;
   font-size: 12px;
   margin: 30px 0 0;
+}
+#files-container .right-container h3 + a {
+  margin-top: 10px;
+}
+#files-container .right-container a {
+  display: inline-block;
 }
 #files-container .right-container .right-button {
   display: -ms-flexbox;
@@ -2320,8 +2330,15 @@
   padding: 0;
   margin: 0;
 }
+#files-container .right-container .spaced-button {
+  margin-left: 20px;
+  position: relative;
+  top: 10px;
+}
 #files-container .right-container .expandableRow {
   overflow: auto;
+  border: 1px solid #aaa;
+  padding-left: 20px;
 }
 #files-container .right-container .expandableRow md-input-container {
   width: 100%;

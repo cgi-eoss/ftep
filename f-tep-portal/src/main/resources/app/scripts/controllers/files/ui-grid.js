@@ -20,7 +20,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 useExternalPagination: true,
                 useExternalSorting: true,
                 expandableRowTemplate: '../../../views/files/ui-grid-subnav.html',
-                expandableRowHeight: 420,
+                expandableRowHeight: 500,
                 expandableRowScope: {
                     currentRowData: {},
                     copyToClipboard: copyToClipboard,
@@ -63,12 +63,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
             };
 
             /* Initial request for data */
-            setTimeout(function() { getFtepFilesWithParams($scope.filesParams.params); }, 300);
-
-            /* Update files when polling */
-            $scope.$on('poll.ftepfiles', function(_, data) {
-               // checkForParamsThenGet(data);      // Disabled as resets table 
-            });
+            getFtepFilesWithParams($scope.filesParams.params);
 
             function getDetailedFile(row) {
                 FileService.getFile(row.entity, 'detailedFtepFileWorkspace').then(function (file) {
@@ -112,6 +107,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
 
                 FileService.getFtepFilesWithParams('files', combinedParameters).then(function(inputParams) {
                     var mappedData = mapData(inputParams);
+
                     $scope.uiGridOptions.data = mappedData;
                     FileService.params.files.files = mappedData;
                 });
@@ -135,7 +131,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     if (sortColumns.length == 0) {
                         paginationOptions.sort = null;
                     } else {
-                        paginationOptions.sort = sortColumns[0].sort.direction;
+                        paginationOptions.sort = sortColumns[0].colDef.name  + ',' + sortColumns[0].sort.direction;
                     }
                     checkForParamsThenGet();
                 });
@@ -152,10 +148,11 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     getDetailedFile(row);
                 });
             }
-
+            
+            // Download file
             function saveFile(file) {
                 file.metadata.geometry = JSON.parse(file.metadata.geometry);
-                console.log(file);
+
                 FileService.updateFtepFile(file).then(function (data) {
                     getFtepFilesWithParams($scope.filesParams.params);
                 });
@@ -170,23 +167,24 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 document.execCommand('copy');
                 document.body.removeChild(textHolder);
             }
-
+            
+            // Parse databaskets to string list
             function parseDatabasketsAsList(databaskets) {
-                var list = [];
-                for (var basket in databaskets) {
-                    list.push(databaskets[basket].name);
-                }
-                return list.toString();
+                if (!databaskets || databaskets.length === 0) return '(Not within any databaskets)';
+
+                return databaskets.map(function (thisBasket) {
+                    return thisBasket.name;
+                }).join('\n');
             }
 
+            // Parse groups to string list
             function parseGroupsAsList(groups) {
-                var list = [];
-                for (var group in groups) {
-                    list.push(groups[group].group.name + ' [' + groups[group].permission + ']');
-                }
-                return list.toString();
-            }
+                if (!groups || groups.length === 0) return '(Not currently sharing)';
 
+                return groups.map(function (thisgroup) {
+                    return thisgroup.group.name;
+                }).join('\n');
+            }
         }
     ]);
 });

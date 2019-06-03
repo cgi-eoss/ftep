@@ -3,7 +3,9 @@ package com.cgi.eoss.ftep.api.mappings;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.projections.DetailedFtepFile;
+import com.cgi.eoss.ftep.model.projections.DetailedFtepFileWorkspace;
 import com.cgi.eoss.ftep.model.projections.ShortFtepFile;
+import com.cgi.eoss.ftep.model.projections.ShortFtepFileWorkspace;
 import lombok.RequiredArgsConstructor;
 import okhttp3.HttpUrl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +98,35 @@ public class FtepFileResourceProcessor extends BaseResourceProcessor<FtepFile> {
             addFtepLink(resource, entity.getUri());
 
             return resource;
+        }
+
+        @Component
+        private final class DetailedWorkspaceEntityProcessor implements ResourceProcessor<Resource<DetailedFtepFileWorkspace>> {
+            @Override
+            public Resource<DetailedFtepFileWorkspace> process(Resource<DetailedFtepFileWorkspace> resource) {
+                DetailedFtepFileWorkspace entity = resource.getContent();
+
+                addSelfLink(resource, entity);
+                addDownloadLink(resource, entity.getType());
+                addWmsLink(resource, entity.getType(), entity.getUri());
+                addFtepLink(resource, entity.getUri());
+
+                return resource;
+            }
+        }
+
+        @Component
+        private final class ShortWorkspaceEntityProcessor implements ResourceProcessor<Resource<ShortFtepFileWorkspace>> {
+            @Override
+            public Resource<ShortFtepFileWorkspace> process(Resource<ShortFtepFileWorkspace> resource) {
+                ShortFtepFileWorkspace entity = resource.getContent();
+
+                addSelfLink(resource, entity);
+                addDownloadLink(resource, entity.getType());
+                addFtepLink(resource, entity.getUri());
+
+                return resource;
+            }
         }
     }
 

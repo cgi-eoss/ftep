@@ -1,0 +1,207 @@
+<md-dialog id="definition-dialog" aria-label="Definition details">
+    <h4>Definition Details</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+
+            <form name="definitionDetails">
+
+                <fieldset id="basic-fields" class="standard">
+                    <legend>Core</legend>
+
+                    <md-input-container class="md-block">
+                        <label for="id">ID</label>
+                        <input id="id"
+                               name="id"
+                               required
+                               ng-model="input.id"
+                               type="text"
+                               placeholder="The ID for the field"
+                               aria-label="Field ID"
+                               ng-change="isValidFieldId(input.id)"/>
+                        <span class="error-message" ng-show="!idUnique">Field id must be unique!</span>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
+                        <label for="title">Title</label>
+                        <input id="title"
+                               name="title"
+                               required
+                               ng-model="input.title"
+                               placeholder="The field title"/>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
+                        <label for="description">Description</label>
+                        <textarea id="description"
+                                  name="description"
+                                  ng-model="input.description"
+                                  rows="3"
+                                  placeholder="A description of the field"
+                                  md-select-on-focus>
+                        </textarea>
+                    </md-input-container>
+
+                </fieldset>
+
+                <fieldset id="data-type-fields" class="standard">
+                    <legend>Data Type</legend>
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label for="fieldtype">Field Type</label>
+                        <md-select id="fieldtype" name="fieldtype" ng-model="input.data" ng-change="updateAttrs()">
+                            <md-option ng-repeat="type in serviceParams.constants.fieldTypes" ng-value="type.type">
+                                {{type.type}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <div class="literal-type" ng-show="input.data === 'LITERAL'">
+
+                        <md-input-container class="md-block input-with-label" flex-gt-sm>
+                            <label for="datatype">Data Type</label>
+                            <md-select id="datatype" name="datatype" ng-model="input.defaultAttrs.dataType" ng-required="input.data === 'LITERAL'">
+                                <md-option ng-repeat="type in serviceParams.constants.literalTypes" ng-value="type.dataType">
+                                    {{type.dataType}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+
+                        <md-input-container md-no-float>
+                            <label for="addNewVal">Allowed Values</label>
+                            <input id="addNewVal"
+                                   name="addNewVal"
+                                   class="input-with-button"
+                                   type="text"
+                                   ng-model="newAllowedVal"
+                                   placeholder="Add New Allowed Value"
+                                   aria-label="Add Allowed Value">
+                            <md-button ng-click="addAllowedValue(newAllowedVal)" class="md-primary">Add</md-button>
+                        </md-input-container>
+
+                        <div id="allowedValuesList" ng-if="input.defaultAttrs.allowedValues && input.defaultAttrs.allowedValues !== ''">
+                            <md-list-item class="md-1-line" ng-repeat="item in input.defaultAttrs.allowedValues.split(',')">
+                                {{item}}
+                                <md-button class="toolbar-button md-secondary"
+                                           ng-click="removeAllowedValue(item)"
+                                           aria-label="Remove"
+                                           uib-tooltip="Remove"
+                                           tooltip-placement="top"
+                                           tooltip-trigger="mouseenter"
+                                           tooltip-append-to-body="true">
+                                    <i class="material-icons">clear</i>
+                                </md-button>
+                            </md-list-item>
+                        </div>
+                        <div ng-if="input.defaultAttrs.allowedValues === undefined || input.defaultAttrs.allowedValues === ''">
+                            No values defined
+                        </div>
+
+                    </div>
+
+                    <div name="typeFormComplex" class="complex-type" ng-show="input.data === 'COMPLEX'">
+
+                        <md-input-container class="md-block input-with-label" flex-gt-sm md-no-float>
+                            <label for="mimeType">Mime Type</label>
+                            <input id="mimeType"
+                                   name="mimeType"
+                                   ng-required="input.data == 'COMPLEX'"
+                                   ng-model="input.defaultAttrs.mimeType"
+                                   type="text"
+                                   placeholder="Mime Type"
+                                   aria-label="Mime Type"/>
+                        </md-input-container>
+                        <md-input-container class="md-block input-with-label" flex-gt-sm>
+                            <label for="extension">Extension</label>
+                            <input id="extension"
+                                   name="extension"
+                                   ng-required="input.data == 'COMPLEX'"
+                                   ng-model="input.defaultAttrs.extension"
+                                   type="text"
+                                   placeholder="Extension"
+                                   aria-label="Extension"/>
+                        </md-input-container>
+
+                        <md-checkbox name="asReference"
+                                     ng-model="input.defaultAttrs.asReference">
+                            As Reference
+                        </md-checkbox>
+
+                    </div>
+
+                </fieldset>
+
+                <fieldset id="advanced-fields" class="standard">
+                    <legend>Advanced</legend>
+
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Default Value</label>
+                        <md-select ng-model="input.defaultAttrs.value">
+                            <md-option ng-repeat="attr in input.defaultAttrs.allowedValues.split(',')" value="{{attr}}" >
+                                {{attr}}
+                            </md-option>
+                        </md-select>
+                        <div class="hint">...</div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
+                        <label for="minoccurs">Minimum Occurrences</label>
+                        <input id="minoccurs"
+                               name="minoccurs"
+                               ng-model="input.minOccurs"
+                               type="number"
+                               min="0"
+                               placeholder="Minimum number of occurrences"
+                               aria-label="Min Occurs"/>
+                        <div class="hint">...</div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
+                        <label for="maxoccurs">Maximum Occurrences</label>
+                        <input id="maxoccurs"
+                               name="maxoccurs"
+                               ng-model="input.maxOccurs"
+                               type="number"
+                               min="0"
+                               placeholder="Maximum number of occurrences"
+                               aria-label="Max Occurs"/>
+                        <div class="hint">...</div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block" ng-if="serviceParams.activeArea.title !== 'Output Definitions'">
+                        <label for="dataref">Data Reference</label>
+                        <md-select id="dataref" name="dataref" ng-model="input.dataReference">
+                            <md-option ng-value="true">True</md-option>
+                            <md-option ng-value="false" ng-selected="!input.dataReference">False</md-option>
+
+                        </md-select>
+                        <div class="hint">...</div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block"  ng-show="input.dataReference">
+                        <label for="searchParameter">Search Parameter</label>
+                        <md-select id="searchParameter" name="searchParameter" ng-model="input.searchParameter">
+                            <md-option ng-value="true">True</md-option>
+                            <md-option ng-value="false" ng-selected="!input.searchParameter">False</md-option>
+                        </md-select>
+                        <div class="hint">...</div>
+                    </md-input-container>
+
+                    <md-input-container class="md-block" ng-if="serviceParams.activeArea.title !== 'Output Definitions'">
+                        <label for="parallel">Enable Parallel Processing</label>
+                        <md-select id="parallel" name="parallel" ng-model="input.parallelParameter">
+                            <md-option ng-value="true">True</md-option>
+                            <md-option ng-value="false" ng-selected="!input.parallelParameter">False</md-option>
+                        </md-select>
+                        <div class="hint">All input files will be processed in separate sub-jobs</div>
+                    </md-input-container>
+
+                </fieldset>
+
+            </form>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+        <md-button ng-click="closeDialog(true)" class="md-primary" form="definitionDetails" ng-disabled="definitionDetails.$invalid  || !idUnique">Save</md-button>
+    </md-dialog-actions>
+</md-dialog>

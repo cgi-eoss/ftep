@@ -444,12 +444,18 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .then(function (document) {
                      resolve(document);
                 }, function (error) {
-                    if (error.httpStatus === 402) {
+                    if (error.httpStatus === 400) {
+                        MessageService.addError('Could not evaluate process job parameters', error);
+                    } else if (error.httpStatus === 402) {
                         MessageService.addError('Balance exceeded', error);
                     } else {
                         MessageService.addError('Could not get Job cost estimation', error);
                     }
-                    reject(JSON.parse(error.body));
+                    try {
+                        reject(JSON.parse(error.body));
+                    } catch(e) {
+                        reject(error.body);
+                    }
                  });
             });
         };

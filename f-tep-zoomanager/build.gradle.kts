@@ -20,6 +20,9 @@ dependencies {
     implementation(project(":f-tep-rpc"))
     implementation("org.freemarker:freemarker")
     implementation("org.jooq:jool-java-8")
+    implementation("org.springframework.boot:spring-boot")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.apache.logging.log4j:log4j-iostreams")
 

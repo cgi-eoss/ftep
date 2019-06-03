@@ -20,6 +20,7 @@ dependencies {
     implementation("org.apache.commons:commons-text")
     implementation("org.apache.poi:poi")
     implementation("org.jooq:jool-java-8")
+    implementation(project(":f-tep-batch"))
     implementation(project(":f-tep-catalogue"))
     implementation(project(":f-tep-costing"))
     implementation(project(":f-tep-defaultservices"))

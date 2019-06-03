@@ -14,7 +14,7 @@
     <section id="job-title" class="row">
         <div class="col-lg-8 col-md-12 job-title no-padding">
             <h3>Job ID: {{jobParams.selectedJob.id}}
-                <md-button class="md-secondary icon-button-accent"
+                <md-button class="toolbar-button md-secondary icon-button-accent"
                            ng-show="selectedJobHasAnyWmsLinks() && !jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(true)"
                            uib-tooltip="Show WMS Layers"
@@ -23,7 +23,7 @@
                            tooltip-append-to-body="true">
                     <i class="material-icons">layers</i>
                 </md-button>
-                <md-button class="md-secondary icon-button-accent"
+                <md-button class="toolbar-button md-secondary icon-button-accent"
                            ng-show="selectedJobHasAnyWmsLinks() && jobParams.wms.isAllVisible"
                            ng-click="toggleAllWMS(false)"
                            uib-tooltip="Hide WMS Layers"
@@ -31,6 +31,16 @@
                            tooltip-trigger="mouseenter"
                            tooltip-append-to-body="true">
                     <i class="material-icons">layers_clear</i>
+                </md-button>
+                <md-button class="toolbar-button md-secondary icon-button-accent"
+                           ng-show="jobParams.selectedJob.outputFiles.length > 0"
+                           ng-click="estimateDownloadCost($event, jobParams.selectedJob); $event.stopPropagation()"
+                           aria-label="Download all job outputs"
+                           uib-tooltip="Download all job outputs"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">file_download</i>
                 </md-button>
             </h3>
             <h4>Label: {{jobParams.selectedJob.config.label ? jobParams.selectedJob.config.label : '-'}}</h4>

@@ -50,9 +50,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     service: config._embedded.service,
                     inputs: config.inputs,
                     label: config.label,
-                    parallelParameters: config.parallelParameters
+                    parallelParameters: config.parallelParameters,
+                    searchParameters: config.searchParameters
                 };
-                $rootScope.$broadcast('update.selectedService', repeatConfig);
+                $rootScope.$broadcast('update.selectedService', repeatConfig, true);
             });
         };
 

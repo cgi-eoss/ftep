@@ -1,0 +1,140 @@
+<section style="margin-top: 1rem;">
+    <div class="row">
+        <div class="col-md-6 no-padding">
+            <div class="row">
+                <div class="col-md-12 no-padding">
+                    <h3>URI</h3>
+                    <div class="right-button">
+                        <p>{{ currentRowData[row.entity.id].uri }}</p>
+                        <md-button
+                            class="md-secondary copy-button"
+                            aria-label="Copy for workflow"
+                            ng-click="copyToClipboard(currentRowData[row.entity.id].uri)"
+                            uib-tooltip="Copy for workflow"
+                            tooltip-placement="left"
+                            tooltip-trigger="mouseenter"
+                            tooltip-append-to-body="true"
+                        >
+                            <i class="material-icons">filter_none</i>
+                        </md-button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-2 col-md-2 no-padding">
+                    <h3>JSON</h3>
+                    <a
+                        ng-href="{{
+                            currentRowData[row.entity.id]._links.self.href +
+                                '?projection=detailedFtepFile'
+                        }} "
+                        target="blank"
+                        >Preview JSON</a
+                    >
+                </div>
+                <div class="col-xl-2 col-md-2 no-padding">
+                    <h3>File</h3>
+                    <a
+                        style="cursor: pointer"
+                        ng-click="estimateDownloadCost($event, currentRowData[row.entity.id]._links.self.href); $event.stopPropagation()"
+                        target="blank"
+                        >Download File</a
+                    >
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-11 no-padding">
+                    <h3>Filename</h3>
+                    <md-input-container>
+                        <input
+                            ng-readonly="true"
+                            ng-model="currentRowData[row.entity.id].filename"
+                        />
+                    </md-input-container>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-6 col-md-11 no-padding">
+                    <div class="right-button">
+                        <h3>
+                            Sharing List
+                        </h3>
+                            <i
+                                class="header-button material-icons spaced-button"
+                                ng-click="share($event, currentRowData[row.entity.id], 'ftepFile', currentRowData[row.entity.id].sharedWithGroups.permissions, 'FileService', 'refreshSelectedFtepFile', 'files', row)"
+                                has-permission="ADMIN"
+                                permission-source="{{
+                                    currentRowData[row.entity.id]
+                                }}"
+                                aria-label="Share"
+                                uib-tooltip="Share"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true"
+                                >share</i
+                            >
+                    </div>
+                    <md-input-container md-no-float required>
+                        <textarea
+                            ng-readonly="true"
+                            name="sharinglist"
+                            rows="3"
+                            aria-label="Sharing List"
+                            >{{
+                                parseGroupsAsList(
+                                    currentRowData[row.entity.id]
+                                        .sharedWithGroups.permissions
+                                )
+                            }}</textarea
+                        >
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 no-padding">
+            <div class="row">
+                <div class="col-md-11 no-padding">
+                    <h3>Geometry</h3>
+                    <md-input-container md-no-float required>
+                        <textarea
+                            ng-readonly="true"
+                            name="geometry"
+                            rows="3"
+                            placeholder="File geometry is required *"
+                            aria-label="Geometry"
+                            ng-model="currentRowData[row.entity.id].geometry"
+                        ></textarea>
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-11 no-padding">
+                    <h3>
+                        Databaskets
+                        <i
+                            ng-if="false"
+                            class="header-button material-icons"
+                            >shopping_cart</i
+                        >
+                    </h3>
+                    <md-input-container md-no-float required>
+                        <textarea
+                            ng-readonly="true"
+                            name="databaskets"
+                            rows="3"
+                            aria-label="Databaskets"
+                            >{{
+                                parseDatabasketsAsList(
+                                    currentRowData[row.entity.id]
+                                        .containedInDatabaskets
+                                )
+                            }}</textarea
+                        >
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

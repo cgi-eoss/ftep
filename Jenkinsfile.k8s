@@ -49,7 +49,7 @@ spec:
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: '**/target/test-results/test/TEST-*.xml'
+                    junit allowEmptyResults: true, testResults: '**/build/test-results/test/TEST-*.xml'
                 }
             }
         }

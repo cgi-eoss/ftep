@@ -18,6 +18,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: null
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "refDataShapefile"
   title: "Reference data archive (zipped)"
   description: "Zip file with all shapefile components"
@@ -27,6 +30,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: null
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "shapefileAttribute"
   title: "Field (int) identifying class code"
   description: "E.g. 'Class'"

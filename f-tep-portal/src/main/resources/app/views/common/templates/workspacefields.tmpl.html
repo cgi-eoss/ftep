@@ -1,0 +1,157 @@
+<div class="input-container">
+
+    <div class="row input-header">
+        <md-subheader class="md-accent">
+            <span uib-tooltip="{{fieldDesc.title}}"
+                  tooltip-placement="top"
+                  tooltip-trigger="mouseenter"
+                  tooltip-append-to-body="true">{{fieldDesc.title}}</span>
+            <span class="required-asterisk" ng-show="fieldDesc.minOccurs > 0">*</span>
+
+            <md-checkbox ng-if="fieldDesc.parallelParameter"
+                         ng-model="serviceParams.config.parallelParameters[fieldDesc.id]"
+                         aria-label="Enable Parallel Processing" class="workspace-header-checkbox"
+                         uib-tooltip="If checked, this Job will execute in 'parallel' mode. Each value of this parameter will result in its own Sub-Job, in which the other parameters are kept constant.
+                         The results may be viewed individually or as a group from the parent Job."
+                         tooltip-placement="top"
+                         tooltip-trigger="mouseenter"
+                         tooltip-append-to-body="true">
+                Enable Parallel Processing
+            </md-checkbox>
+
+            <button ng-show="fieldDesc.id == 'aoi'"
+                    type="button input-button"
+                    class="btn"
+                    ng-click="pastePolygon(fieldDesc.id)"
+                    aria-label="Copy From Map"
+                    uib-tooltip="Copy From Map"
+                    tooltip-placement="right"
+                    tooltip-trigger="mouseenter"
+                    tooltip-append-to-body="true">
+                <i class="material-icons">content_copy</i>
+            </button>
+
+        </md-subheader>
+    </div>
+
+    <div class="row input-item">
+        <div class="col-md-12 no-padding">
+
+            <!-- All field types that accept more than one value -->
+            <div ng-if="fieldDesc.maxOccurs > 1">
+
+                <!-- Hidden input that stores selected values-->
+                <input ng-show="false" type="{{fieldDesc.defaultAttrs.dataType}}" ng-if="fieldDesc.defaultAttrs.allowedValues"
+                       ng-model="serviceParams.config.inputValues[fieldDesc.id]"
+                       ng-required="fieldDesc.minOccurs > 0"
+                       aria-label="hidden">
+
+                <!-- TODO: By default multi-value are displayed in the form, but not selected. -->
+                <!-- should be added to the input above do this, but causes a ng-repeat error. -->
+                <!--ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"-->
+
+                <md-input-container md-no-float>
+
+                    <!-- An input that accepts multiple values and supports data reference -->
+                    <input ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference"
+                           id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
+                           ng-model="serviceParams.inputVal"
+                           ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                           type="{{fieldDesc.defaultAttrs.dataType}}"
+                           aria-label="{{fieldDesc.id}}"
+                           dnd-list="serviceParams.config.inputValues[fieldDesc.id]"
+                           dnd-drop="onDrop(item, fieldDesc.id)">
+
+                    <!-- An input that accepts multiple values with no data reference support -->
+                    <input ng-if="!fieldDesc.defaultAttrs.allowedValues && !fieldDesc.dataReference"
+                           id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
+                           ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                           ng-model="serviceParams.inputVal"
+                           type="{{fieldDesc.defaultAttrs.dataType}}"
+                           aria-label="{{fieldDesc.id}}">
+
+                    <!-- A select that accepts multiple selections -->
+                    <md-select ng-if="fieldDesc.defaultAttrs.allowedValues"
+                               ng-model="serviceParams.inputVal"
+                               ng-init="serviceParams.inputVal = getDefaultValue(fieldDesc).toString()"
+                               default-attrs="{{fieldDesc.defaultAttrs}}"
+                               description="{{fieldDesc.description}}"
+                               aria-label="{{fieldDesc.id}}">
+                        <md-option ng-repeat="attr in fieldDesc.defaultAttrs.allowedValues.split(',')" value="{{attr}}" >
+                            {{attr}}
+                        </md-option>
+                    </md-select>
+
+                    <!-- Button to add the selected input/select value to the request -->
+                    <md-icon style="display:inline-block;">
+                        <md-button class="toolbar-button md-secondary add-input-value-button"
+                                   ng-click="addItem(fieldDesc.id, serviceParams.inputVal); serviceParams.inputVal = null">
+                            <!-- Add this code to disable the add button when the max occurs limit has been reached -->
+                            <!--ng-disabled="fieldDesc.maxOccurs <= serviceParams.config.inputValues[fieldDesc.id].length"-->
+                            <!--uib-tooltip="{{fieldDesc.maxOccurs <= serviceParams.config.inputValues[fieldDesc.id].length ? 'Maximum Inputs Added' : 'Add to list' }}"-->
+                            <!--tooltip-placement="right"-->
+                            <!--tooltip-trigger="mouseenter"-->
+                            <!--tooltip-append-to-body="true"-->
+                            <i class="material-icons">add</i>
+                        </md-button>
+                    </md-icon>
+
+                    <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
+                </md-input-container>
+
+                <!-- List all items for the input/select field that have been added to the request -->
+                <md-list class="drag-list-item">
+                    <md-list-item class="md-1-line" ng-repeat="item in serviceParams.config.inputValues[fieldDesc.id]" ng-class-odd="'odd'" ng-class-even="'even'">
+                        <div class="md-list-item-text">
+                            <small>{{item}}</small>
+                        </div>
+                        <md-button class="md-secondary">
+                            <i class="material-icons" ng-click="removeSelectedItem(fieldDesc.id, item)">close</i>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
+
+            </div>
+
+            <!-- All field types that only accept a single value -->
+            <md-input-container md-no-float ng-if="fieldDesc.maxOccurs <= 1">
+
+                <!-- An input that accepts a single value and supports data reference -->
+                <input ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference"
+                       id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
+                       ng-model="serviceParams.config.inputValues[fieldDesc.id]"
+                       ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                       type="{{fieldDesc.defaultAttrs.dataType}}"
+                       ng-required="{{fieldDesc.minOccurs > 0}}"
+                       aria-label="{{fieldDesc.title}}"
+                       dnd-list="serviceParams.config.inputValues[fieldDesc.id]"
+                       dnd-drop="fieldDesc.dataReference ? onDrop(item, fieldDesc.id) : onDrop(item, fieldDesc)">
+
+                <!-- An input that accepts a single value with no data reference support -->
+                <input ng-if="!fieldDesc.defaultAttrs.allowedValues && !fieldDesc.dataReference"
+                       id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
+                       ng-model="serviceParams.config.inputValues[fieldDesc.id]"
+                       ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
+                       type="{{fieldDesc.defaultAttrs.dataType}}"
+                       ng-required="{{fieldDesc.minOccurs > 0}}"
+                       aria-label="{{fieldDesc.title}}">
+
+                <!-- A select that accepts a single selection -->
+                <md-select ng-if="fieldDesc.defaultAttrs.allowedValues"
+                           ng-model="serviceParams.config.inputValues[fieldDesc.id]"
+                           ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc).toString()"
+                           default-attrs="{{fieldDesc.defaultAttrs}}"
+                           description="{{fieldDesc.description}}"
+                           aria-label="{{fieldDesc.id}}">
+                    <md-option ng-repeat="attr in fieldDesc.defaultAttrs.allowedValues.split(',')" value="{{attr}}" >
+                        {{attr}}
+                    </md-option>
+                </md-select>
+
+                <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
+            </md-input-container>
+
+        </div>
+    </div>
+
+</div>

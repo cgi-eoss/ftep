@@ -9,155 +9,83 @@
  */
 define(['../../../ftepmodules'], function(ftepmodules) {
 
-    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', 'moment', function($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, moment) {
+    ftepmodules.controller('SearchbarCtrl', ['$scope', '$rootScope', '$http', 'CommonService', 'BasketService', 'MapService', 'SearchService', '$location', function($scope, $rootScope, $http, CommonService, BasketService, MapService, SearchService, $location) {
 
-        $scope.searchParams = SearchService.params;
+        // Get page path to save the search params in the SearchService when changing tabs
+        var page = $location.path().replace(/\W/g,'') ? $location.path().replace('/','') : 'explorer';
+
+        // Used for listening for drawn polygons on the map
         $scope.mapAoi = MapService.mapstore.aoi;
-        $scope.allowedValues = {};
 
+        $scope.searchParams = {
+            selectedCatalog: {},
+            activeSearch: {},
+            allowedValues: {},
+            catalogues: {},
+            visibleList: {},
+        };
+
+        // Use a saved search if it exists
+        if (SearchService.params[page].savedSearch) {
+            $scope.searchParams = SearchService.params[page].savedSearch;
+        }
+
+        // Get all search input fields
         SearchService.getSearchParameters().then(function(data) {
-            $scope.catalogues = data;
+            for (var field in data) {
+                data[field].id = field;
+            }
+            $scope.searchParams.catalogues = data;
         });
 
-        $scope.getCatalogIcon = function(catalog) {
-            if (catalog === 'SATELLITE') {
-                return 'satellite';
-            } else if (catalog === 'REF_DATA') {
-                return 'local_library';
-            } else {
-                return 'streetview';
-            }
-        };
-
-        $scope.setDefaultValue = function(field, index) {
-            if (field.defaultValue) {
-                if (field.type === 'text' || field.type === 'int' || field.type === 'polygon') {
-                    $scope.searchParams.savedSearch[index] = field.defaultValue;
-                } else if (field.type === 'select') {
-                    for (var item in field.allowed.values) {
-                        if (field.defaultValue === field.allowed.values[item].value) {
-                            $scope.searchParams.savedSearch[index] = field.allowed.values[item].value;
-                        }
-                    }
-                } else if (field.type === 'daterange') {
-                    /* Daterange requires an additional check as start/end are stored in their own props  */
-                    if(!$scope.searchParams.savedSearch[index + 'Start']) {
-                        var startPeriod = new Date();
-                        startPeriod.setMonth(startPeriod.getMonth() + parseInt(field.defaultValue[0]));
-                        $scope.searchParams.savedSearch[index + 'Start'] = startPeriod;
-                    }
-                    if(!$scope.searchParams.savedSearch[index + 'End']) {
-                        var endPeriod = new Date();
-                        endPeriod.setMonth(endPeriod.getMonth() + parseInt(field.defaultValue[1]));
-                        $scope.searchParams.savedSearch[index + 'End'] = endPeriod;
-                    }
-                }
-            }
-        };
-
         $scope.selectCatalog = function(field, catalog) {
-            $scope.searchParams.savedSearch[field.type] = catalog.value;
+            $scope.searchParams.activeSearch = {};
+            $scope.searchParams.activeSearch[field.type] = catalog.value;
             $scope.searchParams.selectedCatalog = catalog;
+            $scope.updateForm($scope.searchParams.catalogues, $scope.searchParams.activeSearch);
         };
 
         $scope.closeCatalog = function(field) {
-            $scope.searchParams.selectedCatalog = {};
-        };
-
-        /* If field has no dependencies display it.
-         * If field has dependencies, for each find the matching field.
-         * Check if any of the condition values matche the current dependency value */
-        $scope.displayField = function(field, type) {
-            if (field.type === type) {
-                if (!field.onlyIf) {
-                    return true;
-                } else {
-                    for (var condition in field.onlyIf) {
-                        for (var item in $scope.searchParams.savedSearch) {
-                            if (item === condition) {
-                                for (var value in field.onlyIf[condition]) {
-                                    if (field.onlyIf[condition][value] === $scope.searchParams.savedSearch[item]) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        };
-
-        $scope.getValues = function() {
-            for (var field in $scope.catalogues) {
-
-                // Remove values for fields no longer displayed
-                if (!$scope.displayField($scope.catalogues[field], $scope.catalogues[field].type)) {
-                    delete $scope.searchParams.savedSearch[field];
-                }
-
-                if ($scope.catalogues[field].type === 'select') {
-                    // Get list of allowed values
-                    var allowedValues = getAllowedFields($scope.catalogues[field]);
-                    $scope.allowedValues[$scope.catalogues[field].title] = allowedValues;
-                    // Clear any fields set with an invalid value
-                    removeInvalidValues(field, allowedValues);
-                }
-            }
+            $scope.searchParams.activeSearch = {};
+            $scope.searchParams.selectedCatalog = null;
         };
 
         $scope.$watch('mapAoi.wkt', function(wkt) {
-            $scope.searchParams.savedSearch.aoi = wkt;
+            if (wkt) {
+                $scope.searchParams.activeSearch.aoi = wkt;
+            }
         });
 
-        /* For all values*/
-        function getAllowedFields(field) {
-            var displayValues = [];
-            var allFieldValues = field.allowed.values;
-
-            for (var value in allFieldValues) {
-                // If value is not dependant on another add to list
-                if (!allFieldValues[value].onlyIf) {
-                    displayValues.push(allFieldValues[value]);
-                    // If value depends on anothers
-                } else {
-                    for (var depField in allFieldValues[value].onlyIf) {
-                        var allowedValues = allFieldValues[value].onlyIf[depField];
-                        for (var item in allowedValues) {
-                            if ($scope.searchParams.savedSearch[depField]) {
-                                if ($scope.searchParams.savedSearch[depField] === allowedValues[item]) {
-                                    displayValues.push(allFieldValues[value]);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return displayValues;
-        }
-
-        function removeInvalidValues(field, allowedValues) {
-            if ($scope.catalogues[field]) {
-                var match = false;
-                for (var v in allowedValues) {
-                    if ($scope.searchParams.savedSearch[field]) {
-                        if ($scope.searchParams.savedSearch[field] === allowedValues[v].value) {
-                            match = true;
-                        }
-                    }
-                }
-                if (!match) {
-                    delete $scope.searchParams.savedSearch[field];
-                }
-            }
-        }
+        $scope.updateForm = function(catalogues, activeSearch) {
+            // Get the list of fields from the catalog to display
+            var visibleFields = SearchService.getVisibleFields(catalogues, activeSearch);
+            $scope.searchParams.visibleList = visibleFields.map(function(a) {return a.id;});
+            // Cleanup search params that are no longer visible
+            $scope.searchParams.activeSearch = SearchService.searchCleanup(activeSearch, $scope.searchParams.visibleList);
+            // Set default values in the active search
+            $scope.searchParams.activeSearch = SearchService.getDefaultValues(catalogues, activeSearch, visibleFields, $scope.searchParams.visibleList);
+            // Get the list of allowed values for each select option (based on current selections)
+            $scope.searchParams.allowedValues = SearchService.getSelectValues(activeSearch, visibleFields);
+        };
 
         $scope.search = function() {
-            SearchService.submit($scope.searchParams.savedSearch).then(function(searchResults) {
+            // Format the query for submission (format date fields correctly)
+            var searchQuery = SearchService.formatSearchRequest($scope.searchParams.activeSearch);
+
+            // Save the search so the results controller can access the search name
+            SearchService.params[page].savedSearch = $scope.searchParams;
+
+            SearchService.submit(searchQuery).then(function(searchResults) {
                 $rootScope.$broadcast('update.geoResults', searchResults);
             }).catch(function() {
                 $rootScope.$broadcast('update.geoResults');
             });
         };
+
+        // Save the search when changing tabs so it can be reaccessed
+        $scope.$on('$destroy', function() {
+            SearchService.params[page].savedSearch = $scope.searchParams;
+        });
+
     }]);
 });

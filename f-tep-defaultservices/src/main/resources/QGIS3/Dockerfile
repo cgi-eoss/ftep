@@ -1,7 +1,10 @@
-FROM jlesage/baseimage-gui:ubuntu-18.04	
+FROM jlesage/baseimage-gui:ubuntu-18.04
+
+ENV APP_NAME="QGIS"
+ENV DISPLAY_WIDTH=1920
+ENV DISPLAY_HEIGHT=1080
 
 # Set up QGIS repository
-
 RUN apt-get update && apt-get install -y\
  curl\
  software-properties-common\
@@ -16,6 +19,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y\
  qgis-plugin-grass\
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY startapp.sh /startapp.sh
+# Disable QGIS settings import prompt
+RUN mkdir -p /config/xdg/data/QGIS/QGIS3/profiles/default/QGIS \
+ && echo -e "[migration]\nfirstRunVersionFlag=99999" >>/config/xdg/data/QGIS/QGIS3/profiles/default/QGIS/QGIS3.ini
 
-ENV APP_NAME="QGIS"
+COPY startapp.sh /startapp.sh

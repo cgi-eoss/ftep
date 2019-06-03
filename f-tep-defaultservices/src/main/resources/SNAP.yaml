@@ -18,6 +18,9 @@ dataInputs:
   defaultAttrs:
     dataType: "string"
   supportedAttrs: []
+  dataReference: true
+  parallelParameter: false
+  searchParameter: false
 - id: "timeout"
   title: "Timeout in minutes before the application automatically shuts down"
   description: "The maximum time this application can remain open. WARNING: This is\

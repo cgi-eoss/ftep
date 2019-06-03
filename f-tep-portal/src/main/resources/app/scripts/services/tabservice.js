@@ -7,37 +7,32 @@
  */
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
-
     ftepmodules.service('TabService', [ '$q', function ($q) {
-
-        var tabs = { EXPLORER: 0, DEVELOPER: 1, COMMUNITY: 2, ACCOUNT: 3, HELPDESK: 4 };
-
+        var tabs = { EXPLORER: 0, FILES: 1, DEVELOPER: 2, COMMUNITY: 3, ACCOUNT: 4, HELPDESK: 5 };
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
-
         var communityTabs = { GROUPS: 0, PROJECTS: 1, DATABASKETS: 2, JOBS: 3, SERVICES: 4, FILES: 5};
-
         var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };
-
         var developerSideNavs = { SERVICES: 0 };
+        var filesSideNavs = { SEARCH: 0, UPLOAD: 1 };
 
         this.getTabs = function(){
             return angular.copy(tabs);
         };
-
         this.getExplorerSideNavs = function(){
             return angular.copy(explorerSideNavs);
         };
-
         this.getBottomNavTabs = function(){
             return angular.copy(bottomNavTabs);
         };
-
         this.getCommunityNavTabs = function(){
             return angular.copy(communityTabs);
         };
-
         this.getDeveloperSideNavs = function(){
             return angular.copy(developerSideNavs);
+        };
+
+        this.getFilesSideNavs = function(){
+            return angular.copy(filesSideNavs);
         };
 
         /** PRESERVE USER SELECTIONS **/
@@ -48,6 +43,13 @@ define(['../ftepmodules'], function (ftepmodules) {
                 activeSideNav: undefined,
                 activeBottomNav: bottomNavTabs.RESULTS,
                 resultTabNameExtention: '',
+                bottomViewVisible: false
+            },
+            files: {
+                activeTab: tabs.FILES,
+                sideViewVisible: true,
+                activeSideNav: filesSideNavs.SEARCH,
+                activeBottomNav: undefined,
                 bottomViewVisible: false
             },
             developer: {
@@ -69,9 +71,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 bottomViewVisible: false
             }
         };
-
         /** END OF PRESERVE USER SELECTIONS **/
-
         return this;
     }]);
 });

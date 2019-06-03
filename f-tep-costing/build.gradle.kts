@@ -9,6 +9,7 @@ dependencies {
 
     implementation(project(":f-tep-logging"))
     implementation(project(":f-tep-persistence"))
+    implementation(project(":f-tep-batch"))
 
     testImplementation("junit:junit")
     testImplementation("org.springframework:spring-test")

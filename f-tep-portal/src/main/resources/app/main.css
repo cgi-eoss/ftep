@@ -742,6 +742,105 @@
   z-index: 20;
 }
 
+.workspace-header .service-header {
+  text-align: center;
+}
+.workspace-header .service-header .service-title {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  padding-top: 0.8rem;
+}
+.workspace-header .service-header .service-title .workspace-mode-toggle {
+  float: right;
+}
+.workspace-header .service-description {
+  border-bottom: #d2d2d2 solid 1px;
+}
+.workspace-content .md-list-item-inner {
+  max-width: 100%;
+}
+.workspace-content .drag-list-subheader span {
+  color: #558b2f;
+  font-size: 0.7rem;
+}
+.workspace-content .drag-list-item {
+  padding: 1rem 0;
+}
+.workspace-content .drag-list-item md-list-item:first-child {
+  border-top: #d2d2d2 solid 1px;
+}
+.workspace-content .drag-list-item button {
+  min-width: auto;
+}
+.workspace-content .drag-list-item .even {
+  background-color: #fff;
+}
+.workspace-content .drag-list-item .odd {
+  background-color: #f0f0f0;
+}
+.workspace-content .drag-list-item small {
+  overflow-wrap: break-word;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+.workspace-content .drag-list-item md-list-item:hover {
+  background-color: #bcdff1;
+}
+.workspace-content .drag-list-item .md-list-item-text {
+  min-height: 0;
+  max-width: 80%;
+}
+.workspace-content .service-field .input-item {
+  padding: 0 0.5rem;
+}
+.workspace-content .service-field .input-item .add-input-value-button {
+  color: #ff4081;
+  line-height: unset;
+  min-height: unset;
+}
+.workspace-content .service-field .input-item .add-input-value-button[disabled] {
+  color: gray;
+}
+.workspace-content .service-field .md-subheader {
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #f0f0f0 !important;
+}
+.workspace-content .service-field .md-subheader .workspace-header-checkbox {
+  float: right;
+  padding-right: 1rem;
+}
+.workspace-content .service-field .md-subheader .workspace-header-checkbox .md-label {
+  font-size: 0.6rem;
+  padding-top: 0.2rem;
+}
+.workspace-content .service-field .md-subheader button {
+  background-color: rgba(50, 50, 50, 0.3);
+  color: rgba(255, 255, 255, 0.87);
+  margin-left: 0.5rem;
+  padding: 2px 4px;
+}
+.workspace-content .service-field .md-subheader button i {
+  font-size: 0.7rem;
+}
+.workspace-content .service-field .md-subheader button:hover {
+  background-color: rgba(50, 50, 50, 0.8);
+}
+.workspace-content .service-field .md-subheader .required-asterisk {
+  color: #ff4081;
+}
+.workspace-content .service-field md-input-container {
+  margin: 1.8rem 0 !important;
+  width: 100%;
+}
+.workspace-content input:invalid {
+  border-bottom: solid 1px #a94442;
+}
+.dropped-file-popover {
+  max-width: 1000px;
+  width: 800px;
+}
+
 #community-container .community-item-container {
   height: 100%;
   overflow-y: auto;
@@ -886,6 +985,9 @@
 #job-share-container #job-outputs td {
   padding: 0.5rem 0;
 }
+#manage-services-dialog .md-list-item-inner {
+  max-width: 100%!important;
+}
 
 @media (min-width: 1600px) and (max-width: 2399px) {
   .container {
@@ -1008,6 +1110,11 @@
 }
 .ftep .ftep-card md-card-actions a:hover {
   color: #558b2f;
+}
+.ftep .ftep-card:hover {
+  box-shadow: 0 4px 4px 4px rgba(0, 0, 0, 0.2), 0 4px 4px 0 rgba(0, 0, 0, 0.14), 0 4px 4px 0 rgba(0, 0, 0, 0.12) !important;
+  transform: translate3d(0, 0, 0);
+  transition: background 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 280ms cubic-bezier(0.2, 0, 0.2, 1);
 }
 
 .ftep .chip-container {
@@ -1657,6 +1764,116 @@
   padding-right: 1rem;
 }
 
+#definition-dialog {
+  width: 40%;
+}
+#definition-dialog input:invalid {
+  background-color: #f2dede;
+  border-bottom: 1px solid #a94442;
+}
+#definition-dialog .error-message {
+  color: #a94442;
+}
+#definition-dialog legend {
+  border: none;
+  color: #558b2f;
+  margin: 2rem 0 0 0;
+  padding: 0 1rem;
+  width: auto;
+}
+#definition-dialog #basic-fields legend {
+  margin-top: 0;
+}
+#definition-dialog .input-with-button {
+  width: 60%;
+}
+#definition-dialog md-input-container {
+  width: 100%;
+}
+#definition-dialog md-input-container .hint {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.6rem;
+}
+#definition-dialog .md-block {
+  margin: 2rem 0;
+}
+@media (max-width: 991px) {
+  #definition-dialog {
+    width: 100%;
+  }
+}
+
+.field-definitions {
+  margin-top: 15px;
+}
+.field-definitions table {
+  border: #d2d2d2 solid 1px;
+  min-width: 767px;
+  width: 100%;
+}
+.field-definitions table th,
+.field-definitions table td {
+  border-left: #d2d2d2 solid 1px;
+  border-bottom: #d2d2d2 solid 1px;
+  padding: 0.25rem;
+}
+.field-definitions table th {
+  background-color: #f8f8f8;
+}
+.field-definitions table .icon-column {
+  width: 1%;
+}
+.field-definitions .edit-button {
+  min-width: 0;
+}
+.field-definitions .edit-button .material-icons {
+  background-color: #aed581;
+  color: white;
+  font-size: 1.4rem;
+}
+.field-definitions .edit-button .material-icons:hover {
+  background-color: #558b2f;
+}
+.field-definitions .developer-definitions-button {
+  background-color: #aed581;
+  color: white;
+  float: right !important;
+  margin-bottom: 1rem;
+}
+.field-definitions .developer-definitions-button.md-focused {
+  background-color: #aed581;
+}
+.field-definitions .developer-definitions-button:hover {
+  background-color: #558b2f;
+}
+#easy-mode-template-container .convert-button {
+  float: right;
+}
+#easy-mode-template-container .ftep-card {
+  height: 100%;
+}
+#easy-mode-template-container md-card-content {
+  height: 100%;
+}
+#easy-mode-template-container #template-container .file-editor {
+  height: 100%;
+}
+#easy-mode-template-container .workspace-content {
+  margin: 0 0.5rem;
+}
+#easy-mode-template-container #launch-button {
+  position: relative;
+  bottom: unset;
+  right: unset;
+  float: right;
+}
+#generated-request-container {
+  margin: 2rem 1rem;
+}
+#generated-request-container h2 {
+  color: #558b2f;
+}
+
 #developer-container .right-container {
   height: 100%;
   overflow-y: auto;
@@ -1710,162 +1927,6 @@
   border-color: #aed581;
   color: rgba(255, 255, 255, 0.87);
 }
-#developer-container .right-container #service-form #file-editor .CodeMirror {
-  height: 100%;
-  margin: 0 1rem 2rem 0;
-}
-#developer-container .right-container #service-form #file-editor .file-editor {
-  background-color: #f8f8f8;
-  border: #d2d2d2 solid 1px;
-  margin-top: 0;
-  padding: 0;
-}
-#developer-container .right-container #service-form #file-editor .file-editor textarea.md-input {
-  background-color: white;
-  font-family: 'Courier';
-  border: none;
-}
-#developer-container .right-container #service-form #file-editor #file-list {
-  font-size: 0.6rem;
-  list-style: none;
-  padding: 0 0 1.6rem 0;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active {
-  background-color: #aed581;
-  color: white;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active:hover {
-  background-color: #558b2f;
-}
-#developer-container .right-container #service-form #file-editor #file-list .active:hover .material-icons {
-  color: #33691e;
-}
-#developer-container .right-container #service-form #file-editor #file-list .add-file {
-  font-size: 1rem;
-  padding: 0 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list .add-file:hover {
-  background-color: transparent;
-  color: #ff4081;
-  cursor: pointer;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .file {
-  cursor: pointer;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .file:hover {
-  background-color: #d9edf7;
-}
-#developer-container .right-container #service-form #file-editor #file-list li .folder:hover {
-  background-color: #f8f8f8;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table {
-  width: 100%;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-icon {
-  width: 28px;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-icon .material-icons {
-  color: #558b2f;
-  font-size: 24px;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .file-name {
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 4rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .remove-file {
-  font-weight: bold;
-  text-align: right;
-  padding: 0 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor #file-list li table .remove-file:hover {
-  color: #ff4081;
-}
-#developer-container .right-container #service-form #file-editor .file-settings {
-  padding: 0.5rem;
-}
-#developer-container .right-container #service-form #file-editor .form-control {
-  display: inline-block;
-  font-size: 0.7rem;
-  padding-bottom: 0;
-  padding-top: 0;
-  vertical-align: top;
-  width: auto;
-}
-#developer-container .right-container #service-form #file-editor .executable {
-  margin: 0;
-  padding: 0.6rem;
-  padding-bottom: 0;
-}
-#developer-container .right-container #service-form #file-editor .executable md-checkbox {
-  margin: 0;
-}
-#developer-container .right-container #service-form #file-editor .input-label {
-  font-size: 1rem;
-  margin: 0;
-  position: inherit;
-  vertical-align: top;
-  width: auto;
-}
-#developer-container .right-container #service-form .add-button,
-#developer-container .right-container #service-form .remove-button,
-#developer-container .right-container #service-form .type-button {
-  min-width: 0;
-}
-#developer-container .right-container #service-form .add-button:hover,
-#developer-container .right-container #service-form .remove-button:hover,
-#developer-container .right-container #service-form .type-button:hover {
-  background-color: transparent;
-}
-#developer-container .right-container #service-form .add-button {
-  margin-top: 1rem;
-}
-#developer-container .right-container #service-form .add-button .material-icons {
-  color: #aed581;
-  font-size: 1.6rem;
-}
-#developer-container .right-container #service-form .remove-button .material-icons,
-#developer-container .right-container #service-form .type-button .material-icons {
-  font-size: 1rem;
-  color: white;
-  background-color: #aed581;
-}
-#developer-container .right-container #service-form .type-button {
-  margin: 20px 0px 0px 0px;
-  padding: 0;
-}
-#developer-container .right-container #service-form .field-definitions {
-  margin-top: 15px;
-}
-#developer-container .right-container #service-form .field-definitions table {
-  border: #d2d2d2 solid 1px;
-  min-width: 767px;
-  width: 100%;
-}
-#developer-container .right-container #service-form .field-definitions table th,
-#developer-container .right-container #service-form .field-definitions table td {
-  border-left: #d2d2d2 solid 1px;
-}
-#developer-container .right-container #service-form .field-definitions table th {
-  background-color: #f8f8f8;
-  border-bottom: #d2d2d2 solid 1px;
-  padding: 0.25rem;
-}
-#developer-container .right-container #service-form .field-definitions table td {
-  border-bottom: #d2d2d2 solid 1px;
-}
-#developer-container .right-container #service-form .field-definitions md-input-container {
-  width: 100%;
-}
-#developer-container .right-container #service-form .field-definitions input:invalid {
-  background-color: #f2dede;
-  border-bottom: 1px solid #a94442;
-}
-#developer-container .right-container #service-form .field-definitions .error-message {
-  color: #a94442;
-}
 @media (max-width: 991px) {
   #developer-container .right-container {
     height: auto;
@@ -1875,16 +1936,108 @@
     right: 4rem;
   }
 }
-#edit-type-dialog #allowedValuesList {
-  max-height: 6rem;
-  overflow-y: auto;
+
+.CodeMirror {
+  height: 100%;
+  margin: 0 1rem 2rem 0;
 }
-#edit-type-dialog #addAllowedValue {
-  padding-top: 1rem;
+.file-editor {
+  background-color: #f8f8f8;
+  border: #d2d2d2 solid 1px;
+  margin-top: 0;
+  padding: 0;
 }
-#edit-type-dialog #addAllowedValue md-input-container,
-#edit-type-dialog #addAllowedValue button {
+.file-editor textarea.md-input {
+  background-color: white;
+  font-family: 'Courier';
+  border: none;
+}
+.file-editor .file-settings {
+  padding: 0.5rem;
+}
+.file-editor .input-label {
+  font-size: 1rem;
   margin: 0;
+  position: inherit;
+  vertical-align: top;
+  width: auto;
+}
+.file-editor .form-control {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding-bottom: 0;
+  padding-top: 0;
+  vertical-align: top;
+  width: auto;
+}
+.file-editor .executable {
+  margin: 0;
+  padding: 0.6rem;
+  padding-bottom: 0;
+}
+.file-editor .executable md-checkbox {
+  margin: 0;
+}
+#file-editor #file-list {
+  font-size: 0.6rem;
+  list-style: none;
+  padding: 0 0 1.6rem 0;
+}
+#file-editor #file-list .active {
+  background-color: #aed581;
+  color: white;
+}
+#file-editor #file-list .active:hover {
+  background-color: #558b2f;
+}
+#file-editor #file-list .active:hover .material-icons {
+  color: #33691e;
+}
+#file-editor #file-list .add-file {
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+#file-editor #file-list .add-file:hover {
+  background-color: transparent;
+  color: #ff4081;
+  cursor: pointer;
+}
+#file-editor #file-list li .file {
+  cursor: pointer;
+}
+#file-editor #file-list li .file:hover {
+  background-color: #d9edf7;
+}
+#file-editor #file-list li .folder:hover {
+  background-color: #f8f8f8;
+}
+#file-editor #file-list li table {
+  width: 100%;
+}
+#file-editor #file-list li table .file-icon {
+  width: 28px;
+}
+#file-editor #file-list li table .file-icon .material-icons {
+  color: #558b2f;
+  font-size: 24px;
+}
+#file-editor #file-list li table .file-name {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 4rem;
+}
+#file-editor #file-list li table .remove-file {
+  font-weight: bold;
+  text-align: right;
+  padding: 0 0.5rem;
+}
+#file-editor #file-list li table .remove-file:hover {
+  color: #ff4081;
+}
+#file-editor .input-label {
+  width: auto;
 }
 
 #explorer-container,
@@ -2116,86 +2269,96 @@
   font-size: 0.5rem;
 }
 
-#workspace-panel .workspace-header .service-header {
-  text-align: center;
+#workspace-panel .md-subheader {
+  color: black;
 }
-#workspace-panel .workspace-header .service-header .service-title {
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 1.2rem;
-  margin-bottom: 0;
-  padding-top: 0.8rem;
-}
-#workspace-panel .workspace-header .service-description {
-  border-bottom: #d2d2d2 solid 1px;
-}
-#workspace-panel .workspace-content .drag-list-subheader span {
-  color: #558b2f;
-  font-size: 0.7rem;
-}
-#workspace-panel .workspace-content .drag-list-item {
-  padding: 1rem 0;
-}
-#workspace-panel .workspace-content .drag-list-item md-list-item:first-child {
-  border-top: #d2d2d2 solid 1px;
-}
-#workspace-panel .workspace-content .drag-list-item button {
-  min-width: auto;
-}
-#workspace-panel .workspace-content .drag-list-item .even {
-  background-color: #fff;
-}
-#workspace-panel .workspace-content .drag-list-item .odd {
-  background-color: #f0f0f0;
-}
-#workspace-panel .workspace-content .drag-list-item small {
-  word-wrap: break-word;
-}
-#workspace-panel .workspace-content .drag-list-item md-list-item:hover {
-  background-color: #bcdff1;
-}
-#workspace-panel .workspace-content .service-field .input-item {
-  padding: 0 0.5rem;
-}
-#workspace-panel .workspace-content .service-field .input-item .add-input-value-button {
-  color: #ff4081;
-  line-height: unset;
-  min-height: unset;
-}
-#workspace-panel .workspace-content .service-field .md-subheader {
-  color: rgba(0, 0, 0, 0.87);
-}
-#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox {
-  float: right;
-  padding-right: 1rem;
-}
-#workspace-panel .workspace-content .service-field .md-subheader .workspace-header-checkbox .md-label {
+#workspace-panel .md-toolbar-tools .workspace-mode-toggle {
   font-size: 0.6rem;
-  padding-top: 0.2rem;
+  float: right;
+  margin: 0.1rem;
 }
-#workspace-panel .workspace-content .service-field .md-subheader button {
-  background-color: rgba(50, 50, 50, 0.3);
-  color: rgba(255, 255, 255, 0.87);
-  margin-left: 0.5rem;
-  padding: 2px 4px;
-}
-#workspace-panel .workspace-content .service-field .md-subheader button i {
+#workspace-panel .md-toolbar-tools .workspace-mode-toggle span {
   font-size: 0.7rem;
+  text-transform: unset;
 }
-#workspace-panel .workspace-content .service-field .md-subheader button:hover {
-  background-color: rgba(50, 50, 50, 0.8);
+
+#files-container #side-container .file-length {
+  text-align: center;
+  padding: 20px 0;
 }
-#workspace-panel .workspace-content .service-field .md-subheader .required-asterisk {
+#files-container #side-container md-input-container,
+#files-container #side-container md-radio-group,
+#files-container #side-container md-slider-container {
+  margin-bottom: 40px;
+}
+#files-container #side-container .md-subheader .md-subheader-inner {
+  padding-left: 0;
+}
+#files-container .right-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  margin-left: 44px;
+}
+#files-container .right-container > article,
+#files-container .right-container > article > section,
+#files-container .right-container > article > section > div,
+#files-container .right-container .ui-grid {
+  height: 100%;
+}
+#files-container .right-container .close {
+  margin: 0.3rem 0;
+}
+#files-container .right-container h3 {
+  font-weight: 600;
+  font-size: 12px;
+  margin: 30px 0 0;
+}
+#files-container .right-container h3 + a {
+  margin-top: 10px;
+}
+#files-container .right-container a {
+  display: inline-block;
+}
+#files-container .right-container .right-button {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: baseline;
+      align-items: baseline;
+}
+#files-container .right-container .right-button .md-button {
+  padding: 0;
+  margin: 0;
+}
+#files-container .right-container .spaced-button {
+  margin-left: 20px;
+  position: relative;
+  top: 10px;
+}
+#files-container .right-container .expandableRow {
+  overflow: auto;
+  border: 1px solid #aaa;
+  padding-left: 20px;
+}
+#files-container .right-container .expandableRow md-input-container {
+  width: 100%;
+}
+#files-container .right-container .expandableRow .copy-button .material-icons {
   color: #ff4081;
 }
-#workspace-panel .workspace-content .service-field:hover {
-  background-color: #d9edf7;
+#files-container .right-container .expandableRow .md-subheader-inner {
+  font-weight: bold;
+  padding: 0.2rem 1rem;
 }
-#workspace-panel .workspace-content input:invalid {
-  border-bottom: solid 1px #a94442;
+#files-container .right-container .expandableRow .md-subheader-content {
+  line-height: 1.2rem;
 }
-.dropped-file-popover {
-  max-width: 1000px;
-  width: 800px;
+#files-container .right-container .expandableRow .header-button {
+  color: #ff4081;
+  cursor: pointer;
+}
+#files-container .right-container .expandableRow a {
+  color: #ff4081;
 }
 
 @font-face {
@@ -2520,6 +2683,12 @@ pre {
 }
 .disabled-text {
   color: #BBB !important;
+}
+.equal {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
 }
 .animationIf.ng-enter,
 .animationIf.ng-leave {

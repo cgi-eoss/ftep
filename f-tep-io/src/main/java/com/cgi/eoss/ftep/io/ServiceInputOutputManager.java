@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -15,12 +16,12 @@ public interface ServiceInputOutputManager {
     /**
      * <p>Provision the contents of the given directory from the given uri.</p> <p>Implementations of this may achieve
      * it in different ways, e.g. copy files into the target path, create symlinks, create bind mounts.</p>
-     *
-     * @param target The directory to be populated. Will be created by this method if it does not exist, but will not be
+     *  @param target The directory to be populated. Will be created by this method if it does not exist, but will not be
      * overwritten if it does.
      * @param uris The URIs to resolve and provision in the target directory.
+     * @return
      */
-    void prepareInput(Path target, Collection<URI> uris) throws IOException;
+    Map<URI, Path> prepareInput(Path target, Collection<URI> uris) throws IOException;
 
     /**
      * <p>Return the path to a directory containing all files necessary to build the Docker image for the given service

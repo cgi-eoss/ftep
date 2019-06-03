@@ -10,7 +10,7 @@ option java_package = "com.cgi.eoss.ftep.rpc.worker";
 service FtepWorker {
     rpc PrepareInputs (JobInputs) returns (JobEnvironment);
     rpc PrepareDockerImage (DockerImageConfig) returns (PrepareDockerImageResponse);
-    rpc LaunchContainer (JobDockerConfig) returns (LaunchContainerResponse);
+    rpc LaunchContainer (JobSpec) returns (LaunchContainerResponse);
     rpc ExecuteServiceCmd (ServiceCmd) returns (ServiceCmdResponse);
     rpc GetPortBindings (Job) returns (PortBindings);
     rpc StopContainer (Job) returns (StopContainerResponse);

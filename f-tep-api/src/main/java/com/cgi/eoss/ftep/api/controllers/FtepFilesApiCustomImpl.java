@@ -55,28 +55,30 @@ public class FtepFilesApiCustomImpl extends BaseRepositoryApiImpl<FtepFile> impl
 
     @Override
     public Page<FtepFile> searchByType(FtepFile.Type type, Pageable pageable) {
-        return getFilteredResults(getFilterPredicate(null, type), pageable);
+        return getFilteredResults(getFilterPredicate(null, type, null, null, null, null), pageable);
     }
 
     @Override
     public Page<FtepFile> searchByFilterOnly(String filter, FtepFile.Type type, Pageable pageable) {
-        return getFilteredResults(getFilterPredicate(filter, type), pageable);
+        return getFilteredResults(getFilterPredicate(filter, type, null, null, null, null), pageable);
     }
 
     @Override
     public Page<FtepFile> searchByFilterAndOwner(String filter, FtepFile.Type type, User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().eq(user).and(getFilterPredicate(filter, type)).and(QFtepFile.ftepFile.type.eq(type)),
-                pageable);
+        return getFilteredResults(getFilterPredicate(filter, type, user, null, null, null), pageable);
     }
 
     @Override
     public Page<FtepFile> searchByFilterAndNotOwner(String filter, FtepFile.Type type, User user, Pageable pageable) {
-        return getFilteredResults(getOwnerPath().ne(user)
-                        .and(getFilterPredicate(filter, type)).and(QFtepFile.ftepFile.type.eq(type)),
-                pageable);
+        return getFilteredResults(getFilterPredicate(filter, type, null, user, null, null), pageable);
     }
 
-    private Predicate getFilterPredicate(String filter, FtepFile.Type type) {
+    @Override
+    public Page<FtepFile> searchAll(String keyword, FtepFile.Type type, User owner, User notOwner, Long minFilesize, Long maxFilesize, Pageable pageable) {
+        return getFilteredResults(getFilterPredicate(keyword, type, owner, notOwner, minFilesize, maxFilesize), pageable);
+    }
+
+    private Predicate getFilterPredicate(String filter, FtepFile.Type type, User owner, User notOwner, Long minFilesize, Long maxFilesize) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (!Strings.isNullOrEmpty(filter)) {
@@ -85,6 +87,22 @@ public class FtepFilesApiCustomImpl extends BaseRepositoryApiImpl<FtepFile> impl
 
         if (type != null) {
             builder.and(QFtepFile.ftepFile.type.eq(type));
+        }
+
+        if (owner != null) {
+            builder.and(QFtepFile.ftepFile.owner.eq(owner));
+        }
+
+        if (notOwner != null) {
+            builder.and(QFtepFile.ftepFile.owner.ne(notOwner));
+        }
+
+        if (minFilesize != null) {
+            builder.and(QFtepFile.ftepFile.filesize.goe(minFilesize));
+        }
+
+        if (maxFilesize != null) {
+            builder.and(QFtepFile.ftepFile.filesize.loe(maxFilesize));
         }
 
         return builder.getValue();

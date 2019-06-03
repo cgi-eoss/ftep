@@ -1,0 +1,36 @@
+<div class="page" ng-controller="FilesCtrl">
+
+    <div class="spinner-container" ng-class="{'hidden': !hideContent}">
+        <div class="spinner" />
+    </div>
+
+    <div id="navbar-container" ng-include src="'views/navbar.html'" onload="finishLoading('navbar')" ng-class="{'hidden': hideContent}"/>
+
+    <article id="files-container" class="page-container row" ng-class="{'hidden': hideContent}">
+
+        <section id="sidenav" ng-include src="'views/files/sidenav.html'" onload="finishLoading('sidenav')" />
+
+        <section ng-controller="FilesSidebarCtrl" id="side-container" class="col-xs-12 col-sm-12 col-md-4 col-xl-3 col-xxl-2 panel-container"
+                 ng-show="navInfo.sideViewVisible" media-show="gt-sm" media-show-on="true">
+            <md-sidenav id="sidebar-left" class="md-sidenav-left md-whiteframe-4dp"
+                        md-component-id="left" md-disable-backdrop md-whiteframe="4" md-is-open="navInfo.sideViewVisible">
+                <div class="panel-container">
+                    <div class="sidebar-item panel-container" ng-include src="'views/files/sidebar/search.html'" ng-show="navInfo.activeSideNav == filesSideNavs.SEARCH" onload="finishLoading('search')"/>
+                    <div class="sidebar-item panel-container" ng-include src="'views/files/sidebar/upload.html'" ng-show="navInfo.activeSideNav == filesSideNavs.UPLOAD"/>
+                </div>
+            </md-sidenav>
+        </section>
+
+        <section id="ui-grid-container" ng-controller="UiGridCtrl" class="right-container" ng-include src="'views/files/ui-grid.html'" />
+
+        <section id="bottombar-container"
+                 ng-class="{'col-xs-12 col-sm-12 col-md-8 col-xl-9 col-xxl-10':navInfo.sideViewVisible, 'col-md-12 wide':!navInfo.sideViewVisible, 'bottombar-tall': bottombarTall === true}"
+                 class="explorer-content animationIf no-padding"
+                 ng-include src="'views/common/bottombar/bottombar.html'"
+                 ng-controller="BottombarCtrl"
+                 ng-if="once = once || navInfo.bottomViewVisible"
+                 ng-show="navInfo.bottomViewVisible"/>
+
+    </article>
+
+</div>

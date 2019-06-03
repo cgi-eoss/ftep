@@ -9,8 +9,9 @@
 
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', function ($scope, TabService, MessageService) {
+    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'ProductService', '$rootScope', function ($scope, TabService, MessageService, ProductService, $rootScope) {
 
+        $scope.serviceParams = ProductService.params.developer;
         $scope.developerSideNavs = TabService.getDeveloperSideNavs();
         $scope.navInfo = TabService.navInfo.developer;
 
@@ -62,6 +63,34 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.hideContent = false;
             }
         };
+
+        // Adds the 'Simple Input Definitions' tab to the service, enabling Easy Mode
+        $scope.addEasyMode = function() {
+            $scope.serviceParams.activeArea = $scope.serviceParams.constants.tabs.easyMode;
+            $scope.serviceParams.selectedService.easyModeServiceDescriptor = {
+                id: $scope.serviceParams.selectedService.name
+            };
+
+            // Build template from serviceDescriptor inputs
+            var template = { inputs: {}, searchParameters: [] };
+            for (var input in $scope.serviceParams.selectedService.serviceDescriptor.dataInputs) {
+                template.inputs[$scope.serviceParams.selectedService.serviceDescriptor.dataInputs[input].id] = ['"{{inputs.' + $scope.serviceParams.selectedService.serviceDescriptor.dataInputs[input].id + '.[0]}}"'];
+            }
+
+            // Set template and inputs for the easy mode
+            $scope.serviceParams.selectedService.easyModeParameterTemplate = JSON.stringify(template,null,2).replace(/\\"/g,'');
+            $scope.serviceParams.selectedService.easyModeServiceDescriptor.dataInputs = $scope.serviceParams.selectedService.serviceDescriptor.dataInputs;
+
+            // Broadcast template update message to trigger codemirror to refresh
+            $rootScope.$broadcast('developer.definitions.editor.update', template);
+        };
+
+        $scope.removeEasyMode = function() {
+            $scope.serviceParams.selectedService.easyModeParameterTemplate = null;
+            $scope.serviceParams.selectedService.easyModeServiceDescriptor = null;
+            $scope.serviceParams.activeArea = $scope.serviceParams.constants.tabs.files;
+        };
+
 
     }]);
 

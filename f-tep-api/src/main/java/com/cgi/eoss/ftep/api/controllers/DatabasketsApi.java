@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Databasket;
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.projections.ShortDatabasket;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.List;
 
 @RepositoryRestResource(
         path = "databaskets",
@@ -33,6 +36,8 @@ public interface DatabasketsApi extends DatabasketsApiCustom, PagingAndSortingRe
     @Override
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#databasket, 'administration')")
     void delete(@Param("databasket") Databasket databasket);
+
+    List<Databasket> findByFilesIsContaining(FtepFile file);
 
     @Override
     @RestResource(path = "findByFilterOnly", rel = "findByFilterOnly")

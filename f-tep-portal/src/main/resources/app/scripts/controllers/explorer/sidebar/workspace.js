@@ -9,119 +9,140 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'ProductService', 'MapService', 'CommonService', 'SearchService', function ($scope, JobService, ProductService, MapService, CommonService, SearchService) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'ProductService', 'MapService', 'CommonService', '$location', '$mdDialog', function ($scope, JobService, ProductService, MapService, CommonService, $location, $mdDialog) {
 
-        $scope.serviceParams = ProductService.params.explorer;
-        $scope.searchParams = SearchService.params;
-        $scope.resultParams = $scope.searchParams.results;
-        $scope.isWorkspaceLoading = false;
+        // Get page path to save the search params in the SearchService when changing tabs
+        var page = $location.path().replace(/\W/g,'') ? $location.path().replace('/','') : 'explorer';
+        $scope.serviceParams = {
+            selectedService: undefined,
+            config: {}
+        };
+        if (ProductService.params[page].selectedService) {
+            $scope.serviceParams.selectedService = ProductService.params[page].selectedService;
+        }
+        if (ProductService.params[page].savedServiceConfig) {
+            $scope.serviceParams.config = ProductService.params[page].savedServiceConfig;
+        }
 
-        $scope.$on('update.selectedService', function(event, config) {
-
-            $scope.isWorkspaceLoading = true;
-            $scope.serviceParams.inputValues = {};
-            $scope.serviceParams.label = config.label;
-            $scope.serviceParams.parallelParameters = config.parallelParameters;
-            if(config.inputs){
-                for (var key in config.inputs) {
-                    $scope.serviceParams.inputValues[key] = config.inputs[key];
+        // Adds parallel parameters list into the correct format (key: true)
+        function getParallelParams(params) {
+            var paramList = [];
+            if (params) {
+                for (var key in params) {
+                    paramList[params[key]] = true;
                 }
             }
+            return paramList;
+        }
 
-            // Converts parallelParameters into correct format for data-binding
-            $scope.serviceParams.parallelParameters = [];
-            if (config.parallelParameters) {
-                for (var k in config.parallelParameters) {
-                    let key = config.parallelParameters[k];
-                    $scope.serviceParams.parallelParameters[key] = true;
-                }
-            }
-
+        // Update service config values on new sevice selection
+        $scope.$on('update.selectedService', function(event, config, advancedMode) {
             ProductService.getService(config.service).then(function(detailedService){
                 $scope.serviceParams.selectedService = detailedService;
-                $scope.isWorkspaceLoading = false;
+                $scope.serviceParams.config = {
+                    inputValues: config.inputs ? config.inputs : {},
+                    label: config.label,
+                    parallelParameters: getParallelParams(config.parallelParameters),
+                    advancedMode: advancedMode
+                };
             });
         });
 
-        $scope.getDefaultValue = function(fieldDesc){
-            return $scope.serviceParams.inputValues[fieldDesc.id] ? $scope.serviceParams.inputValues[fieldDesc.id] : fieldDesc.defaultAttrs.value;
+        // Get default value for a given field
+        $scope.getDefaultValue = function(fieldDesc) {
+            var fieldValue = $scope.serviceParams.config.inputValues[fieldDesc.id];
+            return fieldValue ? fieldValue : fieldDesc.defaultAttrs.value;
         };
 
         $scope.launchProcessing = function($event) {
-            $scope.requiredFields = $scope.serviceParams.selectedService.serviceDescriptor.dataInputs;
 
-            var iparams={};
-            for(var key in $scope.serviceParams.inputValues){
-                var value = $scope.serviceParams.inputValues[key];
-                // Grab the selection value from service-input fields (e.g. radiometric index algorithm)
-                if (typeof value === 'object' && !Array.isArray(value)) {
-                    value = value[0];
-                }
-                if(value === undefined){
-                    value = '';
-                }
-                // All parameters should be stored in arrays
-                if (Array.isArray(value)) {
-                    iparams[key] = value;
-                } else {
-                    iparams[key] = [value];
-                }
+            var jobParams = null;
 
+            // If easy mode doesn't exist run advanced mode
+            if(!$scope.serviceParams.selectedService.easyModeServiceDescriptor || !$scope.serviceParams.selectedService.easyModeServiceDescriptor.dataInputs) {
+                $scope.serviceParams.config.advancedMode = true;
             }
 
-            var parallelParameters = [];
-
-            for(var k in $scope.serviceParams.parallelParameters) {
-                if ($scope.serviceParams.parallelParameters[k] === true) {
-                    parallelParameters.push(k);
-                }
+            if (!$scope.serviceParams.config.advancedMode) {
+                jobParams = ProductService.generateEasyJobConfig(
+                    $scope.serviceParams.config.inputValues,
+                    $scope.serviceParams.selectedService.easyModeParameterTemplate,
+                    $scope.serviceParams.selectedService._links.self.href,
+                    $scope.serviceParams.config.label,
+                    $scope.serviceParams.config.parallelParameters,
+                    false
+                );
+            } else {
+                jobParams = {
+                    'service': $scope.serviceParams.selectedService._links.self.href,
+                    'label' : $scope.serviceParams.config.label,
+                    'inputs' : ProductService.formatInputs($scope.serviceParams.config.inputValues),
+                    'parallelParameters' : ProductService.formatParallelInputs($scope.serviceParams.config.parallelParameters),
+                    'systematicParameter' : null,
+                    'searchParameters' : [ ]
+                };
             }
 
-            // Create job config format to parse to createJobConfig
-            var jobParams = {
-                "service": $scope.serviceParams.selectedService._links.self.href,
-                "inputs" : iparams,
-                "label" : $scope.serviceParams.label,
-                "systematicParameter" : null,
-                "parallelParameters" : parallelParameters,
-                "searchParameters" : [ ]
-            };
-
-            JobService.createJobConfig(jobParams).then(function(jobConfig){
-                JobService.estimateJob(jobConfig, $event).then(function(estimation){
-                    var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
-                    CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
+            if (jobParams.error) {
+                (function(ev) {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                            .clickOutsideToClose(true)
+                            .title('Template Error')
+                            .textContent(jobParams.error.toString())
+                            .ariaLabel('Template Error')
+                            .ok('OK')
+                            .targetEvent(ev)
+                    );
+                })();
+            } else {
+                JobService.createJobConfig(jobParams).then(function(jobConfig) {
+                    JobService.estimateJob(jobConfig, $event).then(function(estimation) {
+                        var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';
+                        CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
                             '\nAre you sure you want to continue?').then(function (confirmed) {
-                        if (confirmed === false) {
-                            return;
-                        }
-                        JobService.broadcastNewjob();
-                        $scope.displayTab($scope.bottomNavTabs.JOBS);
-                        JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
-                            JobService.refreshJobs("explorer", "Create");
+                            if (confirmed === false) {
+                                return;
+                            }
+                            JobService.broadcastNewjob();
+                            $scope.displayTab($scope.bottomNavTabs.JOBS);
+                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                                JobService.refreshJobs('explorer', 'Create');
+                            });
                         });
+                    },
+                    function (error) {
+                        if (error && error.estimatedCost) {
+                            CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
+                                '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
+                        } else if (error) {
+                            CommonService.infoBulletin($event, error);
+                        } else {
+                            CommonService.infoBulletin($event, 'Error occurred. Could not get Job cost estimation.');
+                        }
                     });
-                },
-                function (error) {
-                    CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
-                                               '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
                 });
-            });
+            }
         };
 
         $scope.pastePolygon = function(identifier){
-            $scope.serviceParams.inputValues[identifier] = MapService.getPolygonWkt();
+            $scope.serviceParams.config.inputValues[identifier] = MapService.getPolygonWkt();
         };
 
         function addValue(fieldId, file) {
-            if (!$scope.serviceParams.inputValues[fieldId]) {
-                $scope.serviceParams.inputValues[fieldId] = [];
+            var storedValue = $scope.serviceParams.config.inputValues[fieldId];
+            if (!storedValue) {
+                storedValue = [];
             }
-            if ($scope.serviceParams.inputValues[fieldId].indexOf(file)  < 0) {
-                $scope.serviceParams.inputValues[fieldId].push(file);
+            if (storedValue.indexOf(file)  < 0) {
+                storedValue.push(file);
             }
-            $scope.serviceParams.inputValues[fieldId] = angular.copy($scope.serviceParams.inputValues[fieldId]);
+            $scope.serviceParams.config.inputValues[fieldId] = angular.copy(storedValue);
         }
+
+        $scope.addItem = function (fieldId, file) {
+            addValue(fieldId, file);
+        };
 
         $scope.onDrop = function(item, fieldId) {
             var files = [];
@@ -154,17 +175,19 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             }
         };
 
-        $scope.addItem = function (fieldId, file) {
-            addValue(fieldId, file);
-        };
-
         $scope.removeSelectedItem = function(fieldId, item) {
-            var index = $scope.serviceParams.inputValues[fieldId].indexOf(item);
-            $scope.serviceParams.inputValues[fieldId].splice(index, 1);
+            var index = $scope.serviceParams.config.inputValues[fieldId].indexOf(item);
+            $scope.serviceParams.config.inputValues[fieldId].splice(index, 1);
 
             // Way to force the DOM to update
-            $scope.serviceParams.inputValues[fieldId] = angular.copy($scope.serviceParams.inputValues[fieldId]);
+            $scope.serviceParams.config.inputValues[fieldId] = angular.copy($scope.serviceParams.config.inputValues[fieldId]);
         };
+
+        // Save the active service configuration when changing tabs so it can be reaccessed
+        $scope.$on('$destroy', function() {
+            ProductService.params[page].selectedService = $scope.serviceParams.selectedService;
+            ProductService.params[page].savedServiceConfig = $scope.serviceParams.config;
+        });
 
     }]);
 });

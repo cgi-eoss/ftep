@@ -3,6 +3,7 @@ package com.cgi.eoss.ftep.catalogue;
 import com.cgi.eoss.ftep.catalogue.external.ExternalProductDataService;
 import com.cgi.eoss.ftep.catalogue.files.OutputProductService;
 import com.cgi.eoss.ftep.catalogue.files.ReferenceDataService;
+import com.cgi.eoss.ftep.catalogue.util.ResourcesZippingResource;
 import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
@@ -44,10 +45,13 @@ import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @GRpcService
@@ -122,6 +126,12 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
             default:
                 throw new UnsupportedOperationException("Unable to materialise FtepFile: " + file);
         }
+    }
+
+    @Override
+    public Resource getAsZipResource(String filename, Collection<FtepFile> files) {
+        LOG.info("Serving {} files as zip: {}", files.size(), filename);
+        return new ResourcesZippingResource(filename, files.stream().collect(toMap(FtepFile::getFilename, this::getAsResource)));
     }
 
     @Override

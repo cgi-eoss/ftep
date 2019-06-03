@@ -1,6 +1,7 @@
 rootProject.name = "f-tep"
 
 include("f-tep-api")
+include("f-tep-batch")
 include("f-tep-catalogue")
 include("f-tep-clouds")
 include("f-tep-costing")

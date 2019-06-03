@@ -1,0 +1,65 @@
+<md-toolbar md-scroll-shrink class="sidebar-subheader">
+    <div class="md-toolbar-tools">
+        <div class="col-xs-12">
+            <span>Upload</span>
+        </div>
+    </div>
+</md-toolbar>
+
+<form id="refDataForm" name="refDataForm" class="col-md-12 no-padding">
+
+    <div class="row drop-box-container">
+        <div class="col-md-12 no-padding">
+            <md-input-container md-no-float>
+                <div class="drop-box"
+                     required
+                     ng-model="newReferenceFile.file"
+                     ngf-drop
+                     ngf-select
+                     ngf-change="validateFile(newReferenceFile.file)"
+                     ngf-drag-over-class="'dragover'"
+                     ngf-multiple="false"
+                     ngf-allow-dir="false">
+                    Drop a file here or click to upload
+                </div>
+            </md-input-container>
+            <div ng-if="newReferenceFile.file">
+                <h4 ng-if="uploadValid == 'Valid'" ng-bind="newReferenceFile.file.name" />
+                <h4 ng-if="uploadValid != 'Valid'" ng-bind="newReferenceFile.file.name + ' - ' + uploadValid" class="error" />
+            </div>
+        </div>
+
+        <div class="col-md-12 no-padding" ng-if="fileParams.progressPercentage > 0">
+            <div class="progress">
+                <div class="progress-bar"
+                     role="progressbar"
+                     aria-valuenow="{{fileParams.progressPercentage}}"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     style="width:{{fileParams.progressPercentage}}%"
+                     ng-class="(fileParams.uploadStatus == 'failed') ? 'progress-bar-danger' : 'progress-bar-success'">
+                    <span ng-if="fileParams.uploadStatus == 'pending'">{{fileParams.progressPercentage -1}}% {{fileParams.uploadMessage}}</span>
+                    <span ng-if="fileParams.uploadStatus == 'complete'">Complete</span>
+                    <span ng-if="fileParams.uploadStatus == 'failed'">Error - {{fileParams.uploadMessage}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 no-padding">
+            <md-input-container md-no-float>
+                <input required ng-model="newReferenceFile.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry">
+                <div class="hint" ng-show="true">Geometry *</div>
+            </md-input-container>
+        </div>
+    </div>
+
+    <md-button id="uploadButton"
+               class="icon-button md-icon-button md-fab md-mini btn-success"
+               type="submit"
+               ng-disabled="refDataForm.$invalid || uploadValid != 'Valid'"
+               aria-label="Upload"
+               ng-click="addReferenceFile()">
+        <i class="material-icons">cloud_upload</i>
+    </md-button>
+
+</form>

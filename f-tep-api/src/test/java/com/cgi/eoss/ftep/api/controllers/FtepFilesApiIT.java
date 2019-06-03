@@ -81,12 +81,14 @@ public class FtepFilesApiIT {
         testFile1.setOwner(ftepAdmin);
         testFile1.setFilename("testFile1");
         testFile1.setType(FtepFile.Type.REFERENCE_DATA);
+        testFile1.setFilesize(123L);
 
         UUID file2Uuid = UUID.randomUUID();
         testFile2 = new FtepFile(URI.create("ftep://outputProduct/job1/testFile2"), file2Uuid);
         testFile2.setOwner(ftepAdmin);
         testFile2.setFilename("testFile2");
         testFile2.setType(FtepFile.Type.OUTPUT_PRODUCT);
+        testFile2.setFilesize(321L);
 
         fileDataService.save(ImmutableSet.of(testFile1, testFile2));
     }
@@ -107,7 +109,8 @@ public class FtepFilesApiIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
                 .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
-                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile1"));
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile1"))
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filesize").value(123));
 
         // Results are filtered by ACL
         mockMvc.perform(get("/api/ftepFiles/search/findByType?type=REFERENCE_DATA").header("REMOTE_USER", ftepUser.getName()))
@@ -119,7 +122,8 @@ public class FtepFilesApiIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.ftepFiles").isArray())
                 .andExpect(jsonPath("$._embedded.ftepFiles.length()").value(1))
-                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile2"));
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filename").value("testFile2"))
+                .andExpect(jsonPath("$._embedded.ftepFiles[0].filesize").value(321));
     }
 
     @Test

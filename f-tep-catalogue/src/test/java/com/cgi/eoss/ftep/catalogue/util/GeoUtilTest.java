@@ -62,6 +62,12 @@ public class GeoUtilTest {
     }
 
     @Test
+    public void testGeojsonToWktFeature() {
+        String wktPolygon = GeoUtil.geojsonToWkt(GeoUtil.stringToGeojson(EXAMPLE_FEATURE_JSON));
+        assertThat(wktPolygon, is("POINT (0 0)"));
+    }
+
+    @Test
     public void testWktToGeojsonPoint() throws Exception {
         Point point = (Point) GeoUtil.getGeoJsonGeometry("POINT(0 0)");
         Point expected = new Point(new LngLatAlt(0, 0));
@@ -129,4 +135,21 @@ public class GeoUtilTest {
         String epsg = GeoUtil.extractEpsg(geotiffDurango);
         assertThat(epsg, is("EPSG:32612"));
     }
+
+    private static final String EXAMPLE_FEATURE_JSON = "{\n" +
+            "  \"type\": \"Feature\",\n" +
+            "  \"properties\": {\n" +
+            "    \"collection\": \"ftepRefData\",\n" +
+            "    \"productIdentifier\": \"testfile.txt\"\n" +
+            "  },\n" +
+            "  \"geometry\": {\n" +
+            "    \"type\": \"Point\",\n" +
+            "    \"coordinates\": [\n" +
+            "      0,\n" +
+            "      0\n" +
+            "    ]\n" +
+            "  },\n" +
+            "  \"id\": \"18814a8a-69cf-5ef6-b13d-da0d338abd56\"\n" +
+            "}";
+
 }

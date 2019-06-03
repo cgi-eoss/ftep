@@ -17,7 +17,6 @@ import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.Pair;
 import com.cgi.eoss.ftep.model.internal.RetrievedOutputFile;
 import com.cgi.eoss.ftep.model.internal.Shapefile;
-import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
@@ -50,6 +49,7 @@ import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -129,7 +129,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private final FtepSecurityService securityService;
     private final FtepQueueService ftepQueueService;
     private final ServiceDataService serviceDataService;
-    private final JobSpecFactory jobSpecFactory;
+    private final JobExpansionService jobExpansionService;
 
     @Value("${ftep.orchestrator.gui.baseUrl:http://ftep}")
     private String baseUrl;
@@ -141,7 +141,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                            FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
                            CostingService costingService, FtepSecurityService securityService,
                            FtepQueueService ftepQueueService, ServiceDataService serviceDataService,
-                           JobSpecFactory jobSpecFactory) {
+                           JobExpansionService jobExpansionService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
         this.guiService = guiService;
@@ -150,7 +150,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         this.securityService = securityService;
         this.ftepQueueService = ftepQueueService;
         this.serviceDataService = serviceDataService;
-        this.jobSpecFactory = jobSpecFactory;
+        this.jobExpansionService = jobExpansionService;
     }
 
     @Override
@@ -166,7 +166,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         Optional<Job> baseJob = Optional.empty();
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
                 .put("userId", request.getUserId()).put("serviceId", request.getServiceId()).put("zooId", request.getJobId())) {
-            List<JobSpec> jobSpecs = jobSpecFactory.expandJobParams(request);
+            List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
 
             if (jobSpecs.size() == 1) {
                 baseJob = Optional.of(jobDataService.getById(jobSpecs.get(0).getJob().getIntJobId()));
@@ -183,7 +183,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                     ));
 
             long estimatedCost = persistentJobs.values().stream()
-                    .mapToLong(job -> costingService.estimateJobCost(job.getConfig()))
+                    .mapToLong(job -> costingService.estimateJobCost(job.getConfig(), true))
                     .sum();
             if (estimatedCost > baseJob.get().getOwner().getWallet().getBalance()) {
                 throw new ServiceExecutionException("Estimated cost (" + estimatedCost + " coins) exceeds current wallet balance");

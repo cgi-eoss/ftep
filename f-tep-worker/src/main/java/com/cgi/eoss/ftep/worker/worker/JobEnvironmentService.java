@@ -79,7 +79,7 @@ public class JobEnvironmentService {
      * @return The created environment.
      */
     private JobEnvironment createEnvironment(String jobId) throws IOException {
-        Path workingDir = baseDir.resolve(WORKING_DIR_PREFIX + jobId);
+        Path workingDir = getBaseDir().resolve(WORKING_DIR_PREFIX + jobId);
         Path inputDir = workingDir.resolve(INPUT_DIR);
         Path outputDir = workingDir.resolve(OUTPUT_DIR);
         Path tempDir = workingDir.resolve(TEMP_DIR);

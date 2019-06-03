@@ -178,3 +178,8 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
+
+# app.js
+ftepConfig.js
+f-tep-portal/src/main/resources/app/scripts/ftepConfig.js
+f-tep-portal/src/main/resources/app/scripts/app.js

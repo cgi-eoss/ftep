@@ -32,13 +32,14 @@ define([
     'traversonHal',
     'ngFileUpload',
     'uiCodeMirror',
+    'uiGrid',
     'moduleloader'
 ], function (ftepConfig) {
     'use strict';
 
     var app = angular.module('ftepApp', ['app.ftepmodules', 'ngRoute', 'ngMaterial', 'ngAnimate', 'ngAria', 'ngSanitize', 'ngMessages',
-                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging',
-                                         'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror']);
+                                         'ngResource', 'dndLists', 'ui.bootstrap', 'openlayers-directive', 'bw.paging', 'angularMoment', 'traverson', 'ngFileUpload', 'ui.codemirror',
+                                         'ui.grid', 'ui.grid.pagination', 'ui.grid.expandable', 'ui.grid.selection', 'ui.grid.resizeColumns']);
 
     /* jshint -W117  */
     app.constant('ftepProperties', {
@@ -76,6 +77,19 @@ define([
                 templateUrl: 'views/explorer/explorer.html',
                 controller: 'ExplorerCtrl',
                 controllerAs: 'main'
+            })
+            .when('/files', {
+                templateUrl: 'views/files/files.html',
+                controller: 'FilesCtrl',
+                resolve:{
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUser().then(function(user){
+                            if(user.role !== 'ADMIN'){
+                                $location.path('/');  //redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/developer', {
                 templateUrl: 'views/developer/developer.html',
@@ -368,51 +382,6 @@ define([
                     $scope.pagingData = JSON.parse(attrs.ftepPaging);
                 });
 
-            }
-        };
-    });
-
-    app.directive('serviceInput', function(){
-        return {
-            restrict: 'E',
-            templateUrl: 'views/common/templates/serviceinput.tmpl.html',
-            link: function ($scope, element, attrs) {
-
-                function checkType(){
-                    var data = JSON.parse(attrs.defaultAttrs);
-                    var inputField = element.find('input');
-
-                    $scope.fieldData = {isSelection: (data.allowedValues && data.allowedValues !== '' ? true : false),
-                                        allowedValues: (data.allowedValues && data.allowedValues !== '' ? data.allowedValues.split(',') : []),
-                                        description: attrs.description};
-
-                    if($scope.fieldData.allowedValues.length > 0 && attrs.ngRequired === 'false'){
-                        $scope.fieldData.allowedValues.splice(0, 0, ''); //add empty value at the beginning
-                    }
-
-                    switch(data.dataType){
-                        case 'integer':
-                            inputField.attr('type', 'number');
-                            inputField.attr('step', '1');
-                            inputField.attr('required', attrs.ngRequired);
-                            break;
-                        case 'double':
-                            inputField.attr('type', 'number');
-                            inputField.attr('step', '0.1');
-                            inputField.attr('required', attrs.ngRequired);
-                            break;
-                        default:
-                            inputField.attr('type', 'text');
-                            inputField.attr('required', attrs.ngRequired);
-                    }
-                }
-
-                attrs.$observe('defaultAttrs', function() {
-                    checkType();
-                });
-            },
-            scope: {
-                value: '=ngModel'
             }
         };
     });

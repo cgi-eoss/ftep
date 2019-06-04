@@ -20,8 +20,6 @@ public interface ShortFtepFileWorkspace extends Identifiable<Long> {
     URI getUri();
     FtepFile.Type getType();
     Long getFilesize();
-    @Value("#{!@databasketsApi.findByFilesIsContaining(target).empty}")
-    Boolean isInDatabasket();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepFile), target.id)}")
     FtepAccess getAccess();
 }

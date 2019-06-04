@@ -16,5 +16,5 @@ public interface FtepFilesApiCustom extends BaseRepositoryApi<FtepFile> {
 
     Page<FtepFile> searchByFilterAndNotOwner(String filter, FtepFile.Type type, User user, Pageable pageable);
 
-    Page<FtepFile> searchAll(String keyword, FtepFile.Type type, User owner, User notOwner, Long minFilesize, Long maxFilesize, Pageable pageable);
+    Page<FtepFile> searchAll(String keyword, FtepFile.Type type, FtepFile.Type notType, User owner, User notOwner, Long minFilesize, Long maxFilesize, Pageable pageable);
 }

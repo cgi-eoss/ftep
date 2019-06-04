@@ -67,6 +67,7 @@ public interface FtepFilesApi extends FtepFilesApiCustom, PagingAndSortingReposi
     @RestResource(path = "findAll", rel = "findAll")
     Page<FtepFile> searchAll(@Param("filter") String filter,
                              @Param("type") FtepFile.Type type,
+                             @Param("notType") FtepFile.Type notType,
                              @Param("owner") User owner,
                              @Param("notOwner") User notOwner,
                              @Param("minFilesize") Long minFilesize,

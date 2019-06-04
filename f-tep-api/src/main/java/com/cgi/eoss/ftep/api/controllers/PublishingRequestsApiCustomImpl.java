@@ -9,21 +9,24 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class PublishingRequestsApiCustomImpl extends BaseRepositoryApiImpl<PublishingRequest> implements PublishingRequestsApiCustom {
 
     private final FtepSecurityService securityService;
     private final PublishingRequestDao dao;
+
+    public PublishingRequestsApiCustomImpl(FtepSecurityService securityService, PublishingRequestDao dao) {
+        super(PublishingRequest.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

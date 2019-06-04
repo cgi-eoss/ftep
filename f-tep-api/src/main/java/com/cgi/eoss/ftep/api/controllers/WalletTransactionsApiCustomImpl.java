@@ -8,19 +8,22 @@ import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class WalletTransactionsApiCustomImpl extends BaseRepositoryApiImpl<WalletTransaction> implements WalletTransactionsApiCustom {
 
     private final FtepSecurityService securityService;
     private final WalletTransactionDao dao;
+
+    public WalletTransactionsApiCustomImpl(FtepSecurityService securityService, WalletTransactionDao dao) {
+        super(WalletTransaction.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

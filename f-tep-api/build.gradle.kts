@@ -15,6 +15,7 @@ dependencies {
     api(project(":f-tep-security"))
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-hibernate5")
+    implementation("com.querydsl:querydsl-jpa")
     implementation("com.squareup.okhttp3:logging-interceptor")
     implementation("com.squareup.okhttp3:okhttp")
     implementation("org.apache.commons:commons-text")

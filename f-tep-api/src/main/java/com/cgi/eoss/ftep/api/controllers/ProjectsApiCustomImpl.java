@@ -11,19 +11,22 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class ProjectsApiCustomImpl extends BaseRepositoryApiImpl<Project> implements ProjectsApiCustom {
 
     private final FtepSecurityService securityService;
     private final ProjectDao dao;
+
+    public ProjectsApiCustomImpl(FtepSecurityService securityService, ProjectDao dao) {
+        super(Project.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

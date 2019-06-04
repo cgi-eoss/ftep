@@ -19,7 +19,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 paginationPageSize: 50,
                 useExternalPagination: true,
                 useExternalSorting: true,
-                expandableRowTemplate: '../../../views/files/ui-grid-subnav.html',
+                expandableRowTemplate: 'views/files/ui-grid-subnav.html',
                 expandableRowHeight: 500,
                 expandableRowScope: {
                     currentRowData: {},

@@ -492,6 +492,41 @@
   }
 }
 
+.dynamic-form md-select {
+  margin-top: 0;
+}
+.dynamic-form md-datepicker {
+  padding: 0;
+  max-width: 100%;
+}
+.dynamic-form md-datepicker .md-datepicker-button {
+  margin: 0;
+}
+.dynamic-form md-datepicker .md-datepicker-input-container {
+  margin: 0;
+}
+@media (max-width: 991px) {
+  .dynamic-form md-datepicker .md-datepicker-input-container {
+    width: 80%;
+  }
+}
+.dynamic-form md-datepicker .md-datepicker-triangle-button {
+  margin: 0;
+}
+.dynamic-form md-datepicker .md-datepicker-invalid .md-datepicker-input {
+  background: #f2dede;
+}
+.dynamic-form .search-input-button i {
+  font-size: 1rem;
+}
+.dynamic-form .md-subheader-title md-checkbox {
+  margin-bottom: 0;
+}
+.dynamic-form .md-subheader-title md-checkbox .md-container.md-ink-ripple {
+  transform: scale(0.8);
+  top: -4px;
+}
+
 #navbar {
   background-color: #f8f8f8;
   border: none;
@@ -990,6 +1025,19 @@
 }
 #manage-services-dialog .md-list-item-inner {
   max-width: 100%!important;
+}
+#systematic-manage #systematic-overview h5 {
+  font-size: 0.7rem;
+  font-weight: bold;
+  line-height: 1rem;
+  margin: 0;
+  padding: 0.3rem 0;
+}
+#systematic-manage #systematic-overview p {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  margin: 0;
+  padding: 0.3rem 0;
 }
 
 @media (min-width: 1600px) and (max-width: 2399px) {

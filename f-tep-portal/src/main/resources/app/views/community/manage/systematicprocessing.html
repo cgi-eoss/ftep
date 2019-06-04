@@ -1,0 +1,154 @@
+<article id="systematic-header">
+
+    <md-button class="close toolbar-button md-secondary"
+               ng-click="systematicParams.selectedSystematicProcessing = undefined"
+               uib-tooltip="Close"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+        <i class="material-icons">close</i>
+    </md-button>
+
+    <md-button id="refresh-systematic"
+               class="save-button md-fab md-mini right"
+               ng-click="refreshSystematicProcessing()"
+               aria-label="Refresh systematic processing"
+               uib-tooltip="Refresh systematic processing"
+               tooltip-placement="top"
+               tooltip-trigger="mouseenter"
+               tooltip-append-to-body="true">
+            <i class="material-icons">update</i>
+    </md-button>
+
+    <section id="systematic-title" class="row section-title">
+        <div class="col-xs-10 title-text">
+            <h2 ng-bind="'Systematic processing: ' + systematicParams.selectedSystematicProcessing.id + ' - ' + systematicParams.selectedSystematicProcessing.status" />
+        </div>
+    </section>
+
+</article>
+
+<article id="systematic-manage">
+    <section id="systematic-overview" class="sub-title row">
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Owner:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="systematicParams.selectedSystematicProcessing.owner.name" />
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12 col-md-3 col-xl-2">
+                <h5 ng-bind="'Status:'" />
+            </div>
+            <div class="col-xs-12 col-md-9 col-xl-10">
+                <p ng-bind="systematicParams.selectedSystematicProcessing.status" />
+            </div>
+        </div>
+    </section>
+    <section id="systematic-title" class="row section-title">
+        <div class="col-xs-10 title-text">
+            <h3>Search parameters</h3>
+        </div>
+    </section>
+    <section id="systematic-overview" class="sub-title row">
+        <div class="col-xs-12 col-md-6" ng-repeat="(key, value) in systematicParams.selectedSystematicProcessing.searchParameters">
+            <div class="col-xs-12 col-md-4 col-xl-3">
+                <h5 ng-bind="key" />
+            </div>
+            <div class="col-xs-12 col-md-8 col-xl-9">
+                <p ng-if="key !== 'aoi'" ng-bind="value" />
+                <span ng-if="key === 'aoi' && value && value.length">
+                    <md-button class="toolbar-button md-secondary"
+                                ng-click="copyToClipboard(value[0])"
+                                uib-popover="{{value[0]}}"
+                                popover-placement="top"
+                                popover-trigger="'mouseenter'"
+                                popover-append-to-body="true">
+                        <i class="material-icons">content_copy</i>
+                    </md-button>
+                    <md-button class="toolbar-button md-secondary" ng-click="showAreaOnMap(value)"  uib-tooltip="Show on map"
+                    tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+                    <i class="material-icons">map</i>
+                </span>
+            </div>
+        </div>
+    </section>
+</article>
+<article id="systematic-sharing" class="sharing-container" has-permission="ADMIN" permission-source="{{systematicParams.selectedSystematicProcessing}}">
+    <section class="row section-title">
+        <div class="col-xs-11 title-text">
+            <h3>Sharing List</h3>
+        </div>
+        <div class="col-xs-1 title-button">
+            <h3>
+                <md-button class="toolbar-button icon-button-accent md-secondary"
+                            ng-click="shareObjectDialog($event, systematicParams.selectedSystematicProcessing, 'systematicProcessing', systematicParams.sharedGroups, 'SystematicService', 'refreshSelectedSystematicProcessing')"
+                            has-permission="ADMIN" permission-source="{{systematicParams.selectedSystematicProcessing}}"
+                            aria-label="Share"
+                            uib-tooltip="Share"
+                            tooltip-placement="top"
+                            tooltip-trigger="mouseenter"
+                            tooltip-append-to-body="true">
+                    <i class="material-icons">share</i>
+                </md-button>
+            </h3>
+        </div>
+    </section>
+
+    <section class="filter-list">
+        <ul class="list">
+            <md-input-container md-no-float>
+                <label>Filter</label>
+                <input ng-model="systematicParams.sharedGroupsSearchText" type="text" placeholder="Search" aria-label="Group Search Filter">
+            </md-input-container>
+        </ul>
+    </section>
+
+    <div class="row" ng-if="!systematicParams.sharedGroups.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">No sharing group found</div>
+        </div>
+    </div>
+    <section class="groups-shared item-list">
+
+        <md-list-item class="md-1-line" ng-repeat="ace in systematicParams.sharedGroups | orderBy: 'group.name' | filter: shareQuickSearch">
+
+            <div class="md-avatar" alt="access rights">
+                <i class="material-icons">group</i>
+            </div>
+
+            <div class="md-list-item-text" layout="column">
+                <h4 ng-bind="ace.group.name" />
+            </div>
+
+            <div class="md-secondary md-list-item-dropdown-label">
+                <label>Permission</label>
+            </div>
+
+            <md-input-container class="md-block md-secondary md-list-item-dropdown" flex-gt-sm>
+                <md-select ng-model="ace.permission"
+                            ng-change="updateGroups(systematicParams.selectedSystematicProcessing, 'systematicProcessing', systematicParams.sharedGroups, 'SystematicService', 'refreshSelectedSystematicProcessing')"
+                            aria-label="Permission">
+                    <md-option ng-repeat="permission in permissions" ng-value="permission">
+                        {{permission}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-button class="toolbar-button md-secondary"
+                        ng-click="removeGroup(systematicParams.selectedSystematicProcessing, 'systematicProcessing', ace.group, systematicParams.sharedGroups, 'SystematicService', 'refreshSelectedSystematicProcessing')"
+                        aria-label="Remove"
+                        uib-tooltip="Remove"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                <i class="material-icons">clear</i>
+            </md-button>
+
+        </md-list-item>
+
+    </section>
+
+</article>

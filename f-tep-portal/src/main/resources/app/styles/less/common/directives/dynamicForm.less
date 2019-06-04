@@ -1,0 +1,43 @@
+@import "variable";
+.dynamic-form {
+    md-select {
+        margin-top: 0;
+    }
+    .date-container {
+        //text-align: center;
+    }
+    md-datepicker {
+        padding: 0;
+        max-width: 100%;
+        .md-datepicker-button {
+            margin: 0;
+        }
+        .md-datepicker-input-container {
+            margin: 0;
+            @media (max-width: @sm-max-width) {
+                width: 80%;
+            }
+        }
+        .md-datepicker-triangle-button {
+            margin: 0;
+        }
+        .md-datepicker-invalid .md-datepicker-input {
+            background: @error;
+        }
+    }
+    .search-input-button i {
+        font-size: 1rem;
+    }
+    .md-subheader-title md-checkbox {
+        margin-bottom: 0;
+
+        .md-container.md-ink-ripple {
+            transform: scale(0.8);
+            top: -4px;
+        }
+
+        .md-label {
+
+        }
+    }
+}

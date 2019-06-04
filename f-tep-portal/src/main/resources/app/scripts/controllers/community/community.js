@@ -9,7 +9,7 @@
 
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunityCtrl', ['$scope', 'CommunityService', 'GroupService', 'UserService', 'ProjectService', 'BasketService', 'JobService', 'ProductService', 'FileService', 'MessageService', 'TabService', 'CommonService', '$injector', function ($scope, CommunityService, GroupService, UserService, ProjectService, BasketService, JobService, ProductService, FileService, MessageService, TabService, CommonService, $injector) {
+    ftepmodules.controller('CommunityCtrl', ['$scope', 'CommunityService', 'GroupService', 'UserService', 'ProjectService', 'BasketService', 'JobService', 'SystematicService', 'ProductService', 'FileService', 'MessageService', 'TabService', 'CommonService', '$injector', function ($scope, CommunityService, GroupService, UserService, ProjectService, BasketService, JobService, SystematicService, ProductService, FileService, MessageService, TabService, CommonService, $injector) {
 
         $scope.navInfo = TabService.navInfo.community;
 
@@ -17,6 +17,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.projectParams = ProjectService.params.community;
         $scope.basketParams = BasketService.params.community;
         $scope.jobParams = JobService.params.community;
+        $scope.systematicParams = SystematicService.params.community;
         $scope.serviceParams = ProductService.params.community;
         $scope.fileParams = FileService.params.community;
 
@@ -106,7 +107,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.hideContent = true;
-        var navbar, sidenav, groups, projects, databaskets, jobs, services, files;
+        var navbar, sidenav, groups, projects, databaskets, jobs, systematicprocs, services, files;
         $scope.finishLoading = function(component) {
             switch(component) {
                 case 'navbar':
@@ -127,6 +128,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 case 'jobs':
                     jobs = true;
                     break;
+                case 'systematicprocs':
+                    systematicprocs = true;
+                    break;
                 case 'services':
                     services = true;
                     break;
@@ -135,7 +139,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                     break;
             }
 
-            if (navbar && sidenav && (groups || projects || databaskets || jobs || services || files)) {
+            if (navbar && sidenav && (groups || projects || databaskets || jobs || systematicprocs || services || files)) {
                 $scope.hideContent = false;
             }
         };

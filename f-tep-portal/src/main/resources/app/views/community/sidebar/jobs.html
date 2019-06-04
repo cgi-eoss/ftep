@@ -110,6 +110,30 @@
                 <i class="material-icons">info_outline</i>
             </md-button>
 
+            <md-button class="toolbar-button md-secondary"
+                        ng-if="job._links.terminate && !job.systematicParameter"
+                        has-permission="ADMIN" permission-source="{{job}}"
+                        ng-click="terminateJob(job)"
+                        aria-label="Terminate"
+                        uib-tooltip="Terminate this job"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                <i class="material-icons">stop</i>
+            </md-button>
+
+            <md-button class="toolbar-button md-secondary"
+                        ng-if="job._links.cancel && !job.systematicParameter"
+                        has-permission="ADMIN" permission-source="{{job}}"
+                        ng-click="cancelJob(job)"
+                        aria-label="Cancel"
+                        uib-tooltip="Cancel this job"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true">
+                <i class="material-icons">close</i>
+            </md-button>
+
         </md-list-item>
 
         <div id="paging" ftep-paging="{{jobParams.pagingData}}"></div>

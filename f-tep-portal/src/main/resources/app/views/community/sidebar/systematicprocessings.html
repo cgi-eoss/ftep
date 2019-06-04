@@ -1,0 +1,70 @@
+<md-toolbar md-scroll-shrink class="sidebar-subheader">
+    <div class="md-toolbar-tools">
+        <div class="col-xs-12">
+            <span>Jobs</span>
+        </div>
+    </div>
+</md-toolbar>
+
+<section id="sidebar-list">
+
+    <section class="filter-list">
+            <ul class="list">
+
+                <md-input-container class="md-input-has-value">
+                    <label>Ownership</label>
+                    <md-radio-group ng-model="systematicParams.selectedOwnershipFilter" ng-change="filter()">
+                        <md-radio-button ng-repeat="ownershipFilter in ownershipFilters" ng-value="ownershipFilter">
+                            {{ownershipFilter.name}}
+                        </md-radio-button>
+                    </md-radio-group>
+                </md-input-container>
+            </ul>
+        </section>
+
+    <div class="row" ng-if="!systematicParams.systematicProcessings.length > 0">
+        <div class="col-md-12 no-padding">
+            <div class="note">No systematic processing found.</div>
+        </div>
+    </div>
+
+    <div class="item-list list" ng-if="systematicParams.systematicProcessings.length > 0">
+        <md-list-item class="md-3-line"
+                      ng-repeat="(key, systematicProcessing) in systematicParams.systematicProcessings"
+                      ng-click="selectSystematicProcessing(systematicProcessing)"
+                      ng-class="{active: systematicProcessing.id == systematicParams.selectedSystematicProcessing.id}">
+
+            <div class="md-list-item-text" layout="column">
+                <h3 class="selectable" ng-bind="'Systematic processing: ' + systematicProcessing.id" />
+                <span><b>Owner:</b> <span ng-bind="systematicProcessing.owner.name" /></span>
+                <span><b>Status:</b> <span ng-bind="systematicProcessing.status" /></span>
+            </div>
+
+            <md-button class="toolbar-button md-secondary"
+                      ng-click="goToParentJobPage(systematicProcessing)"
+                      aria-label="Open related job"
+                      uib-tooltip="Open related job"
+                      tooltip-placement="top"
+                      tooltip-trigger="mouseenter"
+                      tooltip-append-to-body="true"
+            >
+                <i class="material-icons">assignment</i>
+            </md-button>
+            <md-button class="toolbar-button md-secondary"
+                       ng-click="terminateSystematicProcessing(event, key, systematicProcessing)"
+                       ng-if="systematicProcessing.status !== 'COMPLETED'"
+                       aria-label="Terminate systematic processing"
+                       uib-tooltip="Terminate systematic processing"
+                       tooltip-placement="top"
+                       tooltip-trigger="mouseenter"
+                       tooltip-append-to-body="true">
+                <i class="material-icons">cancel</i>
+            </md-button>
+
+        </md-list-item>
+
+        <div id="paging" ftep-paging="{{systematicParams.pagingData}}"></div>
+
+    </div>
+
+</section>

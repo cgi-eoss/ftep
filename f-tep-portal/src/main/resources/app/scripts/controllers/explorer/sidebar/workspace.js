@@ -9,7 +9,18 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'ProductService', 'MapService', 'CommonService', '$location', '$mdDialog', function ($scope, JobService, ProductService, MapService, CommonService, $location, $mdDialog) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'SystematicService', 'ProductService', 'MapService', 'CommonService', '$location', '$mdDialog', function ($scope, JobService, SystematicService, ProductService, MapService, CommonService, $location, $mdDialog) {
+
+        $scope.serviceParams = ProductService.params.explorer;
+        $scope.runModes = ProductService.serviceRunModes;
+
+        $scope.searchForm = {
+            config: {},
+            api: {},
+            data: {
+                catalogue: 'SATELLITE'
+            }
+        }
 
         // Get page path to save the search params in the SearchService when changing tabs
         var page = $location.path().replace(/\W/g,'') ? $location.path().replace('/','') : 'explorer';
@@ -36,7 +47,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         }
 
         // Update service config values on new sevice selection
-        $scope.$on('update.selectedService', function(event, config, advancedMode) {
+        $scope.$on('update.selectedService', function(event, config, advancedMode, systematicParameter) {
             ProductService.getService(config.service).then(function(detailedService){
                 $scope.serviceParams.selectedService = detailedService;
                 $scope.serviceParams.config = {
@@ -48,6 +59,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             });
         });
 
+        $scope.onRunModeChange = function() {
+            if ($scope.serviceParams.runMode === $scope.runModes.SYSTEMATIC.id) {
+                $scope.serviceParams.systematicParameter = $scope.serviceParams.selectedService ? $scope.serviceParams.selectedService.serviceDescriptor.dataInputs[0].id : null;
+            }
+            else {
+                delete $scope.serviceParams.systematicParameter;
+            }
+        }
+
         // Get default value for a given field
         $scope.getDefaultValue = function(fieldDesc) {
             var fieldValue = $scope.serviceParams.config.inputValues[fieldDesc.id];
@@ -55,6 +75,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.launchProcessing = function($event) {
+            var iparams={};
+
+            for(var key in $scope.serviceParams.inputValues){
+                var value = $scope.serviceParams.inputValues[key];
+                if(value === undefined){
+                    value = '';
+                }
+                iparams[key] = [value];
+            }
 
             var jobParams = null;
 
@@ -82,20 +111,33 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     'searchParameters' : [ ]
                 };
             }
+     
+            if ($scope.serviceParams.runMode === $scope.runModes.SYSTEMATIC.id) {
+                delete iparams[$scope.serviceParams.systematicParameter];
 
-            if (jobParams.error) {
-                (function(ev) {
-                    $mdDialog.show(
-                        $mdDialog.alert()
-                            .clickOutsideToClose(true)
-                            .title('Template Error')
-                            .textContent(jobParams.error.toString())
-                            .ariaLabel('Template Error')
-                            .ok('OK')
-                            .targetEvent(ev)
-                    );
-                })();
-            } else {
+                var searchParams = $scope.searchForm.api.getFormData();
+                searchParams.catalogue = 'SATELLITE';
+
+                SystematicService.estimateMonthlyCost($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams).then(function(estimation) {
+                    console.log(iparams);
+                    console.log($scope.searchForm.api.getFormData());
+                    var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
+                    CommonService.confirm($event, 'This job will approximatelly cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
+                            '\nAre you sure you want to continue?').then(function (confirmed) {
+                        if (confirmed === false) {
+                            return;
+                        }
+                        $scope.displayTab($scope.bottomNavTabs.JOBS, false);
+
+                        SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.label).then(function () {
+                            JobService.refreshJobs("explorer", "Create");
+                        });
+
+                    });
+                });
+
+            }
+            else {
                 JobService.createJobConfig(jobParams).then(function(jobConfig) {
                     JobService.estimateJob(jobConfig, $event).then(function(estimation) {
                         var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';

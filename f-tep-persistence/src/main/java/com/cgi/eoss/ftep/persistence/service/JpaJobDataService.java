@@ -78,6 +78,13 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
     }
 
     @Override
+    public List<Job> findByOwnerAndStartIn(User user, YearMonth yearMonth) {
+        return dao.findAll(job.startTime.year().eq(yearMonth.getYear())
+                .and(job.startTime.month().eq(yearMonth.getMonthValue()))
+                .and(job.owner.id.eq(user.getId())));
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Job buildNew(String extId, String ownerId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob, String systematicParameter, List<String> parallelParameters, List<String> searchParameters) {
         User owner = userDataService.getByName(ownerId);

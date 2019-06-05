@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.orchestrator.service.FtepFileRegistrar;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
+import com.cgi.eoss.ftep.security.FtepSecurityService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -44,12 +45,14 @@ public class ReportsApi {
     private final JobDataService jobDataService;
     private final FtepFileRegistrar ftepFileRegistrar;
     private final ReportsCollector reportsCollector;
+    private final FtepSecurityService ftepSecurityService;
 
     @Autowired
-    public ReportsApi(JobDataService jobDataService, FtepFileRegistrar ftepFileRegistrar, ReportsCollector reportsCollector) {
+    public ReportsApi(JobDataService jobDataService, FtepFileRegistrar ftepFileRegistrar, ReportsCollector reportsCollector, FtepSecurityService ftepSecurityService) {
         this.jobDataService = jobDataService;
         this.ftepFileRegistrar = ftepFileRegistrar;
         this.reportsCollector = reportsCollector;
+        this.ftepSecurityService = ftepSecurityService;
     }
 
     @PostMapping("/updateJobFiles")
@@ -126,14 +129,48 @@ public class ReportsApi {
      * @param month
      * @return
      */
-    @GetMapping("/dataUsage/application/json/{year}/{month}")
+    @GetMapping(value = "/dataUsage/{year}/{month}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN')")
-    public ReportsCollector.UsageReport getDataUsageReportJsonYearMonth(@PathVariable("year") int year, @PathVariable("month") int month) {
-
+    public ReportsCollector.UsageReport getDataUsageReportYearMonthJson(@PathVariable("year") int year, @PathVariable("month") int month) {
         return reportsCollector.generateUsageReportJson(YearMonth.of(year, month));
     }
 
+    /**
+     * Generating an XLS report for a single user for a given month and a year
+     * @param year
+     * @param month
+     * @param response
+     * @param userId
+     */
+    @GetMapping("/dataUsage/user/{userId}/{year}/{month}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or @ftepSecurityService.currentUser.id.equals(#userId)")
+    public void generateUsageReportPerUser(@PathVariable("year") int year, @PathVariable("month") int month, HttpServletResponse response, @PathVariable("userId") long userId) {
+        String filename = "ReportOf_" + userId + "_" + month + "_" + year + ".xls";
+        LOG.info("Preparing downloadable xls: " + filename + ".");
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        try {
+            long bodyLength = reportsCollector.generateUsageReport(YearMonth.of(year, month), response.getOutputStream(), userId);
+            response.setContentLengthLong(bodyLength);
+            response.setStatus(HttpStatus.OK.value());
+            response.flushBuffer();
+        } catch (IOException ioe) {
+            LOG.info("Problem while preparing the file: " + filename + ", cannot flush HTTP buffer. Exception:\n" + ioe.getMessage());
+        }
+    }
 
+    /**
+     * Retrieving the monthly statistics for a given month, year and user in a JSON format
+     * @param year
+     * @param month
+     * @param userId
+     * @return
+     */
+    @GetMapping(value = "/dataUsage/user/{userId}/{year}/{month}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or @ftepSecurityService.currentUser.id.equals(#userId)")
+    public ReportsCollector.UsageReport generateUsageReportPerUserJson(@PathVariable("year") int year, @PathVariable("month") int month, @PathVariable("userId") long userId) {
+        return reportsCollector.generateUsageReportJson(YearMonth.of(year, month), userId);
+    }
 
     private JobDataUsage getJobDataUsage(Job job) {
         JobDataUsage.JobDataUsageBuilder builder = JobDataUsage.builder();

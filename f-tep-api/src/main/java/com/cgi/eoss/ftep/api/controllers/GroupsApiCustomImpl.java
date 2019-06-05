@@ -11,8 +11,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -20,13 +18,18 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class GroupsApiCustomImpl extends BaseRepositoryApiImpl<Group> implements GroupsApiCustom {
 
     private final FtepSecurityService securityService;
     private final GroupDao dao;
+
+    public GroupsApiCustomImpl(FtepSecurityService securityService, GroupDao dao) {
+        super(Group.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

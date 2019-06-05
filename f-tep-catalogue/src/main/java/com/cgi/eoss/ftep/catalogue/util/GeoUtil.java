@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -94,6 +95,14 @@ public class GeoUtil {
         } catch (Exception e) {
             LOG.error("Could not convert GeoJsonObject to WKT: {}", geojson, e);
             throw new GeometryException(e);
+        }
+    }
+
+    public static String geojsonToWktSafe(GeoJsonObject geojson) {
+        try {
+            return Optional.ofNullable(geojson).map(GeoUtil::geojsonToWkt).orElse(null);
+        } catch (Exception e) {
+            return null;
         }
     }
 

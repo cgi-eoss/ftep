@@ -26,7 +26,7 @@ public interface DetailedFtepFileWorkspace extends Identifiable<Long> {
     ShortUser getOwner();
     String getFilename();
     Long getFilesize();
-    @Value("#{T(com.cgi.eoss.ftep.catalogue.util.GeoUtil).geojsonToWkt(@restoServiceImpl.getGeoJsonSafe(target))}")
+    @Value("#{T(com.cgi.eoss.ftep.catalogue.util.GeoUtil).geojsonToWktSafe(@restoServiceImpl.getGeoJsonSafe(target))}")
     String getGeometry();
     @Value("#{@databasketsApi.findByFilesIsContaining(target)}")
     List<ShortDatabasket> getContainedInDatabaskets();

@@ -14,21 +14,24 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class JobsApiCustomImpl extends BaseRepositoryApiImpl<Job> implements JobsApiCustom {
 
     private final FtepSecurityService securityService;
     private final JobDao dao;
+
+    public JobsApiCustomImpl(FtepSecurityService securityService, JobDao dao) {
+        super(Job.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     public NumberPath<Long> getIdPath() {

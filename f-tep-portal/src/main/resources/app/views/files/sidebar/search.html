@@ -22,7 +22,7 @@
                 </md-subheader>
 
                 <md-input-container>
-                    <input type="text" ng-model="filesParams.params.filter" ng-change="inputChange()" aria-label="Search by keyword" placeholder="Enter a search term" />
+                    <input type="text" ng-model="filesParams.params.filter" ng-change="inputChange()" ng-model-options="{debounce: 300}" aria-label="Search by keyword" placeholder="Enter a search term" />
                 </md-input-container>
 
                 <md-subheader>
@@ -31,8 +31,9 @@
                 </md-subheader>
 
                 <md-input-container>
-
                     <md-select ng-model="filesParams.params.type" ng-change="inputChange()" aria-label="File Type Select">
+                        <md-option value="ALL">All F-TEP products</md-option>
+                        <md-option value="EXTERNAL_PRODUCT">External products</md-option>
                         <md-option value="OUTPUT_PRODUCT">Output products</md-option>
                         <md-option value="REFERENCE_DATA">Reference data</md-option>
                     </md-select>
@@ -44,29 +45,29 @@
                 </md-subheader>
 
                 <md-radio-group ng-model="filesParams.params.ownership" ng-change="inputChange()" aria-label="Ownership radio group">
-                    <md-radio-button value="findByFilterOnly">All</md-radio-button>
-                    <md-radio-button value="findByFilterAndOwner">Mine</md-radio-button>
-                    <md-radio-button value="findByFilterAndNotOwner">Shared</md-radio-button>
+                    <md-radio-button value="ALL">All</md-radio-button>
+                    <md-radio-button value="MINE">Mine</md-radio-button>
+                    <md-radio-button value="SHARED">Shared</md-radio-button>
                 </md-radio-group>
 
                 <section>
                     <br>
                     <div class="row">
-                        <div class="col-lg-6 col-md-12 no-padding">
+                        <div class="col-lg-6 col-md-12">
                             <md-subheader>
-                                <label>Minimum File  (GB)</label>
+                                <label>Min file size (B)</label>
                             </md-subheader>
                             <md-input-container>
-                                <input type="number" ng-model="filesParams.params.filesizemin" ng-change="inputChange()" aria-label="Minimum file size" />GB
+                                <input type="number" ng-model="filesParams.params.minFilesize" ng-change="inputChange()" ng-model-options="{debounce: 300}" aria-label="Minimum file size in bytes" />
                             </md-input-container>
                         </div>
-                        <div class="col-lg-6 col-md-12 no-padding">
+                        <div class="col-lg-6 col-md-12">
                             <md-subheader>
-                                <label>Maximum File Size (GB)</label>
+                                <label>Max file size (B)</label>
                             </md-subheader>
 
                             <md-input-container>
-                                <input type="number" ng-model="filesParams.params.filesizemax" ng-change="inputChange()" aria-label="Maximum file size" />GB
+                                <input type="number" ng-model="filesParams.params.maxFilesize" ng-change="inputChange()" ng-model-options="{debounce: 300}" aria-label="Maximum file size in bytes" />
                             </md-input-container>
                         </div>
                     </div>

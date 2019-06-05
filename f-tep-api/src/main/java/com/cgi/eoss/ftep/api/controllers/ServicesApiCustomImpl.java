@@ -17,13 +17,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class ServicesApiCustomImpl extends BaseRepositoryApiImpl<FtepService> implements ServicesApiCustom {
 
     private final FtepSecurityService securityService;
     private final FtepServiceDao dao;
+
+    public ServicesApiCustomImpl(FtepSecurityService securityService, FtepServiceDao dao) {
+        super(FtepService.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

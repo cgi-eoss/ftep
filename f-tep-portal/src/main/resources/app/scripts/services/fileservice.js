@@ -47,12 +47,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 files: undefined,
                 pagingData: {},
                 params: {
-                    type: 'OUTPUT_PRODUCT',
+                    type: 'ALL',
                     filter: null,
-                    filesizemin: 0,
-                    filesizemax: 50,
-                    ownership: 'findByFilterOnly',
-                    fileSize: null
+                    minFilesize: 0,
+                    maxFilesize: 50000000000,
+                    ownership: 'ALL'
                 }
              }
         };
@@ -269,7 +268,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.getFtepFilesWithParams = function (page, searchParams) {
             var params = angular.copy(searchParams);
-            var url = rootUri + '/ftepFiles/search/' + params.ownership;
+            var url = rootUri + '/ftepFiles/search/findAll?projection=shortFtepFileWorkspace';
+            var ownership = params.ownership;
         
             delete params.ownership;
 
@@ -277,7 +277,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             var query = Object.keys(params).filter(function(k) {
                 return params[k] ? k : false;
             }).map(function(k) {
-                return esc(k) + "=" + esc(params[k]);
+                if (k === 'type' && params[k] === 'ALL') {
+                    return 'notType=EXTERNAL_PRODUCT';
+                } else {
+                    return esc(k) + "=" + esc(params[k]);
+                }
             }).join("&").replace("&&", "&");
 
             if (url.includes("?")) {
@@ -287,10 +291,12 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
 
             if(((UserService.params.activeUser||{})._links.self.href)) {
-                url += '&owner=' + UserService.params.activeUser._links.self.href;
+                if (ownership === 'MINE') {
+                    url += '&owner=' + UserService.params.activeUser._links.self.href;
+                } else if (ownership === 'SHARED') {
+                    url += '&notOwner=' + UserService.params.activeUser._links.self.href;
+                }
             }
-
-            url += '&projection=shortFtepFileWorkspace';
 
             /* Set files data */
             return self.getFtepFiles(page, self.params[page].activeFileType, url);

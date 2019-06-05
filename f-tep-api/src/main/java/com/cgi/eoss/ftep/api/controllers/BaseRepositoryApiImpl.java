@@ -10,10 +10,15 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.Set;
 
-public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> implements BaseRepositoryApi<T> {
+public abstract class BaseRepositoryApiImpl<T extends FtepEntityWithOwner<T>> extends QuerydslRepositorySupport implements BaseRepositoryApi<T> {
+
+    public BaseRepositoryApiImpl(Class<T> domainClass) {
+        super(domainClass);
+    }
 
     @Override
     public <S extends T> S save(S entity) {

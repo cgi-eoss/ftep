@@ -15,11 +15,18 @@ define(['../../ftepmodules'], function(ftepmodules) {
             $scope.filesParams = FileService.params.files;
 
             $scope.uiGridOptions = {
-                paginationPageSizes: [20, 50, 75],
+                paginationPageSizes: [20, 50, 75, 100, 500],
                 paginationPageSize: 50,
                 useExternalPagination: true,
                 useExternalSorting: true,
-                expandableRowTemplate: '../../../views/files/ui-grid-subnav.html',
+                enableFiltering: false,
+                enableGridMenu: false,
+                enableInfiniteScroll: false,
+                enableColumnMenus: false,
+                infiniteScrollDown: false,
+                infiniteScrollUp: false,
+                virtualizationThreshold: 500,
+                expandableRowTemplate: 'views/files/ui-grid-subnav.html',
                 expandableRowHeight: 500,
                 expandableRowScope: {
                     currentRowData: {},
@@ -35,10 +42,9 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     { name: 'id', visible: false },
                     { name: 'uri', visible: false },
                     { name: 'filename' },
-                    { name: 'owner' },
-                    { name: 'type'},
-                    { name: 'filesize'},
-                    { name: 'inDatabasket'},
+                    { name: 'owner', width: '300' },
+                    { name: 'type', width: '200'},
+                    { name: 'filesize', width: '150'}
                 ]
             };
 
@@ -47,10 +53,10 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 return {
                     id: response.id,
                     uri: response.uri,
-                    filename: response.filename.substring(response.filename.indexOf("/") + 1),
+                    filename: response.filename,
                     owner: response.owner ? response.owner.name : 'Not set',
                     type: response.type,
-                    filesize: (response.filesize / 1073741824).toFixed(2) + ' GB',
+                    filesize: (response.filesize / 1073741824).toFixed(3) + ' GB',
                     inDatabasket: response.inDatabasket
                 };
             }
@@ -128,7 +134,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
 
                 // On sort change
                 $scope.gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-                    if (sortColumns.length == 0) {
+                    if (sortColumns.length === 0) {
                         paginationOptions.sort = null;
                     } else {
                         paginationOptions.sort = sortColumns[0].colDef.name  + ',' + sortColumns[0].sort.direction;

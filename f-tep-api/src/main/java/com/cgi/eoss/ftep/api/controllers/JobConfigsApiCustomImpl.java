@@ -8,11 +8,8 @@ import com.cgi.eoss.ftep.persistence.service.JobConfigDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class JobConfigsApiCustomImpl extends BaseRepositoryApiImpl<JobConfig> implements JobConfigsApiCustom {
@@ -20,6 +17,13 @@ public class JobConfigsApiCustomImpl extends BaseRepositoryApiImpl<JobConfig> im
     private final FtepSecurityService securityService;
     private final JobConfigDao dao;
     private final JobConfigDataService dataService;
+
+    public JobConfigsApiCustomImpl(FtepSecurityService securityService, JobConfigDao dao, JobConfigDataService dataService) {
+        super(JobConfig.class);
+        this.securityService = securityService;
+        this.dao = dao;
+        this.dataService = dataService;
+    }
 
     @Override
     public <S extends JobConfig> S save(S entity) {

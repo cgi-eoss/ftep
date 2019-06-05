@@ -8,17 +8,20 @@ import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.io.BaseEncoding;
 import com.querydsl.core.types.dsl.NumberPath;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Getter
 @Component
 public class ServiceFilesApiCustomImpl extends BaseRepositoryApiImpl<FtepServiceContextFile> implements ServiceFilesApiCustom {
 
     private final FtepSecurityService securityService;
     private final FtepServiceContextFileDao dao;
+
+    public ServiceFilesApiCustomImpl(FtepSecurityService securityService, FtepServiceContextFileDao dao) {
+        super(FtepServiceContextFile.class);
+        this.securityService = securityService;
+        this.dao = dao;
+    }
 
     @Override
     NumberPath<Long> getIdPath() {

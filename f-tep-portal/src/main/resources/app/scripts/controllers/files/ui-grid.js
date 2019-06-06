@@ -8,8 +8,8 @@
 "use strict";
 
 define(['../../ftepmodules'], function(ftepmodules) {
-    
-    ftepmodules.controller('UiGridCtrl', [ '$scope',  'FileService', 'CommonService', function($scope, FileService, CommonService) {
+
+    ftepmodules.controller('UiGridCtrl', [ '$scope',  'FileService', 'UserService', 'CommonService', function($scope, FileService, UserService, CommonService) {
 
             // Service storage
             $scope.filesParams = FileService.params.files;
@@ -48,6 +48,9 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 ]
             };
 
+            $scope.userInitialised = false;
+            var userInitUnbind = null;
+
             // API data => table mapping
             function apiMap(response) {
                 return {
@@ -69,7 +72,16 @@ define(['../../ftepmodules'], function(ftepmodules) {
             };
 
             /* Initial request for data */
-            getFtepFilesWithParams($scope.filesParams.params);
+            if (typeof UserService.params.activeUser === 'object') {
+                $scope.userInitialised = true;
+                getFtepFilesWithParams($scope.filesParams.params);
+            } else {
+                // no current user in the app - defer the API call until there is one
+                userInitUnbind = $scope.$on('active.user', function() {
+                    $scope.userInitialised = true;
+                    getFtepFilesWithParams($scope.filesParams.params);
+                });
+            }
 
             function getDetailedFile(row) {
                 FileService.getFile(row.entity, 'detailedFtepFileWorkspace').then(function (file) {
@@ -83,7 +95,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
             $scope.$on('group.updated', function(_, row) {
                 getDetailedFile(row);
             });
-            
+
             /* Stop Polling */
             $scope.$on('$destroy', function() {
                 FileService.stopPolling();
@@ -92,14 +104,14 @@ define(['../../ftepmodules'], function(ftepmodules) {
             // When sidebar form inputs change
             $scope.$on('filesParamsUpdated', function(_, inputParams) {
                 getFtepFilesWithParams(inputParams);
-            }); 
+            });
 
             // Checks if inputs set then updates data
             function checkForParamsThenGet(data) {
                 // If search form inputs filled or no data
                 if ($scope.filesParams.params || data == null) {
                     getFtepFilesWithParams($scope.filesParams.params);
-                } 
+                }
                 // Else use basic search
                 else {
                     $scope.uiGridOptions.data = mapData(data);
@@ -108,6 +120,14 @@ define(['../../ftepmodules'], function(ftepmodules) {
 
             // Call file search with params
             function getFtepFilesWithParams(inputParams) {
+                if (!$scope.userInitialised) {
+                    // no point continuing if the current user is not available
+                    return;
+                } else {
+                    // stop waiting for the 'active.user' broadcast; we don't need to hit it every time
+                    if (userInitUnbind) userInitUnbind();
+                }
+
                 // Combine with pagination options
                 var combinedParameters = Object.assign(inputParams ? inputParams : '', paginationOptions);
 
@@ -122,7 +142,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
             // Map API response
             function mapData(data) {
                 $scope.uiGridOptions.totalItems = $scope.filesParams.pagingData.page.totalElements;
-           
+
                 return data.map(function(thisFile) {
                     return apiMap(thisFile);
                 });
@@ -154,7 +174,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     getDetailedFile(row);
                 });
             }
-            
+
             // Download file
             function saveFile(file) {
                 file.metadata.geometry = JSON.parse(file.metadata.geometry);
@@ -173,7 +193,7 @@ define(['../../ftepmodules'], function(ftepmodules) {
                 document.execCommand('copy');
                 document.body.removeChild(textHolder);
             }
-            
+
             // Parse databaskets to string list
             function parseDatabasketsAsList(databaskets) {
                 if (!databaskets || databaskets.length === 0) return '(Not within any databaskets)';

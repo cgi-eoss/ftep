@@ -8,5 +8,6 @@
     },
     preserveLicenseComments: false,
     logLevel: 4,
-    generateSourceMaps: true
+    optimize: "none",
+    generateSourceMaps: false
 })

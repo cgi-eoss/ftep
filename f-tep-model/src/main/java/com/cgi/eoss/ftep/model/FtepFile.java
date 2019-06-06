@@ -18,10 +18,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -29,7 +33,7 @@ import java.util.UUID;
  * external files. These objects may be included in databaskets.</p>
  */
 @Data
-@EqualsAndHashCode(exclude = {"id"})
+@EqualsAndHashCode(exclude = {"id", "dataSource", "job"})
 @Table(name = "ftep_files",
         indexes = {
                 @Index(name = "ftep_files_uri_idx", columnList = "uri"),
@@ -96,6 +100,19 @@ public class FtepFile implements FtepEntityWithOwner<FtepFile> {
     @JoinColumn(name = "datasource")
     @JsonIgnore
     private DataSource dataSource;
+
+    /**
+     * <p>A back-reference with a job for which this file was an output.</p>
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "ftep_job_output_files",
+            joinColumns = @JoinColumn(name = "file_id", insertable = false, updatable = false, nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "job_id", insertable = false, updatable = false, nullable = false)
+    )
+    @OrderBy("id ASC")
+    @JsonIgnore
+    private List<Job> job;
 
     /**
      * <p>Construct a new FtepFile instance with the minimum mandatory (and unique) parameters.</p>

@@ -29,6 +29,7 @@ import com.google.common.io.MoreFiles;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
+import lombok.extern.log4j.Log4j2;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -68,6 +69,7 @@ import static org.mockito.Mockito.when;
         WorkerConfig.class
 })
 @TestPropertySource("classpath:test-server.properties")
+@Log4j2
 public class FtepServerApplicationIT {
     private static final String PROCESSOR_NAME = "service1";
     private static final String GUI_APPLICATION_NAME = "service2";
@@ -169,7 +171,7 @@ public class FtepServerApplicationIT {
         when(ioManager.getServiceContext(GUI_APPLICATION_NAME)).thenReturn(Paths.get("src/test/resources/" + GUI_APPLICATION_NAME).toAbsolutePath());
 
         serverBuilder.addService(ftepJobLauncher);
-        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1));
+        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1, true));
         server = serverBuilder.build().start();
 
         FtepWorkerGrpc.FtepWorkerBlockingStub workerStub = FtepWorkerGrpc.newBlockingStub(channelBuilder.build());
@@ -213,10 +215,12 @@ public class FtepServerApplicationIT {
                                 .build()
                 ))
                 .build());
-
         Job job = jobResponseIterator.next().getJob();
         assertThat(job, is(notNullValue()));
+        Path tempFilePath = workspace.resolve("jobs").resolve("Job_" + job.getId()).resolve("procDir").resolve("temp_file_1");
+        assertThat(Files.exists(tempFilePath), is(false));
         FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
+        assertThat(Files.exists(tempFilePath), is(true));
         assertThat(jobOutputs, is(notNullValue()));
         assertThat(jobOutputs.getOutputsCount(), is(1));
         JobParam output = jobOutputs.getOutputs(0);

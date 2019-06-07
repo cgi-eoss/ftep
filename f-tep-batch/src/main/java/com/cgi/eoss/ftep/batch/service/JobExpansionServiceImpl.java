@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
+import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchResults;
@@ -53,12 +54,14 @@ public class JobExpansionServiceImpl implements JobExpansionService {
     private final SearchFacade searchFacade;
     private final JobDataService jobDataService;
     private final DatabasketDataService databasketDataService;
+    private Optional<ResourceRequest> jobStorageResourceRequest;
 
     @Autowired
-    public JobExpansionServiceImpl(SearchFacade searchFacade, JobDataService jobDataService, DatabasketDataService databasketDataService) {
+    public JobExpansionServiceImpl(SearchFacade searchFacade, JobDataService jobDataService, DatabasketDataService databasketDataService, Optional<ResourceRequest> jobStorageResourceRequest) {
         this.searchFacade = searchFacade;
         this.jobDataService = jobDataService;
         this.databasketDataService = databasketDataService;
+        this.jobStorageResourceRequest = jobStorageResourceRequest;
     }
 
     public List<JobSpec> expandJobParamsFromRequest(FtepServiceParams request) {
@@ -71,6 +74,7 @@ public class JobExpansionServiceImpl implements JobExpansionService {
         String systematicParameter = request.getSystematicParameter();
         List<String> parallelParameters = request.getParallelParametersList();
         List<String> searchParameters = request.getSearchParametersList();
+        Optional<ResourceRequest> jobStorageResourceRequest;
 
         // Replace any "dynamic" parameter values, e.g. search parameters, and evaluate Databasket contents
         List<JobParam> populatedParams = originalParams.stream()
@@ -251,6 +255,8 @@ public class JobExpansionServiceImpl implements JobExpansionService {
         job.getConfig().getInputs().entries().stream()
                 .filter(e -> e.getKey().equals(MAGIC_TIMEOUT_PARAM_KEY)).findFirst()
                 .ifPresent(e -> jobSpecBuilder.setHasTimeout(true).setTimeoutValue(Integer.parseInt(e.getValue())));
+
+        jobStorageResourceRequest.ifPresent(rr -> jobSpecBuilder.setResourceRequest(rr));
 
         return jobSpecBuilder.build();
     }

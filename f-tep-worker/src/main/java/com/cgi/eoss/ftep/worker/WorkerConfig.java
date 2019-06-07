@@ -71,6 +71,11 @@ public class WorkerConfig {
         return minWorkerNodes;
     }
 
+    @Bean
+    public Boolean keepProcDir(@Value("${ftep.worker.jobEnv.keepProcDir:false}") boolean keepProcDir) {
+        return keepProcDir;
+    }
+
     // Maximum Number of workers available
     @Bean
     public Integer maxWorkerNodes(@Value("${ftep.worker.maxWorkerNodes:1}") int maxWorkerNodes) {

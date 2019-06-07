@@ -113,6 +113,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final FtepWorkerNodeManager nodeManager;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
+    private final boolean keepProcDir;
 
     private DockerRegistryConfig dockerRegistryConfig;
 
@@ -140,11 +141,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final ListMultimap<String, Path> externalInputs = ArrayListMultimap.create();
 
     @Autowired
-    public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes) {
+    public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService, ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes, Boolean keepProcDir) {
         this.nodeManager = nodeManager;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
         this.minWorkerNodes = minWorkerNodes;
+        this.keepProcDir = keepProcDir;
     }
 
     @Autowired(required = false)
@@ -500,7 +502,12 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             LOG.info("Clean up requested for job {}", jobId);
             jobContainers.remove(jobId);
             jobClients.remove(jobId);
-            Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(this::destroyEnvironment);
+            Optional.ofNullable(jobEnvironments.remove(jobId)).ifPresent(je -> {
+                if(!keepProcDir) {
+                    LOG.info("Clean up environment for: {}, keepProcDir {}", je.getJobId(), keepProcDir);
+                    destroyEnvironment(je);
+                }
+            });
             jobNodes.remove(jobId);
             nodeManager.releaseJobNode(jobId);
             Set<URI> finishedJobInputs = ImmutableSet.copyOf(jobInputs.removeAll(jobId));
@@ -520,13 +527,11 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment = jobEnvironments.get(jobSpec.getJob().getId());
 
         //todo: hasResourceRequest came from fs-tep, need nodemanager to handle local storage (currently can't use this bind)
+        //currently not sure if we need unique storage directory (check git history if need)
         if (jobSpec.hasResourceRequest()) {
             ResourceRequest resourceRequest = jobSpec.getResourceRequest();
             int requiredStorage = resourceRequest.getStorage();
-            String procDir = generateRandomDirName("proc");
-            File storageTempDir = new File("/dockerStorage", procDir);
-            deviceIds.putIfAbsent(jobSpec.getJob().getId(), nodeManager.allocateStorageForJob(jobSpec.getJob().getId(), requiredStorage, storageTempDir.getAbsolutePath()));
-            binds.add(storageTempDir.getAbsolutePath() + ":" + "/home/worker/procDir:rw");
+            deviceIds.putIfAbsent(jobSpec.getJob().getId(), nodeManager.allocateStorageForJob(jobSpec.getJob().getId(), requiredStorage, jobEnvironment.getTempDir().toAbsolutePath().toString()));
         }
 
         externalInputs.get(jobSpec.getJob().getId())
@@ -546,6 +551,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 + "/home/worker/workDir/FTEP-WPS-INPUT.properties:ro");
         binds.add(jobEnvironment.getInputDir().toAbsolutePath() + ":" + "/home/worker/workDir/inDir:ro");
         binds.add(jobEnvironment.getOutputDir().toAbsolutePath() + ":" + "/home/worker/workDir/outDir:rw");
+        binds.add(jobEnvironment.getTempDir().toAbsolutePath() +":"+"/home/worker/procDir:rw");
         //todo:remove, not sure if it is used in ftep (some feature from fs tep)?
         binds.addAll(jobSpec.getUserBindsList());
         LOG.debug("Docker binds: {}", binds);
@@ -720,15 +726,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             return false;
         }
         return true;
-    }
-
-    private static final SecureRandom random = new SecureRandom();
-
-    private String generateRandomDirName(String prefix) {
-        long n = random.nextLong();
-        n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
-        String name = prefix + Long.toString(n);
-        return name;
     }
 
     @VisibleForTesting

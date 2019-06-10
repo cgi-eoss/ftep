@@ -68,7 +68,7 @@ define(['../../../ftepmodules'], function(ftepmodules) {
             // Cleanup search params that are no longer visible
             $scope.searchParams.activeSearch = SearchService.searchCleanup(activeSearch, $scope.searchParams.visibleList);
             // Set default values in the active search
-            $scope.searchParams.activeSearch = SearchService.getDefaultValues(catalogues, activeSearch, visibleFields, $scope.searchParams.visibleList);
+            $scope.searchParams.activeSearch = SearchService.getDefaultValues(catalogues, $scope.searchParams.activeSearch, visibleFields, $scope.searchParams.visibleList);
             // Get the list of allowed values for each select option (based on current selections)
             $scope.searchParams.allowedValues = SearchService.getSelectValues(activeSearch, visibleFields);
         };

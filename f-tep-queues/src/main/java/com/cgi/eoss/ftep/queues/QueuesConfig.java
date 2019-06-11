@@ -62,7 +62,7 @@ public class QueuesConfig {
         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory();
         activeMQConnectionFactory.setUserName(brokerUserName);
         activeMQConnectionFactory.setPassword(brokerPassword);
-        activeMQConnectionFactory.setTrustedPackages(Arrays.asList("com.google.protobuf"));
+        activeMQConnectionFactory.setTrustedPackages(Arrays.asList("com.google.protobuf", "com.cgi.eoss.ftep.rpc"));
         activeMQConnectionFactory.setBrokerURL(brokerUrl);
 
         return activeMQConnectionFactory;

@@ -7,15 +7,15 @@ buildscript {
 plugins {
     jacoco
     id("com.ewerk.gradle.plugins.querydsl") version "1.0.10" apply false
-    id("com.github.ben-manes.versions") version "0.20.0"
-    id("com.github.johnrengelman.shadow") version "4.0.4" apply false
-    id("com.github.node-gradle.node") version "1.3.0" apply false
+    id("com.github.ben-manes.versions") version "0.21.0"
+    id("com.github.johnrengelman.shadow") version "5.0.0" apply false
+    id("com.github.node-gradle.node") version "1.4.0" apply false
     id("com.google.protobuf") version "0.8.8" apply false
-    id("io.franzbecker.gradle-lombok") version "2.1" apply false
+    id("io.franzbecker.gradle-lombok") version "3.1.0" apply false
     id("io.spring.dependency-management") version "1.0.7.RELEASE"
-    id("nebula.ospackage") version "6.1.1" apply false
-    id("org.sonarqube") version "2.7"
-    id("org.springframework.boot") version "2.1.3.RELEASE" apply false
+    id("nebula.ospackage") version "6.2.1" apply false
+    id("org.sonarqube") version "2.7.1"
+    id("org.springframework.boot") version "2.1.6.RELEASE" apply false
 }
 
 allprojects {
@@ -40,8 +40,8 @@ allprojects {
         }
     }
 
-    extra.set("spring-cloud.version", "Greenwich.RELEASE")
-    extra.set("spring-boot.version", "2.1.3.RELEASE")
+    extra.set("spring-cloud.version", "Greenwich.SR1")
+    extra.set("spring-boot.version", "2.1.6.RELEASE")
 
     extra.set("awaitility.version", "2.0.0")
     extra.set("commons-io.version", "2.6")
@@ -55,21 +55,21 @@ allprojects {
     extra.set("geojson-jackson.version", "1.8.1")
     extra.set("geoserver-manager.version", "1.7.0")
     extra.set("geotools.version", "17.2")
-    extra.set("grpc-spring-boot-starter.version", "3.1.0")
-    extra.set("grpc.version", "1.18.0")
+    extra.set("grpc-spring-boot-starter.version", "3.3.0")
+    extra.set("grpc.version", "1.21.0")
     extra.set("guava.version", "25.1-jre")
     extra.set("hamcrest-junit.version", "2.0.0.0")
     extra.set("jclouds.version", "2.1.2")
     extra.set("jimfs.version", "1.1")
     extra.set("jool.version", "0.9.14")
     extra.set("logf42-gelf.version", "1.3.1")
-    extra.set("lombok.version", "1.18.6")
+    extra.set("lombok.version", "1.18.8")
     extra.set("mockftpserver.version", "2.7.1")
-    extra.set("okhttp3.version", "3.13.1")
+    extra.set("okhttp3.version", "3.14.2")
     extra.set("poi.version", "3.17")
-    extra.set("protobuf-java.version", "3.6.1")
-    extra.set("protoc.version", "3.6.1")
-    extra.set("querydsl.version", "4.1.4")
+    extra.set("protobuf-java.version", "3.7.1")
+    extra.set("protoc.version", "3.7.1")
+    extra.set("querydsl.version", "4.2.1")
     extra.set("sshj.version", "0.23.0")
 
     apply(plugin = "io.spring.dependency-management")

@@ -15,6 +15,7 @@ public enum UploadableFileType {
     GEOTIFF(true, ImmutableSet.of("tif", "tiff")),
     KML(false, ImmutableSet.of("kml", "kmz")),
     SHAPEFILE(true, ImmutableSet.of("zip")),
+    FIS(true, ImmutableSet.of("xml")),
     OTHER(false, Collections.emptySet());
 
     @Getter

@@ -34,6 +34,15 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,9 +50,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -57,6 +68,8 @@ import java.util.zip.ZipOutputStream;
 @UtilityClass
 public class GeoUtil {
     private static final String tempDirName = "tempDir";
+    private static final String polygonTagName = "gml:Polygon";
+    private static final String coordinatesTagName = "gml:coordinates";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -273,6 +286,46 @@ public class GeoUtil {
     }
 
     /**
+     * Creating a string representation of a polygon belonging to a multipolygon
+     * @param node
+     * @return
+     */
+    private static String createPolygonString(Node node) {
+        Element polygon = (Element) node;
+        String polygonCoords = polygon.getElementsByTagName(coordinatesTagName).item(0).getTextContent();
+        String wktPolygon = Arrays.stream(polygonCoords.split(" "))
+                .map(coord -> coord.replace(",", " "))
+                .collect(Collectors.joining(", "));
+        return "((" + wktPolygon + "))";
+    }
+
+    /**
+     * Extracting geometry from an XML file of type FIS
+     * @param file
+     * @return
+     */
+    public static org.geojson.MultiPolygon extractXMLGeometry(Path file) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(file.toFile());
+
+            NodeList polygons = document.getElementsByTagName(polygonTagName);
+            String wktMultipolygon = "MULTIPOLYGON (" + IntStream.range(0, polygons.getLength())
+                    .mapToObj(i -> polygons.item(i))
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .map(GeoUtil::createPolygonString)
+                    .collect(Collectors.joining(", ")) + ")";
+
+            return (org.geojson.MultiPolygon) getGeoJsonGeometry(wktMultipolygon);
+
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOG.error("Failed to extract geometry from the file {}:", file.toUri(), e);
+            throw new GeometryException(e);
+        }
+    }
+
+    /**
      * Geometry extraction controller function
      * @param file
      * @param fileType
@@ -298,6 +351,8 @@ public class GeoUtil {
                         cleanUp(tempDir);
                     }
                 }
+            case FIS:
+                return extractXMLGeometry(file);
             default:
                 LOG.error("Illegal file type for extracting geometry: " + fileType);
                 return null;

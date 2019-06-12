@@ -47,6 +47,7 @@ public class DatabasketsApiIT {
     private Databasket databasket1;
     private Databasket databasket2;
     private Databasket databasket3;
+    private Databasket databasket4;
 
     @Before
     public void setUp() {
@@ -63,8 +64,10 @@ public class DatabasketsApiIT {
         databasket2.setDescription("test basket 2");
         databasket3 = new Databasket("Basket3", ftepUser);
         databasket3.setDescription("my data collection");
+        databasket4 = new Databasket("123056709012305670901230567090", ftepUser);
+        databasket4.setDescription("DB with long numerical name");
 
-        dataService.save(ImmutableSet.of(databasket1, databasket2, databasket3));
+        dataService.save(ImmutableSet.of(databasket1, databasket2, databasket3, databasket4));
     }
 
     @After
@@ -108,11 +111,15 @@ public class DatabasketsApiIT {
                 .andExpect(status().isOk()).andExpect(jsonPath("$._embedded.databaskets").isArray())
                 .andExpect(jsonPath("$._embedded.databaskets.length()").value(1))
                 .andExpect(jsonPath("$._embedded.databaskets[0].name").value("Basket3"));
-
         mockMvc.perform(
                 get("/api/databaskets/search/findByFilterOnly?filter=sket").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk()).andExpect(jsonPath("$._embedded.databaskets").isArray())
                 .andExpect(jsonPath("$._embedded.databaskets.length()").value(3));
+        mockMvc.perform(
+                get("/api/databaskets/search/findByFilterOnly?filter=0567090123056709012305").header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$._embedded.databaskets").isArray())
+                .andExpect(jsonPath("$._embedded.databaskets.length()").value(1))
+                .andExpect(jsonPath("$._embedded.databaskets[0].name").value("123056709012305670901230567090"));
     }
 
     @Test
@@ -146,7 +153,7 @@ public class DatabasketsApiIT {
         mockMvc.perform(get("/api/databaskets/search/findByFilterAndNotOwner?filter=&owner=" + ftepAdminUrl)
                 .header("REMOTE_USER", ftepAdmin.getName())).andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.databaskets").isArray())
-                .andExpect(jsonPath("$._embedded.databaskets.length()").value(3));
+                .andExpect(jsonPath("$._embedded.databaskets.length()").value(4));
     }
 
 }

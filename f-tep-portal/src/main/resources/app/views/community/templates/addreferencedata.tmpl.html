@@ -45,19 +45,19 @@
                         <div class="col-md-12 no-padding" layout-gt-sm="row">
                             <md-input-container>
                                 <label>File type</label>
-                                <md-select ng-model="filetype" required ng-change="toggleEnableAutoDetectGeometry()">
+                                <md-select ng-model="newReference.filetype" required ng-change="toggleEnableAutoDetectGeometry()">
                                     <md-option ng-repeat="type in types" ng-value="type">{{type}}</md-option>
                                 </md-select>
                             </md-input-container>
 
-                            <md-checkbox ng-model="autoDetectGeometry" aria-label="Auto-detect geometry" ng-disabled="autoDetectDisabled">
+                            <md-checkbox ng-model="newReference.autoDetectGeometry" aria-label="Auto-detect geometry" ng-disabled="newReference.autoDetectDisabled">
                                 Auto-detect geometry
                             </md-checkbox>
                         </div>
 
                         <div class="col-md-12 no-padding">
                             <md-input-container md-no-float>
-                                <input ng-required="!autoDetectGeometry" ng-model="newReference.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry" ng-disabled="autoDetectGeometry">
+                                <input ng-required="!newReference.autoDetectGeometry" ng-model="newReference.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry" ng-disabled="newReference.autoDetectGeometry">
                                 <div class="hint" ng-show="true">Geometry *</div>
                             </md-input-container>
                         </div>

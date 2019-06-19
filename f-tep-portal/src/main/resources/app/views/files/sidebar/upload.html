@@ -16,7 +16,7 @@
                      ng-model="newReferenceFile.file"
                      ngf-drop
                      ngf-select
-                     ngf-change="validateFile(newReferenceFile.file)"
+                     ngf-change="validateFile(newReferenceFile.file); populateFileType(newReferenceFile.file)"
                      ngf-drag-over-class="'dragover'"
                      ngf-multiple="false"
                      ngf-allow-dir="false">
@@ -29,25 +29,38 @@
             </div>
         </div>
 
-        <div class="col-md-12 no-padding" ng-if="fileParams.progressPercentage > 0">
+        <div class="col-md-12 no-padding" ng-if="filesParams.progressPercentage > 0">
             <div class="progress">
                 <div class="progress-bar"
                      role="progressbar"
-                     aria-valuenow="{{fileParams.progressPercentage}}"
+                     aria-valuenow="{{filesParams.progressPercentage}}"
                      aria-valuemin="0"
                      aria-valuemax="100"
-                     style="width:{{fileParams.progressPercentage}}%"
-                     ng-class="(fileParams.uploadStatus == 'failed') ? 'progress-bar-danger' : 'progress-bar-success'">
-                    <span ng-if="fileParams.uploadStatus == 'pending'">{{fileParams.progressPercentage -1}}% {{fileParams.uploadMessage}}</span>
-                    <span ng-if="fileParams.uploadStatus == 'complete'">Complete</span>
-                    <span ng-if="fileParams.uploadStatus == 'failed'">Error - {{fileParams.uploadMessage}}</span>
+                     style="width:{{filesParams.progressPercentage}}%"
+                     ng-class="(filesParams.uploadStatus == 'failed') ? 'progress-bar-danger' : 'progress-bar-success'">
+                    <span ng-if="filesParams.uploadStatus == 'pending'">{{filesParams.progressPercentage -1}}% {{filesParams.uploadMessage}}</span>
+                    <span ng-if="filesParams.uploadStatus == 'complete'">Complete</span>
+                    <span ng-if="filesParams.uploadStatus == 'failed'">Error - {{filesParams.uploadMessage}}</span>
                 </div>
             </div>
         </div>
 
+        <div class="col-md-12 no-padding" layout-gt-sm="row">
+            <md-input-container>
+                <label>File type</label>
+                <md-select ng-model="newReferenceFile.filetype" required ng-change="toggleEnableAutoDetectGeometry()">
+                    <md-option ng-repeat="type in types" ng-value="type">{{type}}</md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-checkbox ng-model="newReferenceFile.autoDetectGeometry" aria-label="Auto-detect geometry" ng-disabled="newReferenceFile.autoDetectDisabled">
+                Auto-detect geometry
+            </md-checkbox>
+        </div>
+
         <div class="col-md-12 no-padding">
             <md-input-container md-no-float>
-                <input required ng-model="newReferenceFile.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry">
+                <input ng-required="!newReferenceFile.autoDetectGeometry" ng-model="newReferenceFile.geometry" type="text" placeholder="Enter a geometry" aria-label="Enter a geometry" ng-disabled="newReferenceFile.autoDetectGeometry">
                 <div class="hint" ng-show="true">Geometry *</div>
             </md-input-container>
         </div>

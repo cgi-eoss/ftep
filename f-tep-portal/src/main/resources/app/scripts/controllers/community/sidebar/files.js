@@ -60,12 +60,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.item = "File";
                 $scope.fileParams = FileService.params.community;
-                $scope.newReference = {};
+                $scope.newReference = {
+                    filetype: "",
+                    autoDetectDisabled: true,
+                    autoDetectGeometry: false,
+                };
                 $scope.validation = "Valid";
-
-                $scope.filetype = "";
-                $scope.autoDetectDisabled = true;
-                $scope.autoDetectGeometry = false;
 
                 // Fetch all file types
                 FileService.getCatalogueFileTypes().then(function (result) {
@@ -75,9 +75,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 // called upon dropbox change
                 $scope.populateFileType = function(file) {
 
+                    $scope.resetProgressBar();
                     if ($scope.validation === "Valid") {
                         FileService.getFileTypeByExtension(file.name.substring(file.name.lastIndexOf(".") + 1)).then(function (result) {
-                            $scope.filetype = result;
+                            $scope.newReference.filetype = result;
                             $scope.toggleEnableAutoDetectGeometry();
                         });
                     }
@@ -86,9 +87,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 // called upon option value change
                 $scope.toggleEnableAutoDetectGeometry = function() {
 
-                    FileService.getAutoDetectFlag($scope.filetype).then(function (result) {
-                        $scope.autoDetectDisabled = !result;
-                        $scope.autoDetectGeometry = result;
+                    FileService.getAutoDetectFlag($scope.newReference.filetype).then(function (result) {
+                        $scope.newReference.autoDetectDisabled = !result;
+                        $scope.newReference.autoDetectGeometry = result;
                     });
                 }
 
@@ -104,12 +105,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     }
                 };
 
+                $scope.resetProgressBar = function() {
+                    $scope.fileParams.progressPercentage = 0;
+                    $scope.fileParams.uploadStatus = 'pending';
+                    $scope.fileParams.uploadMessage = undefined;
+                }
+
                 /* Upload the file */
                 $scope.addReferenceFile = function () {
-                    $scope.newReference.autoDetectGeometry = $scope.autoDetectGeometry;
                     if ($scope.newReference.autoDetectGeometry) {
                         $scope.newReference.geometry = "Auto-detected";
-                        $scope.newReference.filetype = $scope.filetype;
                     }
                     FileService.uploadFile("community", $scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
@@ -118,6 +123,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 };
 
                 $scope.closeDialog = function () {
+                    $scope.resetProgressBar();
                     $mdDialog.hide();
                 };
 

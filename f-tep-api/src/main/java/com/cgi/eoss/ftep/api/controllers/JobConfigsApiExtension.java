@@ -11,9 +11,6 @@ import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -120,19 +116,9 @@ public class JobConfigsApiExtension {
         return ResponseEntity.accepted().body(new Resource<>(job));
     }
 
-    /**
-     * <p>Provides a direct interface to the service orchestrator, allowing users to launch job configurations without going via WPS.</p>
-     * <p>Service are launched asynchronously; the gRPC response is discarded.</p>
-     *
-     * @throws InterruptedException
-     * @throws JsonParseException
-     * @throws JsonMappingException
-     * @throws JsonProcessingException
-     * @throws IOException
-     */
     @PostMapping("/launchSystematic")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (#jobConfigTemplate.id == null) or hasPermission(#jobConfigTemplate, 'read')")
-    public ResponseEntity<Void> launchSystematic(HttpServletRequest request, @RequestBody JobConfig jobConfigTemplate) throws InterruptedException, JsonParseException, JsonMappingException, JsonProcessingException, IOException {
+    public ResponseEntity<Void> launchSystematic(HttpServletRequest request, @RequestBody JobConfig jobConfigTemplate) {
         LOG.debug("Received new request for systematic processing");
 
         // Save the job config

@@ -50,6 +50,11 @@ public class JpaDatabasketDataService extends AbstractJpaDataService<Databasket>
         return dao.findByOwner(user);
     }
 
+    @Override
+    public List<Databasket> findByFiles(FtepFile file) {
+        return dao.findByFiles(file);
+    }
+
 
     @Override
     public List<Databasket> findByFile(FtepFile file) {

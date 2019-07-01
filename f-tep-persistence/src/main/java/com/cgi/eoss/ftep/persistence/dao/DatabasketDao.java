@@ -14,4 +14,6 @@ public interface DatabasketDao extends FtepEntityDao<Databasket> {
     List<Databasket> findByFilesContaining(FtepFile file);
 
     List<Databasket> findByOwner(User user);
+
+    List<Databasket> findByFiles(FtepFile file);
 }

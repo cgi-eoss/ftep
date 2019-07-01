@@ -1,9 +1,9 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.User;
-
 import com.google.common.collect.Multimap;
 
 import java.time.YearMonth;
@@ -26,4 +26,6 @@ public interface JobDataService extends FtepEntityDataService<Job> {
     Job updateJobConfig(Job job);
 
     Job reload(Long id); // It is used at JobStatus updates
+
+    List<Job> findByOutputFiles(FtepFile file);
 }

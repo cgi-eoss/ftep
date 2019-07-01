@@ -3,7 +3,11 @@ package com.cgi.eoss.ftep.api.controllers;
 import com.cgi.eoss.ftep.api.ApiConfig;
 import com.cgi.eoss.ftep.api.ApiTestConfig;
 import com.cgi.eoss.ftep.catalogue.CatalogueService;
+import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileExternalReferences;
+import com.cgi.eoss.ftep.model.FtepService;
+import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
@@ -29,6 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.endsWith;
@@ -211,4 +217,32 @@ public class FtepFilesApiIT {
                 .andExpect(content().bytes(ByteStreams.toByteArray(response.getInputStream())));
     }
 
+    @Test
+    public void testDeleteFtepFilePromptForExternalReferencers() throws Exception {
+
+        Databasket testDatabasket = new Databasket();
+        testDatabasket.setName("Test Databasket");
+        testDatabasket.setOwner(ftepUser);
+        testDatabasket.setFiles(ImmutableSet.of(testFile1));
+        List<Databasket> databasketList = new ArrayList<>();
+        databasketList.add(testDatabasket);
+
+        FtepService service = new FtepService();
+        JobConfig jobConfig = new JobConfig(ftepUser, service);
+        List<JobConfig> jobConfigList = new ArrayList<>();
+        jobConfigList.add(jobConfig);
+
+        FtepFileExternalReferences externalReferences = new FtepFileExternalReferences(new ArrayList<>(), jobConfigList, databasketList);
+
+        when(catalogueService.getFtepFileReferencesWithType(testFile1)).thenReturn(externalReferences);
+        mockMvc.perform(get("/api/ftepFiles/" + testFile1.getId()+"/checkDelete").header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.jobs").isArray())
+                .andExpect(jsonPath("$.jobs.length()").value(0))
+                .andExpect(jsonPath("$.jobConfigs").isArray())
+                .andExpect(jsonPath("$.jobConfigs.length()").value(1))
+                .andExpect(jsonPath("$.jobConfigs[0].owner.name").value(ftepUser.getName()))
+                .andExpect(jsonPath("$.databaskets").isArray())
+                .andExpect(jsonPath("$.databaskets.length()").value(1));
+    }
 }

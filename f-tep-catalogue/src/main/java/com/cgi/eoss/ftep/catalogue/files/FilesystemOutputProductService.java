@@ -139,11 +139,8 @@ public class FilesystemOutputProductService implements OutputProductService {
     @Override
     public void delete(FtepFile file) throws IOException {
         Path relativePath = Paths.get(file.getFilename());
-
         Files.deleteIfExists(outputProductBasedir.resolve(relativePath));
-
-        resto.deleteReferenceData(file.getRestoId());
-
+        resto.deleteOutputData(file.getRestoId());
         // Workspace = jobId = first part of the relative filename
         String workspace = relativePath.getName(0).toString();
         // Layer name = filename without extension

@@ -28,7 +28,7 @@ import java.util.Set;
         uniqueConstraints = {@UniqueConstraint(name = "ftep_databaskets_name_owner_idx", columnNames = {"name", "owner"})})
 @NoArgsConstructor
 @Entity
-public class Databasket implements FtepEntityWithOwner<Databasket>, Searchable {
+public class Databasket implements FtepEntityWithOwner<Databasket>, Searchable, FtepFileReferencer {
     /**
      * <p>Internal unique identifier of the databasket.</p>
      */
@@ -79,6 +79,11 @@ public class Databasket implements FtepEntityWithOwner<Databasket>, Searchable {
     @Override
     public int compareTo(Databasket o) {
         return ComparisonChain.start().compare(name, o.name).compare(owner.getId(), o.owner.getId()).result();
+    }
+
+    @Override
+    public Boolean removeReferenceToFtepFile(FtepFile file) {
+        return this.files.remove(file);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
@@ -124,4 +125,10 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         job.getOutputFiles().size();
         return job;
     }
+
+    @Override
+    public List<Job> findByOutputFiles(FtepFile file) {
+        return dao.findByOutputFiles(file);
+    }
+
 }

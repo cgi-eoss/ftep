@@ -109,6 +109,14 @@ public class RestoServiceImpl implements RestoService {
     public void deleteReferenceData(UUID restoId) {
         delete(refDataCollection, restoId);
     }
+    @Override
+    public void deleteOutputData(UUID restoId) {
+        delete(outputProductCollection, restoId);
+    }
+    @Override
+    public void deleteExternalData(UUID restoId) {
+        delete(externalProductCollection, restoId);
+    }
 
     @Override
     public GeoJsonObject getGeoJson(FtepFile ftepFile) {
@@ -221,7 +229,6 @@ public class RestoServiceImpl implements RestoService {
     private List<String> getRestoCollections() {
         HttpUrl allCollectionsUrl = HttpUrl.parse(restoBaseUrl).newBuilder().addPathSegment("collections.json").build();
         Request request = new Request.Builder().url(allCollectionsUrl).build();
-
         try (Response response = client.newCall(request).execute()) {
             return JsonPath.read(response.body().string(), "$.collections[*].name");
         } catch (IOException e) {

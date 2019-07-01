@@ -9,5 +9,5 @@
     preserveLicenseComments: false,
     logLevel: 4,
     optimize: "none",
-    generateSourceMaps: false
+    generateSourceMaps: true
 })

@@ -37,6 +37,7 @@ val requireJs by tasks.creating(NodeTask::class) {
         include("**/*.js")
     })
     outputs.file("${buildDir}/requireJs/app.js.full")
+    outputs.file("${buildDir}/requireJs/app.js.full.map")
 }
 
 val compressJS by tasks.creating(JavaExec::class) {
@@ -45,10 +46,13 @@ val compressJS by tasks.creating(JavaExec::class) {
     args = listOf(
             "--warning_level=QUIET",
             "--compilation_level=SIMPLE_OPTIMIZATIONS",
-            "--js_output_file=${buildDir}/requireJs/app.js"
-    ) + tasks["requireJs"].outputs.files.map { it.path }
+            "--js_output_file=${buildDir}/requireJs/app.js",
+            "--create_source_map=${buildDir}/requireJs/app.js.map",
+            "${buildDir}/requireJs/app.js.full"
+    )
     inputs.files(tasks["requireJs"])
     outputs.file("${buildDir}/requireJs/app.js")
+    outputs.file("${buildDir}/requireJs/app.js.map")
 }
 
 val stageApp by tasks.creating(Sync::class) {

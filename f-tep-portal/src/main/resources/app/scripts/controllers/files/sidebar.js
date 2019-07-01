@@ -9,7 +9,7 @@
 
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('FilesSidebarCtrl', ['$scope',  'FileService', '$rootScope', '$mdDialog', function($scope, FileService, $rootScope, $mdDialog) {
+    ftepmodules.controller('FilesSidebarCtrl', ['$scope', 'FileService', '$rootScope', '$mdDialog', function ($scope, FileService, $rootScope, $mdDialog) {
 
         $scope.filesParams = FileService.params.files;
         $scope.newReferenceFile = {
@@ -19,14 +19,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
         $scope.uploadValid = "Valid";
 
+        $scope.inputChange = function () {
+            // Call ui-grid update
+            $rootScope.$broadcast('filesParamsUpdated', $scope.filesParams.params);
+        };
+
         // Fetch all file types
         FileService.getCatalogueFileTypes().then(function (result) {
             $scope.types = result;
         });
 
         // called upon dropbox change
-        $scope.populateFileType = function(file) {
-
+        $scope.populateFileType = function (file) {
             $scope.resetProgressBar();
             if ($scope.uploadValid === "Valid") {
                 FileService.getFileTypeByExtension(file.name.substring(file.name.lastIndexOf(".") + 1)).then(function (result) {
@@ -37,32 +41,31 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         // called upon option value change
-        $scope.toggleEnableAutoDetectGeometry = function() {
-
+        $scope.toggleEnableAutoDetectGeometry = function () {
             FileService.getAutoDetectFlag($scope.newReferenceFile.filetype).then(function (result) {
                 $scope.newReferenceFile.autoDetectDisabled = !result;
                 $scope.newReferenceFile.autoDetectGeometry = result;
             });
-        }
+        };
 
         /* Validate file being uploaded */
         $scope.validateFile = function (file) {
-            if(!file) {
+            if (!file) {
                 $scope.uploadValid = 'No file selected';
             } else if (file.name.indexOf(' ') >= 0) {
                 $scope.uploadValid = 'Filename cannot contain white space';
-            } else if (file.size > (1024*1024*1024*10)) {
+            } else if (file.size > (1024 * 1024 * 1024 * 10)) {
                 $scope.uploadValid = 'Filesize cannot exceed 10GB';
             } else {
                 $scope.uploadValid = 'Valid';
             }
         };
 
-        $scope.resetProgressBar = function() {
+        $scope.resetProgressBar = function () {
             $scope.filesParams.progressPercentage = 0;
             $scope.filesParams.uploadStatus = 'pending';
             $scope.filesParams.uploadMessage = undefined;
-        }
+        };
 
         /* Upload the file */
         $scope.addReferenceFile = function () {
@@ -70,7 +73,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.newReferenceFile.geometry = "Auto-detected";
             }
             FileService.uploadFile('files', $scope.newReferenceFile).then(function (response) {
-                (function(ev) {
+                (function (ev) {
                     $mdDialog.show(
                         $mdDialog.alert()
                             .clickOutsideToClose(true)

@@ -1,7 +1,7 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
+import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
-import org.geojson.MultiPolygon;
 import org.geojson.Point;
 import org.geojson.Polygon;
 import org.junit.Before;
@@ -160,21 +160,30 @@ public class GeoUtilTest {
 
     @Test
     public void testExtractXMLGeometryMultiple() throws Exception {
-        MultiPolygon actualMultiPolygon = GeoUtil.extractXMLGeometry(fis1Multiple);
-        MultiPolygon expectedMultiPolygon = new MultiPolygon();
+        GeoJsonObject actualMultiPolygon = GeoUtil.extractFISGeometry(fis1Multiple);
+        Polygon expectedBoundingBox = new Polygon(
+                new LngLatAlt(58.3776, -17.1380),
+                new LngLatAlt(58.3776, 25.1627),
+                new LngLatAlt(63.7942, 25.1627),
+                new LngLatAlt(63.7942, -17.1380),
+                new LngLatAlt(58.3776, -17.1380)
+        );
 
-        expectedMultiPolygon.add(polygon1);
-        expectedMultiPolygon.add(polygon2);
-        assertThat(actualMultiPolygon, is(expectedMultiPolygon));
+        assertThat(actualMultiPolygon, is(expectedBoundingBox));
     }
 
     @Test
     public void testExtractXMLGeometrySingle() throws Exception {
-        MultiPolygon actualMultiPolygon = GeoUtil.extractXMLGeometry(fis2Single);
-        MultiPolygon expectedMultiPolygon = new MultiPolygon();
+        GeoJsonObject actualMultiPolygon = GeoUtil.extractFISGeometry(fis2Single);
+        Polygon expectedBoundingBox = new Polygon(
+                new LngLatAlt(58.3776, 25.1166),
+                new LngLatAlt(58.3776, 25.1627),
+                new LngLatAlt(58.3963, 25.1627),
+                new LngLatAlt(58.3963, 25.1166),
+                new LngLatAlt(58.3776, 25.1166)
+        );
 
-        expectedMultiPolygon.add(polygon1);
-        assertThat(actualMultiPolygon, is(expectedMultiPolygon));
+        assertThat(actualMultiPolygon, is(expectedBoundingBox));
     }
 
     private static final String EXAMPLE_FEATURE_JSON = "{\n" +

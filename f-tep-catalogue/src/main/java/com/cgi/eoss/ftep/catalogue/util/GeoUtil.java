@@ -29,37 +29,34 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.geometry.jts.WKTReader2;
+import org.geotools.gml3.GMLConfiguration;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.xml.PullParser;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.opengis.referencing.operation.TransformException;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 
 /**
  * <p>Utility methods for dealing with geo-spatial data and its various java libraries.</p>
@@ -68,8 +65,6 @@ import java.util.zip.ZipOutputStream;
 @UtilityClass
 public class GeoUtil {
     private static final String tempDirName = "tempDir";
-    private static final String polygonTagName = "gml:Polygon";
-    private static final String coordinatesTagName = "gml:coordinates";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -234,6 +229,7 @@ public class GeoUtil {
     /**
      * A function to unzip files from a zipped shapefile into a temporary folder.
      * The *.shp file is returned.
+     *
      * @param shapefile
      * @param tempDir
      * @return
@@ -274,6 +270,7 @@ public class GeoUtil {
 
     /**
      * Cleaning up the temporary folder containing unzipped Shapefile files
+     *
      * @param tempDir
      */
     public void cleanUp(Path tempDir) {
@@ -286,40 +283,43 @@ public class GeoUtil {
     }
 
     /**
-     * Creating a string representation of a polygon belonging to a multipolygon
-     * @param node
-     * @return
-     */
-    private static String createPolygonString(Node node) {
-        Element polygon = (Element) node;
-        String polygonCoords = polygon.getElementsByTagName(coordinatesTagName).item(0).getTextContent();
-        String wktPolygon = Arrays.stream(polygonCoords.split(" "))
-                .map(coord -> coord.replace(",", " "))
-                .collect(Collectors.joining(", "));
-        return "((" + wktPolygon + "))";
-    }
-
-    /**
      * Extracting geometry from an XML file of type FIS
+     *
      * @param file
      * @return
      */
-    public static org.geojson.MultiPolygon extractXMLGeometry(Path file) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    public static GeoJsonObject extractFISGeometry(Path file) {
         try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(file.toFile());
+            InputStream in = new BufferedInputStream(Files.newInputStream(file));
+            GMLConfiguration gml = new GMLConfiguration();
 
-            NodeList polygons = document.getElementsByTagName(polygonTagName);
-            String wktMultipolygon = "MULTIPOLYGON (" + IntStream.range(0, polygons.getLength())
-                    .mapToObj(i -> polygons.item(i))
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-                    .map(GeoUtil::createPolygonString)
-                    .collect(Collectors.joining(", ")) + ")";
+            // TODO Model FIS data with proper XSD-generated classes
+            PullParser standParser = new PullParser(gml, in, new QName("http://standardit.tapio.fi/schemas/forestData/stand/2010/08/31", "Stand"));
 
-            return (org.geojson.MultiPolygon) getGeoJsonGeometry(wktMultipolygon);
+            List<HashMap<String, Object>> stands = new ArrayList<>();
+            HashMap<String, Object> stand;
+            while ((stand = (HashMap<String, Object>) standParser.parse()) != null) {
+                stands.add(stand);
+            }
 
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+            Polygon[] polygons = stands.stream()
+                    .map(s -> (HashMap<String, HashMap<String, Object>>) s.get("StandBasicData"))
+                    .map(standBasicData -> (Polygon) standBasicData.get("PolygonGeometry").get("polygonProperty"))
+                    .map(polygon -> {
+                        try {
+                            // Convert to WGS84
+                            return (Polygon) JTS.toGeographic(polygon, (CoordinateReferenceSystem) polygon.getUserData());
+                        } catch (TransformException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toList()).toArray(new Polygon[]{});
+
+            com.vividsolutions.jts.geom.MultiPolygon multiPolygon = new com.vividsolutions.jts.geom.MultiPolygon(polygons, JTSFactoryFinder.getGeometryFactory());
+
+            // FIS has a lot of small polygons in one area, so extract the bounding box (envelope)
+            return getGeoJsonGeometry(multiPolygon.getEnvelope().toText());
+        } catch (IOException | XMLStreamException | SAXException e) {
             LOG.error("Failed to extract geometry from the file {}:", file.toUri(), e);
             throw new GeometryException(e);
         }
@@ -327,6 +327,7 @@ public class GeoUtil {
 
     /**
      * Geometry extraction controller function
+     *
      * @param file
      * @param fileType
      * @param referenceDataBasedir
@@ -352,7 +353,7 @@ public class GeoUtil {
                     }
                 }
             case FIS:
-                return extractXMLGeometry(file);
+                return extractFISGeometry(file);
             default:
                 LOG.error("Illegal file type for extracting geometry: " + fileType);
                 return null;

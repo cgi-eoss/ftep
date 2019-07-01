@@ -134,6 +134,7 @@ allprojects {
             dependency("org.geotools:gt-main:${extra.get("geotools.version")}")
             dependency("org.geotools:gt-referencing:${extra.get("geotools.version")}")
             dependency("org.geotools:gt-shapefile:${extra.get("geotools.version")}")
+            dependency("org.geotools:gt-xml:${extra.get("geotools.version")}")
             dependency("org.graylog2.log4j2:log4j2-gelf:${extra.get("logf42-gelf.version")}")
             dependency("org.hamcrest:hamcrest-junit:${extra.get("hamcrest-junit.version")}")
             dependency("org.jooq:jool-java-8:${extra.get("jool.version")}")

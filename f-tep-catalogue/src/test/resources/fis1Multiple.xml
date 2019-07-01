@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ForestPropertyData>
+<ForestPropertyData
+        xsi:schemaLocation="http://standardit.tapio.fi/schemas/forestData/2013/06/20 ForestData_20130620.xsd"
+        xmlns="http://standardit.tapio.fi/schemas/forestData/2013/06/20"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:gml="http://www.opengis.net/gml"
+        xmlns:gdt="http://standardit.tapio.fi/schemas/forestData/common/geometricDataTypes"
+        xmlns:co="http://standardit.tapio.fi/schemas/forestData/common"
+        xmlns:op="http://standardit.tapio.fi/schemas/forestData/operation/2010/08/31"
+        xmlns:tst="http://standardit.tapio.fi/schemas/forestData/treeStratum/2010/08/31"
+        xmlns:ts="http://standardit.tapio.fi/schemas/forestData/treeStand/2010/08/31"
+        xmlns:st="http://standardit.tapio.fi/schemas/forestData/stand/2010/08/31"
+        xmlns:re="http://standardit.tapio.fi/schemas/forestData/realEstate/2011/02/14">
     <re:RealEstates>
         <re:RealEstate id="1234">
             <re:RealEstateName>N/A</re:RealEstateName>
@@ -29,12 +40,12 @@
                 <st:AreaDecrease>0.0</st:AreaDecrease>
                 <gdt:PolygonGeometry>
                     <gml:pointProperty>
-                        <gml:Point srsName="EPSG:5678">
+                        <gml:Point srsName="EPSG:4326">
                             <gml:coordinates>25.1385,58.3884</gml:coordinates>
                         </gml:Point>
                     </gml:pointProperty>
                     <gml:polygonProperty>
-                        <gml:Polygon srsName="EPSG:5678">
+                        <gml:Polygon srsName="EPSG:4326">
                             <gml:exterior>
                                 <gml:LinearRing>
                                     <gml:coordinates>25.1166,58.3887 25.1235,58.3963 25.1433,58.3959 25.1627,58.3871 25.1346,58.3776 25.1166,58.3887</gml:coordinates>
@@ -146,12 +157,12 @@
                 <st:AreaDecrease>0.0</st:AreaDecrease>
                 <gdt:PolygonGeometry>
                     <gml:pointProperty>
-                        <gml:Point srsName="EPSG:5678">
+                        <gml:Point srsName="EPSG:4326">
                             <gml:coordinates>-17.1288,63.7921</gml:coordinates>
                         </gml:Point>
                     </gml:pointProperty>
                     <gml:polygonProperty>
-                        <gml:Polygon srsName="EPSG:5678">
+                        <gml:Polygon srsName="EPSG:4326">
                             <gml:exterior>
                                 <gml:LinearRing>
                                     <gml:coordinates>-17.1380,63.7942 -17.1380,63.7900 -17.1195,63.7900 -17.1195,63.7942 -17.1380,63.7942</gml:coordinates>

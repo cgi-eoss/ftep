@@ -18,9 +18,6 @@ f-tep-portal/src/main/resources/.bowerrc
 f-tep-portal/src/main/resources/.sass-cache
 f-tep-portal/src/main/resources/app/styles/**.css
 
-f-tep-portal/src/main/resources/package.json
-f-tep-portal/src/main/resources/bower.json
-
 activemq-data/
 
 ########

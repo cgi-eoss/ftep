@@ -1,0 +1,50 @@
+{
+    "name": "ftep",
+    "version": "0.0.0",
+    "dependencies": {
+        "angular": "^1.4.0",
+        "bootstrap": "^3.2.0",
+        "angular-animate": "^1.4.0",
+        "angular-aria": "^1.4.0",
+        "angular-bootstrap": "^1.3.2",
+        "angular-cookies": "^1.4.0",
+        "angular-drag-and-drop-lists": "^1.4.0",
+        "angular-openlayers-directive": "^1.15.2",
+        "angular-material": "^1.0.9",
+        "angular-messages": "^1.4.0",
+        "angular-paging": "^2.2.2",
+        "angular-resource": "^1.4.0",
+        "angular-route": "^1.4.0",
+        "angular-sanitize": "^1.4.0",
+        "angularjs-slider": "^4.0.2",
+        "angular-touch": "^1.4.0",
+        "angular-ui-grid": "^4.8.0",
+        "angular-ui-layout": "^1.4.2",
+        "angular-x2js": "^0.2.0",
+        "clipboard.js": "^0.3.1",
+        "domReady": "requirejs-domready#^2.0.1",
+        "handlebars": "^4.1.2",
+        "ng-file-upload": "^12.2.13",
+        "requirejs": "^2.2.0",
+        "traverson-angular": "^6.0.0",
+        "traverson": "^6.0.1",
+        "traverson-hal": "^6.0.0"
+    },
+    "devDependencies": {
+        "angular-mocks": "^1.4.0"
+    },
+    "appPath": "app",
+    "moduleName": "ftepApp",
+    "overrides": {
+        "bootstrap": {
+            "main": [
+                "less/bootstrap.less",
+                "dist/css/bootstrap.css",
+                "dist/js/bootstrap.js"
+            ]
+        }
+    },
+    "resolutions": {
+        "angular": ">=1.4.0"
+    }
+}

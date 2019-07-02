@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.persistence.service;
 
 import com.cgi.eoss.ftep.model.QWallet;
+import com.cgi.eoss.ftep.model.QWalletTransaction;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.model.WalletTransaction;
@@ -8,12 +9,16 @@ import com.cgi.eoss.ftep.persistence.dao.FtepEntityDao;
 import com.cgi.eoss.ftep.persistence.dao.WalletDao;
 import com.cgi.eoss.ftep.persistence.dao.WalletTransactionDao;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -63,6 +68,26 @@ public class JpaWalletDataService extends AbstractJpaDataService<Wallet> impleme
                 .type(WalletTransaction.Type.CREDIT)
                 .associatedId(null)
                 .build());
+    }
+
+    @Override
+    public List<WalletTransaction> getDownloadTransactionsByTimeAndOwner(YearMonth yearMonth, Long userId) {
+        QWalletTransaction walletTransaction = QWalletTransaction.walletTransaction;
+
+        BooleanExpression exp = walletTransaction.transactionTime.year().eq(yearMonth.getYear())
+                .and(walletTransaction.transactionTime.month().eq(yearMonth.getMonthValue()))
+                .and(walletTransaction.type.eq(WalletTransaction.Type.DOWNLOAD));
+        if (Optional.ofNullable(userId).isPresent()) {
+            exp = exp.and(walletTransaction.wallet.owner.id.eq(userId));
+        }
+
+        return transactionDao.findAll(exp);
+    }
+
+    @Override
+    public Optional<WalletTransaction> getLaunchTransactionByJobId(Long jobId) {
+        return transactionDao.findOne(QWalletTransaction.walletTransaction.associatedId.eq(jobId)
+                .and(QWalletTransaction.walletTransaction.type.eq(WalletTransaction.Type.JOB)));
     }
 
 }

@@ -64,6 +64,10 @@ public class DatabasketsApiCustomImpl extends BaseRepositoryApiImpl<Databasket> 
         if (!Strings.isNullOrEmpty(filter)) {
             builder.and(QDatabasket.databasket.name.containsIgnoreCase(filter)
                     .or(QDatabasket.databasket.description.containsIgnoreCase(filter)));
+            try {
+                Long dataBasketId = Long.parseLong(filter);
+                builder.or(QDatabasket.databasket.id.eq(dataBasketId));
+            } catch (Exception e) {}
         }
 
         return builder.getValue();

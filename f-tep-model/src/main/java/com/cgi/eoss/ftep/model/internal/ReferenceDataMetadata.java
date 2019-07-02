@@ -15,5 +15,7 @@ public class ReferenceDataMetadata {
     private User owner;
     private String filename;
     private String geometry;
+    private Boolean autoDetectGeometry;
+    private UploadableFileType fileType;
     private Map<String, Object> properties;
 }

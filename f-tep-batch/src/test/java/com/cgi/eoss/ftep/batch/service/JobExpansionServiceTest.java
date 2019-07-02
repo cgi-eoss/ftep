@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.util.Collection;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {JobExpansionConfig.class, JobExpansionTestConfig.class})
 @TestPropertySource("classpath:test-batch.properties")
 public class JobExpansionServiceTest {
@@ -147,7 +147,6 @@ public class JobExpansionServiceTest {
 
         List<JobSpec> jobSpecs = jobExpansionService.expandJobParamsFromRequest(request);
         assertThat(jobSpecs, hasSize(1));
-
         JobSpec jobSpec = jobSpecs.get(0);
         assertThat(jobSpec.getJob().getId(), is(jobId));
         assertThat(jobSpec.getJob().getUserId(), is(ftepAdmin.getName()));
@@ -156,6 +155,8 @@ public class JobExpansionServiceTest {
         Multimap<String, String> params = GrpcUtil.paramsListToMap(jobSpec.getInputsList());
         assertThat(params.get("input1"), is(ImmutableList.of("foo")));
         assertThat(params.get("input2"), is(ImmutableList.of("bar1", "bar2")));
+        assertThat(jobSpec.hasResourceRequest(), is(true));
+        assertThat(jobSpec.getResourceRequest().getStorage(),is(4));
     }
 
     @Test

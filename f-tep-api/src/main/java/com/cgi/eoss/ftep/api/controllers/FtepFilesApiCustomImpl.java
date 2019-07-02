@@ -85,12 +85,7 @@ public class FtepFilesApiCustomImpl extends BaseRepositoryApiImpl<FtepFile> impl
     public Page<FtepFile> searchAll(String keyword, FtepFile.Type type, FtepFile.Type notType, User owner, User notOwner, Long minFilesize, Long maxFilesize, Pageable pageable) {
         Predicate predicate = getFilterPredicate(keyword, type, notType, owner, notOwner, minFilesize, maxFilesize);
 
-        QFtepFile ftepFile = QFtepFile.ftepFile;
-        QJob job = QJob.job;
-
-        JPQLQuery<FtepFile> query = from(ftepFile)
-                .leftJoin(job).on(job.outputFiles.contains(ftepFile)).fetchJoin()
-                .where(predicate).fetchAll();
+        JPQLQuery<FtepFile> query = from(QFtepFile.ftepFile).where(predicate);
 
         query = getQuerydsl().applyPagination(pageable, query);
 
@@ -108,7 +103,7 @@ public class FtepFilesApiCustomImpl extends BaseRepositoryApiImpl<FtepFile> impl
 
         if (!Strings.isNullOrEmpty(filter)) {
             builder.and(QFtepFile.ftepFile.filename.containsIgnoreCase(filter)
-                    .or(QJob.job.config.label.containsIgnoreCase(filter))
+                    .or(QFtepFile.ftepFile.job.any().config.label.containsIgnoreCase(filter))
             );
         }
 

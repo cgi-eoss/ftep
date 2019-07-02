@@ -161,6 +161,8 @@ define(['../ftepmodules', 'traversonHal', 'moment'], function (ftepmodules, Trav
                             start: setDefaultValue(field, 'start'),
                             end: setDefaultValue(field, 'end')
                         };
+                    } else if (field.type === 'int' && search[key] === 0) {
+                        // Don't overwrite 0 in int fields
                     } else {
                         search[key] = setDefaultValue(field);
                     }

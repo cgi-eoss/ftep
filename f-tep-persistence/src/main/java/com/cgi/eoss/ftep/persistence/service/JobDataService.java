@@ -18,6 +18,7 @@ public interface JobDataService extends FtepEntityDataService<Job> {
     List<Job> findByService(FtepService service);
     List<Job> findByOwnerAndService(User user, FtepService service);
     List<Job> findByStartIn(YearMonth yearMonth);
+    List<Job> findByOwnerAndStartIn(User user, YearMonth yearMonth);
 
     Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, String systematicParameter, List<String> parallelParameters, List<String> searchParameters);
     Job buildNew(String extId, String userId, String serviceId, String jobConfigLabel, Multimap<String, String> inputs, Job parentJob, String systematicParameter, List<String> parallelParameters, List<String> searchParameters);

@@ -13,6 +13,12 @@ node {
     download = true
 }
 
+val closureCompiler by configurations.creating
+
+dependencies {
+    closureCompiler("com.google.javascript:closure-compiler:v20190528")
+}
+
 val sourceDir = projectDir.resolve("src/main/resources")
 val requireJsDir = projectDir.resolve("src/main/requireJs")
 val testSourceDir = projectDir.resolve("src/test/resources")
@@ -24,13 +30,29 @@ val requireJs by tasks.creating(NodeTask::class) {
     setScript(file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js"))
     setArgs(listOf(
             "-o", file("${projectDir}/src/main/requireJs/build.js"),
-            "out=${buildDir}/requireJs/app.js"
+            "out=${buildDir}/requireJs/app.js.full"
     ))
     inputs.file("${projectDir}/src/main/requireJs/build.js")
     inputs.files(fileTree("${projectDir}/src/main/resources/app/scripts") {
         include("**/*.js")
     })
+    outputs.file("${buildDir}/requireJs/app.js.full")
+    outputs.file("${buildDir}/requireJs/app.js.full.map")
+}
+
+val compressJS by tasks.creating(JavaExec::class) {
+    classpath = closureCompiler
+    main = "com.google.javascript.jscomp.CommandLineRunner"
+    args = listOf(
+            "--warning_level=QUIET",
+            "--compilation_level=SIMPLE_OPTIMIZATIONS",
+            "--js_output_file=${buildDir}/requireJs/app.js",
+            "--create_source_map=${buildDir}/requireJs/app.js.map",
+            "${buildDir}/requireJs/app.js.full"
+    )
+    inputs.files(tasks["requireJs"])
     outputs.file("${buildDir}/requireJs/app.js")
+    outputs.file("${buildDir}/requireJs/app.js.map")
 }
 
 val stageApp by tasks.creating(Sync::class) {
@@ -44,7 +66,7 @@ val stageApp by tasks.creating(Sync::class) {
         into("scripts/vendor/codemirror")
         include("**/*")
     }
-    from(tasks["requireJs"]) {
+    from(compressJS) {
         into("scripts")
         include("**/*")
     }

@@ -60,23 +60,62 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
                 $scope.item = "File";
                 $scope.fileParams = FileService.params.community;
-                $scope.newReference = {};
+                $scope.newReference = {
+                    filetype: "",
+                    autoDetectDisabled: true,
+                    autoDetectGeometry: false,
+                };
                 $scope.validation = "Valid";
+
+                // Fetch all file types
+                FileService.getCatalogueFileTypes().then(function (result) {
+                    $scope.types = result;
+                });
+
+                // called upon dropbox change
+                $scope.populateFileType = function(file) {
+
+                    $scope.resetProgressBar();
+                    if ($scope.validation === "Valid") {
+                        FileService.getFileTypeByExtension(file.name.substring(file.name.lastIndexOf(".") + 1)).then(function (result) {
+                            $scope.newReference.filetype = result;
+                            $scope.toggleEnableAutoDetectGeometry();
+                        });
+                    }
+                };
+
+                // called upon option value change
+                $scope.toggleEnableAutoDetectGeometry = function() {
+
+                    FileService.getAutoDetectFlag($scope.newReference.filetype).then(function (result) {
+                        $scope.newReference.autoDetectDisabled = !result;
+                        $scope.newReference.autoDetectGeometry = result;
+                    });
+                }
 
                 $scope.validateFile = function (file) {
                     if(!file) {
                         $scope.validation = "No file selected";
                     } else if (file.name.indexOf(' ') >= 0) {
                         $scope.validation = "Filename cannot contain white space";
-                    } else if (file.size >= (1024*1024*1024*10)) {
+                    } else if (file.size > (1024*1024*1024*10)) {
                         $scope.validation = "Filesize cannot exceed 10GB";
                     } else {
                         $scope.validation = "Valid";
                     }
                 };
 
+                $scope.resetProgressBar = function() {
+                    $scope.fileParams.progressPercentage = 0;
+                    $scope.fileParams.uploadStatus = 'pending';
+                    $scope.fileParams.uploadMessage = undefined;
+                }
+
                 /* Upload the file */
                 $scope.addReferenceFile = function () {
+                    if ($scope.newReference.autoDetectGeometry) {
+                        $scope.newReference.geometry = "Auto-detected";
+                    }
                     FileService.uploadFile("community", $scope.newReference).then(function (response) {
                         /* Get updated list of reference data */
                         FileService.refreshFtepFiles("community");
@@ -84,6 +123,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 };
 
                 $scope.closeDialog = function () {
+                    $scope.resetProgressBar();
                     $mdDialog.hide();
                 };
 

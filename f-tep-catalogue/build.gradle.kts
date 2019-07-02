@@ -24,6 +24,7 @@ dependencies {
     implementation("org.geotools:gt-main")
     implementation("org.geotools:gt-referencing")
     implementation("org.geotools:gt-shapefile")
+    implementation("org.geotools:gt-xml")
     implementation(project(":f-tep-logging"))
     implementation(project(":f-tep-persistence"))
     implementation(project(":f-tep-security"))

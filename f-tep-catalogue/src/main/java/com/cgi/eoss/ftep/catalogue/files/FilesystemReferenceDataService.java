@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.model.internal.UploadableFileType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
@@ -43,7 +44,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
     }
 
     @Override
-    public FtepFile ingest(User owner, String filename, String geometry, Map<String, Object> userProperties, MultipartFile multipartFile) throws IOException {
+    public FtepFile ingest(User owner, String filename, String geometry, boolean autoDetectGeometry, UploadableFileType fileType, Map<String, Object> userProperties, MultipartFile multipartFile) throws IOException {
         Path dest = referenceDataBasedir.resolve(String.valueOf(owner.getId())).resolve(filename);
         LOG.info("Saving new reference data to: {}", dest);
 
@@ -77,7 +78,7 @@ public class FilesystemReferenceDataService implements ReferenceDataService {
 
         Feature feature = new Feature();
         feature.setId(owner.getName() + "_" + filename);
-        feature.setGeometry(GeoUtil.getGeoJsonGeometry(geometry));
+        feature.setGeometry(autoDetectGeometry ? GeoUtil.extractGeometry(dest, fileType, referenceDataBasedir.resolve(String.valueOf(owner.getId()))) : GeoUtil.getGeoJsonGeometry(geometry));
         feature.setProperties(properties);
 
         UUID restoId;

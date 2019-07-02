@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.catalogue.util;
 
+import org.geojson.GeoJsonObject;
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
 import org.geojson.Polygon;
@@ -18,12 +19,33 @@ public class GeoUtilTest {
     private Path shapefileDurango;
     private Path shapefileChiapas;
     private Path geotiffDurango;
+    private Path fis1Multiple;
+    private Path fis2Single;
+    private Polygon polygon1;
+    private Polygon polygon2;
 
     @Before
     public void setUp() throws URISyntaxException {
         shapefileDurango = Paths.get(getClass().getResource("/DurangoRef/F-TEPsampleDurangoLandCoverRefPolygons.shp").toURI());
         shapefileChiapas = Paths.get(getClass().getResource("/F-TEPchiapasLandCover/F-TEPchiapasLandCover.shp").toURI());
         geotiffDurango = Paths.get(getClass().getResource("/subset_0_of_S2A_OPER_MTD_SAFL1C_PDMC_20160521T232007_R055_V20160521T174723_20160521T174723_resampled_RGB.tif").toURI());
+        fis1Multiple = Paths.get(getClass().getResource("/fis1Multiple.xml").toURI());
+        fis2Single = Paths.get(getClass().getResource("/fis2Single.xml").toURI());
+        polygon1 = new Polygon(
+                new LngLatAlt(25.1166, 58.3887),
+                new LngLatAlt(25.1235, 58.3963),
+                new LngLatAlt(25.1433, 58.3959),
+                new LngLatAlt(25.1627, 58.3871),
+                new LngLatAlt(25.1346, 58.3776),
+                new LngLatAlt(25.1166, 58.3887)
+        );
+        polygon2 = new Polygon(
+                new LngLatAlt(-17.1380, 63.7942),
+                new LngLatAlt(-17.1380, 63.7900),
+                new LngLatAlt(-17.1195, 63.7900),
+                new LngLatAlt(-17.1195, 63.7942),
+                new LngLatAlt(-17.1380, 63.7942)
+        );
     }
 
     @Test
@@ -134,6 +156,34 @@ public class GeoUtilTest {
     public void extractEpsgGeotiff() throws Exception {
         String epsg = GeoUtil.extractEpsg(geotiffDurango);
         assertThat(epsg, is("EPSG:32612"));
+    }
+
+    @Test
+    public void testExtractXMLGeometryMultiple() throws Exception {
+        GeoJsonObject actualMultiPolygon = GeoUtil.extractFISGeometry(fis1Multiple);
+        Polygon expectedBoundingBox = new Polygon(
+                new LngLatAlt(58.3776, -17.1380),
+                new LngLatAlt(58.3776, 25.1627),
+                new LngLatAlt(63.7942, 25.1627),
+                new LngLatAlt(63.7942, -17.1380),
+                new LngLatAlt(58.3776, -17.1380)
+        );
+
+        assertThat(actualMultiPolygon, is(expectedBoundingBox));
+    }
+
+    @Test
+    public void testExtractXMLGeometrySingle() throws Exception {
+        GeoJsonObject actualMultiPolygon = GeoUtil.extractFISGeometry(fis2Single);
+        Polygon expectedBoundingBox = new Polygon(
+                new LngLatAlt(58.3776, 25.1166),
+                new LngLatAlt(58.3776, 25.1627),
+                new LngLatAlt(58.3963, 25.1627),
+                new LngLatAlt(58.3963, 25.1166),
+                new LngLatAlt(58.3776, 25.1166)
+        );
+
+        assertThat(actualMultiPolygon, is(expectedBoundingBox));
     }
 
     private static final String EXAMPLE_FEATURE_JSON = "{\n" +

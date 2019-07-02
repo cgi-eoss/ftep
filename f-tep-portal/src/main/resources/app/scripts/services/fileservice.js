@@ -156,7 +156,9 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     url: ftepProperties.URLv2 + '/ftepFiles/refData',
                     data: {
                         file: file,
-                        geometry: newReference.geometry
+                        geometry: newReference.geometry,
+                        autoDetectGeometry: newReference.autoDetectGeometry,
+                        filetype: newReference.filetype
                     }
                 }).then(function (resp) {
                     MessageService.addInfo('File uploaded', 'Success ' + resp.config.data.file.name + ' uploaded.');
@@ -374,6 +376,60 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                  });
             });
         };
+
+        this.getCatalogueFileTypes = function() {
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/filetypes/all')
+                .newRequest()
+                .getResource()
+                .result
+            .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError('Could not get file types', error);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        }
+
+        this.getFileTypeByExtension = function(extension) {
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/filetypes/extension/' + extension)
+                .newRequest()
+                .getResource()
+                .result
+            .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError('Could not get file type for extension ' + extension, error);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        }
+
+        this.getAutoDetectFlag = function(filetype) {
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/filetypes/autoDetect/' + filetype)
+                .newRequest()
+                .getResource()
+                .result
+            .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError('Could not get auto-detect flag for file type ' + filetype, error);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        }
 
     return this;
   }]);

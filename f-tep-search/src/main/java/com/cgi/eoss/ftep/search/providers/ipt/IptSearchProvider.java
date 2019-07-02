@@ -74,7 +74,7 @@ public class IptSearchProvider extends RestoSearchProvider {
     private static final Map<String, Function<String, String>> PARAMETER_VALUE_MAPPING = ImmutableMap.<String, Function<String, String>>builder()
             .put("identifier", v -> "%" + v + "%")
             .put("s1ProcessingLevel", v -> "LEVEL" + v)
-            .put("s2ProcessingLevel", v -> "LEVELL" + v)
+            .put("s2ProcessingLevel", v -> "LEVEL" + v)
             .put("s3ProcessingLevel", v -> "LEVEL" + v)
             .put("landsatProcessingLevel", v -> "LEVEL" + v)
             .put("maxCloudCover", v -> "[0," + v + "]")

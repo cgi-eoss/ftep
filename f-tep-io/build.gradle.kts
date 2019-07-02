@@ -19,6 +19,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("net.jodah:failsafe")
 
     testImplementation(project(":f-tep-persistence"))
     testImplementation("org.hamcrest:hamcrest-junit")

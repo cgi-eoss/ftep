@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(value = "ftep.search.creodias.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "ftep.search.creodias.enabled", havingValue = "true", matchIfMissing = true)
 public class CreodiasSearchConfiguration {
 
     @Value("${ftep.search.creodias.baseUrl:https://finder.creodias.eu/resto/}")
     private String baseUrl;
-    @Value("${ftep.search.creodias.usableProductsOnly:true}")
+    @Value("${ftep.search.creodias.usableProductsOnly:false}")
     private boolean usableProductsOnly;
 
     @Bean

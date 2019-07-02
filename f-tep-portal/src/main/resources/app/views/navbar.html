@@ -21,7 +21,7 @@
                     <p><i class="material-icons">public</i><span> Explorer</span></p>
                 </li>
 
-                <li ng-click="goTo('/files')" ng-if="user.name && user.role === 'ADMIN'" aria-label="Files " ng-class="{ active: isActive('/files')}">
+                <li ng-click="goTo('/files')" ng-if="user.name" aria-label="Files " ng-class="{ active: isActive('/files')}">
                     <p><i class="material-icons">folder</i><span> Files</span></p>
                 </li>
 

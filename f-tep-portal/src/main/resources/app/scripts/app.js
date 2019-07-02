@@ -80,16 +80,7 @@ define([
             })
             .when('/files', {
                 templateUrl: 'views/files/files.html',
-                controller: 'FilesCtrl',
-                resolve:{
-                    "check": ['$location', 'UserService', function($location, UserService) {
-                        UserService.getCurrentUser().then(function(user){
-                            if(user.role !== 'ADMIN'){
-                                $location.path('/');  //redirect to homepage
-                            }
-                        });
-                    }]
-                }
+                controller: 'FilesCtrl'
             })
             .when('/developer', {
                 templateUrl: 'views/developer/developer.html',

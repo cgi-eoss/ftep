@@ -206,8 +206,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
                 responseObservers.put(job.getExtId(), responseObserver);
 
-                HashMap<String, Object> messageHeaders = new HashMap<>();
-                messageHeaders.put("jobId", job.getId());
+                Map<String, Object> messageHeaders = workerFactory.getMessageHeaders(job);
                 ftepQueueService.sendObject(FtepQueueService.jobQueueName, messageHeaders, jobSpec, getJobPriority(priorityIdx++));
 
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
@@ -746,7 +745,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
     private void cancelJob(Job job) {
         LOG.info("Cancelling job with id {}", job.getId());
-        JobSpec queuedJobSpec = (JobSpec) ftepQueueService.receiveSelectedObject(FtepQueueService.jobQueueName, "jobId = " + job.getId());
+        JobSpec queuedJobSpec = (JobSpec) ftepQueueService.receiveObject(FtepQueueService.jobQueueName, "jobId = " + job.getId());
         if (queuedJobSpec != null) {
             LOG.info("Refunding user for job id {}", job.getId());
             job.setStatus(Status.CANCELLED);

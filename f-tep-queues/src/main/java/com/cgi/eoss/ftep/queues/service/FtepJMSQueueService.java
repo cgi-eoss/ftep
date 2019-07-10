@@ -1,10 +1,10 @@
 package com.cgi.eoss.ftep.queues.service;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.JMSException;
-import javax.jms.QueueBrowser;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +13,7 @@ import java.util.Optional;
 public class FtepJMSQueueService implements FtepQueueService {
 
     private JmsTemplate jmsTemplate;
+    private static final BrowserCallback<Long> QUEUE_COUNT_CALLBACK = (session, browser) -> (long) Collections.list(browser.getEnumeration()).size();
 
     public FtepJMSQueueService(JmsTemplate jmsTemplate) {
         this.jmsTemplate = jmsTemplate;
@@ -73,22 +74,26 @@ public class FtepJMSQueueService implements FtepQueueService {
     }
 
     @Override
-    public Object receiveSelectedObject(String queueName, String messageSelector) {
+    public Object receiveObject(String queueName, String messageSelector) {
         jmsTemplate.setReceiveTimeout(JmsTemplate.RECEIVE_TIMEOUT_INDEFINITE_WAIT);
         return jmsTemplate.receiveSelectedAndConvert(queueName, messageSelector);
     }
 
     @Override
-    public Object receiveSelectedObjectWithTimeout(String queueName, String messageSelector, long timeout) {
+    public Object receiveObjectWithTimeout(String queueName, String messageSelector, long timeout) {
         jmsTemplate.setReceiveTimeout(timeout);
         return jmsTemplate.receiveSelectedAndConvert(queueName, messageSelector);
     }
 
     @Override
     public long getQueueLength(String queueName) {
-        return Optional.ofNullable(jmsTemplate.execute(session -> {
-            QueueBrowser queueBrowser = session.createBrowser(session.createQueue(queueName));
-            return (long) Collections.list(queueBrowser.getEnumeration()).size();
-        }, true)).orElse(0L);
+        return Optional.ofNullable(jmsTemplate.browse(queueName, QUEUE_COUNT_CALLBACK))
+                .orElse(0L);
+    }
+
+    @Override
+    public long getQueueLength(String queueName, String messageSelector) {
+        return Optional.ofNullable(jmsTemplate.browseSelected(queueName, messageSelector, QUEUE_COUNT_CALLBACK))
+                .orElse(0L);
     }
 }

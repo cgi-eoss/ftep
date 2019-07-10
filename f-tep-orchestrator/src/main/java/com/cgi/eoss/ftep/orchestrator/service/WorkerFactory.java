@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.WorkerLocatorExpression;
 import com.cgi.eoss.ftep.persistence.service.WorkerLocatorExpressionDataService;
@@ -7,7 +8,7 @@ import com.cgi.eoss.ftep.rpc.Worker;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc.FtepWorkerBlockingStub;
-
+import com.google.common.collect.ImmutableMap;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.log4j.Log4j2;
@@ -45,16 +46,14 @@ public class WorkerFactory {
      * @return A Worker appropriate for the requested environment.
      */
     public FtepWorkerGrpc.FtepWorkerBlockingStub getWorker(JobConfig jobConfig) {
-        WorkerLocatorExpression expression = getWorkerLocatorExpression(jobConfig);
-        LOG.debug("Locating worker for jobConfig {} by expression: {}", jobConfig.getId(), expression);
-        String env = expressionParser.parseExpression(expression.getExpression()).getValue(jobConfig).toString();
+        String workerId = getWorkerId(jobConfig);
 
         ServiceInstance worker = discoveryClient.getInstances(workerServiceId).stream()
-                .filter(si -> si.getMetadata().get("workerId").equals(env))
+                .filter(si -> si.getMetadata().get("workerId").equals(workerId))
                 .findFirst()
-                .orElseThrow(() -> new UnsupportedOperationException("Unable to find registered worker for environment: " + env));
+                .orElseThrow(() -> new UnsupportedOperationException("Unable to find registered worker for environment: " + workerId));
 
-        LOG.info("Located {} worker: {}:{}", env, worker.getHost(), worker.getMetadata().get("grpcPort"));
+        LOG.info("Located {} worker: {}:{}", workerId, worker.getHost(), worker.getMetadata().get("grpcPort"));
 
         ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(worker.getHost(), Integer.parseInt(worker.getMetadata().get("grpcPort")))
                 .usePlaintext(true)
@@ -110,6 +109,16 @@ public class WorkerFactory {
         return FtepWorkerGrpc.newBlockingStub(managedChannel);
     }
 
+    public Map<String, Object> getMessageHeaders(Job job) {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        builder.put("jobId", job.getId());
+
+        // Tag the message for picking up by a specific worker - this may be ignored if a worker is not "restricted"
+        builder.put("workerId", getWorkerId(job));
+
+        return builder.build();
+    }
+
     public WorkersList listWorkers() {
         WorkersList.Builder result = WorkersList.newBuilder();
 
@@ -125,6 +134,17 @@ public class WorkerFactory {
     }
 
     private WorkerLocatorExpression getWorkerLocatorExpression(JobConfig jobConfig) {
-        return Optional.ofNullable(workerLocatorExpressionDataService.getByService(jobConfig.getService())).orElse(defaultWorkerLocatorExpression);
+        return Optional.ofNullable(workerLocatorExpressionDataService.getByService(jobConfig.getService()))
+                .orElse(defaultWorkerLocatorExpression);
+    }
+
+    private String getWorkerId(Job job) {
+        return getWorkerId(job.getConfig());
+    }
+
+    private String getWorkerId(JobConfig jobConfig) {
+        String expression = getWorkerLocatorExpression(jobConfig).getExpression();
+        LOG.debug("Locating worker for jobConfig {} by expression: {}", jobConfig.getId(), expression);
+        return expressionParser.parseExpression(expression).getValue(jobConfig).toString();
     }
 }

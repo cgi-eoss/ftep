@@ -34,24 +34,31 @@ public class FtepWorkerDispatcher {
 
     private final FtepQueueService queueService;
     private final String workerId;
+    private final boolean restrictedWorker;
     private final LocalWorker localWorker;
     private final FtepWorkerNodeManager nodeManager;
+    private final String jobMessageSelector;
 
     private static final long QUEUE_SCHEDULER_INTERVAL_MS = 10L * 1000L;
     private static final Function<String, String> RANDOM_DIR_NAME = prefix -> prefix + UUID.randomUUID();
 
     @Autowired
-    public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker, @Qualifier("workerId") String workerId, FtepWorkerNodeManager nodeManager) {
+    public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker,
+                                @Qualifier("workerId") String workerId, @Qualifier("restrictedWorker") boolean restrictedWorker,
+                                FtepWorkerNodeManager nodeManager) {
         this.queueService = queueService;
         this.localWorker = localWorker;
         this.workerId = workerId;
+        this.restrictedWorker = restrictedWorker;
         this.nodeManager = nodeManager;
+        this.jobMessageSelector = restrictedWorker ? String.format("workerId = '%s'", workerId) : "";
     }
 
     @Scheduled(fixedRate = QUEUE_SCHEDULER_INTERVAL_MS, initialDelay = 10000L)
     public void getNewJobs() {
         LOG.debug("Checking for available jobs in the queue");
-        long queueLength = queueService.getQueueLength(FtepQueueService.jobQueueName);
+
+        long queueLength = queueService.getQueueLength(FtepQueueService.jobQueueName, jobMessageSelector);
         if (queueLength > 0) {
             LOG.debug("Found {} queued jobs, checking for available node capacity", queueLength);
             if (nodeManager.hasCapacity()) {
@@ -76,7 +83,7 @@ public class FtepWorkerDispatcher {
     }
 
     private JobSpec getNextJobSpec() {
-        return (JobSpec) queueService.receiveObjectWithTimeout(FtepQueueService.jobQueueName, 100);
+        return (JobSpec) queueService.receiveObjectWithTimeout(FtepQueueService.jobQueueName, jobMessageSelector, 100);
     }
 
     public interface JobUpdateListener {

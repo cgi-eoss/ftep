@@ -127,6 +127,7 @@ public class JobConfigsApiExtension {
 
         // Create "master" job
         Job parentJob = new Job(jobConfigTemplate, UUID.randomUUID().toString(), ftepSecurityService.getCurrentUser());
+        parentJob.setParent(true);
         jobRepository.save(parentJob);
 
         // Save the systematic processing

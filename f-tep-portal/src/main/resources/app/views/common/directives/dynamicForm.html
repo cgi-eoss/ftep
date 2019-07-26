@@ -25,7 +25,14 @@
                         </div>
                     </div>
                     <div ng-switch-when="polygon">
-                        <aoi-field value="formData[fieldId]" label="fieldConfig.title" description="fieldConfig.description"></aoi-field>
+                        <div class="row" ng-init="searchParams.activeSearch[index]">
+                            <div class="col-xs-12">
+                                <md-input-container md-no-float>
+                                    <input ng-model="formData[fieldId]" aria-label="{{fieldConfig.title}}" />
+                                    <div class="hint" ng-show="true">{{fieldConfig.description}}</div>
+                                </md-input-container>
+                            </div>
+                        </div>
                     </div>
                     <div ng-switch-when="text">
                         <div class="col-xs-12">

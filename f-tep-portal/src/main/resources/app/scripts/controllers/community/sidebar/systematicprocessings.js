@@ -40,7 +40,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.goToParentJobPage = function(systematicProcessing) {
-            $http.get(systematicProcessing._links.parentJob.href).then(function(response) {
+            // TODO: temporary solution to remove "{?projection}" from the end
+            var url = systematicProcessing._links.parentJob.href;
+            $http.get(url.replace('{?projection}', '')).then(function(response) {
                 JobService.params.community.selectedOwnershipFilter = JobService.jobOwnershipFilters.ALL_JOBS;
                 JobService.params.community.searchText = response.data.id;
                 TabService.navInfo.community.activeSideNav = TabService.getCommunityNavTabs().JOBS;

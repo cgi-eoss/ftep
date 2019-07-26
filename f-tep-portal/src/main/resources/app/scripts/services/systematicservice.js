@@ -251,7 +251,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
                  function (document) {
-                     resolve(JSON.parse(document.body));
+                     //resolve(JSON.parse(document.body));
                  }, function (error) {
                      MessageService.addError('Could not create systematic job', error);
                      reject();

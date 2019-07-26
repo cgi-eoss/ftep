@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * <p>Spring configuration for the F-TEP Orchestrator component.</p>
@@ -39,6 +40,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 })
 @EnableEurekaClient
 @ComponentScan(basePackageClasses = OrchestratorConfig.class)
+@EnableScheduling
 public class OrchestratorConfig {
 
     @Bean

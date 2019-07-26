@@ -9,7 +9,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'SystematicService', 'ProductService', 'MapService', 'CommonService', '$location', '$mdDialog', function ($scope, JobService, SystematicService, ProductService, MapService, CommonService, $location, $mdDialog) {
+    ftepmodules.controller('WorkspaceCtrl', [ '$scope', 'JobService', 'SystematicService', 'ProductService', 'MapService', 'CommonService', 'SearchService', '$location', '$mdDialog', function ($scope, JobService, SystematicService, ProductService, MapService, CommonService, SearchService, $location, $mdDialog) {
 
         $scope.serviceParams = ProductService.params.explorer;
         $scope.runModes = ProductService.serviceRunModes;
@@ -21,6 +21,33 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 catalogue: 'SATELLITE'
             }
         }
+
+        SearchService.getSearchParameters().then(function(data){
+
+            delete data.productDate;
+            delete data.catalogue;
+
+            var config = {
+                productDateStart: {
+                    type: 'date',
+                    defaultValue: '0',
+                    description: 'UTC',
+                    title: 'Product start date'
+                },
+                productDateEnd: {
+                    type: 'date',
+                    defaultValue: '0',
+                    description: 'UTC',
+                    optional: true,
+                    format: 'YYYY-MM-DD[T23:59:59Z]',
+                    title: 'Product end date'
+                }
+            }
+
+            delete data.catalogue;
+
+            $scope.searchForm.config = Object.assign(config, data);
+        });
 
         // Get page path to save the search params in the SearchService when changing tabs
         var page = $location.path().replace(/\W/g,'') ? $location.path().replace('/','') : 'explorer';
@@ -77,8 +104,8 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.launchProcessing = function($event) {
             var iparams={};
 
-            for(var key in $scope.serviceParams.inputValues){
-                var value = $scope.serviceParams.inputValues[key];
+            for(var key in $scope.serviceParams.config.inputValues){
+                var value = $scope.serviceParams.config.inputValues[key];
                 if(value === undefined){
                     value = '';
                 }
@@ -105,7 +132,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 jobParams = {
                     'service': $scope.serviceParams.selectedService._links.self.href,
                     'label' : $scope.serviceParams.config.label,
-                    'inputs' : ProductService.formatInputs($scope.serviceParams.config.inputValues),
+                    'inputs' : ProductService.formatInputs(angular.copy($scope.serviceParams.config.inputValues)),
                     'parallelParameters' : ProductService.formatParallelInputs($scope.serviceParams.config.parallelParameters),
                     'systematicParameter' : null,
                     'searchParameters' : [ ]
@@ -119,8 +146,6 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 searchParams.catalogue = 'SATELLITE';
 
                 SystematicService.estimateMonthlyCost($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams).then(function(estimation) {
-                    console.log(iparams);
-                    console.log($scope.searchForm.api.getFormData());
                     var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
                     CommonService.confirm($event, 'This job will approximatelly cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
                             '\nAre you sure you want to continue?').then(function (confirmed) {
@@ -129,7 +154,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         }
                         $scope.displayTab($scope.bottomNavTabs.JOBS, false);
 
-                        SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.label).then(function () {
+                        SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.config.label).then(function () {
                             JobService.refreshJobs("explorer", "Create");
                         });
 
@@ -169,6 +194,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.pastePolygon = function(identifier){
             $scope.serviceParams.config.inputValues[identifier] = MapService.getPolygonWkt();
+            // For systematic processings, also assign the polygon to the search parameters
+            if ($scope.serviceParams.runMode === $scope.runModes.SYSTEMATIC.id) {
+                $scope.searchForm.data[identifier] = MapService.getPolygonWkt();
+            }
         };
 
         function addValue(fieldId, file) {

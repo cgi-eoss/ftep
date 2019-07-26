@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules', 'ol', 'clipboard'], function (ftepmodules, ol, clipboard) {
 
-    ftepmodules.controller('CommunityManageSystematicProcessingCtrl', ['CommunityService', 'SystematicService', 'AoiService', 'MapService', 'CommonService', 'MessageService', '$scope', '$location', function (CommunityService, SystematicService, AoiService, MapService, CommonService, MessageService, $scope, $location) {
+    ftepmodules.controller('CommunityManageSystematicProcessingCtrl', ['CommunityService', 'SystematicService', 'MapService', 'CommonService', 'MessageService', '$scope', '$location', function (CommunityService, SystematicService, MapService, CommonService, MessageService, $scope, $location) {
 
         /* Get stored Jobs details */
         $scope.systematicParams = SystematicService.params.community;
@@ -34,7 +34,8 @@ define(['../../../ftepmodules', 'ol', 'clipboard'], function (ftepmodules, ol, c
             SystematicService.refreshSelectedSystematicProcessing('community');
         };
 
-        $scope.showAreaOnMap = function(aoi) {
+        // Not implemented
+        /*$scope.showAreaOnMap = function(aoi) {
             try {
                 var polygon = new ol.format.WKT().readGeometry(aoi[0]);
                 AoiService.setSearchAoi({
@@ -50,7 +51,7 @@ define(['../../../ftepmodules', 'ol', 'clipboard'], function (ftepmodules, ol, c
             } catch(e) {
                 MessageService.addError('Unable to parse aoi', error);
             }
-        }
+        }*/
 
         $scope.copyToClipboard = function(value) {
             clipboard.copy(value);

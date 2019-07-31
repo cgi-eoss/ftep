@@ -35,7 +35,8 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     parseDatabasketsAsList: parseDatabasketsAsList,
                     parseGroupsAsList: parseGroupsAsList,
                     share: CommonService.shareObjectDialog,
-                    estimateDownloadCost: CommonService.estimateDownloadCost
+                    estimateDownloadCost: CommonService.estimateDownloadCost,
+                    removeItem: removeItem
                 },
                 onRegisterApi: gridUpdate,
                 columnDefs: [
@@ -211,6 +212,22 @@ define(['../../ftepmodules'], function(ftepmodules) {
                     return thisgroup.group.name;
                 }).join('\n');
             }
+
+            /* Remove File */
+            function removeItem($event, item) {
+                FileService.getFileReferencers(item).then(function(res) {
+                    var msg = 'Are you sure you want to delete this file?\n' + 'Removing file from ' + res.databaskets.length + ' databaskets, ' + res.jobs.length + ' jobs and ' + res.jobConfigs.length + ' job configurations.';
+                    CommonService.confirm($event, msg).then(function (confirmed) {
+                        if (confirmed !== false) {
+                            FileService.removeFtepFile(item).then(function (data) {
+                                /* Update list of files */
+                                checkForParamsThenGet();
+                            });
+                        }
+                    });
+                });
+
+            };
         }
     ]);
 });

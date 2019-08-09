@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.catalogue.CatalogueService;
 import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileExternalReferences;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.model.internal.UploadableFileType;
@@ -118,6 +119,11 @@ public class FtepFilesApiExtension {
         Util.serveFileDownload(response, catalogueService.getAsResource(file));
 
         costingService.chargeForDownload(user.getWallet(), file);
+    }
+
+    @GetMapping(value="/{fileId}/checkDelete")
+    public FtepFileExternalReferences checkFileExternalReferences(@ModelAttribute("fileId") FtepFile file){
+        return catalogueService.getFtepFileReferencesWithType(file);
     }
 
 }

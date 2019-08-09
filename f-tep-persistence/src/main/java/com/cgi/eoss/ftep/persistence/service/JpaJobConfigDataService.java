@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.persistence.service;
 
+import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.User;
@@ -96,6 +97,11 @@ public class JpaJobConfigDataService extends AbstractJpaDataService<JobConfig> i
     @Override
     public List<JobConfig> findByOwnerAndService(User user, FtepService service) {
         return dao.findByOwnerAndService(user, service);
+    }
+
+    @Override
+    public List<JobConfig> findByInputFiles(FtepFile file) {
+        return dao.findByInputFiles(file);
     }
 
 }

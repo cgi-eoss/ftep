@@ -8,6 +8,8 @@ import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.DataSource;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileExternalReferences;
+import com.cgi.eoss.ftep.model.FtepFileReferencer;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
@@ -15,6 +17,8 @@ import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.persistence.service.DataSourceDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import com.cgi.eoss.ftep.persistence.service.JobConfigDataService;
+import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FileStreamIOException;
 import com.cgi.eoss.ftep.rpc.FileStreamServer;
@@ -40,12 +44,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,9 +74,11 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private final ReferenceDataService referenceDataService;
     private final ExternalProductDataService externalProductDataService;
     private final FtepSecurityService securityService;
+    private final JobConfigDataService jobConfigDataService;
+    private final JobDataService jobDataService;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService, FtepSecurityService securityService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService, FtepSecurityService securityService, JobConfigDataService jobConfigDataService, JobDataService jobDataService) {
         this.ftepFileDataService = ftepFileDataService;
         this.dataSourceDataService = dataSourceDataService;
         this.databasketDataService = databasketDataService;
@@ -77,6 +86,8 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
         this.referenceDataService = referenceDataService;
         this.externalProductDataService = externalProductDataService;
         this.securityService = securityService;
+        this.jobConfigDataService = jobConfigDataService;
+        this.jobDataService = jobDataService;
     }
 
     @Override
@@ -134,8 +145,15 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
         return new ResourcesZippingResource(filename, files.stream().collect(toMap(FtepFile::getFilename, this::getAsResource)));
     }
 
+    //todo:roll back on resto or geoserver issues? might need to alter these services
     @Override
+    @Transactional(rollbackOn=IOException.class)
     public void delete(FtepFile file) throws IOException {
+        getFtepFileReferences(file).forEach(referencer -> {
+            referencer.removeReferenceToFtepFile(file);
+        });
+        ftepFileDataService.delete(file);
+        //delete files from resto last, because db should be able to roll back here
         switch (file.getType()) {
             case REFERENCE_DATA:
                 referenceDataService.delete(file);
@@ -144,10 +162,10 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
                 outputProductService.delete(file);
                 break;
             case EXTERNAL_PRODUCT:
+                //this is not supported (currently we get different collections on ingestion)
                 externalProductDataService.delete(file);
                 break;
         }
-        ftepFileDataService.delete(file);
     }
 
     @Override
@@ -319,6 +337,19 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
         Databasket databasket = Optional.ofNullable(databasketDataService.getById(databasketId)).orElseThrow(() -> new CatalogueException("Failed to load databasket for ID " + databasketId));
         LOG.debug("Listing databasket contents for id {}", databasketId);
         return databasket;
+    }
+
+    @Override
+    public FtepFileExternalReferences getFtepFileReferencesWithType(FtepFile file){
+        return new FtepFileExternalReferences(jobDataService.findByOutputFiles(file), jobConfigDataService.findByInputFiles(file), databasketDataService.findByFiles(file));
+    }
+
+    private List<FtepFileReferencer> getFtepFileReferences(FtepFile file) {
+        List<FtepFileReferencer> referencers = new ArrayList<>();
+        referencers.addAll(jobDataService.findByOutputFiles(file));
+        referencers.addAll(jobConfigDataService.findByInputFiles(file));
+        referencers.addAll(databasketDataService.findByFiles(file));
+        return referencers;
     }
 
 }

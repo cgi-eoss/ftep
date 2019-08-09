@@ -14,7 +14,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.BufferedSink;
-import okio.BufferedSource;
 import okio.Okio;
 import org.apache.logging.log4j.CloseableThreadContext;
 
@@ -50,8 +49,12 @@ public class IptEodataServerDownloader implements Downloader {
     private final DownloaderFacade downloaderFacade;
     private final Properties properties;
     private final ProtocolPriority protocolPriority;
+    private final CreodiasOrderer creodiasOrderer;
 
-    public IptEodataServerDownloader(OkHttpClient okHttpClient, int downloadTimeout, int searchTimeout, IptEodataServerAuthenticator iptEodataServerAuthenticator, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
+    private final int WAITING_FOR_DOWNLOAD_STATUS = 31;
+    private final int ORDERED_STATUS = 32;
+
+    public IptEodataServerDownloader(OkHttpClient okHttpClient, int downloadTimeout, int searchTimeout, IptEodataServerAuthenticator iptEodataServerAuthenticator, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority, KeyCloakTokenGenerator keyCloakTokenGenerator) {
         // Use a long timeout as the data access can be slow
         this.httpClient = okHttpClient.newBuilder()
                 .connectTimeout(downloadTimeout, TimeUnit.SECONDS)
@@ -63,6 +66,7 @@ public class IptEodataServerDownloader implements Downloader {
         this.downloaderFacade = downloaderFacade;
         this.properties = properties;
         this.protocolPriority = protocolPriority;
+        this.creodiasOrderer = new CreodiasOrderer(httpClient, keyCloakTokenGenerator);
     }
 
     @PostConstruct
@@ -141,6 +145,13 @@ public class IptEodataServerDownloader implements Downloader {
 
             String responseBody = response.body().string();
             String productPath = ((String) JsonPath.read(responseBody, "$.features[0].properties.productIdentifier")).replaceFirst("^/", "");
+            int status = JsonPath.read(responseBody, "$.features[0].properties.status"); // TODO: correct?
+
+            // If the status is 31 or 32, the product is offline and must be ordered from CREODIAS
+            if (status == WAITING_FOR_DOWNLOAD_STATUS || status == ORDERED_STATUS) {
+                HttpUrl orderUrl = HttpUrl.parse(properties.getIptOrderUrl());
+                creodiasOrderer.orderProduct(uri, orderUrl);
+            }
 
             return HttpUrl.parse(properties.getIptDownloadUrl()).newBuilder()
                     .addPathSegments(productPath)
@@ -168,6 +179,7 @@ public class IptEodataServerDownloader implements Downloader {
     public static final class Properties {
         private String iptSearchUrl;
         private String iptDownloadUrl;
+        private String iptOrderUrl;
     }
 
 }

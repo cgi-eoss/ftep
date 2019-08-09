@@ -20,7 +20,7 @@ plugins {
 
 allprojects {
     group = "com.cgi.eoss.f-tep"
-    version = "2.9.1"
+    version = "2.10.0"
 
     buildscript {
         repositories {
@@ -52,6 +52,7 @@ allprojects {
     extra.set("docker-java.version", "3.0.14")
     extra.set("embedded-database-spring-test.version", "1.3.1")
     extra.set("embedded-postgres-binaries-bom.version", "10.5.0")
+    extra.set("failsafe.version", "2.0.1")
     extra.set("geojson-jackson.version", "1.8.1")
     extra.set("geoserver-manager.version", "1.7.0")
     extra.set("geotools.version", "17.2")
@@ -114,6 +115,7 @@ allprojects {
             dependency("io.grpc:grpc-testing:${extra.get("grpc.version")}")
             dependency("io.zonky.test:embedded-database-spring-test:${extra.get("embedded-database-spring-test.version")}")
             dependency("it.geosolutions:geoserver-manager:${extra.get("geoserver-manager.version")}")
+            dependency("net.jodah:failsafe:${extra.get("failsafe.version")}")
             dependency("org.apache.commons:commons-lang3:${extra.get("commons-lang3.version")}")
             dependency("org.apache.commons:commons-text:${extra.get("commons-text.version")}")
             dependency("org.apache.jclouds.api:openstack-cinder:${extra.get("jclouds.version")}")

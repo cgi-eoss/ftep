@@ -1,7 +1,6 @@
 package com.cgi.eoss.ftep.model;
 
 import com.cgi.eoss.ftep.model.converters.StringListConverter;
-import com.cgi.eoss.ftep.model.converters.UriStringConverter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -49,7 +48,7 @@ import java.util.Set;
         uniqueConstraints = @UniqueConstraint(name = "ftep_job_configs_unique_idx", columnNames = {"owner", "service", "inputs", "parent", "systematic_parameter", "parallel_parameters", "search_parameters"}))
 @NoArgsConstructor
 @Entity
-public class JobConfig implements FtepEntityWithOwner<JobConfig> {
+public class JobConfig implements FtepEntityWithOwner<JobConfig>, FtepFileReferencer {
 
     /**
      * <p>Unique identifier of the job.</p>
@@ -140,5 +139,11 @@ public class JobConfig implements FtepEntityWithOwner<JobConfig> {
     @Override
     public int compareTo(JobConfig o) {
         return ComparisonChain.start().compare(service, o.service).result();
+    }
+
+
+    @Override
+    public Boolean removeReferenceToFtepFile(FtepFile file) {
+        return this.inputFiles.remove(file);
     }
 }

@@ -50,6 +50,7 @@
                         <input
                             ng-readonly="true"
                             ng-model="currentRowData[row.entity.id].filename"
+                            aria-label="File name"
                         />
                     </md-input-container>
                 </div>
@@ -133,6 +134,22 @@
                             }}</textarea
                         >
                     </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-11 no-padding">
+                    <h3>
+                        Delete
+                    </h3>
+                    <md-button class="md-fab md-mini btn-success"
+                               ng-click="removeItem($event, currentRowData[row.entity.id])"
+                               aria-label="Delete"
+                               uib-tooltip="Delete"
+                               tooltip-placement="top"
+                               tooltip-trigger="mouseenter"
+                               tooltip-append-to-body="true">
+                        <i class="material-icons">delete</i>
+                    </md-button>
                 </div>
             </div>
         </div>

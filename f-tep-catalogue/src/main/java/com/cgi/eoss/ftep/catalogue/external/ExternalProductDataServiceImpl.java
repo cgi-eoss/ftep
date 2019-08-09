@@ -109,7 +109,7 @@ public class ExternalProductDataServiceImpl implements ExternalProductDataServic
 
     @Override
     public void delete(FtepFile file) throws IOException {
-        resto.deleteReferenceData(file.getRestoId());
+        resto.deleteExternalData(file.getRestoId());
     }
 
 }

@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Log4j2
 public class CreodiasSearchProvider extends RestoSearchProvider {
@@ -188,6 +189,8 @@ public class CreodiasSearchProvider extends RestoSearchProvider {
         String productSource = SUPPORTED_MISSIONS.inverse().get(collection).getMission();
         String productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
         URI ftepUri = externalProductService.getUri(productSource, productIdentifier);
+        int status = feature.getProperty("status");
+        boolean ftepUsable = IntStream.of(31, 32).noneMatch(x -> x == status);
 
         // Shuffle the CREODIAS properties into a sub-object for consistency across all search providers
         Map<String, Object> extraParams = new HashMap<>(feature.getProperties());
@@ -208,7 +211,7 @@ public class CreodiasSearchProvider extends RestoSearchProvider {
         feature.setProperty("productIdentifier", productIdentifier);
         feature.setProperty("ftepUrl", ftepUri);
         feature.setProperty("filesize", filesize);
-        feature.setProperty("ftepUsable", true);
+        feature.setProperty("ftepUsable", ftepUsable);
 
         // Set "interesting" parameters which clients might want in an easily-accessible form
         // Some are not present depending on the result type, so we have to safely traverse the dynamic properties map

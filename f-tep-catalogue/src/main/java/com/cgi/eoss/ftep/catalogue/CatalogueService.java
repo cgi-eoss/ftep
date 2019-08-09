@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.catalogue;
 
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepFileExternalReferences;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.OutputFileMetadata;
 import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
@@ -120,4 +121,10 @@ public interface CatalogueService {
      * database contents.
      */
     Stream<URI> expand(URI uri);
+
+    /**
+     * @return container object which holds objects which reference FtepFile
+     */
+    FtepFileExternalReferences getFtepFileReferencesWithType(FtepFile file);
+
 }

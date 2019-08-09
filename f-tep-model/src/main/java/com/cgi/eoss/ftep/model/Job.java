@@ -46,7 +46,7 @@ import java.util.Set;
         uniqueConstraints = {@UniqueConstraint(columnNames = "ext_id")})
 @NoArgsConstructor
 @Entity
-public class Job implements FtepEntityWithOwner<Job> {
+public class Job implements FtepEntityWithOwner<Job>, FtepFileReferencer {
 
     /**
      * <p>Internal unique identifier of the job.</p>
@@ -182,6 +182,12 @@ public class Job implements FtepEntityWithOwner<Job> {
     public int compareTo(Job o) {
         return ComparisonChain.start().compare(startTime, o.startTime).result();
     }
+
+    @Override
+    public Boolean removeReferenceToFtepFile(FtepFile file) {
+        return this.outputFiles.remove(file);
+    }
+
 
     public enum Status {
         CREATED, RUNNING, COMPLETED, ERROR, CANCELLED

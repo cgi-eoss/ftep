@@ -146,6 +146,24 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
+        this.getFileReferencers = function(file) {
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/ftepFiles/' + file.id + '/checkDelete')
+                .newRequest()
+                .getResource()
+                .result
+            .then(
+            function (document) {
+                deferred.resolve(document);
+            }, function (error) {
+                MessageService.addError('Could not get file referencers', error);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        }
+
         this.uploadFile = function (page, newReference) {
             self.params[page].uploadStatus = "pending";
             self.params[page].uploadMessage = undefined;

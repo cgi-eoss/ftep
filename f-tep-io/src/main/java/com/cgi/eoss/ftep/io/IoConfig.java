@@ -11,6 +11,7 @@ import com.cgi.eoss.ftep.io.download.HttpDownloader;
 import com.cgi.eoss.ftep.io.download.IptEodataServerAuthenticator;
 import com.cgi.eoss.ftep.io.download.IptEodataServerDownloader;
 import com.cgi.eoss.ftep.io.download.IptHttpDownloader;
+import com.cgi.eoss.ftep.io.download.KeyCloakTokenGenerator;
 import com.cgi.eoss.ftep.io.download.ProtocolPriority;
 import com.cgi.eoss.ftep.rpc.DiscoveryClientResolverFactory;
 import com.cgi.eoss.ftep.rpc.FtepServerClient;
@@ -123,7 +124,7 @@ public class IoConfig {
     }
 
     @Bean
-    public IptEodataServerDownloader iptEodataServerDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, IptEodataServerAuthenticator iptEodataServerAuthenticator, IoConfigurationProperties properties) {
+    public IptEodataServerDownloader iptEodataServerDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, IptEodataServerAuthenticator iptEodataServerAuthenticator, IoConfigurationProperties properties, KeyCloakTokenGenerator keyCloakTokenGenerator) {
         IoConfigurationProperties.Downloader.IptEodataServer iptEodataServerProperties = properties.getDownloader().getIptEodataServer();
         return new IptEodataServerDownloader(
                 okHttpClient,
@@ -134,13 +135,21 @@ public class IoConfig {
                 IptEodataServerDownloader.Properties.builder()
                         .iptSearchUrl(iptEodataServerProperties.getIptSearchUrl())
                         .iptDownloadUrl(iptEodataServerProperties.getDownloadUrlBase())
+                        .iptOrderUrl(iptEodataServerProperties.getOrderUrl())
                         .build(),
-                ProtocolPriority.builder().overallPriority(iptEodataServerProperties.getOverallPriority()).build());
+                ProtocolPriority.builder().overallPriority(iptEodataServerProperties.getOverallPriority()).build(),
+                keyCloakTokenGenerator
+                );
     }
 
     @Bean
-    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
-        return new CreodiasHttpAuthenticator(
+    public CreodiasHttpAuthenticator creodiasHttpAuthenticator(KeyCloakTokenGenerator keyCloakTokenGenerator) {
+        return new CreodiasHttpAuthenticator(keyCloakTokenGenerator);
+    }
+
+    @Bean
+    public KeyCloakTokenGenerator keyCloakTokenGenerator(OkHttpClient okHttpClient, FtepServerClient ftepServerClient, IoConfigurationProperties properties) {
+        return new KeyCloakTokenGenerator(
                 okHttpClient,
                 ftepServerClient,
                 properties.getDownloader().getCreodiasHttp().getAuthEndpoint(),
@@ -148,16 +157,18 @@ public class IoConfig {
     }
 
     @Bean
-    public CreodiasHttpDownloader creodiasHttpDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, CreodiasHttpAuthenticator creodiasHttpAuthenticator, IoConfigurationProperties properties) {
+    public CreodiasHttpDownloader creodiasHttpDownloader(DownloaderFacade downloaderFacade, OkHttpClient okHttpClient, CreodiasHttpAuthenticator creodiasHttpAuthenticator, KeyCloakTokenGenerator keyCloakTokenGenerator, IoConfigurationProperties properties) {
         return new CreodiasHttpDownloader(
                 okHttpClient,
                 properties.getDownloader().getCreodiasHttp().getDownloadTimeout(),
                 properties.getDownloader().getCreodiasHttp().getSearchTimeout(),
                 creodiasHttpAuthenticator,
+                keyCloakTokenGenerator,
                 downloaderFacade,
                 CreodiasHttpDownloader.Properties.builder()
                         .creodiasDownloadUrl(properties.getDownloader().getCreodiasHttp().getDownloadUrlBase())
                         .creodiasSearchUrl(properties.getDownloader().getCreodiasHttp().getSearchUrl())
+                        .creodiasOrderUrl(properties.getDownloader().getCreodiasHttp().getOrderUrl())
                         .build(),
                 ProtocolPriority.builder().overallPriority(properties.getDownloader().getCreodiasHttp().getOverallPriority()).build());
     }

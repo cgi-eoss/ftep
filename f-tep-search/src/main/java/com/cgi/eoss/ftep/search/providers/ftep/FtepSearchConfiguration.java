@@ -25,7 +25,7 @@ public class FtepSearchConfiguration {
 
     @Bean
     public FtepSearchProvider ftepSearchProvider(OkHttpClient httpClient, ObjectMapper objectMapper, CatalogueService catalogueService, RestoService restoService, FtepFileDataService ftepFileDataService, FtepSecurityService securityService) {
-        return new FtepSearchProvider(0,
+        return new FtepSearchProvider(1,
                 FtepSearchProperties.builder()
                         .baseUrl(HttpUrl.parse(baseUrl))
                         .username(username)

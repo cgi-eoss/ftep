@@ -2,7 +2,6 @@ package com.cgi.eoss.ftep.io.download;
 
 import com.cgi.eoss.ftep.io.ServiceIoException;
 import com.cgi.eoss.ftep.logging.Logging;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -50,12 +49,15 @@ public class CreodiasHttpDownloader implements Downloader {
 
     private final OkHttpClient httpClient;
     private final OkHttpClient searchClient;
-    private final ObjectMapper objectMapper;
     private final DownloaderFacade downloaderFacade;
     private final Properties properties;
     private final ProtocolPriority protocolPriority;
+    private final CreodiasOrderer creodiasOrderer;
 
-    public CreodiasHttpDownloader(OkHttpClient okHttpClient, int downloadTimeout, int searchTimeout, CreodiasHttpAuthenticator authenticator, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
+    private final int WAITING_FOR_DOWNLOAD_STATUS = 31;
+    private final int ORDERED_STATUS = 32;
+
+    public CreodiasHttpDownloader(OkHttpClient okHttpClient, int downloadTimeout, int searchTimeout, CreodiasHttpAuthenticator authenticator, KeyCloakTokenGenerator keyCloakTokenGenerator, DownloaderFacade downloaderFacade, Properties properties, ProtocolPriority protocolPriority) {
         // Use a long timeout as the data access can be slow
         this.httpClient = okHttpClient.newBuilder()
                 .connectTimeout(downloadTimeout, TimeUnit.SECONDS)
@@ -65,9 +67,9 @@ public class CreodiasHttpDownloader implements Downloader {
         // Use a long timeout as the search query takes a while...
         this.searchClient = okHttpClient.newBuilder().readTimeout(searchTimeout, TimeUnit.SECONDS).build();
         this.downloaderFacade = downloaderFacade;
-        this.objectMapper = new ObjectMapper();
         this.properties = properties;
         this.protocolPriority = protocolPriority;
+        this.creodiasOrderer = new CreodiasOrderer(httpClient, keyCloakTokenGenerator);
     }
 
     @PostConstruct
@@ -100,6 +102,7 @@ public class CreodiasHttpDownloader implements Downloader {
 
         Request request = new Request.Builder().url(downloadUrl).build();
         Path outputFile;
+
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new ServiceIoException("Unsuccessful HTTP response: " + response);
@@ -140,6 +143,8 @@ public class CreodiasHttpDownloader implements Downloader {
     private HttpUrl findDownloadUrl(URI uri, HttpUrl searchUrl) throws IOException {
         Request request = new Request.Builder().url(searchUrl).get().build();
 
+
+
         try (Response response = searchClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 LOG.error("Received unsuccessful HTTP response for CREODIAS search: {}", response.toString());
@@ -148,8 +153,13 @@ public class CreodiasHttpDownloader implements Downloader {
 
             String responseBody = response.body().string();
             String productId = JsonPath.read(responseBody, "$.features[0].id");
+            int status = JsonPath.read(responseBody, "$.features[0].properties.status");
 
-            // TODO Handle orderable products: https://creodias.eu/-/how-to-order-products-using-finder-api-
+            // If the status is 31 or 32, the product is offline and must be ordered from CREODIAS
+            if (status == WAITING_FOR_DOWNLOAD_STATUS || status == ORDERED_STATUS) {
+                HttpUrl orderUrl = HttpUrl.parse(properties.getCreodiasOrderUrl());
+                creodiasOrderer.orderProduct(uri, orderUrl);
+            }
 
             return HttpUrl.parse(properties.getCreodiasDownloadUrl()).newBuilder()
                     .addPathSegments(productId)
@@ -178,6 +188,7 @@ public class CreodiasHttpDownloader implements Downloader {
     public static final class Properties {
         private String creodiasSearchUrl;
         private String creodiasDownloadUrl;
+        private String creodiasOrderUrl;
     }
 
 }

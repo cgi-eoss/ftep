@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(value = "ipt.search.ipt.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = "ftep.search.ipt.enabled", havingValue = "true", matchIfMissing = true)
 public class IptSearchConfiguration {
 
     @Value("${ipt.search.ipt.baseUrl:https://finder.eocloud.eu/resto/}")
@@ -18,7 +18,7 @@ public class IptSearchConfiguration {
 
     @Bean
     public IptSearchProvider iptSearchProvider(OkHttpClient httpClient, ObjectMapper objectMapper, ExternalProductDataService externalProductService) {
-        return new IptSearchProvider(0,
+        return new IptSearchProvider(1,
                 IptSearchProperties.builder()
                         .baseUrl(HttpUrl.parse(baseUrl))
                         .build(),

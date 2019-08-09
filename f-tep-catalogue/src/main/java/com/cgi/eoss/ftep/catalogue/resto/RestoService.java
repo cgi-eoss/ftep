@@ -33,6 +33,16 @@ public interface RestoService {
     void deleteReferenceData(UUID restoId);
 
     /**
+     * <p>Remove the given F-TEP Output Data product from the Resto catalogue.</p>
+     */
+    void deleteOutputData(UUID restoId);
+
+    /**
+     * <p>Remove the given F-TEP External Data product from the Resto catalogue</p>
+     */
+    void deleteExternalData(UUID restoId);
+
+    /**
      * @return The Resto catalogue GeoJSON data for the given FtepFile.
      */
     GeoJsonObject getGeoJson(FtepFile ftepFile);

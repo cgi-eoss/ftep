@@ -140,14 +140,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Remove File */
         $scope.removeItem = function (event, key, item) {
-            CommonService.confirm(event, 'Are you sure you want to delete this file?').then(function (confirmed) {
-                if (confirmed !== false) {
-                    FileService.removeFtepFile(item).then(function (data) {
-                        /* Update list of files */
-                        FileService.refreshFtepFiles("community", "Remove", item);
-                    });
-                }
+            FileService.getFileReferencers(item).then(function(res) {
+                var msg = 'Are you sure you want to delete this file?\n' + 'Removing file from ' + res.databaskets.length + ' databaskets, ' + res.jobs.length + ' jobs and ' + res.jobConfigs.length + ' job configurations.';
+                CommonService.confirm(event, msg).then(function (confirmed) {
+                    if (confirmed !== false) {
+                        FileService.removeFtepFile(item).then(function (data) {
+                            /* Update list of files */
+                            FileService.refreshFtepFiles("community", "Remove", item);
+                        });
+                    }
+                });
             });
+
         };
 
     }]);

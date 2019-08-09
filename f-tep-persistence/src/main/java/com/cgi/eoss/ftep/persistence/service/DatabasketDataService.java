@@ -14,4 +14,6 @@ public interface DatabasketDataService extends
     List<Databasket> findByFile(FtepFile file);
 
     List<Databasket> findByOwner(User user);
+
+    List<Databasket> findByFiles(FtepFile file);
 }

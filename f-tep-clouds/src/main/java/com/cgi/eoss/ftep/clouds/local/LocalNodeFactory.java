@@ -76,7 +76,7 @@ public class LocalNodeFactory implements NodeFactory {
     }
 
     @Override
-    public void removeStorageForNode(Node node, String storageId) {
+    public void removeStorageForNode(Node node, Set<String> volumeIds) {
         throw new UnsupportedOperationException("Storage deallocation not available locally");
     }
 

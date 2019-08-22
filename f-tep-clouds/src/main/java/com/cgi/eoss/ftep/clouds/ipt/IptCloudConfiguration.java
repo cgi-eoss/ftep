@@ -87,7 +87,9 @@ public class IptCloudConfiguration {
         Properties keystoneProperties = new Properties();
         keystoneProperties.put(KeystoneProperties.KEYSTONE_VERSION, "3");
         keystoneProperties.put(KeystoneProperties.SCOPE, "project:" + osProjectName);
-        Properties neutronOverrides = new Properties(keystoneProperties);
+
+        Properties neutronOverrides = new Properties();
+        keystoneProperties.forEach(neutronOverrides::put);
 
         ApiContext<NeutronApi> neutronContext = ContextBuilder.newBuilder("openstack-neutron")
                 .endpoint(osIdentityEndpoint)
@@ -96,7 +98,8 @@ public class IptCloudConfiguration {
                 .overrides(neutronOverrides)
                 .build();
 
-        Properties novaOverrides = new Properties(keystoneProperties);
+        Properties novaOverrides = new Properties();
+        keystoneProperties.forEach(novaOverrides::put);
 
         ApiContext<NovaApi> novaContext = ContextBuilder.newBuilder("openstack-nova")
                 .endpoint(osIdentityEndpoint)

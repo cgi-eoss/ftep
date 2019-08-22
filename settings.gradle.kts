@@ -25,6 +25,9 @@ include("f-tep-zoomanager")
 include("zoo-project")
 project(":zoo-project").projectDir = file("third-party/cxx/zoo-project")
 
+include("jclouds")
+project(":jclouds").projectDir = file("third-party/java/jclouds")
+
 include("pkg")
 project(":pkg").projectDir = file("third-party/pkg")
 

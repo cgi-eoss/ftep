@@ -80,6 +80,16 @@ public class WorkerConfig {
         return maxJobsPerNode;
     }
 
+    @Bean
+    public Long minSecondsBetweenScalingActions(@Value("${ftep.worker.minSecondsBetweenScalingActions:600}") long minSecondsBetweenScalingActions) {
+        return minSecondsBetweenScalingActions;
+    }
+
+    @Bean
+    public Long minimumHourFractionUptimeSeconds(@Value("${ftep.worker.minimumHourFractionUptimeSeconds:3000}") long minimumHourFractionUptimeSeconds) {
+        return minimumHourFractionUptimeSeconds;
+    }
+
     // The cloud node manager that replaces the use of the NodeFactory
     @Bean
     public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory, @Qualifier("cacheRoot") Path dataBaseDir, @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {

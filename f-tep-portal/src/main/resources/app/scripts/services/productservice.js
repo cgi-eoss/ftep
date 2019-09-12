@@ -337,6 +337,7 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                             MessageService.addInfo('Service added', 'New Service ' + name + ' added.');
                             resolve(JSON.parse(document.data));
                             EditorService.addDefaultFiles(JSON.parse(document.data));
+                            self.params.developer.activeArea = self.params.developer.constants.tabs.files;
                         } else {
                             MessageService.addError('Could not create Service ' + name, document);
                             reject();

@@ -53,7 +53,6 @@ public class CreodiasOrderer {
      * @param orderUrl
      */
     public void orderProduct(URI uri, HttpUrl orderUrl) {
-
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
         String productIdFull = uri.getPath().substring(1);

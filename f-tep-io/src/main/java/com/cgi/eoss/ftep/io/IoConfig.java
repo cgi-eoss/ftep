@@ -10,7 +10,6 @@ import com.cgi.eoss.ftep.io.download.FtpDownloader;
 import com.cgi.eoss.ftep.io.download.HttpDownloader;
 import com.cgi.eoss.ftep.io.download.IptEodataServerAuthenticator;
 import com.cgi.eoss.ftep.io.download.IptEodataServerDownloader;
-import com.cgi.eoss.ftep.io.download.IptHttpDownloader;
 import com.cgi.eoss.ftep.io.download.KeyCloakTokenGenerator;
 import com.cgi.eoss.ftep.io.download.ProtocolPriority;
 import com.cgi.eoss.ftep.rpc.DiscoveryClientResolverFactory;
@@ -98,24 +97,6 @@ public class IoConfig {
     @Bean
     public HttpDownloader httpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient, OkHttpClient okHttpClient) {
         return new HttpDownloader(downloaderFacade, ftepServerClient, okHttpClient);
-    }
-
-    @Bean
-    public IptHttpDownloader iptHttpDownloader(DownloaderFacade downloaderFacade, FtepServerClient ftepServerClient, OkHttpClient okHttpClient, IoConfigurationProperties properties) {
-        IoConfigurationProperties.Downloader.IptHttp iptHttpProperties = properties.getDownloader().getIptHttp();
-        return new IptHttpDownloader(
-                okHttpClient,
-                iptHttpProperties.getDownloadTimeout(),
-                iptHttpProperties.getSearchTimeout(),
-                ftepServerClient,
-                downloaderFacade,
-                IptHttpDownloader.Properties.builder()
-                        .iptSearchUrl(iptHttpProperties.getIptSearchUrl())
-                        .iptDownloadUrl(iptHttpProperties.getDownloadUrlBase())
-                        .authEndpoint(iptHttpProperties.getAuthEndpoint())
-                        .authDomain(iptHttpProperties.getAuthDomain())
-                        .build(),
-                ProtocolPriority.builder().overallPriority(iptHttpProperties.getOverallPriority()).build());
     }
 
     @Bean

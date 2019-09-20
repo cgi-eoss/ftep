@@ -23,7 +23,10 @@
 #login-container .note {
   padding: 2rem;
 }
-
+#api-key-loading-container {
+  position: relative;
+  height: 100px;
+}
 #admin-container #management-container #user-list-card {
   height: 100%;
   overflow-y: auto;

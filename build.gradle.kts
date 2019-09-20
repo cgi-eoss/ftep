@@ -20,7 +20,7 @@ plugins {
 
 allprojects {
     group = "com.cgi.eoss.f-tep"
-    version = "2.10.0"
+    version = "2.11.0"
 
     buildscript {
         repositories {
@@ -61,6 +61,7 @@ allprojects {
     extra.set("guava.version", "25.1-jre")
     extra.set("hamcrest-junit.version", "2.0.0.0")
     extra.set("jclouds.version", "2.1.2")
+	extra.set("jersey-core.version", "1.19.4")
     extra.set("jimfs.version", "1.1")
     extra.set("jool.version", "0.9.14")
     extra.set("logf42-gelf.version", "1.3.1")

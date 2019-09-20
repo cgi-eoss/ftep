@@ -28,6 +28,41 @@
             </md-card-content>
         </md-card>
 
+        <md-card id="api-key-panel" md-theme-watch class="ftep-card">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>API key management</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div ng-if="apiKeyStatus === 'ready'">
+                    <div ng-if="!hasApiKey" class="row">
+                        <div>From here you can generate an API key allowing the usage of the F-TEP API REST services</div>
+                        <md-button class="md-raised md-accent" ng-click="generateApiKey()">Generate</md-button>
+                    </div>
+                    <div ng-if="hasApiKey" class="row">
+                        <div>
+                            An API key is already available for this account. You can delete it or generate a new one.
+                            Any of the following operations will invalidate the previously generated token.
+                        </div>
+                        <md-button class="md-raised md-accent" ng-click="generateApiKey()">Regenerate</md-button>
+                        <md-button class="md-raised md-accent" ng-click="deleteApiKey()">Delete</md-button>
+                    </div>
+                </div>
+                <div ng-if="apiKeyStatus === 'error'">
+                    <div>
+                        Error communicating with the API key service.
+                    </div>
+                    <md-button class="md-raised md-accent" ng-click="checkForApiKey()">Retry</md-button>
+                </div>
+                <div ng-if="apiKeyStatus === 'loading'" id="api-key-loading-container">
+                    <div class="spinner-container">
+                        <div class="spinner" />
+                    </div>
+                </div>
+            </md-card-content>
+        </md-card>
+
     </section>
 
     <section id="statistics-panel" class="col-md-12 col-lg-4">

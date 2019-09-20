@@ -31,7 +31,6 @@ public class IoConfigurationProperties {
         private int retryLimit = 5;
 
         private Ceda ceda = new Ceda();
-        private IptHttp iptHttp = new IptHttp();
         private IptEodataServer iptEodataServer = new IptEodataServer();
         private CreodiasHttp creodiasHttp = new CreodiasHttp();
 
@@ -43,19 +42,8 @@ public class IoConfigurationProperties {
         }
 
         @Data
-        static class IptHttp {
-            private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
-            private String downloadUrlBase = "http://185.48.233.249";
-            private String authEndpoint = "https://finder.eocloud.eu/resto/api/authidentity";
-            private String authDomain = "__secret__";
-            private int overallPriority = 5;
-            private int downloadTimeout = 120;
-            private int searchTimeout = 120;
-        }
-
-        @Data
         static class IptEodataServer {
-            private String iptSearchUrl = "https://finder.eocloud.eu/resto/";
+            private String iptSearchUrl = "https://finder.creodias.eu/resto/";
             private String downloadUrlBase = "https://ipteodataserver.observing.earth";
             private String orderUrl = "https://finder.creodias.eu/api/order/";
             private int overallPriority = 2;

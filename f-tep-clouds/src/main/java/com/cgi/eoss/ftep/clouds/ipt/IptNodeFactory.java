@@ -8,7 +8,6 @@ import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.SSHSession;
 import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
 import com.google.common.base.Strings;
-import com.google.common.collect.Multimap;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.jclouds.collect.PagedIterable;
@@ -33,6 +32,7 @@ import org.jclouds.openstack.nova.v2_0.features.FlavorApi;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
 import org.jclouds.openstack.nova.v2_0.options.CreateServerOptions;
 import org.jclouds.openstack.nova.v2_0.options.CreateVolumeOptions;
+import shadow.jclouds.com.google.common.collect.Multimap;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -49,12 +49,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.awaitility.Awaitility.with;
 import static org.awaitility.Duration.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Duration.FIVE_MINUTES;
 import static org.awaitility.Duration.FIVE_SECONDS;
-import static org.awaitility.Duration.TWO_MINUTES;
 import static org.awaitility.Duration.TWO_SECONDS;
 
 /**
@@ -117,7 +117,7 @@ public class IptNodeFactory implements NodeFactory {
 
     private Set<Node> loadExistingNodes() {
         PagedIterable<Server> servers = serverApi.listInDetail();
-        return servers.concat().stream()
+        return StreamSupport.stream(servers.concat().spliterator(), false)
                 .filter(server -> server.getName().startsWith(SERVER_NAME_PREFIX))
                 .map(server -> Node.builder()
                         .id(server.getId())
@@ -149,7 +149,7 @@ public class IptNodeFactory implements NodeFactory {
             // Generate a random keypair for provisioning
             keypairName = UUID.randomUUID().toString();
             KeyPair keypair = keyPairApi.create(keypairName);
-            Flavor flavor = flavorApi.listInDetail().concat().stream()
+            Flavor flavor = StreamSupport.stream(flavorApi.listInDetail().concat().spliterator(), false)
                     .filter(f -> f.getName().equals(flavorName))
                     .findFirst().orElseThrow(() -> new NodeProvisioningException("Could not find flavor: " + flavorName));
 
@@ -217,9 +217,8 @@ public class IptNodeFactory implements NodeFactory {
     }
 
     private Optional<FloatingIP> getUnallocatedFloatingIp() {
-        return floatingIPApi.list().stream()
+        return StreamSupport.stream(floatingIPApi.list().spliterator(), false)
                 .filter(ip -> Strings.isNullOrEmpty(ip.getInstanceId()))
-                .map(ip -> (FloatingIP) ip)
                 .findFirst();
     }
 
@@ -274,39 +273,46 @@ public class IptNodeFactory implements NodeFactory {
 
             }
 
-            if (provisioningConfig.getInsecureRegistries() != null) {
+            if (!Strings.isNullOrEmpty(provisioningConfig.getInsecureRegistries())) {
                 String[] insecureRegistriesList = provisioningConfig.getInsecureRegistries().split(",");
                 for (String insecureRegistry : insecureRegistriesList) {
-                    InetAddress ipAddress = InetAddress.getByName(insecureRegistry);
-                    ssh.exec("echo -e \"" + ipAddress.getHostAddress() + "\\t" + insecureRegistry + "\" | sudo tee -a /etc/cloud/templates/hosts.redhat.tmpl");
-                    ssh.exec("echo -e \"" + ipAddress.getHostAddress() + "\\t" + insecureRegistry + "\" | sudo tee -a /etc/hosts");
-
+                    String host = insecureRegistry.split(":")[0];
+                    InetAddress ipAddress = InetAddress.getByName(host);
+                    ssh.exec("echo -e \"" + ipAddress.getHostAddress() + "\\t" + host + "\" | sudo tee -a /etc/cloud/templates/hosts.redhat.tmpl");
+                    ssh.exec("echo -e \"" + ipAddress.getHostAddress() + "\\t" + host + "\" | sudo tee -a /etc/hosts");
                 }
             }
+
+            LOG.debug("Configuring docker");
+
+            String dockerSystemd = "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:" + DEFAULT_DOCKER_PORT + " --containerd=/run/containerd/containerd.sock";
+            ssh.exec("sudo mkdir -p /etc/systemd/system/docker.service.d");
+            ssh.exec("sudo echo '" + dockerSystemd + "' | sudo tee /etc/systemd/system/docker.service.d/override.conf");
+
+            StringBuilder dockerConf = new StringBuilder();
+            dockerConf.append("{");
+            if (!Strings.isNullOrEmpty(provisioningConfig.getInsecureRegistries())) {
+                dockerConf.append("\"insecure-registries\":[");
+                String[] insecureRegistriesList = provisioningConfig.getInsecureRegistries().split(",");
+                String elems = Arrays.stream(insecureRegistriesList).map(s -> "\"" + s + "\"").collect(Collectors.joining(", "));
+                dockerConf.append(elems);
+                dockerConf.append("]");
+            }
+            dockerConf.append("}");
+
+
+            ssh.exec("echo '" + dockerConf.toString() + "' | sudo tee /etc/docker/daemon.json");
+
+            LOG.debug("Restarting docker.service");
+            ssh.exec("sudo systemctl daemon-reload && sudo systemctl restart docker.service");
 
             // TODO Use/create a certificate authority for secure docker communication
             LOG.info("Launching dockerd listening on tcp://0.0.0.0:{}", DEFAULT_DOCKER_PORT);
             with().pollInterval(FIVE_HUNDRED_MILLISECONDS)
-                    .and().atMost(TWO_MINUTES)
+                    .and().atMost(FIVE_MINUTES)
                     .await("Successfully launched Dockerd")
                     .until(() -> {
                         try {
-                            StringBuffer dockerConf = new StringBuffer();
-                            dockerConf.append("{");
-                            String dockerHost = "\"hosts\":[\"tcp://0.0.0.0:" + DEFAULT_DOCKER_PORT + "\"]";
-                            dockerConf.append(dockerHost);
-                            if (provisioningConfig.getInsecureRegistries() != null) {
-                                dockerConf.append(",");
-                                dockerConf.append("\"insecure-registries\":[");
-                                String[] insecureRegistriesList = provisioningConfig.getInsecureRegistries().split(",");
-                                String elems = Arrays.stream(insecureRegistriesList).map(s -> "\"" + s + "\"").collect(Collectors.joining(", "));
-                                dockerConf.append(elems);
-                                dockerConf.append("]");
-                            }
-                            dockerConf.append("}");
-
-                            ssh.exec("echo '" + dockerConf + "'" + "| sudo tee /etc/docker/daemon.json");
-                            ssh.exec("sudo systemctl restart docker.service");
                             return ssh.exec("sudo systemctl status docker.service | grep 'API listen on \\[::\\]:2375'").getExitStatus() == 0;
                         } catch (Exception e) {
                             LOG.error("Failed to prepare server", e);
@@ -343,29 +349,34 @@ public class IptNodeFactory implements NodeFactory {
     @Override
     public void destroyNode(Node node) {
         LOG.info("Destroying IPT node: {} ({})", node.getId(), node.getName());
-        Server server = serverApi.get(node.getId());
+        try {
+            Server server = serverApi.get(node.getId());
 
-        //Remove the keypair
-        keyPairApi.delete(server.getKeyName());
-        keypairRepository.deleteById(server.getId());
+            //Remove the keypair
+            keyPairApi.delete(server.getKeyName());
+            keypairRepository.deleteById(server.getId());
 
-        Optional<Address> floatingIpAddress = getServerFloatingIpAddress(server);
-        if (floatingIpAddress.isPresent()) {
-            Optional<? extends FloatingIP> floatingIP = floatingIPApi.list().stream().filter(ip -> ip.getIp().equals(floatingIpAddress.get().getAddr())).findFirst();
-            floatingIP.ifPresent(ip -> floatingIPApi.delete(ip.getId()));
-        }
+            Optional<Address> floatingIpAddress = getServerFloatingIpAddress(server);
+            if (floatingIpAddress.isPresent()) {
+                Optional<? extends FloatingIP> floatingIP = StreamSupport.stream(floatingIPApi.list().spliterator(), false)
+                        .filter(ip -> ip.getIp().equals(floatingIpAddress.get().getAddr())).findFirst();
+                floatingIP.ifPresent(ip -> floatingIPApi.delete(ip.getId()));
+            }
 
-        for (VolumeAttachment additionalVolume : volumeAttachmentApi.listAttachmentsOnServer(server.getId())) {
-            volumeAttachmentApi.detachVolumeFromServer(additionalVolume.getVolumeId(), additionalVolume.getServerId());
-            volumeApi.delete(additionalVolume.getVolumeId());
-        }
+            for (VolumeAttachment additionalVolume : volumeAttachmentApi.listAttachmentsOnServer(server.getId())) {
+                volumeAttachmentApi.detachVolumeFromServer(additionalVolume.getVolumeId(), additionalVolume.getServerId());
+                volumeApi.delete(additionalVolume.getVolumeId());
+            }
 
-        boolean deleted = serverApi.delete(server.getId());
-        if (deleted) {
-            LOG.info("Destroyed IPT node: {}", node.getId());
-            currentNodes.remove(node);
-        } else {
-            LOG.info("Failed to destroy IPT node {}: [{}] {}", node.getId());
+            boolean deleted = serverApi.delete(server.getId());
+            if (deleted) {
+                LOG.info("Destroyed IPT node: {}", node.getId());
+                currentNodes.remove(node);
+            } else {
+                LOG.info("Failed to destroy IPT node {}", node.getId());
+            }
+        } catch (Exception e) {
+            LOG.warn("Failed to destroy IPT node {}", node.getId(), e);
         }
     }
 
@@ -413,9 +424,15 @@ public class IptNodeFactory implements NodeFactory {
     }
 
     @Override
-    public void removeStorageForNode(Node node, String storageId) throws StorageProvisioningException {
-        LOG.debug("Removing volume: {}", storageId);
-        Volume volume = volumeApi.get(storageId);
+    public void removeStorageForNode(Node node, Set<String> volumeIds) throws StorageProvisioningException {
+        LOG.debug("Removing volume: {}", volumeIds);
+        for (String volumeId : volumeIds) {
+            detachVolume(node, volumeId);
+        }
+    }
+
+    private void detachVolume(Node node, String volumeId) throws StorageProvisioningException {
+        Volume volume = volumeApi.get(volumeId);
         try {
             for (VolumeAttachment volumeAttachment : volume.getAttachments()) {
                 Server server = serverApi.get(volumeAttachment.getServerId());
@@ -432,12 +449,12 @@ public class IptNodeFactory implements NodeFactory {
                     LOG.error("Error detaching volume from server: {} to {} - error: {}", volume.getId(), server.getId());
                 }
             }
-            LOG.debug("Deleting volume: {}", storageId);
+            LOG.debug("Deleting volume: {}", volume);
             with().pollInterval(FIVE_SECONDS)
                     .and().atMost(VOLUME_DETACH_TIMEOUT_DURATION)
                     .await("Volume available")
-                    .until(() -> volumeApi.get(storageId).getStatus().equals(Status.AVAILABLE));
-            boolean deleted = volumeApi.delete(storageId);
+                    .until(() -> volumeApi.get(volumeId).getStatus().equals(Status.AVAILABLE));
+            boolean deleted = volumeApi.delete(volumeId);
             if (deleted) {
                 LOG.info("Deleted volume: {}", volume.getId());
             } else {

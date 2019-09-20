@@ -44,7 +44,8 @@ public class FtepWorkerDispatcher {
 
     @Autowired
     public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker,
-                                @Qualifier("workerId") String workerId, @Qualifier("restrictedWorker") boolean restrictedWorker,
+                                @Qualifier("workerId") String workerId,
+                                @Qualifier("restrictedWorker") boolean restrictedWorker,
                                 FtepWorkerNodeManager nodeManager) {
         this.queueService = queueService;
         this.localWorker = localWorker;
@@ -120,8 +121,10 @@ public class FtepWorkerDispatcher {
             //eventListener needs output directory for containerExit event
             JobEnvironment jobEnvironment = localWorker.prepareInputs(jobInputs);
             jobUpdateListener.jobUpdate(JobEvent.newBuilder().setJobEventType(JobEventType.DATA_FETCHING_COMPLETED).build());
+
             localWorker.launchContainer(jobSpec);
             jobUpdateListener.jobUpdate(JobEvent.newBuilder().setJobEventType(JobEventType.PROCESSING_STARTED).build());
+
             int exitCode;
             if (jobSpec.getHasTimeout()) {
                 ExitWithTimeoutParams exitRequest
@@ -133,6 +136,7 @@ public class FtepWorkerDispatcher {
                 ContainerExitCode containerExitCode = localWorker.waitForContainerExit(exitRequest);
                 exitCode = containerExitCode.getExitCode();
             }
+
             jobUpdateListener.jobUpdate(ContainerExit.newBuilder().setExitCode(exitCode).setJobEnvironment(jobEnvironment).build());
         } catch (Exception e) {
             LOG.error("Error executing job ", e);

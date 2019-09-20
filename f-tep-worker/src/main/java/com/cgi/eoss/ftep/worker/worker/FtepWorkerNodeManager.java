@@ -26,6 +26,8 @@ public class FtepWorkerNodeManager {
 
     // Track which Node is used for each job
     private final SetMultimap<Node, String> nodeJobs = HashMultimap.create();
+    // Track dynamic block volumes attached to nodes
+    private final SetMultimap<String, String> jobVolumes = HashMultimap.create();
 
     public static final String POOLED_WORKER_TAG = "pooled-worker-node";
     public static final String DEDICATED_WORKER_TAG = "dedicated-worker-node";
@@ -91,6 +93,7 @@ public class FtepWorkerNodeManager {
 
     public void provisionNodes(int count, String tag, Path environmentBaseDir) throws NodeProvisioningException {
         for (int i = 0; i < count; i++) {
+            LOG.debug("Provisioning node {}/{} on {}", i + 1, count, nodeFactory);
             nodeFactory.provisionNode(tag, environmentBaseDir, dataBaseDir);
         }
     }
@@ -126,18 +129,25 @@ public class FtepWorkerNodeManager {
         return freeWorkerNodes;
     }
 
-    public String allocateStorageForJob(String jobId, int requiredStorage, String mountPoint) throws StorageProvisioningException {
-        Node jobNode = getJobNode(jobId);
-        if (jobNode != null) {
-            return nodeFactory.allocateStorageForNode(jobNode, requiredStorage, mountPoint);
-        } else {
-            return null;
+    public void allocateStorageForJob(String jobId, int requiredStorage, String mountPoint) throws StorageProvisioningException {
+        Optional<Node> jobNode = Optional.ofNullable(getJobNode(jobId));
+        if (jobNode.isPresent()) {
+            String volumeId = nodeFactory.allocateStorageForNode(jobNode.get(), requiredStorage, mountPoint);
+            jobVolumes.put(jobId, volumeId);
         }
     }
 
-    public void releaseStorageForJob(Node jobNode, String jobId, String storageId) throws StorageProvisioningException {
-        LOG.info("Removing device {} for job {}", storageId, jobId);
-        nodeFactory.removeStorageForNode(jobNode, storageId);
+    public void releaseStorageForJob(String jobId) throws StorageProvisioningException {
+        if (jobVolumes.containsKey(jobId)) {
+            try {
+                Node jobNode = findJobNode(jobId).orElseThrow(() -> new StorageProvisioningException("Could not find job node for " + jobId));
+                Set<String> volumes = jobVolumes.get(jobId);
+                LOG.info("Removing volumes {} for job {}", volumes, jobId);
+                nodeFactory.removeStorageForNode(jobNode, volumes);
+            } finally {
+                jobVolumes.removeAll(jobId);
+            }
+        }
     }
 
     public int getNumberOfFreeNodes(String tag) {

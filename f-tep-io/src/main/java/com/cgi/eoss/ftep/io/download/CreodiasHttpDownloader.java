@@ -25,6 +25,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -133,6 +134,12 @@ public class CreodiasHttpDownloader implements Downloader {
         for (HttpUrl searchUrl : searchUrls) {
             try {
                 return findDownloadUrl(uri, searchUrl);
+            } catch (NoSuchElementException e) {
+                // L2A products may not be in the catalogue, but still orderable
+                if (productId.contains("L2A")) {
+                    orderProduct(uri);
+                    return findDownloadUrl(uri, searchUrl);
+                }
             } catch (Exception e) {
                 LOG.debug("Failed to locate download URL from search url {}: {}", searchUrl, e.getMessage());
             }
@@ -143,8 +150,6 @@ public class CreodiasHttpDownloader implements Downloader {
     private HttpUrl findDownloadUrl(URI uri, HttpUrl searchUrl) throws IOException {
         Request request = new Request.Builder().url(searchUrl).get().build();
 
-
-
         try (Response response = searchClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 LOG.error("Received unsuccessful HTTP response for CREODIAS search: {}", response.toString());
@@ -152,13 +157,18 @@ public class CreodiasHttpDownloader implements Downloader {
             }
 
             String responseBody = response.body().string();
+
+            boolean emptyResults = ((Integer) JsonPath.read(responseBody, "$.features.length()")) == 0;
+            if (emptyResults) {
+                throw new NoSuchElementException();
+            }
+
             String productId = JsonPath.read(responseBody, "$.features[0].id");
             int status = JsonPath.read(responseBody, "$.features[0].properties.status");
 
             // If the status is 31 or 32, the product is offline and must be ordered from CREODIAS
             if (status == WAITING_FOR_DOWNLOAD_STATUS || status == ORDERED_STATUS) {
-                HttpUrl orderUrl = HttpUrl.parse(properties.getCreodiasOrderUrl());
-                creodiasOrderer.orderProduct(uri, orderUrl);
+                orderProduct(uri);
             }
 
             return HttpUrl.parse(properties.getCreodiasDownloadUrl()).newBuilder()
@@ -170,6 +180,11 @@ public class CreodiasHttpDownloader implements Downloader {
             }
             throw new ServiceIoException("Timeout locating CREODIAS product data for " + uri);
         }
+    }
+
+    private void orderProduct(URI uri) {
+        HttpUrl orderUrl = HttpUrl.parse(properties.getCreodiasOrderUrl());
+        creodiasOrderer.orderProduct(uri, orderUrl);
     }
 
     private HttpUrl buildSearchUrl(String collection, String productId) {

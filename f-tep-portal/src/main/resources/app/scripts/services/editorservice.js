@@ -117,7 +117,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                         filename: 'Dockerfile',
                         content: btoa(dockerFile),
                         service: service._links.self.href
-                    });
+                    }, '/serviceFiles/', 'Service');
                     $http.get('scripts/templates/workflow.sh')
                         .success(function(workflowFile) {
                             self.addFile({
@@ -125,7 +125,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                                 content: btoa(workflowFile),
                                 service: service._links.self.href,
                                 executable: true
-                            });
+                            }, '/serviceFiles/', 'Service');
                         })
                         .error(function(error) {
                             MessageService.addError('Could not get workflow.sh Template', error);

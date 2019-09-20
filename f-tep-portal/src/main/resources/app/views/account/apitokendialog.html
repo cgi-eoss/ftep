@@ -1,0 +1,28 @@
+<md-dialog>
+    <h4>API Key</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <md-content class="md-warning">
+                <i class="material-icons">warning</i>
+                <span>This API key will not be shown anymore, so please be sure to store it before closing this dialog.</span>
+            </md-content>
+            <div layout="row" layout-align="start center">
+                <md-input-container class="md-block">
+                    <input ng-value="apiToken" aria-label="API token" readonly/>
+                </md-input-container>
+                <md-button class="md-icon-button md-primary"
+                           ng-click="copyTokenToClipboard()"
+                           uib-tooltip="Copy to clipboard"
+                           tooltip-placement="top"
+                           tooltip-trigger="mouseenter"
+                           tooltip-append-to-body="true">
+                    <i class="material-icons">content_copy</i>
+                </md-button>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="hideApiTokenDialog()" class="md-primary">Close</md-button>
+    </md-dialog-actions>
+    </div>
+</md-dialog>

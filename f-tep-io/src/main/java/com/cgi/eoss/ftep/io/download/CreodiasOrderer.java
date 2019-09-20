@@ -16,7 +16,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.apache.logging.log4j.CloseableThreadContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -49,11 +48,11 @@ public class CreodiasOrderer {
 
     /**
      * Order the product and halt the process until the order has completed
+     *
      * @param uri
      * @param orderUrl
      */
     public void orderProduct(URI uri, HttpUrl orderUrl) {
-
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
         String productIdFull = uri.getPath().substring(1);
@@ -64,10 +63,7 @@ public class CreodiasOrderer {
         // Only place a new order if this product has not already been ordered
         // TODO: add any order status conditions as well, e.g. still place an order if the name matches a cancelled order?
         if (placedOrders.stream().noneMatch(ord -> ord.getOrderName().equals(productIdFull))) {
-
-            try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                LOG.info("Ordering product " + productIdFull + " from CREODIAS");
-            }
+            Logging.withUserLoggingContext(() -> LOG.info("Ordering product {} from CREODIAS", productIdFull));
 
             Order order = placeOrder(orderUrl, productIdFull);
             int orderId = order.getId();
@@ -76,39 +72,35 @@ public class CreodiasOrderer {
             // Notify users every N iterations
             AtomicInteger userNotifyCountdown = new AtomicInteger(NOTIFY_USER_PROGRESS_ITERATIONS);
 
-            RetryPolicy retryPolicy = new RetryPolicy()
+            RetryPolicy retryPolicy = new RetryPolicy<>()
                     .withDelay(Duration.ofMinutes(ORDER_WAIT_MINUTES))
                     .withMaxRetries(ORDER_WAIT_ITERATIONS)
                     .withMaxDuration(Duration.ofMinutes(ORDER_WAIT_ITERATIONS * ORDER_WAIT_MINUTES))
                     .onRetry(e -> {
                         if (userNotifyCountdown.getAndDecrement() < 1) {
                             userNotifyCountdown.set(NOTIFY_USER_PROGRESS_ITERATIONS);
-                            try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                                LOG.info("Product order for " + productIdFull + " from CREODIAS is still in progress...");
-                            }
+                            Logging.withUserLoggingContext(() -> LOG.info("Product order for {} from CREODIAS is still in progress...", productIdFull));
                         }
                     })
                     .onRetriesExceeded(e -> {
-                        LOG.error("Order " + orderId + " for product " + productIdFull + " timed out");
-                        throw new ServiceIoException("Order " + orderId + " for product " + productIdFull + " timed out");
-                    });
+                        LOG.error(String.format("Order %d for product %s timed out", orderId, productIdFull));
+                        throw new ServiceIoException(String.format("Order %d for product %s timed out", orderId, productIdFull));
+                    })
+                    .abortOn(OrderTerminatedException.class);
 
             Failsafe.with(retryPolicy)
-                    .onSuccess(i -> {
-                        try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                            LOG.info("Product order for " + productIdFull + " from CREODIAS has completed, continuing");
-                        }
-                    })
+                    .onSuccess(i -> Logging.withUserLoggingContext(() -> LOG.info("Product order for " + productIdFull + " from CREODIAS has completed, continuing")))
                     .run(() -> checkOrderArrival(orderUrl, orderId, productIdFull));
 
             // TODO: cancel the order if it times out?
         } else {
-            LOG.info("Product " + productIdFull + " has already been ordered, skipping this");
+            LOG.info("Product {} has already been ordered, skipping this", productIdFull);
         }
     }
 
     /**
      * Check whether a specific order has completed
+     *
      * @param orderUrl
      * @param orderId
      * @param productIdFull
@@ -116,8 +108,9 @@ public class CreodiasOrderer {
     public void checkOrderArrival(HttpUrl orderUrl, int orderId, String productIdFull) {
         List<OrderItem> orderItems = getOrderDetails(orderUrl, orderId);
         if (orderItems.size() < 1) {
-            LOG.error("Failed to retrieve order details for CREODIAS order with ID " + orderId);
-            throw new ServiceIoException("Failed to retrieve order details for CREODIAS order with ID " + orderId);
+            String message = String.format("Failed to retrieve order for CREODIAS order with ID %d", orderId);
+            LOG.error(message);
+            throw new ServiceIoException(String.format("Failed to retrieve details for CREODIAS order with ID %d", orderId));
         }
 
         String status = orderItems.get(0).getStatus();
@@ -126,16 +119,19 @@ public class CreodiasOrderer {
             return;
         } else if (ImmutableSet.of("not_found", "not_valid", "failed").contains(status)) {
             // TODO: add "removed_from_cache", "removing_from_cache", "scheduled_for_deletion" here as well?
-            LOG.error("The order " + orderId + " for product " + productIdFull + " is not available with the status " + status);
-            throw new ServiceIoException("The order " + orderId + " for product " + productIdFull + " is not available with the status " + status);
+            String message = String.format("The CREODIAS order %d for product %s is not available, status: %s", orderId, productIdFull, status);
+            Logging.withUserLoggingContext(() -> LOG.error(message));
+            throw new OrderTerminatedException(message);
         }
 
-        LOG.info("Order " + orderId + " for " + productIdFull + " has not completed yet, status: " + status);
-        throw new ServiceIoException("Order " + orderId + " for " + productIdFull + " has not completed yet, status: " + status);
+        String message = String.format("CREODIAS order %d for %s has not completed yet, status: %s", orderId, productIdFull, status);
+        LOG.info(message);
+        throw new ServiceIoException(message);
     }
 
     /**
      * A function for building and executing a GET request to CREODIAS to retrieve all placed orders
+     *
      * @param orderUrl
      * @return
      */
@@ -184,11 +180,11 @@ public class CreodiasOrderer {
 
     /**
      * Retrieve the total number of orders
+     *
      * @param orderUrl
      * @return
      */
     private int getOrderCount(HttpUrl orderUrl) {
-
         String token = getKeyCloakAuthenticationToken(orderUrl);
 
         // Build the GET request for retrieving all orders
@@ -215,9 +211,9 @@ public class CreodiasOrderer {
     }
 
 
-
     /**
      * A function for placing an order for a product by sending a POST request to CREODIAS
+     *
      * @param orderUrl
      */
     private Order placeOrder(HttpUrl orderUrl, String productIdFull) {
@@ -294,11 +290,18 @@ public class CreodiasOrderer {
 
     /**
      * Retrieving the KeyCloak authentication token
+     *
      * @param url
      * @return
      */
     private String getKeyCloakAuthenticationToken(HttpUrl url) {
         return keyCloakTokenGenerator.getKeyCloakAuthenticationToken(url).getAccessToken().getTokenValue();
+    }
+
+    private static class OrderTerminatedException extends ServiceIoException {
+        public OrderTerminatedException(String message) {
+            super(message);
+        }
     }
 
 }

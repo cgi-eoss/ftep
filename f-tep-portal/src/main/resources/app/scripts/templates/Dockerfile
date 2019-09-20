@@ -2,6 +2,8 @@ FROM ubuntu:16.04
 
 MAINTAINER Forestry TEP
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Dependencies
 RUN apt-get update && apt-get install -y\
  bc\

@@ -5,7 +5,6 @@ import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 import com.cgi.eoss.ftep.worker.metrics.QueueAverage;
 import com.cgi.eoss.ftep.worker.metrics.QueueMetricsService;
-
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,18 +39,21 @@ public class FtepWorkerAutoscaler {
 
     private final long minSecondsBetweenScalingActions;
     private final long minimumHourFractionUptimeSeconds;
-    private long lastAutoscalingActionTime;
+    private final String jobMessageSelector;
 
+    private long lastAutoscalingActionTime;
     private boolean autoscalingOngoing;
 
     @Autowired
     public FtepWorkerAutoscaler(FtepWorkerNodeManager nodeManager, FtepQueueService queueService, QueueMetricsService queueMetricsService,
-        JobEnvironmentService jobEnvironmentService,
-        @Qualifier("minWorkerNodes") int minWorkerNodes,
-        @Qualifier("maxWorkerNodes") int maxWorkerNodes,
-        @Qualifier("maxJobsPerNode") int maxJobsPerNode,
-        @Qualifier("minSecondsBetweenScalingActions") long minSecondsBetweenScalingActions,
-        @Qualifier("minimumHourFractionUptimeSeconds") long minimumHourFractionUptimeSeconds
+                                JobEnvironmentService jobEnvironmentService,
+                                @Qualifier("minWorkerNodes") int minWorkerNodes,
+                                @Qualifier("maxWorkerNodes") int maxWorkerNodes,
+                                @Qualifier("maxJobsPerNode") int maxJobsPerNode,
+                                @Qualifier("minSecondsBetweenScalingActions") long minSecondsBetweenScalingActions,
+                                @Qualifier("minimumHourFractionUptimeSeconds") long minimumHourFractionUptimeSeconds,
+                                @Qualifier("workerId") String workerId,
+                                @Qualifier("restrictedWorker") boolean restrictedWorker
     ) {
         this.nodeManager = nodeManager;
         this.queueService = queueService;
@@ -62,11 +64,12 @@ public class FtepWorkerAutoscaler {
         this.maxJobsPerNode = maxJobsPerNode;
         this.minSecondsBetweenScalingActions = minSecondsBetweenScalingActions;
         this.minimumHourFractionUptimeSeconds = minimumHourFractionUptimeSeconds;
+        this.jobMessageSelector = restrictedWorker ? String.format("workerId = '%s'", workerId) : "";
     }
 
     @Scheduled(fixedRate = QUEUE_CHECK_INTERVAL_MS, initialDelay = 10000L)
     public void getCurrentQueueLength() {
-        long queueLength = queueService.getQueueLength(FtepQueueService.jobQueueName);
+        long queueLength = queueService.getQueueLength(FtepQueueService.jobQueueName, jobMessageSelector);
         queueMetricsService.updateMetric(queueLength, STATISTICS_WINDOW_MS / 1000L);
     }
 
@@ -88,12 +91,12 @@ public class FtepWorkerAutoscaler {
             double coverageFactor = 1.0 * QUEUE_CHECK_INTERVAL_MS / STATISTICS_WINDOW_MS;
             double coverage = queueAverage.getCount() * coverageFactor;
             if (coverage > 0.75) {
-                LOG.info("Avg queue length is {}", queueAverage.getAverageLength());
+                LOG.debug("Avg queue length is {}", queueAverage.getAverageLength());
                 int averageLengthRounded = (int) Math.ceil(queueAverage.getAverageLength());
                 double scaleTarget = 1.0 * averageLengthRounded / maxJobsPerNode;
                 scaleTo((int) Math.round(scaleTarget));
             } else {
-                LOG.info("Metrics coverage of {} not enough to take scaling decision", coverage);
+                LOG.debug("Metrics coverage of {} not enough to take scaling decision", coverage);
             }
             autoscalingOngoing = false;
         } catch (RuntimeException e) {
@@ -103,24 +106,24 @@ public class FtepWorkerAutoscaler {
     }
 
     public void scaleTo(int target) {
-        LOG.info("Scale target: {} nodes", target);
+        LOG.debug("Scale target: {} nodes", target);
         int totalNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG).size();
         int freeNodes = nodeManager.getNumberOfFreeNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
-        LOG.info("Current node balance:{} total nodes, {} free nodes", totalNodes, freeNodes);
+        LOG.debug("Current node balance: {} total nodes, {} free nodes", totalNodes, freeNodes);
         if (target > freeNodes) {
             long previousAutoScalingActionTime = lastAutoscalingActionTime;
             try {
                 scaleUp(target - freeNodes);
                 lastAutoscalingActionTime = Instant.now().getEpochSecond();
             } catch (NodeProvisioningException e) {
-                LOG.debug("Autoscaling failed because of node provisioning exception.");
+                LOG.debug("Autoscaling failed because of node provisioning exception", e);
                 lastAutoscalingActionTime = previousAutoScalingActionTime;
             }
         } else if (target < freeNodes) {
             scaleDown(freeNodes - target);
             lastAutoscalingActionTime = Instant.now().getEpochSecond();
         } else {
-            LOG.debug("No action needed as current nodes are equal to the target.", target);
+            LOG.debug("No action needed as current nodes are equal to the target: {}", target);
         }
     }
 

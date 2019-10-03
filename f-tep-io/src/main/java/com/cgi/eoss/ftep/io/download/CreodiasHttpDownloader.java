@@ -134,12 +134,6 @@ public class CreodiasHttpDownloader implements Downloader {
         for (HttpUrl searchUrl : searchUrls) {
             try {
                 return findDownloadUrl(uri, searchUrl);
-            } catch (NoSuchElementException e) {
-                // L2A products may not be in the catalogue, but still orderable
-                if (productId.contains("L2A")) {
-                    orderProduct(uri);
-                    return findDownloadUrl(uri, searchUrl);
-                }
             } catch (Exception e) {
                 LOG.debug("Failed to locate download URL from search url {}: {}", searchUrl, e.getMessage());
             }

@@ -62,8 +62,7 @@
 
                 <form id="serviceForm" name="serviceForm">
 
-                    
-                    <md-input-container class="row" ng-if="serviceParams.selectedService.type !== 'APPLICATION'">
+                    <md-input-container class="row" ng-if="serviceParams.selectedService.type !== 'APPLICATION' && serviceParams.config.advancedMode">
                         <div class="col-xs-12">
                             <md-subheader class="md-accent md-subheader-title">
                                 <span>Processor running mode</span>

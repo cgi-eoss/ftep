@@ -46,6 +46,9 @@ public class IptCloudConfiguration {
     @Value("${ftep.clouds.ipt.os.projectId}")
     private String osProjectId;
 
+    @Value("${ftep.clouds.ipt.node.serverNamePrefix:ftep_node_}")
+    private String serverNamePrefix;
+
     @Value("${ftep.clouds.ipt.node.flavorName}")
     private String nodeFlavorName;
 
@@ -129,6 +132,7 @@ public class IptCloudConfiguration {
                 .securityGroupName(securityGroupName)
                 .networkId(networkId)
                 .nfsHost(nfsHost)
+                .serverNamePrefix(serverNamePrefix)
                 .additionalNfsMounts(additionalNfsMounts)
                 .provisionFloatingIp(provisionFloatingIp)
                 .insecureRegistries(insecureRegistries)

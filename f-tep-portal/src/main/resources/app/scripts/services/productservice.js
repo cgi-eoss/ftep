@@ -41,6 +41,11 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
             PRIVATE_SERVICES: { id: 3, name: 'Private', value: 'PRIVATE_SERVICES'}
         };
 
+        this.serviceRunModes = {
+            STANDARD: {id: 0, name: 'Standard'},
+            SYSTEMATIC: {id: 1, name: 'Systematic'}
+        }
+
         this.params = {
             explorer: {
                 savedService: undefined,

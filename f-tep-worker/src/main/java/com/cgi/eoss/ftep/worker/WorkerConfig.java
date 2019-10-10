@@ -16,7 +16,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,6 +96,13 @@ public class WorkerConfig {
     @Bean
     public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory, @Qualifier("cacheRoot") Path dataBaseDir, @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {
         return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxJobsPerNode);
+    }
+
+    @Bean
+    public TaskScheduler taskScheduler() {
+        final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(10);
+        return scheduler;
     }
 
     @Bean

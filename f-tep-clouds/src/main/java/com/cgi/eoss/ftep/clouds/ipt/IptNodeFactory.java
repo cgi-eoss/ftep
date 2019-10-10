@@ -64,7 +64,6 @@ import static org.awaitility.Duration.TWO_SECONDS;
 public class IptNodeFactory implements NodeFactory {
 
     private static final int DEFAULT_DOCKER_PORT = 2375;
-    private static final String SERVER_NAME_PREFIX = "ftep_node_";
     private static final int SERVER_STARTUP_TIMEOUT_MILLIS = Math.toIntExact(Duration.ofMinutes(10).toMillis());
     private static final org.awaitility.Duration VOLUME_STARTUP_TIMEOUT_DURATION = new org.awaitility.Duration(5, TimeUnit.MINUTES);
     private static final org.awaitility.Duration VOLUME_DETACH_TIMEOUT_DURATION = new org.awaitility.Duration(5, TimeUnit.MINUTES);
@@ -118,7 +117,7 @@ public class IptNodeFactory implements NodeFactory {
     private Set<Node> loadExistingNodes() {
         PagedIterable<Server> servers = serverApi.listInDetail();
         return StreamSupport.stream(servers.concat().spliterator(), false)
-                .filter(server -> server.getName().startsWith(SERVER_NAME_PREFIX))
+                .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
                 .map(server -> Node.builder()
                         .id(server.getId())
                         .name(server.getName())
@@ -161,8 +160,9 @@ public class IptNodeFactory implements NodeFactory {
                     .networks(provisioningConfig.getNetworkId())
                     .securityGroupNames(provisioningConfig.getSecurityGroupName());
 
-            LOG.info("Provisioning IPT image '{}' to server '{}'", provisioningConfig.getNodeImageId(), SERVER_NAME_PREFIX + UUID.randomUUID().toString());
-            serverCreated = serverApi.create(SERVER_NAME_PREFIX + UUID.randomUUID().toString(), provisioningConfig.getNodeImageId(), flavor.getId(), options);
+            String newServerName = provisioningConfig.getServerNamePrefix() + UUID.randomUUID().toString();
+            LOG.info("Provisioning IPT image '{}' to server '{}'", provisioningConfig.getNodeImageId(), newServerName);
+            serverCreated = serverApi.create(newServerName, provisioningConfig.getNodeImageId(), flavor.getId(), options);
 
             final String serverId = serverCreated.getId();
             with().pollInterval(FIVE_SECONDS)

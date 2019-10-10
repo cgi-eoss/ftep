@@ -6,5 +6,5 @@ import com.cgi.eoss.ftep.model.User;
 import java.util.List;
 
 public interface SystematicProcessingDao extends FtepEntityDao<SystematicProcessing> {
-    public List<SystematicProcessing> findByOwner(User user);
+    List<SystematicProcessing> findByOwner(User user);
 }

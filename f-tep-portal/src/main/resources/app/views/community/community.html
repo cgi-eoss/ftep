@@ -24,6 +24,8 @@
                          ng-controller="CommunityDatabasketsCtrl" ng-include src="'views/community/sidebar/databaskets.html'" onload="finishLoading('databaskets')"/>
                     <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.JOBS"
                          ng-controller="CommunityJobsCtrl" ng-include src="'views/community/sidebar/jobs.html'" onload="finishLoading('jobs')"/>
+                    <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.SYSTEMATICPROCS"
+                         ng-controller="CommunitySystematicProcessingsCtrl" ng-include src="'views/community/sidebar/systematicprocessings.html'" onload="finishLoading('systematicprocs')"/>
                     <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.SERVICES"
                          ng-controller="CommunityServicesCtrl" ng-include src="'views/community/sidebar/services.html'" onload="finishLoading('services')"/>
                     <div class="panel-container" ng-if="navInfo.activeSideNav === communityTabs.FILES"
@@ -51,6 +53,11 @@
                  ng-include ng-controller="CommunityManageJobCtrl"
                  src="'views/community/manage/job.html'"
                  ng-if="jobParams.selectedJob && navInfo.activeSideNav === communityTabs.JOBS" />
+
+        <section id="systematic-manage-container" class="community-item-container"
+                 ng-include ng-controller="CommunityManageSystematicProcessingCtrl"
+                 src="'views/community/manage/systematicprocessing.html'"
+                 ng-if="systematicParams.selectedSystematicProcessing && navInfo.activeSideNav === communityTabs.SYSTEMATICPROCS" />
 
         <section id="service-manage-container" class="community-item-container"
                  ng-include ng-controller="CommunityManageServiceCtrl"

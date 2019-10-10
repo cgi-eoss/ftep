@@ -62,6 +62,38 @@
 
                 <form id="serviceForm" name="serviceForm">
 
+                    <md-input-container class="row" ng-if="serviceParams.selectedService.type !== 'APPLICATION' && serviceParams.config.advancedMode">
+                        <div class="col-xs-12">
+                            <md-subheader class="md-accent md-subheader-title">
+                                <span>Processor running mode</span>
+                            </md-subheader>
+                        </div>
+                        <div class="col-xs-12">
+                            <md-select ng-model="serviceParams.runMode" aria-label="Run mode" ng-change="onRunModeChange()">
+                                <md-option ng-repeat="mode in runModes" ng-value="mode.id">
+                                    {{mode.name}}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </md-input-container>
+    
+    
+                    <md-input-container class="row" ng-if="serviceParams.runMode === runModes.SYSTEMATIC.id">
+                        <div class="col-xs-12">
+                            <md-subheader class="md-accent md-subheader-title">
+                                <span>Data input parameter</span>
+                            </md-subheader>
+                        </div>
+                        <div class="col-xs-12">
+                            <md-select ng-model="serviceParams.systematicParameter" aria-label="Data input parameter">
+                                <md-option ng-repeat="input in serviceParams.selectedService.serviceDescriptor.dataInputs" ng-value="input.id">
+                                    {{input.title}}
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </md-input-container>
+    
+    
                     <div ng-if="serviceParams.config.advancedMode || !serviceParams.selectedService.easyModeServiceDescriptor.dataInputs" 
                          class="service-field"
                          ng-repeat="fieldDesc in serviceParams.selectedService.serviceDescriptor.dataInputs"
@@ -109,6 +141,8 @@
                                tooltip-append-to-body="true">
                         <i class="material-icons">play_arrow</i>
                     </md-button>
+
+                    <dynamic-form form-config="searchForm.config" api="searchForm.api" form-data="searchForm.data" ng-if="serviceParams.runMode === runModes.SYSTEMATIC.id"></dynamic-form>
 
                 </form>
 

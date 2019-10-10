@@ -1,0 +1,70 @@
+<form class="dynamic-form">
+    <div ng-repeat="(fieldId, fieldConfig) in formConfig">
+        <section ng-if="displayField(fieldConfig)" ng-init="updateFormDataValues()">
+            <div class="row">
+                <div class="col-xs-12">
+                    <md-subheader class="md-accent md-subheader-title">
+                        <md-checkbox ng-model="enabledFields[fieldId]" aria-label="Enable field" ng-if="fieldConfig.optional">{{fieldConfig.title}}</md-checkbox>
+                        <span ng-if="!fieldConfig.optional">{{fieldConfig.title}}</span>
+                    </md-subheader>
+                </div>
+            </div>
+            <div class="row" ng-if="enabledFields[fieldId]" ng-init="setDefaultValue(fieldId, fieldConfig)">
+                <div ng-switch on="fieldConfig.type">
+                    <div ng-switch-when="select">
+                        <div class="col-xs-12">
+                            <md-select ng-model="formData[fieldId]" ng-change="updateFormDataValues()" aria-label="Select a mission" uib-tooltip="{{getSelectValueDescription(fieldId)}}"
+                                tooltip-placement="top-left"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true"
+                            >
+                                <md-option ng-repeat="value in allowedSelectValues[fieldId]" ng-value="value.value">
+                                    <span>{{value.title}}</span>
+                                </md-option>
+                            </md-select>
+                        </div>
+                    </div>
+                    <div ng-switch-when="polygon">
+                        <div class="row" ng-init="searchParams.activeSearch[index]">
+                            <div class="col-xs-12">
+                                <md-input-container md-no-float>
+                                    <input ng-model="formData[fieldId]" aria-label="{{fieldConfig.title}}" />
+                                    <div class="hint" ng-show="true">{{fieldConfig.description}}</div>
+                                </md-input-container>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-switch-when="text">
+                        <div class="col-xs-12">
+                            <md-input-container md-no-float>
+                                <input ng-model="formData[fieldId]" aria-label="{{fieldConfig.title}}" />
+                                <div class="hint" ng-show="true">{{fieldConfig.description}}</div>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div ng-switch-when="int">
+                        <div class="col-xs-12">
+                            <md-input-container md-no-float>
+                                <input ng-model="formData[fieldId]" type="number" min="{{fieldConfig.allowed.min}}" max="{{fieldConfig.allowed.max}}" aria-label="{{fieldConfig.title}}" />
+                                <div class="hint" ng-show="true">{{fieldConfig.description}}</div>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div ng-switch-when="daterange">
+                        <div class="col-md-12 col-lg-6 no-padding date-container">
+                            <md-datepicker ng-required="true" ng-model="formData[fieldId].start" md-placeholder="Start date" />
+                        </div>
+                        <div class="col-md-12 col-lg-6 no-padding date-container">
+                            <md-datepicker ng-required="true" ng-model="formData[fieldId].end" md-placeholder="End date" />
+                        </div>
+                    </div>
+                    <div ng-switch-when="date">
+                        <div class="col-md-12 col-lg-6 no-padding date-container">
+                            <md-datepicker ng-required="true" ng-model="formData[fieldId]" md-placeholder="Select date" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</form>

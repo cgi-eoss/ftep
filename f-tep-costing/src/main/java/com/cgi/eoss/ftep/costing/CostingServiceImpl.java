@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.costing;
 
+import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.cgi.eoss.ftep.model.CostingExpression;
 import com.cgi.eoss.ftep.model.Databasket;
 import com.cgi.eoss.ftep.model.FtepFile;
@@ -8,10 +9,10 @@ import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Wallet;
 import com.cgi.eoss.ftep.model.WalletTransaction;
+import com.cgi.eoss.ftep.model.internal.CostQuotation;
 import com.cgi.eoss.ftep.persistence.service.CostingExpressionDataService;
 import com.cgi.eoss.ftep.persistence.service.DatabasketDataService;
 import com.cgi.eoss.ftep.persistence.service.WalletDataService;
-import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.google.common.base.Strings;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 /**
  * <p>Default implementation of {@link CostingService}.</p>
  */
@@ -61,6 +63,27 @@ public class CostingServiceImpl implements CostingService {
         return jobExpansionService.expandJobParamsFromJobConfig(jobConfig, postLaunch).stream()
                 .mapToInt(config -> ((Number) expressionParser.parseExpression(expression).getValue(jobConfig)).intValue())
                 .sum();
+    }
+
+    @Override
+    public CostQuotation estimateSystematicJobCost(JobConfig jobConfig) {
+        Optional<CostingExpression> serviceCostingExpression = costingDataService.getServiceCostingExpression(jobConfig.getService());
+
+        CostQuotation.Recurrence recurrence;
+        CostingExpression jobCostingExpression;
+        if (serviceCostingExpression.isPresent()) {
+            recurrence = CostQuotation.Recurrence.ONE_OFF;
+            jobCostingExpression = serviceCostingExpression.get();
+        } else {
+            recurrence = CostQuotation.Recurrence.HOURLY;
+            jobCostingExpression = defaultJobCostingExpression;
+        }
+
+        String estimateExpression = Strings.isNullOrEmpty(jobCostingExpression.getEstimatedCostExpression())
+                ? jobCostingExpression.getCostExpression()
+                : jobCostingExpression.getEstimatedCostExpression();
+        int cost = ((Number) expressionParser.parseExpression(estimateExpression).getValue(jobConfig)).intValue();
+        return new CostQuotation(cost, recurrence);
     }
 
     @Override

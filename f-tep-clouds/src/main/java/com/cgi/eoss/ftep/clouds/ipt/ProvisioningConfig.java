@@ -14,6 +14,8 @@ final class ProvisioningConfig {
     private final String networkId;
     private final String nfsHost;
     private final String additionalNfsMounts;
+    @Builder.Default
+    private String serverNamePrefix = "ftep_node_";
     private boolean provisionFloatingIp;
     private String insecureRegistries;
 }

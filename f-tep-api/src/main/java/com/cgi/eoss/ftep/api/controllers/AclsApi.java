@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Project;
+import com.cgi.eoss.ftep.model.SystematicProcessing;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.FtepEntityOwnerDataService;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
@@ -177,6 +178,22 @@ public class AclsApi {
         return FtepAccessControlList.builder()
                 .entityId(serviceId)
                 .permissions(getFtepPermissions(new ObjectIdentityImpl(FtepService.class, serviceId)))
+                .build();
+    }
+
+    @PostMapping("/systematicProcessing/{systematicProcessingId}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#systematicProcessingId, T(com.cgi.eoss.ftep.model.SystematicProcessing).name, 'administration')")
+    public void setSystematicProcessingAcl(@PathVariable("systematicProcessingId") Long systematicProcessingId, @RequestBody FtepAccessControlList acl) {
+        Preconditions.checkArgument(systematicProcessingId.equals(acl.getEntityId()), "ACL subject entity ID mismatch: URL %s vs BODY %s", systematicProcessingId, acl.getEntityId());
+        setAcl(new ObjectIdentityImpl(SystematicProcessing.class, systematicProcessingId), ownerDataService.getOwner(SystematicProcessing.class, systematicProcessingId), acl.getPermissions());
+    }
+
+    @GetMapping("/systematicProcessing/{systematicProcessingId}")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#systematicProcessingId, T(com.cgi.eoss.ftep.model.SystematicProcessing).name, 'administration')")
+    public FtepAccessControlList getSystematicProcessingAcls(@PathVariable("systematicProcessingId") Long systematicProcessingId) {
+        return FtepAccessControlList.builder()
+                .entityId(systematicProcessingId)
+                .permissions(getFtepPermissions(new ObjectIdentityImpl(SystematicProcessing.class, systematicProcessingId)))
                 .build();
     }
 

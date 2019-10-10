@@ -12,6 +12,7 @@ define([
     './controllers/common/bottombar/databasket',
     './controllers/common/bottombar/jobs',
     './controllers/common/bottombar/results',
+    './controllers/common/directives/dynamicForm',
 
     './controllers/community/community',
     './controllers/community/sidebar/databaskets',
@@ -20,12 +21,15 @@ define([
     './controllers/community/sidebar/jobs',
     './controllers/community/sidebar/projects',
     './controllers/community/sidebar/services',
+    './controllers/community/sidebar/jobs',
+    './controllers/community/sidebar/systematicprocessings',
     './controllers/community/manage/databasket',
     './controllers/community/manage/file',
     './controllers/community/manage/group',
     './controllers/community/manage/job',
     './controllers/community/manage/project',
     './controllers/community/manage/service',
+    './controllers/community/manage/systematicprocessing',
 
     './controllers/developer/developer',
     './controllers/developer/service',
@@ -62,6 +66,8 @@ define([
     './services/searchservice',
     './services/tabservice',
     './services/userservice',
-    './services/walletservice'
+    './services/walletservice',
+    './services/estimatecostservice',
+    './services/systematicservice'
 
 ], function () {});

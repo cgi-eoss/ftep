@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Log4j2
 @Service
-@ConditionalOnProperty(name = "ftep.server.systematicscheduler.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "ftep.server.systematicscheduler.enabled", havingValue = "true", matchIfMissing = true)
 public class SystematicProcessingScheduler {
 
     private final SearchFacade searchFacade;
@@ -104,7 +104,7 @@ public class SystematicProcessingScheduler {
                     inputs.replaceValues(configTemplate.getSystematicParameter(), Arrays.asList(new String[]{url}));
                     configTemplate.getInputs().put(configTemplate.getSystematicParameter(), url);
                     int jobCost = costingService.estimateJobCost(configTemplate);
-                    if (jobCost > systematicProcessing.getOwner().getWallet().getBalance()) {
+                    if (results.getFeatures().size() * jobCost > systematicProcessing.getOwner().getWallet().getBalance()) {
                         systematicProcessing.setStatus(Status.BLOCKED);
                         systematicProcessingDataService.save(systematicProcessing);
                         return;

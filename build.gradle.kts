@@ -5,16 +5,19 @@ buildscript {
 }
 
 plugins {
+    id("com.github.ben-manes.versions") version "0.36.0"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+
+    // reporting
     jacoco
-    id("com.ewerk.gradle.plugins.querydsl") version "1.0.10" apply false
-    id("com.github.ben-manes.versions") version "0.21.0"
-    id("com.github.johnrengelman.shadow") version "5.0.0" apply false
-    id("com.github.node-gradle.node") version "1.4.0" apply false
-    id("com.google.protobuf") version "0.8.8" apply false
-    id("io.franzbecker.gradle-lombok") version "3.1.0" apply false
-    id("io.spring.dependency-management") version "1.0.7.RELEASE"
-    id("nebula.ospackage") version "6.2.1" apply false
     id("org.sonarqube") version "2.7.1"
+
+    // plugin management
+    id("com.github.johnrengelman.shadow") version "6.1.0" apply false
+    id("com.github.node-gradle.node") version "3.0.1" apply false
+    id("com.google.protobuf") version "0.8.14" apply false
+    id("io.freefair.lombok") version "5.3.0" apply false
+    id("nebula.ospackage") version "8.5.0" apply false
     id("org.springframework.boot") version "2.1.6.RELEASE" apply false
 }
 
@@ -61,7 +64,7 @@ allprojects {
     extra.set("guava.version", "25.1-jre")
     extra.set("hamcrest-junit.version", "2.0.0.0")
     extra.set("jclouds.version", "2.1.2")
-	extra.set("jersey-core.version", "1.19.4")
+    extra.set("jersey-core.version", "1.19.4")
     extra.set("jimfs.version", "1.1")
     extra.set("jool.version", "0.9.14")
     extra.set("logf42-gelf.version", "1.3.1")
@@ -77,12 +80,10 @@ allprojects {
     apply(plugin = "io.spring.dependency-management")
 
     configurations.all {
-        configure {
             resolutionStrategy.eachDependency {
                 if (requested.group == "javax.media" && requested.name == "jai_core" && requested.version == "1.1.3") {
                     useTarget("${requested.group}:jai-core:${requested.version}")
                     because("\"javax.media:jai_core:1.1.3\" is not available in Maven Central")
-                }
             }
         }
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
@@ -145,22 +146,11 @@ allprojects {
         }
     }
 
-    plugins.withType(io.franzbecker.gradle.lombok.LombokPlugin::class) {
-        configure<io.franzbecker.gradle.lombok.LombokPluginExtension> {
-            version = extra.get("lombok.version") as String?
+    plugins.withType(io.freefair.gradle.plugins.lombok.LombokPlugin::class) {
+        configure<io.freefair.gradle.plugins.lombok.LombokExtension> {
+            setVersion(property("lombok.version")!!)
+            getConfig().put("lombok.log.fieldName", "LOG")
         }
-    }
-
-    plugins.withType(com.ewerk.gradle.plugins.QuerydslPlugin::class) {
-        configure<com.ewerk.gradle.plugins.QuerydslPluginExtension> {
-            library = "com.querydsl:querydsl-apt:${extra.get("querydsl.version")}"
-            querydslSourcesDir = "${buildDir}/generated/source/querydsl/main"
-            hibernate = true
-        }
-    }
-
-    tasks.withType(com.ewerk.gradle.plugins.tasks.QuerydslCompile::class) {
-        options.annotationProcessorPath = configurations.getByName("querydsl")
     }
 
     tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
@@ -173,7 +163,7 @@ allprojects {
     }
 
     val snapshotRpmQualifier = System.getenv("BUILD_NUMBER")
-            ?: java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+        ?: java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
     extra.set("rpm.version", if (project.version.toString().endsWith("-SNAPSHOT")) project.version.toString().split("-")[0] else version)
     extra.set("rpm.release", if (project.version.toString().endsWith("-SNAPSHOT")) "SNAPSHOT${snapshotRpmQualifier}" else "1")
 

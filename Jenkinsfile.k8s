@@ -15,7 +15,7 @@ spec:
     fsGroup: 1000
   containers:
   - name: ftep-build
-    image: cgici/ftep-build-container:1.2.0
+    image: cgici/ftep-build-container:1.5.0
     imagePullPolicy: IfNotPresent
     command:
     - cat

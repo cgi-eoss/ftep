@@ -1,8 +1,8 @@
-import com.moowork.gradle.node.task.NodeTask
 import com.netflix.gradle.plugins.packaging.CopySpecEnhancement
 import org.redline_rpm.header.Architecture.NOARCH
 import org.redline_rpm.header.Os.LINUX
 import org.redline_rpm.payload.Directive
+import com.github.gradle.node.task.NodeTask
 
 plugins {
     id("nebula.ospackage")
@@ -10,7 +10,7 @@ plugins {
 }
 
 node {
-    download = true
+    download.set(true)
 }
 
 val closureCompiler by configurations.creating
@@ -27,9 +27,9 @@ val bannerVersion = if (project.version.toString().endsWith("-SNAPSHOT"))
     "${extra.get("rpm.version")}"
 
 val requireJs by tasks.creating(NodeTask::class) {
-    setScript(file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js"))
-    setArgs(listOf(
-            "-o", file("${projectDir}/src/main/requireJs/build.js"),
+    script.set(file("${projectDir}/src/main/resources/app/scripts/vendor/requirejs/bin/r.js"))
+    args.set(listOf(
+            "-o", file("${projectDir}/src/main/requireJs/build.js").path,
             "out=${buildDir}/requireJs/app.js.full"
     ))
     inputs.file("${projectDir}/src/main/requireJs/build.js")

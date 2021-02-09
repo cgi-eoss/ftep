@@ -8,7 +8,7 @@ import org.redline_rpm.payload.Directive
 plugins {
     java
     jacoco
-    id("io.franzbecker.gradle-lombok")
+    id("io.freefair.lombok")
     id("org.springframework.boot")
     id("nebula.ospackage")
 }

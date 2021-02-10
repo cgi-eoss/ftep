@@ -1,6 +1,6 @@
 # REST API Authentication
 
-F-TEP is secured with ESA's [EO-SSO](https://eo-sso-idp.eo.esa.int/) service.
+F-TEP is secured with ESA's [EO-IAM](https://eoiam-idp.eo.esa.int/) service.
 As a SAML 2.0 (Shibboleth) Service Provider, a good overview of the
 authentication process can be found at [Wikipedia](https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Use).
 
@@ -43,7 +43,7 @@ $ curl --user 'myusername:MYSECRETAPIKEY' "https://f-tep.com/secure/api/v2.0/use
 }
 ```
 
-## EO-SSO
+## EO-IAM
 
 The exact implementation of a SAML 2.0 authentication flow in a given client is
 extremely client-specific. Many third-party tools and libraries are available.

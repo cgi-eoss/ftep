@@ -17,6 +17,6 @@ public class FtepServiceDockerBuildInfo {
     private Status dockerBuildStatus = Status.NOT_STARTED;
 
     public enum Status {
-        NOT_STARTED, ONGOING, COMPLETED, ERROR
+        NOT_STARTED, REQUESTED, IN_PROCESS, COMPLETED, FAILED
     }
 }

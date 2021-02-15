@@ -107,7 +107,6 @@ import static java.util.stream.Collectors.toSet;
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    //private final NodeFactory nodeFactory;
     private final FtepWorkerNodeManager nodeManager;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
@@ -131,6 +130,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final int minWorkerNodes;
 
     private final SetMultimap<String, Path> externalInputs = HashMultimap.create();
+
+    private final static String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
 
     @Autowired
     public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService,
@@ -251,6 +252,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             String containerId = null;
 
             try {
+                // TODO: remove call to prepareDockerImage once invoked from elsewhere
                 Logging.withUserLoggingContext(() -> LOG.info("Preparing Docker image..."));
                 prepareDockerImage(dockerClient, DockerImageConfig.newBuilder()
                         .setDockerImage(request.getService().getDockerImageTag())
@@ -600,13 +602,16 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void prepareDockerImage(DockerImageConfig request, StreamObserver<PrepareDockerImageResponse> responseObserver) {
+    public void prepareDockerImage(DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
         // TODO provision node for docker building?
-        prepareDockerImage(DockerClientFactory.buildDockerClient("unix:///var/run/docker.sock", dockerRegistryConfig), request, responseObserver);
+        DockerClient dockerClient = Optional.ofNullable(dockerRegistryConfig)
+                .map(config -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL, config))
+                .orElseGet(() -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL));
+        prepareDockerImage(dockerClient, dockerImageConfig, responseObserver);
     }
 
-    private void prepareDockerImage(DockerClient dockerClient, DockerImageConfig request, StreamObserver<PrepareDockerImageResponse> responseObserver) {
-        String dockerImageTag = request.getDockerImage();
+    private void prepareDockerImage(DockerClient dockerClient, DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
+        String dockerImageTag = dockerImageConfig.getDockerImage();
         Lock lock = dockerBuildLock.get(dockerImageTag); // Avoid multiple parallel jobs trying to build at exactly the same time
         lock.lock();
         try {
@@ -622,7 +627,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             }
 
-            buildDockerImage(dockerClient, request.getServiceName(), dockerImageTag);
+            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), dockerImageTag);
 
             if (registryImageTag.isPresent()) {
                 try {
@@ -636,8 +641,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             responseObserver.onNext(PrepareDockerImageResponse.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
-            LOG.error("Failed preparing Docker image for service {}", request.getServiceName(), e);
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed preparing Docker image for service {}", dockerImageConfig.getServiceName(), e);
         } finally {
             lock.unlock();
         }

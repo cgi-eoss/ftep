@@ -126,6 +126,7 @@ public class ServicesApiExtension {
     /**
      * <p>Provides information on the status of the service Docker build</p>
      */
+    // TODO: invoke from frontend
     @GetMapping("/{serviceId}/buildStatus")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
     public ResponseEntity<BuildStatus> buildStatus(@ModelAttribute("serviceId") FtepService service) {
@@ -146,7 +147,7 @@ public class ServicesApiExtension {
         if (null == ftepService.getDockerBuildInfo()) {
             return true;
         }
-        if (ftepService.getDockerBuildInfo().getDockerBuildStatus() == FtepServiceDockerBuildInfo.Status.ONGOING) {
+        if (ftepService.getDockerBuildInfo().getDockerBuildStatus() == Status.IN_PROCESS) {
             return false;
         }
         if (null == ftepService.getDockerBuildInfo().getLastBuiltFingerprint()) {
@@ -159,12 +160,13 @@ public class ServicesApiExtension {
      * <p>Builds the service docker image.</p>
      * <p>Build is launched asynchronously.</p>
      */
+    // TODO: invoke from frontend
     @PostMapping("/{serviceId}/build")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
     public ResponseEntity build(@ModelAttribute("serviceId") FtepService service) {
         FtepServiceDockerBuildInfo dockerBuildInfo = service.getDockerBuildInfo();
-        if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(FtepServiceDockerBuildInfo.Status.ONGOING)) {
-            return new ResponseEntity<>("A build is already ongoing", HttpStatus.CONFLICT);
+        if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.IN_PROCESS)) {
+            return new ResponseEntity<>("A build is already in process", HttpStatus.CONFLICT);
         } else {
             String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
             if (needsBuild(service, currentServiceFingerprint)) {
@@ -173,7 +175,7 @@ public class ServicesApiExtension {
                     dockerBuildInfo = new FtepServiceDockerBuildInfo();
                     service.setDockerBuildInfo(dockerBuildInfo);
                 }
-                dockerBuildInfo.setDockerBuildStatus(Status.ONGOING);
+                dockerBuildInfo.setDockerBuildStatus(Status.REQUESTED);
                 serviceDataService.save(service);
                 BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
                     .setUserId(ftepSecurityService.getCurrentUser().getName())

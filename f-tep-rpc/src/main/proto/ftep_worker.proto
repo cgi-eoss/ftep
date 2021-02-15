@@ -33,7 +33,7 @@ message JobSpec {
     map<string, string> environmentVariables = 9;
 }
 
-message ResourceRequest{
+message ResourceRequest {
     int32 storage = 1;
 }
 
@@ -42,17 +42,27 @@ message JobInputs {
     repeated JobParam inputs = 2;
 }
 
-message JobEvent{
+message JobEvent {
     JobEventType jobEventType = 1;
 }
 
-enum JobEventType{
+enum JobEventType {
     DATA_FETCHING_STARTED = 0;
     DATA_FETCHING_COMPLETED = 1;
     PROCESSING_STARTED = 2;
 }
 
-message JobError{
+message DockerImageBuildEvent {
+    DockerImageBuildEventType dockerImageBuildEventType = 1;
+}
+
+enum DockerImageBuildEventType {
+    BUILD_IN_PROCESS = 0;
+    BUILD_COMPLETED = 1;
+    BUILD_FAILED = 2;
+}
+
+message JobError {
     string errorDescription = 1;
 }
 
@@ -80,6 +90,7 @@ message JobDockerConfig {
 message DockerImageConfig {
     string serviceName = 1;
     string dockerImage = 2;
+    string buildFingerprint = 3;
 }
 
 message LaunchContainerResponse {

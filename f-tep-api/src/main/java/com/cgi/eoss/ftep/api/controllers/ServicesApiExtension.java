@@ -126,7 +126,6 @@ public class ServicesApiExtension {
     /**
      * <p>Provides information on the status of the service Docker build</p>
      */
-    // TODO: invoke from frontend
     @GetMapping("/{serviceId}/buildStatus")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
     public ResponseEntity<BuildStatus> buildStatus(@ModelAttribute("serviceId") FtepService service) {
@@ -147,26 +146,28 @@ public class ServicesApiExtension {
         if (null == ftepService.getDockerBuildInfo()) {
             return true;
         }
-        if (ftepService.getDockerBuildInfo().getDockerBuildStatus() == Status.IN_PROCESS) {
+        FtepServiceDockerBuildInfo dockerBuildInfo = ftepService.getDockerBuildInfo();
+        if (dockerBuildInfo.getDockerBuildStatus() == Status.REQUESTED || dockerBuildInfo.getDockerBuildStatus() == Status.IN_PROCESS) {
             return false;
         }
-        if (null == ftepService.getDockerBuildInfo().getLastBuiltFingerprint()) {
+        if (null == dockerBuildInfo.getLastBuiltFingerprint()) {
             return true;
         }
-        return !currentServiceFingerprint.equals(ftepService.getDockerBuildInfo().getLastBuiltFingerprint());
+        return !currentServiceFingerprint.equals(dockerBuildInfo.getLastBuiltFingerprint());
     }
 
     /**
      * <p>Builds the service docker image.</p>
      * <p>Build is launched asynchronously.</p>
      */
-    // TODO: invoke from frontend
     @PostMapping("/{serviceId}/build")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
     public ResponseEntity build(@ModelAttribute("serviceId") FtepService service) {
         FtepServiceDockerBuildInfo dockerBuildInfo = service.getDockerBuildInfo();
         if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.IN_PROCESS)) {
             return new ResponseEntity<>("A build is already in process", HttpStatus.CONFLICT);
+        } else if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.REQUESTED)) {
+            return new ResponseEntity<>("A build has already been requested", HttpStatus.CONFLICT);
         } else {
             String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
             if (needsBuild(service, currentServiceFingerprint)) {

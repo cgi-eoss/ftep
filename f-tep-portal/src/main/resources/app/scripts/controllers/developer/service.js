@@ -151,6 +151,16 @@ define(['../../ftepmodules'], function (ftepmodules) {
             });
         };
 
+        $scope.rebuildServiceContainer = function(service) {
+            ProductService.rebuildServiceContainer(service).then(function() {
+                ProductService.updateBuildStatus(service);
+            });
+        }
+
+        $scope.refreshServiceStatus = function(service) {
+            ProductService.updateBuildStatus(service);
+        }
+
     }]);
 
 });

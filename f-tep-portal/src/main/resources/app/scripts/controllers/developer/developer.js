@@ -9,7 +9,7 @@
 
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'ProductService', '$rootScope', function ($scope, TabService, MessageService, ProductService, $rootScope) {
+    ftepmodules.controller('DeveloperCtrl', ['$scope', 'TabService', 'MessageService', 'CommonService', 'ProductService', '$rootScope', function ($scope, TabService, MessageService, CommonService, ProductService, $rootScope) {
 
         $scope.serviceParams = ProductService.params.developer;
         $scope.developerSideNavs = TabService.getDeveloperSideNavs();
@@ -21,6 +21,10 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.$on('update.messages', function(event, job) {
             $scope.message.count = MessageService.countMessages();
         });
+
+        $scope.getColorForStatus = function(status){
+            return CommonService.getColor(status);
+        };
 
         $scope.toggleBottomView = function(){
             $scope.navInfo.bottomViewVisible = !$scope.navInfo.bottomViewVisible;

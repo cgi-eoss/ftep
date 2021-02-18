@@ -17,7 +17,7 @@ define(['../ftepmodules'], function (ftepmodules) {
                 return "background: #dff0d8; border: 2px solid #d0e9c6; color: #3c763d";
             } else if ("ERROR" === status || "Error" === status) {
                 return "background: #f2dede; border: 2px solid #ebcccc; color: #a94442";
-            } else if ("RUNNING" === status || "CREATED" === status || "Info" === status) {
+            } else if ("RUNNING" === status || "CREATED" === status || "Info" === status || "REQUESTED" === status) {
                 return "background: #d9edf7; border: 2px solid #bcdff1; color: #31708f";
             } else if ("Warning" === status || "CREATED" === status) {
                 return "background: #fcf8e3; border: 2px solid #faf2cc; color: #8a6d3b";

@@ -237,6 +237,7 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                                     }
                                 });
                             }
+                            self.updateBuildStatus(self.params[page].selectedService).then(function(response) {})
                         }
                     });
 
@@ -534,6 +535,47 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                 }
             );
         };
+
+        this.updateBuildStatus = function(service) {
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/services/' + service.id + '/buildStatus')
+                       .newRequest()
+                       .getResource()
+                       .result
+                       .then(
+            function (data) {
+                service.buildStatus = data;
+                deferred.resolve(data);
+            }, function (error) {
+                MessageService.addError('Could not get build details for Service ' + service.name, error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        }
+
+        this.rebuildServiceContainer = function(service) {
+
+            service.buildStatus = {
+                needsBuild: false,
+                status: 'REQUESTED'
+            };
+
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/services/' + service.id + '/build')
+                       .newRequest()
+                       .post()
+                       .result
+                       .then(
+            function () {
+                self.updateBuildStatus(service);
+                deferred.resolve();
+            }, function (error) {
+                self.updateBuildStatus(service);
+                MessageService.addError('Could not start service container build' + service.name, error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        }
 
         return this;
 

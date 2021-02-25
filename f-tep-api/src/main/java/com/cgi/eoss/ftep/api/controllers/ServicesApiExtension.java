@@ -170,24 +170,20 @@ public class ServicesApiExtension {
             return new ResponseEntity<>("A build has already been requested", HttpStatus.CONFLICT);
         } else {
             String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
-            if (needsBuild(service, currentServiceFingerprint)) {
-                LOG.info("Building service via REST API: {}", service.getName());
-                if (dockerBuildInfo == null) {
-                    dockerBuildInfo = new FtepServiceDockerBuildInfo();
-                    service.setDockerBuildInfo(dockerBuildInfo);
-                }
-                dockerBuildInfo.setDockerBuildStatus(Status.REQUESTED);
-                serviceDataService.save(service);
-                BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
-                    .setUserId(ftepSecurityService.getCurrentUser().getName())
-                    .setServiceId(String.valueOf(service.getId()))
-                    .setBuildFingerprint(currentServiceFingerprint);
-                BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
-                buildService(service, buildServiceParams);
-                return new ResponseEntity<>(HttpStatus.ACCEPTED);
-            } else {
-                return new ResponseEntity<>(HttpStatus.OK);
+            LOG.info("Building service via REST API: {}", service.getName());
+            if (dockerBuildInfo == null) {
+                dockerBuildInfo = new FtepServiceDockerBuildInfo();
+                service.setDockerBuildInfo(dockerBuildInfo);
             }
+            dockerBuildInfo.setDockerBuildStatus(Status.REQUESTED);
+            serviceDataService.save(service);
+            BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
+                .setUserId(ftepSecurityService.getCurrentUser().getName())
+                .setServiceId(String.valueOf(service.getId()))
+                .setBuildFingerprint(currentServiceFingerprint);
+            BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
+            buildService(service, buildServiceParams);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
     }
 

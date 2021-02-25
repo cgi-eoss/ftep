@@ -36,7 +36,7 @@
                     <h3>File</h3>
                     <a
                         style="cursor: pointer"
-                        ng-click="estimateDownloadCost($event, currentRowData[row.entity.id]._links.self.href); $event.stopPropagation()"
+                        ng-href="{{currentRowData[row.entity.id]._links.self.href}}/dl"
                         target="blank"
                         >Download File</a
                     >

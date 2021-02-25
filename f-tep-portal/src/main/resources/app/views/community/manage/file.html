@@ -14,7 +14,7 @@
 
             <md-button id="download-file-button"
                        class="save-button md-fab md-mini right"
-                       ng-click="estimateDownloadCost($event, fileParams.selectedFile)"
+                       ng-href="{{fileParams.selectedFile._links.download.href}}"
                        uib-tooltip="Download"
                        tooltip-placement="top"
                        tooltip-trigger="mouseenter"

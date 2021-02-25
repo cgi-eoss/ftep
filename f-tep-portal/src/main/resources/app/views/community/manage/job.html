@@ -118,7 +118,7 @@
                     <tr ng-repeat="outputFile in jobParams.selectedJob.outputFiles">
                         <td ng-bind="outputFile.uri" />
                         <td class="download">
-                            <a ng-click="estimateDownloadCost($event, outputFile)">
+                            <a ng-href="{{outputFile._links.download.href}}">
                                 <i class="material-icons"
                                    aria-label="Download"
                                    uib-tooltip="Download"

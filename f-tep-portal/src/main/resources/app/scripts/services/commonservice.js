@@ -220,10 +220,13 @@ define(['../ftepmodules'], function (ftepmodules) {
             });
         };
 
+        // Toggle whether cost prompts and coin deduction for launching jobs and downloading files should be enabled or disabled
+        this.coinsDisabled = true;
+
         this.estimateDownloadCost = function($event, file){
             var service = $injector.get('FileService');
 
-            if(typeof file === "string") {
+            if (typeof file === "string") {
                 var tempfile = {};
                 tempfile.id = file.substr(file.lastIndexOf('/') + 1);
                 service.getFile(tempfile).then(function(result){

@@ -21,7 +21,7 @@
                     <b class="col-md-4">Email:</b>
                     <div class="col-md-8">{{user.email}}</div>
                 </div>
-                <div class="row">
+                <div class="row" ng-hide="coinsDisabled">
                     <b class="col-md-4">Coin Balance:</b>
                     <div class="col-md-8">{{walletParams.wallet.balance}}</div>
                 </div>
@@ -65,7 +65,7 @@
 
     </section>
 
-    <section id="statistics-panel" class="col-md-12 col-lg-4">
+    <section id="statistics-panel" class="col-md-12 col-lg-4" ng-hide="coinsDisabled">
 
         <md-card id="statistics" md-theme-watch class="ftep-card">
             <md-card-title>
@@ -88,7 +88,7 @@
 
     <section id="info-panel" class="col-md-12 col-lg-4">
 
-        <md-card id="request-coins" md-theme-watch class="ftep-card">
+        <md-card id="request-coins" md-theme-watch class="ftep-card" ng-hide="coinsDisabled">
             <md-card-title>
                 <md-card-title-text>
                     <h2>Requesting Coins</h2>

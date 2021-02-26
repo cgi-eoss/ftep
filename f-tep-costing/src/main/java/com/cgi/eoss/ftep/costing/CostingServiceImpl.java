@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
  */
 public class CostingServiceImpl implements CostingService {
 
+    private final boolean coinsDisabled;
     private final CostingExpression defaultDownloadCostingExpression;
     private final CostingExpression defaultJobCostingExpression;
     private final CostingExpressionDataService costingDataService;
@@ -37,8 +38,9 @@ public class CostingServiceImpl implements CostingService {
     private final WalletDataService walletDataService;
     private final JobExpansionService jobExpansionService;
 
-    public CostingServiceImpl(ExpressionParser costingExpressionParser, CostingExpressionDataService costingDataService,
+    public CostingServiceImpl(boolean coinsDisabled, ExpressionParser costingExpressionParser, CostingExpressionDataService costingDataService,
                               WalletDataService walletDataService, DatabasketDataService databasketDataService, String defaultJobCostingExpression, String defaultDownloadCostingExpression, JobExpansionService jobExpansionService) {
+        this.coinsDisabled = coinsDisabled;
         this.expressionParser = costingExpressionParser;
         this.costingDataService = costingDataService;
         this.walletDataService = walletDataService;
@@ -55,6 +57,10 @@ public class CostingServiceImpl implements CostingService {
 
     @Override
     public Integer estimateJobCost(JobConfig jobConfig, boolean postLaunch) {
+        if (coinsDisabled) {
+            return 0;
+        }
+
         CostingExpression costingExpression = getCostingExpression(jobConfig.getService());
         String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
                 ? costingExpression.getCostExpression()
@@ -67,6 +73,10 @@ public class CostingServiceImpl implements CostingService {
 
     @Override
     public CostQuotation estimateSystematicJobCost(JobConfig jobConfig) {
+        if (coinsDisabled) {
+            return new CostQuotation(0, CostQuotation.Recurrence.ONE_OFF);
+        }
+
         Optional<CostingExpression> serviceCostingExpression = costingDataService.getServiceCostingExpression(jobConfig.getService());
 
         CostQuotation.Recurrence recurrence;
@@ -88,6 +98,10 @@ public class CostingServiceImpl implements CostingService {
 
     @Override
     public Integer estimateDownloadCost(FtepFile ftepFile) {
+        if (coinsDisabled) {
+            return 0;
+        }
+
         CostingExpression costingExpression = getCostingExpression(ftepFile);
         String expression = Strings.isNullOrEmpty(costingExpression.getEstimatedCostExpression())
                 ? costingExpression.getCostExpression()
@@ -118,6 +132,10 @@ public class CostingServiceImpl implements CostingService {
     @Override
     @Transactional
     public void chargeForJob(Wallet wallet, Job job) {
+        if (coinsDisabled) {
+            return;
+        }
+
         CostingExpression costingExpression = getCostingExpression(job.getConfig().getService());
         String expression = costingExpression.getCostExpression();
 
@@ -135,6 +153,10 @@ public class CostingServiceImpl implements CostingService {
     @Override
     @Transactional
     public void chargeForDownload(Wallet wallet, FtepFile ftepFile) {
+        if (coinsDisabled) {
+            return;
+        }
+
         CostingExpression costingExpression = getCostingExpression(ftepFile);
         String expression = costingExpression.getCostExpression();
 

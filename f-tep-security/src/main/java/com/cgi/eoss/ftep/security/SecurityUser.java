@@ -3,18 +3,24 @@ package com.cgi.eoss.ftep.security;
 import com.cgi.eoss.ftep.model.User;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @EqualsAndHashCode(of = "user")
+@ToString
 public class SecurityUser implements UserDetails {
 
     private final User user;
 
     SecurityUser(User user) {
         this.user = user;
+    }
+
+    public Long getId() {
+        return user.getId();
     }
 
     @Override

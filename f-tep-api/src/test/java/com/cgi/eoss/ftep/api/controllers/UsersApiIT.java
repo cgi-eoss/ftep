@@ -6,19 +6,20 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.google.common.collect.ImmutableSet;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsIterableContainingInRelativeOrder.containsInRelativeOrder;
@@ -53,10 +54,13 @@ public class UsersApiIT {
     @Before
     public void setUp() {
         ftepGuest = new User("ftep-guest");
+        ftepGuest.setEmail("ftepGuest@example.com");
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
+        ftepUser.setEmail("ftepUser@example.com");
         ftepUser.setRole(Role.USER);
         ftepAdmin = new User("ftep-admin");
+        ftepAdmin.setEmail("ftepAdmin@example.com");
         ftepAdmin.setRole(Role.ADMIN);
 
         dataService.save(ImmutableSet.of(ftepGuest, ftepUser, ftepAdmin));
@@ -70,26 +74,74 @@ public class UsersApiIT {
     }
 
     @Test
-    public void testGet() throws Exception {
-        User owner = dataService.save(new User("owner-uid"));
-        User owner2 = dataService.save(new User("owner-uid2"));
-        owner.setEmail("owner@example.com");
-        owner2.setEmail("owner2@example.com");
-
-        mockMvc.perform(get("/api/users").header("REMOTE_USER", ftepUser.getName()))
+    public void testGetAllUsersAsAdmin() throws Exception {
+        mockMvc.perform(get("/api/users")
+                .header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.users").isArray())
-                .andExpect(jsonPath("$._embedded.users[?(@.id=="+owner2.getId()+")].name").value("owner-uid2"));
+                .andExpect(jsonPath("$._embedded.users[*].email",
+                        Matchers.hasItems(ftepAdmin.getEmail(), ftepUser.getEmail(), ftepGuest.getEmail())));
+    }
 
-        mockMvc.perform(get("/api/users/" + owner.getId()).header("REMOTE_USER", "ftep-new-user"))
+    @Test
+    public void testGetAllUsersAsUser() throws Exception {
+        mockMvc.perform(get("/api/users")
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetSelfAsUser() throws Exception {
+        mockMvc.perform(get("/api/users/" + ftepUser.getId())
+                .header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("owner-uid"))
-                .andExpect(jsonPath("$.email").value("owner@example.com"))
-                .andExpect(jsonPath("$._links.self.href").value(endsWith("/users/" + owner.getId())));
+                .andExpect(jsonPath("$.email").value(ftepUser.getEmail()));
+    }
 
-        // The unknown user "ftep-new-user" was created automatically
-        assertThat(dataService.getByName("ftep-new-user"), is(notNullValue()));
-        assertThat(dataService.getByName("ftep-new-user").getRole(), is(Role.GUEST));
+    @Test
+    public void testGetOtherUserAsAdmin() throws Exception {
+        mockMvc.perform(get("/api/users/" + ftepGuest.getId())
+                .header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(ftepGuest.getEmail()));
+    }
+
+    @Test
+    public void testGetOtherUserAsUser() throws Exception {
+        mockMvc.perform(get("/api/users/" + ftepGuest.getId())
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetInvalidUserAsAdmin() throws Exception {
+        mockMvc.perform(get("/api/users/789")
+                .header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetInvalidUserAsUser() throws Exception {
+        mockMvc.perform(get("/api/users/789")
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testSaveAsAdmin() throws Exception {
+        mockMvc.perform(put("/api/users/" + ftepUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"ftep-user-new\"}")
+                .header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().is(204));
+    }
+
+    @Test
+    public void testSaveAsUser() throws Exception {
+        mockMvc.perform(put("/api/users/" + ftepUser.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"ftep-user-new\"}")
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().is(403));
     }
 
     @Test
@@ -99,13 +151,13 @@ public class UsersApiIT {
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
-        mockMvc.perform(get("/api/users/search/byFilter?filter=er2").header("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/users/search/byFilter?filter=er2").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
                 .andExpect(jsonPath("$._embedded.users.length()").value(1))
                 .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid2"));
 
-        mockMvc.perform(get("/api/users/search/byFilter?filter=uid&sort=name,asc").header("REMOTE_USER", ftepUser.getName()))
+        mockMvc.perform(get("/api/users/search/byFilter?filter=uid&sort=name,asc").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
                 .andExpect(jsonPath("$._embedded.users.length()").value(2))

@@ -315,4 +315,14 @@ public class FtepSecurityService {
                     saveAcl(acl);
                 });
     }
+
+    public boolean isOwner(Long userId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            return securityUser.getId().equals(userId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

@@ -8,9 +8,11 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, ftepProperties) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'CommonService', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, CommonService, ftepProperties) {
 
         $scope.rootUri = ftepProperties.URLv2;
+
+        $scope.coinsDisabled = CommonService.coinsDisabled;
 
         /* Sidenav & Bottombar */
         $scope.navInfo = TabService.navInfo.admin;

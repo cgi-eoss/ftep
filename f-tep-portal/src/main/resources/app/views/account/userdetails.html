@@ -21,7 +21,7 @@
                     <b class="col-md-4">Email:</b>
                     <div class="col-md-8">{{user.email}}</div>
                 </div>
-                <div class="row">
+                <div class="row" ng-hide="coinsDisabled">
                     <b class="col-md-4">Coin Balance:</b>
                     <div class="col-md-8">{{walletParams.wallet.balance}}</div>
                 </div>
@@ -65,7 +65,7 @@
 
     </section>
 
-    <section id="statistics-panel" class="col-md-12 col-lg-4">
+    <section id="statistics-panel" class="col-md-12 col-lg-4" ng-hide="coinsDisabled">
 
         <md-card id="statistics" md-theme-watch class="ftep-card">
             <md-card-title>
@@ -88,7 +88,7 @@
 
     <section id="info-panel" class="col-md-12 col-lg-4">
 
-        <md-card id="request-coins" md-theme-watch class="ftep-card">
+        <md-card id="request-coins" md-theme-watch class="ftep-card" ng-hide="coinsDisabled">
             <md-card-title>
                 <md-card-title-text>
                     <h2>Requesting Coins</h2>
@@ -105,12 +105,12 @@
         <md-card id="account-manage" md-theme-watch class="ftep-card">
             <md-card-title>
                 <md-card-title-text>
-                    <h2>Manage SSO</h2>
+                    <h2>Manage IAM</h2>
                 </md-card-title-text>
             </md-card-title>
             <md-card-content>
                 <div class="row">
-                    <p>You can modify your single sign-on account details, such as your name, email address and password, via the <a ng-href="{{ssoURL}}/idp/umsso20/admin" target="_blank">EO Single Sign-On Platform</a>.</p>
+                    <p>You can modify your identity and access management account details, such as your name, email address and password, via the <a ng-href="{{ssoURL}}" target="_blank">EO IAM Platform</a>.</p>
                 </div>
             </md-card-content>
         </md-card>

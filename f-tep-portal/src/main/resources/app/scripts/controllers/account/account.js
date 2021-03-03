@@ -8,7 +8,9 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AccountCtrl', ['ftepProperties', '$scope', 'UserService', 'ApiKeyService', 'WalletService', 'TabService', 'MessageService', '$mdDialog', function (ftepProperties, $scope, UserService, ApiKeyService, WalletService, TabService, MessageService, $mdDialog) {
+    ftepmodules.controller('AccountCtrl', ['ftepProperties', '$scope', 'UserService', 'ApiKeyService', 'WalletService', 'TabService', 'MessageService', 'CommonService', '$mdDialog', function (ftepProperties, $scope, UserService, ApiKeyService, WalletService, TabService, MessageService, CommonService, $mdDialog) {
+
+        $scope.coinsDisabled = CommonService.coinsDisabled;
 
         var onUserChange = function() {
             $scope.user = UserService.params.activeUser;

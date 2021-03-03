@@ -138,57 +138,74 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     'searchParameters' : [ ]
                 };
             }
-     
+
             if ($scope.serviceParams.runMode === $scope.runModes.SYSTEMATIC.id) {
                 delete iparams[$scope.serviceParams.systematicParameter];
 
                 var searchParams = $scope.searchForm.api.getFormData();
                 searchParams.catalogue = 'SATELLITE';
 
-                SystematicService.estimateMonthlyCost($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams).then(function(estimation) {
-                    var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
-                    CommonService.confirm($event, 'This job will approximatelly cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
-                            '\nAre you sure you want to continue?').then(function (confirmed) {
-                        if (confirmed === false) {
-                            return;
-                        }
-                        $scope.displayTab($scope.bottomNavTabs.JOBS, false);
-
-                        SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.config.label).then(function () {
-                            JobService.refreshJobs("explorer", "Create");
-                        });
-
+                if (CommonService.coinsDisabled) {
+                    $scope.displayTab($scope.bottomNavTabs.JOBS, false);
+                    SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.config.label).then(function () {
+                        JobService.refreshJobs('explorer', 'Create');
                     });
-                });
-
-            }
-            else {
-                JobService.createJobConfig(jobParams).then(function(jobConfig) {
-                    JobService.estimateJob(jobConfig, $event).then(function(estimation) {
-                        var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';
-                        CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
-                            '\nAre you sure you want to continue?').then(function (confirmed) {
+                }
+                else {
+                    SystematicService.estimateMonthlyCost($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams).then(function(estimation) {
+                        var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
+                        CommonService.confirm($event, 'This job will approximatelly cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
+                                '\nAre you sure you want to continue?').then(function (confirmed) {
                             if (confirmed === false) {
                                 return;
                             }
-                            JobService.broadcastNewjob();
-                            $scope.displayTab($scope.bottomNavTabs.JOBS);
-                            JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                            $scope.displayTab($scope.bottomNavTabs.JOBS, false);
+
+                            SystematicService.launchSystematicProcessing($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams, $scope.serviceParams.config.label).then(function () {
                                 JobService.refreshJobs('explorer', 'Create');
                             });
                         });
-                    },
-                    function (error) {
-                        if (error && error.estimatedCost) {
-                            CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
-                                '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
-                        } else if (error) {
-                            CommonService.infoBulletin($event, error);
-                        } else {
-                            CommonService.infoBulletin($event, 'Error occurred. Could not get Job cost estimation.');
-                        }
                     });
-                });
+                }
+            }
+            else {
+                if (CommonService.coinsDisabled) {
+                    JobService.createJobConfig(jobParams).then(function(jobConfig) {
+                        JobService.broadcastNewjob();
+                        $scope.displayTab($scope.bottomNavTabs.JOBS);
+                        JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                            JobService.refreshJobs('explorer', 'Create');
+                        });
+                    });
+                }
+                else {
+                    JobService.createJobConfig(jobParams).then(function(jobConfig) {
+                        JobService.estimateJob(jobConfig, $event).then(function(estimation) {
+                            var currency = estimation.estimatedCost === 1 ? 'coin' : 'coins';
+                            CommonService.confirm($event, 'This job will cost ' + estimation.estimatedCost + ' ' + currency + '.' +
+                                '\nAre you sure you want to continue?').then(function (confirmed) {
+                                if (confirmed === false) {
+                                    return;
+                                }
+                                JobService.broadcastNewjob();
+                                $scope.displayTab($scope.bottomNavTabs.JOBS);
+                                JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
+                                    JobService.refreshJobs('explorer', 'Create');
+                                });
+                            });
+                        },
+                        function (error) {
+                            if (error && error.estimatedCost) {
+                                CommonService.infoBulletin($event, 'The cost of this job exceeds your balance. This job cannot be run.' +
+                                    '\nYour balance: ' + error.currentWalletBalance + '\nCost estimation: ' + error.estimatedCost);
+                            } else if (error) {
+                                CommonService.infoBulletin($event, error);
+                            } else {
+                                CommonService.infoBulletin($event, 'Error occurred. Could not get Job cost estimation.');
+                            }
+                        });
+                    });
+                }
             }
         };
 

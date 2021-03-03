@@ -11,7 +11,6 @@ import com.cgi.eoss.ftep.rpc.FileStreamIOException;
 import com.cgi.eoss.ftep.rpc.FileStreamServer;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
-import com.cgi.eoss.ftep.rpc.NoopStreamObserver;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
@@ -107,7 +106,6 @@ import static java.util.stream.Collectors.toSet;
 @Log4j2
 public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
-    //private final NodeFactory nodeFactory;
     private final FtepWorkerNodeManager nodeManager;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
@@ -131,6 +129,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final int minWorkerNodes;
 
     private final SetMultimap<String, Path> externalInputs = HashMultimap.create();
+
+    private final static String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
 
     @Autowired
     public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService,
@@ -251,15 +251,34 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             String containerId = null;
 
             try {
-                Logging.withUserLoggingContext(() -> LOG.info("Preparing Docker image..."));
-                prepareDockerImage(dockerClient, DockerImageConfig.newBuilder()
-                        .setDockerImage(request.getService().getDockerImageTag())
-                        .setServiceName(request.getService().getName())
-                        .build(), new NoopStreamObserver<>());
-                Logging.withUserLoggingContext(() -> LOG.info("Docker image prepared"));
+                String imageTag;
+                String dockerImageTag = request.getService().getDockerImageTag();
+
+                // If available, pull the Docker image from the registry
+                if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
+                    String registryImageTag = dockerRegistryConfig.getDockerRegistryUrl() + "/" + dockerImageTag;
+                    try {
+                        pullDockerImage(dockerClient, registryImageTag);
+                        // Use registry image tag
+                        imageTag = registryImageTag;
+                    } catch (Exception e) {
+                        LOG.info("Failed to pull image {} from registry '{}'", registryImageTag, dockerRegistryConfig.getDockerRegistryUrl());
+                        // Use Docker image tag
+                        imageTag = dockerImageTag;
+                    }
+                } else {
+                    // Use Docker image tag
+                    imageTag = dockerImageTag;
+                }
+
+                // If registry is not available or if pulling the image from the registry failed, build the image
+                if (!isImageAvailableLocally(dockerClient, imageTag)) {
+                    LOG.info("Building image '{}' locally", imageTag);
+                    buildDockerImage(dockerClient, request.getService().getName(), imageTag);
+                }
 
                 // Launch tag
-                try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(request.getService().getDockerImageTag())) {
+                try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(imageTag)) {
                     createContainerCmd.withLabels(ImmutableMap.of(
                             "jobId", jobId,
                             "intJobId", String.valueOf(request.getJob().getIntJobId()),
@@ -600,88 +619,100 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
-    public void prepareDockerImage(DockerImageConfig request, StreamObserver<PrepareDockerImageResponse> responseObserver) {
+    public void prepareDockerImage(DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
         // TODO provision node for docker building?
-        prepareDockerImage(DockerClientFactory.buildDockerClient("unix:///var/run/docker.sock", dockerRegistryConfig), request, responseObserver);
+        DockerClient dockerClient = Optional.ofNullable(dockerRegistryConfig)
+                .map(config -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL, config))
+                .orElseGet(() -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL));
+        prepareDockerImage(dockerClient, dockerImageConfig, responseObserver);
     }
 
-    private void prepareDockerImage(DockerClient dockerClient, DockerImageConfig request, StreamObserver<PrepareDockerImageResponse> responseObserver) {
-        String dockerImageTag = request.getDockerImage();
+    private void prepareDockerImage(DockerClient dockerClient, DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
+        String dockerImageTag = dockerImageConfig.getDockerImage();
         Lock lock = dockerBuildLock.get(dockerImageTag); // Avoid multiple parallel jobs trying to build at exactly the same time
         lock.lock();
         try {
+            // Build an image with an appropriate tag, depending on the presence of the registry
             Optional<String> registryImageTag = Optional.ofNullable(dockerRegistryConfig)
                     .map(registryConfig -> registryConfig.getDockerRegistryUrl() + "/" + dockerImageTag);
+            String imageTag = registryImageTag.orElse(dockerImageTag);
 
-            // Warm up the cache, if the registry is available
-            if (registryImageTag.isPresent()) {
+            // Pull the Docker image from the registry if applicable to warm up the cache
+            if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
                 try {
-                    pullDockerImage(dockerClient, registryImageTag.get());
+                    pullDockerImage(dockerClient, imageTag);
                 } catch (Exception e) {
-                    LOG.debug("Failed to pull image {}", registryImageTag.get());
+                    LOG.debug("Failed to pull image {} from registry '{}'", imageTag, dockerRegistryConfig.getDockerRegistryUrl());
                 }
             }
 
-            buildDockerImage(dockerClient, request.getServiceName(), dockerImageTag);
+            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), dockerImageTag);
 
-            if (registryImageTag.isPresent()) {
+            // Push the built image into the registry if applicable
+            if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
                 try {
-                    dockerClient.tagImageCmd(dockerImageTag, registryImageTag.get(), "").exec();
-                    pushDockerImage(dockerClient, registryImageTag.get());
+                    pushDockerImage(dockerClient, imageTag);
                 } catch (Exception e) {
-                    LOG.warn("Failed to push image {}", registryImageTag.get(), e);
+                    LOG.warn("Failed to push image {}", imageTag, e);
+                    throw e;
                 }
             }
 
             responseObserver.onNext(PrepareDockerImageResponse.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
-            responseObserver.onError(e);
-            LOG.error("Failed preparing Docker image for service {}", request.getServiceName(), e);
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed preparing Docker image for service {}", dockerImageConfig.getServiceName(), e);
         } finally {
             lock.unlock();
         }
     }
 
-    private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImage) throws IOException {
+    private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImageTag) throws IOException {
+        Lock lock = dockerBuildLock.get(dockerImageTag); // Avoid multiple parallel jobs trying to build at exactly the same time
+        lock.lock();
         try {
-            // Retrieve service context files
-            Path serviceContext = inputOutputManager.getServiceContext(serviceName);
+            try {
+                // Retrieve service context files
+                Path serviceContext = inputOutputManager.getServiceContext(serviceName);
 
-            if (serviceContext == null || Files.list(serviceContext).count() == 0) {
-                // If no service context files are available, shortcut and fall back on the hopefully-existent image tag
-                LOG.warn("No service context files found for service '{}'; falling back on image tag", serviceName);
-                return;
-            } else if (!Files.exists(serviceContext.resolve("Dockerfile"))) {
-                LOG.warn("Service context files exist, but no Dockerfile found for service '{}'; falling back on image tag", serviceName);
-                return;
+                if (serviceContext == null || Files.list(serviceContext).count() == 0) {
+                    // If no service context files are available, shortcut and fall back on the hopefully-existent image tag
+                    LOG.warn("No service context files found for service '{}'; falling back on image tag", serviceName);
+                    return;
+                } else if (!Files.exists(serviceContext.resolve("Dockerfile"))) {
+                    LOG.warn("Service context files exist, but no Dockerfile found for service '{}'; falling back on image tag", serviceName);
+                    return;
+                }
+
+                // Build image
+                LOG.info("Starting Docker image build '{}' for service {}", dockerImageTag, serviceName);
+                BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
+                        .withRemove(true)
+                        .withBaseDirectory(serviceContext.toFile())
+                        .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
+                        .withTags(ImmutableSet.of(dockerImageTag));
+
+                // Add proxy vars to the container, if they are set in the environment
+                ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
+                        .filter(var -> System.getenv().containsKey(var))
+                        .forEach(var -> buildImageCmd.withBuildArg(var, System.getenv(var)));
+
+                String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
+
+                // Tag image with desired image name
+                LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImageTag);
+            } catch (ServiceIoException e) {
+                Logging.withUserLoggingContext(() -> LOG.error("Failed to retrieve Docker context files for service {}", serviceName));
+                LOG.error("Failed to retrieve Docker context files for service {}", serviceName, e);
+                throw e;
+            } catch (IOException e) {
+                Logging.withUserLoggingContext(() -> LOG.error("Failed to build Docker context for service {}: {}", serviceName, e.getMessage()));
+                LOG.error("Failed to build Docker context for service {}", serviceName, e);
+                throw e;
             }
-
-            // Build image
-            LOG.info("Starting Docker image build '{}' for service {}", dockerImage, serviceName);
-            BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
-                    .withRemove(true)
-                    .withBaseDirectory(serviceContext.toFile())
-                    .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
-                    .withTags(ImmutableSet.of(dockerImage));
-
-            // Add proxy vars to the container, if they are set in the environment
-            ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
-                    .filter(var -> System.getenv().containsKey(var))
-                    .forEach(var -> buildImageCmd.withBuildArg(var, System.getenv(var)));
-
-            String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
-
-            // Tag image with desired image name
-            LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImage);
-        } catch (ServiceIoException e) {
-            Logging.withUserLoggingContext(() -> LOG.error("Failed to retrieve Docker context files for service {}", serviceName));
-            LOG.error("Failed to retrieve Docker context files for service {}", serviceName, e);
-            throw e;
-        } catch (IOException e) {
-            Logging.withUserLoggingContext(() -> LOG.error("Failed to build Docker context for service {}: {}", serviceName, e.getMessage()));
-            LOG.error("Failed to build Docker context for service {}", serviceName, e);
-            throw e;
+        } finally {
+            lock.unlock();
         }
     }
 

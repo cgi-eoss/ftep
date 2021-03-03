@@ -78,6 +78,52 @@
                 <div class="col-md-1 service-field no-padding">
                 </div>
             </div>
+            <div class="row build-status" ng-if="!isTemplate">
+                <label >Container build status:</label>
+                <md-content layout="row" layout-align="start center" flex="50">
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'FAILED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('ERROR')}}">
+                        <i class="material-icons">error</i>
+                        <span>Build failed</span>
+                    </md-content>
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('REQUESTED')}}">
+                        <span>Build requested</span>
+                    </md-content>
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'IN_PROCESS'" layout="row" layout-align="start center" flex style="{{getColorForStatus('RUNNING')}}">
+                        <md-progress-circular md-diameter="20px" md-mode="indeterminate"></md-progress-circular>
+                        <span>Build running</span>
+                    </md-content>
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('Warning')}}">
+                        <i class="material-icons">warning</i>
+                        <span>Build required</span>
+                    </md-content>
+                    <md-content ng-if="!serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status == 'COMPLETED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('COMPLETED')}}">
+                        <i class="material-icons">check</i>
+                        <span>Build success</span>
+                    </md-content>
+                    <md-button
+                        class="md-icon-button"
+                        aria-label="Build"
+                        ng-click="refreshServiceStatus(serviceParams.selectedService)"
+                        uib-tooltip="Refresh status"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true"
+                    >
+                        <i class="material-icons">refresh</i>
+                    </md-button>
+                    <md-button
+                        class="md-icon-button"
+                        aria-label="Build"
+                        ng-click="rebuildServiceContainer(serviceParams.selectedService)"
+                        uib-tooltip="Build container"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true"
+                    >
+                        <i class="material-icons">build</i>
+                    </md-button>
+                </md-content>
+            </div>
         </section>
 
     </form>

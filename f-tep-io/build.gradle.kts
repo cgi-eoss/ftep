@@ -1,7 +1,7 @@
 plugins {
     `java-library`
     jacoco
-    id("io.franzbecker.gradle-lombok")
+    id("io.freefair.lombok")
 }
 
 dependencies {

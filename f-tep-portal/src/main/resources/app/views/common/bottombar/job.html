@@ -34,7 +34,7 @@
                 </md-button>
                 <md-button class="toolbar-button md-secondary icon-button-accent"
                            ng-show="jobParams.selectedJob.outputFiles.length > 0"
-                           ng-click="estimateDownloadCost($event, jobParams.selectedJob); $event.stopPropagation()"
+                           ng-href="{{jobParams.selectedJob._links.download.href}}"
                            aria-label="Download all job outputs"
                            uib-tooltip="Download all job outputs"
                            tooltip-placement="top"
@@ -120,7 +120,7 @@
             </md-button>
 
             <md-button class="toolbar-button md-secondary icon-button-accent"
-                       ng-click="estimateDownloadCost($event, outputFile); $event.stopPropagation()"
+                       ng-href="{{outputFile._links.download.href}}"
                        aria-label="Download"
                        uib-tooltip="Download"
                        tooltip-placement="top"

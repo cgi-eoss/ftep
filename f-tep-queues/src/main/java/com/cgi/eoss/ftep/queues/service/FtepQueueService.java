@@ -8,6 +8,10 @@ public interface FtepQueueService {
 
     String jobUpdatesQueueName = "ftep-jobs-updates";
 
+    String dockerImageBuildsQueueName = "docker-image-builds";
+
+    String dockerImageBuildUpdatesQueueName = "docker-image-build-updates";
+
     void sendObject(String queueName, Object object);
 
     void sendObject(String queueName, Object object, int priority);

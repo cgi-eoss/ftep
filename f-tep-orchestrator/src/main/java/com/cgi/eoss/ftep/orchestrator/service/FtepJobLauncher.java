@@ -36,6 +36,8 @@ import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExit;
+import com.cgi.eoss.ftep.rpc.worker.DockerImageBuildEvent;
+import com.cgi.eoss.ftep.rpc.worker.DockerImageBuildEventType;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc.FtepWorkerBlockingStub;
@@ -225,29 +227,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         }
     }
 
-    // gRPC interface
-    @Override
-    public void buildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
-        Long serviceId = Long.parseLong(buildServiceParams.getServiceId());
-        FtepService service = serviceDataService.getById(serviceId);
-        try {
-            FtepWorkerBlockingStub worker = workerFactory.getOne();
-            responseObserver.onNext(BuildServiceResponse.newBuilder().build());
-            DockerImageConfig dockerImageConfig = DockerImageConfig.newBuilder()
-                    .setDockerImage(service.getDockerTag())
-                    .setServiceName(service.getName())
-                    .build();
-            worker.prepareDockerImage(dockerImageConfig);
-            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.COMPLETED);
-            service.getDockerBuildInfo().setLastBuiltFingerprint(buildServiceParams.getBuildFingerprint());
-            serviceDataService.save(service);
-        } catch (Exception e) {
-            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.ERROR);
-            serviceDataService.save(service);
-        }
-        responseObserver.onCompleted();
-    }
-
     private int getJobPriority(int messageNumber) {
         if (messageNumber >= 0 && messageNumber < 10) {
             return 6;
@@ -261,6 +240,54 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             return 2;
         }
         return 1;
+    }
+
+    // gRPC interface
+    @Override
+    public void buildService(BuildServiceParams buildServiceParams, StreamObserver<BuildServiceResponse> responseObserver) {
+        Long serviceId = Long.parseLong(buildServiceParams.getServiceId());
+        FtepService service = serviceDataService.getById(serviceId);
+        try {
+            DockerImageConfig dockerImageConfig = DockerImageConfig.newBuilder()
+                    .setDockerImage(service.getDockerTag())
+                    .setServiceName(service.getName())
+                    .setBuildFingerprint(buildServiceParams.getBuildFingerprint())
+                    .build();
+            ftepQueueService.sendObject(FtepQueueService.dockerImageBuildsQueueName, dockerImageConfig);
+            responseObserver.onNext(BuildServiceResponse.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            LOG.error("Failed to trigger building a Docker image", e);
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
+        }
+    }
+
+    @JmsListener(destination = FtepQueueService.dockerImageBuildUpdatesQueueName)
+    public void receiveDockerImageBuildUpdate(@Payload ObjectMessage objectMessage, @Header("serviceName") String serviceName, @Header("buildFingerprint") String buildFingerprint) {
+        try (CloseableThreadContext.Instance ctc = getImageBuildLoggingContext(serviceName, buildFingerprint)) {
+            try {
+                Serializable update = objectMessage.getObject();
+                if (update instanceof DockerImageBuildEvent) {
+                    FtepService service = serviceDataService.getByName(serviceName);
+                    DockerImageBuildEventType dockerImageBuildEventType = ((DockerImageBuildEvent) update).getDockerImageBuildEventType();
+                    switch (dockerImageBuildEventType) {
+                        case BUILD_IN_PROCESS:
+                            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.IN_PROCESS);
+                            break;
+                        case BUILD_COMPLETED:
+                            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.COMPLETED);
+                            service.getDockerBuildInfo().setLastBuiltFingerprint(buildFingerprint);
+                            break;
+                        case BUILD_FAILED:
+                            service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.FAILED);
+                            break;
+                    }
+                    serviceDataService.save(service);
+                }
+            } catch (JMSException e) {
+                LOG.warn("Failed to get message payload", e);
+            }
+        }
     }
 
     private boolean checkAccessToOutputCollection(User user, List<JobParam> rpcInputs) {
@@ -793,5 +820,11 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 .put("jobId", String.valueOf(job.getId()))
                 .put("userId", job.getOwner().getName())
                 .put("serviceId", job.getConfig().getService().getName());
+    }
+
+    private static CloseableThreadContext.Instance getImageBuildLoggingContext(String serviceName, String buildFingerprint) {
+        return CloseableThreadContext.push("F-TEP Worker Queue Dispatcher")
+                .put("serviceName", serviceName)
+                .put("buildFingerprint", buildFingerprint);
     }
 }

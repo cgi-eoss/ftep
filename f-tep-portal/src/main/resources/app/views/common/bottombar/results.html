@@ -113,8 +113,7 @@
                         </div>
                         <div class="col-sm-3 col-xs-6 no-padding" ng-if="item.properties._links.download.href">
                             <md-button class="toolbar-button md-secondary"
-                                ng-click="estimateDownloadCost($event, item.properties._links.download.href); $event.stopPropagation()"
-
+                                ng-href="{{item.properties._links.download.href}}"
                                 aria-label="Download"
                                 uib-tooltip="Download"
                                 tooltip-placement="top"

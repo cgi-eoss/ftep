@@ -74,7 +74,6 @@ public class JobExpansionServiceImpl implements JobExpansionService {
         String systematicParameter = request.getSystematicParameter();
         List<String> parallelParameters = request.getParallelParametersList();
         List<String> searchParameters = request.getSearchParametersList();
-        Optional<ResourceRequest> jobStorageResourceRequest;
 
         // Replace any "dynamic" parameter values, e.g. search parameters, and evaluate Databasket contents
         List<JobParam> populatedParams = originalParams.stream()

@@ -146,13 +146,14 @@ public class ServicesApiExtension {
         if (null == ftepService.getDockerBuildInfo()) {
             return true;
         }
-        if (ftepService.getDockerBuildInfo().getDockerBuildStatus() == FtepServiceDockerBuildInfo.Status.ONGOING) {
+        FtepServiceDockerBuildInfo dockerBuildInfo = ftepService.getDockerBuildInfo();
+        if (dockerBuildInfo.getDockerBuildStatus() == Status.REQUESTED || dockerBuildInfo.getDockerBuildStatus() == Status.IN_PROCESS) {
             return false;
         }
-        if (null == ftepService.getDockerBuildInfo().getLastBuiltFingerprint()) {
+        if (null == dockerBuildInfo.getLastBuiltFingerprint()) {
             return true;
         }
-        return !currentServiceFingerprint.equals(ftepService.getDockerBuildInfo().getLastBuiltFingerprint());
+        return !currentServiceFingerprint.equals(dockerBuildInfo.getLastBuiltFingerprint());
     }
 
     /**
@@ -163,28 +164,26 @@ public class ServicesApiExtension {
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
     public ResponseEntity build(@ModelAttribute("serviceId") FtepService service) {
         FtepServiceDockerBuildInfo dockerBuildInfo = service.getDockerBuildInfo();
-        if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(FtepServiceDockerBuildInfo.Status.ONGOING)) {
-            return new ResponseEntity<>("A build is already ongoing", HttpStatus.CONFLICT);
+        if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.IN_PROCESS)) {
+            return new ResponseEntity<>("A build is already in process", HttpStatus.CONFLICT);
+        } else if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.REQUESTED)) {
+            return new ResponseEntity<>("A build has already been requested", HttpStatus.CONFLICT);
         } else {
             String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
-            if (needsBuild(service, currentServiceFingerprint)) {
-                LOG.info("Building service via REST API: {}", service.getName());
-                if (dockerBuildInfo == null) {
-                    dockerBuildInfo = new FtepServiceDockerBuildInfo();
-                    service.setDockerBuildInfo(dockerBuildInfo);
-                }
-                dockerBuildInfo.setDockerBuildStatus(Status.ONGOING);
-                serviceDataService.save(service);
-                BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
-                    .setUserId(ftepSecurityService.getCurrentUser().getName())
-                    .setServiceId(String.valueOf(service.getId()))
-                    .setBuildFingerprint(currentServiceFingerprint);
-                BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
-                buildService(service, buildServiceParams);
-                return new ResponseEntity<>(HttpStatus.ACCEPTED);
-            } else {
-                return new ResponseEntity<>(HttpStatus.OK);
+            LOG.info("Building service via REST API: {}", service.getName());
+            if (dockerBuildInfo == null) {
+                dockerBuildInfo = new FtepServiceDockerBuildInfo();
+                service.setDockerBuildInfo(dockerBuildInfo);
             }
+            dockerBuildInfo.setDockerBuildStatus(Status.REQUESTED);
+            serviceDataService.save(service);
+            BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
+                .setUserId(ftepSecurityService.getCurrentUser().getName())
+                .setServiceId(String.valueOf(service.getId()))
+                .setBuildFingerprint(currentServiceFingerprint);
+            BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
+            buildService(service, buildServiceParams);
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
     }
 

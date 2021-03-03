@@ -76,7 +76,7 @@ EOF
 
     # Install r10k to pull in the dependency modules
     ftep.vm.provision 'shell', inline: <<EOF
-/opt/puppetlabs/puppet/bin/gem install --quiet r10k
+/opt/puppetlabs/puppet/bin/gem install --quiet r10k -v 2.6.9
 
 /opt/puppetlabs/puppet/bin/r10k -v info\
   puppetfile install\

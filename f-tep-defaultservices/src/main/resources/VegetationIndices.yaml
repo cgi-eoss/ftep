@@ -9,9 +9,9 @@ statusSupported: false
 serviceType: "Java"
 serviceProvider: "VegetationIndices"
 dataInputs:
-- id: "input"
+- id: "inputfile"
   title: "Input data"
-  description: "Single-tile input Sentinel-2 data file"
+  description: "Sentinel-2 data file(s)"
   minOccurs: 1
   maxOccurs: 50
   data: "LITERAL"
@@ -20,22 +20,21 @@ dataInputs:
   supportedAttrs: null
   dataReference: true
   parallelParameter: true
-  searchParameter: false
 - id: "vegIndex"
   title: "Radiometric index algorithm"
   description: "Vegetation index to calculate"
   minOccurs: 1
-  maxOccurs: 9
+  maxOccurs: 1
   data: "LITERAL"
   defaultAttrs:
     dataType: "string"
     allowedValues: "GEMI,IPVI,MSAVI,MSAVI2,NDVI,RVI,SAVI,TNDVI,TSAVI"
+    value: "NDVI"
   supportedAttrs: null
 - id: "aoi"
-  title: "Area Of Interest"
-  description: "AOI to be processed, in the Well-known text (WKT) format, e.g. POLYGON((\
-    \ etc."
-  minOccurs: 1
+  title: "Area of interest"
+  description: "AOI to be processed, in the well-known text (WKT) format, e.g. POLYGON((...))"
+  minOccurs: 0
   maxOccurs: 1
   data: "LITERAL"
   defaultAttrs:
@@ -43,7 +42,7 @@ dataInputs:
   supportedAttrs: null
 - id: "targetResolution"
   title: "Output pixel spacing"
-  description: "Requested output spacing in meters. Valid values e.g. 10 or 20."
+  description: "Request output spacing in metres, e.g. 10 or 20"
   minOccurs: 1
   maxOccurs: 1
   data: "LITERAL"
@@ -53,12 +52,24 @@ dataInputs:
 dataOutputs:
 - id: "result"
   title: "Output Veg. Index"
-  description: "Chosen indewx"
-  minOccurs: 1
+  description: "Chosen index"
+  minOccurs: 0
   maxOccurs: 1
   data: "COMPLEX"
   defaultAttrs:
     asReference: "false"
     mimeType: "image/tiff"
     extension: ".tif"
+  supportedAttrs: null
+- id: "result_NDVI"
+  title: "NDVI folder"
+  description: null
+  minOccurs: 0
+  maxOccurs: 1
+  data: "COMPLEX"
+  defaultAttrs:
+    allowedValues: "image/tiff"
+    asReference: "false"
+    mimeType: "image/tiff"
+    extension: "/tiff"
   supportedAttrs: null

@@ -24,6 +24,18 @@
                 #service-description, #service-summary {
                     width: 100%;
                 }
+                .build-status {
+                    md-content {
+                        padding: 0 0.5rem;
+                        overflow: hidden;
+                        md-progress-circular {
+                            margin: 2px 0;
+                        }
+                        span {
+                            margin-left: 0.5rem;
+                        }
+                    }
+                }
             }
             #editor-area-list {
                 .border(border-bottom, @bg);

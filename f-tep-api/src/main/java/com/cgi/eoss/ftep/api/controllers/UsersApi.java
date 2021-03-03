@@ -39,7 +39,7 @@ public interface UsersApi extends PagingAndSortingRepository<User, Long> {
     Page<User> findByNameContainsIgnoreCase(@Param("name") String name, Pageable pageable);
 
     @RestResource(path="byFilter", rel="byFilter")
-    @Query("select u from User u where lower(u.name) like concat('%', lower(:filter), '%') or lower(u.email) like concat('%', lower(:filter), '%')")
+    @Query("select u from User u where lower(u.name) = lower(:filter) or lower(u.email) = lower(:filter)")
     Page<User> findByFilter(@Param("filter") String filter, Pageable pageable);
 
 }

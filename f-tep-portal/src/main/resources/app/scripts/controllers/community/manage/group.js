@@ -57,15 +57,12 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 $scope.groupParams = GroupService.params.community;
                 $scope.userParams = UserService.params.community;
 
+                $scope.userParams.searchText = "";
+                $scope.errorMessage = "";
+
                 UserService.getUsers($scope.groupParams.selectedGroup).then(function (groupUsers) {
                     $scope.userParams.groupUsers = groupUsers;
                 });
-
-                $scope.searchUsers = function() {
-                    return UserService.getAllUsers('community',  'search/byFilter?sort=name&filter=' + $scope.userParams.searchText).then(function(users){
-                        return users;
-                    });
-                };
 
                 $scope.validateUser = function (user) {
                     if (user) {
@@ -79,25 +76,46 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     return false;
                 };
 
-                $scope.addUser = function(group, user) {
-                    /* Ensure user list is up to date */
+                $scope.addUser = function() {
+                    // Ensure user list is up to date
                     $scope.userParams.groupUsers = UserService.params.community.groupUsers;
-                    /* Set success message to hidden */
+                    // Set success and error message to hidden
                     $scope.addUserSuccess = false;
-                    /* Check user doesn't belong to group already */
-                    if ($scope.validateUser(user)) {
-                        UserService.addUser(group, $scope.userParams.groupUsers, user).then(function (data) {
-                            /* Display success message and clear form */
-                            $scope.addUserSuccess = true;
-                            $scope.userParams.selectedUser = null;
-                            /* Update groups & active group */
-                            GroupService.refreshGroups("community");
-                        });
-                    }
+                    $scope.addUserFailure = false;
+                    // Try to retrieve the user
+                    UserService.getAllUsers('community',  'search/byFilter?sort=name&filter=' + $scope.userParams.searchText).then(function(users){
+                        switch (users.length) {
+                            case 1:
+                                $scope.userParams.selectedUser = users[0];
+
+                                // Ensure the selected user is not already in the group
+                                if (!$scope.validateUser($scope.userParams.selectedUser)) {
+                                    $scope.displayFailure("The user " + $scope.userParams.selectedUser.name + " is already in " + $scope.groupParams.selectedGroup.name + ".");
+                                }
+                                else {
+                                    UserService.addUser($scope.groupParams.selectedGroup, $scope.userParams.groupUsers, $scope.userParams.selectedUser).then(function (data) {
+                                        // Display success message and clear form
+                                        $scope.addUserSuccess = true;
+                                        $scope.userParams.selectedUser = null;
+                                        // Update groups & active group
+                                        GroupService.refreshGroups("community");
+                                    });
+                                }
+                                break;
+                            default:
+                                $scope.displayFailure("No user found matching the given identifier, please try again.");
+                                break;
+                        }
+                    });
                 };
 
                 $scope.closeDialog = function() {
                     $mdDialog.hide();
+                }
+
+                $scope.displayFailure = function(message) {
+                    $scope.addUserFailure = true;
+                    $scope.errorMessage = message;
                 };
             }
             AddUserController.$inject = ['$scope', '$mdDialog', 'GroupService'];

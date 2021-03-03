@@ -151,18 +151,19 @@ public class UsersApiIT {
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
-        mockMvc.perform(get("/api/users/search/byFilter?filter=er2").header("REMOTE_USER", ftepAdmin.getName()))
+        // Seach by name
+        mockMvc.perform(get("/api/users/search/byFilter?filter=owner-uid2").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
                 .andExpect(jsonPath("$._embedded.users.length()").value(1))
                 .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid2"));
 
-        mockMvc.perform(get("/api/users/search/byFilter?filter=uid&sort=name,asc").header("REMOTE_USER", ftepAdmin.getName()))
+        // Search by email
+        mockMvc.perform(get("/api/users/search/byFilter?filter=owner@example.com&sort=name,asc").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())
-                .andExpect(jsonPath("$._embedded.users.length()").value(2))
-                .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid"))
-                .andExpect(jsonPath("$._embedded.users[1].name").value("owner-uid2"));
+                .andExpect(jsonPath("$._embedded.users.length()").value(1))
+                .andExpect(jsonPath("$._embedded.users[0].name").value("owner-uid"));
     }
 
     @Test

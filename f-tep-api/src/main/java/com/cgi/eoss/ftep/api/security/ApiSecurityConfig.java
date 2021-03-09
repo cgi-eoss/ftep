@@ -55,15 +55,19 @@ public class ApiSecurityConfig {
         private final String usernameRequestHeader;
         private final String emailRequestHeader;
         private final String organisationRequestHeader;
+        private final String countryRequestHeader;
 
         @Autowired
         public ApiSecurityConfigurer(
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
                 @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader,
-                @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader) {
+                @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader,
+                @Value("${ftep.api.security.country-request-header:REMOTE_COUNTRY}") String countryRequestHeader
+                ) {
             this.usernameRequestHeader = usernameRequestHeader;
             this.emailRequestHeader = emailRequestHeader;
             this.organisationRequestHeader = organisationRequestHeader;
+            this.countryRequestHeader = countryRequestHeader;
         }
 
         @Override
@@ -72,7 +76,10 @@ public class ApiSecurityConfig {
             RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
             filter.setAuthenticationManager(authenticationManager());
             filter.setPrincipalRequestHeader(usernameRequestHeader);
-            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader, organisationRequestHeader));
+            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(
+                    emailRequestHeader,
+                    organisationRequestHeader,
+                    countryRequestHeader));
 
             // Handles any authentication exceptions, and translates to a simple 403
             // There is no login redirection as we are expecting pre-auth

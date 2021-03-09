@@ -646,7 +646,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             }
 
-            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), dockerImageTag);
+            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), imageTag);
 
             // Push the built image into the registry if applicable
             if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
@@ -676,11 +676,19 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 // Retrieve service context files
                 Path serviceContext = inputOutputManager.getServiceContext(serviceName);
 
-                if (serviceContext == null || Files.list(serviceContext).count() == 0) {
+                if (serviceContext == null) {
                     // If no service context files are available, shortcut and fall back on the hopefully-existent image tag
-                    LOG.warn("No service context files found for service '{}'; falling back on image tag", serviceName);
+                    LOG.warn("No service context found for service '{}'; falling back on image tag", serviceName);
                     return;
-                } else if (!Files.exists(serviceContext.resolve("Dockerfile"))) {
+                }
+                try (Stream<Path> stream = Files.list(serviceContext)) {
+                    if (stream.count() == 0) {
+                        LOG.warn("No service context files found for service '{}'; falling back on image tag", serviceName);
+                        return;
+                    }
+                }
+
+                if (!Files.exists(serviceContext.resolve("Dockerfile"))) {
                     LOG.warn("Service context files exist, but no Dockerfile found for service '{}'; falling back on image tag", serviceName);
                     return;
                 }

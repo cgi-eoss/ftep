@@ -11,15 +11,20 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.Optional;
+
+@PreAuthorize("hasRole('ADMIN')")
 @RepositoryRestResource(path = "users", itemResourceRel = "user", collectionResourceRel = "users", excerptProjection = ShortUser.class)
 public interface UsersApi extends PagingAndSortingRepository<User, Long> {
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @ftepSecurityService.isOwner(#id)")
+    Optional<User> findById(@Param("id") Long id);
+
+    @Override
     <S extends User> Iterable<S> saveAll(Iterable<S> users);
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     <S extends User> S save(@Param("user") S user);
 
     @Override
@@ -34,7 +39,7 @@ public interface UsersApi extends PagingAndSortingRepository<User, Long> {
     Page<User> findByNameContainsIgnoreCase(@Param("name") String name, Pageable pageable);
 
     @RestResource(path="byFilter", rel="byFilter")
-    @Query("select u from User u where lower(u.name) like concat('%', lower(:filter), '%') or lower(u.email) like concat('%', lower(:filter), '%')")
+    @Query("select u from User u where lower(u.name) = lower(:filter) or lower(u.email) = lower(:filter)")
     Page<User> findByFilter(@Param("filter") String filter, Pageable pageable);
 
 }

@@ -53,7 +53,7 @@ Vagrant.configure('2') do |config|
     # folders (which may be confused by symlinks)
     ftep.vm.provider 'virtualbox' do |vb|
       ftep.vm.synced_folder '.', '/vagrant', type: 'virtualbox'
-      ftep.vm.synced_folder '/data', '/data', type: 'virtualbox'
+      #ftep.vm.synced_folder '/data', '/data', type: 'virtualbox'
       vb.memory = 4096
       vb.cpus = 2
     end

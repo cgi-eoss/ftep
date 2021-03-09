@@ -55,15 +55,19 @@ public class ApiSecurityDevConfig {
         private final String usernameRequestHeader;
         private final String emailRequestHeader;
         private final String organisationRequestHeader;
+        private final String countryRequestHeader;
 
         @Autowired
         public ApiDevSecurityConfigurer(
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
                 @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader,
-                @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader) {
+                @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader,
+                @Value("${ftep.api.security.country-request-header:REMOTE_COUNTRY}") String countryRequestHeader
+        ) {
             this.usernameRequestHeader = usernameRequestHeader;
             this.emailRequestHeader = emailRequestHeader;
             this.organisationRequestHeader = organisationRequestHeader;
+            this.countryRequestHeader = countryRequestHeader;
         }
 
         @Override
@@ -75,7 +79,10 @@ public class ApiSecurityDevConfig {
             RequestAttributeAuthenticationFilter filter = new RequestAttributeAuthenticationFilter();
             filter.setAuthenticationManager(authenticationManager());
             filter.setPrincipalEnvironmentVariable(usernameRequestHeader);
-            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(emailRequestHeader, organisationRequestHeader));
+            filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(
+                    emailRequestHeader,
+                    organisationRequestHeader,
+                    countryRequestHeader));
             filter.setExceptionIfVariableMissing(false);
 
             ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());

@@ -90,6 +90,12 @@ public class User implements FtepEntity<User>, Searchable {
     private String organisation;
 
     /**
+     * <p>The user's country code as provided by the SP.</p>
+     */
+    @Column(name = "country", nullable = true)
+    private String country;
+
+    /**
      * Create a new User instance with the minimum required parameters
      *
      * @param name Account name of the user, as returned from the SSO SP.

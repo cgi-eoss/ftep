@@ -52,7 +52,7 @@ allprojects {
     extra.set("commons-net.version", "3.6")
     extra.set("commons-text.version", "1.6")
     extra.set("disruptor.version", "3.4.2")
-    extra.set("docker-java.version", "3.0.14")
+    extra.set("docker-java.version", "3.2.7")
     extra.set("embedded-database-spring-test.version", "1.3.1")
     extra.set("embedded-postgres-binaries-bom.version", "10.5.0")
     extra.set("failsafe.version", "2.0.1")
@@ -97,7 +97,8 @@ allprojects {
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${extra.get("spring-cloud.version")}")
         }
         dependencies {
-            dependency("com.aries:docker-java-shaded:${extra.get("docker-java.version")}")
+            dependency("com.github.docker-java:docker-java-core:${extra.get("docker-java.version")}")
+            dependency("com.github.docker-java:docker-java-transport-zerodep:${extra.get("docker-java.version")}")
             dependency("com.google.guava:guava:${extra.get("guava.version")}")
             dependency("com.google.jimfs:jimfs:${extra.get("jimfs.version")}")
             dependency("com.google.protobuf:protobuf-java-util:${extra.get("protobuf-java.version")}")

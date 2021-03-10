@@ -18,6 +18,8 @@ dependencies {
     implementation(project(":f-tep-rpc"))
     implementation(project(":f-tep-queues"))
     implementation(project(":f-tep-io"))
+    implementation("com.github.docker-java:docker-java-core")
+    implementation("com.github.docker-java:docker-java-transport-zerodep")
     implementation("org.springframework.boot:spring-boot")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -25,7 +27,6 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.data:spring-data-jpa")
     implementation("org.springframework:spring-orm")
-    implementation("com.aries:docker-java-shaded")
     implementation("org.jooq:jool-java-8")
     implementation("org.apache.commons:commons-lang3")
 

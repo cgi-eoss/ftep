@@ -90,25 +90,16 @@ public class UsersApiIT {
     }
 
     @Test
-    public void testGetSelfAsUser() throws Exception {
-        mockMvc.perform(get("/api/users/" + ftepUser.getId())
-                .header("REMOTE_USER", ftepUser.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(ftepUser.getEmail()));
-    }
-
-    @Test
-    public void testGetOtherUserAsAdmin() throws Exception {
+    public void testGetUserAsUser() throws Exception {
         mockMvc.perform(get("/api/users/" + ftepGuest.getId())
-                .header("REMOTE_USER", ftepAdmin.getName()))
+                .header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(ftepGuest.getEmail()));
     }
 
     @Test
-    public void testGetOtherUserAsUser() throws Exception {
-        mockMvc.perform(get("/api/users/" + ftepGuest.getId())
-                .header("REMOTE_USER", ftepUser.getName()))
+    public void testGetUserWithoutRole() throws Exception {
+        mockMvc.perform(get("/api/users/" + ftepGuest.getId()))
                 .andExpect(status().isForbidden());
     }
 
@@ -117,13 +108,6 @@ public class UsersApiIT {
         mockMvc.perform(get("/api/users/789")
                 .header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void testGetInvalidUserAsUser() throws Exception {
-        mockMvc.perform(get("/api/users/789")
-                .header("REMOTE_USER", ftepUser.getName()))
-                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -145,13 +129,47 @@ public class UsersApiIT {
     }
 
     @Test
+    public void testFindByFilterAsAdmin() throws Exception {
+        mockMvc.perform(get("/api/users/search/byFilter?&filter=" + ftepUser.getName())
+                .header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    public void testFindByFilterAsUser() throws Exception {
+        mockMvc.perform(get("/api/users/search/byFilter?&filter=" + ftepUser.getName())
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().is(403));
+    }
+
+    @Test
+    public void testFindByFilterExactAsAdmin() throws Exception {
+        mockMvc.perform(get("/api/users/search/byFilterExact?&filter=" + ftepUser.getName())
+                .header("REMOTE_USER", ftepAdmin.getName()))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    public void testFindByFilterExactAsUser() throws Exception {
+        mockMvc.perform(get("/api/users/search/byFilterExact?&filter=" + ftepUser.getName())
+                .header("REMOTE_USER", ftepUser.getName()))
+                .andExpect(status().is(200));
+    }
+
+    @Test
+    public void testFindByFilterExactWithoutRole() throws Exception {
+        mockMvc.perform(get("/api/users/search/byFilterExact?&filter=" + ftepUser.getName()))
+                .andExpect(status().is(403));
+    }
+
+    @Test
     public void testFindByFilter() throws Exception {
         User owner = dataService.save(new User("owner-uid"));
         User owner2 = dataService.save(new User("owner-uid2"));
         owner.setEmail("owner@example.com");
         owner2.setEmail("owner2@example.com");
 
-        // Seach by name
+        // Search by name
         mockMvc.perform(get("/api/users/search/byFilter?filter=owner-uid2").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.users").isArray())

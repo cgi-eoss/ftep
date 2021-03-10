@@ -83,7 +83,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     $scope.addUserSuccess = false;
                     $scope.addUserFailure = false;
                     // Try to retrieve the user
-                    UserService.getAllUsers('community',  'search/byFilter?sort=name&filter=' + $scope.userParams.searchText).then(function(users){
+                    UserService.getAllUsers('community',  'search/byFilterExact?sort=name&filter=' + $scope.userParams.searchText).then(function(users){
                         switch (users.length) {
                             case 1:
                                 $scope.userParams.selectedUser = users[0];

@@ -47,19 +47,16 @@ public class ReportsCollector {
 
     // Database connection handler
     private final JobDataService jobDataService;
-
-    // This singleton can talk to the Graylog server, handling authentication as well
-    private final JobsApiExtension jobsApiExtension;
-
     private final UserDataService userDataService;
     private final WalletDataService walletDataService;
+    private final GraylogClient graylogClient;
 
     @Autowired
-    public ReportsCollector(JobDataService jobDataService, JobsApiExtension jobsApiExtension, UserDataService userDataService, WalletDataService walletDataService) {
+    public ReportsCollector(JobDataService jobDataService, UserDataService userDataService, WalletDataService walletDataService, GraylogClient graylogClient) {
         this.jobDataService = jobDataService;
-        this.jobsApiExtension = jobsApiExtension;
         this.userDataService = userDataService;
         this.walletDataService = walletDataService;
+        this.graylogClient = graylogClient;
     }
 
     /**
@@ -118,12 +115,13 @@ public class ReportsCollector {
      * search was unsuccessful.
      */
     private int fetchJsonData(Map<String, String> qParameters) {
-        Map<String, Object> jsonBody = jobsApiExtension.loadGraylogCustomSearch("search/universal/absolute", qParameters);
+        Map<String, Object> jsonBody = graylogClient.loadGraylogCustomSearch("search/universal/absolute", qParameters);
         return jsonBody.containsKey("total_results") ? (Integer) (jsonBody.get("total_results")) : -1;
     }
 
     /**
      * Retrieving uploaded reference data for a given year and month
+     *
      * @param period
      * @return
      */
@@ -141,6 +139,7 @@ public class ReportsCollector {
 
     /**
      * Retrieving downloaded products and reference data for a given year and month
+     *
      * @param period
      * @return
      */
@@ -158,6 +157,7 @@ public class ReportsCollector {
 
     /**
      * Generating a general report in the form of a UsageReport object
+     *
      * @param period
      * @return
      */
@@ -168,6 +168,7 @@ public class ReportsCollector {
 
     /**
      * Generating a report for one user in the form of a UsageReport object
+     *
      * @param period
      * @param userId
      * @return
@@ -224,6 +225,7 @@ public class ReportsCollector {
 
     /**
      * Generate a general XLS report containing site usage data for all users
+     *
      * @param period
      * @param outputStream
      * @return
@@ -309,7 +311,7 @@ public class ReportsCollector {
 
         ++dataRowIdx;
         for (int i = 0; i < 5; i++) {
-            Cell cellSum = rows.get(dataRowIdx + 1).createCell(i+2);
+            Cell cellSum = rows.get(dataRowIdx + 1).createCell(i + 2);
             if (dataRowIdx > 1) {
                 char column = (char) (i + 2 + (int) 'A');
                 cellSum.setCellFormula("SUM(" + column + "2:" + column + dataRowIdx + ")");

@@ -16,7 +16,7 @@
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">
-        <i class="material-icons">save</i>
+    <i class="material-icons">save</i>
 </md-button>
 
 <div id="service-form">
@@ -28,25 +28,29 @@
                 <div class="service-field col-md-2 no-padding">
                     <md-input-container md-no-float>
                         <label>Service Name</label>
-                        <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*" aria-label="Name" required>
+                        <input ng-model="serviceParams.selectedService.name" type="text" placeholder="Name*"
+                               aria-label="Name" required>
                     </md-input-container>
                 </div>
                 <div class="service-field col-md-2 no-padding">
                     <md-input-container md-no-float>
                         <label>Docker Tag</label>
-                        <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag" aria-label="Docker Tag" disabled>
+                        <input ng-model="serviceParams.selectedService.dockerTag" type="text" placeholder="Docker Tag"
+                               aria-label="Docker Tag" disabled>
                     </md-input-container>
                 </div>
                 <div class="service-field col-md-2 no-padding">
                     <md-input-container md-no-float>
                         <label>Application Port</label>
-                        <input ng-model="serviceParams.selectedService.applicationPort" type="text" placeholder="8080/tcp" aria-label="Application Port">
+                        <input ng-model="serviceParams.selectedService.applicationPort" type="text"
+                               placeholder="8080/tcp" aria-label="Application Port">
                     </md-input-container>
                 </div>
                 <div class="col-md-5 service-field no-padding">
                     <md-input-container id="service-summary" md-no-float>
                         <label>Title</label>
-                        <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text" placeholder="Title" aria-label="Title">
+                        <input ng-model="serviceParams.selectedService.serviceDescriptor.title" type="text"
+                               placeholder="Title" aria-label="Title">
                     </md-input-container>
                 </div>
                 <div class="col-md-1 service-field no-padding">
@@ -56,7 +60,8 @@
                 <div class="service-field col-md-2 no-padding">
                     <md-input-container md-no-float>
                         <label>Version</label>
-                        <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text" placeholder="Version" aria-label="Version">
+                        <input ng-model="serviceParams.selectedService.serviceDescriptor.version" type="text"
+                               placeholder="Version" aria-label="Version">
                     </md-input-container>
                 </div>
                 <div class="service-field col-md-2 no-padding">
@@ -72,31 +77,39 @@
                 <div class="col-md-7 service-field no-padding">
                     <md-input-container id="service-description" md-no-float>
                         <label>Description</label>
-                        <input ng-model="serviceParams.selectedService.description" type="text" placeholder="Description" aria-label="Description">
+                        <input ng-model="serviceParams.selectedService.description" type="text"
+                               placeholder="Description" aria-label="Description">
                     </md-input-container>
                 </div>
                 <div class="col-md-1 service-field no-padding">
                 </div>
             </div>
             <div class="row build-status" ng-if="!isTemplate">
-                <label >Container build status:</label>
+                <label>Container build status:</label>
                 <md-content layout="row" layout-align="start center" flex="50">
-                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'FAILED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('ERROR')}}">
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'FAILED'" layout="row"
+                                layout-align="start center" flex style="{{getColorForStatus('ERROR')}}">
                         <i class="material-icons">error</i>
                         <span>Build failed</span>
                     </md-content>
-                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('REQUESTED')}}">
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED'" layout="row"
+                                layout-align="start center" flex style="{{getColorForStatus('REQUESTED')}}">
                         <span>Build requested</span>
                     </md-content>
-                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'IN_PROCESS'" layout="row" layout-align="start center" flex style="{{getColorForStatus('RUNNING')}}">
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'IN_PROCESS'" layout="row"
+                                layout-align="start center" flex style="{{getColorForStatus('RUNNING')}}">
                         <md-progress-circular md-diameter="20px" md-mode="indeterminate"></md-progress-circular>
                         <span>Build running</span>
                     </md-content>
-                    <md-content ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('Warning')}}">
+                    <md-content
+                        ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED'"
+                        layout="row" layout-align="start center" flex style="{{getColorForStatus('Warning')}}">
                         <i class="material-icons">warning</i>
                         <span>Build required</span>
                     </md-content>
-                    <md-content ng-if="!serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status == 'COMPLETED'" layout="row" layout-align="start center" flex style="{{getColorForStatus('COMPLETED')}}">
+                    <md-content
+                        ng-if="!serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status == 'COMPLETED'"
+                        layout="row" layout-align="start center" flex style="{{getColorForStatus('COMPLETED')}}">
                         <i class="material-icons">check</i>
                         <span>Build success</span>
                     </md-content>
@@ -121,6 +134,18 @@
                         tooltip-append-to-body="true"
                     >
                         <i class="material-icons">build</i>
+                    </md-button>
+                    <md-button
+                        ng-if="serviceParams.selectedService.buildStatus.serviceFingerprint"
+                        ng-click="openBuildLogs(serviceParams.selectedService)"
+                        class="md-icon-button"
+                        aria-label="Logs"
+                        uib-tooltip="Last Docker build logs"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true"
+                    >
+                        <i class="material-icons">assignment</i>
                     </md-button>
                 </md-content>
             </div>
@@ -156,7 +181,8 @@
 
     <section id="file-editor"
              ng-include src="'views/developer/services/files.html'"
-             ng-hide="serviceParams.activeArea !== serviceParams.constants.tabs.files" ng-controller="FileEditorCtrl"></section>
+             ng-hide="serviceParams.activeArea !== serviceParams.constants.tabs.files"
+             ng-controller="FileEditorCtrl"></section>
 
     <section ng-include src="'views/developer/services/definitions.html'"
              ng-controller="DefinitionsCtrl"

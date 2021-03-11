@@ -36,6 +36,7 @@ import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
+import com.github.dockerjava.api.command.BuildImageResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PullImageCmd;
@@ -44,10 +45,10 @@ import com.github.dockerjava.api.exception.BadRequestException;
 import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.BuildResponseItem;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
 import com.github.dockerjava.core.command.PushImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
@@ -274,7 +275,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 // If registry is not available or if pulling the image from the registry failed, build the image
                 if (!isImageAvailableLocally(dockerClient, imageTag)) {
                     LOG.info("Building image '{}' locally", imageTag);
-                    buildDockerImage(dockerClient, request.getService().getName(), imageTag);
+                    buildDockerImage(dockerClient, request.getService().getName(), imageTag, null);
                 }
 
                 // Launch tag
@@ -646,7 +647,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
             }
 
-            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), imageTag);
+            buildDockerImage(dockerClient, dockerImageConfig.getServiceName(), imageTag, dockerImageConfig.getBuildFingerprint());
 
             // Push the built image into the registry if applicable
             if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
@@ -668,7 +669,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         }
     }
 
-    private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImageTag) throws IOException {
+    private void buildDockerImage(DockerClient dockerClient, String serviceName, String dockerImageTag, String fingerprint) throws IOException {
         Lock lock = dockerBuildLock.get(dockerImageTag); // Avoid multiple parallel jobs trying to build at exactly the same time
         lock.lock();
         try {
@@ -706,7 +707,21 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                         .filter(var -> System.getenv().containsKey(var))
                         .forEach(var -> buildImageCmd.withBuildArg(var, System.getenv(var)));
 
-                String imageId = buildImageCmd.exec(new BuildImageResultCallback()).awaitImageId();
+                String imageId = buildImageCmd.exec(new BuildImageResultCallback() {
+                    @Override
+                    public void onNext(BuildResponseItem item) {
+                        if (!Strings.isNullOrEmpty(item.getStream())) {
+                            if (fingerprint != null) {
+                                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext().put("dockerBuildFingerprint", fingerprint)) {
+                                    LOG.info("{}", item.getStream().trim());
+                                }
+                            } else {
+                                LOG.debug("{}:{} :: {}", serviceName, dockerImageTag, item.getStream().trim());
+                            }
+                        }
+                        super.onNext(item);
+                    }
+                }).awaitImageId();
 
                 // Tag image with desired image name
                 LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImageTag);

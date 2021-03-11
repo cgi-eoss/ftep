@@ -10,23 +10,27 @@ import com.cgi.eoss.ftep.rpc.BuildServiceResponse;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.cgi.eoss.ftep.services.DefaultFtepServices;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.MoreFiles;
 import io.grpc.stub.StreamObserver;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.PathResource;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
@@ -44,12 +49,11 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Log4j2
 public class ServicesApiExtension {
-    @Data
-    public class BuildStatus {
-        private final Boolean needsBuild;
-        private final FtepServiceDockerBuildInfo.Status status;
-    }
 
+    @Value("${ftep.api.logs.graylogApiBuildLogQuery:dockerBuildFingerprint%3A@{fingerprint}}")
+    private String dockerBuildLogQuery;
+
+    private final GraylogClient graylogClient;
     private final ServiceDataService serviceDataService;
     private final FtepSecurityService ftepSecurityService;
     private final LocalServiceLauncher localServiceLauncher;
@@ -58,7 +62,7 @@ public class ServicesApiExtension {
     public Resources<FtepService> getDefaultServices() {
         // Use the default service list, but retrieve updated objects from the database
         return new Resources<>(DefaultFtepServices.getDefaultServices().stream()
-            .map(s -> serviceDataService.getByName(s.getName())).collect(Collectors.toList()));
+                .map(s -> serviceDataService.getByName(s.getName())).collect(Collectors.toList()));
     }
 
     @GetMapping("/export/available")
@@ -132,28 +136,16 @@ public class ServicesApiExtension {
         String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
         boolean needsBuild = needsBuild(service, currentServiceFingerprint);
         FtepServiceDockerBuildInfo.Status status;
+        String fingerprint;
         if (service.getDockerBuildInfo() == null) {
             status = FtepServiceDockerBuildInfo.Status.NOT_STARTED;
+            fingerprint = null;
         } else {
             status = service.getDockerBuildInfo().getDockerBuildStatus();
+            fingerprint = service.getDockerBuildInfo().getLastBuiltFingerprint();
         }
-        BuildStatus buildStatus = new BuildStatus(needsBuild, status);
+        BuildStatus buildStatus = new BuildStatus(needsBuild, status, fingerprint);
         return new ResponseEntity<>(buildStatus, HttpStatus.OK);
-    }
-
-    private boolean needsBuild(FtepService ftepService, String currentServiceFingerprint) {
-        // Presumably the order of these facts matter
-        if (null == ftepService.getDockerBuildInfo()) {
-            return true;
-        }
-        FtepServiceDockerBuildInfo dockerBuildInfo = ftepService.getDockerBuildInfo();
-        if (dockerBuildInfo.getDockerBuildStatus() == Status.REQUESTED || dockerBuildInfo.getDockerBuildStatus() == Status.IN_PROCESS) {
-            return false;
-        }
-        if (null == dockerBuildInfo.getLastBuiltFingerprint()) {
-            return true;
-        }
-        return !currentServiceFingerprint.equals(dockerBuildInfo.getLastBuiltFingerprint());
     }
 
     /**
@@ -178,13 +170,54 @@ public class ServicesApiExtension {
             dockerBuildInfo.setDockerBuildStatus(Status.REQUESTED);
             serviceDataService.save(service);
             BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
-                .setUserId(ftepSecurityService.getCurrentUser().getName())
-                .setServiceId(String.valueOf(service.getId()))
-                .setBuildFingerprint(currentServiceFingerprint);
+                    .setUserId(ftepSecurityService.getCurrentUser().getName())
+                    .setServiceId(String.valueOf(service.getId()))
+                    .setBuildFingerprint(currentServiceFingerprint);
             BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
             buildService(service, buildServiceParams);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
+    }
+
+    /**
+     * <p>Retrieve the Docker image build logs from Graylog</p>
+     */
+    @GetMapping(value = "/{serviceId}/buildLogs")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
+    public ResponseEntity buildLogs(@ModelAttribute("serviceId") FtepService service, @RequestParam("fingerprint") String fingerprint) throws IOException {
+        Map<String, String> parameters = ImmutableMap.<String, String>builder()
+                .put("range", "0")
+                .put("sort", "timestamp%3Aasc")
+                .put("decorate", "false")
+                .put("fields", "timestamp%2Cmessage")
+                .put("query", StrSubstitutor.replace(dockerBuildLogQuery, ImmutableMap.of("fingerprint", fingerprint), "@{", "}"))
+                .build();
+
+        // Really simple HTML table presentation of the logs
+        StringBuilder html = new StringBuilder(String.format("<html><head><title>Docker build logs: %s (%s)</title></head><body>", service.getName(), fingerprint));
+        html.append("<table style=\"font-family:monospace;border-collapse:collapse;text-align:left;\">");
+        graylogClient.loadMessages(parameters).forEach(msg -> {
+            LOG.debug("Message: {}", msg.getMessage());
+            html.append(String.format("<tr><td valign=\"top\" style=\"padding:1px 4px;\">%s</td><td valign=\"top\" style=\"padding:1px 4px;\">%s</td></tr>", msg.getTimestamp(), msg.getMessage().replace(System.lineSeparator(), "<br/>")));
+        });
+        html.append("</table></body></html>");
+
+        return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html.toString());
+    }
+
+    private boolean needsBuild(FtepService ftepService, String currentServiceFingerprint) {
+        // Presumably the order of these facts matter
+        if (null == ftepService.getDockerBuildInfo()) {
+            return true;
+        }
+        FtepServiceDockerBuildInfo dockerBuildInfo = ftepService.getDockerBuildInfo();
+        if (dockerBuildInfo.getDockerBuildStatus() == Status.REQUESTED || dockerBuildInfo.getDockerBuildStatus() == Status.IN_PROCESS) {
+            return false;
+        }
+        if (null == dockerBuildInfo.getLastBuiltFingerprint()) {
+            return true;
+        }
+        return !currentServiceFingerprint.equals(dockerBuildInfo.getLastBuiltFingerprint());
     }
 
     private void buildService(FtepService ftepService, BuildServiceParams buildServiceParams) {
@@ -193,17 +226,28 @@ public class ServicesApiExtension {
         localServiceLauncher.asyncBuildService(buildServiceParams, responseObserver);
     }
 
-    public class BuildServiceObserver implements StreamObserver<BuildServiceResponse> {
-        public BuildServiceObserver() {}
+    @lombok.Value
+    private static class BuildStatus {
+        Boolean needsBuild;
+        FtepServiceDockerBuildInfo.Status status;
+        String serviceFingerprint;
+    }
+
+    private static class BuildServiceObserver implements StreamObserver<BuildServiceResponse> {
+        public BuildServiceObserver() {
+        }
 
         @Override
-        public void onNext(BuildServiceResponse value) {}
+        public void onNext(BuildServiceResponse value) {
+        }
 
         @Override
-        public void onError(Throwable t) {}
+        public void onError(Throwable t) {
+        }
 
         @Override
-        public void onCompleted() {}
+        public void onCompleted() {
+        }
     }
 
     // DOCKER BUILD SERVICE FINGERPRINT - END ------------------------------------- //

@@ -270,13 +270,13 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 if (update instanceof DockerImageBuildEvent) {
                     FtepService service = serviceDataService.getByName(serviceName);
                     DockerImageBuildEventType dockerImageBuildEventType = ((DockerImageBuildEvent) update).getDockerImageBuildEventType();
+                    service.getDockerBuildInfo().setLastBuiltFingerprint(buildFingerprint);
                     switch (dockerImageBuildEventType) {
                         case BUILD_IN_PROCESS:
                             service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.IN_PROCESS);
                             break;
                         case BUILD_COMPLETED:
                             service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.COMPLETED);
-                            service.getDockerBuildInfo().setLastBuiltFingerprint(buildFingerprint);
                             break;
                         case BUILD_FAILED:
                             service.getDockerBuildInfo().setDockerBuildStatus(FtepServiceDockerBuildInfo.Status.FAILED);

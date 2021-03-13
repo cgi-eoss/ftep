@@ -39,6 +39,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -53,6 +56,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.data.rest.core.mapping.RepositoryDetectionStrategy.RepositoryDetectionStrategies.ANNOTATED;
 
@@ -123,6 +128,12 @@ public class ApiConfig {
     @Bean
     public RepositoryRestConfigurer repositoryRestConfigurer(@Value("${ftep.api.basePath:/api}") String apiBasePath) {
         return new RepositoryRestConfigurerAdapter() {
+            @Override
+            public void configureHttpMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+                messageConverters.add(new ResourceHttpMessageConverter(true));
+                messageConverters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+            }
+
             @Override
             public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
                 config.setRepositoryDetectionStrategy(ANNOTATED);

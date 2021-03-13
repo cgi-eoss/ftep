@@ -1,12 +1,11 @@
 package com.cgi.eoss.ftep.worker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.core.RemoteApiVersion;
-import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
+import com.github.dockerjava.transport.DockerHttpClient;
+import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -19,6 +18,7 @@ import org.springframework.context.annotation.Primary;
 import static org.mockito.Mockito.mock;
 
 /**
+ *
  */
 @Configuration
 public class WorkerTestConfig {
@@ -41,18 +41,16 @@ public class WorkerTestConfig {
     @Bean
     @Primary
     public DockerClient dockerClient(@Value("${ftep.worker.docker.hostUrl:unix:///var/run/docker.sock}") String dockerHostUrl) {
-        DockerClientConfig dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withApiVersion(RemoteApiVersion.VERSION_1_19)
-                .withDockerHost(dockerHostUrl)
+        DefaultDockerClientConfig.Builder dockerClientConfigBuilder = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                .withApiVersion(RemoteApiVersion.VERSION_1_24) // TODO later version?
+                .withDockerHost(dockerHostUrl);
+        DefaultDockerClientConfig dockerClientConfig = dockerClientConfigBuilder.build();
+        DockerHttpClient dockerHttpClient = new ZerodepDockerHttpClient.Builder()
+                .dockerHost(dockerClientConfig.getDockerHost())
+                .sslConfig(dockerClientConfig.getSSLConfig())
+                .maxConnections(100)
                 .build();
-
-        DockerCmdExecFactory dockerCmdExecFactory = new JerseyDockerCmdExecFactory()
-                .withMaxTotalConnections(100)
-                .withMaxPerRouteConnections(10);
-
-        return DockerClientBuilder.getInstance(dockerClientConfig)
-                .withDockerCmdExecFactory(dockerCmdExecFactory)
-                .build();
+        return DockerClientImpl.getInstance(dockerClientConfig, dockerHttpClient);
     }
 
 }

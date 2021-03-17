@@ -104,6 +104,11 @@ public class FtepWorkerNodeManager {
         return node;
     }
 
+    public void reattachJobToNode(Node node, String jobId) {
+        LOG.debug("Reattaching job " + jobId + " to node " + node);
+        nodeJobs.put(node, jobId);
+    }
+
     @Synchronized
     public int destroyNodes(int count, String tag, Path environmentBaseDir, long minimumHourFractionUptimeSeconds) {
         Set<Node> freeWorkerNodes = findNFreeWorkerNodes(count, tag, minimumHourFractionUptimeSeconds);
@@ -153,4 +158,10 @@ public class FtepWorkerNodeManager {
     public int getNumberOfFreeNodes(String tag) {
         return nodeFactory.getCurrentNodes(tag).stream().filter(n -> nodeJobs.get(n).isEmpty()).collect(Collectors.toSet()).size();
     }
+
+    public Set<Node> getCurrentNodes() {
+        return nodeFactory.getCurrentNodes();
+    }
+
+
 }

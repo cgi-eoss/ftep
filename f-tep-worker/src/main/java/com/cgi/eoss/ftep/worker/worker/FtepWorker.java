@@ -14,11 +14,18 @@ import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
+import com.cgi.eoss.ftep.rpc.worker.ContainerStatus;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.GetJobEnvironmentRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetNodesRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetNodesResponse;
 import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsResponse;
+import com.cgi.eoss.ftep.rpc.worker.JobContainer;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
@@ -31,6 +38,7 @@ import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.PrepareDockerImageResponse;
 import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
+import com.cgi.eoss.ftep.rpc.worker.TerminateJobRequest;
 import com.cgi.eoss.ftep.worker.DockerRegistryConfig;
 import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
@@ -46,6 +54,7 @@ import com.github.dockerjava.api.exception.DockerClientException;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.BuildResponseItem;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Ports;
@@ -57,7 +66,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -85,6 +93,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,6 +108,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -114,6 +125,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private DockerRegistryConfig dockerRegistryConfig;
 
+    // Track all nodes
+    private final Map<String, Node> nodes = new HashMap<>();
     // Track which Node is used for each job
     private final Map<String, Node> jobNodes = new HashMap<>();
     // Track which JobEnvironment is used for each job
@@ -131,7 +144,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private final SetMultimap<String, Path> externalInputs = HashMultimap.create();
 
-    private final static String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
+    private static final String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
+    private static final String JOB_ID = "jobId";
+    private static final String INT_JOB_ID = "intJobId";
+    private static final String USER_ID = "userId";
+    private static final String SERVICE_ID = "serviceId";
+    private static final String WORKER_ID = "workerId";
+    private static final String TIMEOUT_VALUE = "timeoutValue";
 
     @Autowired
     public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService,
@@ -164,9 +183,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
         return CloseableThreadContext.push("F-TEP Worker")
                 .put("zooId", job.getId())
-                .put("jobId", String.valueOf(job.getIntJobId()))
-                .put("userId", job.getUserId())
-                .put("serviceId", job.getServiceId());
+                .put(JOB_ID, String.valueOf(job.getIntJobId()))
+                .put(USER_ID, job.getUserId())
+                .put(SERVICE_ID, job.getServiceId());
     }
 
     @Override
@@ -280,12 +299,16 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
                 // Launch tag
                 try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(imageTag)) {
-                    createContainerCmd.withLabels(ImmutableMap.of(
-                            "jobId", jobId,
-                            "intJobId", String.valueOf(request.getJob().getIntJobId()),
-                            "userId", request.getJob().getUserId(),
-                            "serviceId", request.getJob().getServiceId()
-                    ));
+                    Map<String, String> labels = new HashMap<>();
+                    labels.put(JOB_ID, jobId);
+                    labels.put(INT_JOB_ID, String.valueOf(request.getJob().getIntJobId()));
+                    labels.put(USER_ID, request.getJob().getUserId());
+                    labels.put(SERVICE_ID, request.getJob().getServiceId());
+                    labels.put(WORKER_ID, request.getWorker().getId());
+                    if (request.getHasTimeout()) {
+                        labels.put(TIMEOUT_VALUE, String.valueOf(request.getTimeoutValue()));
+                    }
+                    createContainerCmd.withLabels(labels);
                     createContainerCmd.withBinds(prepareBindsForDockerContainer(request).stream().map(Bind::parse).collect(Collectors.toList()));
                     createContainerCmd.withExposedPorts(request.getExposedPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
                     createContainerCmd.withPortBindings(request.getExposedPortsList().stream()
@@ -782,4 +805,166 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         return jobClients;
     }
 
+    @Override
+    public void getJobEnvironment(GetJobEnvironmentRequest request, StreamObserver<JobEnvironment> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            try {
+                com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment = jobEnvironmentService.getExistingJobEnvironment(request.getJob().getId());
+                responseObserver.onNext(JobEnvironment.newBuilder()
+                        .setInputDir(jobEnvironment.getInputDir().toAbsolutePath().toString())
+                        .setOutputDir(jobEnvironment.getOutputDir().toAbsolutePath().toString())
+                        .setWorkingDir(jobEnvironment.getWorkingDir().toAbsolutePath().toString())
+                        .setTempDir(jobEnvironment.getTempDir().toAbsolutePath().toString())
+                        .build());
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+                LOG.error("Failed to retrieve an existing job environment for job ID {}", request.getJob().getId());
+            }
+        }
+    }
+
+    @Override
+    public void getResumableJobs(GetResumableJobsRequest request, StreamObserver<GetResumableJobsResponse> responseObserver) {
+        try {
+            Node node = nodes.get(request.getNodeId());
+            List<JobContainer> jobs = getResumableJobs(request.getWorkerId(), node);
+            responseObserver.onNext(GetResumableJobsResponse.newBuilder().addAllJobs(jobs).build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed to retrieve resumable jobs for worker {}", request.getWorkerId());
+        }
+    }
+
+    private List<JobContainer> getResumableJobs(String workerId, Node node) {
+
+        // Set up a new connection to the Docker engine
+        DockerClient dockerClient = Optional.ofNullable(dockerRegistryConfig)
+                .map(config -> DockerClientFactory.buildDockerClient(node.getDockerEngineUrl(), config))
+                .orElseGet(() -> DockerClientFactory.buildDockerClient(node.getDockerEngineUrl()));
+
+        // List all running/exited containers
+        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+
+        // Return all service containers launched by this worker as JobContainer objects
+        return containers.stream()
+                .filter(container -> isMatchingContainer(container, workerId))
+                .map(container -> trackJobData(container, dockerClient, node))
+                .map(container -> convertToJobContainer(container, dockerClient))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return true if the container was used for running a service image and was launched by the given worker
+     *
+     * @param container
+     * @param workerId
+     * @return
+     */
+    private boolean isMatchingContainer(Container container, String workerId) {
+        Map<String, String> labels = container.getLabels();
+        return labels.containsKey(SERVICE_ID)
+                && labels.containsKey(WORKER_ID)
+                && labels.get(WORKER_ID).equals(workerId);
+    }
+
+    /**
+     * Update maps to track data for the job
+     *
+     * @param container
+     * @param dockerClient
+     * @param node
+     * @return
+     */
+    private Container trackJobData(Container container, DockerClient dockerClient, Node node) {
+        String jobId = container.getLabels().get(JOB_ID);
+        nodeManager.reattachJobToNode(node, jobId);
+        jobContainers.putIfAbsent(jobId, container.getId());
+        jobClients.putIfAbsent(jobId, dockerClient);
+        jobNodes.putIfAbsent(jobId, node);
+        return container;
+    }
+
+    private JobContainer convertToJobContainer(Container container, DockerClient dockerClient) {
+        Map<String, String> labels = container.getLabels();
+        Job job = Job.newBuilder()
+                .setId(labels.get(JOB_ID))
+                .setIntJobId(Long.valueOf(labels.get(INT_JOB_ID)))
+                .setUserId(labels.get(USER_ID))
+                .setServiceId(labels.get(SERVICE_ID))
+                .build();
+        return JobContainer.newBuilder().setJob(job).setContainerStatus(getContainerStatus(container, dockerClient)).build();
+    }
+
+    private ContainerStatus getContainerStatus(Container container, DockerClient dockerClient) {
+        Map<String, String> labels = container.getLabels();
+
+        // If timeout was used for launching this container, check if that time has already passed, regardless of the container status
+        if (labels.containsKey(TIMEOUT_VALUE)) {
+            int timeoutValue = Integer.parseInt(labels.get(TIMEOUT_VALUE));
+            Optional<Instant> startTime = getContainerStarttime(container, dockerClient);
+            if (startTime.isPresent() && Instant.now().isAfter(startTime.get().plus(timeoutValue, ChronoUnit.MINUTES))) {
+                return ContainerStatus.TIMEOUT;
+            }
+        }
+
+        String containerStatus = dockerClient.inspectContainerCmd(container.getId()).exec().getState().getStatus();
+        if (Arrays.asList("created", "restarting", "running", "removing", "paused").contains(containerStatus)) {
+            return ContainerStatus.RUNNING;
+        } else { // "dead", "exited"
+            return ContainerStatus.COMPLETED;
+        }
+    }
+
+    @Override
+    public void getNodes(GetNodesRequest request, StreamObserver<GetNodesResponse> responseObserver) {
+        try {
+            Set<Node> currentNodes = nodeManager.getCurrentNodes();
+            nodes.putAll(currentNodes.stream().collect(toMap(Node::getId, node -> node)));
+            responseObserver.onNext(GetNodesResponse.newBuilder()
+                    .addAllNodes(currentNodes.stream().map(this::nodeToProtobuf).collect(Collectors.toList()))
+                    .build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed to get current nodes");
+        }
+    }
+
+    private com.cgi.eoss.ftep.rpc.worker.Node nodeToProtobuf(Node node) {
+        return com.cgi.eoss.ftep.rpc.worker.Node.newBuilder()
+                .setId(node.getId())
+                .build();
+    }
+
+    @Override
+    public void terminateJob(TerminateJobRequest request, StreamObserver<ContainerExitCode> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            String jobId = request.getJob().getId();
+            DockerClient dockerClient = jobClients.get(jobId);
+            String containerId = jobContainers.get(jobId);
+            try {
+                LOG.warn("Job {} has timed out. Manually stopping the container {} and treating as 'normal' exit", jobId, containerId);
+                stopContainer(dockerClient, containerId);
+                responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(0).build());
+                responseObserver.onCompleted();
+            } finally {
+                removeContainer(dockerClient, containerId);
+            }
+        }
+    }
+
+    private Optional<Instant> getContainerStarttime(Container container, DockerClient dockerClient) {
+        String startTimeStr = dockerClient.inspectContainerCmd(container.getId()).exec().getState().getStartedAt();
+        try {
+            if (!Strings.isNullOrEmpty(startTimeStr)) {
+                return Optional.of(Instant.parse(startTimeStr));
+            } else {
+                return Optional.empty();
+            }
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 }

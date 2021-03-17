@@ -2,13 +2,20 @@ package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
 import com.cgi.eoss.ftep.rpc.LocalWorker;
+import com.cgi.eoss.ftep.rpc.worker.ContainerStatus;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
+import com.cgi.eoss.ftep.rpc.worker.GetNodesRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsRequest;
+import com.cgi.eoss.ftep.rpc.worker.JobContainer;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
+import com.cgi.eoss.ftep.rpc.worker.Node;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>Service for building and executing F-TEP (WPS) services inside Docker containers.</p>
@@ -37,6 +44,28 @@ public class FtepWorkerDispatcher {
         this.workerId = workerId;
         this.nodeManager = nodeManager;
         this.jobMessageSelector = restrictedWorker ? String.format("workerId = '%s'", workerId) : "";
+    }
+
+    public void recoverJobs() {
+
+        // Get all nodes
+        List<Node> nodes = localWorker.getNodes(GetNodesRequest.getDefaultInstance()).getNodesList();
+
+        for (Node node : nodes) {
+
+            // Query all running/finished job containers that this worker had started on the given node
+            List<JobContainer> resumableJobContainers = localWorker
+                    .getResumableJobs(GetResumableJobsRequest.newBuilder().setWorkerId(workerId).setNodeId(node.getId()).build())
+                    .getJobsList();
+
+            // Resume each job on a separate thread
+            for (JobContainer jobContainer : resumableJobContainers) {
+                JobExecutor jobExecutor = new JobExecutor(queueService, localWorker, workerId, jobContainer.getContainerStatus());
+                jobExecutor.setJob(jobContainer.getJob());
+                Thread t = new Thread(jobExecutor);
+                t.start();
+            }
+        }
     }
 
     @Scheduled(fixedRate = QUEUE_SCHEDULER_INTERVAL_MS, initialDelay = QUEUE_INITIAL_DELAY)
@@ -78,7 +107,9 @@ public class FtepWorkerDispatcher {
         while (nodeManager.hasCapacity() && (nextJobSpec = getNextJobSpec()) != null) {
             LOG.info("Dequeued job {}", nextJobSpec.getJob().getId());
             nodeManager.reserveNodeForJob(nextJobSpec.getJob().getId());
-            Thread t = new Thread(new JobExecutor(nextJobSpec, queueService, localWorker, workerId));
+            JobExecutor jobExecutor = new JobExecutor(queueService, localWorker, workerId, ContainerStatus.NEW);
+            jobExecutor.setJobSpec(nextJobSpec.toBuilder().setWorker(JobSpec.Worker.newBuilder().setId(workerId).build()).build());
+            Thread t = new Thread(jobExecutor);
             t.start();
         }
     }

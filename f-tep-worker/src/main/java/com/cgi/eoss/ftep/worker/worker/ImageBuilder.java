@@ -40,7 +40,7 @@ public class ImageBuilder implements Runnable {
     }
 
     private static CloseableThreadContext.Instance getImageBuildLoggingContext(String serviceName, String buildFingerprint) {
-        return CloseableThreadContext.push("F-TEP Worker Queue Dispatcher")
+        return CloseableThreadContext.push("F-TEP Worker Image Builder")
                 .put("serviceName", serviceName)
                 .put("buildFingerprint", buildFingerprint);
     }

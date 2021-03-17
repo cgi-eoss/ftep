@@ -1,39 +1,57 @@
 package com.cgi.eoss.ftep.worker.worker;
 
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
+import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.LocalWorker;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExit;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
+import com.cgi.eoss.ftep.rpc.worker.ContainerStatus;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
+import com.cgi.eoss.ftep.rpc.worker.GetJobEnvironmentRequest;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobError;
 import com.cgi.eoss.ftep.rpc.worker.JobEvent;
 import com.cgi.eoss.ftep.rpc.worker.JobEventType;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
+import com.cgi.eoss.ftep.rpc.worker.TerminateJobRequest;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.CloseableThreadContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Data
 @Log4j2
 public class JobExecutor implements Runnable {
     private Map<String, Object> messageHeaders = new HashMap<>();
-    private final JobSpec jobSpec;
+    private Job job;
+    private JobSpec jobSpec;
     private final FtepQueueService queueService;
     private final LocalWorker localWorker;
     private final String workerId;
+    private final ContainerStatus containerStatus;
 
     @Override
     public void run() {
         messageHeaders.put("workerId", workerId);
-        messageHeaders.put("jobId", String.valueOf(jobSpec.getJob().getIntJobId()));
-        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(jobSpec)) {
-            executeJob(jobSpec);
+        messageHeaders.put("jobId", String.valueOf(job != null ? job.getIntJobId() : jobSpec.getJob().getIntJobId()));
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(Optional.ofNullable(job).orElse(jobSpec.getJob()))) {
+            switch (containerStatus) {
+                case NEW:
+                    executeJob(jobSpec);
+                    break;
+                case RUNNING:
+                case COMPLETED:
+                    resumeJob(job);
+                    break;
+                case TIMEOUT:
+                    terminateJob(job);
+                    break;
+            }
         }
     }
 
@@ -74,11 +92,44 @@ public class JobExecutor implements Runnable {
         }
     }
 
-    private static CloseableThreadContext.Instance getJobLoggingContext(JobSpec jobSpec) {
-        return CloseableThreadContext.push("F-TEP Worker Queue Dispatcher")
-                .put("zooId", jobSpec.getJob().getId())
-                .put("jobId", String.valueOf(jobSpec.getJob().getIntJobId()))
-                .put("userId", jobSpec.getJob().getUserId())
-                .put("serviceId", jobSpec.getJob().getServiceId());
+    private void resumeJob(Job job) {
+        try {
+            LOG.info("Resuming job {}", job.getIntJobId());
+            ExitParams exitRequest = ExitParams.newBuilder().setJob(job).build();
+            int exitCode = localWorker.waitForContainerExit(exitRequest).getExitCode();
+
+            GetJobEnvironmentRequest getJobEnvironmentRequest = GetJobEnvironmentRequest.newBuilder().setJob(job).build();
+            JobEnvironment jobEnvironment = localWorker.getExistingJobEnvironment(getJobEnvironmentRequest);
+            jobUpdate(ContainerExit.newBuilder().setExitCode(exitCode).setJobEnvironment(jobEnvironment).build());
+        } catch (Exception e) {
+            LOG.error("Error resuming job ", e);
+            jobUpdate(JobError.newBuilder().setErrorDescription(e.getMessage() != null ? e.getMessage() : "Unknown error").build());
+        } finally {
+            localWorker.cleanUp(job);
+        }
+    }
+
+    private void terminateJob(Job job) {
+        try {
+            LOG.info("Terminating timed out job {}", job.getIntJobId());
+            int exitCode = localWorker.terminateJob(TerminateJobRequest.newBuilder().setJob(job).build()).getExitCode();
+
+            GetJobEnvironmentRequest getJobEnvironmentRequest = GetJobEnvironmentRequest.newBuilder().setJob(job).build();
+            JobEnvironment jobEnvironment = localWorker.getExistingJobEnvironment(getJobEnvironmentRequest);
+            jobUpdate(ContainerExit.newBuilder().setExitCode(exitCode).setJobEnvironment(jobEnvironment).build());
+        } catch (Exception e) {
+            LOG.error("Error terminating job ", e);
+            jobUpdate(JobError.newBuilder().setErrorDescription(e.getMessage() != null ? e.getMessage() : "Unknown error").build());
+        } finally {
+            localWorker.cleanUp(job);
+        }
+    }
+
+    private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
+        return CloseableThreadContext.push("F-TEP Worker Job Executor")
+                .put("zooId", job.getId())
+                .put("jobId", String.valueOf(job.getIntJobId()))
+                .put("userId", job.getUserId())
+                .put("serviceId", job.getServiceId());
     }
 }

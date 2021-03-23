@@ -9,14 +9,18 @@ import com.cgi.eoss.ftep.model.FtepServiceDescriptor;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.orchestrator.service.FtepJobLauncher;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
+import com.cgi.eoss.ftep.persistence.service.RpcJobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
+import com.cgi.eoss.ftep.rpc.GetJobResultRequest;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
+import com.cgi.eoss.ftep.rpc.JobDataServiceGrpc;
 import com.cgi.eoss.ftep.rpc.JobParam;
+import com.cgi.eoss.ftep.rpc.JobUtil;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.worker.FtepWorkerApplication;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
@@ -31,7 +35,6 @@ import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
 import lombok.extern.log4j.Log4j2;
 import org.hamcrest.CustomTypeSafeMatcher;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,11 +53,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
+import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,6 +88,9 @@ public class FtepServerApplicationIT {
 
     @Autowired
     private FtepJobLauncher ftepJobLauncher;
+
+    @Autowired
+    private RpcJobDataService rpcJobDataService;
 
     @Autowired
     private UserDataService userDataService;
@@ -171,6 +179,7 @@ public class FtepServerApplicationIT {
         when(ioManager.getServiceContext(GUI_APPLICATION_NAME)).thenReturn(Paths.get("src/test/resources/" + GUI_APPLICATION_NAME).toAbsolutePath());
 
         serverBuilder.addService(ftepJobLauncher);
+        serverBuilder.addService(rpcJobDataService);
         serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1, true));
         server = serverBuilder.build().start();
 
@@ -204,7 +213,7 @@ public class FtepServerApplicationIT {
     @Test
     public void testProcessor() {
         FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
-        Iterator<FtepJobResponse> jobResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
+        SubmitJobResponse submitJobResponse = jobLauncher.submitJob(FtepServiceParams.newBuilder()
                 .setServiceId(PROCESSOR_NAME)
                 .setUserId(TESTUSER.getName())
                 .setJobId(String.valueOf(ftepJobId))
@@ -215,15 +224,22 @@ public class FtepServerApplicationIT {
                                 .build()
                 ))
                 .build());
-        Job job = jobResponseIterator.next().getJob();
+
+        Job job = submitJobResponse.getJob();
         assertThat(job, is(notNullValue()));
+
         Path tempFilePath = workspace.resolve("jobs").resolve("Job_" + job.getId()).resolve("procDir").resolve("temp_file_1");
         assertThat(Files.exists(tempFilePath), is(false));
-        FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
+
+        JobDataServiceGrpc.JobDataServiceBlockingStub jobDataService = JobDataServiceGrpc.newBlockingStub(channelBuilder.build());
+        Job.Status jobStatus = JobUtil.awaitJobTermination(String.valueOf(ftepJobId), jobDataService, Duration.ofMinutes(1)).getJobStatus();
+        assertThat(jobStatus, is(Job.Status.COMPLETED));
+
+        List<JobParam> jobOutputs = jobDataService.getJobResult(GetJobResultRequest.newBuilder().setJobId(String.valueOf(ftepJobId)).build()).getOutputsList();
         assertThat(Files.exists(tempFilePath), is(true));
         assertThat(jobOutputs, is(notNullValue()));
-        assertThat(jobOutputs.getOutputsCount(), is(1));
-        JobParam output = jobOutputs.getOutputs(0);
+        assertThat(jobOutputs.size(), is(1));
+        JobParam output = jobOutputs.get(0);
         Path relativeOutputPath = Paths.get(output.getParamValue(0).replace("ftep://outputProduct/", ""));
         assertThat(Files.exists(outputProductBasedir.resolve(relativeOutputPath)), is(true));
         assertThat(relativeOutputPath.getFileName().toString(), is("output_file_1"));
@@ -232,7 +248,7 @@ public class FtepServerApplicationIT {
     @Test
     public void testGuiApplication() {
         FtepJobLauncherGrpc.FtepJobLauncherBlockingStub jobLauncher = FtepJobLauncherGrpc.newBlockingStub(channelBuilder.build());
-        Iterator<FtepJobResponse> jobResponseIterator = jobLauncher.launchService(FtepServiceParams.newBuilder()
+        SubmitJobResponse submitJobResponse = jobLauncher.submitJob(FtepServiceParams.newBuilder()
                 .setServiceId(GUI_APPLICATION_NAME)
                 .setUserId(TESTUSER.getName())
                 .setJobId(String.valueOf(ftepJobId))
@@ -244,13 +260,18 @@ public class FtepServerApplicationIT {
                 ))
                 .build());
 
-        Job job = jobResponseIterator.next().getJob();
+        Job job = submitJobResponse.getJob();
         assertThat(job, is(notNullValue()));
-        FtepJobResponse.JobOutputs jobOutputs = jobResponseIterator.next().getJobOutputs();
-        assertThat(jobOutputs, is(notNullValue()));
-        assertThat(jobOutputs.getOutputsCount(), is(2));
 
-        assertThat(jobOutputs.getOutputsList(), Matchers.containsInAnyOrder(
+        JobDataServiceGrpc.JobDataServiceBlockingStub jobDataService = JobDataServiceGrpc.newBlockingStub(channelBuilder.build());
+        Job.Status jobStatus = JobUtil.awaitJobTermination(String.valueOf(ftepJobId), jobDataService, Duration.ofMinutes(1)).getJobStatus();
+        assertThat(jobStatus, is(Job.Status.COMPLETED));
+
+        List<JobParam> jobOutputs = jobDataService.getJobResult(GetJobResultRequest.newBuilder().setJobId(String.valueOf(ftepJobId)).build()).getOutputsList();
+        assertThat(jobOutputs, is(notNullValue()));
+        assertThat(jobOutputs.size(), is(2));
+
+        assertThat(jobOutputs, containsInAnyOrder(
                 new JobOutputParamMatcher("Output Param: output_file_1", "output_file_1"),
                 new JobOutputParamMatcher("Output Param: A_plot.zip", "A_plot.zip")));
     }

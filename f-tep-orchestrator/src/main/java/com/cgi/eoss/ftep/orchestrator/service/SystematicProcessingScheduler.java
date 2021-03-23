@@ -6,14 +6,13 @@ import com.cgi.eoss.ftep.model.SystematicProcessing;
 import com.cgi.eoss.ftep.model.SystematicProcessing.Status;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.SystematicProcessingDataService;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.cgi.eoss.ftep.search.api.SearchFacade;
 import com.cgi.eoss.ftep.search.api.SearchParameters;
 import com.cgi.eoss.ftep.search.api.SearchResults;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -153,7 +152,7 @@ public class SystematicProcessingScheduler {
         }
     }
 
-    private static final class JobLaunchObserver implements StreamObserver<FtepJobResponse> {
+    private static final class JobLaunchObserver implements StreamObserver<SubmitJobResponse> {
         private final CountDownLatch latch;
         @Getter
         private long intJobId;
@@ -166,7 +165,7 @@ public class SystematicProcessingScheduler {
         }
 
         @Override
-        public void onNext(FtepJobResponse value) {
+        public void onNext(SubmitJobResponse value) {
             this.intJobId = value.getJob().getIntJobId();
             LOG.info("Received job ID: {}", this.intJobId);
             latch.countDown();
@@ -175,11 +174,13 @@ public class SystematicProcessingScheduler {
         @Override
         public void onError(Throwable t) {
             error = t;
+            latch.countDown(); // just to be safe
         }
 
         @Override
         public void onCompleted() {
             // No-op, the user has long stopped listening here
+            latch.countDown(); // just to be safe
         }
     }
 

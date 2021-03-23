@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package com.cgi.eoss.ftep;
+
+import "common_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.cgi.eoss.ftep.rpc";
+
+service JobDataService {
+  rpc GetJobStatus (GetJobStatusRequest) returns (GetJobStatusResponse);
+  rpc GetJobResult (GetJobResultRequest) returns (GetJobResultResponse);
+}
+
+message GetJobStatusRequest {
+  string job_id = 1;
+}
+
+message GetJobStatusResponse {
+  Job.Status job_status = 1;
+}
+
+message GetJobResultRequest {
+  string job_id = 1;
+}
+
+message GetJobResultResponse {
+  Job.Status job_status = 1;
+  repeated JobParam outputs = 2;
+}

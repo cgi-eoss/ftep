@@ -12,13 +12,8 @@ public class LocalServiceLauncher {
     }
 
     @Async
-    public void asyncSubmitJob(FtepServiceParams serviceParams, StreamObserver<FtepJobResponse> responseObserver) {
+    public void asyncSubmitJob(FtepServiceParams serviceParams, StreamObserver<SubmitJobResponse> responseObserver) {
         jobLauncher.submitJob(serviceParams, responseObserver);
-    }
-
-    @Async
-    public void asyncLaunchService(FtepServiceParams serviceParams, StreamObserver<FtepJobResponse> responseObserver) {
-        jobLauncher.launchService(serviceParams, responseObserver);
     }
 
     @Async

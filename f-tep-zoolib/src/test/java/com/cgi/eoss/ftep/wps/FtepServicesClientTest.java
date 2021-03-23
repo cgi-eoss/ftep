@@ -1,10 +1,15 @@
 package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
+import com.cgi.eoss.ftep.rpc.GetJobResultRequest;
+import com.cgi.eoss.ftep.rpc.GetJobResultResponse;
+import com.cgi.eoss.ftep.rpc.GetJobStatusRequest;
+import com.cgi.eoss.ftep.rpc.GetJobStatusResponse;
 import com.cgi.eoss.ftep.rpc.Job;
+import com.cgi.eoss.ftep.rpc.JobDataServiceGrpc;
 import com.cgi.eoss.ftep.rpc.JobParam;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.netty.NettyServerBuilder;
@@ -21,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -41,13 +47,19 @@ public class FtepServicesClientTest {
     @Mock
     FtepJobLauncherGrpc.FtepJobLauncherImplBase ftepJobLauncher;
 
+    @Mock
+    JobDataServiceGrpc.JobDataServiceImplBase jobDataService;
+
     private int grpcPort;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         grpcPort = SocketUtils.findAvailableTcpPort();
-        grpcCleanup.register(NettyServerBuilder.forPort(grpcPort).directExecutor().addService(ftepJobLauncher).build().start());
+        grpcCleanup.register(NettyServerBuilder.forPort(grpcPort).directExecutor()
+                .addService(ftepJobLauncher)
+                .addService(jobDataService)
+                .build().start());
     }
 
     @Test
@@ -57,7 +69,7 @@ public class FtepServicesClientTest {
 
         doAnswer(invocation -> {
             FtepServiceParams params = invocation.getArgument(0);
-            StreamObserver<FtepJobResponse> responseObserver = invocation.getArgument(1);
+            StreamObserver<SubmitJobResponse> responseObserver = invocation.getArgument(1);
 
             assertThat(params.getUserId(), is(userId));
             assertThat(params.getServiceId(), is(SERVICE_NAME));
@@ -65,21 +77,53 @@ public class FtepServicesClientTest {
             assertThat(params.getInputsList().get(0), is(JobParam.newBuilder().setParamName("inputKey1").addParamValue("inputVal1").build()));
             assertThat(params.getInputsList().get(1), is(JobParam.newBuilder().setParamName("inputKey2").addParamValue("inputVal2-1").addParamValue("inputVal2-2").build()));
 
-            responseObserver.onNext(FtepJobResponse.newBuilder().setJob(Job.getDefaultInstance()).build());
-            responseObserver.onNext(FtepJobResponse.newBuilder()
-                    .setJobOutputs(FtepJobResponse.JobOutputs.newBuilder()
-                            .addOutputs(JobParam.newBuilder()
-                                    .setParamName("output")
-                                    .addParamValue("ftep://output/output_file_1")
-                                    .addParamValue("ftep://output/A_plot.zip")
-                                    .addParamValue("ftep://output/A_plot.qpj")
-                                    .addParamValue("ftep://output/A_point.qpj")
-                                    .build())
+            responseObserver.onNext(SubmitJobResponse.newBuilder().setJob(Job.newBuilder()
+                    .setId(jobId)
+                    .build()).build());
+            responseObserver.onCompleted();
+            return null;
+        }).when(ftepJobLauncher).submitJob(any(), any());
+
+        AtomicInteger statusRequestCount = new AtomicInteger(0);
+        doAnswer(invocation -> {
+            GetJobStatusRequest params = invocation.getArgument(0);
+            StreamObserver<GetJobStatusResponse> responseObserver = invocation.getArgument(1);
+
+            assertThat(params.getJobId(), is(jobId));
+
+            Job.Status status;
+            if (statusRequestCount.getAndIncrement() == 0) {
+                status = Job.Status.ACCEPTED;
+            } else if (statusRequestCount.getAndIncrement() <= 5) {
+                status = Job.Status.RUNNING;
+            } else {
+                status = Job.Status.COMPLETED;
+            }
+
+            responseObserver.onNext(GetJobStatusResponse.newBuilder().setJobStatus(status).build());
+            responseObserver.onCompleted();
+            return null;
+        }).when(jobDataService).getJobStatus(any(), any());
+
+        doAnswer(invocation -> {
+            GetJobResultRequest params = invocation.getArgument(0);
+            StreamObserver<GetJobResultResponse> responseObserver = invocation.getArgument(1);
+
+            assertThat(params.getJobId(), is(jobId));
+
+            responseObserver.onNext(GetJobResultResponse.newBuilder()
+                    .setJobStatus(Job.Status.COMPLETED)
+                    .addOutputs(JobParam.newBuilder()
+                            .setParamName("output")
+                            .addParamValue("ftep://output/output_file_1")
+                            .addParamValue("ftep://output/A_plot.zip")
+                            .addParamValue("ftep://output/A_plot.qpj")
+                            .addParamValue("ftep://output/A_point.qpj")
                             .build())
                     .build());
             responseObserver.onCompleted();
             return null;
-        }).when(ftepJobLauncher).submitJob(any(), any());
+        }).when(jobDataService).getJobResult(any(), any());
 
         Map<String, Object> conf = ImmutableMap.<String, Object>builder()
                 .put("ftep", new HashMap<>(ImmutableMap.<String, Object>builder()

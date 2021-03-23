@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.orchestrator.service;
 
+import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.cgi.eoss.ftep.catalogue.geoserver.GeoServerSpec;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
 import com.cgi.eoss.ftep.costing.CostingService;
@@ -27,13 +28,13 @@ import com.cgi.eoss.ftep.rpc.CancelJobResponse;
 import com.cgi.eoss.ftep.rpc.FileStream;
 import com.cgi.eoss.ftep.rpc.FileStreamClient;
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.ListWorkersParams;
 import com.cgi.eoss.ftep.rpc.StopServiceParams;
 import com.cgi.eoss.ftep.rpc.StopServiceResponse;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.cgi.eoss.ftep.rpc.WorkersList;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExit;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageBuildEvent;
@@ -51,7 +52,6 @@ import com.cgi.eoss.ftep.rpc.worker.ListOutputFilesParam;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileItem;
 import com.cgi.eoss.ftep.rpc.worker.OutputFileList;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
-import com.cgi.eoss.ftep.batch.service.JobExpansionService;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -136,8 +136,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     @Value("${ftep.orchestrator.gui.baseUrl:http://ftep}")
     private String baseUrl;
 
-    private final Map<String, StreamObserver<FtepJobResponse>> responseObservers = new HashMap<>();
-
     @Autowired
     public FtepJobLauncher(WorkerFactory workerFactory, JobDataService jobDataService,
                            FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
@@ -155,16 +153,11 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         this.jobExpansionService = jobExpansionService;
     }
 
-    @Override
-    public void launchService(FtepServiceParams request, StreamObserver<FtepJobResponse> responseObserver) {
-        submitJob(request, responseObserver);
-    }
-
     /**
      * Transforms the gRPC request into ObjectMessages and initiates their submission into the Queue.
      */
     @Override
-    public void submitJob(FtepServiceParams request, StreamObserver<FtepJobResponse> responseObserver) {
+    public void submitJob(FtepServiceParams request, StreamObserver<SubmitJobResponse> responseObserver) {
         Optional<Job> baseJob = Optional.empty();
         try (CloseableThreadContext.Instance ctc = CloseableThreadContext.push("F-TEP Service Orchestrator")
                 .put("userId", request.getUserId()).put("serviceId", request.getServiceId()).put("zooId", request.getJobId())) {
@@ -176,7 +169,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 baseJob = Optional.of(jobDataService.getById(jobSpecs.get(0).getJob().getIntJobId()).getParentJob());
             }
 
-            responseObserver.onNext(FtepJobResponse.newBuilder().setJob(GrpcUtil.toRpcJob(baseJob.get())).build());
+            responseObserver.onNext(SubmitJobResponse.newBuilder().setJob(GrpcUtil.toRpcJob(baseJob.get())).build());
 
             Map<JobSpec, Job> persistentJobs = jobSpecs.stream()
                     .collect(toMap(
@@ -206,8 +199,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
                 costingService.chargeForJob(job.getOwner().getWallet(), job);
 
-                responseObservers.put(job.getExtId(), responseObserver);
-
                 Map<String, Object> messageHeaders = workerFactory.getMessageHeaders(job);
                 ftepQueueService.sendObject(FtepQueueService.jobQueueName, messageHeaders, jobSpec, getJobPriority(priorityIdx++));
 
@@ -220,6 +211,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 jobWorkers.put(jobSpec.getJob(), worker);
             }
 
+            responseObserver.onCompleted();
         } catch (Exception e) {
             baseJob.ifPresent(j -> endJobWithError(j, e));
             LOG.error("Failed to instantiate job. Notifying gRPC client", e);
@@ -414,8 +406,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         job.setStatus(Job.Status.ERROR);
         job.setEndTime(LocalDateTime.now(ZoneOffset.UTC));
         jobDataService.save(job);
-        Optional.ofNullable(responseObservers.get(job.getExtId()))
-                .ifPresent(o -> o.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(cause))));
     }
 
     private void ingestOutput(Job job, com.cgi.eoss.ftep.rpc.Job rpcJob, FtepWorkerBlockingStub worker, JobEnvironment jobEnvironment) throws IOException, InterruptedException, StatusException {
@@ -439,8 +429,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         Job parentJob = job.getParentJob();
         if (parentJob != null) {
             completeParentJob(parentJob);
-        } else {
-            notifyResponseObserverJobComplete(job, outputFiles);
         }
     }
 
@@ -465,26 +453,8 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             parentJob.setOutputs(jobOutputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), HashMultimap::create)));
             parentJob.setOutputFiles(ImmutableSet.copyOf(jobOutputFiles.values()));
             jobDataService.save(parentJob);
-
-            notifyResponseObserverJobComplete(parentJob, jobOutputFiles);
         }
         // TODO shall an error be sent in case of any subjobs error?
-    }
-
-    private void notifyResponseObserverJobComplete(Job job, SetMultimap<String, FtepFile> jobOutputFiles) throws StatusException {
-        List<JobParam> outputs = jobOutputFiles.entries().stream()
-                .map(e -> JobParam.newBuilder().setParamName(e.getKey()).addParamValue(e.getValue().getUri().toASCIIString()).build())
-                .collect(toList());
-        StreamObserver<FtepJobResponse> responseObserver = responseObservers.get(job.getExtId());
-        if (responseObserver != null) {
-            responseObserver.onNext(FtepJobResponse.newBuilder()
-                    .setJob(GrpcUtil.toRpcJob(job))
-                    .setJobOutputs(FtepJobResponse.JobOutputs.newBuilder().addAllOutputs(outputs).build())
-                    .build());
-            responseObserver.onCompleted();
-        } else {
-            LOG.warn("Failed to locate response observer for job {}; we are finished so no further action", job.getId());
-        }
     }
 
     private boolean allChildJobCompleted(Job parentJob) {

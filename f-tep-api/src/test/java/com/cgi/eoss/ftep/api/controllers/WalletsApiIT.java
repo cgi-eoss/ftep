@@ -80,7 +80,7 @@ public class WalletsApiIT {
 
         String walletJson = mockMvc.perform(get(walletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(100))
+                .andExpect(jsonPath("$.balance").value(0))
                 .andReturn().getResponse().getContentAsString();
 
         String transactionsUrl = ((String) JsonPath.compile("$._links.transactions.href").read(walletJson)).replace("{?projection}", "");
@@ -93,8 +93,7 @@ public class WalletsApiIT {
         mockMvc.perform(get(transactionsUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.walletTransactions").isArray())
-                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(1))
-                .andExpect(jsonPath("$._embedded.walletTransactions[0].balanceChange").value(100));
+                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(0));
     }
 
     @Test
@@ -103,19 +102,19 @@ public class WalletsApiIT {
 
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(100));
+                .andExpect(jsonPath("$.balance").value(0));
 
         mockMvc.perform(post(userWalletUrl + "/credit").contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50}").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isForbidden());
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(100));
+                .andExpect(jsonPath("$.balance").value(0));
 
         mockMvc.perform(post(userWalletUrl + "/credit").contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50}").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isNoContent());
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(150));
+                .andExpect(jsonPath("$.balance").value(50));
     }
 
     private String getWalletUrl(User user) throws Exception {

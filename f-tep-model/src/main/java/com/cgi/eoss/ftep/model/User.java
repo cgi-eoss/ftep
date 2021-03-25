@@ -22,6 +22,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -94,6 +96,24 @@ public class User implements FtepEntity<User>, Searchable {
      */
     @Column(name = "country", nullable = true)
     private String country;
+
+    /**
+     * <p>The date and time this user account was created.</p>
+     */
+    @Column(name = "creation_time")
+    private LocalDateTime creationTime = LocalDateTime.now(ZoneOffset.UTC);
+
+    /**
+     * <p>The date and time this user account started the free trial.</p>
+     */
+    @Column(name = "subscription_start")
+    private LocalDateTime subscriptionStart;
+
+    /**
+     * <p>The date and time this user last logged in.</p>
+     */
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
 
     /**
      * Create a new User instance with the minimum required parameters

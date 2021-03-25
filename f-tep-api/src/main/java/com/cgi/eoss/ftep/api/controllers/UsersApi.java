@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface UsersApi extends PagingAndSortingRepository<User, Long> {
 
     @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_CONTENT_AUTHORITY', 'ROLE_EXPERT_USER', 'ROLE_USER', 'ROLE_GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_AUTHORITY', 'EXPERT_USER', 'USER', 'GUEST')")
     Optional<User> findById(@Param("id") Long id);
 
     @Override
@@ -42,7 +42,7 @@ public interface UsersApi extends PagingAndSortingRepository<User, Long> {
     @Query("select u from User u where lower(u.name) like concat('%', lower(:filter), '%') or lower(u.email) like concat('%', lower(:filter), '%')")
     Page<User> findByFilter(@Param("filter") String filter, Pageable pageable);
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_CONTENT_AUTHORITY', 'ROLE_EXPERT_USER', 'ROLE_USER', 'ROLE_GUEST')")
+    @PreAuthorize("hasAnyRole('ADMIN','CONTENT_AUTHORITY', 'EXPERT_USER', 'USER', 'GUEST')")
     @RestResource(path="byFilterExact", rel="byFilterExact")
     @Query("select u from User u where lower(u.name) = lower(:filter) or lower(u.email) = lower(:filter)")
     Page<User> findByFilterExact(@Param("filter") String filter, Pageable pageable);

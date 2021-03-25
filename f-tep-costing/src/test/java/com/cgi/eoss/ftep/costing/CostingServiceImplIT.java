@@ -118,9 +118,9 @@ public class CostingServiceImplIT {
         assertThat(owner.getWallet().getBalance(), is(startingBalance - 1 - service.getName().length()));
 
         List<WalletTransaction> transactions = owner.getWallet().getTransactions();
-        assertThat(transactions.size(), is(3));
-        assertThat(transactions.get(1).getBalanceChange(), is(-1));
-        assertThat(transactions.get(2).getBalanceChange(), is(-service.getName().length()));
+        assertThat(transactions.size(), is(2));
+        assertThat(transactions.get(0).getBalanceChange(), is(-1));
+        assertThat(transactions.get(1).getBalanceChange(), is(-service.getName().length()));
     }
 
     @Test
@@ -152,9 +152,9 @@ public class CostingServiceImplIT {
         assertThat(owner.getWallet().getBalance(), is(startingBalance - 1 - (2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
 
         List<WalletTransaction> transactions = owner.getWallet().getTransactions();
-        assertThat(transactions.size(), is(3));
-        assertThat(transactions.get(1).getBalanceChange(), is(-1));
-        assertThat(transactions.get(2).getBalanceChange(), is(-(2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
+        assertThat(transactions.size(), is(2));
+        assertThat(transactions.get(0).getBalanceChange(), is(-1));
+        assertThat(transactions.get(1).getBalanceChange(), is(-(2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
     }
 
 }

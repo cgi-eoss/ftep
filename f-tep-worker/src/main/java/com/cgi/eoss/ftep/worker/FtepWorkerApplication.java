@@ -12,7 +12,6 @@ public class FtepWorkerApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(FtepWorkerApplication.class, args);
-        // TODO: is there a better approach to ensure this gets called *after* the gRPC server has been started?
         FtepWorkerDispatcher ftepWorkerDispatcher = (FtepWorkerDispatcher) context.getBean("ftepWorkerDispatcher");
         ftepWorkerDispatcher.recoverJobs();
     }

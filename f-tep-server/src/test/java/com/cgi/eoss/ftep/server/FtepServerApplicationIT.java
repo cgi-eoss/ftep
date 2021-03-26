@@ -24,6 +24,7 @@ import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.worker.FtepWorkerApplication;
 import com.cgi.eoss.ftep.worker.WorkerConfig;
+import com.cgi.eoss.ftep.worker.worker.FtepDockerService;
 import com.cgi.eoss.ftep.worker.worker.FtepWorker;
 import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
 import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
@@ -180,7 +181,7 @@ public class FtepServerApplicationIT {
 
         serverBuilder.addService(ftepJobLauncher);
         serverBuilder.addService(rpcJobDataService);
-        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, 1, true));
+        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, new FtepDockerService(), true));
         server = serverBuilder.build().start();
 
         FtepWorkerGrpc.FtepWorkerBlockingStub workerStub = FtepWorkerGrpc.newBlockingStub(channelBuilder.build());

@@ -97,8 +97,10 @@ public class ApiSecurityConfigIT {
     public void setUp() {
         alice = new User("alice");
         alice.setRole(Role.USER);
+        alice.getWallet().setBalance(100);
         bob = new User("bob");
         bob.setRole(Role.USER);
+        bob.getWallet().setBalance(100);
         chuck = new User("chuck");
         chuck.setRole(Role.GUEST);
         ftepAdmin = new User("ftep-admin");
@@ -154,7 +156,7 @@ public class ApiSecurityConfigIT {
     public void testRoleAccess() throws Exception {
         getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
         getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isOk());
+        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
         getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
         getServiceFromApi(service2.getId(), alice).andExpect(status().isForbidden());
@@ -180,7 +182,7 @@ public class ApiSecurityConfigIT {
 
         getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
         getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isOk());
+        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
         getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
         getServiceFromApi(service2.getId(), alice).andExpect(status().isForbidden());
@@ -209,7 +211,7 @@ public class ApiSecurityConfigIT {
 
         getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
         getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isOk());
+        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
         getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
         getServiceFromApi(service2.getId(), alice).andExpect(status().isOk());

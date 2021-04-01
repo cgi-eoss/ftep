@@ -87,10 +87,13 @@ public class ServicesApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepExpertUser = new User("ftep-expert-user");
         ftepExpertUser.setRole(Role.EXPERT_USER);
+        ftepExpertUser.getWallet().setBalance(100);
         ftepContentAuthority = new User("ftep-content-authority");
         ftepContentAuthority.setRole(Role.CONTENT_AUTHORITY);
+        ftepContentAuthority.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 

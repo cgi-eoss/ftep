@@ -1,5 +1,10 @@
 package com.cgi.eoss.ftep.api;
 
+import com.cgi.eoss.ftep.model.Role;
+import com.cgi.eoss.ftep.model.User;
+import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +29,27 @@ public class ApiConfigIT {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserDataService userDataService;
+
+    private User ftepUser;
+
+    @Before
+    public void setUp() {
+        ftepUser = new User("ftep-user");
+        ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
+        userDataService.save(ftepUser);
+    }
+
+    @After
+    public void tearDown() {
+        userDataService.deleteAll();
+    }
+
     @Test
     public void testGetIndex() throws Exception {
-        mockMvc.perform(get("/api/").header("REMOTE_USER", "ftep-test"))
+        mockMvc.perform(get("/api/").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._links.databaskets").exists())
                 .andExpect(jsonPath("$._links.ftepFiles").exists())

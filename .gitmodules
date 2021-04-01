@@ -4,7 +4,7 @@
 	branch = development
 [submodule "third-party/cxx/zoo-project/src"]
 	path = third-party/cxx/zoo-project/src
-	url = https://github.com/OSGeo/zoo-project.git
+	url = https://github.com/kalxas/zoo-project.git
 	branch = master
 [submodule "build"]
 	path = buildImg

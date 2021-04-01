@@ -80,13 +80,27 @@ define([
             })
             .when('/files', {
                 templateUrl: 'views/files/files.html',
-                controller: 'FilesCtrl'
+                controller: 'FilesCtrl',
+                resolve: {
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUserWallet().then(function(wallet) {
+                            if (wallet.balance <= 0) {
+                                $location.path('/');  //if not subscribed, redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/developer', {
                 templateUrl: 'views/developer/developer.html',
-                resolve:{
+                resolve: {
                     "check": ['$location', 'UserService', function($location, UserService) {
-                        UserService.getCurrentUser().then(function(user){
+                        UserService.getCurrentUserWallet().then(function(wallet) {
+                            if (wallet.balance <= 0) {
+                                $location.path('/');  //if not subscribed, redirect to homepage
+                            }
+                        });
+                        UserService.getCurrentUser().then(function(user) {
                             if(user.role !== 'ADMIN' && user.role !== 'EXPERT_USER' && user.role !== 'CONTENT_AUTHORITY'){
                                 $location.path('/');  //redirect to homepage
                             }
@@ -96,15 +110,42 @@ define([
             })
             .when('/community', {
                 templateUrl: 'views/community/community.html',
-                controller: 'CommunityCtrl'
+                controller: 'CommunityCtrl',
+                resolve: {
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUserWallet().then(function(wallet) {
+                            if (wallet.balance <= 0) {
+                                $location.path('/');  //if not subscribed, redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/account', {
-                templateUrl: 'views/account/account.html'
+                templateUrl: 'views/account/account.html',
+                resolve: {
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUserWallet().then(function(wallet) {
+                            if (wallet.balance <= 0) {
+                                $location.path('/');  //if not subscribed, redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/helpdesk', {
                 templateUrl: 'views/helpdesk/helpdesk.html',
                 controller: 'HelpdeskCtrl',
-                controllerAs: 'helpdesk'
+                controllerAs: 'helpdesk',
+                resolve: {
+                    "check": ['$location', 'UserService', function($location, UserService) {
+                        UserService.getCurrentUserWallet().then(function(wallet) {
+                            if (wallet.balance <= 0) {
+                                $location.path('/');  //if not subscribed, redirect to homepage
+                            }
+                        });
+                    }]
+                }
             })
             .when('/admin', {
                 templateUrl: 'views/admin/admin.html',
@@ -112,7 +153,7 @@ define([
                 controllerAs: 'admin',
                 resolve:{
                     "check": ['$location', 'UserService', function($location, UserService) {
-                        UserService.getCurrentUser().then(function(user){
+                        UserService.getCurrentUser().then(function(user) {
                             if(user.role !== 'ADMIN'){
                                 $location.path('/');  //redirect to homepage
                             }

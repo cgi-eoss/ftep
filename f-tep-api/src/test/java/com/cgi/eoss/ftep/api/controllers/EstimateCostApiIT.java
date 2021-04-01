@@ -70,6 +70,7 @@ public class EstimateCostApiIT {
     public void setUp() {
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
+        ftepAdmin.getWallet().setBalance(100);
 
         dataService.save(ImmutableSet.of(ftepAdmin));
 

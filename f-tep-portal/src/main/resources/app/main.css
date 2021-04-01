@@ -2464,6 +2464,18 @@
   /* For IE6-8 */
   src: local('Material Icons'), local('MaterialIcons-Regular'), url(fonts/MaterialIcons-Regular.woff2) format('woff2'), url(fonts/MaterialIcons-Regular.woff) format('woff'), url(fonts/MaterialIcons-Regular.ttf) format('truetype');
 }
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/Lato-Regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/Ubuntu-Regular.ttf) format('truetype');
+}
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -2770,7 +2782,7 @@ pre {
   left: 0;
   height: 100%;
   -ms-flex-pack: center;
-      justify-content: center;
+  justify-content: center;
   padding: 2rem;
   text-align: center;
   width: 100%;
@@ -2790,6 +2802,75 @@ pre {
 #logged-out h3 a {
   cursor: pointer;
 }
+
+#subscription-layer {
+  background-color: rgba(255, 255, 255, 0.5);
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  -ms-flex-pack: center;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+  z-index: 98;
+}
+
+#subscription-missing {
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 36, 0);
+  display: block;
+  position: relative;
+  width: 50%;
+  height: 80%;
+  top: 10%;
+  left: 25%;
+  -ms-flex-pack: center;
+  justify-content: center;
+  padding: 2rem 5rem;
+  text-align: center;
+  vertical-align: middle;
+  z-index: 99;
+  border-style: solid;
+  border-width: thin;
+}
+#subscription-missing #ftep-logo {
+  max-width: 35%;
+  max-height: 35%;
+  margin: 0.8rem;
+}
+#subscription-missing #vtt-logo {
+  max-width: 12%;
+  max-height: 12%;
+  margin: 0.8rem;
+}
+#subscription-missing h1 {
+  font-family: 'Lato', sans-serif;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin: 0.8rem;
+}
+#subscription-missing p {
+  font-family: 'Lato', sans-serif;
+  font-size: 0.8rem;
+  margin: 0.8rem;
+}
+#subscription-missing #trial-button {
+  color: white;
+  background-color: #357711;
+  font-size: 0.75rem;
+  padding: 0.5rem 4rem;
+  text-transform: uppercase;
+  font-family: 'Ubuntu', sans-serif;
+  margin: 0.8rem;
+}
+#subscription-missing #funding-text {
+  font-size: 0.6rem;
+}
+
+
 
 
 /*! normalize.css v5.0.0 | MIT License | github.com/necolas/normalize.css */

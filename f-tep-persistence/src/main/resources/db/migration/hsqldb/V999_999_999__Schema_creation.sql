@@ -4,12 +4,15 @@
 -- Tables & Indexes
 
 CREATE TABLE ftep_users (
-  uid          BIGINT IDENTITY PRIMARY KEY,
-  mail         CHARACTER VARYING(255),
-  name         CHARACTER VARYING(255)                 NOT NULL,
-  role         CHARACTER VARYING(255) DEFAULT 'GUEST' NOT NULL CHECK (role IN ('GUEST', 'USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN')),
-  organisation CHARACTER VARYING(255),
-  country      CHARACTER VARYING(255)
+  uid           BIGINT IDENTITY PRIMARY KEY,
+  mail               CHARACTER VARYING(255),
+  name               CHARACTER VARYING(255)                 NOT NULL,
+  role               CHARACTER VARYING(255) DEFAULT 'GUEST' NOT NULL CHECK (role IN ('GUEST', 'USER', 'EXPERT_USER', 'CONTENT_AUTHORITY', 'ADMIN')),
+  organisation       CHARACTER VARYING(255),
+  country            CHARACTER VARYING(255),
+  creation_time      TIMESTAMP WITHOUT TIME ZONE,
+  subscription_start TIMESTAMP WITHOUT TIME ZONE,
+  last_login         TIMESTAMP WITHOUT TIME ZONE
 );
 CREATE UNIQUE INDEX ftep_users_name_idx
   ON ftep_users (name);

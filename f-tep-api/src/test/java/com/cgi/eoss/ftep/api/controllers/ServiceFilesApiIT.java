@@ -64,10 +64,13 @@ public class ServiceFilesApiIT {
     public void setUp() {
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepExpertUser = new User("ftep-expert-user");
         ftepExpertUser.setRole(Role.EXPERT_USER);
+        ftepExpertUser.getWallet().setBalance(100);
         ftepContentAuthority = new User("ftep-content-authority");
         ftepContentAuthority.setRole(Role.CONTENT_AUTHORITY);
+        ftepContentAuthority.getWallet().setBalance(100);
 
         userDataService.save(ImmutableSet.of(ftepUser, ftepExpertUser, ftepContentAuthority));
 

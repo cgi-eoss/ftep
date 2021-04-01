@@ -46,6 +46,7 @@ public class WalletsApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 
@@ -60,9 +61,7 @@ public class WalletsApiIT {
                 .andExpect(jsonPath("$._embedded.wallets[0].owner.name").value("ftep-user"));
 
         mockMvc.perform(get("/api/wallets").header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.wallets.length()").value(1))
-                .andExpect(jsonPath("$._embedded.wallets[0].owner.name").value("ftep-guest"));
+                .andExpect(status().isForbidden());
 
         mockMvc.perform(get("/api/wallets").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
@@ -93,8 +92,7 @@ public class WalletsApiIT {
         mockMvc.perform(get(transactionsUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.walletTransactions").isArray())
-                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(1))
-                .andExpect(jsonPath("$._embedded.walletTransactions[0].balanceChange").value(100));
+                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(0));
     }
 
     @Test

@@ -59,6 +59,7 @@ public class UsersApiIT {
         ftepUser = new User("ftep-user");
         ftepUser.setEmail("ftepUser@example.com");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setEmail("ftepAdmin@example.com");
         ftepAdmin.setRole(Role.ADMIN);

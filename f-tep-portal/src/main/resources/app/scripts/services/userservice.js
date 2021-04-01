@@ -82,7 +82,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.getCurrentUser = function(withDetails){
+        this.getCurrentUser = function(withDetails) {
             var deferred = $q.defer();
             halAPI.from(ftepProperties.URLv2 + '/users/current')
                 .newRequest()
@@ -99,7 +99,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.getAllUsers = function (page, url) {
+        this.getAllUsers = function(page, url) {
             var deferred = $q.defer();
             url = url ? url = _this.params[page].pollingUrl + url : url = _this.params[page].pollingUrl;
             halAPI.from(url)
@@ -120,14 +120,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.getUsersByFilter = function(page){
+        this.getUsersByFilter = function(page) {
             _this.params[page].pollingUrl = rootUri + '/users/' + 'search/byFilter?sort=name&filter=' + (_this.params[page].searchText ? _this.params[page].searchText : '');
             _this.getAllUsers(page).then(function (users) {
                     _this.params[page].allUsers = users;
             });
         };
 
-        this.getUsers = function (group) {
+        this.getUsers = function(group) {
             var deferred = $q.defer();
             halAPI.from(rootUri + '/groups/' + group.id)
                      .newRequest()
@@ -145,7 +145,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
         /* Fetch a new page */
-        this.getUsersPage = function(page, url){
+        this.getUsersPage = function(page, url) {
             if (_this.params[page]) {
                 _this.params[page].pollingUrl = url;
                 /* Get user list */
@@ -155,7 +155,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             }
         };
 
-        this.getUserByLink = function(userUrl){
+        this.getUserByLink = function(userUrl) {
             var deferred = $q.defer();
             halAPI.from(userUrl)
                      .newRequest()
@@ -171,7 +171,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.addUser = function (group, groupUsers, user) {
+        this.addUser = function(group, groupUsers, user) {
             return $q(function(resolve, reject) {
 
                 /* Create array of user links */
@@ -211,7 +211,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
-        this.updateUser = function(user){
+        this.updateUser = function(user) {
             var newUser = {name: user.name, id: user.id, email: user.email, role: user.role};
             return $q(function(resolve, reject) {
                 halAPI.from(rootUri + '/users/' + user.id)
@@ -264,6 +264,43 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 });
 
             });
+        };
+
+        this.getCurrentUserWallet = function() {
+            var deferred = $q.defer();
+            halAPI.from(ftepProperties.URLv2 + '/users/current/wallet')
+                .newRequest()
+                .getResource()
+                .result
+                .then(
+            function (wallet) {
+                deferred.resolve(wallet);
+            }, function (error) {
+                MessageService.addError('Unable to get current user\'s wallet', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
+        this.startTrial = function() {
+            var deferred = $q.defer();
+            halAPI.from(ftepProperties.URLv2 + '/users/current/startTrial')
+                     .newRequest()
+                     .post()
+                     .result
+                     .then(
+            function(document) {
+                if (200 <= document.status && document.status < 300) {
+                    deferred.resolve(document);
+                } else {
+                    MessageService.addError('This user has already started a trial');
+                    deferred.reject();
+                }
+            }, function(error) {
+                MessageService.addError('Unable to start trial', error);
+                deferred.reject();
+            });
+            return deferred.promise;
         };
 
         return this;

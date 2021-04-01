@@ -315,4 +315,13 @@ public class FtepSecurityService {
                     saveAcl(acl);
                 });
     }
+
+    public boolean isSubscribed() {
+        User currentUser = getCurrentUser();
+        try {
+            return currentUser.getRole().equals(Role.ADMIN) || currentUser.getWallet().getBalance() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

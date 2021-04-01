@@ -44,6 +44,32 @@
             </md-button>
         </div>
 
+        <div id="subscription-layer" ng-show="!sessionEnded && !subscribed" ng-cloak>
+            <div id="subscription-missing">
+                <a ng-href="{{ftepUrl}}" target="_blank">
+                    <img id="ftep-logo" src="images/logo.png"  alt="Forestry TEP Logo">
+                </a>
+                <h1>Welcome to Forestry TEP!
+                </h1>
+                <p>An active subscription is required to access the platform features.
+                    You can <a href="https://f-tep.com/subscription/" target="_blank">subscribe</a> to one of our platform package options,
+                    or simply click below to start a <b>free 30-day trial</b>.
+                </p>
+                <md-button  id="trial-button" ng-click="startTrial()">
+                    Start a trial
+                </md-button>
+                <p id="funding-text">For research and pre-commercial use, you may be eligible to receive
+                    ESA funding for the services via the Network of Resources (NoR).
+                    We will be glad to assist you in the process.
+                </p>
+                <p>Have questions? <a href="https://f-tep.com/contact/" target="_blank">Contact us</a>!
+                </p>
+                <a ng-href="https://www.vttresearch.com/" target="_blank">
+                    <img id="vtt-logo" src="images/VTT_Orange_Logo.png" alt="VTT Logo">
+                </a>
+            </div>
+        </div>
+
         <!-- Google Analytics -->
          <script>
            !function(A,n,g,u,l,a,r){A.GoogleAnalyticsObject=l,A[l]=A[l]||function(){

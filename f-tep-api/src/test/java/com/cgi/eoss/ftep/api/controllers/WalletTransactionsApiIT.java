@@ -43,6 +43,7 @@ public class WalletTransactionsApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 
@@ -54,13 +55,12 @@ public class WalletTransactionsApiIT {
         mockMvc.perform(get("/api/walletTransactions").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.walletTransactions").isArray())
-                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(1))
-                .andExpect(jsonPath("$._embedded.walletTransactions[0].balanceChange").value(100));
+                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(0));
 
         mockMvc.perform(get("/api/walletTransactions").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.walletTransactions").isArray())
-                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(3));
+                .andExpect(jsonPath("$._embedded.walletTransactions.length()").value(0));
     }
 
 }

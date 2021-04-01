@@ -10,6 +10,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 @Service
 public class FtepUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
@@ -26,6 +29,7 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
         FtepWebAuthenticationDetails tokenDetails = (FtepWebAuthenticationDetails) token.getDetails();
 
         User user = userDataService.getOrSave(token.getName());
+        user.setLastLogin(LocalDateTime.now(ZoneOffset.UTC));
 
         // Keep user's SSO details up to date
         if (!Strings.isNullOrEmpty(tokenDetails.getUserEmail())) {

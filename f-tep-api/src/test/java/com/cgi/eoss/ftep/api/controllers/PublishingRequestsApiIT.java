@@ -54,6 +54,7 @@ public class PublishingRequestsApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 
@@ -86,9 +87,8 @@ public class PublishingRequestsApiIT {
         String svc2Url = mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service2.getId()).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getHeader("Location");
-        String svc3Url = mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service3.getId()).header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getHeader("Location");
+        mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service3.getId()).header("REMOTE_USER", ftepGuest.getName()))
+                .andExpect(status().isForbidden());
 
         mockMvc.perform(get(svc2Url).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
@@ -99,22 +99,14 @@ public class PublishingRequestsApiIT {
         mockMvc.perform(get(svc2Url).header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get(svc3Url).header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("REQUESTED"))
-                .andExpect(jsonPath("$._links.associated.href").value(endsWith("/api/services/" + service3.getId() + "{?projection}")));
-        mockMvc.perform(get(svc3Url).header("REMOTE_USER", ftepUser.getName()))
-                .andExpect(status().isForbidden());
-
         mockMvc.perform(get("/api/publishingRequests").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
         mockMvc.perform(get("/api/publishingRequests").header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
+                .andExpect(status().isForbidden());
         mockMvc.perform(get("/api/publishingRequests").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(2));
+                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
     }
 
     @Test
@@ -122,19 +114,17 @@ public class PublishingRequestsApiIT {
         String svc2Url = mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service2.getId()).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getHeader("Location");
-        String svc3Url = mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service3.getId()).header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getHeader("Location");
+        mockMvc.perform(post("/api/publishingRequests/requestPublishService/" + service3.getId()).header("REMOTE_USER", ftepGuest.getName()))
+                .andExpect(status().isForbidden());
 
         mockMvc.perform(get("/api/publishingRequests/search/findByStatus?status=REQUESTED").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
         mockMvc.perform(get("/api/publishingRequests/search/findByStatus?status=REQUESTED").header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
+                .andExpect(status().isForbidden());
         mockMvc.perform(get("/api/publishingRequests/search/findByStatus?status=REQUESTED").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(2));
+                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
 
         mockMvc.perform(post("/api/contentAuthority/services/publish/" + service2.getId()).header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk());
@@ -147,7 +137,7 @@ public class PublishingRequestsApiIT {
                 .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
         mockMvc.perform(get("/api/publishingRequests/search/findByStatus?status=REQUESTED").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(1));
+                .andExpect(jsonPath("$._embedded.publishingRequests.length()").value(0));
     }
 
 }

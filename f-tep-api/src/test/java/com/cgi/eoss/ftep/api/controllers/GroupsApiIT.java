@@ -51,6 +51,7 @@ public class GroupsApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 

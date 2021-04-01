@@ -46,6 +46,7 @@ public class WalletsApiIT {
         ftepGuest.setRole(Role.GUEST);
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
 
@@ -60,9 +61,7 @@ public class WalletsApiIT {
                 .andExpect(jsonPath("$._embedded.wallets[0].owner.name").value("ftep-user"));
 
         mockMvc.perform(get("/api/wallets").header("REMOTE_USER", ftepGuest.getName()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.wallets.length()").value(1))
-                .andExpect(jsonPath("$._embedded.wallets[0].owner.name").value("ftep-guest"));
+                .andExpect(status().isForbidden());
 
         mockMvc.perform(get("/api/wallets").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isOk())
@@ -80,7 +79,7 @@ public class WalletsApiIT {
 
         String walletJson = mockMvc.perform(get(walletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(0))
+                .andExpect(jsonPath("$.balance").value(100))
                 .andReturn().getResponse().getContentAsString();
 
         String transactionsUrl = ((String) JsonPath.compile("$._links.transactions.href").read(walletJson)).replace("{?projection}", "");
@@ -102,19 +101,19 @@ public class WalletsApiIT {
 
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(0));
+                .andExpect(jsonPath("$.balance").value(100));
 
         mockMvc.perform(post(userWalletUrl + "/credit").contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50}").header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isForbidden());
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(0));
+                .andExpect(jsonPath("$.balance").value(100));
 
         mockMvc.perform(post(userWalletUrl + "/credit").contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50}").header("REMOTE_USER", ftepAdmin.getName()))
                 .andExpect(status().isNoContent());
         mockMvc.perform(get(userWalletUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value(50));
+                .andExpect(jsonPath("$.balance").value(150));
     }
 
     private String getWalletUrl(User user) throws Exception {

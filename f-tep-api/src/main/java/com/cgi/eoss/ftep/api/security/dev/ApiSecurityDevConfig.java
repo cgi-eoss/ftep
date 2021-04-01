@@ -94,6 +94,9 @@ public class ApiSecurityDevConfig {
             httpSecurity.authorizeRequests()
                     .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                     .antMatchers("/**/dev/user/become/*").permitAll()
+                    .antMatchers("/**/api/**/users/**").permitAll()
+                    .antMatchers("/**/api/**/currentUser/**").permitAll()
+                    .antMatchers("/**/api/**").access("@ftepSecurityService.isSubscribed()")
                     .anyRequest().authenticated();
             httpSecurity
                     .csrf().disable();

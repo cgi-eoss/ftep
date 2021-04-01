@@ -68,6 +68,7 @@ public class AclsApiIT {
     public void setUp() {
         ftepUser = new User("ftep-user");
         ftepUser.setRole(Role.USER);
+        ftepUser.getWallet().setBalance(100);
         ftepAdmin = new User("ftep-admin");
         ftepAdmin.setRole(Role.ADMIN);
         userDataService.save(ImmutableSet.of(ftepUser, ftepAdmin));

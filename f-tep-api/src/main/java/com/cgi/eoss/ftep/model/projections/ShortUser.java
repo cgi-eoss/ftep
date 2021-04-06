@@ -6,6 +6,8 @@ import com.cgi.eoss.ftep.model.User;
 import org.springframework.data.rest.core.config.Projection;
 import org.springframework.hateoas.Identifiable;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>Abbreviated representation of a User entity, for embedding in REST responses.</p>
  */
@@ -15,4 +17,8 @@ public interface ShortUser extends Identifiable<Long> {
     String getEmail();
     String getOrganisation();
     Role getRole();
+    String getCountry();
+    LocalDateTime getCreationTime();
+    LocalDateTime getSubscriptionStart();
+    LocalDateTime getLastLogin();
 }

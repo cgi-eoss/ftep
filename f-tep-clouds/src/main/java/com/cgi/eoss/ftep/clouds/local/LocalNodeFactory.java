@@ -80,4 +80,9 @@ public class LocalNodeFactory implements NodeFactory {
         throw new UnsupportedOperationException("Storage deallocation not available locally");
     }
 
+    @Override
+    public void syncNodes() {
+        // Nothing to do
+    }
+
 }

@@ -118,21 +118,49 @@ public class IptNodeFactory implements NodeFactory {
         PagedIterable<Server> servers = serverApi.listInDetail();
         return StreamSupport.stream(servers.concat().spliterator(), false)
                 .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
-                .map(server -> Node.builder()
-                        .id(server.getId())
-                        .name(server.getName())
-                        .tag(server.getMetadata().get("tag"))
-                        .creationEpochSecond(server.getCreated().toInstant().getEpochSecond())
-                        .ipAddress(getServerAddress(server))
-                        .dockerEngineUrl("tcp://" + getServerAddress(server) + ":" + DEFAULT_DOCKER_PORT)
-                        .build())
+                .map(this::createNode)
                 .collect(Collectors.toSet());
     }
 
     @Override
+    public void syncNodes() {
+        try {
+            // Remove any deleted nodes
+            Set<String> serverIds = StreamSupport.stream(serverApi.listInDetail().concat().spliterator(), false)
+                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
+                    .map(Server::getId)
+                    .collect(Collectors.toSet());
+            currentNodes.removeIf(node -> !serverIds.contains(node.getId()));
+
+            // Add any new nodes
+            Set<String> existingNodeIds = currentNodes.stream().map(Node::getId).collect(Collectors.toSet());
+            Set<Node> newNodes = StreamSupport.stream(serverApi.listInDetail().concat().spliterator(), false)
+                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
+                    .filter(server -> !existingNodeIds.contains(server.getId()))
+                    .map(this::createNode)
+                    .collect(Collectors.toSet());
+            currentNodes.addAll(newNodes);
+        } catch (Exception e) {
+            LOG.debug("Failed to synchronise IPT nodes");
+        }
+    }
+
+    private Node createNode(Server server) {
+        return Node.builder()
+                .id(server.getId())
+                .name(server.getName())
+                .tag(server.getMetadata().get("tag"))
+                .creationEpochSecond(server.getCreated().toInstant().getEpochSecond())
+                .ipAddress(getServerAddress(server))
+                .dockerEngineUrl("tcp://" + getServerAddress(server) + ":" + DEFAULT_DOCKER_PORT)
+                .build();
+    }
+
+    @Override
     public Node provisionNode(String tag, Path environmentBaseDir, Path dataBaseDir) throws NodeProvisioningException {
-        if (getCurrentNodes().size() >= maxPoolSize) {
-            throw new NodeProvisioningException("Cannot provision node - pool exhausted. Used: " + getCurrentNodes().size() + " Max: " + maxPoolSize);
+        int nodeCount = getCurrentNodes().size();
+        if (nodeCount >= maxPoolSize) {
+            throw new NodeProvisioningException("Cannot provision node - pool exhausted. Used: " + nodeCount + " Max: " + maxPoolSize);
         }
         return provisionNode(tag, environmentBaseDir, dataBaseDir, provisioningConfig.getDefaultNodeFlavor());
     }
@@ -152,7 +180,7 @@ public class IptNodeFactory implements NodeFactory {
                     .filter(f -> f.getName().equals(flavorName))
                     .findFirst().orElseThrow(() -> new NodeProvisioningException("Could not find flavor: " + flavorName));
 
-            HashMap<String, String> metadata = new HashMap<String, String>();
+            HashMap<String, String> metadata = new HashMap<>();
             metadata.put("tag", tag);
             CreateServerOptions options = new CreateServerOptions()
                     .metadata(metadata)

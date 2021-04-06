@@ -92,6 +92,7 @@ public class FtepWorkerNodeManager {
     }
 
     private Node findAvailableNode() {
+        nodeFactory.syncNodes();
         LOG.debug("Finding available node");
         LOG.debug("POOLED workers: {}", nodeFactory.getCurrentNodes(POOLED_WORKER_TAG));
         LOG.debug("DEDICATED workers: {}", nodeFactory.getCurrentNodes(DEDICATED_WORKER_TAG));

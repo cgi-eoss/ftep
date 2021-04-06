@@ -43,4 +43,6 @@ public interface NodeFactory {
     String allocateStorageForNode(Node node, int storageGB, String mountPoint) throws StorageProvisioningException;
 
     void removeStorageForNode(Node node, Set<String> volumeIds) throws StorageProvisioningException;
+
+    void syncNodes();
 }

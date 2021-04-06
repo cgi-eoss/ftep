@@ -13,6 +13,28 @@ message Service {
 }
 
 message Job {
+    // A job's execution status.
+    enum Status {
+        // Status is not known. May be recoverable, or transition to FAILED or
+        // CANCELLED.
+        UNKNOWN = 0;
+        // Job has passed validation and is accepted, but not yet scheduled for
+        // execution.
+        ACCEPTED = 1;
+        // Job is scheduled for execution, but has not yet started.
+        QUEUED = 2;
+        // Job is currently executing.
+        RUNNING = 3;
+        // Job has successfully completed execution, and produced outputs according
+        // to the workflow contract.
+        COMPLETED = 4;
+        // One of the steps in the job failed execution, or a step or the workflow
+        // as a whole did not produce valid outputs per its contract.
+        FAILED = 5;
+        // Job was cancelled by user request.
+        CANCELLED = 6;
+    }
+
     string id = 1;
     int64 intJobId = 2;
     string userId = 3;

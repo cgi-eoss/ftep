@@ -6,10 +6,10 @@ import com.cgi.eoss.ftep.model.SystematicProcessing;
 import com.cgi.eoss.ftep.persistence.dao.JobConfigDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.cgi.eoss.ftep.persistence.dao.SystematicProcessingDao;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
@@ -107,7 +107,7 @@ public class JobConfigsApiExtension {
 
         final CountDownLatch latch = new CountDownLatch(1);
         JobLaunchObserver responseObserver = new JobLaunchObserver(latch);
-        localServiceLauncher.asyncLaunchService(serviceParams, responseObserver);
+        localServiceLauncher.asyncSubmitJob(serviceParams, responseObserver);
 
         // Block until the latch counts down (i.e. one message from the server
         latch.await(1, TimeUnit.MINUTES);
@@ -164,7 +164,7 @@ public class JobConfigsApiExtension {
         return ResponseEntity.accepted().build();
     }
 
-    private static final class JobLaunchObserver implements StreamObserver<FtepJobResponse> {
+    private static final class JobLaunchObserver implements StreamObserver<SubmitJobResponse> {
         private final CountDownLatch latch;
 
         @Getter
@@ -175,7 +175,7 @@ public class JobConfigsApiExtension {
         }
 
         @Override
-        public void onNext(FtepJobResponse value) {
+        public void onNext(SubmitJobResponse value) {
             if (latch.getCount() != 0) {
                 this.intJobId = value.getJob().getIntJobId();
                 LOG.info("Received job ID: {}", this.intJobId);
@@ -186,11 +186,13 @@ public class JobConfigsApiExtension {
         @Override
         public void onError(Throwable t) {
             LOG.error("Failed to launch service via REST API", t);
+            latch.countDown(); // just to be safe
         }
 
         @Override
         public void onCompleted() {
             // No-op, the user has long stopped listening here
+            latch.countDown(); // just to be safe
         }
     }
 }

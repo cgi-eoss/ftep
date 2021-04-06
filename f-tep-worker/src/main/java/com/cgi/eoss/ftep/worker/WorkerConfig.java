@@ -5,7 +5,9 @@ import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.io.IoConfig;
 import com.cgi.eoss.ftep.queues.QueuesConfig;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
+import com.cgi.eoss.ftep.worker.worker.FtepDockerService;
 import com.cgi.eoss.ftep.worker.worker.FtepWorkerNodeManager;
+import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,8 +96,12 @@ public class WorkerConfig {
 
     // The cloud node manager that replaces the use of the NodeFactory
     @Bean
-    public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory, @Qualifier("cacheRoot") Path dataBaseDir, @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {
-        return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxJobsPerNode);
+    public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory,
+                                                       JobEnvironmentService jobEnvironmentService,
+                                                       @Qualifier("cacheRoot") Path dataBaseDir,
+                                                       @Qualifier("maxJobsPerNode") Integer maxJobsPerNode,
+                                                       @Qualifier("minWorkerNodes") int minWorkerNodes) {
+        return new FtepWorkerNodeManager(nodeFactory, jobEnvironmentService, dataBaseDir, maxJobsPerNode, minWorkerNodes);
     }
 
     @Bean
@@ -112,5 +118,10 @@ public class WorkerConfig {
             @Value("${ftep.worker.dockerRegistryUsername}") String dockerRegistryUsername,
             @Value("${ftep.worker.dockerRegistryPassword}") String dockerRegistryPassword) {
         return new DockerRegistryConfig(dockerRegistryUrl, dockerRegistryUsername, dockerRegistryPassword);
+    }
+
+    @Bean
+    public FtepDockerService ftepDockerService() {
+        return new FtepDockerService();
     }
 }

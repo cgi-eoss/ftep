@@ -28,6 +28,7 @@ protobuf {
 
 dependencies {
     implementation(project(":f-tep-logging"))
+    implementation("net.jodah:failsafe")
 
     api(project(":f-tep-model"))
     api("io.github.lognet:grpc-spring-boot-starter")

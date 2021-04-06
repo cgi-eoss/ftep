@@ -14,11 +14,18 @@ import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
+import com.cgi.eoss.ftep.rpc.worker.ContainerStatus;
 import com.cgi.eoss.ftep.rpc.worker.DockerImageConfig;
 import com.cgi.eoss.ftep.rpc.worker.ExitParams;
 import com.cgi.eoss.ftep.rpc.worker.ExitWithTimeoutParams;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
+import com.cgi.eoss.ftep.rpc.worker.GetJobEnvironmentRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetNodesRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetNodesResponse;
 import com.cgi.eoss.ftep.rpc.worker.GetOutputFileParam;
+import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsRequest;
+import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsResponse;
+import com.cgi.eoss.ftep.rpc.worker.JobContainer;
 import com.cgi.eoss.ftep.rpc.worker.JobEnvironment;
 import com.cgi.eoss.ftep.rpc.worker.JobInputs;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
@@ -31,33 +38,21 @@ import com.cgi.eoss.ftep.rpc.worker.PortBindings;
 import com.cgi.eoss.ftep.rpc.worker.PrepareDockerImageResponse;
 import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
+import com.cgi.eoss.ftep.rpc.worker.TerminateJobRequest;
 import com.cgi.eoss.ftep.worker.DockerRegistryConfig;
-import com.cgi.eoss.ftep.worker.docker.DockerClientFactory;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.command.BuildImageResultCallback;
-import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.PullImageCmd;
-import com.github.dockerjava.api.command.PushImageCmd;
-import com.github.dockerjava.api.exception.BadRequestException;
 import com.github.dockerjava.api.exception.DockerClientException;
-import com.github.dockerjava.api.model.AuthConfig;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.BuildResponseItem;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.Ports;
-import com.github.dockerjava.core.command.PullImageResultCallback;
-import com.github.dockerjava.core.command.PushImageResultCallback;
 import com.github.dockerjava.core.command.WaitContainerResultCallback;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -76,7 +71,6 @@ import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
@@ -85,6 +79,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,6 +94,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -110,10 +107,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final FtepWorkerNodeManager nodeManager;
     private final JobEnvironmentService jobEnvironmentService;
     private final ServiceInputOutputManager inputOutputManager;
+    private final FtepDockerService ftepDockerService;
     private final boolean keepProcDir;
 
     private DockerRegistryConfig dockerRegistryConfig;
 
+    // Track all nodes
+    private final Map<String, Node> nodes = new HashMap<>();
     // Track which Node is used for each job
     private final Map<String, Node> jobNodes = new HashMap<>();
     // Track which JobEnvironment is used for each job
@@ -127,20 +127,24 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
 
     private final Striped<Lock> dockerBuildLock = Striped.lazyWeakLock(1);
 
-    private final int minWorkerNodes;
-
     private final SetMultimap<String, Path> externalInputs = HashMultimap.create();
 
-    private final static String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
+    private static final String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
+    public static final String JOB_ID = "jobId";
+    public static final String INT_JOB_ID = "intJobId";
+    public static final String USER_ID = "userId";
+    public static final String SERVICE_ID = "serviceId";
+    public static final String WORKER_ID = "workerId";
+    public static final String TIMEOUT_VALUE = "timeoutValue";
 
     @Autowired
     public FtepWorker(FtepWorkerNodeManager nodeManager, JobEnvironmentService jobEnvironmentService,
-                      ServiceInputOutputManager inputOutputManager, @Qualifier("minWorkerNodes") int minWorkerNodes,
+                      ServiceInputOutputManager inputOutputManager, FtepDockerService ftepDockerService,
                       @Qualifier("keepProcDir") boolean keepProcDir) {
         this.nodeManager = nodeManager;
         this.jobEnvironmentService = jobEnvironmentService;
         this.inputOutputManager = inputOutputManager;
-        this.minWorkerNodes = minWorkerNodes;
+        this.ftepDockerService = ftepDockerService;
         this.keepProcDir = keepProcDir;
     }
 
@@ -149,51 +153,30 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         this.dockerRegistryConfig = dockerRegistryConfig;
     }
 
-    @PostConstruct
-    public void allocateMinNodes() {
-        int currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG).size();
-        if (currentNodes < minWorkerNodes) {
-            try {
-                nodeManager.provisionNodes(minWorkerNodes - currentNodes, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
-            } catch (NodeProvisioningException e) {
-                LOG.error("Failed initial node provisioning: {}", e.getMessage());
-            }
-        }
-    }
-
     private static CloseableThreadContext.Instance getJobLoggingContext(Job job) {
         return CloseableThreadContext.push("F-TEP Worker")
                 .put("zooId", job.getId())
-                .put("jobId", String.valueOf(job.getIntJobId()))
-                .put("userId", job.getUserId())
-                .put("serviceId", job.getServiceId());
+                .put(JOB_ID, String.valueOf(job.getIntJobId()))
+                .put(USER_ID, job.getUserId())
+                .put(SERVICE_ID, job.getServiceId());
     }
 
     @Override
     public void prepareInputs(JobInputs request, StreamObserver<JobEnvironment> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
+
             Node node;
-            DockerClient dockerClient;
             try {
-                LOG.info("Finding node for {}", jobId);
-                node = nodeManager.findJobNode(jobId).orElseGet(() -> {
-                    LOG.warn("Provisioning new node for {}, this should already have happened!", jobId);
-                    nodeManager.reserveNodeForJob(jobId);
-                    return nodeManager.provisionNodeForJob(jobEnvironmentService.getBaseDir(), jobId);
-                });
+                node = prepareNode(jobId);
             } catch (NodeProvisioningException e) {
                 LOG.error("Failed to prepare Node for {}", jobId, e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
                 return;
             }
+
             try {
-                LOG.info("Finding Docker client for {}", jobId);
-                if (dockerRegistryConfig != null) {
-                    dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl(), dockerRegistryConfig);
-                } else {
-                    dockerClient = DockerClientFactory.buildDockerClient(node.getDockerEngineUrl());
-                }
+                prepareDockerClient(jobId, node);
             } catch (Exception e) {
                 Logging.withUserLoggingContext(() -> LOG.error("Failed to prepare Docker context: {}", e.getMessage()));
                 LOG.error("Failed to prepare Docker context for {}", jobId, e);
@@ -201,38 +184,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 return;
             }
 
-            LOG.debug("Tracking job {} on node {}", jobId, node);
-            jobNodes.putIfAbsent(jobId, node);
-            LOG.debug("Tracking job {} on Docker client {}", jobId, dockerClient);
-            jobClients.putIfAbsent(jobId, dockerClient);
-
             try {
-                Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
-
-                // Create workspace directories and input parameters file
-                com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(jobId, inputs);
-
-                // Resolve and download any URI-type inputs
-                for (Map.Entry<String, String> e : inputs.entries()) {
-                    if (isValidUri(e.getValue())) {
-                        Path subdirPath = jobEnv.getInputDir().resolve(e.getKey());
-
-                        // Just hope no one has used a comma in their url...
-                        Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(toSet());
-                        inputOutputManager.prepareInput(subdirPath, inputUris).values().forEach(value -> externalInputs.get(jobId).add(value));
-                        jobInputs.putAll(jobId, inputUris);
-                    }
-                }
-
-                JobEnvironment ret = JobEnvironment.newBuilder()
-                        .setInputDir(jobEnv.getInputDir().toAbsolutePath().toString())
-                        .setOutputDir(jobEnv.getOutputDir().toAbsolutePath().toString())
-                        .setWorkingDir(jobEnv.getWorkingDir().toAbsolutePath().toString())
-                        .setTempDir(jobEnv.getTempDir().toAbsolutePath().toString())
-                        .build();
-                jobEnvironments.putIfAbsent(jobId, jobEnv);
-
-                responseObserver.onNext(ret);
+                JobEnvironment jobEnvironment = prepareJobEnvironment(request, jobId);
+                responseObserver.onNext(jobEnvironment);
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 Logging.withUserLoggingContext(() -> LOG.error("Failed to prepare job inputs: {}", e.getMessage()));
@@ -252,56 +206,8 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             String containerId = null;
 
             try {
-                String imageTag;
-                String dockerImageTag = request.getService().getDockerImageTag();
-
-                // If available, pull the Docker image from the registry
-                if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
-                    String registryImageTag = dockerRegistryConfig.getDockerRegistryUrl() + "/" + dockerImageTag;
-                    try {
-                        pullDockerImage(dockerClient, registryImageTag);
-                        // Use registry image tag
-                        imageTag = registryImageTag;
-                    } catch (Exception e) {
-                        LOG.info("Failed to pull image {} from registry '{}'", registryImageTag, dockerRegistryConfig.getDockerRegistryUrl());
-                        // Use Docker image tag
-                        imageTag = dockerImageTag;
-                    }
-                } else {
-                    // Use Docker image tag
-                    imageTag = dockerImageTag;
-                }
-
-                // If registry is not available or if pulling the image from the registry failed, build the image
-                if (!isImageAvailableLocally(dockerClient, imageTag)) {
-                    LOG.info("Building image '{}' locally", imageTag);
-                    buildDockerImage(dockerClient, request.getService().getName(), imageTag, null);
-                }
-
-                // Launch tag
-                try (CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd(imageTag)) {
-                    createContainerCmd.withLabels(ImmutableMap.of(
-                            "jobId", jobId,
-                            "intJobId", String.valueOf(request.getJob().getIntJobId()),
-                            "userId", request.getJob().getUserId(),
-                            "serviceId", request.getJob().getServiceId()
-                    ));
-                    createContainerCmd.withBinds(prepareBindsForDockerContainer(request).stream().map(Bind::parse).collect(Collectors.toList()));
-                    createContainerCmd.withExposedPorts(request.getExposedPortsList().stream().map(ExposedPort::parse).collect(Collectors.toList()));
-                    createContainerCmd.withPortBindings(request.getExposedPortsList().stream()
-                            .map(p -> new com.github.dockerjava.api.model.PortBinding(new Ports.Binding(null, null), ExposedPort.parse(p)))
-                            .collect(Collectors.toList()));
-
-                    // Add proxy vars to the container, if they are set in the environment
-                    createContainerCmd.withEnv(
-                            ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
-                                    .filter(var -> System.getenv().containsKey(var))
-                                    .map(var -> var + "=" + System.getenv(var))
-                                    .collect(Collectors.toList()));
-
-                    containerId = createContainerCmd.exec().getId();
-                    jobContainers.put(jobId, containerId);
-                }
+                containerId = createContainer(request, dockerClient);
+                jobContainers.put(jobId, containerId);
 
                 LOG.info("Launching container {} for job {}", containerId, jobId);
                 dockerClient.startContainerCmd(containerId).exec();
@@ -309,13 +215,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 dockerClient.logContainerCmd(containerId).withStdErr(true).withStdOut(true).withFollowStream(true).withTailAll()
                         .exec(new Log4jContainerCallback());
 
-                responseObserver.onNext(LaunchContainerResponse.newBuilder().build());
+                responseObserver.onNext(LaunchContainerResponse.getDefaultInstance());
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 Logging.withUserLoggingContext(() -> LOG.error("Failed to launch Docker container: {}", e.getMessage()));
                 LOG.error("Failed to launch Docker container {}", request.getService().getDockerImageTag(), e);
                 if (!Strings.isNullOrEmpty(containerId)) {
-                    removeContainer(dockerClient, containerId);
+                    ftepDockerService.removeContainer(dockerClient, containerId);
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -325,31 +231,16 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void getPortBindings(Job request, StreamObserver<PortBindings> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
-
+            checkPreconditions(request.getId());
             DockerClient dockerClient = jobClients.get(request.getId());
             String containerId = jobContainers.get(request.getId());
             try {
-                LOG.debug("Inspecting container for port bindings: {}", containerId);
-                InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
-                Map<ExposedPort, Ports.Binding[]> exposedPortMap = inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
-
-                LOG.debug("Returning port map: {}", exposedPortMap);
-                PortBindings.Builder bindingsBuilder = PortBindings.newBuilder();
-                exposedPortMap.entrySet().stream()
-                        .filter(e -> e.getValue() != null)
-                        .map(e -> PortBinding.newBuilder()
-                                .setPortDef(e.getKey().toString())
-                                .setBinding(Binding.newBuilder().setIp(e.getValue()[0].getHostIp()).setPort(Integer.parseInt(e.getValue()[0].getHostPortSpec())).build())
-                                .build())
-                        .forEach(bindingsBuilder::addBindings);
-
-                responseObserver.onNext(bindingsBuilder.build());
+                PortBindings portBindings = getBindings(dockerClient, containerId);
+                responseObserver.onNext(portBindings);
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 if (!Strings.isNullOrEmpty(containerId)) {
-                    removeContainer(dockerClient, containerId);
+                    ftepDockerService.removeContainer(dockerClient, containerId);
                 }
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             }
@@ -359,17 +250,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void stopContainer(Job request, StreamObserver<StopContainerResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
-            Preconditions.checkArgument(jobClients.containsKey(request.getId()), "Job ID %s is not attached to a DockerClient", request.getId());
-            Preconditions.checkArgument(jobContainers.containsKey(request.getId()), "Job ID %s does not have a known container ID", request.getId());
-
+            checkPreconditions(request.getId());
             DockerClient dockerClient = jobClients.get(request.getId());
             String containerId = jobContainers.get(request.getId());
-
             LOG.info("Stop requested for job {} running in container {}", request.getId(), containerId);
 
             try {
                 stopContainer(dockerClient, containerId);
-                responseObserver.onNext(StopContainerResponse.newBuilder().build());
+                responseObserver.onNext(StopContainerResponse.getDefaultInstance());
                 responseObserver.onCompleted();
             } catch (Exception e) {
                 LOG.error("Failed to stop job: {}", request.getId(), e);
@@ -382,9 +270,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void waitForContainerExit(ExitParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
-            Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
-            Preconditions.checkArgument(jobContainers.containsKey(jobId), "Job ID %s does not have a known container ID", jobId);
-
+            checkPreconditions(jobId);
             DockerClient dockerClient = jobClients.get(jobId);
             String containerId = jobContainers.get(jobId);
             try {
@@ -396,7 +282,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 LOG.error("Failed to properly wait for container exit: {}", containerId, e);
                 responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
             } finally {
-                removeContainer(dockerClient, containerId);
+                ftepDockerService.removeContainer(dockerClient, containerId);
             }
         }
     }
@@ -405,8 +291,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     public void waitForContainerExitWithTimeout(ExitWithTimeoutParams request, StreamObserver<ContainerExitCode> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
             String jobId = request.getJob().getId();
-            Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
-            Preconditions.checkArgument(jobContainers.containsKey(jobId), "Job ID %s does not have a known container ID", jobId);
+            checkPreconditions(jobId);
 
             DockerClient dockerClient = jobClients.get(jobId);
             String containerId = jobContainers.get(jobId);
@@ -426,7 +311,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                     responseObserver.onError(new StatusRuntimeException(Status.fromCode(Status.Code.ABORTED).withCause(e)));
                 }
             } finally {
-                removeContainer(dockerClient, containerId);
+                ftepDockerService.removeContainer(dockerClient, containerId);
             }
         }
     }
@@ -497,6 +382,45 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     @Override
+    public void prepareDockerImage(DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
+        // TODO provision node for docker building?
+        DockerClient dockerClient = ftepDockerService.getDockerClient(DOCKER_HOST_URL, dockerRegistryConfig);
+        prepareDockerImage(dockerClient, dockerImageConfig, responseObserver);
+    }
+
+    @Override
+    public void getJobEnvironment(GetJobEnvironmentRequest request, StreamObserver<JobEnvironment> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            try {
+                com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnvironment = jobEnvironmentService.getExistingJobEnvironment(request.getJob().getId());
+                responseObserver.onNext(JobEnvironment.newBuilder()
+                        .setInputDir(jobEnvironment.getInputDir().toAbsolutePath().toString())
+                        .setOutputDir(jobEnvironment.getOutputDir().toAbsolutePath().toString())
+                        .setWorkingDir(jobEnvironment.getWorkingDir().toAbsolutePath().toString())
+                        .setTempDir(jobEnvironment.getTempDir().toAbsolutePath().toString())
+                        .build());
+                responseObserver.onCompleted();
+            } catch (Exception e) {
+                responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+                LOG.error("Failed to retrieve an existing job environment for job ID {}", request.getJob().getId());
+            }
+        }
+    }
+
+    @Override
+    public void getResumableJobs(GetResumableJobsRequest request, StreamObserver<GetResumableJobsResponse> responseObserver) {
+        try {
+            Node node = nodes.get(request.getNodeId());
+            List<JobContainer> jobs = getResumableJobs(request.getWorkerId(), node);
+            responseObserver.onNext(GetResumableJobsResponse.newBuilder().addAllJobs(jobs).build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed to retrieve resumable jobs for worker {}", request.getWorkerId());
+        }
+    }
+
+    @Override
     public void cleanUp(com.cgi.eoss.ftep.rpc.Job job, io.grpc.stub.StreamObserver<com.cgi.eoss.ftep.rpc.worker.CleanUpResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(job)) {
             String jobId = job.getId();
@@ -524,9 +448,117 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             LOG.debug("Unused URIs to be cleaned: {}", unusedUris);
             inputOutputManager.cleanUp(unusedUris);
         } finally {
-            responseObserver.onNext(CleanUpResponse.newBuilder().build());
+            responseObserver.onNext(CleanUpResponse.getDefaultInstance());
             responseObserver.onCompleted();
         }
+    }
+
+    @Override
+    public void terminateJob(TerminateJobRequest request, StreamObserver<ContainerExitCode> responseObserver) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request.getJob())) {
+            String jobId = request.getJob().getId();
+            DockerClient dockerClient = jobClients.get(jobId);
+            String containerId = jobContainers.get(jobId);
+            try {
+                LOG.warn("Job {} has timed out. Manually stopping the container {} and treating as 'normal' exit", jobId, containerId);
+                stopContainer(dockerClient, containerId);
+                responseObserver.onNext(ContainerExitCode.newBuilder().setExitCode(0).build());
+                responseObserver.onCompleted();
+            } finally {
+                ftepDockerService.removeContainer(dockerClient, containerId);
+            }
+        }
+    }
+
+    private Node prepareNode(String jobId) {
+        Node node = nodeManager.findOrProvisionNodeForJob(jobId);
+        LOG.debug("Tracking job {} on node {}", jobId, node);
+        jobNodes.putIfAbsent(jobId, node);
+        return node;
+    }
+
+    private void prepareDockerClient(String jobId, Node node) {
+        LOG.info("Finding Docker client for {}", jobId);
+        DockerClient dockerClient = ftepDockerService.getDockerClient(node.getDockerEngineUrl(), dockerRegistryConfig);
+        LOG.debug("Tracking job {} on Docker client {}", jobId, dockerClient);
+        jobClients.putIfAbsent(jobId, dockerClient);
+    }
+
+    private JobEnvironment prepareJobEnvironment(JobInputs request, String jobId) throws IOException {
+        Multimap<String, String> inputs = GrpcUtil.paramsListToMap(request.getInputsList());
+
+        // Create workspace directories and input parameters file
+        com.cgi.eoss.ftep.worker.worker.JobEnvironment jobEnv = jobEnvironmentService.createEnvironment(jobId, inputs);
+
+        // Resolve and download any URI-type inputs
+        for (Map.Entry<String, String> e : inputs.entries()) {
+            if (isValidUri(e.getValue())) {
+                Path subdirPath = jobEnv.getInputDir().resolve(e.getKey());
+
+                // Just hope no one has used a comma in their url...
+                Set<URI> inputUris = Arrays.stream(StringUtils.split(e.getValue(), ',')).map(URI::create).collect(toSet());
+                inputOutputManager.prepareInput(subdirPath, inputUris).values().forEach(value -> externalInputs.get(jobId).add(value));
+                jobInputs.putAll(jobId, inputUris);
+            }
+        }
+
+        jobEnvironments.putIfAbsent(jobId, jobEnv);
+
+        return JobEnvironment.newBuilder()
+                .setInputDir(jobEnv.getInputDir().toAbsolutePath().toString())
+                .setOutputDir(jobEnv.getOutputDir().toAbsolutePath().toString())
+                .setWorkingDir(jobEnv.getWorkingDir().toAbsolutePath().toString())
+                .setTempDir(jobEnv.getTempDir().toAbsolutePath().toString())
+                .build();
+    }
+
+    private String createContainer(JobSpec jobSpec, DockerClient dockerClient) throws IOException, StorageProvisioningException {
+        String jobId = jobSpec.getJob().getId();
+        String imageTag;
+        String dockerImageTag = jobSpec.getService().getDockerImageTag();
+
+        // If available, pull the Docker image from the registry
+        if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
+            String registryImageTag = dockerRegistryConfig.getDockerRegistryUrl() + "/" + dockerImageTag;
+            try {
+                ftepDockerService.pullDockerImage(dockerClient, registryImageTag, dockerRegistryConfig);
+                // Use registry image tag
+                imageTag = registryImageTag;
+            } catch (Exception e) {
+                LOG.info("Failed to pull image {} from registry '{}'", registryImageTag, dockerRegistryConfig.getDockerRegistryUrl());
+                // Use Docker image tag
+                imageTag = dockerImageTag;
+            }
+        } else {
+            // Use Docker image tag
+            imageTag = dockerImageTag;
+        }
+
+        // If registry is not available or if pulling the image from the registry failed, build the image
+        if (!ftepDockerService.isImageAvailableLocally(dockerClient, imageTag)) {
+            LOG.info("Building image '{}' locally", imageTag);
+            buildDockerImage(dockerClient, jobSpec.getService().getName(), imageTag, null);
+        }
+
+        // Launch tag
+        return ftepDockerService.createContainer(dockerClient, jobSpec, imageTag, prepareBindsForDockerContainer(jobSpec)).getId();
+    }
+
+    private PortBindings getBindings(DockerClient dockerClient, String containerId) {
+        LOG.debug("Inspecting container for port bindings: {}", containerId);
+        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
+        Map<ExposedPort, Ports.Binding[]> exposedPortMap = inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
+
+        LOG.debug("Returning port map: {}", exposedPortMap);
+        PortBindings.Builder bindingsBuilder = PortBindings.newBuilder();
+        exposedPortMap.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .map(e -> PortBinding.newBuilder()
+                        .setPortDef(e.getKey().toString())
+                        .setBinding(Binding.newBuilder().setIp(e.getValue()[0].getHostIp()).setPort(Integer.parseInt(e.getValue()[0].getHostPortSpec())).build())
+                        .build())
+                .forEach(bindingsBuilder::addBindings);
+        return bindingsBuilder.build();
     }
 
     private List<String> prepareBindsForDockerContainer(JobSpec jobSpec) throws StorageProvisioningException {
@@ -597,19 +629,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         }
     }
 
-    private void removeContainer(DockerClient client, String containerId) {
-        try {
-            LOG.info("Removing container {}", containerId);
-            client.removeContainerCmd(containerId).exec();
-        } catch (BadRequestException e) {
-            if (!e.getMessage().endsWith("is already in progress")) {
-                LOG.error("Failed to delete container {}", containerId, e);
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to delete container {}", containerId, e);
-        }
-    }
-
     private boolean isValidUri(String test) {
         try {
             URI uri = URI.create(test);
@@ -617,15 +636,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         } catch (Exception unused) {
             return false;
         }
-    }
-
-    @Override
-    public void prepareDockerImage(DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
-        // TODO provision node for docker building?
-        DockerClient dockerClient = Optional.ofNullable(dockerRegistryConfig)
-                .map(config -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL, config))
-                .orElseGet(() -> DockerClientFactory.buildDockerClient(DOCKER_HOST_URL));
-        prepareDockerImage(dockerClient, dockerImageConfig, responseObserver);
     }
 
     private void prepareDockerImage(DockerClient dockerClient, DockerImageConfig dockerImageConfig, StreamObserver<PrepareDockerImageResponse> responseObserver) {
@@ -641,7 +651,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             // Pull the Docker image from the registry if applicable to warm up the cache
             if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
                 try {
-                    pullDockerImage(dockerClient, imageTag);
+                    ftepDockerService.pullDockerImage(dockerClient, imageTag, dockerRegistryConfig);
                 } catch (Exception e) {
                     LOG.debug("Failed to pull image {} from registry '{}'", imageTag, dockerRegistryConfig.getDockerRegistryUrl());
                 }
@@ -652,14 +662,14 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             // Push the built image into the registry if applicable
             if (Optional.ofNullable(dockerRegistryConfig).isPresent()) {
                 try {
-                    pushDockerImage(dockerClient, imageTag);
+                    ftepDockerService.pushDockerImage(dockerClient, imageTag, dockerRegistryConfig);
                 } catch (Exception e) {
                     LOG.warn("Failed to push image {}", imageTag, e);
                     throw e;
                 }
             }
 
-            responseObserver.onNext(PrepareDockerImageResponse.newBuilder().build());
+            responseObserver.onNext(PrepareDockerImageResponse.getDefaultInstance());
             responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
@@ -695,33 +705,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 }
 
                 // Build image
-                LOG.info("Starting Docker image build '{}' for service {}", dockerImageTag, serviceName);
-                BuildImageCmd buildImageCmd = dockerClient.buildImageCmd()
-                        .withRemove(true)
-                        .withBaseDirectory(serviceContext.toFile())
-                        .withDockerfile(serviceContext.resolve("Dockerfile").toFile())
-                        .withTags(ImmutableSet.of(dockerImageTag));
-
-                // Add proxy vars to the container, if they are set in the environment
-                ImmutableSet.of("http_proxy", "https_proxy", "no_proxy").stream()
-                        .filter(var -> System.getenv().containsKey(var))
-                        .forEach(var -> buildImageCmd.withBuildArg(var, System.getenv(var)));
-
-                String imageId = buildImageCmd.exec(new BuildImageResultCallback() {
-                    @Override
-                    public void onNext(BuildResponseItem item) {
-                        if (!Strings.isNullOrEmpty(item.getStream())) {
-                            if (fingerprint != null) {
-                                try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext().put("dockerBuildFingerprint", fingerprint)) {
-                                    LOG.info("{}", item.getStream().trim());
-                                }
-                            } else {
-                                LOG.debug("{}:{} :: {}", serviceName, dockerImageTag, item.getStream().trim());
-                            }
-                        }
-                        super.onNext(item);
-                    }
-                }).awaitImageId();
+                String imageId = ftepDockerService.buildImage(dockerClient, serviceName, dockerImageTag, fingerprint, serviceContext);
 
                 // Tag image with desired image name
                 LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImageTag);
@@ -739,47 +723,112 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         }
     }
 
-    private void pushDockerImage(DockerClient dockerClient, String dockerImage) throws IOException, InterruptedException {
-        LOG.info("Pushing Docker image '{}' to registry {}", dockerImage, dockerRegistryConfig.getDockerRegistryUrl());
-        PushImageCmd pushImageCmd = dockerClient.pushImageCmd(dockerImage);
-        AuthConfig authConfig = new AuthConfig()
-                .withRegistryAddress(dockerRegistryConfig.getDockerRegistryUrl())
-                .withUsername(dockerRegistryConfig.getDockerRegistryUsername())
-                .withPassword(dockerRegistryConfig.getDockerRegistryPassword());
-        dockerClient.authCmd().withAuthConfig(authConfig).exec();
-        pushImageCmd = pushImageCmd.withAuthConfig(authConfig);
-        pushImageCmd.exec(new PushImageResultCallback()).awaitSuccess();
-        LOG.info("Pushed Docker image '{}' to registry {}", dockerImage, dockerRegistryConfig.getDockerRegistryUrl());
-    }
-
-    private void pullDockerImage(DockerClient dockerClient, String dockerImage) throws IOException, InterruptedException {
-        LOG.info("Pulling Docker image '{}' from registry {}", dockerImage, dockerRegistryConfig.getDockerRegistryUrl());
-        PullImageCmd pullImageCmd = dockerClient.pullImageCmd(dockerImage);
-        AuthConfig authConfig = new AuthConfig()
-                .withRegistryAddress(dockerRegistryConfig.getDockerRegistryUrl())
-                .withUsername(dockerRegistryConfig.getDockerRegistryUsername())
-                .withPassword(dockerRegistryConfig.getDockerRegistryPassword());
-        dockerClient.authCmd().withAuthConfig(authConfig).exec();
-        pullImageCmd = pullImageCmd.withRegistry(dockerRegistryConfig.getDockerRegistryUrl()).withAuthConfig(authConfig);
-        pullImageCmd.exec(new PullImageResultCallback()).awaitSuccess();
-        LOG.info("Pulled Docker image '{}' from registry {}", dockerImage, dockerRegistryConfig.getDockerRegistryUrl());
-    }
-
-    private void removeDockerImage(DockerClient dockerClient, String dockerImageTag) {
-        List<Image> images = dockerClient.listImagesCmd().withImageNameFilter(dockerImageTag).exec();
-        for (Image image : images) {
-            dockerClient.removeImageCmd(image.getId()).exec();
-        }
-    }
-
-    private boolean isImageAvailableLocally(DockerClient dockerClient, String dockerImage) {
-        List<Image> images = dockerClient.listImagesCmd().withImageNameFilter(dockerImage).exec();
-        return !images.isEmpty();
-    }
-
     @VisibleForTesting
     Map<String, DockerClient> getJobClients() {
         return jobClients;
     }
 
+    private List<JobContainer> getResumableJobs(String workerId, Node node) {
+
+        // Set up a new connection to the Docker engine
+        DockerClient dockerClient = ftepDockerService.getDockerClient(node.getDockerEngineUrl(), dockerRegistryConfig);
+
+        // List all running/exited containers
+        List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+
+        // Return all service containers launched by this worker as JobContainer objects
+        return containers.stream()
+                .filter(container -> isMatchingContainer(container, workerId))
+                .map(container -> trackJobData(container, dockerClient, node))
+                .map(container -> convertToJobContainer(container, dockerClient))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return true if the container was used for running a service image and was launched by the given worker
+     *
+     * @param container
+     * @param workerId
+     * @return
+     */
+    private boolean isMatchingContainer(Container container, String workerId) {
+        Map<String, String> labels = container.getLabels();
+        return labels.containsKey(SERVICE_ID)
+                && labels.containsKey(WORKER_ID)
+                && labels.get(WORKER_ID).equals(workerId);
+    }
+
+    /**
+     * Update maps to track data for the job
+     *
+     * @param container
+     * @param dockerClient
+     * @param node
+     * @return
+     */
+    private Container trackJobData(Container container, DockerClient dockerClient, Node node) {
+        String jobId = container.getLabels().get(JOB_ID);
+        nodeManager.reattachJobToNode(node, jobId);
+        jobContainers.putIfAbsent(jobId, container.getId());
+        jobClients.putIfAbsent(jobId, dockerClient);
+        jobNodes.putIfAbsent(jobId, node);
+        return container;
+    }
+
+    private JobContainer convertToJobContainer(Container container, DockerClient dockerClient) {
+        Map<String, String> labels = container.getLabels();
+        Job job = Job.newBuilder()
+                .setId(labels.get(JOB_ID))
+                .setIntJobId(Long.valueOf(labels.get(INT_JOB_ID)))
+                .setUserId(labels.get(USER_ID))
+                .setServiceId(labels.get(SERVICE_ID))
+                .build();
+        return JobContainer.newBuilder().setJob(job).setContainerStatus(getContainerStatus(container, dockerClient)).build();
+    }
+
+    private ContainerStatus getContainerStatus(Container container, DockerClient dockerClient) {
+        Map<String, String> labels = container.getLabels();
+
+        // If timeout was used for launching this container, check if that time has already passed, regardless of the container status
+        if (labels.containsKey(TIMEOUT_VALUE)) {
+            int timeoutValue = Integer.parseInt(labels.get(TIMEOUT_VALUE));
+            Optional<Instant> startTime = ftepDockerService.getContainerStarttime(container, dockerClient);
+            if (startTime.isPresent() && Instant.now().isAfter(startTime.get().plus(timeoutValue, ChronoUnit.MINUTES))) {
+                return ContainerStatus.TIMEOUT;
+            }
+        }
+
+        String containerStatus = dockerClient.inspectContainerCmd(container.getId()).exec().getState().getStatus();
+        if (Arrays.asList("created", "restarting", "running", "removing", "paused").contains(containerStatus)) {
+            return ContainerStatus.RUNNING;
+        } else { // "dead", "exited"
+            return ContainerStatus.COMPLETED;
+        }
+    }
+
+    @Override
+    public void getNodes(GetNodesRequest request, StreamObserver<GetNodesResponse> responseObserver) {
+        try {
+            Set<Node> currentNodes = nodeManager.getCurrentNodes();
+            nodes.putAll(currentNodes.stream().collect(toMap(Node::getId, node -> node)));
+            responseObserver.onNext(GetNodesResponse.newBuilder()
+                    .addAllNodes(currentNodes.stream().map(this::nodeToProtobuf).collect(Collectors.toList()))
+                    .build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed to get current nodes");
+        }
+    }
+
+    private com.cgi.eoss.ftep.rpc.worker.Node nodeToProtobuf(Node node) {
+        return com.cgi.eoss.ftep.rpc.worker.Node.newBuilder()
+                .setId(node.getId())
+                .build();
+    }
+
+    private void checkPreconditions(String jobId) {
+        Preconditions.checkArgument(jobClients.containsKey(jobId), "Job ID %s is not attached to a DockerClient", jobId);
+        Preconditions.checkArgument(jobContainers.containsKey(jobId), "Job ID %s does not have a known container ID", jobId);
+    }
 }

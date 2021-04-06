@@ -107,4 +107,21 @@ public class JobEnvironmentService {
                 .build();
     }
 
+    /**
+     * Return a JobEnvironment object for a job for which an environment has already been created
+     *
+     * @param jobId
+     * @return
+     */
+    public JobEnvironment getExistingJobEnvironment(String jobId) {
+        Path workingDir = getBaseDir().resolve(WORKING_DIR_PREFIX + jobId);
+        return JobEnvironment.builder()
+                .jobId(jobId)
+                .workingDir(workingDir)
+                .inputDir(workingDir.resolve(INPUT_DIR))
+                .outputDir(workingDir.resolve(OUTPUT_DIR))
+                .tempDir(workingDir.resolve(TEMP_DIR))
+                .build();
+    }
+
 }

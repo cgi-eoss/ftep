@@ -23,7 +23,7 @@ plugins {
 
 allprojects {
     group = "com.cgi.eoss.f-tep"
-    version = "2.16.0"
+    version = "3.0.0"
 
     buildscript {
         repositories {
@@ -55,7 +55,7 @@ allprojects {
     extra.set("docker-java.version", "3.2.7")
     extra.set("embedded-database-spring-test.version", "1.3.1")
     extra.set("embedded-postgres-binaries-bom.version", "10.5.0")
-    extra.set("failsafe.version", "2.0.1")
+    extra.set("failsafe.version", "2.4.0")
     extra.set("geojson-jackson.version", "1.8.1")
     extra.set("geoserver-manager.version", "1.7.0")
     extra.set("geotools.version", "17.2")

@@ -19,6 +19,10 @@ service FtepWorker {
     rpc ListOutputFiles (ListOutputFilesParam) returns (OutputFileList);
     rpc GetOutputFile (GetOutputFileParam) returns (stream FileStream);
     rpc CleanUp (Job) returns (CleanUpResponse);
+    rpc GetJobEnvironment (GetJobEnvironmentRequest) returns (JobEnvironment);
+    rpc GetResumableJobs (GetResumableJobsRequest) returns (GetResumableJobsResponse);
+    rpc GetNodes (GetNodesRequest) returns (GetNodesResponse);
+    rpc TerminateJob (TerminateJobRequest) returns (ContainerExitCode);
 }
 
 message JobSpec {
@@ -31,6 +35,11 @@ message JobSpec {
     repeated string userBinds = 7;
     ResourceRequest resourceRequest = 8;
     map<string, string> environmentVariables = 9;
+    Worker worker = 10;
+
+    message Worker {
+        string id = 1;
+    }
 }
 
 message ResourceRequest {
@@ -156,4 +165,44 @@ message PrepareDockerImageResponse {
 }
 
 message CleanUpResponse {
+}
+
+message GetJobEnvironmentRequest {
+    Job job = 1;
+}
+
+message GetResumableJobsRequest {
+    string worker_id = 1;
+    string node_id = 2;
+}
+
+message GetResumableJobsResponse {
+    repeated JobContainer jobs = 1;
+}
+
+enum ContainerStatus {
+    NEW = 0;
+    RUNNING = 1;
+    COMPLETED = 2;
+    TIMEOUT = 3;
+}
+
+message JobContainer {
+    Job job = 1;
+    ContainerStatus container_status = 2;
+}
+
+message GetNodesRequest {
+}
+
+message GetNodesResponse {
+    repeated Node nodes = 1;
+}
+
+message Node {
+    string id = 1;
+}
+
+message TerminateJobRequest {
+    Job job = 1;
 }

@@ -9,6 +9,7 @@ import com.google.common.collect.SetMultimap;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashSet;
@@ -21,8 +22,10 @@ import java.util.stream.Collectors;
 public class FtepWorkerNodeManager {
 
     private final int maxJobsPerNode;
+    private final int minWorkerNodes;
     private final Path dataBaseDir;
     private final NodeFactory nodeFactory;
+    private final JobEnvironmentService jobEnvironmentService;
 
     // Track which Node is used for each job
     private final SetMultimap<Node, String> nodeJobs = HashMultimap.create();
@@ -32,10 +35,34 @@ public class FtepWorkerNodeManager {
     public static final String POOLED_WORKER_TAG = "pooled-worker-node";
     public static final String DEDICATED_WORKER_TAG = "dedicated-worker-node";
 
-    public FtepWorkerNodeManager(NodeFactory nodeFactory, Path dataBaseDir, int maxJobsPerNode) {
+    public FtepWorkerNodeManager(NodeFactory nodeFactory, JobEnvironmentService jobEnvironmentService,
+                                 Path dataBaseDir, int maxJobsPerNode, int minWorkerNodes) {
         this.nodeFactory = nodeFactory;
+        this.jobEnvironmentService = jobEnvironmentService;
         this.dataBaseDir = dataBaseDir;
         this.maxJobsPerNode = maxJobsPerNode;
+        this.minWorkerNodes = minWorkerNodes;
+    }
+
+    @PostConstruct
+    public void allocateMinNodes() {
+        int currentNodes = getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG).size();
+        if (currentNodes < minWorkerNodes) {
+            try {
+                provisionNodes(minWorkerNodes - currentNodes, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
+            } catch (NodeProvisioningException e) {
+                LOG.error("Failed initial node provisioning: {}", e.getMessage());
+            }
+        }
+    }
+
+    public Node findOrProvisionNodeForJob(String jobId) {
+        LOG.info("Finding node for {}", jobId);
+        return findJobNode(jobId).orElseGet(() -> {
+            LOG.warn("Provisioning new node for {}, this should already have happened!", jobId);
+            reserveNodeForJob(jobId);
+            return provisionNodeForJob(jobEnvironmentService.getBaseDir(), jobId);
+        });
     }
 
     public boolean hasCapacity() {
@@ -104,6 +131,11 @@ public class FtepWorkerNodeManager {
         return node;
     }
 
+    public void reattachJobToNode(Node node, String jobId) {
+        LOG.debug("Reattaching job " + jobId + " to node " + node);
+        nodeJobs.put(node, jobId);
+    }
+
     @Synchronized
     public int destroyNodes(int count, String tag, Path environmentBaseDir, long minimumHourFractionUptimeSeconds) {
         Set<Node> freeWorkerNodes = findNFreeWorkerNodes(count, tag, minimumHourFractionUptimeSeconds);
@@ -153,4 +185,10 @@ public class FtepWorkerNodeManager {
     public int getNumberOfFreeNodes(String tag) {
         return nodeFactory.getCurrentNodes(tag).stream().filter(n -> nodeJobs.get(n).isEmpty()).collect(Collectors.toSet()).size();
     }
+
+    public Set<Node> getCurrentNodes() {
+        return nodeFactory.getCurrentNodes();
+    }
+
+
 }

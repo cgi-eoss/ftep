@@ -1,11 +1,14 @@
 package com.cgi.eoss.ftep.wps;
 
 import com.cgi.eoss.ftep.rpc.FtepJobLauncherGrpc;
-import com.cgi.eoss.ftep.rpc.FtepJobResponse;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
+import com.cgi.eoss.ftep.rpc.GetJobResultRequest;
+import com.cgi.eoss.ftep.rpc.GetJobResultResponse;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
-
+import com.cgi.eoss.ftep.rpc.JobDataServiceGrpc;
+import com.cgi.eoss.ftep.rpc.JobUtil;
+import com.cgi.eoss.ftep.rpc.SubmitJobResponse;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -17,9 +20,9 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.zoo_project.ZOO;
 
 import javax.annotation.PreDestroy;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +36,7 @@ public class FtepServicesClient {
     private final ManagedChannel channel;
     private final FtepJobLauncherGrpc.FtepJobLauncherBlockingStub ftepJobLauncherBlockingStub;
     private final FtepJobLauncherGrpc.FtepJobLauncherStub ftepJobLauncherStub;
+    private final JobDataServiceGrpc.JobDataServiceBlockingStub jobDataService;
 
     /**
      * <p>Construct gRPC client connecting to server at ${host}:${port}.</p>
@@ -49,6 +53,7 @@ public class FtepServicesClient {
         channel = channelBuilder.build();
         ftepJobLauncherBlockingStub = FtepJobLauncherGrpc.newBlockingStub(channel);
         ftepJobLauncherStub = FtepJobLauncherGrpc.newStub(channel);
+        jobDataService = JobDataServiceGrpc.newBlockingStub(channel);
     }
 
     /**
@@ -76,15 +81,15 @@ public class FtepServicesClient {
                 .setServiceId(serviceId)
                 .addAllInputs(GrpcUtil.mapToParams(inputs))
                 .build();
-        Iterator<FtepJobResponse> responseIterator = ftepJobLauncherBlockingStub.submitJob(request);
+        SubmitJobResponse submitJobResponse = ftepJobLauncherBlockingStub.submitJob(request);
 
-        // First message is the persisted job metadata
-        Job jobInfo = responseIterator.next().getJob();
+        Job jobInfo = submitJobResponse.getJob();
         LOG.info("Instantiated job: {}", jobInfo);
 
-        // Second message is the outputs
-        FtepJobResponse.JobOutputs jobOutputs = responseIterator.next().getJobOutputs();
-        return GrpcUtil.paramsListToMap(jobOutputs.getOutputsList());
+        Job.Status jobStatus = JobUtil.awaitJobTermination(jobInfo.getId(), jobDataService, Duration.ofHours(24)).getJobStatus();
+
+        GetJobResultResponse jobResult = jobDataService.getJobResult(GetJobResultRequest.newBuilder().setJobId(jobInfo.getId()).build());
+        return GrpcUtil.paramsListToMap(jobResult.getOutputsList());
     }
 
     /**

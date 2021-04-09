@@ -9,9 +9,9 @@ import lombok.extern.log4j.Log4j2;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class LocalNodeFactory implements NodeFactory {
 
     @Getter
-    private final Set<Node> currentNodes = new HashSet<>();
+    private final Set<Node> currentNodes = ConcurrentHashMap.newKeySet();
 
     private final int maxPoolSize;
     private final String dockerHostUrl;

@@ -5,6 +5,7 @@ import com.cgi.eoss.ftep.clouds.service.NodeFactory;
 import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
@@ -28,9 +29,9 @@ public class FtepWorkerNodeManager {
     private final JobEnvironmentService jobEnvironmentService;
 
     // Track which Node is used for each job
-    private final SetMultimap<Node, String> nodeJobs = HashMultimap.create();
+    private final SetMultimap<Node, String> nodeJobs = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     // Track dynamic block volumes attached to nodes
-    private final SetMultimap<String, String> jobVolumes = HashMultimap.create();
+    private final SetMultimap<String, String> jobVolumes = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     public static final String POOLED_WORKER_TAG = "pooled-worker-node";
     public static final String DEDICATED_WORKER_TAG = "dedicated-worker-node";

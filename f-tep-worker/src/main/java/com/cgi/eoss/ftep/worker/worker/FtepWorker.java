@@ -83,12 +83,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
@@ -113,21 +113,21 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private DockerRegistryConfig dockerRegistryConfig;
 
     // Track all nodes
-    private final Map<String, Node> nodes = new HashMap<>();
+    private final Map<String, Node> nodes = new ConcurrentHashMap<>();
     // Track which Node is used for each job
-    private final Map<String, Node> jobNodes = new HashMap<>();
+    private final Map<String, Node> jobNodes = new ConcurrentHashMap<>();
     // Track which JobEnvironment is used for each job
-    private final Map<String, com.cgi.eoss.ftep.worker.worker.JobEnvironment> jobEnvironments = new HashMap<>();
+    private final Map<String, com.cgi.eoss.ftep.worker.worker.JobEnvironment> jobEnvironments = new ConcurrentHashMap<>();
     // Track which DockerClient is used for each job
-    private final Map<String, DockerClient> jobClients = new HashMap<>();
+    private final Map<String, DockerClient> jobClients = new ConcurrentHashMap<>();
     // Track which container ID is used for each job
-    private final Map<String, String> jobContainers = new HashMap<>();
+    private final Map<String, String> jobContainers = new ConcurrentHashMap<>();
     // Track which input URIs are used for each job
     private final SetMultimap<String, URI> jobInputs = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     private final Striped<Lock> dockerBuildLock = Striped.lazyWeakLock(1);
 
-    private final SetMultimap<String, Path> externalInputs = HashMultimap.create();
+    private final SetMultimap<String, Path> externalInputs = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     private static final String DOCKER_HOST_URL = "unix:///var/run/docker.sock";
     public static final String JOB_ID = "jobId";

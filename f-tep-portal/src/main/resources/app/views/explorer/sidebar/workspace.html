@@ -132,10 +132,11 @@
                     <md-button id="launch-button"
                                class="icon-button md-icon-button md-fab md-mini btn-success"
                                form="serviceForm"
-                               ng-disabled="serviceForm.$invalid"
+                               ng-disabled="serviceForm.$invalid || !inputsValid"
                                aria-label="Launch"
                                ng-click="launchProcessing($event)"
-                               uib-tooltip="Launch"
+                               uib-tooltip="{{launchButtonTooltipText}}"
+                               ng-attr-title="{{launchButtonTooltipText}}"
                                tooltip-placement="top"
                                tooltip-trigger="mouseenter"
                                tooltip-append-to-body="true">

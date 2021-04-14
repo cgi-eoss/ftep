@@ -13,6 +13,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         $scope.serviceParams = ProductService.params.explorer;
         $scope.runModes = ProductService.serviceRunModes;
+        $scope.inputsValid = true;
+        $scope.inputValidityMap = new Map();
+        $scope.launchButtonTooltipText = "Launch";
 
         $scope.searchForm = {
             config: {},
@@ -55,11 +58,32 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             selectedService: undefined,
             config: {}
         };
+
+        $scope.updateInputValidity = function() {
+            $scope.inputsValid = !Array.from($scope.inputValidityMap.values()).includes(false);
+        };
+
+        $scope.updateLaunchButtonTooltipText = function() {
+            // If a field exists that fails the input validation check, display the error in the launch button tooltip
+            for (var fieldDesc of $scope.inputValidityMap.keys()) {
+                if ($scope.inputValidityMap.get(fieldDesc) === false) {
+                    $scope.launchButtonTooltipText = `Incorrect input count for field \"${fieldDesc.title}\" (expected: min ${fieldDesc.minOccurs}, max ${fieldDesc.maxOccurs})`;
+                    return;
+                }
+            }
+            $scope.launchButtonTooltipText = "Launch";
+        };
+
         if (ProductService.params[page].selectedService) {
             $scope.serviceParams.selectedService = ProductService.params[page].selectedService;
         }
         if (ProductService.params[page].savedServiceConfig) {
             $scope.serviceParams.config = ProductService.params[page].savedServiceConfig;
+        }
+        if (ProductService.params[page].savedInputValidityMap) {
+            $scope.inputValidityMap = ProductService.params[page].savedInputValidityMap;
+            $scope.updateInputValidity();
+            $scope.updateLaunchButtonTooltipText();
         }
 
         // Adds parallel parameters list into the correct format (key: true)
@@ -73,7 +97,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             return paramList;
         }
 
-        // Update service config values on new sevice selection
+        // Update service config values on new service selection
         $scope.$on('update.selectedService', function(event, config, advancedMode, systematicParameter) {
             ProductService.getService(config.service).then(function(detailedService){
                 $scope.serviceParams.selectedService = detailedService;
@@ -84,6 +108,10 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                     advancedMode: advancedMode
                 };
             });
+            // Reset input validation data
+            $scope.inputsValid = true;
+            $scope.inputValidityMap = new Map();
+            $scope.launchButtonTooltipText = "Launch";
         });
 
         $scope.onRunModeChange = function() {
@@ -104,9 +132,9 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.launchProcessing = function($event) {
             var iparams={};
 
-            for(var key in $scope.serviceParams.config.inputValues){
+            for (var key in $scope.serviceParams.config.inputValues) {
                 var value = $scope.serviceParams.config.inputValues[key];
-                if(value === undefined){
+                if (value === undefined) {
                     value = '';
                 }
                 iparams[key] = [value];
@@ -115,7 +143,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             var jobParams = null;
 
             // If easy mode doesn't exist run advanced mode
-            if(!$scope.serviceParams.selectedService.easyModeServiceDescriptor || !$scope.serviceParams.selectedService.easyModeServiceDescriptor.dataInputs) {
+            if (!$scope.serviceParams.selectedService.easyModeServiceDescriptor || !$scope.serviceParams.selectedService.easyModeServiceDescriptor.dataInputs) {
                 $scope.serviceParams.config.advancedMode = true;
             }
 
@@ -154,7 +182,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                 else {
                     SystematicService.estimateMonthlyCost($scope.serviceParams.selectedService, $scope.serviceParams.systematicParameter, iparams, searchParams).then(function(estimation) {
                         var currency = ( estimation.estimatedCost === 1 ? 'coin' : 'coins' );
-                        CommonService.confirm($event, 'This job will approximatelly cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
+                        CommonService.confirm($event, 'This job will approximately cost ' + estimation.estimatedCost + ' ' + currency + ' per month.' +
                                 '\nAre you sure you want to continue?').then(function (confirmed) {
                             if (confirmed === false) {
                                 return;
@@ -271,10 +299,35 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             $scope.serviceParams.config.inputValues[fieldId] = angular.copy($scope.serviceParams.config.inputValues[fieldId]);
         };
 
+        $scope.validateInputCount = function(fieldDesc) {
+
+            // Update the corresponding value in the input validity map
+            if ($scope.serviceParams.config.inputValues[fieldDesc.id]) {
+                $scope.fieldInputCount = $scope.serviceParams.config.inputValues[fieldDesc.id].length;
+            } else {
+                // Field value not yet set, only the parallel parameters value changed
+                $scope.fieldInputCount = 0;
+            }
+
+            if (fieldDesc.parallelParameter && $scope.serviceParams.config.parallelParameters[fieldDesc.id]) {
+                // If parallel parameters is selected for the field, ignore maxOccurs for input validation
+                $scope.inputValidityMap.set(fieldDesc, $scope.fieldInputCount >= fieldDesc.minOccurs);
+            } else {
+                $scope.inputValidityMap.set(fieldDesc, $scope.fieldInputCount >= fieldDesc.minOccurs && $scope.fieldInputCount <= fieldDesc.maxOccurs);
+            }
+
+            // Update the total form input validity
+            $scope.updateInputValidity();
+
+            // Update the launch button text if necessary
+            $scope.updateLaunchButtonTooltipText();
+        };
+
         // Save the active service configuration when changing tabs so it can be reaccessed
         $scope.$on('$destroy', function() {
             ProductService.params[page].selectedService = $scope.serviceParams.selectedService;
             ProductService.params[page].savedServiceConfig = $scope.serviceParams.config;
+            ProductService.params[page].savedInputValidityMap = $scope.inputValidityMap;
         });
 
     }]);

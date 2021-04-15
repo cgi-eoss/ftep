@@ -100,11 +100,6 @@ define([
                                 $location.path('/');  //if not subscribed, redirect to homepage
                             }
                         });
-                        UserService.getCurrentUser().then(function(user) {
-                            if(user.role !== 'ADMIN' && user.role !== 'EXPERT_USER' && user.role !== 'CONTENT_AUTHORITY'){
-                                $location.path('/');  //redirect to homepage
-                            }
-                        });
                     }]
                 }
             })

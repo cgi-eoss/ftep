@@ -7,6 +7,7 @@ import com.cgi.eoss.ftep.clouds.service.NodePoolStatus;
 import com.cgi.eoss.ftep.clouds.service.NodeProvisioningException;
 import com.cgi.eoss.ftep.clouds.service.SSHSession;
 import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -89,14 +90,15 @@ public class IptNodeFactory implements NodeFactory {
 
     private final ProvisioningConfig provisioningConfig;
 
-    private KeypairRepository keypairRepository;
+    private final KeypairRepository keypairRepository;
 
     IptNodeFactory(int maxPoolSize, OpenstackAPIs openstackAPIs, ProvisioningConfig provisioningConfig, KeypairRepository keypairRepository) {
         this.maxPoolSize = maxPoolSize;
 
         NovaApi novaApi = openstackAPIs.getNovaApi();
         NeutronApi neutronApi = openstackAPIs.getNeutronApi();
-        String region = novaApi.getConfiguredRegions().stream().findFirst().get();
+        String region = novaApi.getConfiguredRegions().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("Could not determine OpenStack Nova region"));
 
         this.serverApi = novaApi.getServerApi(region);
         this.keyPairApi = novaApi.getKeyPairApi(region).get();
@@ -224,7 +226,7 @@ public class IptNodeFactory implements NodeFactory {
             return node;
         } catch (Exception e) {
             LOG.error("Error creating node", e);
-            if (server != null) {
+            if (serverCreated != null) {
                 LOG.info("Tearing down partially-created node {}", serverCreated.getId());
                 boolean deleted = serverApi.delete(serverCreated.getId());
                 if (!deleted) {
@@ -313,7 +315,7 @@ public class IptNodeFactory implements NodeFactory {
 
             LOG.debug("Configuring docker");
 
-            String dockerSystemd = "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:" + DEFAULT_DOCKER_PORT + " --containerd=/run/containerd/containerd.sock";
+            String dockerSystemd = "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// --tls=false -H tcp://0.0.0.0:" + DEFAULT_DOCKER_PORT + " --containerd=/run/containerd/containerd.sock";
             ssh.exec("sudo mkdir -p /etc/systemd/system/docker.service.d");
             ssh.exec("sudo echo '" + dockerSystemd + "' | sudo tee /etc/systemd/system/docker.service.d/override.conf");
 
@@ -341,7 +343,9 @@ public class IptNodeFactory implements NodeFactory {
                     .await("Successfully launched Dockerd")
                     .until(() -> {
                         try {
-                            return ssh.exec("sudo systemctl status docker.service | grep 'API listen on \\[::\\]:2375'").getExitStatus() == 0;
+                            Preconditions.checkState(ssh.exec(String.format("sudo systemctl status docker.service | grep 'API listen on \\[::\\]:%s'", DEFAULT_DOCKER_PORT)).getExitStatus() == 0);
+                            Preconditions.checkState(ssh.exec(String.format("curl -fsL http://127.0.0.1:%s/version >/dev/null", DEFAULT_DOCKER_PORT)).getExitStatus() == 0);
+                            return true;
                         } catch (Exception e) {
                             LOG.error("Failed to prepare server", e);
                             return false;
@@ -379,6 +383,10 @@ public class IptNodeFactory implements NodeFactory {
         LOG.info("Destroying IPT node: {} ({})", node.getId(), node.getName());
         try {
             Server server = serverApi.get(node.getId());
+            if (server == null) {
+                LOG.warn("Failed to find IPT node by id {}, assuming it was already deleted", node.getId());
+                return;
+            }
 
             //Remove the keypair
             keyPairApi.delete(server.getKeyName());

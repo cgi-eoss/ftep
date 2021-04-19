@@ -7,6 +7,10 @@ import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 
@@ -14,10 +18,17 @@ import javax.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 
 @Log4j2
 public class FtepWorkerNodeManager {
@@ -27,6 +38,7 @@ public class FtepWorkerNodeManager {
     private final Path dataBaseDir;
     private final NodeFactory nodeFactory;
     private final JobEnvironmentService jobEnvironmentService;
+    private final ListeningExecutorService provisioningExecutorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(4));
 
     // Track which Node is used for each job
     private final SetMultimap<Node, String> nodeJobs = Multimaps.synchronizedSetMultimap(HashMultimap.create());
@@ -121,9 +133,32 @@ public class FtepWorkerNodeManager {
     }
 
     public void provisionNodes(int count, String tag, Path environmentBaseDir) throws NodeProvisioningException {
-        for (int i = 0; i < count; i++) {
-            LOG.debug("Provisioning node {}/{} on {}", i + 1, count, nodeFactory);
-            nodeFactory.provisionNode(tag, environmentBaseDir, dataBaseDir);
+        // Provision N nodes by submitting tasks to #provisioningExecutorService - provisioning concurrency controlled by the service
+        List<ListenableFuture<Optional<Node>>> provisioningFutures =
+                IntStream.range(0, count)
+                        .mapToObj(i -> (Callable<Optional<Node>>) () -> {
+                            LOG.debug("Provisioning node {}/{} on {}", i + 1, count, nodeFactory);
+                            //TODO Implement retry behaviour for provisioning failure
+                            try {
+                                return Optional.of(nodeFactory.provisionNode(tag, environmentBaseDir, dataBaseDir));
+                            } catch (Exception e) {
+                                LOG.warn("Failed to provision node {}/{}", i + 1, count, e);
+                                return Optional.empty();
+                            }
+                        })
+                        .map(provisioningExecutorService::submit)
+                        .collect(toList());
+
+        // Preserve blocking behaviour by joining to all futures, and report overall success/failure
+        try {
+            List<Optional<Node>> nodes = Futures.allAsList(provisioningFutures).get();
+            long successCount = nodes.stream().filter(Optional::isPresent).count();
+            LOG.info("Successfully provisioned {} nodes ({} failed)", successCount, nodes.size() - successCount);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.warn("Interrupted while provisioning nodes", e);
+        } catch (ExecutionException e) {
+            LOG.warn("Error while provisioning nodes", e);
         }
     }
 

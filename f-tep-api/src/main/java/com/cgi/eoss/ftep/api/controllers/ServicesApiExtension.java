@@ -131,7 +131,7 @@ public class ServicesApiExtension {
      * <p>Provides information on the status of the service Docker build</p>
      */
     @GetMapping("/{serviceId}/buildStatus")
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'read')")
     public ResponseEntity<BuildStatus> buildStatus(@ModelAttribute("serviceId") FtepService service) {
         String currentServiceFingerprint = serviceDataService.computeServiceFingerprint(service);
         boolean needsBuild = needsBuild(service, currentServiceFingerprint);
@@ -153,7 +153,7 @@ public class ServicesApiExtension {
      * <p>Build is launched asynchronously.</p>
      */
     @PostMapping("/{serviceId}/build")
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'administration')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'write')")
     public ResponseEntity build(@ModelAttribute("serviceId") FtepService service) {
         FtepServiceDockerBuildInfo dockerBuildInfo = service.getDockerBuildInfo();
         if (dockerBuildInfo != null && dockerBuildInfo.getDockerBuildStatus().equals(Status.IN_PROCESS)) {

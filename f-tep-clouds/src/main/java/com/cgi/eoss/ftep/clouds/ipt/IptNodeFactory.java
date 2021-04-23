@@ -10,6 +10,7 @@ import com.cgi.eoss.ftep.clouds.service.StorageProvisioningException;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.Getter;
+import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.jclouds.collect.PagedIterable;
 import org.jclouds.openstack.neutron.v2.NeutronApi;
@@ -72,6 +73,8 @@ public class IptNodeFactory implements NodeFactory {
     @Getter
     private final Set<Node> currentNodes = ConcurrentHashMap.newKeySet();
 
+    private final Set<String> currentlyUpdatingNodeIds = ConcurrentHashMap.newKeySet();
+
     private final int maxPoolSize;
 
     private final ServerApi serverApi;
@@ -113,7 +116,9 @@ public class IptNodeFactory implements NodeFactory {
 
     @PostConstruct
     public void init() {
-        currentNodes.addAll(loadExistingNodes());
+        Set<Node> existingNodes = loadExistingNodes();
+        LOG.info("Initialising IptNodeFactory with {} existing nodes", existingNodes.size());
+        currentNodes.addAll(existingNodes);
     }
 
     private Set<Node> loadExistingNodes() {
@@ -138,7 +143,7 @@ public class IptNodeFactory implements NodeFactory {
             Set<String> existingNodeIds = currentNodes.stream().map(Node::getId).collect(Collectors.toSet());
             Set<Node> newNodes = StreamSupport.stream(serverApi.listInDetail().concat().spliterator(), false)
                     .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
-                    .filter(server -> !existingNodeIds.contains(server.getId()))
+                    .filter(server -> !currentlyUpdatingNodeIds.contains(server.getId()) && !existingNodeIds.contains(server.getId()))
                     .map(this::createNode)
                     .collect(Collectors.toSet());
             currentNodes.addAll(newNodes);
@@ -195,17 +200,18 @@ public class IptNodeFactory implements NodeFactory {
             serverCreated = serverApi.create(newServerName, provisioningConfig.getNodeImageId(), flavor.getId(), options);
 
             final String serverId = serverCreated.getId();
+            currentlyUpdatingNodeIds.add(serverId);
             with().pollInterval(FIVE_SECONDS)
                     .and().atMost(FIVE_MINUTES)
                     .await("Server active")
                     .until(() -> serverApi.get(serverId).getStatus().equals(Server.Status.ACTIVE));
-            server = serverApi.get(serverCreated.getId());
 
             if (provisioningConfig.isProvisionFloatingIp()) {
-                floatingIp = getFloatingIp();
-                floatingIPApi.addToServer(floatingIp.getIp(), serverCreated.getId());
-                LOG.info("Allocated floating IP to server: {} to {}", floatingIp.getIp(), serverCreated.getId());
+                floatingIp = allocateFloatingIp(serverCreated);
             }
+
+            // Refresh network addresses before continuing
+            server = serverApi.get(serverCreated.getId());
             String serverIP = getServerAddress(server);
             LOG.info("Server access IP: {}", serverIP);
             try (SSHSession ssh = openSshSession(keypair, server)) {
@@ -229,6 +235,7 @@ public class IptNodeFactory implements NodeFactory {
             if (serverCreated != null) {
                 LOG.info("Tearing down partially-created node {}", serverCreated.getId());
                 boolean deleted = serverApi.delete(serverCreated.getId());
+                currentlyUpdatingNodeIds.remove(serverCreated.getId());
                 if (!deleted) {
                     LOG.info("Failed to destroy partially-created node {}", serverCreated.getId());
                 }
@@ -240,6 +247,14 @@ public class IptNodeFactory implements NodeFactory {
             keyPairApi.delete(keypairName);
             throw new NodeProvisioningException(e);
         }
+    }
+
+    @Synchronized
+    private FloatingIP allocateFloatingIp(ServerCreated serverCreated) {
+        FloatingIP floatingIp = getFloatingIp();
+        floatingIPApi.addToServer(floatingIp.getIp(), serverCreated.getId());
+        LOG.info("Allocated floating IP to server: {} to {}", floatingIp.getIp(), serverCreated.getId());
+        return floatingIp;
     }
 
     private FloatingIP getFloatingIp() {
@@ -259,7 +274,7 @@ public class IptNodeFactory implements NodeFactory {
     }
 
     private String getServerAddress(Server server) {
-        Multimap<String, Address> allAddresses = server.getAddresses();
+        Multimap<String, Address> allAddresses = serverApi.get(server.getId()).getAddresses();
         Network network = networkApi.get(provisioningConfig.getNetworkId());
         Collection<Address> networkAddresses = allAddresses.get(network.getName());
 
@@ -482,7 +497,7 @@ public class IptNodeFactory implements NodeFactory {
                 if (detached) {
                     LOG.debug("Detached volume from server: {} to {}", volume.getId(), server.getId());
                 } else {
-                    LOG.error("Error detaching volume from server: {} to {} - error: {}", volume.getId(), server.getId());
+                    LOG.error("Error detaching volume from server: {} to {}", volume.getId(), server.getId());
                 }
             }
             LOG.debug("Deleting volume: {}", volume);
@@ -494,7 +509,7 @@ public class IptNodeFactory implements NodeFactory {
             if (deleted) {
                 LOG.info("Deleted volume: {}", volume.getId());
             } else {
-                LOG.error("Error deleting volume {} - error: {}", volume.getId());
+                LOG.error("Error deleting volume {}", volume.getId());
             }
         } catch (IOException e) {
             throw new StorageProvisioningException("Cannot remove storage");

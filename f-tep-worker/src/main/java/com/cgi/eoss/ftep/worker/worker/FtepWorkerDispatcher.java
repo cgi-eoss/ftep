@@ -9,6 +9,8 @@ import com.cgi.eoss.ftep.rpc.worker.GetResumableJobsRequest;
 import com.cgi.eoss.ftep.rpc.worker.JobContainer;
 import com.cgi.eoss.ftep.rpc.worker.JobSpec;
 import com.cgi.eoss.ftep.rpc.worker.Node;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 /**
  * <p>Service for building and executing F-TEP (WPS) services inside Docker containers.</p>
@@ -34,6 +37,8 @@ public class FtepWorkerDispatcher {
     private static final long QUEUE_SCHEDULER_INTERVAL_MS = 10L * 1000L;
     private static final long QUEUE_TIMEOUT = 100L;
 
+    private final ListeningExecutorService jobExecutorService = MoreExecutors.listeningDecorator(Executors.newWorkStealingPool());
+
     @Autowired
     public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker,
                                 @Qualifier("workerId") String workerId,
@@ -47,7 +52,6 @@ public class FtepWorkerDispatcher {
     }
 
     public void recoverJobs() {
-
         // Get all nodes
         List<Node> nodes = localWorker.getNodes(GetNodesRequest.getDefaultInstance()).getNodesList();
 
@@ -62,8 +66,7 @@ public class FtepWorkerDispatcher {
             for (JobContainer jobContainer : resumableJobContainers) {
                 JobExecutor jobExecutor = new JobExecutor(queueService, localWorker, workerId, jobContainer.getContainerStatus());
                 jobExecutor.setJob(jobContainer.getJob());
-                Thread t = new Thread(jobExecutor);
-                t.start();
+                jobExecutorService.submit(jobExecutor);
             }
         }
     }
@@ -95,8 +98,8 @@ public class FtepWorkerDispatcher {
         if (queueLength > 0) {
             DockerImageConfig dockerImageConfig;
             while ((dockerImageConfig = getNextDockerImageConfig()) != null) {
-                Thread imageBuildThread = new Thread(new ImageBuilder(queueService, dockerImageConfig, localWorker));
-                imageBuildThread.start();
+                ImageBuilder imageBuilder = new ImageBuilder(queueService, dockerImageConfig, localWorker);
+                jobExecutorService.submit(imageBuilder);
             }
         }
     }
@@ -109,8 +112,7 @@ public class FtepWorkerDispatcher {
             nodeManager.reserveNodeForJob(nextJobSpec.getJob().getId());
             JobExecutor jobExecutor = new JobExecutor(queueService, localWorker, workerId, ContainerStatus.NEW);
             jobExecutor.setJobSpec(nextJobSpec.toBuilder().setWorker(JobSpec.Worker.newBuilder().setId(workerId).build()).build());
-            Thread t = new Thread(jobExecutor);
-            t.start();
+            jobExecutorService.submit(jobExecutor);
         }
     }
 

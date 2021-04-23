@@ -97,11 +97,9 @@ public class WorkerConfig {
     // The cloud node manager that replaces the use of the NodeFactory
     @Bean
     public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory,
-                                                       JobEnvironmentService jobEnvironmentService,
                                                        @Qualifier("cacheRoot") Path dataBaseDir,
-                                                       @Qualifier("maxJobsPerNode") Integer maxJobsPerNode,
-                                                       @Qualifier("minWorkerNodes") int minWorkerNodes) {
-        return new FtepWorkerNodeManager(nodeFactory, jobEnvironmentService, dataBaseDir, maxJobsPerNode, minWorkerNodes);
+                                                       @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {
+        return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxJobsPerNode);
     }
 
     @Bean

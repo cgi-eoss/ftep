@@ -3,7 +3,8 @@
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get -y update
-sudo apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common nfs-common
+sudo apt-get -y dist-upgrade
+sudo apt-get -y install --no-install-recommends apt-transport-https ca-certificates curl gnupg-agent software-properties-common nfs-common
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository \
@@ -12,4 +13,4 @@ sudo add-apt-repository \
    stable"
 
 sudo apt-get -y update
-sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+sudo apt-get -y install --no-install-recommends docker-ce docker-ce-cli containerd.io

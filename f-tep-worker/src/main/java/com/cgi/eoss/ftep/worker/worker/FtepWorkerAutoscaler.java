@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <p>Service for autoscaling the number of worker nodes based on queue length</p>
@@ -41,8 +42,8 @@ public class FtepWorkerAutoscaler {
     private final long minimumHourFractionUptimeSeconds;
     private final String jobMessageSelector;
 
-    private long lastAutoscalingActionTime;
-    private boolean autoscalingOngoing;
+    private Instant lastAutoscalingActionTime = Instant.MIN;
+    private AtomicBoolean autoscalingOngoing = new AtomicBoolean(false);
 
     @Autowired
     public FtepWorkerAutoscaler(FtepWorkerNodeManager nodeManager, FtepQueueService queueService, QueueMetricsService queueMetricsService,
@@ -75,16 +76,17 @@ public class FtepWorkerAutoscaler {
 
     @Scheduled(fixedRate = AUTOSCALER_INTERVAL_MS, initialDelay = 10000L)
     public void decide() {
-        long nowEpoch = Instant.now().getEpochSecond();
-        if (autoscalingOngoing || lastAutoscalingActionTime != 0L && (nowEpoch - lastAutoscalingActionTime) < minSecondsBetweenScalingActions) {
+        if (autoscalingOngoing.get() || Instant.now().minusSeconds(minSecondsBetweenScalingActions).isBefore(lastAutoscalingActionTime)) {
             return;
         }
-        autoscalingOngoing = true;
-        // We check that currentNodes are already equal or greather than minWorkerNodes
+        autoscalingOngoing.set(true);
+        // We check that currentNodes are already equal or greater than minWorkerNodes
         // to be sure that allocation of minNodes has already happened
         try {
             Set<Node> currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
             if (currentNodes.size() < minWorkerNodes) {
+                LOG.debug("Detected fewer nodes than the minimum ({}/{}), scaling back up", currentNodes.size(), minWorkerNodes);
+                scaleTo(minWorkerNodes);
                 return;
             }
             QueueAverage queueAverage = queueMetricsService.getMetrics(STATISTICS_WINDOW_MS / 1000L);
@@ -94,14 +96,14 @@ public class FtepWorkerAutoscaler {
                 LOG.debug("Avg queue length is {}", queueAverage.getAverageLength());
                 int averageLengthRounded = (int) Math.ceil(queueAverage.getAverageLength());
                 double scaleTarget = 1.0 * averageLengthRounded / maxJobsPerNode;
-                scaleTo((int) Math.round(scaleTarget));
+                if (scaleTarget >= minWorkerNodes) {
+                    scaleTo((int) Math.round(scaleTarget));
+                }
             } else {
                 LOG.debug("Metrics coverage of {} not enough to take scaling decision", coverage);
             }
-            autoscalingOngoing = false;
-        } catch (RuntimeException e) {
-            autoscalingOngoing = false;
-            throw e;
+        } finally {
+            autoscalingOngoing.set(false);
         }
     }
 
@@ -111,40 +113,37 @@ public class FtepWorkerAutoscaler {
         int freeNodes = nodeManager.getNumberOfFreeNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
         LOG.debug("Current node balance: {} total nodes, {} free nodes", totalNodes, freeNodes);
         if (target > freeNodes) {
-            long previousAutoScalingActionTime = lastAutoscalingActionTime;
+            Instant previousAutoScalingActionTime = lastAutoscalingActionTime;
             try {
                 scaleUp(target - freeNodes);
-                lastAutoscalingActionTime = Instant.now().getEpochSecond();
+                lastAutoscalingActionTime = Instant.now();
             } catch (NodeProvisioningException e) {
                 LOG.debug("Autoscaling failed because of node provisioning exception", e);
                 lastAutoscalingActionTime = previousAutoScalingActionTime;
             }
         } else if (target < freeNodes) {
             scaleDown(freeNodes - target);
-            lastAutoscalingActionTime = Instant.now().getEpochSecond();
+            lastAutoscalingActionTime = Instant.now();
         } else {
-            LOG.debug("No action needed as current nodes are equal to the target: {}", target);
+            LOG.debug("No action needed as current free node count is equal to the target: {}", target);
         }
     }
 
-    public int scaleUp(int numToScaleUp) throws NodeProvisioningException {
+    public void scaleUp(int numToScaleUp) throws NodeProvisioningException {
         LOG.info("Evaluating scale up of additional {} nodes", numToScaleUp);
         Set<Node> currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
         int scaleUpTarget = Math.min(currentNodes.size() + numToScaleUp, maxWorkerNodes);
-        int actualScaleUp = scaleUpTarget - currentNodes.size();
-        LOG.info("Scaling up additional {} nodes. Max worker nodes are {}", actualScaleUp, maxWorkerNodes);
-        nodeManager.provisionNodes(actualScaleUp, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
-        return actualScaleUp;
+        int adjustedScaleUpTarget = scaleUpTarget - currentNodes.size();
+        LOG.info("Scaling up additional {} nodes. Max worker nodes are {}", adjustedScaleUpTarget, maxWorkerNodes);
+        nodeManager.provisionNodes(adjustedScaleUpTarget, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
     }
 
-    public int scaleDown(int numToScaleDown) {
+    public void scaleDown(int numToScaleDown) {
         LOG.info("Evaluating scale down of {} nodes", numToScaleDown);
         Set<Node> currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
         int scaleDownTarget = Math.max(currentNodes.size() - numToScaleDown, minWorkerNodes);
         int adjustedScaleDownTarget = currentNodes.size() - scaleDownTarget;
         LOG.info("Scaling down {} nodes. Min worker nodes are {}", adjustedScaleDownTarget, minWorkerNodes);
-        int actualScaleDown = nodeManager.destroyNodes(adjustedScaleDownTarget, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir(), minimumHourFractionUptimeSeconds);
-        LOG.info("Scaled down {} nodes of requested {}", actualScaleDown, adjustedScaleDownTarget);
-        return actualScaleDown;
+        nodeManager.destroyNodes(adjustedScaleDownTarget, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir(), minimumHourFractionUptimeSeconds);
     }
 }

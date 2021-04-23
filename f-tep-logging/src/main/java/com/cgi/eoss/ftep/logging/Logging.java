@@ -3,8 +3,6 @@ package com.cgi.eoss.ftep.logging;
 import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.CloseableThreadContext;
 
-import java.util.function.Consumer;
-
 @UtilityClass
 public class Logging {
     public static final String USER_LOG_MESSAGE_FIELD = "userMessage";

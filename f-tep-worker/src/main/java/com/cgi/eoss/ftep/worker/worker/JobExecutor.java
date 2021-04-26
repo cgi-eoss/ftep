@@ -39,7 +39,7 @@ public class JobExecutor implements Runnable {
     public void run() {
         messageHeaders.put("workerId", workerId);
         messageHeaders.put("jobId", String.valueOf(job != null ? job.getIntJobId() : jobSpec.getJob().getIntJobId()));
-        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(Optional.ofNullable(job).orElse(jobSpec.getJob()))) {
+        try (CloseableThreadContext.Instance ctc = getJobLoggingContext(Optional.ofNullable(job).orElseGet(() -> jobSpec.getJob()))) {
             switch (containerStatus) {
                 case NEW:
                     executeJob(jobSpec);

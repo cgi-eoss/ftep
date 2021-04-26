@@ -471,7 +471,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     private Node prepareNode(String jobId) {
-        Node node = nodeManager.findOrProvisionNodeForJob(jobId);
+        Node node = nodeManager.getJobNode(jobId);
         LOG.debug("Tracking job {} on node {}", jobId, node);
         jobNodes.putIfAbsent(jobId, node);
         return node;

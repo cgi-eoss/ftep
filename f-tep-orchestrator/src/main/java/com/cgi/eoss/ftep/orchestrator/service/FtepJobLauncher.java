@@ -121,8 +121,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     private static final String TIMEOUT_PARAM = "timeout";
     private static final int SINGLE_JOB_PRIORITY = 9;
 
-    private final Map<com.cgi.eoss.ftep.rpc.Job, FtepWorkerGrpc.FtepWorkerBlockingStub> jobWorkers = new HashMap<>();
-
     private final WorkerFactory workerFactory;
     private final JobDataService jobDataService;
     private final FtepGuiServiceManager guiService;
@@ -205,10 +203,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
                     LOG.info("Submitted job to work queue: {} (UUID {})", job.getId(), job.getExtId());
                 }
-
-                // Gets the actual worker node and stores in the map
-                FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(job.getConfig());
-                jobWorkers.put(jobSpec.getJob(), worker);
             }
 
             responseObserver.onCompleted();
@@ -755,7 +749,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
     public void stopJob(StopServiceParams request, StreamObserver<StopServiceResponse> responseObserver) {
         com.cgi.eoss.ftep.rpc.Job rpcJob = request.getJob();
         try {
-            FtepWorkerGrpc.FtepWorkerBlockingStub worker = Optional.ofNullable(jobWorkers.get(rpcJob)).orElseThrow(() -> new IllegalStateException("F-TEP worker not found for job " + rpcJob.getId()));
+            FtepWorkerGrpc.FtepWorkerBlockingStub worker = workerFactory.getWorker(jobDataService.getById(rpcJob.getIntJobId()).getConfig());
             LOG.info("Stop requested for job {}", rpcJob.getId());
             worker.stopContainer(rpcJob);
             LOG.info("Successfully stopped job {}", rpcJob.getId());
@@ -769,8 +763,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         } catch (NumberFormatException e) {
             LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
-        } finally {
-            jobWorkers.remove(rpcJob);
         }
     }
 

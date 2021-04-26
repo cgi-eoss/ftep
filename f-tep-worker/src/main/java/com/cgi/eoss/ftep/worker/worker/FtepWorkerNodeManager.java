@@ -44,10 +44,17 @@ public class FtepWorkerNodeManager {
     public static final String POOLED_WORKER_TAG = "pooled-worker-node";
     public static final String DEDICATED_WORKER_TAG = "dedicated-worker-node";
 
-    public FtepWorkerNodeManager(NodeFactory nodeFactory, Path dataBaseDir, int maxJobsPerNode) {
+    private final int maxNodes;
+
+    public FtepWorkerNodeManager(NodeFactory nodeFactory, Path dataBaseDir, int maxNodes, int maxJobsPerNode) {
         this.nodeFactory = nodeFactory;
         this.dataBaseDir = dataBaseDir;
+        this.maxNodes = maxNodes;
         this.maxJobsPerNode = maxJobsPerNode;
+    }
+
+    public int getMaxConcurrency() {
+        return maxNodes * maxJobsPerNode;
     }
 
     public Set<Node> getCurrentNodes() {

@@ -80,4 +80,9 @@ public class ServiceInputOutputManagerImpl implements ServiceInputOutputManager 
         }
     }
 
+    @Override
+    public void cleanCache(URI uri) {
+        downloaderFacade.cleanUp(uri);
+    }
+
 }

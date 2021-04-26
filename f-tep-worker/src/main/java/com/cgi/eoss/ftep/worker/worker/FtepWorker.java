@@ -12,6 +12,8 @@ import com.cgi.eoss.ftep.rpc.FileStreamServer;
 import com.cgi.eoss.ftep.rpc.GrpcUtil;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
+import com.cgi.eoss.ftep.rpc.worker.CleanCacheRequest;
+import com.cgi.eoss.ftep.rpc.worker.CleanCacheResponse;
 import com.cgi.eoss.ftep.rpc.worker.CleanUpResponse;
 import com.cgi.eoss.ftep.rpc.worker.ContainerExitCode;
 import com.cgi.eoss.ftep.rpc.worker.ContainerStatus;
@@ -467,6 +469,18 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             } finally {
                 ftepDockerService.removeContainer(dockerClient, containerId);
             }
+        }
+    }
+
+    @Override
+    public void cleanCache(CleanCacheRequest request, StreamObserver<CleanCacheResponse> responseObserver) {
+        try {
+            inputOutputManager.cleanCache(URI.create(request.getFileUri()));
+            responseObserver.onNext(CleanCacheResponse.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(Status.Code.ABORTED).withCause(e)));
+            LOG.error("Failed to clean the cache for file URI {}", request.getFileUri());
         }
     }
 

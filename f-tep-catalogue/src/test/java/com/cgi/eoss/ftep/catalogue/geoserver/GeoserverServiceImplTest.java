@@ -4,6 +4,8 @@ import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -15,6 +17,9 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(classes = {CatalogueConfig.class})
 @TestPropertySource("classpath:test-catalogue.properties")
 public class GeoserverServiceImplTest {
+
+    @MockBean
+    DiscoveryClient discoveryClient;
 
     @Autowired
     private GeoserverService geoserverService;

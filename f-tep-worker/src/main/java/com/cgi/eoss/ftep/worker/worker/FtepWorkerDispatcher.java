@@ -37,7 +37,7 @@ public class FtepWorkerDispatcher {
     private static final long QUEUE_SCHEDULER_INTERVAL_MS = 10L * 1000L;
     private static final long QUEUE_TIMEOUT = 100L;
 
-    private final ListeningExecutorService jobExecutorService = MoreExecutors.listeningDecorator(Executors.newWorkStealingPool());
+    private final ListeningExecutorService jobExecutorService;
 
     @Autowired
     public FtepWorkerDispatcher(FtepQueueService queueService, LocalWorker localWorker,
@@ -49,6 +49,7 @@ public class FtepWorkerDispatcher {
         this.workerId = workerId;
         this.nodeManager = nodeManager;
         this.jobMessageSelector = restrictedWorker ? String.format("workerId = '%s'", workerId) : "";
+        this.jobExecutorService = MoreExecutors.listeningDecorator(Executors.newWorkStealingPool(nodeManager.getMaxConcurrency()));
     }
 
     public void recoverJobs() {

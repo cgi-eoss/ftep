@@ -18,6 +18,7 @@ import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.AuditLogger;
 import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.jdbc.BasicLookupStrategy;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
@@ -69,8 +70,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LookupStrategy lookupStrategy(DataSource dataSource, AclCache aclCache, AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger) {
-        return new BasicLookupStrategy(dataSource, aclCache, aclAuthorizationStrategy, auditLogger);
+    public PermissionFactory permissionFactory() {
+        return new FtepCustomPermissionFactory();
+    }
+
+    @Bean
+    public LookupStrategy lookupStrategy(DataSource dataSource, AclCache aclCache, AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger, PermissionFactory permissionFactory) {
+        BasicLookupStrategy lookupStrategy = new BasicLookupStrategy(dataSource, aclCache, aclAuthorizationStrategy, auditLogger);
+        lookupStrategy.setPermissionFactory(permissionFactory);
+        return lookupStrategy;
     }
 
     @Bean
@@ -92,8 +100,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService) {
-        return new AclPermissionEvaluator(aclService);
+    public AclPermissionEvaluator aclPermissionEvaluator(AclService aclService, PermissionFactory permissionFactory) {
+        AclPermissionEvaluator permissionEvaluator = new AclPermissionEvaluator(aclService);
+        permissionEvaluator.setPermissionFactory(permissionFactory);
+        return permissionEvaluator;
     }
 
 }

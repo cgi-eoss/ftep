@@ -6,12 +6,15 @@ import com.cgi.eoss.ftep.api.controllers.AclsApi;
 import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.Group;
+import com.cgi.eoss.ftep.model.JobConfig;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.GroupDataService;
+import com.cgi.eoss.ftep.persistence.service.JobConfigDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceFileDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.cgi.eoss.ftep.security.FtepCustomPermission;
 import com.cgi.eoss.ftep.security.FtepPermission;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableSet;
@@ -52,6 +55,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,6 +88,9 @@ public class ApiSecurityConfigIT {
     private FtepSecurityService securityService;
 
     @Autowired
+    private JobConfigDataService jobConfigDataService;
+
+    @Autowired
     private MockMvc mockMvc;
 
     private User alice;
@@ -99,7 +106,8 @@ public class ApiSecurityConfigIT {
     private FtepService service3;
 
     private FtepServiceContextFile file1;
-    private FtepServiceContextFile file2;
+
+    private JobConfig service2config;
 
     @Before
     public void setUp() {
@@ -132,8 +140,10 @@ public class ApiSecurityConfigIT {
         serviceDataService.save(ImmutableSet.of(service1, service2, service3));
 
         file1 = new FtepServiceContextFile(service2, "file1");
-        file2 = new FtepServiceContextFile(service2, "file2");
-        serviceFileDataService.save(ImmutableSet.of(file1, file2));
+        serviceFileDataService.save(file1);
+
+        service2config = jobConfigDataService.save(new JobConfig(ftepAdmin, service2));
+        createGroupAce(service2config.getId(), JobConfig.class, beta, BasePermission.READ);
     }
 
     @After
@@ -166,46 +176,46 @@ public class ApiSecurityConfigIT {
 
     @Test
     public void testRoleAccess() throws Exception {
-        getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service1.getId(), alice).andExpect(status().isOk());
+        getService(service1.getId(), bob).andExpect(status().isOk());
+        getService(service1.getId(), chuck).andExpect(status().isForbidden());
+        getService(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service2.getId(), alice).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), bob).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service2.getId(), alice).andExpect(status().isForbidden());
+        getService(service2.getId(), bob).andExpect(status().isForbidden());
+        getService(service2.getId(), chuck).andExpect(status().isForbidden());
+        getService(service2.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service3.getId(), alice).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), bob).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service3.getId(), alice).andExpect(status().isForbidden());
+        getService(service3.getId(), bob).andExpect(status().isForbidden());
+        getService(service3.getId(), chuck).andExpect(status().isForbidden());
+        getService(service3.getId(), ftepAdmin).andExpect(status().isOk());
     }
 
     @Test
     public void testUserAclAccess() throws Exception {
         // Grant read access for service-1 to alice - but unused as it is already AVAILABLE
-        createAce(service1.getId(), alice.getName(), BasePermission.READ);
+        createAce(service1.getId(), FtepService.class, alice.getName(), BasePermission.READ);
         // Grant read access for service-2 to bob
-        createAce(service2.getId(), bob.getName(), BasePermission.READ);
+        createAce(service2.getId(), FtepService.class, bob.getName(), BasePermission.READ);
         // Grant read access for service-3 to alice and bob
-        createAce(service3.getId(), alice.getName(), BasePermission.READ);
-        createAce(service3.getId(), bob.getName(), BasePermission.READ);
+        createAce(service3.getId(), FtepService.class, alice.getName(), BasePermission.READ);
+        createAce(service3.getId(), FtepService.class, bob.getName(), BasePermission.READ);
 
-        getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service1.getId(), alice).andExpect(status().isOk());
+        getService(service1.getId(), bob).andExpect(status().isOk());
+        getService(service1.getId(), chuck).andExpect(status().isForbidden());
+        getService(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service2.getId(), alice).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service2.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service2.getId(), alice).andExpect(status().isForbidden());
+        getService(service2.getId(), bob).andExpect(status().isOk());
+        getService(service2.getId(), chuck).andExpect(status().isForbidden());
+        getService(service2.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service3.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service3.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service3.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service3.getId(), alice).andExpect(status().isOk());
+        getService(service3.getId(), bob).andExpect(status().isOk());
+        getService(service3.getId(), chuck).andExpect(status().isForbidden());
+        getService(service3.getId(), ftepAdmin).andExpect(status().isOk());
     }
 
     @Test
@@ -217,24 +227,24 @@ public class ApiSecurityConfigIT {
         getGroupFromApi(beta.getId(), bob).andExpect(status().isForbidden());
 
         // Grant read access for service-2 to alpha (alice & bob)
-        createGroupAce(service2.getId(), alpha, BasePermission.READ);
+        createGroupAce(service2.getId(), FtepService.class, alpha, BasePermission.READ);
         // Grant read access for service-3 to beta (alice)
-        createGroupAce(service3.getId(), beta, BasePermission.READ);
+        createGroupAce(service3.getId(), FtepService.class, beta, BasePermission.READ);
 
-        getServiceFromApi(service1.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service1.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service1.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service1.getId(), alice).andExpect(status().isOk());
+        getService(service1.getId(), bob).andExpect(status().isOk());
+        getService(service1.getId(), chuck).andExpect(status().isForbidden());
+        getService(service1.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service2.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service2.getId(), bob).andExpect(status().isOk());
-        getServiceFromApi(service2.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service2.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service2.getId(), alice).andExpect(status().isOk());
+        getService(service2.getId(), bob).andExpect(status().isOk());
+        getService(service2.getId(), chuck).andExpect(status().isForbidden());
+        getService(service2.getId(), ftepAdmin).andExpect(status().isOk());
 
-        getServiceFromApi(service3.getId(), alice).andExpect(status().isOk());
-        getServiceFromApi(service3.getId(), bob).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), chuck).andExpect(status().isForbidden());
-        getServiceFromApi(service3.getId(), ftepAdmin).andExpect(status().isOk());
+        getService(service3.getId(), alice).andExpect(status().isOk());
+        getService(service3.getId(), bob).andExpect(status().isForbidden());
+        getService(service3.getId(), chuck).andExpect(status().isForbidden());
+        getService(service3.getId(), ftepAdmin).andExpect(status().isOk());
     }
 
     @Test
@@ -272,6 +282,67 @@ public class ApiSecurityConfigIT {
         getGroupFromApi(beta.getId(), bob).andExpect(status().isOk());
     }
 
+    @Test
+    public void testNoPermissions() throws Exception {
+        // No permissions - alice cannot view or update the service files or launch the service
+        getServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        launchService(service2config, alice).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testServiceWithGroupRead() throws Exception {
+        createGroupAce(service2config.getId(), JobConfig.class, beta, BasePermission.READ);
+        // READ permissions to a service-2 for group beta - alice cannot view or update the service files or launch the service
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.READ);
+        getServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        launchService(service2config, alice).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testServiceWithGroupUser() throws Exception {
+        // LAUNCH & READ permissions to service-2 for group beta - alice can launch the service, but not view/update files
+        createGroupAce(service2.getId(), FtepService.class, beta, FtepCustomPermission.LAUNCH);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.READ);
+        getServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        // TODO: launchService(service2config, alice).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testServiceWithGroupReadonlyDeveloper() throws Exception {
+        // SERVICE_READONLY_DEVELOPER permissions to service-2 for group beta - alice can view the service files, but not update them or launch the service
+        createGroupAce(service2.getId(), FtepService.class, beta, FtepCustomPermission.READ_SERVICE_FILES);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.READ);
+        getServiceFile(file1.getId(), alice).andExpect(status().isOk());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isForbidden());
+        launchService(service2config, alice).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testServiceWithGroupDeveloper() throws Exception {
+        // SERVICE_DEVELOPER permissions to service-2 for group beta - alice can view and update the service files, but not launch the service
+        createGroupAce(service2.getId(), FtepService.class, beta, FtepCustomPermission.READ_SERVICE_FILES);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.WRITE);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.READ);
+        getServiceFile(file1.getId(), alice).andExpect(status().isOk());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isNoContent());
+        launchService(service2config, alice).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testServiceWithGroupOperator() throws Exception {
+        // SERVICE_OPERATOR permissions to service-2 for group beta - alice can view and update the service files and launch the service
+        createGroupAce(service2.getId(), FtepService.class, beta, FtepCustomPermission.LAUNCH);
+        createGroupAce(service2.getId(), FtepService.class, beta, FtepCustomPermission.READ_SERVICE_FILES);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.WRITE);
+        createGroupAce(service2.getId(), FtepService.class, beta, BasePermission.READ);
+        getServiceFile(file1.getId(), alice).andExpect(status().isOk());
+        patchServiceFile(file1.getId(), alice).andExpect(status().isNoContent());
+        // TODO: launchService(service2config, alice).andExpect(status().isOk());
+    }
+
     private String getUserUrl(User user) throws Exception {
         String jsonResult = mockMvc.perform(
                 get("/api/users/" + user.getId()).header("REMOTE_USER", ftepAdmin.getName()))
@@ -285,17 +356,37 @@ public class ApiSecurityConfigIT {
                 .collect(Collectors.toList()).toArray(new String[]{});
     }
 
-    private ResultActions getServiceFromApi(Long serviceId, User user) throws Exception {
+    private ResultActions getService(Long serviceId, User user) throws Exception {
         return mockMvc.perform(get("/api/services/" + serviceId).header("REMOTE_USER", user.getName()));
     }
 
-    private ResultActions getServiceFilesFromApi(Long serviceId, User user) throws Exception {
-        return mockMvc.perform(get("/api/services/" + serviceId + "/contextFiles").header("REMOTE_USER", user.getName()));
+    private ResultActions getServiceFile(Long serviceFileId, User user) throws Exception {
+        return mockMvc.perform(get("/api/serviceFiles/" + serviceFileId).header("REMOTE_USER", user.getName()));
     }
 
-    private ResultActions patchServiceFiles(Long serviceId, User user) throws Exception {
-        return mockMvc.perform(patch("/api/services/" + serviceId)
-                .content("{\"name\": \"Service_" + serviceId.toString() + "\", \"description\": \"TempServiceDesc\"}")
+    private ResultActions patchServiceFile(Long serviceFileId, User user) throws Exception {
+        return mockMvc.perform(patch("/api/serviceFiles/" + serviceFileId)
+                .content("{\"filename\": \"ServiceFile" + serviceFileId.toString() + "\", \"content\": \"NewContent\"}")
+                .header("REMOTE_USER", user.getName()));
+    }
+
+    private ResultActions createJobConfig(Long serviceId, User user) throws Exception {
+        String serviceUrl = "/api/services/" + serviceId;
+        return mockMvc.perform(post("/api/jobConfigs").header("REMOTE_USER", user.getName())
+                .content("{\n" +
+                        "  \"inputs\" : {\n" +
+                        "    \"input1\" : [ \"foo\" ],\n" +
+                        "    \"input2\" : [ \"bar1\", \"bar2\" ],\n" +
+                        "    \"input3\" : [ \"http://baz/?q=x,y&z={}\" ]\n" +
+                        "  },\n" +
+                        "  \"label\" : null,\n" +
+                        "  \"service\" : \"" + serviceUrl + "\",\n" +
+                        "  \"parallelParameters\" : [\"input2\"]\n" +
+                        "}"));
+    }
+
+    private ResultActions launchService(JobConfig jobConfig, User user) throws Exception {
+        return mockMvc.perform(post("/api/jobConfigs/" + jobConfig.getId() + "/launch")
                 .header("REMOTE_USER", user.getName()));
     }
 
@@ -303,17 +394,15 @@ public class ApiSecurityConfigIT {
         return mockMvc.perform(get("/api/groups/" + groupId).header("REMOTE_USER", user.getName()));
     }
 
-    private void createAce(Long id, String principal, Permission permission) {
-        ObjectIdentity oi = new ObjectIdentityImpl(FtepService.class, id);
+    private void createAce(Long id, Class<?> entityClass, String principal, Permission permission) {
+        ObjectIdentity oi = new ObjectIdentityImpl(entityClass, id);
         createAce(oi, new PrincipalSid(principal), permission);
     }
 
-    private void createGroupAce(Long id, GrantedAuthority group, Permission permission) {
-        ObjectIdentity oi = new ObjectIdentityImpl(FtepService.class, id);
+    private void createGroupAce(Long id, Class<?> entityClass, GrantedAuthority group, Permission permission) {
+        ObjectIdentity oi = new ObjectIdentityImpl(entityClass, id);
         createAce(oi, new GrantedAuthoritySid(group), permission);
     }
-
-    // TODO: launching permissions for both single user and group
 
     private void createAce(ObjectIdentity oi, Sid sid, Permission p) {
         SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
@@ -332,49 +421,5 @@ public class ApiSecurityConfigIT {
     private void setParentAcl(Class<?> parentObjectClass, Long parentObjectId, Class<?> childObjectClass, Set<Long> childObjectIds) {
         SecurityContextHolder.getContext().setAuthentication(FtepSecurityService.PUBLIC_AUTHENTICATION);
         securityService.setParentAcl(parentObjectClass, parentObjectId, childObjectClass, childObjectIds);
-    }
-
-    @Test
-    public void testGetServiceFilesNoPermissions() throws Exception {
-        // No permissions - alice cannot view or update the service files or launch the service
-        getServiceFilesFromApi(service2.getId(), alice).andExpect(status().isForbidden());
-        patchServiceFiles(service2.getId(), alice).andExpect(status().isForbidden());
-        // TODO: launch
-    }
-
-    @Test
-    public void testGetServiceFilesWithRead() throws Exception {
-        // READ permissions to service-2 for alice - alice can view public services and service-2, but not update/launch
-        createAce(service2.getId(), alice.getName(), BasePermission.READ);
-        getServiceFilesFromApi(service2.getId(), alice).andExpect(status().isOk());
-        patchServiceFiles(service2.getId(), alice).andExpect(status().isForbidden());
-        // TODO: launch
-    }
-
-    @Test
-    public void testGetServiceFilesWithGroupRead() throws Exception {
-        // READ permissions to service-2 for group beta - alice can view public services and service-2, but not update/launch
-        createGroupAce(service2.getId(), beta, BasePermission.READ);
-        getServiceFilesFromApi(service2.getId(), alice).andExpect(status().isOk());
-        patchServiceFiles(service2.getId(), alice).andExpect(status().isForbidden());
-        // TODO: launch
-    }
-
-    @Test
-    public void testPatchServiceFilesWithWrite() throws Exception {
-        // READ & WRITE permissions to service-2 for alice - alice can update service-2, but not launch
-        createAce(service2.getId(), alice.getName(), BasePermission.READ); // must be given, GET called internally
-        createAce(service2.getId(), alice.getName(), BasePermission.WRITE);
-        patchServiceFiles(service2.getId(), alice).andExpect(status().isNoContent());
-        // TODO: launch
-    }
-
-    @Test
-    public void testPatchServiceFilesWithGroupWrite() throws Exception {
-        // READ & WRITE permissions to service-2 for group beta - alice can update service-2, but not launch
-        createGroupAce(service2.getId(), beta, BasePermission.READ); // must be given, GET called internally
-        createGroupAce(service2.getId(), beta, BasePermission.WRITE);
-        patchServiceFiles(service2.getId(), alice).andExpect(status().isNoContent());
-        // TODO: launch
     }
 }

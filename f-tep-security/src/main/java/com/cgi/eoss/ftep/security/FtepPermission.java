@@ -15,6 +15,10 @@ public enum FtepPermission {
     READ,
     WRITE,
     ADMIN,
+    SERVICE_READONLY_DEVELOPER,             // view service files
+    SERVICE_DEVELOPER,                      // view and update service files
+    SERVICE_OPERATOR,                       // view and update service files and launch the service
+    SERVICE_USER,                           // launch the service
     /**
      * <p>A marker permission for API access information; not used to map Spring ACLs.</p>
      */
@@ -24,6 +28,10 @@ public enum FtepPermission {
             .put(FtepPermission.READ, ImmutableSet.of(BasePermission.READ))
             .put(FtepPermission.WRITE, ImmutableSet.of(BasePermission.WRITE, BasePermission.READ))
             .put(FtepPermission.ADMIN, ImmutableSet.of(BasePermission.ADMINISTRATION, BasePermission.WRITE, BasePermission.READ))
+            .put(FtepPermission.SERVICE_READONLY_DEVELOPER, ImmutableSet.of(FtepCustomPermission.READ_SERVICE_FILES, BasePermission.READ))
+            .put(FtepPermission.SERVICE_DEVELOPER, ImmutableSet.of(FtepCustomPermission.READ_SERVICE_FILES, BasePermission.WRITE, BasePermission.READ))
+            .put(FtepPermission.SERVICE_OPERATOR, ImmutableSet.of(FtepCustomPermission.LAUNCH, FtepCustomPermission.READ_SERVICE_FILES, BasePermission.WRITE, BasePermission.READ))
+            .put(FtepPermission.SERVICE_USER, ImmutableSet.of(FtepCustomPermission.LAUNCH, BasePermission.READ))
             .build();
 
     /**

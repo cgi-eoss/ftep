@@ -1,6 +1,7 @@
 package com.cgi.eoss.ftep.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
+import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
@@ -46,7 +47,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Component
 @Log4j2
-@Transactional(readOnly = true)
+@Transactional
 public class FtepSecurityService {
     public static final Authentication PUBLIC_AUTHENTICATION = new PreAuthenticatedAuthenticationToken("PUBLIC", "N/A", ImmutableList.of(FtepPermission.PUBLIC));
 
@@ -111,7 +112,7 @@ public class FtepSecurityService {
 
         Sid publicSid = new GrantedAuthoritySid(FtepPermission.PUBLIC);
 
-        FtepPermission.READ.getAclPermissions()
+        getPublishingPermission(objectIdentity).getAclPermissions()
                 .forEach(p -> acl.insertAce(acl.getEntries().size(), p, publicSid, true));
 
         saveAcl(acl);
@@ -119,23 +120,30 @@ public class FtepSecurityService {
 
     @Transactional
     public void unpublish(Class<?> objectClass, Long identifier) {
-        if (!isPublic(new ObjectIdentityImpl(objectClass, identifier))) {
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(objectClass, identifier);
+        if (!isPublic(objectIdentity)) {
             LOG.warn("Attempted to unpublish non-public object: {} {}", objectClass, identifier);
             return;
         }
 
         LOG.info("Unpublishing entity: {} (id: {})", objectClass, identifier);
-        MutableAcl acl = getAcl(new ObjectIdentityImpl(objectClass, identifier));
+        MutableAcl acl = getAcl(objectIdentity);
 
         Sid publicSid = new GrantedAuthoritySid(FtepPermission.PUBLIC);
 
         // Find the access control entries corresponding to PUBLIC READ access, and delete them
         int aceCount = acl.getEntries().size();
         IntStream.range(0, aceCount).map(i -> aceCount - i - 1)
-                .filter(i -> acl.getEntries().get(i).getSid().equals(publicSid) && FtepPermission.READ.getAclPermissions().contains(acl.getEntries().get(i).getPermission()))
+                .filter(i -> acl.getEntries().get(i).getSid().equals(publicSid) && getPublishingPermission(objectIdentity).getAclPermissions().contains(acl.getEntries().get(i).getPermission()))
                 .forEach(acl::deleteAce);
 
         saveAcl(acl);
+    }
+
+    private FtepPermission getPublishingPermission(ObjectIdentity objectIdentity) {
+        return objectIdentity.getType().equals(FtepService.class.getCanonicalName())
+                ? FtepPermission.SERVICE_USER // for services, grant PUBLIC READ and LAUNCH permissions
+                : FtepPermission.READ;
     }
 
     /**

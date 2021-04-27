@@ -13,8 +13,10 @@
                 </td>
                 <td class="remove-file">
                         <span ng-click="deleteFileDialog(file, $event); $event.stopPropagation()"
-                              ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
+                              ng-hide="file.name === 'Dockerfile' || file.name === 'workflow.sh'"
                               aria-label="Delete File"
+                              has-permission="ADMIN"
+                              permission-source="{{serviceParams.selectedService}}"
                               uib-tooltip="Delete File"
                               tooltip-placement="top"
                               tooltip-trigger="mouseenter"

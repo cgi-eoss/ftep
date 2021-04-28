@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Log4j2
 @Service
-@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = true)
 public class FtepWorkerAutoscaler {
 
     private final JobEnvironmentService jobEnvironmentService;

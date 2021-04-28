@@ -708,6 +708,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 String imageId = ftepDockerService.buildImage(dockerClient, serviceName, dockerImageTag, fingerprint, serviceContext);
 
                 // Tag image with desired image name
+                dockerClient.tagImageCmd(imageId, dockerImageTag, "").exec();
                 LOG.debug("Tagged docker image {} with tag '{}'", imageId, dockerImageTag);
             } catch (ServiceIoException e) {
                 Logging.withUserLoggingContext(() -> LOG.error("Failed to retrieve Docker context files for service {}", serviceName));

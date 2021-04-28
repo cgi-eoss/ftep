@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = true)
 @Log4j2
 public class QueueMetricsService {
 
@@ -23,7 +23,7 @@ public class QueueMetricsService {
     public void updateMetric(long queueLength, long duration) {
         long now = Instant.now().getEpochSecond();
         int removed = queueMetricsRepository.removeOlderThan(now, duration);
-        LOG.debug("{} metrics removed", removed);
+        LOG.trace("{} metrics removed", removed);
         saveMetric(now, queueLength);
     }
 

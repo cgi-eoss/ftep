@@ -98,8 +98,9 @@ public class WorkerConfig {
     @Bean
     public FtepWorkerNodeManager ftepWorkerNodeManager(NodeFactory nodeFactory,
                                                        @Qualifier("cacheRoot") Path dataBaseDir,
+                                                       @Qualifier("maxWorkerNodes") Integer maxWorkerNodes,
                                                        @Qualifier("maxJobsPerNode") Integer maxJobsPerNode) {
-        return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxJobsPerNode);
+        return new FtepWorkerNodeManager(nodeFactory, dataBaseDir, maxWorkerNodes, maxJobsPerNode);
     }
 
     @Bean

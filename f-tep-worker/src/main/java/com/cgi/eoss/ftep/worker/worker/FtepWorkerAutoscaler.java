@@ -15,13 +15,15 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p>Service for autoscaling the number of worker nodes based on queue length</p>
  */
 @Log4j2
 @Service
-@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = true)
 public class FtepWorkerAutoscaler {
 
     private final JobEnvironmentService jobEnvironmentService;
@@ -42,8 +44,9 @@ public class FtepWorkerAutoscaler {
     private final long minimumHourFractionUptimeSeconds;
     private final String jobMessageSelector;
 
+    private final Lock scalingLock = new ReentrantLock();
+
     private Instant lastAutoscalingActionTime = Instant.MIN;
-    private AtomicBoolean autoscalingOngoing = new AtomicBoolean(false);
 
     @Autowired
     public FtepWorkerAutoscaler(FtepWorkerNodeManager nodeManager, FtepQueueService queueService, QueueMetricsService queueMetricsService,
@@ -76,39 +79,37 @@ public class FtepWorkerAutoscaler {
 
     @Scheduled(fixedRate = AUTOSCALER_INTERVAL_MS, initialDelay = 10000L)
     public void decide() {
-        if (autoscalingOngoing.get() || Instant.now().minusSeconds(minSecondsBetweenScalingActions).isBefore(lastAutoscalingActionTime)) {
-            return;
-        }
-        autoscalingOngoing.set(true);
-        // We check that currentNodes are already equal or greater than minWorkerNodes
-        // to be sure that allocation of minNodes has already happened
-        try {
-            Set<Node> currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
-            if (currentNodes.size() < minWorkerNodes) {
-                LOG.debug("Detected fewer nodes than the minimum ({}/{}), scaling back up", currentNodes.size(), minWorkerNodes);
-                scaleTo(minWorkerNodes);
-                return;
-            }
-            QueueAverage queueAverage = queueMetricsService.getMetrics(STATISTICS_WINDOW_MS / 1000L);
-            double coverageFactor = 1.0 * QUEUE_CHECK_INTERVAL_MS / STATISTICS_WINDOW_MS;
-            double coverage = queueAverage.getCount() * coverageFactor;
-            if (coverage > 0.75) {
-                LOG.debug("Avg queue length is {}", queueAverage.getAverageLength());
-                int averageLengthRounded = (int) Math.ceil(queueAverage.getAverageLength());
-                double scaleTarget = 1.0 * averageLengthRounded / maxJobsPerNode;
-                if (scaleTarget >= minWorkerNodes) {
-                    scaleTo((int) Math.round(scaleTarget));
+        if (scalingLock.tryLock()) {
+            try {
+                if (Instant.now().minusSeconds(minSecondsBetweenScalingActions).isBefore(lastAutoscalingActionTime)) {
+                    return;
                 }
-            } else {
-                LOG.debug("Metrics coverage of {} not enough to take scaling decision", coverage);
+
+                Set<Node> currentNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
+                if (currentNodes.size() < minWorkerNodes) {
+                    LOG.debug("Detected fewer nodes than the minimum ({}/{}), scaling back up", currentNodes.size(), minWorkerNodes);
+                    scaleTo(minWorkerNodes);
+                    return;
+                }
+                QueueAverage queueAverage = queueMetricsService.getMetrics(STATISTICS_WINDOW_MS / 1000L);
+                double coverageFactor = 1.0 * QUEUE_CHECK_INTERVAL_MS / STATISTICS_WINDOW_MS;
+                double coverage = queueAverage.getCount() * coverageFactor;
+                if (coverage > 0.75) {
+                    int averageLengthRounded = (int) Math.ceil(queueAverage.getAverageLength());
+                    int scaleTarget = (int) Math.round(1.0 * averageLengthRounded / maxJobsPerNode);
+                    LOG.debug("Avg queue length over the period is {}; scaling target is {}", queueAverage.getAverageLength(), scaleTarget);
+                    scaleTo(Math.min(scaleTarget, minWorkerNodes));
+                } else {
+                    LOG.debug("Metrics coverage of {} not enough to take scaling decision", coverage);
+                }
+            } finally {
+                scalingLock.unlock();
             }
-        } finally {
-            autoscalingOngoing.set(false);
         }
     }
 
     public void scaleTo(int target) {
-        LOG.debug("Scale target: {} nodes", target);
+        LOG.info("Scale target: {} nodes", target);
         int totalNodes = nodeManager.getCurrentNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG).size();
         int freeNodes = nodeManager.getNumberOfFreeNodes(FtepWorkerNodeManager.POOLED_WORKER_TAG);
         LOG.debug("Current node balance: {} total nodes, {} free nodes", totalNodes, freeNodes);

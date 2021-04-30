@@ -18,6 +18,7 @@ import com.cgi.eoss.ftep.rpc.catalogue.Databasket;
 import com.cgi.eoss.ftep.rpc.catalogue.DatabasketContents;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFile;
 import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -30,6 +31,7 @@ import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
+import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -54,6 +56,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,6 +71,7 @@ import static org.mockito.Mockito.when;
 
 /**
  */
+@Log4j2
 public class ServiceInputOutputManagerImplTest {
 
     @Mock
@@ -92,6 +97,8 @@ public class ServiceInputOutputManagerImplTest {
     private RpcCredentialsService rpcCredentialsService;
 
     private CatalogueServiceStub rpcCatalogueService;
+
+    private Multimap<String, Path> preparedInputMap;
 
     @Before
     public void setUp() throws Exception {
@@ -131,11 +138,19 @@ public class ServiceInputOutputManagerImplTest {
         new FtpDownloader(downloaderFacade, ftepServerClient).postConstruct();
         new HttpDownloader(downloaderFacade, ftepServerClient, new OkHttpClient.Builder().build()).postConstruct();
         new FtepDownloader(downloaderFacade, ftepServerClient).postConstruct();
+
+        preparedInputMap = ArrayListMultimap.create();
     }
 
     @After
     public void tearDown() {
         server.shutdownNow();
+    }
+
+    private String getRandomness(String input, String fileName) {
+        String dir = preparedInputMap.get(input).stream()
+                .map(Path::toString).filter(path -> path.contains(fileName)).findFirst().orElseThrow(RuntimeException::new);
+        return dir.substring(dir.length() - 7);
     }
 
     @Test
@@ -150,7 +165,10 @@ public class ServiceInputOutputManagerImplTest {
                 "multi", URI.create(ftptxtUri)
         );
 
-        inputs.asMap().forEach(Unchecked.biConsumer((input, uris) -> ioManager.prepareInput(workDir.resolve(input), uris)));
+        inputs.asMap().forEach(Unchecked.biConsumer((input, uris) -> {
+            Map<URI, Path> preparedInputs = ioManager.prepareInput(workDir.resolve(input), uris);
+            preparedInputs.values().forEach(path -> preparedInputMap.put(input, path));
+        }));
 
         Set<String> cacheResult = Files.walk(cacheDir).map(Path::toString).collect(Collectors.toSet());
         String ftptxtUriHash = hash(ftptxtUri);
@@ -165,32 +183,32 @@ public class ServiceInputOutputManagerImplTest {
                 "/cache/" + httpzipUriHash + "/file1"
         )));
 
-        assertThat(Files.isSymbolicLink(workDir.resolve("ftptxt").resolve("testfile")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("ftptxt").resolve("testfile")), is(cacheDir.resolve(ftptxtUriHash)));
-        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(cacheDir.resolve(httpzipUriHash)));
+        assertThat(Files.isSymbolicLink(workDir.resolve("ftptxt").resolve("testfile" + getRandomness("ftptxt", "testfile"))), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("ftptxt").resolve("testfile" + getRandomness("ftptxt", "testfile"))), is(cacheDir.resolve(ftptxtUriHash)));
+        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip").resolve("singleFile" + getRandomness("httpzip", "singleFile"))), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip").resolve("singleFile" + getRandomness("httpzip", "singleFile"))), is(cacheDir.resolve(httpzipUriHash)));
 
         Set<String> result = Files.walk(workDir, FOLLOW_LINKS).map(Path::toString).collect(Collectors.toSet());
         assertThat(result, is(ImmutableSet.of(
                 "/work",
                 "/work/ftptxt",
-                "/work/ftptxt/testfile",
-                "/work/ftptxt/testfile/.uri",
-                "/work/ftptxt/testfile/testfile.txt",
+                "/work/ftptxt/testfile" + getRandomness("ftptxt", "testfile"),
+                "/work/ftptxt/testfile" + getRandomness("ftptxt", "testfile") + "/.uri",
+                "/work/ftptxt/testfile" + getRandomness("ftptxt", "testfile") + "/testfile.txt",
                 "/work/httpzip",
-                "/work/httpzip/singleFile",
-                "/work/httpzip/singleFile/.uri",
-                "/work/httpzip/singleFile/file1",
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile"),
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/.uri",
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/file1",
                 "/work/multi",
-                "/work/multi/testfile",
-                "/work/multi/testfile/.uri",
-                "/work/multi/testfile/testfile.txt",
-                "/work/multi/singleFile",
-                "/work/multi/singleFile/.uri",
-                "/work/multi/singleFile/file1"
+                "/work/multi/testfile" + getRandomness("multi", "testfile"),
+                "/work/multi/testfile" + getRandomness("multi", "testfile") + "/.uri",
+                "/work/multi/testfile" + getRandomness("multi", "testfile") + "/testfile.txt",
+                "/work/multi/singleFile" + getRandomness("multi", "singleFile"),
+                "/work/multi/singleFile" + getRandomness("multi", "singleFile") + "/.uri",
+                "/work/multi/singleFile" + getRandomness("multi", "singleFile") + "/file1"
         )));
-        assertThat(Files.readAllLines(workDir.resolve("ftptxt/testfile/.uri")), is(ImmutableList.of(ftptxtUri)));
-        assertThat(Files.readAllLines(workDir.resolve("httpzip/singleFile/.uri")), is(ImmutableList.of(httpzipUri)));
+        assertThat(Files.readAllLines(workDir.resolve("ftptxt/testfile" + getRandomness("ftptxt", "testfile") + "/.uri")), is(ImmutableList.of(ftptxtUri)));
+        assertThat(Files.readAllLines(workDir.resolve("httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/.uri")), is(ImmutableList.of(httpzipUri)));
     }
 
     @Test
@@ -200,11 +218,13 @@ public class ServiceInputOutputManagerImplTest {
         Path firstTarget = workDir.resolve("httpzip-1");
         Path secondTarget = workDir.resolve("httpzip-2");
 
-        ioManager.prepareInput(firstTarget, ImmutableSet.of(uri));
-        ioManager.prepareInput(secondTarget, ImmutableSet.of(uri));
+        Map<URI, Path> preparedInputs1 = ioManager.prepareInput(firstTarget, ImmutableSet.of(uri));
+        preparedInputs1.values().forEach(path -> preparedInputMap.put("httpzip-1", path));
+        Map<URI, Path> preparedInputs2 = ioManager.prepareInput(secondTarget, ImmutableSet.of(uri));
+        preparedInputs2.values().forEach(path -> preparedInputMap.put("httpzip-2", path));
 
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-1").resolve("singleFile")), is(cacheDir.resolve(hash(uri))));
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-2").resolve("singleFile")), is(cacheDir.resolve(hash(uri))));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-1").resolve("singleFile" + getRandomness("httpzip-1", "singleFile"))), is(cacheDir.resolve(hash(uri))));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip-2").resolve("singleFile" + getRandomness("httpzip-2", "singleFile"))), is(cacheDir.resolve(hash(uri))));
 
         assertThat(webServer.getRequestCount(), is(1));
     }
@@ -221,7 +241,10 @@ public class ServiceInputOutputManagerImplTest {
         String databasketUri1 = "ftep://outputProduct/testfile.txt";
         String databasketUri2 = "ftep://refData/filesAndSubdirs.zip";
 
-        inputs.asMap().forEach(Unchecked.biConsumer((input, uris) -> ioManager.prepareInput(workDir.resolve(input), uris)));
+        inputs.asMap().forEach(Unchecked.biConsumer((input, uris) -> {
+            Map<URI, Path> preparedInputs = ioManager.prepareInput(workDir.resolve(input), uris);
+            preparedInputs.values().forEach(path -> preparedInputMap.put(input, path));
+        }));
 
         Set<String> cacheResult = Files.walk(cacheDir).map(Path::toString).collect(Collectors.toSet());
         assertThat(cacheResult, containsInAnyOrder(
@@ -244,37 +267,37 @@ public class ServiceInputOutputManagerImplTest {
                 "/cache/" + hash(databasketUri2) + "/subdir2/subdir2File2"
         ));
 
-        assertThat(Files.isSymbolicLink(workDir.resolve("databasket").resolve("testfile")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("databasket").resolve("testfile")), is(cacheDir.resolve(hash(databasketUri1))));
-        assertThat(Files.readSymbolicLink(workDir.resolve("databasket").resolve("filesAndSubdirs")), is(cacheDir.resolve(hash(databasketUri2))));
-        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(true));
-        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip").resolve("singleFile")), is(cacheDir.resolve(hash(httpzipUri))));
+        assertThat(Files.isSymbolicLink(workDir.resolve("databasket").resolve("testfile" + getRandomness("databasket", "testfile"))), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("databasket").resolve("testfile" + getRandomness("databasket", "testfile"))), is(cacheDir.resolve(hash(databasketUri1))));
+        assertThat(Files.readSymbolicLink(workDir.resolve("databasket").resolve("filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs"))), is(cacheDir.resolve(hash(databasketUri2))));
+        assertThat(Files.isSymbolicLink(workDir.resolve("httpzip").resolve("singleFile" + getRandomness("httpzip", "singleFile"))), is(true));
+        assertThat(Files.readSymbolicLink(workDir.resolve("httpzip").resolve("singleFile" + getRandomness("httpzip", "singleFile"))), is(cacheDir.resolve(hash(httpzipUri))));
 
         Set<String> result = Files.walk(workDir, FOLLOW_LINKS).map(Path::toString).collect(Collectors.toSet());
         assertThat(result, containsInAnyOrder(
                 "/work",
                 "/work/httpzip",
-                "/work/httpzip/singleFile",
-                "/work/httpzip/singleFile/.uri",
-                "/work/httpzip/singleFile/file1",
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile"),
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/.uri",
+                "/work/httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/file1",
                 "/work/databasket",
-                "/work/databasket/testfile",
-                "/work/databasket/testfile/.uri",
-                "/work/databasket/testfile/testfile.txt",
-                "/work/databasket/filesAndSubdirs",
-                "/work/databasket/filesAndSubdirs/.uri",
-                "/work/databasket/filesAndSubdirs/file1",
-                "/work/databasket/filesAndSubdirs/file2",
-                "/work/databasket/filesAndSubdirs/subdir1",
-                "/work/databasket/filesAndSubdirs/subdir1/subdir1File1",
-                "/work/databasket/filesAndSubdirs/subdir1/subdir1File2",
-                "/work/databasket/filesAndSubdirs/subdir2",
-                "/work/databasket/filesAndSubdirs/subdir2/subdir2File1",
-                "/work/databasket/filesAndSubdirs/subdir2/subdir2File2"
+                "/work/databasket/testfile" + getRandomness("databasket", "testfile"),
+                "/work/databasket/testfile" + getRandomness("databasket", "testfile") + "/.uri",
+                "/work/databasket/testfile" + getRandomness("databasket", "testfile") + "/testfile.txt",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs"),
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/.uri",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/file1",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/file2",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir1",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir1/subdir1File1",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir1/subdir1File2",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir2",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir2/subdir2File1",
+                "/work/databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/subdir2/subdir2File2"
         ));
-        assertThat(Files.readAllLines(workDir.resolve("databasket/testfile/.uri")), is(ImmutableList.of(databasketUri1)));
-        assertThat(Files.readAllLines(workDir.resolve("databasket/filesAndSubdirs/.uri")), is(ImmutableList.of(databasketUri2)));
-        assertThat(Files.readAllLines(workDir.resolve("httpzip/singleFile/.uri")), is(ImmutableList.of(httpzipUri)));
+        assertThat(Files.readAllLines(workDir.resolve("databasket/testfile" + getRandomness("databasket", "testfile") + "/.uri")), is(ImmutableList.of(databasketUri1)));
+        assertThat(Files.readAllLines(workDir.resolve("databasket/filesAndSubdirs" + getRandomness("databasket", "filesAndSubdirs") + "/.uri")), is(ImmutableList.of(databasketUri2)));
+        assertThat(Files.readAllLines(workDir.resolve("httpzip/singleFile" + getRandomness("httpzip", "singleFile") + "/.uri")), is(ImmutableList.of(httpzipUri)));
     }
 
     private FakeFtpServer buildFtpServer() throws Exception {

@@ -10,6 +10,7 @@ import com.cgi.eoss.ftep.rpc.catalogue.Uris;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.MoreFiles;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class ServiceInputOutputManagerImpl implements ServiceInputOutputManager 
                 .flatMap(downloaderFacade::resolveUri)
                 .collect(Collectors.toMap(
                         uri -> uri,
-                        uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath()))))));
+                        uri -> Optional.of(target.resolve(MoreFiles.getNameWithoutExtension(Paths.get(uri.getPath())) + "." + RandomStringUtils.randomAlphabetic(6)))));
         return downloaderFacade.download(inputs);
     }
 

@@ -102,6 +102,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                     $scope.isWorkspaceLoading = false;
                     ProductService.refreshSelectedService('developer');
                     $scope.serviceParams.activeArea = $scope.serviceParams.constants.tabs.files;
+                    $scope.serviceParams.config.requiresValidation = false;
                 });
             }
         };

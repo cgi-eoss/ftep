@@ -13,6 +13,7 @@
            ng-disabled="serviceForm.$invalid || serviceParams.config.requiresValidation"
            aria-label="Save Service"
            uib-tooltip="{{getServiceValidationMessage(serviceForm.$invalid, serviceParams.config.requiresValidation)}}"
+           ng-attr-title="{{getServiceValidationMessage(serviceForm.$invalid, serviceParams.config.requiresValidation)}}"
            tooltip-placement="top"
            tooltip-trigger="mouseenter"
            tooltip-append-to-body="true">

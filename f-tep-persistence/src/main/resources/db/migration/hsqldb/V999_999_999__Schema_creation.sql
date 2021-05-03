@@ -11,7 +11,9 @@ CREATE TABLE ftep_users (
   organisation       CHARACTER VARYING(255),
   country            CHARACTER VARYING(255),
   creation_time      TIMESTAMP WITHOUT TIME ZONE,
-  last_login         TIMESTAMP WITHOUT TIME ZONE
+  last_login         TIMESTAMP WITHOUT TIME ZONE,
+  first_name         CHARACTER VARYING(255),
+  last_name          CHARACTER VARYING(255)
 );
 CREATE UNIQUE INDEX ftep_users_name_idx
   ON ftep_users (name);

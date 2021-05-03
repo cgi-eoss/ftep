@@ -11,6 +11,10 @@ public class FtepWebAuthenticationDetails extends WebAuthenticationDetails {
 
     private String userCountry;
 
+    private String userFirstName;
+
+    private String userLastName;
+
     /**
      * Records the remote address and will also set the session Id if a session already
      * exists (it won't create one).
@@ -43,5 +47,21 @@ public class FtepWebAuthenticationDetails extends WebAuthenticationDetails {
 
     public void setUserCountry(String userCountry) {
         this.userCountry = userCountry;
+    }
+
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
     }
 }

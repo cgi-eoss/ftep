@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.server;
 
 import com.cgi.eoss.ftep.catalogue.geoserver.GeoserverService;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
+import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.model.FtepService;
@@ -31,6 +32,7 @@ import com.cgi.eoss.ftep.worker.worker.JobEnvironmentService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.MoreFiles;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -56,6 +58,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -100,7 +103,10 @@ public class FtepServerApplicationIT {
     private ServiceDataService serviceDataService;
 
     @Autowired
-    private FtepWorkerNodeManager nodeManager;
+    private FtepWorkerNodeManager ftepWorkerNodeManager;
+
+    @Autowired
+    private JobEnvironmentService jobEnvironmentService;
 
     @MockBean
     private WorkerFactory workerFactory;
@@ -181,12 +187,15 @@ public class FtepServerApplicationIT {
 
         serverBuilder.addService(ftepJobLauncher);
         serverBuilder.addService(rpcJobDataService);
-        serverBuilder.addService(new FtepWorker(nodeManager, new JobEnvironmentService(workspace), ioManager, new FtepDockerService(), true));
+        serverBuilder.addService(new FtepWorker(ftepWorkerNodeManager, new JobEnvironmentService(workspace), ioManager, new FtepDockerService(), true));
         server = serverBuilder.build().start();
 
         FtepWorkerGrpc.FtepWorkerBlockingStub workerStub = FtepWorkerGrpc.newBlockingStub(channelBuilder.build());
         when(workerFactory.getWorker(any())).thenReturn(workerStub);
         when(workerFactory.getWorkerById(any())).thenReturn(workerStub);
+
+        ListenableFuture<List<Optional<Node>>> provisioningFuture = ftepWorkerNodeManager.provisionNodes(1, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
+        provisioningFuture.get().get(0).orElseThrow(() -> new IllegalStateException("Expected to provision a worker node"));
 
         User owner = userDataService.save(TESTUSER);
 

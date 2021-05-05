@@ -124,7 +124,8 @@ public class IptNodeFactory implements NodeFactory {
     private Set<Node> loadExistingNodes() {
         PagedIterable<Server> servers = serverApi.listInDetail();
         return StreamSupport.stream(servers.concat().spliterator(), false)
-                .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
+                .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix())
+                        && server.getStatus() == Server.Status.ACTIVE)
                 .map(this::createNode)
                 .collect(Collectors.toSet());
     }
@@ -134,7 +135,8 @@ public class IptNodeFactory implements NodeFactory {
         try {
             // Remove any deleted nodes
             Set<String> serverIds = StreamSupport.stream(serverApi.listInDetail().concat().spliterator(), false)
-                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
+                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix())
+                            && server.getStatus() == Server.Status.ACTIVE)
                     .map(Server::getId)
                     .collect(Collectors.toSet());
             currentNodes.removeIf(node -> !serverIds.contains(node.getId()));
@@ -142,8 +144,10 @@ public class IptNodeFactory implements NodeFactory {
             // Add any new nodes
             Set<String> existingNodeIds = currentNodes.stream().map(Node::getId).collect(Collectors.toSet());
             Set<Node> newNodes = StreamSupport.stream(serverApi.listInDetail().concat().spliterator(), false)
-                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix()))
-                    .filter(server -> !currentlyUpdatingNodeIds.contains(server.getId()) && !existingNodeIds.contains(server.getId()))
+                    .filter(server -> server.getName().startsWith(provisioningConfig.getServerNamePrefix())
+                            && server.getStatus() == Server.Status.ACTIVE
+                            && !currentlyUpdatingNodeIds.contains(server.getId())
+                            && !existingNodeIds.contains(server.getId()))
                     .map(this::createNode)
                     .collect(Collectors.toSet());
             currentNodes.addAll(newNodes);
@@ -404,8 +408,17 @@ public class IptNodeFactory implements NodeFactory {
             }
 
             //Remove the keypair
-            keyPairApi.delete(server.getKeyName());
-            keypairRepository.deleteById(server.getId());
+            try {
+                keyPairApi.delete(server.getKeyName());
+            } catch (Exception e) {
+                LOG.warn("Failed to delete Keypair {} from OpenStack API", server.getKeyName(), e);
+            }
+
+            try {
+                keypairRepository.deleteById(server.getId());
+            } catch (Exception e) {
+                LOG.warn("Failed to delete Keypair from local cache", e);
+            }
 
             Optional<Address> floatingIpAddress = getServerFloatingIpAddress(server);
             if (floatingIpAddress.isPresent()) {
@@ -424,7 +437,7 @@ public class IptNodeFactory implements NodeFactory {
                 LOG.info("Destroyed IPT node: {}", node.getId());
                 currentNodes.remove(node);
             } else {
-                LOG.info("Failed to destroy IPT node {}", node.getId());
+                LOG.warn("Failed to destroy IPT node {}", node.getId());
             }
         } catch (Exception e) {
             LOG.warn("Failed to destroy IPT node {}", node.getId(), e);

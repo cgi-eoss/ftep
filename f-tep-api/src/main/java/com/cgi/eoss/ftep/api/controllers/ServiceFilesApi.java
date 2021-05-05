@@ -28,7 +28,7 @@ public interface ServiceFilesApi extends ServiceFilesApiCustom, PagingAndSorting
     List<FtepServiceContextFile> findAll();
 
     @Override
-    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject.get().service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'read')")
+    @PostAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(returnObject.get().service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'read_service_files')")
     Optional<FtepServiceContextFile> findById(Long id);
 
     @Override
@@ -43,7 +43,7 @@ public interface ServiceFilesApi extends ServiceFilesApiCustom, PagingAndSorting
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceFile.service.id, T(com.cgi.eoss.ftep.model.FtepService).name, 'administration')")
     void delete(@Param("serviceFile") FtepServiceContextFile serviceFile);
 
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'read')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'read_service_files')")
     Page<FtepServiceContextFile> findByService(@Param("service") FtepService service, Pageable pageable);
 
 }

@@ -14,6 +14,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.hamcrest:hamcrest-junit")
     testImplementation("org.springframework:spring-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     testRuntimeOnly("org.hsqldb:hsqldb")
 }

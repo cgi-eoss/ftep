@@ -27,6 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -59,6 +61,9 @@ public class JobExpansionServiceTest {
     private static final String FILE_22_URI = "ftep://ftepFile22";
     private static final String FILE_31_URI = "ftep://ftepFile31";
     private static final String FILE_32_URI = "ftep://ftepFile32";
+
+    @MockBean
+    DiscoveryClient discoveryClient;
 
     @Autowired
     private JobExpansionService jobExpansionService;

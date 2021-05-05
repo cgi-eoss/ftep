@@ -81,7 +81,7 @@
                               ui-codemirror="{ onLoad : codemirrorLoaded }"
                               ui-codemirror-opts="editorOptions"
                               ui-refresh="refreshMirror()"
-                              ng-change="changeMirror()"
+                              ng-change="changeMirror(); toggleEditMode(true)"
                               ng-model="serviceParams.selectedService.easyModeParameterTemplate"
                               md-select-on-focus
                               placeholder="Add file content..">Loading...
@@ -89,7 +89,7 @@
                 </md-input-container>
             </md-card-content>
             <md-card-actions layout="row" layout-align="end center">
-                <md-button class="developer-definitions-button convert-button" ng-click="reformatCode()">Reformat Code</md-button>
+                <md-button class="developer-definitions-button convert-button" ng-click="reformatCode(); toggleEditMode(true)">Reformat Code</md-button>
             </md-card-actions>
         </md-card>
     </div>

@@ -73,7 +73,7 @@ public class JobConfigsApiExtension {
      * @throws InterruptedException
      */
     @PostMapping("/{jobConfigId}/launch")
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read')")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read') and hasPermission(#jobConfig.service, 'launch')")
     public ResponseEntity<Resource<Job>> launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) throws InterruptedException {
         FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())

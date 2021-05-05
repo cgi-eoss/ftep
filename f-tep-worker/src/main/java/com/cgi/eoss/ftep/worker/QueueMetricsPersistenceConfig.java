@@ -18,7 +18,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "ftep.worker.autoscaler.enabled", havingValue = "true", matchIfMissing = true)
 @EnableJpaRepositories(basePackageClasses = QueueMetricsRepository.class,
         entityManagerFactoryRef = "queueMetricsEntityManager",
         transactionManagerRef = "queueMetricsTransactionManager")

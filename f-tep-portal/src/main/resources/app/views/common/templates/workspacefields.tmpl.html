@@ -10,6 +10,7 @@
 
             <md-checkbox ng-if="fieldDesc.parallelParameter"
                          ng-model="serviceParams.config.parallelParameters[fieldDesc.id]"
+                         ng-change="validateInputCount(fieldDesc)"
                          aria-label="Enable Parallel Processing" class="workspace-header-checkbox"
                          uib-tooltip="If checked, this Job will execute in 'parallel' mode. Each value of this parameter will result in its own Sub-Job, in which the other parameters are kept constant.
                          The results may be viewed individually or as a group from the parent Job."
@@ -119,13 +120,11 @@
                 <!-- An input that accepts a single value and supports data reference -->
                 <input ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference"
                        id="{{ fieldDesc.id }}" name="{{ fieldDesc.id }}"
-                       ng-model="serviceParams.config.inputValues[fieldDesc.id]"
                        ng-init="serviceParams.config.inputValues[fieldDesc.id] = getDefaultValue(fieldDesc)"
                        type="{{fieldDesc.defaultAttrs.dataType}}"
-                       ng-required="{{fieldDesc.minOccurs > 0}}"
                        aria-label="{{fieldDesc.title}}"
                        dnd-list="serviceParams.config.inputValues[fieldDesc.id]"
-                       dnd-drop="fieldDesc.dataReference ? onDrop(item, fieldDesc.id) : onDrop(item, fieldDesc)">
+                       dnd-drop="onDrop(item, fieldDesc.id); validateInputCount(fieldDesc)">
 
                 <!-- An input that accepts a single value with no data reference support -->
                 <input ng-if="!fieldDesc.defaultAttrs.allowedValues && !fieldDesc.dataReference"
@@ -147,6 +146,18 @@
                         {{attr}}
                     </md-option>
                 </md-select>
+
+                <!-- List all items for the input field supporting data references that have been added to the request -->
+                <md-list class="drag-list-item" ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference">
+                    <md-list-item class="md-1-line" ng-repeat="item in serviceParams.config.inputValues[fieldDesc.id]" ng-class-odd="'odd'" ng-class-even="'even'">
+                        <div class="md-list-item-text">
+                            <small>{{item}}</small>
+                        </div>
+                        <md-button class="md-secondary">
+                            <i class="material-icons" ng-click="removeSelectedItem(fieldDesc.id, item); validateInputCount(fieldDesc)">close</i>
+                        </md-button>
+                    </md-list-item>
+                </md-list>
 
                 <div class="hint" ng-show="true">{{fieldDesc.description}}</div>
             </md-input-container>

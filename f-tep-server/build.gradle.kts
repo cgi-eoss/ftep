@@ -23,6 +23,7 @@ dependencies {
     runtimeOnly("org.hsqldb:hsqldb")
     runtimeOnly("org.postgresql:postgresql")
 
+    testImplementation(project(":f-tep-clouds"))
     testImplementation(project(":f-tep-worker"))
     testImplementation(project(":f-tep-io"))
     testImplementation(project(":f-tep-persistence"))

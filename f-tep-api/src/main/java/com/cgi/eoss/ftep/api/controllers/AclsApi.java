@@ -165,6 +165,7 @@ public class AclsApi {
                 .build();
     }
 
+    // Grant permissions to a service for a group
     @PostMapping("/service/{serviceId}")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#serviceId, T(com.cgi.eoss.ftep.model.FtepService).name, 'administration')")
     public void setServiceAcl(@PathVariable("serviceId") Long serviceId, @RequestBody FtepAccessControlList acl) {
@@ -242,7 +243,7 @@ public class AclsApi {
         }
 
         // ...then insert the new ACEs
-        newAces.forEach((ace) -> {
+        newAces.forEach(ace -> {
             Sid sid = new GrantedAuthoritySid(hydrateSGroup(ace.getGroup()));
             ace.getPermission().getAclPermissions()
                     .forEach(p -> acl.insertAce(acl.getEntries().size(), p, sid, true));

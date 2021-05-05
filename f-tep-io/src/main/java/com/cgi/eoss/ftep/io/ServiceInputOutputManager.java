@@ -41,4 +41,11 @@ public interface ServiceInputOutputManager {
      */
     void cleanUp(Set<URI> unusedUris);
 
+    /**
+     * <p>Delete the cache entry for a deleted with the given URI.</p>
+     *
+     * @param uri
+     */
+    void cleanCache(URI uri);
+
 }

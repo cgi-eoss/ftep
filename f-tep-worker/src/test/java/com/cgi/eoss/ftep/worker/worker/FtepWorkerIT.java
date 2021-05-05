@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.worker.worker;
 
+import com.cgi.eoss.ftep.clouds.service.Node;
 import com.cgi.eoss.ftep.io.ServiceInputOutputManager;
 import com.cgi.eoss.ftep.io.download.DownloaderFacade;
 import com.cgi.eoss.ftep.rpc.Job;
@@ -11,6 +12,7 @@ import com.cgi.eoss.ftep.worker.WorkerConfig;
 import com.cgi.eoss.ftep.worker.WorkerTestConfig;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.command.PullImageResultCallback;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -32,6 +34,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -65,11 +69,16 @@ public class FtepWorkerIT {
     private DockerClient dockerClient;
 
     @Autowired
+    private FtepWorkerNodeManager ftepWorkerNodeManager;
+
+    @Autowired
     private FtepWorker worker;
 
     private Server server;
 
     private FtepWorkerGrpc.FtepWorkerBlockingStub workerClient;
+
+    private Node node;
 
     @BeforeClass
     public static void precondition() {
@@ -78,7 +87,10 @@ public class FtepWorkerIT {
     }
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
+        Mockito.when(ioManager.getServiceContext("service1")).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
+        Mockito.when(jobEnvironmentService.getBaseDir()).thenReturn(temporaryFolder.getRoot().toPath());
+
         serverBuilder.addService(worker);
         server = serverBuilder.build().start();
 
@@ -86,6 +98,9 @@ public class FtepWorkerIT {
 
         // Ensure the test base image is available before testing
         dockerClient.pullImageCmd("hello-world:latest").exec(new PullImageResultCallback()).awaitSuccess();
+
+        ListenableFuture<List<Optional<Node>>> provisioningFuture = ftepWorkerNodeManager.provisionNodes(1, FtepWorkerNodeManager.POOLED_WORKER_TAG, jobEnvironmentService.getBaseDir());
+        node = provisioningFuture.get().get(0).orElseThrow(() -> new IllegalStateException("Expected to provision a worker node"));
     }
 
     @After
@@ -95,12 +110,12 @@ public class FtepWorkerIT {
 
     @Test
     public void testLaunchContainer() throws Exception {
-        Mockito.when(ioManager.getServiceContext("service1")).thenReturn(Paths.get("src/test/resources/service1").toAbsolutePath());
-        Mockito.when(jobEnvironmentService.getBaseDir()).thenReturn(temporaryFolder.getRoot().toPath());
-
         String tag = UUID.randomUUID().toString();
 
+        // Attach Node manually because the launch request  is not coming through the FtepWorkerDispatcher
+        ftepWorkerNodeManager.reattachJobToNode(node, "jobid-1");
         worker.getJobClients().put("jobid-1", dockerClient);
+
         JobSpec request = JobSpec.newBuilder()
                 .setService(Service.newBuilder().setName("service1").setDockerImageTag(tag))
                 .setJob(Job.newBuilder().setId("jobid-1"))

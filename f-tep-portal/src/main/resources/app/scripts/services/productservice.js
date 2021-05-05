@@ -215,34 +215,41 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
             if (self.params[page].selectedService) {
                 self.getService(self.params[page].selectedService).then(function (service) {
                     self.params[page].selectedService = service;
-                    getServiceFiles(service).then(function (data) {
-                        self.params[page].contents = data;
+                    self.params[page].fileTree = [];
+                    getServiceFiles(service)
+                        .then(function (data) {
+                            self.params[page].contents = data;
 
-                        if (page === 'developer') {
-                            self.params[page].selectedService.files = [];
-                            if (data) {
-                                var promises = [];
-                                for (var i = 0; i < data.length; i++) {
-                                    var partialPromise = EditorService.getFileDetails(page, data[i], self.params[page].selectedService);
-                                    promises.push(partialPromise);
+                            if (page === 'developer') {
+                                self.params[page].selectedService.files = [];
+                                if (data) {
+                                    var promises = [];
+                                    for (var i = 0; i < data.length; i++) {
+                                        var partialPromise = EditorService.getFileDetails(page, data[i], self.params[page].selectedService);
+                                        promises.push(partialPromise);
+                                    }
+                                    $q.all(promises).then(function () {
+                                        if (self.params[page].selectedService.files) {
+                                            self.params[page].selectedService.files.sort(EditorService.sortFiles);
+                                            self.params[page].openedFile = self.params[page].selectedService.files[0];
+                                        }
+                                        self.params[page].fileTree = EditorService.getFileList(self.params[page].selectedService.files);
+                                        if (self.params.developer.openedFile) {
+                                            self.params.developer.activeMode = EditorService.setFileType(self.params.developer.openedFile.filename);
+                                        }
+                                    });
                                 }
-                                $q.all(promises).then(function () {
-                                    if (self.params[page].selectedService.files) {
-                                        self.params[page].selectedService.files.sort(EditorService.sortFiles);
-                                        self.params[page].openedFile = self.params[page].selectedService.files[0];
-                                    }
-                                    self.params[page].fileTree = EditorService.getFileList(self.params[page].selectedService.files);
-                                    if (self.params.developer.openedFile) {
-                                        self.params.developer.activeMode = EditorService.setFileType(self.params.developer.openedFile.filename);
-                                    }
-                                });
                             }
-                            self.updateBuildStatus(self.params[page].selectedService).then(function (response) {
-                            })
-                        }
-                    });
+                        })
+                        .catch(error => {
+                            self.params[page].contents = [];
+                            self.params[page].openedFile = null;
+                        });
 
-                    if (page === 'community') {
+                    if (page === 'developer') {
+                        self.updateBuildStatus(self.params[page].selectedService).then(function (response) {
+                        })
+                    } else if (page === 'community') {
                         CommunityService.getObjectGroups(service, 'service').then(function (data) {
                             self.params.community.sharedGroups = data;
                         });

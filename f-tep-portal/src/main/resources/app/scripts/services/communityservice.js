@@ -18,6 +18,16 @@ define(['../ftepmodules'], function(ftepmodules) {
             ADMIN: "ADMIN"
         };
 
+        this.servicePermissionTypes = {
+            READ: "READ",
+            EDIT: "WRITE",
+            ADMIN: "ADMIN",
+            SERVICE_USER: "SERVICE_USER",
+            SERVICE_READONLY_DEVELOPER: "SERVICE_READONLY_DEVELOPER",
+            SERVICE_DEVELOPER: "SERVICE_DEVELOPER",
+            SERVICE_OPERATOR: "SERVICE_OPERATOR"
+        };
+
         function getItemName(ace) {
             var name = (ace.name ? ace.name : ( ace.filename ? ace.filename : ace.id));
             if (ace.type === 'job') {

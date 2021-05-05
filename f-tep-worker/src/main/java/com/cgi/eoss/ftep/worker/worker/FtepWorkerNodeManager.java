@@ -70,7 +70,7 @@ public class FtepWorkerNodeManager {
     }
 
     @Synchronized
-    public void provisionNodes(int provisionTarget, String tag, Path baseDir) {
+    public ListenableFuture<List<Optional<Node>>> provisionNodes(int provisionTarget, String tag, Path baseDir) {
         List<ListenableFuture<Optional<Node>>> provisioningFutures = IntStream.range(0, provisionTarget)
                 .mapToObj(i -> provisioningExecutorService.<Optional<Node>>submit(() -> {
                     LOG.debug("Provisioning node {}/{} on {}", i + 1, provisionTarget, nodeFactory);
@@ -85,7 +85,8 @@ public class FtepWorkerNodeManager {
                 .collect(toList());
 
         // Preserve blocking behaviour by joining to all futures, and report overall success/failure
-        Futures.addCallback(Futures.allAsList(provisioningFutures), new FutureCallback<List<Optional<Node>>>() {
+        ListenableFuture<List<Optional<Node>>> provisioningFuture = Futures.allAsList(provisioningFutures);
+        Futures.addCallback(provisioningFuture, new FutureCallback<List<Optional<Node>>>() {
             @Override
             public void onSuccess(@Nullable List<Optional<Node>> result) {
                 List<Node> createdNodes = result.stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
@@ -98,6 +99,7 @@ public class FtepWorkerNodeManager {
                 LOG.error("Failed provisioning {} nodes:", provisionTarget, t);
             }
         }, destroyingAndCallbackExecutorService);
+        return provisioningFuture;
     }
 
     @Synchronized

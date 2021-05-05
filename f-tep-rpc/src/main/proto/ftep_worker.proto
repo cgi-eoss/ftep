@@ -23,6 +23,7 @@ service FtepWorker {
     rpc GetResumableJobs (GetResumableJobsRequest) returns (GetResumableJobsResponse);
     rpc GetNodes (GetNodesRequest) returns (GetNodesResponse);
     rpc TerminateJob (TerminateJobRequest) returns (ContainerExitCode);
+    rpc CleanCache(CleanCacheRequest) returns (CleanCacheResponse);
 }
 
 message JobSpec {
@@ -205,4 +206,11 @@ message Node {
 
 message TerminateJobRequest {
     Job job = 1;
+}
+
+message CleanCacheRequest {
+    string file_uri = 1;
+}
+
+message CleanCacheResponse {
 }

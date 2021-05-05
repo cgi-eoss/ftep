@@ -28,9 +28,13 @@ import com.cgi.eoss.ftep.rpc.catalogue.FtepFileUri;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicies;
 import com.cgi.eoss.ftep.rpc.catalogue.UriDataSourcePolicy;
 import com.cgi.eoss.ftep.rpc.catalogue.Uris;
+import com.cgi.eoss.ftep.rpc.worker.CleanCacheRequest;
+import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
 import com.cgi.eoss.ftep.security.FtepPermission;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Stopwatch;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -40,6 +44,8 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.geojson.GeoJsonObject;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,9 +82,11 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
     private final FtepSecurityService securityService;
     private final JobConfigDataService jobConfigDataService;
     private final JobDataService jobDataService;
+    private final DiscoveryClient discoveryClient;
+    private final String workerServiceId;
 
     @Autowired
-    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService, FtepSecurityService securityService, JobConfigDataService jobConfigDataService, JobDataService jobDataService) {
+    public CatalogueServiceImpl(FtepFileDataService ftepFileDataService, DataSourceDataService dataSourceDataService, DatabasketDataService databasketDataService, OutputProductService outputProductService, ReferenceDataService referenceDataService, ExternalProductDataService externalProductDataService, FtepSecurityService securityService, JobConfigDataService jobConfigDataService, JobDataService jobDataService, DiscoveryClient discoveryClient, @Value("${ftep.orchestrator.worker.eurekaServiceId:f-tep worker}") String workerServiceId) {
         this.ftepFileDataService = ftepFileDataService;
         this.dataSourceDataService = dataSourceDataService;
         this.databasketDataService = databasketDataService;
@@ -88,6 +96,8 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
         this.securityService = securityService;
         this.jobConfigDataService = jobConfigDataService;
         this.jobDataService = jobDataService;
+        this.discoveryClient = discoveryClient;
+        this.workerServiceId = workerServiceId;
     }
 
     @Override
@@ -152,6 +162,17 @@ public class CatalogueServiceImpl extends CatalogueServiceGrpc.CatalogueServiceI
         getFtepFileReferences(file).forEach(referencer -> {
             referencer.removeReferenceToFtepFile(file);
         });
+
+        // Remove the file from each worker's cache
+        discoveryClient.getInstances(workerServiceId)
+                .forEach(worker -> {
+                    ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(worker.getHost(), Integer.parseInt(worker.getMetadata().get("grpcPort")))
+                            .usePlaintext(true)
+                            .build();
+                    FtepWorkerGrpc.FtepWorkerBlockingStub workerStub = FtepWorkerGrpc.newBlockingStub(managedChannel);
+                    workerStub.cleanCache(CleanCacheRequest.newBuilder().setFileUri(file.getUri().toString()).build());
+                });
+
         ftepFileDataService.delete(file);
         //delete files from resto last, because db should be able to roll back here
         switch (file.getType()) {

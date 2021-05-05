@@ -13,8 +13,10 @@
                 </td>
                 <td class="remove-file">
                         <span ng-click="deleteFileDialog(file, $event); $event.stopPropagation()"
-                              ng-hide="file.filename === 'Dockerfile' || file.filename === 'workflow.sh'"
+                              ng-hide="file.name === 'Dockerfile' || file.name === 'workflow.sh'"
                               aria-label="Delete File"
+                              has-permission="ADMIN"
+                              permission-source="{{serviceParams.selectedService}}"
                               uib-tooltip="Delete File"
                               tooltip-placement="top"
                               tooltip-trigger="mouseenter"
@@ -55,7 +57,7 @@
             <select class="form-control"
                     ng-model="serviceParams.activeMode"
                     ng-options="m for m in modes"
-                    ng-change="modeChanged()" />
+                    ng-change="modeChanged(); toggleEditMode(true)" />
         </div>
         <div class="col-md-4 no-padding" />
         <div class="col-md-4 no-padding">
@@ -63,6 +65,7 @@
             <md-checkbox class="executable"
                          ng-model="serviceParams.openedFile.executable"
                          aria-label="Executable"
+                         ng-change="toggleEditMode(true)"
                          ng-disabled="serviceParams.openedFile.filename === 'Dockerfile' || serviceParams.openedFile.filename === 'workflow.sh'">
             </md-checkbox>
         </div>
@@ -72,7 +75,7 @@
               ui-codemirror="{ onLoad : codemirrorLoaded }"
               ui-codemirror-opts="editorOptions"
               ui-refresh="refreshMirror()"
-              ng-change="refreshMirror()"
+              ng-change="refreshMirror(); toggleEditMode(true)"
               ng-model="serviceParams.openedFile.content"
               md-select-on-focus
               placeholder="Add file content..">Loading...</textarea>

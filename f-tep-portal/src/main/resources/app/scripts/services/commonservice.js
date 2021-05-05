@@ -185,7 +185,11 @@ define(['../ftepmodules'], function (ftepmodules) {
             function ShareObjectController($scope, $mdDialog, GroupService, CommunityService) {
 
                 var service = $injector.get(serviceName);
-                $scope.permissions = CommunityService.permissionTypes;
+                if (type === 'service') {
+                    $scope.permissions = CommunityService.servicePermissionTypes;
+                } else {
+                    $scope.permissions = CommunityService.permissionTypes;
+                }
                 $scope.ace = item;
                 $scope.ace.type = type;
                 $scope.ace.permission = $scope.permissions.READ;

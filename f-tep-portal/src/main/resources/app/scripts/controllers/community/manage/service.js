@@ -14,7 +14,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
 
         /* Get stored Services & Contents details */
         $scope.serviceParams = ProductService.params.community;
-        $scope.permissions = CommunityService.permissionTypes;
+        $scope.permissions = CommunityService.servicePermissionTypes;
         $scope.item = "Service File";
 
         /* Filters */

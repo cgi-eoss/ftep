@@ -8,6 +8,7 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.cgi.eoss.ftep.security.FtepCustomPermission;
 import com.cgi.eoss.ftep.security.FtepPermission;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.collect.ImmutableList;
@@ -211,6 +212,7 @@ public class ServicesApiIT {
         dataService.save(ImmutableSet.of(service, service2, service3));
 
         createAce(new ObjectIdentityImpl(FtepService.class, service.getId()), new GrantedAuthoritySid(FtepPermission.PUBLIC), BasePermission.READ);
+        createAce(new ObjectIdentityImpl(FtepService.class, service.getId()), new GrantedAuthoritySid(FtepPermission.PUBLIC), FtepCustomPermission.LAUNCH);
         createReadAce(new ObjectIdentityImpl(FtepService.class, service3.getId()), ftepExpertUser.getName());
 
         // service1 is returned as it is AVAILABLE
@@ -223,7 +225,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services.length()").value(2))
                 .andExpect(jsonPath("$._embedded.services[0].id").value(service.getId()))
                 .andExpect(jsonPath("$._embedded.services[0].access.published").value(true))
-                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("READ"))
+                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("SERVICE_USER"))
                 .andExpect(jsonPath("$._embedded.services[1].id").value(service3.getId()))
                 .andExpect(jsonPath("$._embedded.services[1].access.published").value(false))
                 .andExpect(jsonPath("$._embedded.services[1].access.currentLevel").value("READ"));

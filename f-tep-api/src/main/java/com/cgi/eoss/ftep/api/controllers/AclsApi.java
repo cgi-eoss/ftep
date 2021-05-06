@@ -235,10 +235,10 @@ public class AclsApi {
         int aceCount = acl.getEntries().size();
         Seq.range(0, aceCount).reverse().forEach(acl::deleteAce);
 
-        // ... then ensure the owner ACE is present (always ADMIN)
+        // ... then ensure the owner ACE is present (SERVICE_OPERATOR for services, ADMIN for other entities)
         if (owner != null) {
             Sid ownerSid = new PrincipalSid(owner.getName());
-            FtepPermission.ADMIN.getAclPermissions()
+            getOwnerPermission(objectIdentity).getAclPermissions()
                     .forEach(p -> acl.insertAce(acl.getEntries().size(), p, ownerSid, true));
         }
 
@@ -255,6 +255,12 @@ public class AclsApi {
         if (published) {
             ftepSecurityService.publish(objectIdentity);
         }
+    }
+
+    private FtepPermission getOwnerPermission(ObjectIdentity objectIdentity) {
+        return objectIdentity.getType().equals(FtepService.class.getCanonicalName())
+                ? FtepPermission.SERVICE_OPERATOR // for services, grant owner SERVICE_OPERATOR permissions
+                : FtepPermission.ADMIN;
     }
 
     @Data

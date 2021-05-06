@@ -2,6 +2,7 @@ package com.cgi.eoss.ftep.security;
 
 import com.cgi.eoss.ftep.model.FtepEntityWithOwner;
 import com.cgi.eoss.ftep.model.FtepFile;
+import com.cgi.eoss.ftep.model.FtepService;
 import com.cgi.eoss.ftep.model.FtepServiceContextFile;
 import com.cgi.eoss.ftep.model.Group;
 import com.cgi.eoss.ftep.model.User;
@@ -93,6 +94,11 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                 LOG.debug("Adding PUBLIC READ-level ACL for new EXTERNAL_PRODUCT FtepFile with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()
                         .forEach(p -> acl.insertAce(acl.getEntries().size(), p, new GrantedAuthoritySid(FtepPermission.PUBLIC), true));
+            } else if (FtepService.class.equals(entity)) {
+                // For services, assign SERVICE_OPERATOR permission to the owner
+                LOG.debug("Adding operator-level ACL for new {} with ID {} (owner: {})", entityClass.getSimpleName(), entity.getId(), entity.getOwner().getName());
+                FtepPermission.SERVICE_OPERATOR.getAclPermissions()
+                        .forEach(p -> acl.insertAce(acl.getEntries().size(), p, ownerSid, true));
             } else {
                 // ... otherwise, the owner should have ADMIN permission for the entity
                 LOG.debug("Adding owner-level ACL for new {} with ID {} (owner: {})", entityClass.getSimpleName(), entity.getId(), entity.getOwner().getName());

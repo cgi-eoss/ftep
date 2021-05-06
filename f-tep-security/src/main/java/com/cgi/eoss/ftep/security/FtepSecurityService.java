@@ -16,11 +16,13 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -109,11 +112,13 @@ public class FtepSecurityService {
     @Transactional
     public void publish(ObjectIdentity objectIdentity) {
         MutableAcl acl = getAcl(objectIdentity);
-
         Sid publicSid = new GrantedAuthoritySid(FtepPermission.PUBLIC);
 
-        getPublishingPermission(objectIdentity).getAclPermissions()
-                .forEach(p -> acl.insertAce(acl.getEntries().size(), p, publicSid, true));
+        for (Permission p : getPublishingPermission(objectIdentity).getAclPermissions()) {
+            if (acl.getEntries().stream().noneMatch(ace -> ace.getPermission().equals(p) && ace.getSid().equals(publicSid))) {
+                acl.insertAce(acl.getEntries().size(), p, publicSid, true);
+            }
+        }
 
         saveAcl(acl);
     }
@@ -168,8 +173,16 @@ public class FtepSecurityService {
     private FtepPermission getCurrentPermission(Authentication authentication, ObjectIdentity objectIdentity) {
         if (isSuperUser()) {
             return FtepPermission.SUPERUSER;
+        } else if (hasFtepPermission(authentication, FtepPermission.SERVICE_OPERATOR, objectIdentity)) {
+            return FtepPermission.SERVICE_OPERATOR;
         } else if (hasFtepPermission(authentication, FtepPermission.ADMIN, objectIdentity)) {
             return FtepPermission.ADMIN;
+        } else if (hasFtepPermission(authentication, FtepPermission.SERVICE_DEVELOPER, objectIdentity)) {
+            return FtepPermission.SERVICE_DEVELOPER;
+        } else if (hasFtepPermission(authentication, FtepPermission.SERVICE_READONLY_DEVELOPER, objectIdentity)) {
+            return FtepPermission.SERVICE_READONLY_DEVELOPER;
+        } else if (hasFtepPermission(authentication, FtepPermission.SERVICE_USER, objectIdentity)) {
+            return FtepPermission.SERVICE_USER;
         } else if (hasFtepPermission(authentication, FtepPermission.WRITE, objectIdentity)) {
             return FtepPermission.WRITE;
         } else if (hasFtepPermission(authentication, FtepPermission.READ, objectIdentity) || isPublic(objectIdentity)) {
@@ -199,6 +212,10 @@ public class FtepSecurityService {
      * @return True if the object is READable by PUBLIC.
      */
     public boolean isPublic(ObjectIdentity objectIdentity) {
+        return hasFtepPermission(PUBLIC_AUTHENTICATION, getPublishingPermission(objectIdentity), objectIdentity);
+    }
+
+    public boolean isReadOnlyPublic(ObjectIdentity objectIdentity) {
         return hasFtepPermission(PUBLIC_AUTHENTICATION, FtepPermission.READ, objectIdentity);
     }
 
@@ -331,5 +348,43 @@ public class FtepSecurityService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // Set permissions for a single user
+    public void setUserPermission(ObjectIdentity objectIdentity, User owner, FtepPermission permission) {
+        LOG.debug("Creating ACL on object {}: {}", objectIdentity, permission);
+        MutableAcl acl = getAcl(objectIdentity);
+        Sid sid = new PrincipalSid(owner.getName());
+
+        for (Permission p : permission.getAclPermissions()) {
+            if (acl.getEntries().stream().noneMatch(ace -> ace.getPermission().equals(p) && ace.getSid().equals(sid))) {
+                acl.insertAce(acl.getEntries().size(), p, sid, true);
+            }
+        }
+
+        saveAcl(acl);
+    }
+
+    // Set permissions for a group
+    public void setGroupPermission(ObjectIdentity objectIdentity, Group group, FtepPermission permission) {
+        LOG.debug("Granting group {} {} permissions for object {}", group.getName(), permission, objectIdentity);
+        MutableAcl acl = getAcl(objectIdentity);
+        Sid sid = new GrantedAuthoritySid(group);
+
+        for (Permission p : permission.getAclPermissions()) {
+            if (acl.getEntries().stream().noneMatch(ace -> ace.getPermission().equals(p) && ace.getSid().equals(sid))) {
+                acl.insertAce(acl.getEntries().size(), p, sid, true);
+            }
+        }
+
+        saveAcl(acl);
+    }
+
+    public boolean hasGroupPermission(ObjectIdentity objectIdentity, Sid groupSid, FtepPermission permission) {
+        MutableAcl acl = getAcl(objectIdentity);
+        Set<Permission> existingPermissions = acl.getEntries().stream().filter(ace -> ace.getSid().equals(groupSid)).map(AccessControlEntry::getPermission).collect(Collectors.toSet());
+        Set<Permission> requiredPermissions = permission.getAclPermissions();
+        return existingPermissions.containsAll(requiredPermissions);
+
     }
 }

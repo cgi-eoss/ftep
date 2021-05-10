@@ -31,7 +31,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         // When the template changes, if it doesn't match the original set a flag requiring it to be validated before service save
         $scope.changeMirror = function() {
-            $scope.serviceParams.config.requiresValidation = originalTemplate !== $scope.serviceParams.selectedService.easyModeParameterTemplate;
+            if ($scope.serviceParams.config) {
+                $scope.serviceParams.config.requiresValidation = originalTemplate !== $scope.serviceParams.selectedService.easyModeParameterTemplate;
+            }
         };
 
         $scope.generateRequest = function() {
@@ -47,7 +49,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
             if (!generatedEasyJobConfig.error) {
                 $scope.generatedJSONRequest = generatedEasyJobConfig;
-                $scope.serviceParams.config.requiresValidation = false;
+                if ($scope.serviceParams.config) {
+                    $scope.serviceParams.config.requiresValidation = false;
+                }
             } else {
                 $scope.generatedJSONRequest = generatedEasyJobConfig.error.toString();
                 (function(ev) {

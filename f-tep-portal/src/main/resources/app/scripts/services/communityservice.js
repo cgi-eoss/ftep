@@ -19,9 +19,6 @@ define(['../ftepmodules'], function(ftepmodules) {
         };
 
         this.servicePermissionTypes = {
-            READ: "READ",
-            EDIT: "WRITE",
-            ADMIN: "ADMIN",
             SERVICE_USER: "SERVICE_USER",
             SERVICE_READONLY_DEVELOPER: "SERVICE_READONLY_DEVELOPER",
             SERVICE_DEVELOPER: "SERVICE_DEVELOPER",
@@ -38,7 +35,7 @@ define(['../ftepmodules'], function(ftepmodules) {
 
         this.getObjectGroups = function(item, type) {
             return $q(function(resolve, reject) {
-                if (item.access.currentLevel !== 'ADMIN' && item.access.currentLevel !== 'SUPERUSER') {
+                if (item.access.currentLevel !== 'ADMIN' && item.access.currentLevel !== 'SUPERUSER' && item.access.currentLevel !== 'SERVICE_OPERATOR') {
                     reject();
                 } else {
                     $http({

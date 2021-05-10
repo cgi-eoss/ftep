@@ -30,7 +30,7 @@ public enum FtepPermission {
             .put(FtepPermission.ADMIN, ImmutableSet.of(BasePermission.ADMINISTRATION, BasePermission.WRITE, BasePermission.READ))
             .put(FtepPermission.SERVICE_READONLY_DEVELOPER, ImmutableSet.of(FtepCustomPermission.READ_SERVICE_FILES, BasePermission.READ))
             .put(FtepPermission.SERVICE_DEVELOPER, ImmutableSet.of(FtepCustomPermission.READ_SERVICE_FILES, BasePermission.WRITE, BasePermission.READ))
-            .put(FtepPermission.SERVICE_OPERATOR, ImmutableSet.of(FtepCustomPermission.LAUNCH, FtepCustomPermission.READ_SERVICE_FILES, BasePermission.WRITE, BasePermission.READ))
+            .put(FtepPermission.SERVICE_OPERATOR, ImmutableSet.of(FtepCustomPermission.LAUNCH, FtepCustomPermission.READ_SERVICE_FILES, BasePermission.ADMINISTRATION, BasePermission.WRITE, BasePermission.READ))
             .put(FtepPermission.SERVICE_USER, ImmutableSet.of(FtepCustomPermission.LAUNCH, BasePermission.READ))
             .build();
 

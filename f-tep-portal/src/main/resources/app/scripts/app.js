@@ -47,7 +47,8 @@ define([
         'URL': ftepConfig.apiUrl,
         'URLv2': ftepConfig.apiUrlv2,
         'SSO_URL': ftepConfig.ssoUrl,
-        'MAPBOX_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
+        'MAPBOX_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken,
+        'HELPDESK_URL': ftepConfig.helpdeskUrl
     });
     /* jshint +W117 */
 
@@ -118,20 +119,6 @@ define([
             })
             .when('/account', {
                 templateUrl: 'views/account/account.html',
-                resolve: {
-                    "check": ['$location', 'UserService', function($location, UserService) {
-                        UserService.getCurrentUserWallet().then(function(wallet) {
-                            if (wallet.balance <= 0) {
-                                $location.path('/');  //if not subscribed, redirect to homepage
-                            }
-                        });
-                    }]
-                }
-            })
-            .when('/helpdesk', {
-                templateUrl: 'views/helpdesk/helpdesk.html',
-                controller: 'HelpdeskCtrl',
-                controllerAs: 'helpdesk',
                 resolve: {
                     "check": ['$location', 'UserService', function($location, UserService) {
                         UserService.getCurrentUserWallet().then(function(wallet) {

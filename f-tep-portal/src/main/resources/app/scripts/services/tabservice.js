@@ -8,7 +8,7 @@
 define(['../ftepmodules'], function (ftepmodules) {
     'use strict';
     ftepmodules.service('TabService', [ '$q', function ($q) {
-        var tabs = { EXPLORER: 0, FILES: 1, DEVELOPER: 2, COMMUNITY: 3, ACCOUNT: 4, HELPDESK: 5 };
+        var tabs = { EXPLORER: 0, FILES: 1, DEVELOPER: 2, COMMUNITY: 3, ACCOUNT: 4 };
         var bottomNavTabs = { RESULTS: 0, DATABASKETS: 1, JOBS: 2, MESSAGES: 3 };
         var communityTabs = { GROUPS: 0, PROJECTS: 1, DATABASKETS: 2, JOBS: 3, SERVICES: 4, FILES: 5};
         var explorerSideNavs = { SEARCH: 0, SERVICES: 1, WORKSPACE: 2 };

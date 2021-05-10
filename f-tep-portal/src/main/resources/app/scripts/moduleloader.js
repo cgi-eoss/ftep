@@ -47,8 +47,6 @@ define([
     './controllers/files/sidebar',
     './controllers/files/ui-grid',
 
-    './controllers/helpdesk/helpdesk',
-
     //services
     './services/apikeyservice',
     './services/basketservice',

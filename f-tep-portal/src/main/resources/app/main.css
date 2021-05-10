@@ -2502,55 +2502,6 @@
   font-feature-settings: 'liga';
 }
 
-#helpdesk-container {
-  background-color: #f8f8f8;
-}
-#helpdesk-container #helpdesk-info #supported-services {
-  margin-top: 1rem;
-}
-#helpdesk-container #helpdesk-info #supported-services #services-list {
-  padding-top: 0.5rem;
-}
-#helpdesk-container #links blockquote {
-  font-size: 0.8rem;
-  margin-left: 1rem;
-}
-#helpdesk-container #links .img-container {
-  -ms-flex-align: center;
-      align-items: center;
-  display: -ms-flexbox;
-  display: flex;
-}
-#helpdesk-container #links .img-container img {
-  height: auto;
-  max-width: 240px;
-  width: 100%;
-  vertical-align: middle;
-}
-#helpdesk-container #links md-card-content {
-  padding-bottom: 0;
-}
-#helpdesk-container #links md-card-actions {
-  margin-top: 0;
-}
-#helpdesk-container #videoclips img {
-  transform: scale(1);
-  transition: 0.3s ease-in-out;
-  width: 100%;
-}
-#helpdesk-container #videoclips img:hover {
-  transform: scale(1.1);
-}
-#helpdesk-container #videoclips .video {
-  padding: 0.5rem;
-}
-#helpdesk-container #videoclips .video figure {
-  margin: 0;
-}
-#helpdesk-container #videoclips .video figure figcaption {
-  padding-top: 0.5rem;
-}
-
 @font-face {
   font-family: 'Roboto-Black';
   src: url(fonts/Roboto-Black.woff2) format('woff2');

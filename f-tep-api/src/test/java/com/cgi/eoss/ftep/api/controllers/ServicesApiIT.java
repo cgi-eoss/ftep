@@ -128,7 +128,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$._embedded.services[0].owner.id").value(ftepUser.getId()))
                 .andExpect(jsonPath("$._embedded.services[0].access.published").value(false))
                 .andExpect(jsonPath("$._embedded.services[0].access.publishRequested").value(false))
-                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("ADMIN"))
+                .andExpect(jsonPath("$._embedded.services[0].access.currentLevel").value("SERVICE_OPERATOR"))
                 .andExpect(jsonPath("$._embedded.services[0]._links.self.href").value(endsWith("/services/" + service.getId())))
                 .andExpect(jsonPath("$._embedded.services[0]._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner{?projection}")));
     }
@@ -196,7 +196,7 @@ public class ServicesApiIT {
                 .andExpect(jsonPath("$.easyModeParameterTemplate").value("{{sometemplate}}"))
                 .andExpect(jsonPath("$.access.published").value(false))
                 .andExpect(jsonPath("$.access.publishRequested").value(false))
-                .andExpect(jsonPath("$.access.currentLevel").value("ADMIN"))
+                .andExpect(jsonPath("$.access.currentLevel").value("SERVICE_OPERATOR"))
                 .andExpect(jsonPath("$._links.self.href").value(endsWith("/services/" + service.getId())))
                 .andExpect(jsonPath("$._links.owner.href").value(endsWith("/services/" + service.getId() + "/owner{?projection}")));
     }

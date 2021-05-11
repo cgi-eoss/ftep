@@ -94,7 +94,7 @@ public class AddOwnerAclListener implements PostInsertEventListener {
                 LOG.debug("Adding PUBLIC READ-level ACL for new EXTERNAL_PRODUCT FtepFile with ID {}", entity.getId());
                 FtepPermission.READ.getAclPermissions()
                         .forEach(p -> acl.insertAce(acl.getEntries().size(), p, new GrantedAuthoritySid(FtepPermission.PUBLIC), true));
-            } else if (FtepService.class.equals(entity)) {
+            } else if (FtepService.class.equals(entityClass)) {
                 // For services, assign SERVICE_OPERATOR permission to the owner
                 LOG.debug("Adding operator-level ACL for new {} with ID {} (owner: {})", entityClass.getSimpleName(), entity.getId(), entity.getOwner().getName());
                 FtepPermission.SERVICE_OPERATOR.getAclPermissions()

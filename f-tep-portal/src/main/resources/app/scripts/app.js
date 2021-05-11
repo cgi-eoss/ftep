@@ -259,6 +259,7 @@ define([
         return {
             link: function(scope, element, attrs, ngModel) {
 
+                // TODO: separate handling for SERVICE_USER, SERVICE_READONLY_DEVELOPER, SERVICE_DEVELOPER, SERVICE_OPERATOR
                 if(!attrs.hasPermission || ['READ', 'WRITE', 'ADMIN', 'SUPERUSER'].indexOf(attrs.hasPermission.toUpperCase() ) < 0) {
                     throw 'hasPermission must be set';
                 }
@@ -282,10 +283,10 @@ define([
                             allowed = true;
                             break;
                         case 'WRITE':
-                            allowed = (['WRITE', 'ADMIN', 'SUPERUSER'].indexOf(userPermission.toUpperCase()) > -1);
+                            allowed = (['WRITE', 'ADMIN', 'SUPERUSER', 'SERVICE_DEVELOPER', 'SERVICE_OPERATOR'].indexOf(userPermission.toUpperCase()) > -1);
                             break;
                         case 'ADMIN':
-                            allowed = (['ADMIN', 'SUPERUSER'].indexOf(userPermission.toUpperCase()) > -1);
+                            allowed = (['ADMIN', 'SUPERUSER', 'SERVICE_OPERATOR'].indexOf(userPermission.toUpperCase()) > -1);
                             break;
                         case 'SUPERUSER':
                             allowed = (['SUPERUSER'].indexOf(userPermission.toUpperCase()) > -1);

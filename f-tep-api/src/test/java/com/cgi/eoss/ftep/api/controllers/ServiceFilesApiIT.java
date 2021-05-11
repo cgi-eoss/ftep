@@ -138,7 +138,7 @@ public class ServiceFilesApiIT {
         mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepContentAuthority.getName()))
                 .andExpect(status().isOk());
         mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepExpertUser.getName()))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
         mockMvc.perform(get(serviceFileUrl).header("REMOTE_USER", ftepUser.getName()))
                 .andExpect(status().isForbidden());
     }

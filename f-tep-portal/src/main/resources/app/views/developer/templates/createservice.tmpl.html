@@ -6,11 +6,13 @@
                 <md-input-container class="md-block" flex-gt-sm>
                     <label>Name</label>
                     <input name="serviceName" ng-model="newItem.name" md-autofocus type="text" aria-label="Item Name" required pattern="^[a-zA-Z][a-zA-Z0-9]+" ng-pattern-restrict>
-                    <span ng-show="createServiceForm.serviceName.$touched && createServiceForm.serviceName.$invalid">
+                    <span ng-show="createServiceForm.serviceName.$dirty && createServiceForm.serviceName.$invalid">
                         Name has to start with a letter, and only
                         <br/>contain letters and numbers.
                         <br/>No spaces or special characters allowed.
+                        <br/>
                     </span>
+                    <span ng-show="nameConflict">A service with the given name already exists. Please choose a unique name.</span>
                 </md-input-container>
                 <br>
                 <md-input-container class="md-block" flex-gt-sm>

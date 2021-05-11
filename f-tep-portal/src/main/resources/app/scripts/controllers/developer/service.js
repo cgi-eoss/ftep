@@ -70,13 +70,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.createService = function ($event) {
+            $scope.nameConflict = false;
             function CreateServiceController($scope, $mdDialog) {
 
                 $scope.createService = function () {
-                    ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title).then(function (newService) {
+                    ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title)
+                    .then(function (newService) {
                         ProductService.refreshServices('developer', 'Create', newService);
+                        $mdDialog.hide();
+                    },
+                    function(error) {
+                        $scope.nameConflict = true;
                     });
-                    $mdDialog.hide();
                 };
 
                 $scope.closeDialog = function () {

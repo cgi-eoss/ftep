@@ -98,7 +98,7 @@ public class FtepWorkerAutoscaler {
                     int averageLengthRounded = (int) Math.ceil(queueAverage.getAverageLength());
                     int scaleTarget = (int) Math.round(1.0 * averageLengthRounded / maxJobsPerNode);
                     LOG.debug("Avg queue length over the period is {}; scaling target is {}", queueAverage.getAverageLength(), scaleTarget);
-                    scaleTo(Math.max(scaleTarget, minWorkerNodes));
+                    scaleTo(scaleTarget);
                 } else {
                     LOG.debug("Metrics coverage of {} not enough to take scaling decision", coverage);
                 }

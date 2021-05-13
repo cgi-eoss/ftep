@@ -47,8 +47,11 @@ define([
         'URL': ftepConfig.apiUrl,
         'URLv2': ftepConfig.apiUrlv2,
         'SSO_URL': ftepConfig.ssoUrl,
-        'MAPBOX_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v8/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken,
-        'HELPDESK_URL': ftepConfig.helpdeskUrl
+        'HELPDESK_URL': ftepConfig.helpdeskUrl,
+        'MAPBOX_SATELLITE_STREETS_URL': "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken,
+        'MAPBOX_SATELLITE_URL': "https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken,
+        'MAPBOX_STREETS_URL': "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken,
+        'MAPBOX_TERRAIN_URL': "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/{z}/{x}/{y}?access_token=" + ftepConfig.mapboxToken
     });
     /* jshint +W117 */
 

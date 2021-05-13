@@ -12,7 +12,7 @@ define(['../ftepmodules', 'ol'], function (ftepmodules, ol) {
 
         this.mapstore = {
             aoi: { selectedArea: undefined, wkt: undefined },
-            type: {active: 'MapBox'},
+            type: {active: 'Satellite Street'},
             location: [0, 51.28],
             zoom: 4
         };

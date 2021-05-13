@@ -180,7 +180,7 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     }
 
     public enum Type {
-        PROCESSOR, BULK_PROCESSOR, APPLICATION
+        PROCESSOR, APPLICATION
     }
 
     public enum Status {

@@ -18,8 +18,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
         $scope.serviceTypes = {
             APPLICATION: {id: 0, name: 'Application', value: 'APPLICATION'},
-            PROCESSOR: {id: 0, name: 'Processor', value: 'PROCESSOR'},
-            BULK_PROCESSOR: {id: 0, name: 'Bulk Processor', value: 'BULK_PROCESSOR'}
+            PROCESSOR: {id: 0, name: 'Processor', value: 'PROCESSOR'}
         };
 
         ProductService.refreshServices('developer');

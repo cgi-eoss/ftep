@@ -415,11 +415,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
         jobDataService.save(job);
 
-        if (job.getConfig().getService().getType() == FtepService.Type.BULK_PROCESSOR) {
-            // Auto-publish the output files
-            ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));
-        }
-
         Job parentJob = job.getParentJob();
         if (parentJob != null) {
             completeParentJob(parentJob);

@@ -30,8 +30,7 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
         this.serviceTypeFilters = {
             ALL_SERVICES: {id: 0, name: 'All Service Types'},
             APPLICATION: {id: 1, name: 'Application Services', value: 'APPLICATION'},
-            PROCESSOR: {id: 2, name: 'Processor Services', value: 'PROCESSOR'},
-            BULK_PROCESSOR: {id: 3, name: 'Bulk Processor Services', value: 'BULK_PROCESSOR'}
+            PROCESSOR: {id: 2, name: 'Processor Services', value: 'PROCESSOR'}
         };
 
         this.servicePublicationFilters = {

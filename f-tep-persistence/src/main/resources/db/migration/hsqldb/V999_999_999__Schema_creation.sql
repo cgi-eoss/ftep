@@ -45,7 +45,7 @@ CREATE TABLE ftep_services (
   wps_descriptor               LONGVARCHAR,
   docker_build_info            LONGVARCHAR,
   status                       CHARACTER VARYING(255) NOT NULL CHECK (status IN ('IN_DEVELOPMENT', 'AVAILABLE')),
-  type                         CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'BULK_PROCESSOR', 'APPLICATION', 'PARALLEL_PROCESSOR')),
+  type                         CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'APPLICATION')),
   owner                        BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   application_port             CHARACTER VARYING(32),
   easy_mode_descriptor         LONGVARCHAR,

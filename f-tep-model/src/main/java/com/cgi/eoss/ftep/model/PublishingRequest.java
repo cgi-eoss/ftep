@@ -22,7 +22,7 @@ import javax.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 
 /**
- * <p>A transaction adding or removing balance to or from a user's wallet.</p>
+ * <p>A request for publishing an F-TEP entity to make it accessible to the public.</p>
  */
 @Data
 @EqualsAndHashCode(exclude = {"id"})

@@ -88,6 +88,12 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     private String dockerTag;
 
     /**
+     * <p>If the proxy path has to be stripped prior to being forwarded to this service.</p>
+     */
+    @Column(name = "strip_proxy_path")
+    private boolean stripProxyPath = true;
+
+    /**
      * <p>Usage restriction of the service, e.g. 'open' or 'restricted'.</p>
      */
     @Column(name = "licence", nullable = false)

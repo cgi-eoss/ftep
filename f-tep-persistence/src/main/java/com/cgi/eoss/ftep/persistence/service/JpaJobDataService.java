@@ -131,4 +131,8 @@ public class JpaJobDataService extends AbstractJpaDataService<Job> implements Jo
         return dao.findByOutputFiles(file);
     }
 
+    @Override
+    public List<Job> findByStatusAndGuiUrlNotNull(Job.Status status) {
+        return dao.findByStatusAndGuiUrlNotNull(status);
+    }
 }

@@ -28,4 +28,6 @@ public interface JobDataService extends FtepEntityDataService<Job> {
     Job reload(Long id); // It is used at JobStatus updates
 
     List<Job> findByOutputFiles(FtepFile file);
+
+    List<Job> findByStatusAndGuiUrlNotNull(Job.Status status);
 }

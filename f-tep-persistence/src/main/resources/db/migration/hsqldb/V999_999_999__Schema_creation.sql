@@ -47,6 +47,7 @@ CREATE TABLE ftep_services (
   type                         CHARACTER VARYING(255) NOT NULL CHECK (type IN ('PROCESSOR', 'APPLICATION')),
   owner                        BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   application_port             CHARACTER VARYING(32),
+  strip_proxy_path             BOOLEAN DEFAULT TRUE,
   easy_mode_descriptor         LONGVARCHAR,
   easy_mode_parameter_template LONGVARCHAR,
   mount_eodata                 BOOLEAN DEFAULT FALSE

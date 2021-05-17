@@ -18,6 +18,7 @@ import com.cgi.eoss.ftep.model.internal.OutputProductMetadata;
 import com.cgi.eoss.ftep.model.internal.Pair;
 import com.cgi.eoss.ftep.model.internal.RetrievedOutputFile;
 import com.cgi.eoss.ftep.model.internal.Shapefile;
+import com.cgi.eoss.ftep.orchestrator.service.gui.GuiUrlService;
 import com.cgi.eoss.ftep.persistence.service.JobDataService;
 import com.cgi.eoss.ftep.persistence.service.ServiceDataService;
 import com.cgi.eoss.ftep.queues.service.FtepQueueService;
@@ -123,7 +124,7 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
     private final WorkerFactory workerFactory;
     private final JobDataService jobDataService;
-    private final FtepGuiServiceManager guiService;
+    private final GuiUrlService guiUrlService;
     private final FtepFileRegistrar ftepFileRegistrar;
     private final CostingService costingService;
     private final FtepSecurityService securityService;
@@ -136,13 +137,13 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
 
     @Autowired
     public FtepJobLauncher(WorkerFactory workerFactory, JobDataService jobDataService,
-                           FtepGuiServiceManager guiService, FtepFileRegistrar ftepFileRegistrar,
+                           GuiUrlService guiUrlService, FtepFileRegistrar ftepFileRegistrar,
                            CostingService costingService, FtepSecurityService securityService,
                            FtepQueueService ftepQueueService, ServiceDataService serviceDataService,
                            JobExpansionService jobExpansionService) {
         this.workerFactory = workerFactory;
         this.jobDataService = jobDataService;
-        this.guiService = guiService;
+        this.guiUrlService = guiUrlService;
         this.ftepFileRegistrar = ftepFileRegistrar;
         this.costingService = costingService;
         this.securityService = securityService;
@@ -345,12 +346,13 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         // Update GUI endpoint URL for client access
         if (service.getType() == FtepService.Type.APPLICATION) {
             String zooId = job.getExtId();
-            FtepWorkerBlockingStub worker = workerFactory.getWorkerById(workerId);
-            String guiUrl = guiService.getGuiUrl(worker, GrpcUtil.toRpcJob(job), service.getApplicationPort());
+            String guiEndpoint = guiUrlService.getBackendEndpoint(workerId, GrpcUtil.toRpcJob(job), service.getApplicationPort());
+            String guiUrl = guiUrlService.buildGuiUrl(workerId, GrpcUtil.toRpcJob(job), service.getApplicationPort());
             LOG.info("Updating GUI URL for job {} ({}): {}", zooId, job.getConfig().getService().getName(), guiUrl);
+            job.setGuiEndpoint(guiEndpoint);
             job.setGuiUrl(guiUrl);
-            job.setGuiEndpoint(null); // No reverse-proxy implemented
             jobDataService.save(job);
+            guiUrlService.update();
         }
         job.setStage(JobStep.PROCESSING.getText());
         jobDataService.save(job);

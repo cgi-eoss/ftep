@@ -56,7 +56,7 @@
                     <div class="md-list-item-text" layout="column">
                         <h4 ng-bind="file.filename" />
                     </div>
-                    <md-checkbox class="md-secondary" ng-model="file.isChecked" ng-click="file.isChecked = !file.isChecked; selectFile()" aria-label="Select file" />
+                    <md-checkbox class="md-secondary" ng-model="file.isChecked" ng-change="selectFile()" aria-label="Select file" />
                     <md-divider />
                 </md-list-item>
 

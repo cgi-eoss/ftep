@@ -124,7 +124,8 @@
                        type="{{fieldDesc.defaultAttrs.dataType}}"
                        aria-label="{{fieldDesc.title}}"
                        dnd-list="serviceParams.config.inputValues[fieldDesc.id]"
-                       dnd-drop="onDrop(item, fieldDesc.id); validateInputCount(fieldDesc)">
+                       dnd-drop="onDrop(item, fieldDesc.id); validateInputCount(fieldDesc)"
+                       ng-model="serviceParams.currentVal[fieldDesc.id]">
 
                 <!-- An input that accepts a single value with no data reference support -->
                 <input ng-if="!fieldDesc.defaultAttrs.allowedValues && !fieldDesc.dataReference"
@@ -146,6 +147,14 @@
                         {{attr}}
                     </md-option>
                 </md-select>
+
+                <!-- Button to add the selected input value to single-value fields supporting reference data -->
+                <md-icon ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference" style="display:inline-block;">
+                    <md-button class="toolbar-button md-secondary add-input-value-button"
+                               ng-click="addItem(fieldDesc.id, serviceParams.currentVal[fieldDesc.id]); serviceParams.currentVal[fieldDesc.id] = null; validateInputCount(fieldDesc)">
+                        <i class="material-icons">add</i>
+                    </md-button>
+                </md-icon>
 
                 <!-- List all items for the input field supporting data references that have been added to the request -->
                 <md-list class="drag-list-item" ng-if="!fieldDesc.defaultAttrs.allowedValues && fieldDesc.dataReference">

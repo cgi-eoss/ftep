@@ -759,6 +759,20 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             Job job = jobDataService.getById(rpcJob.getIntJobId());
             job.setStatus(Status.CANCELLED);
             jobDataService.save(job);
+            responseObserver.onNext(StopServiceResponse.newBuilder().build());
+            responseObserver.onCompleted();
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus() == io.grpc.Status.FAILED_PRECONDITION) {
+                LOG.warn("F-TEP worker could not locate container for job {}; marking as closed in the DB anyway", rpcJob.getId());
+                Job job = jobDataService.getById(rpcJob.getIntJobId());
+                job.setStatus(Status.CANCELLED);
+                jobDataService.save(job);
+                responseObserver.onNext(StopServiceResponse.newBuilder().build());
+                responseObserver.onCompleted();
+            } else {
+                LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
+                responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
+            }
         } catch (NumberFormatException e) {
             LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));

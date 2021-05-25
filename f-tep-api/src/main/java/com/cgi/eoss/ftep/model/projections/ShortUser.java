@@ -19,6 +19,5 @@ public interface ShortUser extends Identifiable<Long> {
     Role getRole();
     String getCountry();
     LocalDateTime getCreationTime();
-    LocalDateTime getSubscriptionStart();
     LocalDateTime getLastLogin();
 }

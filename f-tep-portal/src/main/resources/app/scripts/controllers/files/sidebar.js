@@ -12,6 +12,12 @@ define(['../../ftepmodules'], function (ftepmodules) {
     ftepmodules.controller('FilesSidebarCtrl', ['$scope', 'FileService', '$rootScope', '$mdDialog', function ($scope, FileService, $rootScope, $mdDialog) {
 
         $scope.filesParams = FileService.params.files;
+
+        // Reset the progress bar
+        $scope.filesParams.progressPercentage = 0;
+        $scope.filesParams.uploadStatus = 'pending';
+        $scope.filesParams.uploadMessage = undefined;
+
         $scope.newReferenceFile = {
             filetype: "",
             autoDetectDisabled: true,
@@ -72,6 +78,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
             if ($scope.newReferenceFile.autoDetectGeometry) {
                 $scope.newReferenceFile.geometry = "Auto-detected";
             }
+
             FileService.uploadFile('files', $scope.newReferenceFile).then(function (response) {
                 (function (ev) {
                     $mdDialog.show(

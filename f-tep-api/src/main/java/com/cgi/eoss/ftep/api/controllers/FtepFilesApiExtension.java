@@ -5,10 +5,12 @@ import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.costing.CostingService;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.FtepFileExternalReferences;
+import com.cgi.eoss.ftep.model.Subscription;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.internal.ReferenceDataMetadata;
 import com.cgi.eoss.ftep.model.internal.UploadableFileType;
 import com.cgi.eoss.ftep.persistence.service.FtepFileDataService;
+import com.cgi.eoss.ftep.persistence.service.SubscriptionDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -35,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -53,6 +57,7 @@ public class FtepFilesApiExtension {
     private final FtepFileDataService ftepFileDataService;
     private final CatalogueService catalogueService;
     private final CostingService costingService;
+    private final SubscriptionDataService subscriptionDataService;
 
     @PostMapping("/externalProduct")
     @ResponseBody
@@ -68,6 +73,10 @@ public class FtepFilesApiExtension {
     public ResponseEntity saveRefData(@RequestParam("geometry") String geometry, @RequestParam("file") MultipartFile file,
                                       @RequestParam("autoDetectGeometry") boolean autoDetectGeometry, @RequestParam("filetype") UploadableFileType fileType) throws Exception {
         User owner = ftepSecurityService.getCurrentUser();
+        if (exceedsStorageQuota(owner)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Storage quota exceeded.");
+        }
+
         String filename = file.getOriginalFilename();
 
         if (Strings.isNullOrEmpty(filename)) {
@@ -124,6 +133,16 @@ public class FtepFilesApiExtension {
     @GetMapping(value="/{fileId}/checkDelete")
     public FtepFileExternalReferences checkFileExternalReferences(@ModelAttribute("fileId") FtepFile file){
         return catalogueService.getFtepFileReferencesWithType(file);
+    }
+
+    private boolean exceedsStorageQuota(User user) {
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+        Optional<Subscription> activeSubscription = subscriptionDataService.findByOwner(user).stream()
+                .filter(subscription -> subscription.isActive(currentTime)).findFirst();
+        if (activeSubscription.isPresent()) {
+            return activeSubscription.get().exceedsStorageQuota();
+        }
+        return false;
     }
 
 }

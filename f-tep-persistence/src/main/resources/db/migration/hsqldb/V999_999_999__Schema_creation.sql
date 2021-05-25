@@ -11,7 +11,6 @@ CREATE TABLE ftep_users (
   organisation       CHARACTER VARYING(255),
   country            CHARACTER VARYING(255),
   creation_time      TIMESTAMP WITHOUT TIME ZONE,
-  subscription_start TIMESTAMP WITHOUT TIME ZONE,
   last_login         TIMESTAMP WITHOUT TIME ZONE
 );
 CREATE UNIQUE INDEX ftep_users_name_idx
@@ -367,3 +366,33 @@ CREATE TABLE ftep_systematic_processings (
 
 CREATE UNIQUE INDEX ftep_api_keys_owner_idx
   ON ftep_api_keys (owner);
+
+CREATE TABLE ftep_subscriptions (
+  id                      BIGINT IDENTITY PRIMARY KEY,
+  owner                   BIGINT NOT NULL REFERENCES ftep_users (uid),
+  package_name            CHARACTER VARYING(255),
+  storage_quota           BIGINT,
+  processing_quota        BIGINT,
+  comment_text            LONGVARCHAR,
+  subscription_start      TIMESTAMP WITHOUT TIME ZONE,
+  subscription_end        TIMESTAMP WITHOUT TIME ZONE,
+  storage_quota_usage     BIGINT DEFAULT 0,
+  processing_quota_usage  BIGINT DEFAULT 0,
+  creation_time           TIMESTAMP WITHOUT TIME ZONE,
+  creator                 BIGINT REFERENCES ftep_users (uid),
+  cancellation_time       TIMESTAMP WITHOUT TIME ZONE,
+  canceller               BIGINT REFERENCES ftep_users (uid)
+);
+CREATE INDEX ftep_subscriptions_owner_idx ON ftep_subscriptions (owner);
+CREATE INDEX ftep_subscriptions_creator_idx ON ftep_subscriptions (creator);
+CREATE INDEX ftep_subscriptions_canceller_idx ON ftep_subscriptions (canceller);
+
+CREATE TABLE ftep_comments (
+  id                      BIGINT IDENTITY PRIMARY KEY,
+  owner                   BIGINT NOT NULL REFERENCES ftep_users (uid),
+  creation_time           TIMESTAMP WITHOUT TIME ZONE,
+  creator                 BIGINT REFERENCES ftep_users (uid),
+  comment_text            LONGVARCHAR
+);
+CREATE INDEX ftep_comments_owner_idx ON ftep_comments (owner);
+CREATE INDEX ftep_comments_creator_idx ON ftep_comments (creator);

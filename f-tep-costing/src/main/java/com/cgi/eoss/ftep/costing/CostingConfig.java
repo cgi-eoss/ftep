@@ -33,8 +33,8 @@ public class CostingConfig {
                                          CostingExpressionDataService costingDataService,
                                          WalletDataService walletDataService,
                                          DatabasketDataService databasketDataService,
-                                         @Value("${ftep.costing.defaultJobCostExpression:1}") String defaultJobCostExpression,
-                                         @Value("${ftep.costing.defaultDownloadCostExpression:1}") String defaultDownloadCostExpression,
+                                         @Value("${ftep.costing.defaultJobCostExpression:0}") String defaultJobCostExpression,
+                                         @Value("${ftep.costing.defaultDownloadCostExpression:0}") String defaultDownloadCostExpression,
                                          JobExpansionService jobExpansionService) {
         return new CostingServiceImpl(coinsDisabled, costingExpressionParser, costingDataService, walletDataService, databasketDataService, defaultJobCostExpression, defaultDownloadCostExpression, jobExpansionService);
     }

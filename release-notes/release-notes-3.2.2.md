@@ -1,4 +1,4 @@
-# Release notes for F-TEP 3.2.1
+# Release notes for F-TEP 3.2.2
 
 ## Improvements, Changes &amp; Fixes
 

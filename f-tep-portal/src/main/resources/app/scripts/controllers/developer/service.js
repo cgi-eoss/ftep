@@ -172,6 +172,12 @@ define(['../../ftepmodules'], function (ftepmodules) {
             ProductService.openBuildLogs(service);
         };
 
+        $scope.stopBuild = function (service) {
+            ProductService.stopBuild(service).then(function () {
+                ProductService.updateBuildStatus(service);
+            });
+        };
+
     }]);
 
 });

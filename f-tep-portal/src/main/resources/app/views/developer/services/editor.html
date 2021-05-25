@@ -95,6 +95,11 @@
                         <i class="material-icons">error</i>
                         <span>Build failed</span>
                     </md-content>
+                    <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'CANCELLED'" layout="row"
+                                layout-align="start center" flex style="{{getColorForStatus('CANCELLED')}}">
+                        <i class="material-icons">error</i>
+                        <span>Build cancelled</span>
+                    </md-content>
                     <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED'" layout="row"
                                 layout-align="start center" flex style="{{getColorForStatus('REQUESTED')}}">
                         <span>Build requested</span>
@@ -131,6 +136,7 @@
                         class="md-icon-button"
                         aria-label="Build"
                         ng-click="rebuildServiceContainer(serviceParams.selectedService)"
+                        ng-if="serviceParams.selectedService.buildStatus.status != 'REQUESTED' && serviceParams.selectedService.buildStatus.status != 'IN_PROCESS'"
                         has-permission="WRITE"
                         permission-source="{{serviceParams.selectedService}}"
                         uib-tooltip="Build container"
@@ -139,6 +145,20 @@
                         tooltip-append-to-body="true"
                     >
                         <i class="material-icons">build</i>
+                    </md-button>
+                    <md-button
+                        class="md-icon-button"
+                        aria-label="Cancel"
+                        ng-click="stopBuild(serviceParams.selectedService)"
+                        ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED' || serviceParams.selectedService.buildStatus.status == 'IN_PROCESS'"
+                        has-permission="WRITE"
+                        permission-source="{{serviceParams.selectedService}}"
+                        uib-tooltip="Cancel build"
+                        tooltip-placement="top"
+                        tooltip-trigger="mouseenter"
+                        tooltip-append-to-body="true"
+                    >
+                        <i class="material-icons">cancel</i>
                     </md-button>
                     <md-button
                         ng-if="serviceParams.selectedService.buildStatus.serviceFingerprint"

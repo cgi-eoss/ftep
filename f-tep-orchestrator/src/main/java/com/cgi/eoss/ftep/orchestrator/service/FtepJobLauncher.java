@@ -255,6 +255,10 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 Serializable update = objectMessage.getObject();
                 if (update instanceof DockerImageBuildEvent) {
                     FtepService service = serviceDataService.getByName(serviceName);
+                    if (service.getDockerBuildInfo().getDockerBuildStatus().equals(FtepServiceDockerBuildInfo.Status.CANCELLED)) {
+                        // Do not forward updates for cancelled builds
+                        return;
+                    }
                     DockerImageBuildEventType dockerImageBuildEventType = ((DockerImageBuildEvent) update).getDockerImageBuildEventType();
                     service.getDockerBuildInfo().setLastBuiltFingerprint(buildFingerprint);
                     switch (dockerImageBuildEventType) {

@@ -593,6 +593,25 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
             $window.open(url, '_blank');
         };
 
+        this.stopBuild = function (service) {
+
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/services/' + service.id + '/stopBuild')
+                .newRequest()
+                .post()
+                .result
+                .then(
+                    function () {
+                        self.updateBuildStatus(service);
+                        deferred.resolve();
+                    }, function (error) {
+                        self.updateBuildStatus(service);
+                        MessageService.addError('Could not stop service container build' + service.name, error);
+                        deferred.reject();
+                    });
+            return deferred.promise;
+        };
+
         return this;
 
     }]);

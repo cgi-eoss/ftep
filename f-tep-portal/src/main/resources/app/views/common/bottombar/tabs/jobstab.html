@@ -92,7 +92,7 @@
                 </md-menu-item>
                 <md-menu-item>
                     <md-button ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-                               ng-click="addToDatabasket([jobParams.selectedJob._links['output-result'].href])"
+                               ng-click="addToDatabasket(jobParams.jobSelectedOutputs)"
                                aria-label="Add to Databasket">
                          <span>
                              <span class="material-icons">shopping_basket</span>
@@ -185,10 +185,9 @@
         </md-menu>
     </md-menu-bar>
 
-    <!-- TODO Job._links['output-result'] should be an array? -->
     <md-button class="toolbar-button"
                ng-disabled="dbParams.selectedDatabasket == undefined || jobParams.jobSelectedOutputs.length < 1"
-               ng-click="addToDatabasket([jobParams.selectedJob._links['output-result'].href])"
+               ng-click="addToDatabasket(jobParams.jobSelectedOutputs)"
                aria-label="Add to Databasket"
                uib-tooltip="Add to {{dbParams.selectedDatabasket.name}}"
                tooltip-trigger="mouseenter"

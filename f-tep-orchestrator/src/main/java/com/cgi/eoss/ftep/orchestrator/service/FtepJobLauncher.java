@@ -255,6 +255,10 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
                 Serializable update = objectMessage.getObject();
                 if (update instanceof DockerImageBuildEvent) {
                     FtepService service = serviceDataService.getByName(serviceName);
+                    if (service.getDockerBuildInfo().getDockerBuildStatus().equals(FtepServiceDockerBuildInfo.Status.CANCELLED)) {
+                        // Do not forward updates for cancelled builds
+                        return;
+                    }
                     DockerImageBuildEventType dockerImageBuildEventType = ((DockerImageBuildEvent) update).getDockerImageBuildEventType();
                     service.getDockerBuildInfo().setLastBuiltFingerprint(buildFingerprint);
                     switch (dockerImageBuildEventType) {
@@ -414,11 +418,6 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
         job.setOutputs(outputFiles.entries().stream().collect(toMultimap(e -> e.getKey(), e -> e.getValue().getUri().toString(), MultimapBuilder.hashKeys().hashSetValues()::build)));
         job.setOutputFiles(ImmutableSet.copyOf(outputFiles.values()));
         jobDataService.save(job);
-
-        if (job.getConfig().getService().getType() == FtepService.Type.BULK_PROCESSOR) {
-            // Auto-publish the output files
-            ImmutableSet.copyOf(outputFiles.values()).forEach(f -> securityService.publish(FtepFile.class, f.getId()));
-        }
 
         Job parentJob = job.getParentJob();
         if (parentJob != null) {
@@ -760,6 +759,20 @@ public class FtepJobLauncher extends FtepJobLauncherGrpc.FtepJobLauncherImplBase
             Job job = jobDataService.getById(rpcJob.getIntJobId());
             job.setStatus(Status.CANCELLED);
             jobDataService.save(job);
+            responseObserver.onNext(StopServiceResponse.newBuilder().build());
+            responseObserver.onCompleted();
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus() == io.grpc.Status.FAILED_PRECONDITION) {
+                LOG.warn("F-TEP worker could not locate container for job {}; marking as closed in the DB anyway", rpcJob.getId());
+                Job job = jobDataService.getById(rpcJob.getIntJobId());
+                job.setStatus(Status.CANCELLED);
+                jobDataService.save(job);
+                responseObserver.onNext(StopServiceResponse.newBuilder().build());
+                responseObserver.onCompleted();
+            } else {
+                LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
+                responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));
+            }
         } catch (NumberFormatException e) {
             LOG.error("Failed to stop job {} - message {}; notifying gRPC client", rpcJob.getId(), e.getMessage());
             responseObserver.onError(new StatusRuntimeException(io.grpc.Status.fromCode(io.grpc.Status.Code.ABORTED).withCause(e)));

@@ -97,16 +97,44 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
             source: new ol.source.OSM()
         });
 
-        var layerMapBox = new ol.layer.Tile({
+        var layerSatSM = new ol.layer.Tile({
             source: new ol.source.XYZ({
                 tileSize: [512, 512],
-                url: ftepProperties.MAPBOX_URL
+                url: ftepProperties.MAPBOX_SATELLITE_STREETS_URL
+            })
+        });
+
+        var layerSatM = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                tileSize: [512, 512],
+                url: ftepProperties.MAPBOX_SATELLITE_URL
+            })
+        });
+
+        var layerSM = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                tileSize: [512, 512],
+                url: ftepProperties.MAPBOX_STREETS_URL
+            })
+        });
+
+        var layerTM = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                tileSize: [512, 512],
+                url: ftepProperties.MAPBOX_TERRAIN_URL
             })
         });
 
         /* Set active layer on map load */
-        if($scope.mapstore.type.active === "MapBox") {
-            $scope.activelayer = layerMapBox;
+
+        if ($scope.mapstore.type.active === "Satellite Street") {
+            $scope.activelayer = layerSatSM;
+        } else if ($scope.mapstore.type.active === "Satellite") {
+            $scope.activelayer = layerSatM;
+        } else if ($scope.mapstore.type.active === "Street") {
+            $scope.activelayer = layerSM;
+        } else if ($scope.mapstore.type.active === "Terrain") {
+            $scope.activelayer = layerTM;
         } else if ($scope.mapstore.type.active === "Open Street") {
             $scope.activelayer = layerOSM;
         }
@@ -275,15 +303,32 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         }
         addInteraction();
 
+        $scope.removeRedundantLayers = function(newLayer) {
+            var layers = [layerSatSM, layerSatM, layerSM, layerTM, layerOSM];
+            layers.filter(layer => layer != newLayer).forEach(layer => $scope.map.removeLayer(layer));
+        };
+
         $scope.setMapType = function(newType) {
-            if(newType === 'OSM' && $scope.mapstore.type.active !== "Open Street") {
-                $scope.map.removeLayer(layerMapBox);
+            if (newType === 'SatSM' && $scope.mapstore.type.active !== "Satellite Street") {
+                $scope.removeRedundantLayers(layerSatSM);
+                $scope.map.getLayers().insertAt(0, layerSatSM);
+                $scope.mapstore.type.active = "Satellite Street";
+            } else if (newType === 'SatM' && $scope.mapstore.type.active !== "Satellite") {
+                $scope.removeRedundantLayers(layerSatM);
+                $scope.map.getLayers().insertAt(0, layerSatM);
+                $scope.mapstore.type.active = "Satellite";
+            } else if (newType === 'SM' && $scope.mapstore.type.active !== "Street") {
+                $scope.removeRedundantLayers(layerSM);
+                $scope.map.getLayers().insertAt(0, layerSM);
+                $scope.mapstore.type.active = "Street";
+            } else if (newType === 'TM' && $scope.mapstore.type.active !== "Terrain") {
+                $scope.removeRedundantLayers(layerTM);
+                $scope.map.getLayers().insertAt(0, layerTM);
+                $scope.mapstore.type.active = "Terrain";
+            } else if (newType === 'OSM' && $scope.mapstore.type.active !== "Open Street") {
+                $scope.removeRedundantLayers(layerOSM);
                 $scope.map.getLayers().insertAt(0, layerOSM);
                 $scope.mapstore.type.active = "Open Street";
-            } else if (newType === 'MB' &&  $scope.mapstore.type.active !== "MapBox") {
-                $scope.map.removeLayer(layerOSM);
-                $scope.map.getLayers().insertAt(0, layerMapBox);
-                $scope.mapstore.type.active = "MapBox";
             }
         };
         /** ----- END OF MAP CONFIG & DRAW INTERACTION ----- **/
@@ -297,7 +342,7 @@ define(['../../ftepmodules', 'ol', 'x2js', 'clipboard'], function (ftepmodules, 
         });
         $scope.map.addLayer(searchAreaLayer);
 
-        function updateSearchPolygon(geom, editedWkt, refit){
+        function updateSearchPolygon(geom, editedWkt, refit) {
             $scope.mapstore.aoi.selectedArea = geom.clone();
 
             //set the WKT when editing AOI manually

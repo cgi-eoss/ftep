@@ -252,7 +252,13 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     @Override
     public void stopContainer(Job request, StreamObserver<StopContainerResponse> responseObserver) {
         try (CloseableThreadContext.Instance ctc = getJobLoggingContext(request)) {
-            checkPreconditions(request.getId());
+            try {
+                checkPreconditions(request.getId());
+            } catch (IllegalArgumentException e) {
+                LOG.error("Could not locate container to stop job {}", request.getId(), e);
+                responseObserver.onError(Status.FAILED_PRECONDITION.asException());
+            }
+
             DockerClient dockerClient = jobClients.get(request.getId());
             String containerId = jobContainers.get(request.getId());
             LOG.info("Stop requested for job {} running in container {}", request.getId(), containerId);

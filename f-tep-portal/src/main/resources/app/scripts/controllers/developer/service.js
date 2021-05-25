@@ -18,8 +18,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.serviceTypeFilters = ProductService.serviceTypeFilters;
         $scope.serviceTypes = {
             APPLICATION: {id: 0, name: 'Application', value: 'APPLICATION'},
-            PROCESSOR: {id: 0, name: 'Processor', value: 'PROCESSOR'},
-            BULK_PROCESSOR: {id: 0, name: 'Bulk Processor', value: 'BULK_PROCESSOR'}
+            PROCESSOR: {id: 0, name: 'Processor', value: 'PROCESSOR'}
         };
 
         ProductService.refreshServices('developer');
@@ -70,13 +69,18 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.createService = function ($event) {
+            $scope.nameConflict = false;
             function CreateServiceController($scope, $mdDialog) {
 
                 $scope.createService = function () {
-                    ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title).then(function (newService) {
+                    ProductService.createService($scope.newItem.name, $scope.newItem.description, $scope.newItem.title)
+                    .then(function (newService) {
                         ProductService.refreshServices('developer', 'Create', newService);
+                        $mdDialog.hide();
+                    },
+                    function(error) {
+                        $scope.nameConflict = true;
                     });
-                    $mdDialog.hide();
                 };
 
                 $scope.closeDialog = function () {
@@ -166,6 +170,12 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
         $scope.openBuildLogs = function (service) {
             ProductService.openBuildLogs(service);
+        };
+
+        $scope.stopBuild = function (service) {
+            ProductService.stopBuild(service).then(function () {
+                ProductService.updateBuildStatus(service);
+            });
         };
 
     }]);

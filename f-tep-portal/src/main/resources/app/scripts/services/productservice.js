@@ -30,8 +30,7 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
         this.serviceTypeFilters = {
             ALL_SERVICES: {id: 0, name: 'All Service Types'},
             APPLICATION: {id: 1, name: 'Application Services', value: 'APPLICATION'},
-            PROCESSOR: {id: 2, name: 'Processor Services', value: 'PROCESSOR'},
-            BULK_PROCESSOR: {id: 3, name: 'Bulk Processor Services', value: 'BULK_PROCESSOR'}
+            PROCESSOR: {id: 2, name: 'Processor Services', value: 'PROCESSOR'}
         };
 
         this.servicePublicationFilters = {
@@ -352,6 +351,9 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                                 resolve(JSON.parse(document.data));
                                 EditorService.addDefaultFiles(JSON.parse(document.data));
                                 self.params.developer.activeArea = self.params.developer.constants.tabs.files;
+                            } else if (document.status == 409) {
+                                MessageService.addError('Could not create Service due to name conflict ' + name, document);
+                                reject();
                             } else {
                                 MessageService.addError('Could not create Service ' + name, document);
                                 reject();
@@ -589,6 +591,25 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
         this.openBuildLogs = function (service) {
             var url = rootUri + '/services/' + service.id + '/buildLogs?fingerprint=' + service.buildStatus.serviceFingerprint;
             $window.open(url, '_blank');
+        };
+
+        this.stopBuild = function (service) {
+
+            var deferred = $q.defer();
+            halAPI.from(rootUri + '/services/' + service.id + '/stopBuild')
+                .newRequest()
+                .post()
+                .result
+                .then(
+                    function () {
+                        self.updateBuildStatus(service);
+                        deferred.resolve();
+                    }, function (error) {
+                        self.updateBuildStatus(service);
+                        MessageService.addError('Could not stop service container build' + service.name, error);
+                        deferred.reject();
+                    });
+            return deferred.promise;
         };
 
         return this;

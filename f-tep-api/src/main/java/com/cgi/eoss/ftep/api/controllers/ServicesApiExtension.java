@@ -180,6 +180,21 @@ public class ServicesApiExtension {
     }
 
     /**
+     * <p>Stops the service docker image build.</p>
+     */
+    @PostMapping("/{serviceId}/stopBuild")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#service, 'write')")
+    public ResponseEntity stopBuild(@ModelAttribute("serviceId") FtepService service) {
+        FtepServiceDockerBuildInfo dockerBuildInfo = service.getDockerBuildInfo();
+        if (dockerBuildInfo != null && (dockerBuildInfo.getDockerBuildStatus().equals(Status.REQUESTED) || dockerBuildInfo.getDockerBuildStatus().equals(Status.IN_PROCESS))) {
+            dockerBuildInfo.setDockerBuildStatus(Status.CANCELLED);
+            serviceDataService.save(service);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>("No ongoing build found", HttpStatus.CONFLICT);
+    }
+
+    /**
      * <p>Retrieve the Docker image build logs from Graylog</p>
      */
     @GetMapping(value = "/{serviceId}/buildLogs")

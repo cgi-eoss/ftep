@@ -33,10 +33,6 @@
                     <p><i class="material-icons">person</i><span> Manage / Share</span></p>
                 </li>
 
-                <li ng-click="goTo('/helpdesk')" aria-label="Helpdesk" ng-class="{ active: isActive('/helpdesk')}">
-                   <p><i class="material-icons">help</i><span> Helpdesk</span></p>
-                </li>
-
                 <li ng-click="goTo('/admin')" ng-if="user.name && user.role === 'ADMIN'" aria-label="Admin" ng-class="{ active: isActive('/admin')}">
                    <p><i class="material-icons">settings</i><span> Admin</span></p>
                 </li>
@@ -50,6 +46,13 @@
                         <p><i class="material-icons">power_settings_new</i><span> Logout</span></p>
                     </a>
                 </li>
+
+                <li aria-label="Helpdesk">
+                    <a ng-href="{{helpdeskUrl}}" target="_blank">
+                        <p><i class="material-icons">help</i><span> Helpdesk</span></p>
+                    </a>
+                </li>
+
             </ul>
 
         </div>

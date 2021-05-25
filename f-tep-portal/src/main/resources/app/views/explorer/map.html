@@ -7,11 +7,20 @@
         <i class="material-icons">layers</i>
     </button>
     <md-menu-content id="map-layer">
-        <md-menu-item ng-class="{'active': mapstore.type.active == 'Open Street'}">
-            <md-button ng-click="setMapType('OSM')" aria-label="Open Street Map">Open Street Map</md-button>
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Satellite Street'}">
+            <md-button ng-click="setMapType('SatSM')" aria-label="Satellite/street map">Satellite/street map</md-button>
         </md-menu-item>
-        <md-menu-item ng-class="{'active': mapstore.type.active == 'MapBox'}">
-            <md-button ng-click="setMapType('MB')" aria-label="MapBox Map">MapBox Map</md-button>
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Satellite'}">
+            <md-button ng-click="setMapType('SatM')" aria-label="Satellite map">Satellite map</md-button>
+        </md-menu-item>
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Street'}">
+            <md-button ng-click="setMapType('SM')" aria-label="Street map">Street map</md-button>
+        </md-menu-item>
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Terrain'}">
+            <md-button ng-click="setMapType('TM')" aria-label="Terrain map">Terrain map</md-button>
+        </md-menu-item>
+        <md-menu-item ng-class="{'active': mapstore.type.active == 'Open Street'}">
+            <md-button ng-click="setMapType('OSM')" aria-label="OpenStreetMap">OpenStreetMap</md-button>
         </md-menu-item>
     </md-menu-content>
 </md-menu>
@@ -49,7 +58,11 @@
     <i class="material-icons">content_copy</i>
 </button>
 
-<section id="footer">
-    <a href="https://github.com/cgi-eoss/ftep/blob/development/LICENSE.txt">GNU Affero General Public License v3.0</a>
-    <a href="https://github.com/cgi-eoss/ftep"><img src="images/github.ico" alt="Github Source Code"></a>
-</section>
+<div id="mapbox-map">
+    <a href="http://mapbox.com/about/maps" class="mapbox-logo" target="_blank">Mapbox</a>
+    <div class="mapbox-attribution-container">
+        <a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox | </a>
+        <a href="http://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap | </a>
+        <a href="https://www.mapbox.com/map-feedback/" target="_blank"><strong>Improve this map</strong></a>
+    </div>
+</div>

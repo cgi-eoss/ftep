@@ -87,6 +87,16 @@
                 <div class="col-md-1 service-field no-padding">
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-7 service-field no-padding">
+                    <label class="input-label">Mount full EODATA</label>
+                    <md-checkbox class="mount-eodata"
+                                 ng-model="serviceParams.selectedService.mountEodata"
+                                 aria-label="Mount full EODATA"
+                                 ng-change="toggleEditMode(true)">
+                    </md-checkbox>
+                </div>
+            </div>
             <div class="row build-status" ng-if="!isTemplate">
                 <label>Container build status:</label>
                 <md-content layout="row" layout-align="start center" flex="50">

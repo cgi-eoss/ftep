@@ -42,6 +42,7 @@ import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.TerminateJobRequest;
 import com.cgi.eoss.ftep.worker.DockerRegistryConfig;
+import com.cgi.eoss.ftep.worker.EodataConfig;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -113,6 +114,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final boolean keepProcDir;
 
     private DockerRegistryConfig dockerRegistryConfig;
+
+    @Autowired
+    private EodataConfig eodataConfig;
 
     // Track all nodes
     private final Map<String, Node> nodes = new ConcurrentHashMap<>();
@@ -533,7 +537,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     private String createContainer(JobSpec jobSpec, DockerClient dockerClient) throws IOException, StorageProvisioningException {
-        String jobId = jobSpec.getJob().getId();
         String imageTag;
         String dockerImageTag = jobSpec.getService().getDockerImageTag();
 
@@ -599,6 +602,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             binds.add(storageTempDir + ":" + "/home/worker/procDir:rw");
         } else {
             binds.add(jobEnvironment.getTempDir().toAbsolutePath() + ":" + "/home/worker/procDir:rw");
+        }
+
+        if (jobSpec.getService().getMountEodata()) {
+            binds.add(eodataConfig.getEodataMountPath() + ":" + eodataConfig.getEodataMountVolume() + ":ro");
         }
 
         // TODO Implement user-specific volumes feature

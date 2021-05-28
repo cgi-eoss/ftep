@@ -146,6 +146,12 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     private String easyModeParameterTemplate;
 
     /**
+     * <p>A flag to determine whether the service should have READ access to /eodata.</p>
+     */
+    @Column(name = "mount_eodata")
+    private boolean mountEodata = false;
+
+    /**
      * <p>Create a new Service with the minimum required parameters.</p>
      *
      * @param name      Name of the service.

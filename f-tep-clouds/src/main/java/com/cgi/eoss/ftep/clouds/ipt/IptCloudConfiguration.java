@@ -79,6 +79,15 @@ public class IptCloudConfiguration {
     @Value("${ftep.clouds.ipt.node.insecureRegistries:#{null}}")
     private String insecureRegistries;
 
+    @Value("${ftep.clouds.ipt.node.eodataHost}")
+    private String eodataHost;
+
+    @Value("${ftep.clouds.ipt.node.eodataDirectory}")
+    private String eodataDirectory;
+
+    @Value("${ftep.clouds.ipt.node.eodataMountPoint}")
+    private String eodataMountPoint;
+
     @Autowired
     KeypairRepository keypairRepository;
 
@@ -136,6 +145,9 @@ public class IptCloudConfiguration {
                 .additionalNfsMounts(additionalNfsMounts)
                 .provisionFloatingIp(provisionFloatingIp)
                 .insecureRegistries(insecureRegistries)
+                .eodataDirectory(eodataHost)
+                .eodataDirectory(eodataDirectory)
+                .eodataMountPoint(eodataMountPoint)
                 .build();
     }
 

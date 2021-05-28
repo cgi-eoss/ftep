@@ -392,7 +392,8 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                 serviceDescriptor: selectedService.serviceDescriptor,
                 easyModeServiceDescriptor: selectedService.easyModeServiceDescriptor,
                 easyModeParameterTemplate: selectedService.easyModeParameterTemplate,
-                type: selectedService.type
+                type: selectedService.type,
+                mountEodata: selectedService.mountEodata
             };
 
             return $q(function (resolve, reject) {

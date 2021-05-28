@@ -48,7 +48,8 @@ CREATE TABLE ftep_services (
   owner                        BIGINT                 NOT NULL FOREIGN KEY REFERENCES ftep_users (uid),
   application_port             CHARACTER VARYING(32),
   easy_mode_descriptor         LONGVARCHAR,
-  easy_mode_parameter_template LONGVARCHAR
+  easy_mode_parameter_template LONGVARCHAR,
+  mount_eodata                 BOOLEAN DEFAULT FALSE
 );
 CREATE UNIQUE INDEX ftep_services_name_idx
   ON ftep_services (name);

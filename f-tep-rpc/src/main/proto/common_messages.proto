@@ -9,7 +9,8 @@ option java_outer_classname = "Messages";
 message Service {
     string id = 1;
     string name = 2;
-    string dockerImageTag = 3;
+    string docker_image_tag = 3;
+    bool mount_eodata = 4;
 }
 
 message Job {
@@ -36,16 +37,16 @@ message Job {
     }
 
     string id = 1;
-    int64 intJobId = 2;
-    string userId = 3;
-    string serviceId = 4;
+    int64 int_job_id = 2;
+    string user_id = 3;
+    string service_id = 4;
 }
 
 message JobParam {
     string paramName = 1;
-    repeated string paramValue = 2;
-    bool searchParameter = 3;
-    bool parallelParameter = 4;
+    repeated string param_value = 2;
+    bool search_parameter = 3;
+    bool parallel_parameter = 4;
 }
 
 message ShortFile {

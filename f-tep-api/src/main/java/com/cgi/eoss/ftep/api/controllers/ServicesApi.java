@@ -23,7 +23,7 @@ public interface ServicesApi extends ServicesApiCustom, JpaRepository<FtepServic
     Optional<FtepService> findById(Long id);
 
     @Override
-    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (#service.id == null and hasRole('EXPERT_USER')) or (#service.id != null && hasPermission(#service, 'write'))")
+    @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (#service.id == null and hasAnyRole('USER', 'EXPERT_USER')) or (#service.id != null && hasPermission(#service, 'write'))")
     <S extends FtepService> S save(@Param("service") S service);
 
     @Override

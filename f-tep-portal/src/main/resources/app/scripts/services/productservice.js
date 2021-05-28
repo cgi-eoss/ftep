@@ -353,10 +353,10 @@ define(['../ftepmodules', 'traversonHal', '../vendor/handlebars/handlebars'], fu
                                 self.params.developer.activeArea = self.params.developer.constants.tabs.files;
                             } else if (document.status == 409) {
                                 MessageService.addError('Could not create Service due to name conflict ' + name, document);
-                                reject();
+                                reject(document);
                             } else {
                                 MessageService.addError('Could not create Service ' + name, document);
-                                reject();
+                                reject(document);
                             }
                         }, function (error) {
                             MessageService.addError('Could not add Service ' + name, error);

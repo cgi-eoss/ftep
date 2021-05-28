@@ -248,7 +248,7 @@ public class ServicesApiIT {
 
     @Test
     public void testCreateWithInvalidRole() throws Exception {
-        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepUser.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(mockMvc, ftepUser) + "\"}"))
+        mockMvc.perform(post("/api/services").header("REMOTE_USER", ftepGuest.getName()).content("{\"name\": \"service-1\", \"dockerTag\": \"dockerTag\", \"owner\":\"" + userUri(mockMvc, ftepUser) + "\"}"))
                 .andExpect(status().isForbidden());
     }
 

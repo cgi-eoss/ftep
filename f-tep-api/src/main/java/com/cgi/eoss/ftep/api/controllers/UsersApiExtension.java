@@ -26,6 +26,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -88,6 +89,19 @@ public class UsersApiExtension {
     public ResponseEntity<Resource<Wallet>> getCurrentUserWallet() {
         User currentUser = ftepSecurityService.getCurrentUser();
         return ResponseEntity.ok().body(new Resource<>(currentUser.getWallet()));
+    }
+
+    @GetMapping("/current/activeSubscription")
+    public ResponseEntity getActiveSubscription() {
+        User currentUser = ftepSecurityService.getCurrentUser();
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+        Optional<Subscription> activeSubscription = subscriptionDataService.findByOwner(currentUser).stream()
+                .filter(subscription -> subscription.isActive(currentTime)).findFirst();
+        if (activeSubscription.isPresent()) {
+            return ResponseEntity.ok().body(new Resource<>(activeSubscription.get()));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     private boolean hasActiveSubscription(User user, LocalDateTime currentTime) {

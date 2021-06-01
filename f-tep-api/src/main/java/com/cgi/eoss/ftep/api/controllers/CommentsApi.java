@@ -11,6 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
         itemResourceRel = "comment",
         collectionResourceRel = "comments"
 )
-public interface CommentsApi extends PagingAndSortingRepository<Comment, Long> {
+public interface CommentsApi extends CommentsApiCustom, PagingAndSortingRepository<Comment, Long> {
 
 }

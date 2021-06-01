@@ -1,0 +1,53 @@
+<md-dialog id="edit-subscription-dialog" aria-label="Edit subscription dialog">
+    <h4>Edit Subscription</h4>
+    <md-dialog-content>
+        <div class="dialog-content-area">
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Package name</label>
+                <input ng-model="selectedSubscription.packageName" md-autofocus type="text" aria-label="Package name">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Storage quota</label>
+                <input ng-model="selectedSubscription.storageQuota" type="number" aria-label="Storage quota">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Processing quota</label>
+                <input ng-model="selectedSubscription.processingQuota" type="number" aria-label="Processing quota">
+            </md-input-container>
+            <br>
+            <!--
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Start time</label>
+                <input ng-model="selectedSubscription.subscriptionStart" type="datetime-local" aria-label="Start time">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Stop time</label>
+                <input ng-model="selectedSubscription.subscriptionEnd" type="datetime-local" aria-label="Stop time">
+            </md-input-container>
+            <br>
+            -->
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Start time</label>
+                <input ng-model="selectedSubscription.subscriptionStart" type="text" aria-label="Start time">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Stop time</label>
+                <input ng-model="selectedSubscription.subscriptionEnd" type="text" aria-label="Stop time">
+            </md-input-container>
+            <br>
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Comment</label>
+                <textarea ng-model="selectedSubscription.commentText"/>
+            </md-input-container>
+            <!-- TODO: also display fields that can't be edited? -->
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <md-button ng-click="saveSubscription()" class="md-primary">Save</md-button>
+        <md-button ng-click="closeDialog()" class="md-primary">Cancel</md-button>
+    </md-dialog-actions>
+</md-dialog>

@@ -66,6 +66,7 @@ define([
     './services/userservice',
     './services/walletservice',
     './services/estimatecostservice',
+    './services/subscriptionservice',
     './services/systematicservice'
 
 ], function () {});

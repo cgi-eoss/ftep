@@ -11,6 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
         itemResourceRel = "subscription",
         collectionResourceRel = "subscriptions"
 )
-public interface SubscriptionsApi extends PagingAndSortingRepository<Subscription, Long> {
+public interface SubscriptionsApi extends SubscriptionsApiCustom, PagingAndSortingRepository<Subscription, Long> {
 
 }

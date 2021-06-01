@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'CommonService', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, CommonService, ftepProperties) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'CommonService', 'SubscriptionService', '$mdDialog', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, CommonService, SubscriptionService, $mdDialog, ftepProperties) {
 
         $scope.rootUri = ftepProperties.URLv2;
 
@@ -42,27 +42,114 @@ define(['../../ftepmodules'], function (ftepmodules) {
         }
 
         /* Paging */
-        $scope.getPage = function(url){
+        $scope.getPage = function(url) {
             UserService.getUsersPage('admin', url);
         };
 
         UserService.getUsersByFilter('admin');
 
-        $scope.filter = function(){
+        $scope.filter = function() {
             UserService.getUsersByFilter('admin');
         };
 
-        $scope.getUserData = function(){
-            if($scope.userParams.selectedUser){
+        $scope.refreshSubscriptions = function() {
+            SubscriptionService.getUserSubscriptions($scope.userParams.selectedUser).then(function(subscriptions) {
+                $scope.userParams.subscriptions = subscriptions._embedded.subscriptions;
+            });
+        }
+
+        $scope.getUserData = function() {
+            if ($scope.userParams.selectedUser) {
                 UserService.getUserByLink($scope.userParams.selectedUser._links.self.href).then(function(data){
                     $scope.userParams.userDetails = data;
                 });
 
-                WalletService.getUserWallet($scope.userParams.selectedUser).then(function(wallet){
+                WalletService.getUserWallet($scope.userParams.selectedUser).then(function(wallet) {
                     $scope.userParams.wallet = wallet;
                 });
+
+                $scope.refreshSubscriptions();
             }
         };
+
+        $scope.deleteSubscription = function($event, subscription) {
+            CommonService.confirm(event, 'Are you sure you want to delete this subscription?').then(function(confirmed) {
+                if (confirmed === false) {
+                    return;
+                }
+                SubscriptionService.deleteSubscription(subscription).then(function() {
+                    $scope.refreshSubscriptions();
+                });
+
+            });
+        };
+
+        $scope.cancelSubscription = function($event, subscription) {
+            CommonService.confirm(event, 'Are you sure you want to cancel this subscription?').then(function(confirmed) {
+                if (confirmed === false) {
+                    return;
+                }
+                SubscriptionService.cancelSubscription(subscription).then(function() {
+                    $scope.refreshSubscriptions();
+                });
+            });
+        };
+
+        $scope.createSubscription = function($event) {
+
+            function CreateSubscriptionController($scope, $mdDialog) {
+
+                $scope.selectedSubscription = {};
+
+                $scope.saveSubscription = function() {
+                    SubscriptionService.createSubscription($scope.selectedSubscription, UserService.params.admin.selectedUser, UserService.params.activeUser).then(function() {
+                        $mdDialog.hide();
+                        // TODO: refresh subscriptions
+                    });
+                };
+
+                $scope.closeDialog = function() {
+                    $mdDialog.hide();
+                };
+            }
+
+            CreateSubscriptionController.$inject = ['$scope', '$mdDialog'];
+            $mdDialog.show({
+                controller: CreateSubscriptionController,
+                templateUrl: 'views/common/templates/editsubscription.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
+            });
+        }
+
+        $scope.editSubscription = function($event, subscription) {
+
+            function EditSubscriptionController($scope, $mdDialog) {
+
+                $scope.selectedSubscription = angular.copy(subscription);
+
+                $scope.saveSubscription = function() {
+                    SubscriptionService.updateSubscription($scope.selectedSubscription).then(function() {
+                        $mdDialog.hide();
+                        // TODO: refresh subscriptions
+                    });
+                };
+
+                $scope.closeDialog = function() {
+                    $mdDialog.hide();
+                };
+            }
+
+            EditSubscriptionController.$inject = ['$scope', '$mdDialog'];
+            $mdDialog.show({
+                controller: EditSubscriptionController,
+                templateUrl: 'views/common/templates/editsubscription.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose: true
+            });
+        }
 
         $scope.addCoins = function() {
             WalletService.makeTransaction($scope.userParams.selectedUser, $scope.userParams.wallet, $scope.userParams.coins).then(function(){
@@ -81,7 +168,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
         $scope.hideContent = true;
         var navbar, sidenav, management;
         $scope.finishLoading = function(component) {
-            switch(component) {
+            switch (component) {
                 case 'navbar':
                     navbar = true;
                     break;

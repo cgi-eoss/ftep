@@ -1372,6 +1372,10 @@
   position: relative;
 }
 
+#create-subscription-button {
+  position: sticky;
+}
+
 .icon-button {
   background-color: #ff80ab;
   bottom: 1.5rem;

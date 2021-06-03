@@ -16,6 +16,14 @@ define(['../../ftepmodules'], function (ftepmodules) {
             $scope.user = UserService.params.activeUser;
             if ($scope.user.id) {
                 $scope.checkForApiKey();
+
+                UserService.getActiveSubscription().then(function(subscription) {
+                    $scope.activeSubscription = subscription;
+                }, function(error) {
+                    $scope.activeSubscription = undefined;
+                });
+            } else {
+                $scope.activeSubscription = undefined;
             }
         };
 

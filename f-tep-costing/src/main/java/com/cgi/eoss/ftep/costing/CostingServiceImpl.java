@@ -132,14 +132,13 @@ public class CostingServiceImpl implements CostingService {
     @Override
     @Transactional
     public void chargeForJob(Wallet wallet, Job job) {
-        if (coinsDisabled) {
-            return;
+        int cost = 0;
+        if (!coinsDisabled) {
+            CostingExpression costingExpression = getCostingExpression(job.getConfig().getService());
+            String expression = costingExpression.getCostExpression();
+            cost = ((Number) expressionParser.parseExpression(expression).getValue(job)).intValue();
         }
 
-        CostingExpression costingExpression = getCostingExpression(job.getConfig().getService());
-        String expression = costingExpression.getCostExpression();
-
-        int cost = ((Number) expressionParser.parseExpression(expression).getValue(job)).intValue();
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .wallet(walletDataService.refreshFull(wallet))
                 .balanceChange(-cost)
@@ -153,14 +152,13 @@ public class CostingServiceImpl implements CostingService {
     @Override
     @Transactional
     public void chargeForDownload(Wallet wallet, FtepFile ftepFile) {
-        if (coinsDisabled) {
-            return;
+        int cost = 0;
+        if (!coinsDisabled) {
+            CostingExpression costingExpression = getCostingExpression(ftepFile);
+            String expression = costingExpression.getCostExpression();
+            cost = ((Number) expressionParser.parseExpression(expression).getValue(ftepFile)).intValue();
         }
 
-        CostingExpression costingExpression = getCostingExpression(ftepFile);
-        String expression = costingExpression.getCostExpression();
-
-        int cost = ((Number) expressionParser.parseExpression(expression).getValue(ftepFile)).intValue();
         WalletTransaction walletTransaction = WalletTransaction.builder()
                 .wallet(walletDataService.refreshFull(wallet))
                 .balanceChange(-cost)

@@ -88,6 +88,12 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     private String dockerTag;
 
     /**
+     * <p>If the proxy path has to be stripped prior to being forwarded to this service.</p>
+     */
+    @Column(name = "strip_proxy_path")
+    private boolean stripProxyPath = true;
+
+    /**
      * <p>Usage restriction of the service, e.g. 'open' or 'restricted'.</p>
      */
     @Column(name = "licence", nullable = false)
@@ -144,6 +150,12 @@ public class FtepService implements FtepEntityWithOwner<FtepService>, Searchable
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "easy_mode_parameter_template")
     private String easyModeParameterTemplate;
+
+    /**
+     * <p>A flag to determine whether the service should have READ access to /eodata.</p>
+     */
+    @Column(name = "mount_eodata")
+    private boolean mountEodata = false;
 
     /**
      * <p>Create a new Service with the minimum required parameters.</p>

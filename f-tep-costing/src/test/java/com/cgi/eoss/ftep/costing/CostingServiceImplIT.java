@@ -54,7 +54,7 @@ public class CostingServiceImplIT {
         jobConfig.setService(service);
 
         int defaultCost = costingService.estimateJobCost(jobConfig);
-        assertThat(defaultCost, is(1));
+        assertThat(defaultCost, is(0));
 
         CostingExpression costingExpression = CostingExpression.builder()
                 .type(CostingExpression.Type.SERVICE)
@@ -79,7 +79,7 @@ public class CostingServiceImplIT {
         ftepFile.setFilesize(585L);
 
         int defaultCost = costingService.estimateDownloadCost(ftepFile);
-        assertThat(defaultCost, is(1));
+        assertThat(defaultCost, is(0));
 
         CostingExpression costingExpression = CostingExpression.builder()
                 .type(CostingExpression.Type.DOWNLOAD)
@@ -109,7 +109,7 @@ public class CostingServiceImplIT {
         Job job = new Job(jobConfig, "jobId", owner);
 
         costingService.chargeForJob(owner.getWallet(), job);
-        assertThat(owner.getWallet().getBalance(), is(startingBalance - 1));
+        assertThat(owner.getWallet().getBalance(), is(startingBalance));
 
         CostingExpression costingExpression = CostingExpression.builder()
                 .type(CostingExpression.Type.SERVICE)
@@ -120,11 +120,11 @@ public class CostingServiceImplIT {
         costingExpressionDataService.save(costingExpression);
 
         costingService.chargeForJob(owner.getWallet(), job);
-        assertThat(owner.getWallet().getBalance(), is(startingBalance - 1 - service.getName().length()));
+        assertThat(owner.getWallet().getBalance(), is(startingBalance - service.getName().length()));
 
         List<WalletTransaction> transactions = owner.getWallet().getTransactions();
         assertThat(transactions.size(), is(2));
-        assertThat(transactions.get(0).getBalanceChange(), is(-1));
+        assertThat(transactions.get(0).getBalanceChange(), is(0));
         assertThat(transactions.get(1).getBalanceChange(), is(-service.getName().length()));
     }
 
@@ -144,7 +144,7 @@ public class CostingServiceImplIT {
         ftepFile.setFilesize(329L);
 
         costingService.chargeForDownload(owner.getWallet(), ftepFile);
-        assertThat(owner.getWallet().getBalance(), is(startingBalance - 1));
+        assertThat(owner.getWallet().getBalance(), is(startingBalance));
 
         CostingExpression costingExpression = CostingExpression.builder()
                 .type(CostingExpression.Type.DOWNLOAD)
@@ -154,11 +154,11 @@ public class CostingServiceImplIT {
         costingExpressionDataService.save(costingExpression);
 
         costingService.chargeForDownload(owner.getWallet(), ftepFile);
-        assertThat(owner.getWallet().getBalance(), is(startingBalance - 1 - (2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
+        assertThat(owner.getWallet().getBalance(), is(startingBalance - (2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
 
         List<WalletTransaction> transactions = owner.getWallet().getTransactions();
         assertThat(transactions.size(), is(2));
-        assertThat(transactions.get(0).getBalanceChange(), is(-1));
+        assertThat(transactions.get(0).getBalanceChange(), is(0));
         assertThat(transactions.get(1).getBalanceChange(), is(-(2 * (int) Math.ceil(ftepFile.getFilesize() / 100.0))));
     }
 

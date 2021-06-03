@@ -1,0 +1,2 @@
+ALTER TABLE ftep_services
+    ADD COLUMN IF NOT EXISTS mount_eodata BOOLEAN DEFAULT FALSE;

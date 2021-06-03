@@ -203,6 +203,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
                         $scope.displayTab($scope.bottomNavTabs.JOBS);
                         JobService.launchJob(jobConfig, $scope.serviceParams.selectedService).then(function () {
                             JobService.refreshJobs('explorer', 'Create');
+                        }, function(error) {
+                            $mdDialog.show(
+                                $mdDialog.alert()
+                                    .clickOutsideToClose(true)
+                                    .title('Launch failure')
+                                    .textContent(error.body.replaceAll('"', ''))
+                                    .ariaLabel('Launch failure')
+                                    .ok('OK')
+                            );
                         });
                     });
                 }

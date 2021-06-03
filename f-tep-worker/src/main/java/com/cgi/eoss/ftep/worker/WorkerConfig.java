@@ -120,6 +120,13 @@ public class WorkerConfig {
     }
 
     @Bean
+    public EodataConfig eodataConfig(
+            @Value("${ftep.worker.eodataMountPath:/eodata}") String eodataMountPath,
+            @Value("${ftep.worker.eodataMountVolume:/eodata}") String eodataMountVolume) {
+        return new EodataConfig(eodataMountPath, eodataMountVolume);
+    }
+
+    @Bean
     public FtepDockerService ftepDockerService() {
         return new FtepDockerService();
     }

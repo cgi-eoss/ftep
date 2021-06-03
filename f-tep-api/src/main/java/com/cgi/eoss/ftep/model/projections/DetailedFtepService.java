@@ -27,5 +27,6 @@ public interface DetailedFtepService extends Identifiable<Long> {
     String getEasyModeParameterTemplate();
     @Value("#{@ftepSecurityService.getCurrentAccess(T(com.cgi.eoss.ftep.model.FtepService), target.id)}")
     FtepAccess getAccess();
+    Boolean getMountEodata();
 
 }

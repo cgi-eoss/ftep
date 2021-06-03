@@ -6,9 +6,11 @@ import com.cgi.eoss.ftep.clouds.service.NodePoolStatus;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +44,7 @@ public class LocalNodeFactory implements NodeFactory {
                 .tag(tag)
                 .creationEpochSecond(Instant.now().getEpochSecond())
                 .dockerEngineUrl(dockerHostUrl)
+                .ipAddress(Optional.ofNullable(URI.create(dockerHostUrl).getHost()).orElse("ftep-worker"))
                 .build();
         currentNodes.add(node);
         return node;

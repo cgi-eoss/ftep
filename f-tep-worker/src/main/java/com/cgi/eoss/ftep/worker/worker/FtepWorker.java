@@ -42,6 +42,7 @@ import com.cgi.eoss.ftep.rpc.worker.ResourceRequest;
 import com.cgi.eoss.ftep.rpc.worker.StopContainerResponse;
 import com.cgi.eoss.ftep.rpc.worker.TerminateJobRequest;
 import com.cgi.eoss.ftep.worker.DockerRegistryConfig;
+import com.cgi.eoss.ftep.worker.EodataConfig;
 import com.cgi.eoss.ftep.worker.docker.Log4jContainerCallback;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -113,6 +114,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     private final boolean keepProcDir;
 
     private DockerRegistryConfig dockerRegistryConfig;
+
+    @Autowired
+    private EodataConfig eodataConfig;
 
     // Track all nodes
     private final Map<String, Node> nodes = new ConcurrentHashMap<>();
@@ -236,8 +240,9 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             checkPreconditions(request.getId());
             DockerClient dockerClient = jobClients.get(request.getId());
             String containerId = jobContainers.get(request.getId());
+            Node jobNode = jobNodes.get(request.getId());
             try {
-                PortBindings portBindings = getBindings(dockerClient, containerId);
+                PortBindings portBindings = getBindings(dockerClient, containerId, jobNode);
                 responseObserver.onNext(portBindings);
                 responseObserver.onCompleted();
             } catch (Exception e) {
@@ -533,7 +538,6 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
     }
 
     private String createContainer(JobSpec jobSpec, DockerClient dockerClient) throws IOException, StorageProvisioningException {
-        String jobId = jobSpec.getJob().getId();
         String imageTag;
         String dockerImageTag = jobSpec.getService().getDockerImageTag();
 
@@ -564,7 +568,7 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
         return ftepDockerService.createContainer(dockerClient, jobSpec, imageTag, prepareBindsForDockerContainer(jobSpec)).getId();
     }
 
-    private PortBindings getBindings(DockerClient dockerClient, String containerId) {
+    private PortBindings getBindings(DockerClient dockerClient, String containerId, Node jobNode) {
         LOG.debug("Inspecting container for port bindings: {}", containerId);
         InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
         Map<ExposedPort, Ports.Binding[]> exposedPortMap = inspectContainerResponse.getNetworkSettings().getPorts().getBindings();
@@ -575,7 +579,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
                 .filter(e -> e.getValue() != null)
                 .map(e -> PortBinding.newBuilder()
                         .setPortDef(e.getKey().toString())
-                        .setBinding(Binding.newBuilder().setIp(e.getValue()[0].getHostIp()).setPort(Integer.parseInt(e.getValue()[0].getHostPortSpec())).build())
+                        .setBinding(Binding.newBuilder()
+                                .setIp(Optional.ofNullable(jobNode.getIpAddress()).orElse(e.getValue()[0].getHostIp()))
+                                .setPort(Integer.parseInt(e.getValue()[0].getHostPortSpec()))
+                                .build())
                         .build())
                 .forEach(bindingsBuilder::addBindings);
         return bindingsBuilder.build();
@@ -599,6 +606,10 @@ public class FtepWorker extends FtepWorkerGrpc.FtepWorkerImplBase {
             binds.add(storageTempDir + ":" + "/home/worker/procDir:rw");
         } else {
             binds.add(jobEnvironment.getTempDir().toAbsolutePath() + ":" + "/home/worker/procDir:rw");
+        }
+
+        if (jobSpec.getService().getMountEodata()) {
+            binds.add(eodataConfig.getEodataMountPath() + ":" + eodataConfig.getEodataMountVolume() + ":ro");
         }
 
         // TODO Implement user-specific volumes feature

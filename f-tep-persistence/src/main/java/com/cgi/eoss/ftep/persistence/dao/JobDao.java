@@ -15,4 +15,6 @@ public interface JobDao extends FtepEntityDao<Job> {
     List<Job> findByOwnerAndConfig_Service(User user, FtepService service);
 
     List<Job> findByOutputFiles(FtepFile file);
+
+    List<Job> findByStatusAndGuiUrlNotNull(Job.Status status);
 }

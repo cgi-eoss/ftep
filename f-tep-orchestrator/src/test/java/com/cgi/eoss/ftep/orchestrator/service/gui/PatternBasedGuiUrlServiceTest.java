@@ -1,7 +1,8 @@
-package com.cgi.eoss.ftep.orchestrator.service;
+package com.cgi.eoss.ftep.orchestrator.service.gui;
 
 import com.cgi.eoss.ftep.orchestrator.OrchestratorConfig;
 import com.cgi.eoss.ftep.orchestrator.OrchestratorTestConfig;
+import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
 import com.cgi.eoss.ftep.rpc.Job;
 import com.cgi.eoss.ftep.rpc.worker.Binding;
 import com.cgi.eoss.ftep.rpc.worker.FtepWorkerGrpc;
@@ -16,30 +17,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {OrchestratorConfig.class, OrchestratorTestConfig.class})
 @TestPropertySource("classpath:test-orchestrator.properties")
 @Transactional
-public class FtepGuiServiceManagerTest {
+public class PatternBasedGuiUrlServiceTest {
 
     @Autowired
-    private FtepGuiServiceManager ftepGuiServiceManager;
+    private GuiUrlService guiUrlService;
 
     @Autowired
     private InProcessServerBuilder serverBuilder;
 
     @Autowired
     private ManagedChannelBuilder channelBuilder;
+
+    @MockBean
+    private WorkerFactory workerFactory;
 
     private FtepWorkerGrpc.FtepWorkerBlockingStub worker;
 
@@ -51,6 +57,8 @@ public class FtepGuiServiceManagerTest {
         server = serverBuilder.build().start();
 
         worker = FtepWorkerGrpc.newBlockingStub(channelBuilder.build());
+
+        when(workerFactory.getWorkerById("LOCAL")).thenReturn(worker);
     }
 
     @After
@@ -60,7 +68,7 @@ public class FtepGuiServiceManagerTest {
 
     @Test
     public void getGuiUrl() throws Exception {
-        String guiUrl = ftepGuiServiceManager.getGuiUrl(worker, Job.getDefaultInstance(), "8080/tcp");
+        String guiUrl = guiUrlService.buildGuiUrl("LOCAL", Job.getDefaultInstance(), "8080/tcp");
         assertThat(guiUrl, is("/gui/:12345/"));
     }
 

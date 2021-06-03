@@ -79,7 +79,9 @@ define(['../../ftepmodules'], function (ftepmodules) {
                         $mdDialog.hide();
                     },
                     function(error) {
-                        $scope.nameConflict = true;
+                        if (error.status == 409) {
+                            $scope.nameConflict = true;
+                        }
                     });
                 };
 

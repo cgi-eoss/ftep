@@ -1,8 +1,10 @@
 package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Role;
+import com.cgi.eoss.ftep.model.Subscription;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
+import com.cgi.eoss.ftep.persistence.service.SubscriptionDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +42,7 @@ public class UsersApiExtension {
 
     private final FtepSecurityService ftepSecurityService;
     private final UserDataService userDataService;
+    private final SubscriptionDataService subscriptionDataService;
 
     @GetMapping("/current")
     public ResponseEntity currentUser() {
@@ -61,11 +65,15 @@ public class UsersApiExtension {
     @Transactional
     public ResponseEntity<Void> startTrial() {
         User currentUser = ftepSecurityService.getCurrentUser();
-        if (currentUser.getSubscriptionStart() == null) {
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+
+        if (!hasActiveSubscription(currentUser, currentTime)) {
             if (currentUser.getRole().equals(Role.GUEST)) {
                 currentUser.setRole(Role.USER);
             }
-            currentUser.setSubscriptionStart(LocalDateTime.now(ZoneOffset.UTC));
+            Subscription subscription = new Subscription(currentUser, currentTime);
+            subscriptionDataService.save(subscription);
+
             currentUser.getWallet().setBalance(1000);
             userDataService.save(currentUser);
             LOG.info(String.format("User %s (%s) has started a free trial", currentUser.getName(), currentUser.getEmail()));
@@ -81,6 +89,23 @@ public class UsersApiExtension {
     public ResponseEntity<Resource<Wallet>> getCurrentUserWallet() {
         User currentUser = ftepSecurityService.getCurrentUser();
         return ResponseEntity.ok().body(new Resource<>(currentUser.getWallet()));
+    }
+
+    @GetMapping("/current/activeSubscription")
+    public ResponseEntity getActiveSubscription() {
+        User currentUser = ftepSecurityService.getCurrentUser();
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+        Optional<Subscription> activeSubscription = subscriptionDataService.findByOwner(currentUser).stream()
+                .filter(subscription -> subscription.isActive(currentTime)).findFirst();
+        if (activeSubscription.isPresent()) {
+            return ResponseEntity.ok().body(new Resource<>(activeSubscription.get()));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private boolean hasActiveSubscription(User user, LocalDateTime currentTime) {
+        return subscriptionDataService.findByOwner(user).stream().anyMatch(subscription -> subscription.isActive(currentTime));
     }
 
 }

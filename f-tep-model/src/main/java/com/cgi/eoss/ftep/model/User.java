@@ -104,12 +104,6 @@ public class User implements FtepEntity<User>, Searchable {
     private LocalDateTime creationTime = LocalDateTime.now(ZoneOffset.UTC);
 
     /**
-     * <p>The date and time this user account started the free trial.</p>
-     */
-    @Column(name = "subscription_start")
-    private LocalDateTime subscriptionStart;
-
-    /**
      * <p>The date and time this user last logged in.</p>
      */
     @Column(name = "last_login")

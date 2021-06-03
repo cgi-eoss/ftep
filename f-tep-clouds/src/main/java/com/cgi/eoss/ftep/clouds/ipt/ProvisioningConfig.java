@@ -18,4 +18,7 @@ final class ProvisioningConfig {
     private String serverNamePrefix = "ftep_node_";
     private boolean provisionFloatingIp;
     private String insecureRegistries;
+    private String eodataHost;
+    private String eodataDirectory;
+    private String eodataMountPoint;
 }

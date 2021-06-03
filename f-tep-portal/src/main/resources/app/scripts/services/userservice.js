@@ -303,6 +303,22 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
+        this.getActiveSubscription = function() {
+            var deferred = $q.defer();
+            halAPI.from(ftepProperties.URLv2 + '/users/current/activeSubscription')
+                .newRequest()
+                .getResource()
+                .result
+                .then(
+            function (subscription) {
+                deferred.resolve(subscription);
+            }, function (error) {
+                MessageService.addError('Unable to get current user\'s active subscription', error);
+                deferred.reject();
+            });
+            return deferred.promise;
+        };
+
         return this;
     }]);
 });

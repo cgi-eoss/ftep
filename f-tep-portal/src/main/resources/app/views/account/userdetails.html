@@ -115,6 +115,56 @@
             </md-card-content>
         </md-card>
 
+        <md-card id="subscription-info" md-theme-watch class="ftep-card" ng-show="activeSubscription">
+            <md-card-title>
+                <md-card-title-text>
+                    <h2>Subscription Info</h2>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <div class="row" ng-show="activeSubscription.packageName">
+                    <b class="col-md-4">Package name:</b>
+                    <div class="col-md-8">{{activeSubscription.packageName}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.storageQuota">
+                    <b class="col-md-4">Storage quota:</b>
+                    <div class="col-md-8">{{activeSubscription.storageQuota}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.processingQuota">
+                    <b class="col-md-4">Processing quota:</b>
+                    <div class="col-md-8">{{activeSubscription.processingQuota}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.commentText">
+                    <b class="col-md-4">Comment:</b>
+                    <div class="col-md-8">{{activeSubscription.commentText}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.subscriptionStart">
+                    <b class="col-md-4">Start time:</b>
+                    <div class="col-md-8">{{activeSubscription.subscriptionStart}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.subscriptionEnd">
+                    <b class="col-md-4">Stop time:</b>
+                    <div class="col-md-8">{{activeSubscription.subscriptionEnd}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.storageQuotaUsage">
+                    <b class="col-md-4">Storage used:</b>
+                    <div class="col-md-8">{{activeSubscription.storageQuotaUsage}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.processingQuotaUsage">
+                    <b class="col-md-4">Processing used:</b>
+                    <div class="col-md-8">{{activeSubscription.processingQuotaUsage}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.creationTime">
+                    <b class="col-md-4">Created:</b>
+                    <div class="col-md-8">{{activeSubscription.creationTime}}</div>
+                </div>
+                <div class="row" ng-show="activeSubscription.creator">
+                    <b class="col-md-4">Created by:</b>
+                    <div class="col-md-8">{{activeSubscription.creator.name}}</div>
+                </div>
+            </md-card-content>
+        </md-card>
+
     </section>
 
 </article>

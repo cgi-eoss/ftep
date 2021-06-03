@@ -57,7 +57,7 @@ public class GrpcUtil {
     /**
      * <p>Convert a {@link com.cgi.eoss.ftep.model.FtepService} to its gRPC {@link Service} representation.</p>
      *
-     * @param job The service to be converted.
+     * @param service The service to be converted.
      * @return The input service mapped to {@link Service}.
      */
     public static Service toRpcService(FtepService service) {
@@ -65,6 +65,7 @@ public class GrpcUtil {
                 .setId(String.valueOf(service.getId()))
                 .setName(service.getName())
                 .setDockerImageTag(service.getDockerTag())
+                .setMountEodata(service.isMountEodata())
             .build();
     }
 }

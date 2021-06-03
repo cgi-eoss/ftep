@@ -2,10 +2,13 @@ package com.cgi.eoss.ftep.api.controllers;
 
 import com.cgi.eoss.ftep.model.Job;
 import com.cgi.eoss.ftep.model.JobConfig;
+import com.cgi.eoss.ftep.model.Subscription;
 import com.cgi.eoss.ftep.model.SystematicProcessing;
+import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.dao.JobConfigDao;
 import com.cgi.eoss.ftep.persistence.dao.JobDao;
 import com.cgi.eoss.ftep.persistence.dao.SystematicProcessingDao;
+import com.cgi.eoss.ftep.persistence.service.SubscriptionDataService;
 import com.cgi.eoss.ftep.rpc.FtepServiceParams;
 import com.cgi.eoss.ftep.rpc.JobParam;
 import com.cgi.eoss.ftep.rpc.LocalServiceLauncher;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,14 +61,16 @@ public class JobConfigsApiExtension {
     private final JobDao jobRepository;
     private final JobConfigDao jobConfigDao;
     private final SystematicProcessingDao systematicProcessingDao;
+    private final SubscriptionDataService subscriptionDataService;
 
     @Autowired
-    public JobConfigsApiExtension(FtepSecurityService ftepSecurityService, LocalServiceLauncher localServiceLauncher, JobDao jobRepository, JobConfigDao jobConfigDao, SystematicProcessingDao systematicProcessingDao) {
+    public JobConfigsApiExtension(FtepSecurityService ftepSecurityService, LocalServiceLauncher localServiceLauncher, JobDao jobRepository, JobConfigDao jobConfigDao, SystematicProcessingDao systematicProcessingDao, SubscriptionDataService subscriptionDataService) {
         this.ftepSecurityService = ftepSecurityService;
         this.localServiceLauncher = localServiceLauncher;
         this.jobRepository = jobRepository;
         this.jobConfigDao = jobConfigDao;
         this.systematicProcessingDao = systematicProcessingDao;
+        this.subscriptionDataService = subscriptionDataService;
     }
 
     /**
@@ -74,10 +81,15 @@ public class JobConfigsApiExtension {
      */
     @PostMapping("/{jobConfigId}/launch")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or hasPermission(#jobConfig, 'read') and hasPermission(#jobConfig.service, 'launch')")
-    public ResponseEntity<Resource<Job>> launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) throws InterruptedException {
+    public ResponseEntity launch(@ModelAttribute("jobConfigId") JobConfig jobConfig) throws InterruptedException {
+        User currentUser = ftepSecurityService.getCurrentUser();
+        if (exceedsQuotas(currentUser)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Processing or storage quota exceeded.");
+        }
+
         FtepServiceParams.Builder serviceParamsBuilder = FtepServiceParams.newBuilder()
                 .setJobId(UUID.randomUUID().toString())
-                .setUserId(ftepSecurityService.getCurrentUser().getName())
+                .setUserId(currentUser.getName())
                 .setServiceId(jobConfig.getService().getName())
                 .addAllParallelParameters(jobConfig.getParallelParameters())
                 .addAllSearchParameters(jobConfig.getSearchParameters());
@@ -118,15 +130,20 @@ public class JobConfigsApiExtension {
 
     @PostMapping("/launchSystematic")
     @PreAuthorize("hasAnyRole('CONTENT_AUTHORITY', 'ADMIN') or (#jobConfigTemplate.id == null) or hasPermission(#jobConfigTemplate, 'read')")
-    public ResponseEntity<Void> launchSystematic(HttpServletRequest request, @RequestBody JobConfig jobConfigTemplate) {
+    public ResponseEntity launchSystematic(HttpServletRequest request, @RequestBody JobConfig jobConfigTemplate) {
         LOG.debug("Received new request for systematic processing");
+
+        User currentUser = ftepSecurityService.getCurrentUser();
+        if (exceedsQuotas(currentUser)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Processing or storage quota exceeded.");
+        }
 
         // Save the job config
         ftepSecurityService.updateOwnerWithCurrentUser(jobConfigTemplate);
         jobConfigDao.save(jobConfigTemplate);
 
         // Create "master" job
-        Job parentJob = new Job(jobConfigTemplate, UUID.randomUUID().toString(), ftepSecurityService.getCurrentUser());
+        Job parentJob = new Job(jobConfigTemplate, UUID.randomUUID().toString(), currentUser);
         parentJob.setParent(true);
         jobRepository.save(parentJob);
 
@@ -194,5 +211,17 @@ public class JobConfigsApiExtension {
             // No-op, the user has long stopped listening here
             latch.countDown(); // just to be safe
         }
+    }
+
+    private boolean exceedsQuotas(User user) {
+        // Find the first active subscription.
+        // TODO: What if several subscriptions are active? What if no subscription exists (ADMINs)?
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+        Optional<Subscription> activeSubscription = subscriptionDataService.findByOwner(user).stream()
+                .filter(subscription -> subscription.isActive(currentTime)).findFirst();
+        if (activeSubscription.isPresent()) {
+            return activeSubscription.get().exceedsProcessingQuota() || activeSubscription.get().exceedsStorageQuota();
+        }
+        return false;
     }
 }

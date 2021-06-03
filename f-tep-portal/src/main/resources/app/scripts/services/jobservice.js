@@ -407,11 +407,15 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     .result
                     .then(
             function (document) {
-                launchedJobID = JSON.parse(document.data).id;
-                MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
-                deferred.resolve();
+                if (document.status == 403) {
+                    deferred.reject(document);
+                } else {
+                    launchedJobID = JSON.parse(document.data).id;
+                    MessageService.addInfo('Job ' + launchedJobID + ' started', 'A new ' + service.name + ' job started.');
+                    deferred.resolve();
+                }
             },
-            function(error){
+            function(error) {
                 MessageService.addError('Could not launch Job', error);
                 deferred.reject();
             });

@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":f-tep-security"))
     implementation(project(":f-tep-logging"))
     implementation(project(":f-tep-batch"))
+    implementation("com.querydsl:querydsl-jpa")
     implementation("org.jooq:jool-java-8")
     implementation("org.springframework:spring-jms")
     implementation("org.apache.commons:commons-lang3")
@@ -25,5 +26,5 @@ dependencies {
     testImplementation("junit:junit")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.hamcrest:hamcrest-junit")
-    testImplementation("org.springframework:spring-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

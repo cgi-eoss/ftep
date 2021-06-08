@@ -22,7 +22,8 @@ service FtepWorkerManager {
 message BuildServiceParams {
     string userId = 1;
     string serviceId = 2;
-    string buildFingerprint = 3;
+    string serviceName = 3;
+    string buildFingerprint = 4;
 }
 
 message BuildServiceResponse {

@@ -43,8 +43,8 @@ import java.util.Arrays;
 public class QueuesConfig {
 
     @Bean
-    public FtepQueueService queueService(JmsTemplate jmsTemplate) {
-        return new FtepJMSQueueService(jmsTemplate);
+    public FtepQueueService queueService(JmsTemplate ftepJmsTemplate) {
+        return new FtepJMSQueueService(ftepJmsTemplate);
     }
 
     @Value("${spring.activemq.broker-url:vm://embeddedBroker}")
@@ -93,7 +93,7 @@ public class QueuesConfig {
     }
 
     @Bean
-    public JmsTemplate jmsTemplate() {
+    public JmsTemplate ftepJmsTemplate() {
         return new JmsTemplate(new PooledConnectionFactory(activeMQConnectionFactory())) {
             @Override
             protected void doSend(MessageProducer producer, Message message) throws JMSException {

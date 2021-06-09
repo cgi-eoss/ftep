@@ -19,6 +19,7 @@ public class SSHSession implements Closeable {
         sshClient = new SSHClient();
         sshClient.addHostKeyVerifier(new PromiscuousVerifier());
         sshClient.connect(host);
+        sshClient.setConnectTimeout(1000);
         sshClient.authPublickey(username, sshClient.loadKeys(privateKey, publicKey, null));
     }
 

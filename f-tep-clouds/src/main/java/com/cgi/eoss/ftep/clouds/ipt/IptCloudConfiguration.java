@@ -145,7 +145,7 @@ public class IptCloudConfiguration {
                 .additionalNfsMounts(additionalNfsMounts)
                 .provisionFloatingIp(provisionFloatingIp)
                 .insecureRegistries(insecureRegistries)
-                .eodataDirectory(eodataHost)
+                .eodataHost(eodataHost)
                 .eodataDirectory(eodataDirectory)
                 .eodataMountPoint(eodataMountPoint)
                 .build();

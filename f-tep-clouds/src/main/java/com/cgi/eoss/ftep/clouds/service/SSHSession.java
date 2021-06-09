@@ -1,5 +1,6 @@
 package com.cgi.eoss.ftep.clouds.service;
 
+import lombok.extern.log4j.Log4j2;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -9,6 +10,7 @@ import java.io.IOException;
 
 /**
  */
+@Log4j2
 public class SSHSession implements Closeable {
 
     private final SSHClient sshClient;
@@ -22,7 +24,9 @@ public class SSHSession implements Closeable {
 
     public CommandResponse exec(String cmd) throws IOException {
         try (Session session = sshClient.startSession()) {
-            return new CommandResponse(session.exec(cmd));
+            CommandResponse commandResponse = new CommandResponse(session.exec(cmd));
+            LOG.debug("Exit status: {}, output: {} for command {}", commandResponse.getExitStatus(), commandResponse.getOutput(), cmd);
+            return commandResponse;
         }
     }
 

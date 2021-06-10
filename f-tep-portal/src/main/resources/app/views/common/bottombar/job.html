@@ -54,14 +54,14 @@
     </section>
 
     <section id="job-tabs">
-        <ul class="nav nav-pills" ng-init="jobTab = 'OUTPUTS'">
-            <li role="presentation" ng-class="(jobTab == 'INPUTS') ? 'active' : ''" ng-click="jobTab = 'INPUTS'">
+        <ul class="nav nav-pills">
+            <li role="presentation" ng-class="(jobTab == 'INPUTS') ? 'active' : ''" ng-click="updateJobTab('INPUTS')">
                 <a>INPUTS</a>
             </li>
-            <li role="presentation" ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''" ng-click="jobTab = 'OUTPUTS'">
+            <li role="presentation" ng-class="(jobTab == 'OUTPUTS') ? 'active' : ''" ng-click="updateJobTab('OUTPUTS'); fetchJobOutputs()">
                 <a>OUTPUTS</a>
             </li>
-            <li role="presentation" ng-class="(jobTab == 'LOGS') ? 'active' : ''" ng-click="jobTab = 'LOGS'">
+            <li role="presentation" ng-class="(jobTab == 'LOGS') ? 'active' : ''" ng-click="updateJobTab('LOGS'); fetchJobLogs()">
                 <a>LOGS</a>
             </li>
         </ul>

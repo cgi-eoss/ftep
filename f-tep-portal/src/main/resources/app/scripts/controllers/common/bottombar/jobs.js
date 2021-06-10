@@ -13,6 +13,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.jobParams = JobService.params.explorer;
         $scope.jobOwnershipFilters = JobService.jobOwnershipFilters;
         $scope.jobStatuses = JobService.JOB_STATUSES;
+        $scope.jobTab = 'INPUTS';
 
         /* Get jobs */
         JobService.refreshJobs('explorer');
@@ -78,6 +79,11 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         $scope.selectJob = function (job) {
             $scope.jobParams.selectedJob = job;
             JobService.refreshSelectedJob('explorer');
+            if ($scope.jobTab === 'OUTPUTS') {
+                $scope.fetchJobOutputs();
+            } else if ($scope.jobTab === 'LOGS') {
+                $scope.fetchJobLogs();
+            }
             $scope.toggleAllWMS(false);
             // Job tab's left hand side, the Details of a selected Job
             document.getElementById('job-container').scrollTop = 0;
@@ -192,6 +198,18 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             JobService.params.community.selectedJob = job;
             JobService.refreshSelectedJob('community');
             $location.path('/community');
+        };
+
+        $scope.updateJobTab = function(tab) {
+            $scope.jobTab = tab;
+        };
+
+        $scope.fetchJobOutputs = function() {
+            JobService.fetchJobOutputs('explorer');
+        };
+
+        $scope.fetchJobLogs = function() {
+            JobService.fetchJobLogs('explorer');
         };
 
     }]);

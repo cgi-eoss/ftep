@@ -259,6 +259,25 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
         };
 
+        this.getParentJob = function(systematicProcessing) {
+            var deferred = $q.defer();
+
+            halAPI.from(rootUri + '/systematicProcessings/' + systematicProcessing.id)
+                .newRequest()
+                .follow('parentJob')
+                .getResource()
+                .result
+                .then(
+            function (response) {
+                deferred.resolve(response);
+            }, function (error) {
+                MessageService.addError('Unable to get systematic processing\'s parent job', error);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        };
+
         return this;
     }]);
 });

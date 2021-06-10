@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * <p>Default JSON projection for embedded {@link Job}s. Embeds the owner as a ShortUser.</p>
  */
-@Projection(name = "shortFtepService", types = {Job.class})
+@Projection(name = "shortJob", types = {Job.class})
 public interface ShortJob extends Identifiable<Long> {
     String getExtId();
     ShortUser getOwner();

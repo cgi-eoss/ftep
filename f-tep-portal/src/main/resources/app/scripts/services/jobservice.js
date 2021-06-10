@@ -66,7 +66,8 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 sharedGroups: undefined,
                 sharedGroupsSearchText: '',
                 sharedGroupsDisplayFilters: false,
-                selectedOwnershipFilter: self.jobOwnershipFilters.MY_JOBS
+                selectedOwnershipFilter: self.jobOwnershipFilters.MY_JOBS,
+                jobTab: undefined
             }
         };
         /** END OF PRESERVE USER SELECTIONS **/
@@ -153,7 +154,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function filterJobs(page) {
             if (_this.params[page] && UserService.params.activeUser._links) {
 
-                var searchUrlKey =  _this.params[page].parentId ? 'subjobsSearchUrl' : 'searchUrl';
+                var searchUrlKey = _this.params[page].parentId ? 'subjobsSearchUrl' : 'searchUrl';
 
                 /* Set base URL */
                 _this.params[page].pollingUrl = rootUri + '/jobs/' + _this.params[page].selectedOwnershipFilter[searchUrlKey];
@@ -163,7 +164,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 _this.params[page].pollingUrl += '?sort=id,DESC';
 
                 /* Get owner parameter */
-                if(_this.params[page].selectedOwnershipFilter !== _this.jobOwnershipFilters.ALL_JOBS) {
+                if (_this.params[page].selectedOwnershipFilter !== _this.jobOwnershipFilters.ALL_JOBS) {
                     _this.params[page].pollingUrl += '&owner=' + UserService.params.activeUser._links.self.href;
                 }
 
@@ -173,7 +174,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
                 /* Get status parameter */
                 var statusStr = '';
-                if(_this.params[page].selectedStatuses) {
+                if (_this.params[page].selectedStatuses) {
                     statusStr = _this.params[page].selectedStatuses.join(',');
                 }
                 if (statusStr) {
@@ -183,7 +184,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 }
 
                 /* Get text search parameter */
-                if(_this.params[page].searchText) {
+                if (_this.params[page].searchText) {
                     _this.params[page].pollingUrl += '&filter=' +  _this.params[page].searchText;
                 } else {
                     _this.params[page].pollingUrl += "&filter=";
@@ -194,6 +195,23 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         var getJob = function (job) {
             var deferred = $q.defer();
                 halAPI.from(rootUri + '/jobs/' + job.id + "?projection=detailedJob")
+                    .newRequest()
+                    .getResource()
+                    .result
+                .then(
+                function (document) {
+                    deferred.resolve(document);
+                }, function (error) {
+                    MessageService.addError('Could not get Job ' + job.id, error);
+                    deferred.reject();
+                });
+
+            return deferred.promise;
+        };
+
+        this.getShortJob = function (job) {
+            var deferred = $q.defer();
+                halAPI.from(rootUri + '/jobs/' + job.id + "?projection=shortJob")
                     .newRequest()
                     .getResource()
                     .result
@@ -226,32 +244,11 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        var getJobRequest;
-
-        var getJobDetails = function(job) {
-            var deferred = $q.defer();
-
-            getJobRequest = halAPI.from(rootUri + '/jobs/' + job.id)
-                .newRequest()
-                .follow('job')
-                .getResource();
-
-            getJobRequest.result.then(
-            function (document) {
-                deferred.resolve(document);
-            }, function (error) {
-                MessageService.addError('Could not get contents of Job ' + job.id, error);
-                deferred.reject();
-            });
-            return deferred.promise;
-        };
-
         var getJobLogs = function(job) {
             var deferred = $q.defer();
 
-            getJobRequest.continue().then(function (nextBuilder) {
-                var nextRequest = nextBuilder.newRequest();
-                nextRequest
+            halAPI.from(rootUri + '/jobs/' + job.id)
+                .newRequest()
                 .follow('logs')
                 .getResource()
                 .result
@@ -261,7 +258,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                     MessageService.addError('Could not get logs for Job ' + job.id, error);
                     deferred.reject();
                 });
-             });
 
             return deferred.promise;
         };
@@ -354,48 +350,55 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         };
 
 
-        this.refreshSelectedJob = function (page) {
+        this.refreshSelectedJob = function(page) {
 
             /* Get job contents if selected */
             if (_this.params[page].selectedJob) {
 
-                getJob(_this.params[page].selectedJob).then(function (job) {
+                var job = _this.params[page].selectedJob;
 
-                    getJobOwner(job).then(function (owner) {
-                        job.owner = owner;
+                getJobOwner(job).then(function(owner) {
+                    job.owner = owner;
+                });
+
+                _this.getJobConfig(job).then(function(config) {
+                    job.config = config;
+                });
+
+                if (page === 'community') {
+                    CommunityService.getObjectGroups(job, 'job').then(function(data) {
+                        _this.params.community.sharedGroups = data;
                     });
+                }
 
-                    getJobDetails(job).then(function (details) {
-                        job.details = details;
+                _this.params[page].selectedJob = job;
+            }
+        };
 
-                        getJobLogs(job).then(function (logs) {
-                             job.logs = logs;
-                        });
-                        _this.getJobConfig(job).then(function (config) {
-                            job.config = config;
-                        });
-
-                        if (job.outputs) {
-                            getOutputFiles(job).then(function(result){
-                                job.outputFiles = result._embedded.ftepFiles;
-                                _this.params[page].selectedJob = job;
-                                if(page === 'explorer'){
-                                    _this.params.explorer.jobSelectedOutputs = [];
-                                }
-                            });
-                        } else {
-                            _this.params[page].selectedJob = job;
+        this.fetchJobOutputs = function(page) {
+            if (_this.params[page].selectedJob.outputFiles) {
+                return;
+            }
+            getJob(_this.params[page].selectedJob).then(function (job) {
+                if (job.outputs && job.outputs.result) {
+                    getOutputFiles(job).then(function(result) {
+                        job.outputFiles = result._embedded.ftepFiles;
+                        _this.params[page].selectedJob = job;
+                        if (page === 'explorer') {
+                            _this.params.explorer.jobSelectedOutputs = [];
                         }
                     });
+                }
+            });
+        };
 
-                    if(page === 'community') {
-                        CommunityService.getObjectGroups(job, 'job').then(function (data) {
-                            _this.params.community.sharedGroups = data;
-                        });
-                    }
-
-                });
+        this.fetchJobLogs = function(page) {
+            if (_this.params[page].selectedJob.logs) {
+                return;
             }
+            getJobLogs(_this.params[page].selectedJob).then(function(logs) {
+                 _this.params[page].selectedJob.logs = logs;
+            });
         };
 
         this.launchJob = function(jobConfig, service) {
@@ -423,7 +426,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             return deferred.promise;
         };
 
-        this.createJobConfig = function(jobConfig){
+        this.createJobConfig = function(jobConfig) {
             return $q(function(resolve, reject) {
                     halAPI.from(rootUri + '/jobConfigs/')
                     .newRequest()
@@ -482,6 +485,10 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
             });
 
             return deferred.promise;
+        };
+
+        this.updateJobTab = function(page, tab) {
+            _this.params[page].jobTab = tab;
         };
 
         return this;

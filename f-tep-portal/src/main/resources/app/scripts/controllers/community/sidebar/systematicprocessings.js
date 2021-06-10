@@ -10,7 +10,7 @@
 
 define(['../../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('CommunitySystematicProcessingsCtrl', ['SystematicService', 'CommonService', 'TabService', 'JobService', '$scope', '$http', '$mdDialog', function (SystematicService, CommonService, TabService, JobService, $scope, $http, $mdDialog) {
+    ftepmodules.controller('CommunitySystematicProcessingsCtrl', ['SystematicService', 'CommonService', 'TabService', 'JobService', '$scope', '$mdDialog', function (SystematicService, CommonService, TabService, JobService, $scope, $mdDialog) {
 
         $scope.systematicParams = SystematicService.params.community;
         $scope.ownershipFilters = SystematicService.ownershipFilters;
@@ -40,16 +40,15 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.goToParentJobPage = function(systematicProcessing) {
-            // TODO: temporary solution to remove "{?projection}" from the end
-            var url = systematicProcessing._links.parentJob.href;
-            $http.get(url.replace('{?projection}', '')).then(function(response) {
-                JobService.params.community.selectedOwnershipFilter = JobService.jobOwnershipFilters.ALL_JOBS;
-                JobService.params.community.searchText = response.data.id;
-                TabService.navInfo.community.activeSideNav = TabService.getCommunityNavTabs().JOBS;
-                JobService.params.community.selectedJob = response.data;
-                JobService.refreshSelectedJob('community');
-            }, function() {
-
+            SystematicService.getParentJob(systematicProcessing).then(function(parentJob) {
+                // Get ShortJob directly to ensure access field is populated as well
+                JobService.getShortJob(parentJob).then(function(response) {
+                    JobService.params.community.selectedOwnershipFilter = JobService.jobOwnershipFilters.ALL_JOBS;
+                    JobService.params.community.searchText = response.id;
+                    TabService.navInfo.community.activeSideNav = TabService.getCommunityNavTabs().JOBS;
+                    JobService.params.community.selectedJob = response;
+                    JobService.refreshSelectedJob('community');
+                });
             });
         };
 

@@ -8,13 +8,13 @@
             </md-input-container>
             <br>
             <md-input-container class="md-block" flex-gt-sm>
-                <label>Storage quota</label>
-                <input ng-model="selectedSubscription.storageQuota" type="number" aria-label="Storage quota">
+                <label>Storage quota (bytes)</label>
+                <input ng-model="selectedSubscription.storageQuota" type="number" min="0" aria-label="Storage quota">
             </md-input-container>
             <br>
             <md-input-container class="md-block" flex-gt-sm>
-                <label>Processing quota</label>
-                <input ng-model="selectedSubscription.processingQuota" type="number" aria-label="Processing quota">
+                <label>Processing quota (hours)</label>
+                <input ng-model="selectedSubscription.processingQuota" type="number" step="any" min="0" aria-label="Processing quota">
             </md-input-container>
             <br>
             <!--

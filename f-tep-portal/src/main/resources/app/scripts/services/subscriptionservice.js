@@ -36,7 +36,6 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
 
         this.updateSubscription = function(subscription) {
             var patchedSubscription = {
-                //owner: user._links.self.href,
                 packageName: subscription.packageName,
                 storageQuota: subscription.storageQuota,
                 processingQuota: subscription.processingQuota,

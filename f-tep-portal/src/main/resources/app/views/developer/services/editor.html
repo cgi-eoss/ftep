@@ -120,7 +120,7 @@
                         <span>Build running</span>
                     </md-content>
                     <md-content
-                        ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED'"
+                        ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED' && serviceParams.selectedService.buildStatus.status != 'CANCELLED'"
                         layout="row" layout-align="start center" flex style="{{getColorForStatus('Warning')}}">
                         <i class="material-icons">warning</i>
                         <span>Build required</span>

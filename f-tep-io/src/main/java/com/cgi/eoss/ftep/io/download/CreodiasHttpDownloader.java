@@ -16,7 +16,6 @@ import okhttp3.Response;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
-import org.apache.logging.log4j.CloseableThreadContext;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -123,12 +122,9 @@ public class CreodiasHttpDownloader implements Downloader {
         return outputFile;
     }
 
-    private HttpUrl getDownloadUrl(URI uri) throws IOException {
-        // Trim the leading slash from the path and get the search URL
-        String productId = uri.getPath().substring(1);
-
+    private HttpUrl getDownloadUrl(URI uri) {
         List<HttpUrl> searchUrls = PROTOCOL_COLLECTIONS.get(uri.getScheme()).stream()
-                .map(collection -> buildSearchUrl(collection, productId))
+                .map(collection -> buildSearchUrl(collection, uri))
                 .collect(Collectors.toList());
 
         for (HttpUrl searchUrl : searchUrls) {
@@ -169,9 +165,7 @@ public class CreodiasHttpDownloader implements Downloader {
                     .addPathSegments(productId)
                     .build();
         } catch (SocketTimeoutException timeout) {
-            try (CloseableThreadContext.Instance userCtc = Logging.userLoggingContext()) {
-                LOG.error("Timeout locating EO product data for {}; please try again and contact the F-TEP support team if the error persists", uri);
-            }
+            Logging.withUserLoggingContext(() -> LOG.error("Timeout locating EO product data for {}; please try again and contact the F-TEP support team if the error persists", uri));
             throw new ServiceIoException("Timeout locating CREODIAS product data for " + uri);
         }
     }
@@ -181,7 +175,12 @@ public class CreodiasHttpDownloader implements Downloader {
         creodiasOrderer.orderProduct(uri, orderUrl);
     }
 
-    private HttpUrl buildSearchUrl(String collection, String productId) {
+    private HttpUrl buildSearchUrl(String collection, URI uri) {
+        // Trim the leading slash from the path and get the search URL
+        String productId = uri.getPath().substring(1);
+        if (uri.getQuery().contains("L2A=true")) {
+            productId = productId.replaceFirst("L1C", "L2A").substring(0, 44);
+        }
         return HttpUrl.parse(properties.getCreodiasSearchUrl()).newBuilder()
                 .addPathSegments("api/collections")
                 .addPathSegment(collection)

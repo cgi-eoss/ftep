@@ -38,19 +38,13 @@
 
                     <div class="row">
                         <div class="col-md-3">
-                            <p>Start: {{item.properties.extraParams.ftepStartTime}}</p>
-                        </div>
-                        <div class="col-md-3">
-                            <p>End: {{item.properties.extraParams.ftepEndTime}}</p>
+                            <p>Acquisition time: {{item.properties.extraParams.ftepStartTime}}</p>
                         </div>
                         <div class="col-md-2">
                             <p>Size: {{item.properties.filesize | bytesToGB}}</p>
                         </div>
                         <div class="col-md-3" ng-if="item.properties.extraParams.ftepCloudCoverage || item.properties.extraParams.ftepCloudCoverage === 0">
-                            <p>Cloud Coverage: {{item.properties.extraParams.ftepCloudCoverage | number:2}}</p>
-                        </div>
-                        <div class="col-md-3" ng-if="item.properties.extraParams.ftepProductType">
-                            <p>Product Type: {{item.properties.extraParams.ftepProductType}}</p>
+                            <p>Cloud coverage: {{item.properties.extraParams.ftepCloudCoverage | number:1}}%</p>
                         </div>
                     </div>
 
@@ -93,7 +87,7 @@
                         </div>
                         <div class="col-sm-3 col-xs-6 no-padding">
                             <md-button class="toolbar-button md-secondary"
-                                ng-if="item.properties.ftepUsable"
+                                ng-if="item.properties.ftepUsable && !item.properties.extraParams.processingRequired"
                                 aria-label="Usable in services"
                                 uib-tooltip="Usable in services"
                                 tooltip-placement="top"
@@ -109,6 +103,15 @@
                                 tooltip-trigger="mouseenter"
                                 tooltip-append-to-body="true">
                                 <i class="material-icons">remove_circle</i>
+                            </md-button>
+                            <md-button class="toolbar-button md-secondary"
+                                ng-if="item.properties.ftepUsable && item.properties.extraParams.processingRequired"
+                                aria-label="Requires processing"
+                                uib-tooltip="Requires processing"
+                                tooltip-placement="top"
+                                tooltip-trigger="mouseenter"
+                                tooltip-append-to-body="true">
+                                <i class="material-icons">warning</i>
                             </md-button>
                         </div>
                         <div class="col-sm-3 col-xs-6 no-padding" ng-if="item.properties._links.download.href">

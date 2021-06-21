@@ -26,7 +26,8 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.apache.logging.log4j:log4j-iostreams")
 
-    runtime(project(":f-tep-zoolib"))
+    runtimeOnly(project(":f-tep-zoolib"))
+    runtimeOnly("org.jolokia:jolokia-core")
 
     testImplementation("com.google.jimfs:jimfs")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

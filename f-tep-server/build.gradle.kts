@@ -20,6 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-undertow")
 
+    runtimeOnly("org.jolokia:jolokia-core")
     runtimeOnly("org.hsqldb:hsqldb")
     runtimeOnly("org.postgresql:postgresql")
 

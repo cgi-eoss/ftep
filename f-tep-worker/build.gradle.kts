@@ -30,6 +30,8 @@ dependencies {
     implementation("org.jooq:jool-java-8")
     implementation("org.apache.commons:commons-lang3")
 
+    runtimeOnly("org.jolokia:jolokia-core")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

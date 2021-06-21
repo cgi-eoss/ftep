@@ -115,14 +115,14 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 .success(function(dockerFile) {
                     self.addFile({
                         filename: 'Dockerfile',
-                        content: btoa(dockerFile),
+                        content: btoa(unescape(encodeURIComponent(dockerFile))),
                         service: service._links.self.href
                     }, '/serviceFiles/', 'Service');
                     $http.get('scripts/templates/workflow.sh')
                         .success(function(workflowFile) {
                             self.addFile({
                                 filename: 'workflow.sh',
-                                content: btoa(workflowFile),
+                                content: btoa(unescape(encodeURIComponent(workflowFile))),
                                 service: service._links.self.href,
                                 executable: true
                             }, '/serviceFiles/', 'Service');
@@ -156,7 +156,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
         function updateFile(file) {
             var deferred = $q.defer();
             var editedFile = angular.copy(file);
-            editedFile.content =  btoa(file.content);
+            editedFile.content = btoa(unescape(encodeURIComponent(file.content)));
             halAPI.from(file._links.self.href)
                 .newRequest()
                 .patch(editedFile)

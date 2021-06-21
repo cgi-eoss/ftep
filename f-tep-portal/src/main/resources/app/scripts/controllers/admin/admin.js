@@ -8,7 +8,7 @@
 'use strict';
 define(['../../ftepmodules'], function (ftepmodules) {
 
-    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'CommonService', 'SubscriptionService', '$mdDialog', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, CommonService, SubscriptionService, $mdDialog, ftepProperties) {
+    ftepmodules.controller('AdminCtrl', ['$scope', 'UserService', 'MessageService', 'WalletService', 'TabService', 'CommonService', 'SubscriptionService', '$mdDialog', '$q', 'ftepProperties', function ($scope, UserService, MessageService, WalletService, TabService, CommonService, SubscriptionService, $mdDialog, $q, ftepProperties) {
 
         $scope.rootUri = ftepProperties.URLv2;
 
@@ -96,6 +96,13 @@ define(['../../ftepmodules'], function (ftepmodules) {
         };
 
         $scope.createSubscription = function($event) {
+            $scope.createSubscriptionDialog($event).then(function() {
+                $scope.refreshSubscriptions();
+            });
+        };
+
+        $scope.createSubscriptionDialog = function($event) {
+            var deferred = $q.defer();
 
             function CreateSubscriptionController($scope, $mdDialog) {
 
@@ -103,12 +110,15 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
                 $scope.saveSubscription = function() {
                     SubscriptionService.createSubscription($scope.selectedSubscription, UserService.params.admin.selectedUser, UserService.params.activeUser).then(function() {
-                        $mdDialog.hide();
-                        // TODO: refresh subscriptions
+                        deferred.resolve();
+                    }, function(error) {
+                        deferred.reject();
                     });
+                    $mdDialog.hide();
                 };
 
                 $scope.closeDialog = function() {
+                    deferred.reject();
                     $mdDialog.hide();
                 };
             }
@@ -121,9 +131,17 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 targetEvent: $event,
                 clickOutsideToClose: true
             });
+            return deferred.promise;
         }
 
         $scope.editSubscription = function($event, subscription) {
+            $scope.editSubscriptionDialog($event, subscription).then(function() {
+                $scope.refreshSubscriptions();
+            });
+        };
+
+        $scope.editSubscriptionDialog = function($event, subscription) {
+            var deferred = $q.defer();
 
             function EditSubscriptionController($scope, $mdDialog) {
 
@@ -131,12 +149,15 @@ define(['../../ftepmodules'], function (ftepmodules) {
 
                 $scope.saveSubscription = function() {
                     SubscriptionService.updateSubscription($scope.selectedSubscription).then(function() {
-                        $mdDialog.hide();
-                        // TODO: refresh subscriptions
+                        deferred.resolve();
+                    }, function(error) {
+                        deferred.reject();
                     });
+                    $mdDialog.hide();
                 };
 
                 $scope.closeDialog = function() {
+                    deferred.reject();
                     $mdDialog.hide();
                 };
             }
@@ -149,6 +170,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 targetEvent: $event,
                 clickOutsideToClose: true
             });
+            return deferred.promise;
         }
 
         $scope.addCoins = function() {

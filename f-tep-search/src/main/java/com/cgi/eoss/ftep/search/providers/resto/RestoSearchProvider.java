@@ -22,9 +22,9 @@ import java.util.Map;
 @Log4j2
 public abstract class RestoSearchProvider implements SearchProvider {
 
-    private final HttpUrl baseUrl;
-    private final OkHttpClient client;
-    private final ObjectMapper objectMapper;
+    protected final HttpUrl baseUrl;
+    protected final OkHttpClient client;
+    protected final ObjectMapper objectMapper;
 
     public RestoSearchProvider(HttpUrl baseUrl, OkHttpClient httpClient, ObjectMapper objectMapper) {
         this.baseUrl = baseUrl;
@@ -103,7 +103,7 @@ public abstract class RestoSearchProvider implements SearchProvider {
 
     protected abstract SearchResults postProcess(SearchResults results);
 
-    private SearchResults.Page getPageInfo(SearchParameters parameters, RestoResult restoResult) {
+    protected SearchResults.Page getPageInfo(SearchParameters parameters, RestoResult restoResult) {
         long queryResultsPerPage = parameters.getResultsPerPage();
         long queryPage = parameters.getPage();
 

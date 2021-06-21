@@ -44,6 +44,14 @@ public class FtepUserDetailsService implements AuthenticationUserDetailsService<
             user.setCountry(tokenDetails.getUserCountry());
         }
 
+        if (!Strings.isNullOrEmpty(tokenDetails.getUserFirstName())) {
+            user.setFirstName(tokenDetails.getUserFirstName());
+        }
+
+        if (!Strings.isNullOrEmpty(tokenDetails.getUserLastName())) {
+            user.setLastName(tokenDetails.getUserLastName());
+        }
+
         userDataService.save(user);
 
         return new SecurityUser(user);

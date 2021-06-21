@@ -172,6 +172,7 @@ public class ServicesApiExtension {
             BuildServiceParams.Builder buildServiceParamsBuilder = BuildServiceParams.newBuilder()
                     .setUserId(ftepSecurityService.getCurrentUser().getName())
                     .setServiceId(String.valueOf(service.getId()))
+                    .setServiceName(service.getName())
                     .setBuildFingerprint(currentServiceFingerprint);
             BuildServiceParams buildServiceParams = buildServiceParamsBuilder.build();
             buildService(service, buildServiceParams);

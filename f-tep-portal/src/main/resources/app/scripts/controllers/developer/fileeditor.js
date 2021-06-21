@@ -76,7 +76,7 @@ define(['../../ftepmodules'], function (ftepmodules) {
                 $scope.addFile = function () {
                     var newFile = {
                         filename: $scope.file.filename,
-                        content: btoa('# ' + $scope.file.filename),
+                        content: btoa(unescape(encodeURIComponent('# ' + $scope.file.filename))),
                         service: ProductService.params.developer.selectedService._links.self.href,
                         executable: $scope.file.executable
                     };

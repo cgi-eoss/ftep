@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -17,16 +18,21 @@ import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.geojson.Feature;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.Link;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -179,16 +185,49 @@ public class CreodiasSearchProvider extends RestoSearchProvider {
 
     @Override
     protected SearchResults postProcess(SearchResults results) {
-        results.getFeatures().forEach(f -> addFtepProperties(f, results.getParameters()));
+        if (!results.getParameters().isNested()) {
+            List<Feature> features = results.getFeatures().stream()
+                    .map(f -> addFtepProperties(f, results.getParameters()))
+                    .collect(Collectors.toList());
+            results.setFeatures(features);
+        }
         return results;
     }
 
     @SuppressWarnings("unchecked")
-    private void addFtepProperties(Feature feature, SearchParameters parameters) {
+    private Feature addFtepProperties(Feature feature, SearchParameters parameters) {
+
         String collection = feature.getProperty("collection");
         String productSource = SUPPORTED_MISSIONS.inverse().get(collection).getMission();
         String productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
         URI ftepUri = externalProductService.getUri(productSource, productIdentifier);
+
+        if (isSentinel2ForL2A(parameters)) {
+            Optional<String> productIdentifierForL2A = getL2AProductIdentifier(productIdentifier);
+
+            if (productIdentifierForL2A.isPresent()) {
+                // Use the L2A URI
+                try {
+                    feature = searchNestedL2A(productIdentifierForL2A.get());
+
+                    // Update values
+                    collection = feature.getProperty("collection");
+                    productSource = SUPPORTED_MISSIONS.inverse().get(collection).getMission();
+                    productIdentifier = ((String) feature.getProperty("title")).replace(".SAFE", "");
+                    ftepUri = externalProductService.getUri(productSource, productIdentifier);
+
+                } catch (Exception e) {
+                    LOG.info("Unable to find a unique L2A product for identifier {}", productIdentifierForL2A.get());
+                    feature.setProperty("processingRequired", true);
+                    ftepUri = UriComponentsBuilder.fromUriString(ftepUri.toString()).queryParam("L2A", true).build().toUri();
+                }
+            } else {
+                // L2A not present, use the L1C URI with the query parameter L2A=true to order it
+                feature.setProperty("processingRequired", true);
+                ftepUri = UriComponentsBuilder.fromUriString(ftepUri.toString()).queryParam("L2A", true).build().toUri();
+            }
+        }
+
         int status = feature.getProperty("status");
         boolean ftepUsable = IntStream.of(31, 32).noneMatch(x -> x == status);
 
@@ -240,5 +279,105 @@ public class CreodiasSearchProvider extends RestoSearchProvider {
                 Link::getRel,
                 l -> ImmutableMap.of("href", l.getHref())
         )));
+        return feature;
+    }
+
+    private String getL2ADirectoryName(String productIdentifier) {
+        String timeStr = productIdentifier.split("_")[2];
+        String year = timeStr.substring(0, 4);
+        String month = timeStr.substring(4, 6);
+        String day = timeStr.substring(6, 8);
+
+        return String.format("/eodata/Sentinel-2/MSI/L2A/%s/%s/%s", year, month, day);
+    }
+
+    private Optional<String> getL2AProductIdentifier(String productIdentifier) {
+        // Beginning of the corresponding L2A product identifier name
+        String substringForL2A = productIdentifier.substring(0, 44).replaceFirst("L1C", "L2A");
+
+        // List files in the corresponding L2A folder in /eodata and check if one starting with substringForL2A exists
+        File dir = new File(getL2ADirectoryName(productIdentifier));
+        if (dir.exists() && dir.isDirectory()) {
+            for (File file : dir.listFiles()) {
+                if (file.getName().startsWith(substringForL2A)) {
+                    return Optional.of(file.getName().replace(".SAFE", ""));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Feature searchNestedL2A(String productIdentifier) throws IOException {
+        // Perform another search for this particular L2A product
+        SearchParameters newL2ASearchParams = new SearchParameters();
+        newL2ASearchParams.setRequestUrl(SearchParameters.DEFAULT_REQUEST_URL);
+        newL2ASearchParams.setParameters(ImmutableListMultimap.<String, String>builder()
+                .put("mission", "sentinel2")
+                .put("productIdentifier", "%" + productIdentifier + "%")
+                .build());
+        newL2ASearchParams.setNested(true);
+
+        SearchResults results = search(newL2ASearchParams);
+        List<Feature> newFeatures = results.getFeatures();
+        if (newFeatures.size() != 1) {
+            LOG.warn("No unique match found for product with identifier {}", productIdentifier);
+        }
+        return newFeatures.get(0);
+    }
+
+    @Override
+    public SearchResults search(SearchParameters parameters) throws IOException {
+        boolean searchL2A = false;
+        if (isSentinel2ForL2A(parameters)) {
+            searchL2A = true;
+            parameters.setValue("s2ProcessingLevel", "1C");
+        }
+
+        String collectionName = getCollection(parameters);
+
+        HttpUrl.Builder httpUrl = baseUrl.newBuilder().addPathSegments("api/collections").addPathSegment(collectionName).addPathSegment("search.json");
+
+        getPagingParameters(parameters).forEach(httpUrl::addQueryParameter);
+        getQueryParameters(parameters).forEach(httpUrl::addQueryParameter);
+
+        Request request = new Request.Builder().url(httpUrl.build()).get().build();
+
+        LOG.debug("Performing HTTP request for Resto search: {}", httpUrl);
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                LOG.error("Received unsuccessful HTTP response for Resto search: {}", response.toString());
+                throw new IOException("Unexpected HTTP response code from Resto: " + response);
+            }
+            LOG.info("Received successful response for Resto search: {}", request.url());
+            RestoResult restoResult = objectMapper.readValue(response.body().string(), RestoResult.class);
+
+            SearchResults.Page page = getPageInfo(parameters, restoResult);
+            // Set the processing level back to L2A if applicable
+            if (searchL2A) {
+                parameters.setValue("s2ProcessingLevel", "2A");
+            }
+            return postProcess(SearchResults.builder()
+                    .parameters(parameters)
+                    .page(page)
+                    .features(restoResult.getFeatures())
+                    .links(getLinks(parameters.getRequestUrl(), page, restoResult))
+                    .build());
+        } catch (Exception e) {
+            LOG.error("Could not perform HTTP request for Resto search at {}", request.url(), e);
+            throw e;
+        }
+    }
+
+    private boolean isSentinel2ForL2A(SearchParameters parameters) {
+        // Ignore for nested L2A calls
+        if (parameters.isNested()) {
+            return false;
+        }
+        if (parameters.getKeys().contains("s2ProcessingLevel")) {
+            Optional<String> level = parameters.getValue("s2ProcessingLevel");
+            return level.isPresent() && level.get().equals("2A");
+        }
+        return false;
     }
 }

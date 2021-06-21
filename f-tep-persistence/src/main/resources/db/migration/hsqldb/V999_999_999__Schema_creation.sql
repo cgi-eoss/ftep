@@ -11,7 +11,9 @@ CREATE TABLE ftep_users (
   organisation       CHARACTER VARYING(255),
   country            CHARACTER VARYING(255),
   creation_time      TIMESTAMP WITHOUT TIME ZONE,
-  last_login         TIMESTAMP WITHOUT TIME ZONE
+  last_login         TIMESTAMP WITHOUT TIME ZONE,
+  first_name         CHARACTER VARYING(255),
+  last_name          CHARACTER VARYING(255)
 );
 CREATE UNIQUE INDEX ftep_users_name_idx
   ON ftep_users (name);
@@ -374,12 +376,12 @@ CREATE TABLE ftep_subscriptions (
   owner                   BIGINT NOT NULL REFERENCES ftep_users (uid),
   package_name            CHARACTER VARYING(255),
   storage_quota           BIGINT,
-  processing_quota        BIGINT,
+  processing_quota        DOUBLE PRECISION,
   comment_text            LONGVARCHAR,
   subscription_start      TIMESTAMP WITHOUT TIME ZONE,
   subscription_end        TIMESTAMP WITHOUT TIME ZONE,
   storage_quota_usage     BIGINT DEFAULT 0,
-  processing_quota_usage  BIGINT DEFAULT 0,
+  processing_quota_usage  DOUBLE PRECISION DEFAULT 0.0,
   creation_time           TIMESTAMP WITHOUT TIME ZONE,
   creator                 BIGINT REFERENCES ftep_users (uid),
   cancellation_time       TIMESTAMP WITHOUT TIME ZONE,

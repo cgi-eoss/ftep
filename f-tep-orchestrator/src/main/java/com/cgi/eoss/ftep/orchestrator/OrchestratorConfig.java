@@ -3,13 +3,13 @@ package com.cgi.eoss.ftep.orchestrator;
 import com.cgi.eoss.ftep.catalogue.CatalogueConfig;
 import com.cgi.eoss.ftep.costing.CostingConfig;
 import com.cgi.eoss.ftep.orchestrator.service.WorkerFactory;
-import com.cgi.eoss.ftep.queues.QueuesConfig;
 import com.cgi.eoss.ftep.persistence.PersistenceConfig;
 import com.cgi.eoss.ftep.persistence.service.WorkerLocatorExpressionDataService;
+import com.cgi.eoss.ftep.queues.QueuesConfig;
 import com.cgi.eoss.ftep.rpc.InProcessRpcConfig;
 import com.cgi.eoss.ftep.search.SearchConfig;
 import com.cgi.eoss.ftep.security.SecurityConfig;
-
+import com.google.common.util.concurrent.Striped;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.util.concurrent.locks.Lock;
 
 /**
  * <p>Spring configuration for the F-TEP Orchestrator component.</p>
@@ -50,10 +52,21 @@ public class OrchestratorConfig {
 
     @Bean
     public WorkerFactory workerFactory(DiscoveryClient discoveryClient,
-            @Value("${ftep.orchestrator.worker.eurekaServiceId:f-tep worker}") String workerServiceId,
-            ExpressionParser workerLocatorExpressionParser,
-            WorkerLocatorExpressionDataService workerLocatorExpressionDataService,
-            @Value("${ftep.orchestrator.worker.defaultWorkerExpression:\"LOCAL\"}") String defaultWorkerExpression) {
+                                       @Value("${ftep.orchestrator.worker.eurekaServiceId:f-tep worker}") String workerServiceId,
+                                       ExpressionParser workerLocatorExpressionParser,
+                                       WorkerLocatorExpressionDataService workerLocatorExpressionDataService,
+                                       @Value("${ftep.orchestrator.worker.defaultWorkerExpression:\"LOCAL\"}") String defaultWorkerExpression) {
         return new WorkerFactory(discoveryClient, workerServiceId, workerLocatorExpressionParser, workerLocatorExpressionDataService, defaultWorkerExpression);
     }
+
+    @Bean
+    public Striped<Lock> imageBuildUpdateLocks() {
+        return Striped.lazyWeakLock(1);
+    }
+
+    @Bean
+    public Striped<Lock> jobUpdateLocks() {
+        return Striped.lazyWeakLock(1);
+    }
+
 }

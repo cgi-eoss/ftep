@@ -26,6 +26,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
@@ -144,6 +145,7 @@ public class Job implements FtepEntityWithOwner<Job>, FtepFileReferencer {
      * <p>The subjobs produced from a job related to a parallel processor</p>
      */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "parentJob")
+    @OrderBy("id asc")
     @JsonIgnore
     private Set<Job> subJobs = new HashSet<>();
 

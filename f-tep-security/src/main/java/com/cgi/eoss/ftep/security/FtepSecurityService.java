@@ -7,8 +7,11 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.persistence.service.PublishingRequestDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.AclPermissionEvaluator;
@@ -36,6 +39,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,6 +66,10 @@ public class FtepSecurityService {
     private final AclPermissionEvaluator aclPermissionEvaluator;
     private final UserDataService userDataService;
     private final PublishingRequestDataService publishingRequestDataService;
+
+    private final Cache<FtepAccessKey, FtepAccess> ftepAccessCache = CacheBuilder.newBuilder()
+            .concurrencyLevel(1)
+            .expireAfterAccess(10, TimeUnit.SECONDS).build();
 
     @Autowired
     public FtepSecurityService(MutableAclService aclService, AclPermissionEvaluator aclPermissionEvaluator, UserDataService userDataService, PublishingRequestDataService publishingRequestDataService) {
@@ -159,15 +168,20 @@ public class FtepSecurityService {
      * @return Whether the object is published or not, as well as the {@link FtepPermission} corresponding to the
      * current access level.
      */
+    @Transactional(readOnly = true)
     public FtepAccess getCurrentAccess(Class<?> objectClass, Long identifier) {
         Authentication authentication = getCurrentAuthentication();
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(objectClass, identifier);
 
-        return FtepAccess.builder()
-                .published(isPublic(objectIdentity))
-                .publishRequested(isPublishRequested(objectClass, identifier))
-                .currentLevel(getCurrentPermission(authentication, objectIdentity))
-                .build();
+        try {
+            return ftepAccessCache.get(FtepAccessKey.of(authentication.getName(), objectIdentity), () -> FtepAccess.builder()
+                    .published(isPublic(objectIdentity))
+                    .publishRequested(isPublishRequested(objectClass, identifier))
+                    .currentLevel(getCurrentPermission(authentication, objectIdentity))
+                    .build());
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Failed to determine current access level", e);
+        }
     }
 
     private FtepPermission getCurrentPermission(Authentication authentication, ObjectIdentity objectIdentity) {
@@ -280,6 +294,7 @@ public class FtepSecurityService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
+    @Transactional(readOnly = true)
     public Set<Long> getVisibleObjectIds(Class<?> objectClass, List<Long> allIds) {
         if (allIds.isEmpty()) {
             return ImmutableSet.of();
@@ -387,4 +402,11 @@ public class FtepSecurityService {
         return existingPermissions.containsAll(requiredPermissions);
 
     }
+
+    @Value(staticConstructor = "of")
+    private static class FtepAccessKey {
+        String sid;
+        ObjectIdentity objectIdentity;
+    }
+
 }

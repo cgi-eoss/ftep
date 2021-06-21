@@ -42,6 +42,17 @@ define(['../../../ftepmodules'], function (ftepmodules) {
             CommonService.estimateDownloadCost($event, file);
         };
 
+        $scope.updateJobTab = function(tab) {
+            JobService.updateJobTab('community', tab);
+        };
+
+        $scope.fetchJobOutputs = function() {
+            JobService.fetchJobOutputs('community');
+        };
+
+        $scope.fetchJobLogs = function() {
+            JobService.fetchJobLogs('community');
+        };
 
     }]);
 });

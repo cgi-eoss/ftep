@@ -20,4 +20,6 @@ public interface ShortUser extends Identifiable<Long> {
     String getCountry();
     LocalDateTime getCreationTime();
     LocalDateTime getLastLogin();
+    String getFirstName();
+    String getLastName();
 }

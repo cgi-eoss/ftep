@@ -111,53 +111,53 @@
       <md-content>
         <md-tabs md-dynamic-height md-border-bottom>
 
-          <md-tab label="Output">
-            <md-content id="job-outputs" class="md-padding job-details-tab">
-                <label>Files</label>
-                <table ng-show="jobParams.selectedJob.outputFiles">
-                    <tr ng-repeat="outputFile in jobParams.selectedJob.outputFiles">
-                        <td ng-bind="outputFile.uri" />
-                        <td class="download">
-                            <a ng-href="{{outputFile._links.download.href}}">
-                                <i class="material-icons"
-                                   aria-label="Download"
-                                   uib-tooltip="Download"
-                                   tooltip-placement="top"
-                                   tooltip-trigger="mouseenter"
-                                   tooltip-append-to-body="true">
-                                    file_download
-                                </i>
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-                <div ng-show="!jobParams.selectedJob.outputFiles" class="note">
-                    No output files to display.
-                </div>
-            </md-content>
-          </md-tab>
-
-          <md-tab label="Input">
-            <md-content id="job-inputs" class="md-padding job-details-tab">
-                <table>
-                    <tr ng-repeat="(key, value) in jobParams.selectedJob.config.inputs">
-                        <td ng-bind="key" />
-                        <td>
-                            <div ng-repeat="link in value">
-                                <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
-                                <div ng-if="link.includes('ftp')">
-                                    <div ng-repeat="file in splitInputFiles(link)">
-                                        <a href="file" ng-bind="file" />
+            <md-tab label="INPUTS" md-on-select="updateJobTab('INPUTS')">
+                <md-content id="job-inputs" class="md-padding job-details-tab">
+                    <table>
+                        <tr ng-repeat="(key, value) in jobParams.selectedJob.config.inputs">
+                            <td ng-bind="key" />
+                            <td>
+                                <div ng-repeat="link in value">
+                                    <div ng-if="!link.includes('ftp')" class="col-sm-12" ng-bind="link" />
+                                    <div ng-if="link.includes('ftp')">
+                                        <div ng-repeat="file in splitInputFiles(link)">
+                                            <a href="file" ng-bind="file" />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </md-content>
-          </md-tab>
+                            </td>
+                        </tr>
+                    </table>
+                </md-content>
+            </md-tab>
 
-          <md-tab label="Logs">
+            <md-tab label="OUTPUTS" md-on-select="updateJobTab('OUTPUTS'); fetchJobOutputs()">
+                <md-content id="job-outputs" class="md-padding job-details-tab">
+                    <label>Files</label>
+                    <table ng-show="jobParams.selectedJob.outputFiles">
+                        <tr ng-repeat="outputFile in jobParams.selectedJob.outputFiles">
+                            <td ng-bind="outputFile.uri" />
+                            <td class="download">
+                                <a ng-href="{{outputFile._links.download.href}}">
+                                    <i class="material-icons"
+                                       aria-label="Download"
+                                       uib-tooltip="Download"
+                                       tooltip-placement="top"
+                                       tooltip-trigger="mouseenter"
+                                       tooltip-append-to-body="true">
+                                        file_download
+                                    </i>
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <div ng-show="!jobParams.selectedJob.outputFiles" class="note">
+                        No output files to display.
+                    </div>
+                </md-content>
+            </md-tab>
+
+          <md-tab label="LOGS" md-on-select="updateJobTab('LOGS'); fetchJobLogs()">
             <md-content id="job-log" class="md-padding job-details-tab ftep-log">
                 <table>
                     <tr>

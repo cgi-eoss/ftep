@@ -65,7 +65,7 @@ public class Subscription implements FtepEntityWithOwner<Subscription> {
      * Processing quota of the subscription package.
      */
     @Column(name = "processing_quota")
-    private Long processingQuota;
+    private Double processingQuota;
 
     /**
      * <p>An admin's comment.</p>
@@ -95,7 +95,7 @@ public class Subscription implements FtepEntityWithOwner<Subscription> {
      * Processing quota usage of the subscription package.
      */
     @Column(name = "processing_quota_usage")
-    private Long processingQuotaUsage = 0L;
+    private Double processingQuotaUsage = 0.0;
 
     /**
      * <p>The date and time the subscription was created.</p>
@@ -143,7 +143,7 @@ public class Subscription implements FtepEntityWithOwner<Subscription> {
     }
 
     public boolean exceedsProcessingQuota() {
-        return processingQuotaUsage > Optional.ofNullable(processingQuota).orElse(Long.MAX_VALUE);
+        return processingQuotaUsage > Optional.ofNullable(processingQuota).orElse(Double.MAX_VALUE);
     }
 
     public boolean exceedsStorageQuota() {

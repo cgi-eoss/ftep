@@ -56,9 +56,13 @@ public class ApiSecurityConfig {
         private final String emailRequestHeader;
         private final String organisationRequestHeader;
         private final String countryRequestHeader;
+        private final String firstNameRequestHeader;
+        private final String lastNameRequestHeader;
 
         @Autowired
         public ApiSecurityConfigurer(
+                @Value("${ftep.api.security.first-name-request-header:REMOTE_FIRST_NAME}") String firstNameRequestHeader,
+                @Value("${ftep.api.security.last-name-request-header:REMOTE_LAST_NAME}") String lastNameRequestHeader,
                 @Value("${ftep.api.security.username-request-header:REMOTE_USER}") String usernameRequestHeader,
                 @Value("${ftep.api.security.email-request-header:REMOTE_EMAIL}") String emailRequestHeader,
                 @Value("${ftep.api.security.organisation-request-header:REMOTE_ORGANISATION}") String organisationRequestHeader,
@@ -68,6 +72,8 @@ public class ApiSecurityConfig {
             this.emailRequestHeader = emailRequestHeader;
             this.organisationRequestHeader = organisationRequestHeader;
             this.countryRequestHeader = countryRequestHeader;
+            this.firstNameRequestHeader = firstNameRequestHeader;
+            this.lastNameRequestHeader = lastNameRequestHeader;
         }
 
         @Override
@@ -79,7 +85,9 @@ public class ApiSecurityConfig {
             filter.setAuthenticationDetailsSource(new FtepWebAuthenticationDetailsSource(
                     emailRequestHeader,
                     organisationRequestHeader,
-                    countryRequestHeader));
+                    countryRequestHeader,
+                    firstNameRequestHeader,
+                    lastNameRequestHeader));
 
             // Handles any authentication exceptions, and translates to a simple 403
             // There is no login redirection as we are expecting pre-auth

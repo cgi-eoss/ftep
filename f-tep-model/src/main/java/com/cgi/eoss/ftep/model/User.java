@@ -110,6 +110,18 @@ public class User implements FtepEntity<User>, Searchable {
     private LocalDateTime lastLogin;
 
     /**
+     * <p>The first name of the user.</p>
+     */
+    @Column(name = "first_name")
+    private String firstName;
+
+    /**
+     * <p>The last name of the user.</p>
+     */
+    @Column(name = "last_name")
+    private String lastName;
+
+    /**
      * Create a new User instance with the minimum required parameters
      *
      * @param name Account name of the user, as returned from the SSO SP.

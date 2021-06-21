@@ -82,6 +82,7 @@
                 <i class="material-icons" ng-if="job.status === 'ERROR'">error</i>
                 <i class="material-icons" ng-if="job.status === 'RUNNING'">hourglass_empty</i>
                 <i class="material-icons" ng-if="job.status === 'CREATED'">schedule</i>
+                <i class="material-icons" ng-if="job.status === 'CANCELLED'">cancel</i>
             </div>
 
             <div class="md-list-item-text" layout="row" ng-click="selectJob(job)">

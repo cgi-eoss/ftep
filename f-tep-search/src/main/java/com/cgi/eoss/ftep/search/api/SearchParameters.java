@@ -27,6 +27,8 @@ public class SearchParameters {
     private int page = 0;
     private ListMultimap<String, String> parameters = MultimapBuilder.hashKeys().arrayListValues().build();
 
+    private boolean nested = false;
+
     @JsonAnySetter
     public void parameter(String key, String... value) {
         parameters.putAll(key, Arrays.asList(value));
@@ -46,6 +48,10 @@ public class SearchParameters {
 
     public Set<String> getKeys() {
         return parameters.keySet();
+    }
+
+    public void setValue(String parameterName, String... value) {
+        parameters.replaceValues(parameterName, Arrays.asList(value));
     }
 
 }

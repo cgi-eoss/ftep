@@ -17,4 +17,30 @@ public class Logging {
         }
     }
 
+    public static CloseableThreadContext.Instance imageBuildLoggingContext(String serviceName, String buildFingerprint) {
+        return CloseableThreadContext
+                .put("serviceName", serviceName)
+                .put("buildFingerprint", buildFingerprint);
+    }
+
+    public static CloseableThreadContext.Instance jobLoggingContext(String extId, String jobId, String userId, String serviceId) {
+        return CloseableThreadContext
+                .put("zooId", extId)
+                .put("jobId", jobId)
+                .put("userId", userId)
+                .put("serviceId", serviceId);
+    }
+
+    public static void withJobLoggingContext(String extId, String jobId, String userId, String serviceId, Runnable runnable) {
+        try (CloseableThreadContext.Instance ctc = jobLoggingContext(extId, jobId, userId, serviceId)) {
+            runnable.run();
+        }
+    }
+
+    public static void withImageBuildLoggingContext(String serviceName, String buildFingerprint, Runnable runnable) {
+        try (CloseableThreadContext.Instance ctc = imageBuildLoggingContext(serviceName, buildFingerprint)) {
+            runnable.run();
+        }
+    }
+
 }

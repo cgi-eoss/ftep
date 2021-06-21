@@ -22,7 +22,7 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         JobService.refreshJobs('community');
 
         /* Update jobs when polling */
-        $scope.$on('poll.jobs', function (event, data) {
+        $scope.$on('poll.jobs', function(event, data) {
             $scope.jobParams.jobs = data;
         });
 
@@ -41,9 +41,14 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Select a Job */
-        $scope.selectJob = function (item) {
+        $scope.selectJob = function(item) {
             $scope.jobParams.selectedJob = item;
             JobService.refreshSelectedJob('community');
+            if (JobService.params.community.jobTab === 'OUTPUTS') {
+                $scope.fetchJobOutputs();
+            } else if (JobService.params.community.jobTab === 'LOGS') {
+                $scope.fetchJobLogs();
+            }
         };
 
         $scope.setParentJobFilter = function(job) {
@@ -52,8 +57,16 @@ define(['../../../ftepmodules'], function (ftepmodules) {
         };
 
         /* Filters */
-        $scope.toggleFilters = function () {
+        $scope.toggleFilters = function() {
             $scope.jobParams.displayFilters = !$scope.jobParams.displayFilters;
+        };
+
+        $scope.fetchJobOutputs = function() {
+            JobService.fetchJobOutputs('community');
+        };
+
+        $scope.fetchJobLogs = function() {
+            JobService.fetchJobLogs('community');
         };
 
     }]);

@@ -107,7 +107,7 @@
                     </md-content>
                     <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'CANCELLED'" layout="row"
                                 layout-align="start center" flex style="{{getColorForStatus('CANCELLED')}}">
-                        <i class="material-icons">error</i>
+                        <i class="material-icons">cancel</i>
                         <span>Build cancelled</span>
                     </md-content>
                     <md-content ng-if="serviceParams.selectedService.buildStatus.status == 'REQUESTED'" layout="row"
@@ -120,7 +120,7 @@
                         <span>Build running</span>
                     </md-content>
                     <md-content
-                        ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED'"
+                        ng-if="serviceParams.selectedService.buildStatus.needsBuild && serviceParams.selectedService.buildStatus.status != 'FAILED' && serviceParams.selectedService.buildStatus.status != 'CANCELLED'"
                         layout="row" layout-align="start center" flex style="{{getColorForStatus('Warning')}}">
                         <i class="material-icons">warning</i>
                         <span>Build required</span>

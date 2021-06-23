@@ -18,6 +18,8 @@ final class ProvisioningConfig {
     private String serverNamePrefix = "ftep_node_";
     private boolean provisionFloatingIp;
     private String insecureRegistries;
+    @Builder.Default
+    private boolean useS3fsEodata = true;
     private String eodataHost;
     private String eodataDirectory;
     private String eodataMountPoint;

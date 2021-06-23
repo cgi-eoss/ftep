@@ -312,7 +312,13 @@ public class IptNodeFactory implements NodeFactory {
             ssh.exec("sudo mkdir -p " + dataBaseDirStr);
             ssh.exec("sudo mount -t nfs " + provisioningConfig.getNfsHost() + ":" + baseDir + " " + baseDir);
             ssh.exec("sudo mount -t nfs " + provisioningConfig.getNfsHost() + ":" + dataBaseDirStr + " " + dataBaseDirStr);
-            ssh.exec("sudo mount -t nfs -o ro " + provisioningConfig.getEodataHost() + ":" + provisioningConfig.getEodataDirectory() + " " + provisioningConfig.getEodataMountPoint());
+            // mount /eodata share with either NFS or s3fs-fuse
+            if (provisioningConfig.isUseS3fsEodata()) {
+                // May be enabled by default in newer images, but this will safely enable+mount anyway
+                ssh.exec("sudo systemctl enable --now eodata.mount");
+            } else {
+                ssh.exec("sudo mount -t nfs -o ro " + provisioningConfig.getEodataHost() + ":" + provisioningConfig.getEodataDirectory() + " " + provisioningConfig.getEodataMountPoint());
+            }
             String additionalNfsMountsStr = provisioningConfig.getAdditionalNfsMounts();
             if (additionalNfsMountsStr != null) {
                 String[] additionalNfsMounts = additionalNfsMountsStr.split(",");

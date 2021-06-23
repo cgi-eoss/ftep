@@ -4,7 +4,7 @@
       "type": "openstack",
       "ssh_username": "eouser",
       "image_name": "ftep-worker-base",
-      "source_image_name": "Ubuntu 18.04 LTS",
+      "source_image_name": "Ubuntu 20.04 LTS",
       "flavor": "eo1.xsmall",
       "networks": ["b2b77603-6db2-4d9f-ac57-a734f3b030f3"],
       "floating_ip_network": "be3cb8d6-5b30-42e7-8fc8-4b5371cd6fe4",

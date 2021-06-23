@@ -79,6 +79,9 @@ public class IptCloudConfiguration {
     @Value("${ftep.clouds.ipt.node.insecureRegistries:#{null}}")
     private String insecureRegistries;
 
+    @Value("${ftep.clouds.ipt.node.useS3fsEodata:true}")
+    private boolean useS3fsEodata;
+
     @Value("${ftep.clouds.ipt.node.eodataHost}")
     private String eodataHost;
 
@@ -145,6 +148,7 @@ public class IptCloudConfiguration {
                 .additionalNfsMounts(additionalNfsMounts)
                 .provisionFloatingIp(provisionFloatingIp)
                 .insecureRegistries(insecureRegistries)
+                .useS3fsEodata(useS3fsEodata)
                 .eodataHost(eodataHost)
                 .eodataDirectory(eodataDirectory)
                 .eodataMountPoint(eodataMountPoint)

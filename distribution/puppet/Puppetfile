@@ -1,4 +1,4 @@
-forge 'http://forge.puppetlabs.com'
+forge 'http://forge.puppet.com'
 
 mod 'datacentred-telegraf', '1.5.0'
 mod 'derdanne-nfs', '2.0.5'

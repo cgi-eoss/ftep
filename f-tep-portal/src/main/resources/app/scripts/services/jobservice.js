@@ -380,7 +380,7 @@ define(['../ftepmodules', 'traversonHal'], function (ftepmodules, TraversonJsonH
                 return;
             }
             getJob(_this.params[page].selectedJob).then(function (job) {
-                if (job.outputs && job.outputs.result) {
+                if (job.outputs) {
                     getOutputFiles(job).then(function(result) {
                         job.outputFiles = result._embedded.ftepFiles;
                         _this.params[page].selectedJob = job;

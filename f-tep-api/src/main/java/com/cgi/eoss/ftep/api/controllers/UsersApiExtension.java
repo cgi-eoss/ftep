@@ -4,12 +4,15 @@ import com.cgi.eoss.ftep.model.Role;
 import com.cgi.eoss.ftep.model.Subscription;
 import com.cgi.eoss.ftep.model.User;
 import com.cgi.eoss.ftep.model.Wallet;
+import com.cgi.eoss.ftep.persistence.service.GroupDataService;
 import com.cgi.eoss.ftep.persistence.service.SubscriptionDataService;
 import com.cgi.eoss.ftep.persistence.service.UserDataService;
 import com.cgi.eoss.ftep.security.FtepSecurityService;
+import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.Resource;
@@ -27,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +46,11 @@ public class UsersApiExtension {
 
     private final FtepSecurityService ftepSecurityService;
     private final UserDataService userDataService;
+    private final GroupDataService groupDataService;
     private final SubscriptionDataService subscriptionDataService;
+
+    @Value("${ftep.api.trial-group-name:}")
+    private String trialGroupName;
 
     @GetMapping("/current")
     public ResponseEntity currentUser() {
@@ -74,6 +82,15 @@ public class UsersApiExtension {
             Subscription subscription = new Subscription(currentUser, currentTime);
             subscriptionDataService.save(subscription);
 
+            if (!Strings.isNullOrEmpty(trialGroupName)) {
+                Optional.ofNullable(groupDataService.getByName(trialGroupName)).ifPresent(group -> {
+                    Set<User> members = group.getMembers();
+                    members.add(currentUser);
+                    group.setMembers(members);
+                    groupDataService.save(group);
+                    currentUser.addGroup(group);
+                });
+            }
             currentUser.getWallet().setBalance(1000);
             userDataService.save(currentUser);
             LOG.info(String.format("User %s (%s) has started a free trial", currentUser.getName(), currentUser.getEmail()));

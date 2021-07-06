@@ -96,7 +96,18 @@ public class CreodiasHttpDownloader implements Downloader {
     public Path download(Path targetDir, URI uri) throws IOException {
         LOG.info("Downloading: {}", uri);
 
-        HttpUrl downloadUrl = getDownloadUrl(uri);
+        // Ensure an L2A product is ordered if necessary
+        HttpUrl downloadUrl;
+        if (uri.getQuery().contains("L2A=true")) {
+            try {
+                downloadUrl = getDownloadUrl(uri);
+            } catch (Exception e) {
+                orderProduct(uri);
+                downloadUrl = getDownloadUrl(uri);
+            }
+        } else {
+            downloadUrl = getDownloadUrl(uri);
+        }
 
         LOG.debug("Resolved CREODIAS download URL with auth token: {}", downloadUrl);
 

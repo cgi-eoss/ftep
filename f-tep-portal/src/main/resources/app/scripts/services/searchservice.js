@@ -45,11 +45,23 @@ define(['../ftepmodules', 'traversonHal', 'moment'], function (ftepmodules, Trav
 
         /* Get search name to display in the bottombar tab */
         this.getSearchName = function() {
-            if(this.params.explorer.savedSearch.activeSearch.mission) {
-                return ': ' + this.params.explorer.savedSearch.activeSearch.mission;
-            } else {
-                return '';
+            var searchName = '';
+            if (this.params.explorer.savedSearch.activeSearch.mission) {
+                searchName += ': ' + this.params.explorer.savedSearch.activeSearch.mission;
+                if (this.params.explorer.savedSearch.activeSearch.mission == 'sentinel1' && this.params.explorer.savedSearch.activeSearch.s1ProcessingLevel) {
+                    searchName += ' L' + this.params.explorer.savedSearch.activeSearch.s1ProcessingLevel;
+                }
+                else if (this.params.explorer.savedSearch.activeSearch.mission == 'sentinel2' && this.params.explorer.savedSearch.activeSearch.s2ProcessingLevel) {
+                    searchName += ' L' + this.params.explorer.savedSearch.activeSearch.s2ProcessingLevel;
+                }
+                else if (this.params.explorer.savedSearch.activeSearch.mission == 'sentinel3' && this.params.explorer.savedSearch.activeSearch.s3ProcessingLevel) {
+                    searchName += ' L' + this.params.explorer.savedSearch.activeSearch.s3ProcessingLevel;
+                }
+                else if (this.params.explorer.savedSearch.activeSearch.mission == 'landsat' && this.params.explorer.savedSearch.activeSearch.landsatProcessingLevel) {
+                    searchName += ' L' + this.params.explorer.savedSearch.activeSearch.landsatProcessingLevel;
+                }
             }
+            return searchName;
         };
 
         /* Get results by page */

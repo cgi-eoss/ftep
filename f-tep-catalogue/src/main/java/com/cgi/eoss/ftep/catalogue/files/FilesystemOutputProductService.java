@@ -4,6 +4,7 @@ import com.cgi.eoss.ftep.catalogue.CatalogueUri;
 import com.cgi.eoss.ftep.catalogue.geoserver.GeoserverService;
 import com.cgi.eoss.ftep.catalogue.resto.RestoService;
 import com.cgi.eoss.ftep.catalogue.util.GeoUtil;
+import com.cgi.eoss.ftep.logging.Logging;
 import com.cgi.eoss.ftep.model.FtepFile;
 import com.cgi.eoss.ftep.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +48,7 @@ public class FilesystemOutputProductService implements OutputProductService {
 
     @Override
     public FtepFile ingest(User owner, String jobId, String crs, String geometry, Map<String, Object> properties, Path src) throws IOException {
-        String filename = src.getFileName().toString();
+        String filename = getFileName(src);
         Path dest = outputProductBasedir.resolve(jobId).resolve(filename);
 
         if (!src.equals(dest)) {
@@ -146,6 +147,15 @@ public class FilesystemOutputProductService implements OutputProductService {
         // Layer name = filename without extension
         String layerName = MoreFiles.getNameWithoutExtension(relativePath.getFileName());
         geoserver.delete(workspace, layerName);
+    }
+
+    private String getFileName(Path src) {
+        String filename = src.getFileName().toString();
+        if (filename.contains(" ")) {
+            Logging.withUserLoggingContext(() -> LOG.info("Output file name \"{}\" contains whitespace characters, replacing them with underscores for ingestion", filename));
+            return filename.replace(" ", "_");
+        }
+        return filename;
     }
 
 }
